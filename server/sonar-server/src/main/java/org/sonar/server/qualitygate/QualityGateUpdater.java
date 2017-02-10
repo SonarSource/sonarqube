@@ -54,7 +54,7 @@ public class QualityGateUpdater {
       checkQualityGateDoesNotAlreadyExist(qGateId, name, errors);
     }
     if (!errors.isEmpty()) {
-      throw new BadRequestException(errors);
+      throw BadRequestException.create(errors);
     }
   }
 

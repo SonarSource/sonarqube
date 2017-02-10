@@ -21,8 +21,9 @@ package org.sonar.server.exceptions;
 
 import com.google.common.base.MoreObjects;
 import java.util.List;
-import org.sonar.api.utils.ValidationMessages;
+import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
@@ -32,40 +33,27 @@ public class BadRequestException extends ServerException {
 
   private final transient Errors errors;
 
-  public BadRequestException(String format, Object... arguments) {
-    super(HTTP_BAD_REQUEST);
-    this.errors = new Errors().add(Message.of(format, arguments));
+  public BadRequestException(String message) {
+    super(HTTP_BAD_REQUEST, message);
+    this.errors = new Errors().add(Message.of(message));
   }
 
-  public BadRequestException(List<Message> messages) {
-    super(HTTP_BAD_REQUEST);
-    this.errors = new Errors().add(messages);
-  }
-
-  public BadRequestException(Errors e) {
-    super(HTTP_BAD_REQUEST);
+  private BadRequestException(Errors e) {
+    super(HTTP_BAD_REQUEST, e.messages().get(0).getMessage());
     this.errors = e;
   }
 
-  public BadRequestException(ValidationMessages validationMessages) {
-    super(HTTP_BAD_REQUEST);
-    this.errors = new Errors();
-    for (String s : validationMessages.getErrors()) {
-      errors.add(Message.of(s));
-    }
+  public static BadRequestException create(List<String> errorMessages) {
+    return create(new Errors().add(errorMessages.stream().map(Message::of).collect(Collectors.toList())));
+  }
+
+  public static BadRequestException create(Errors e) {
+    checkArgument(!e.messages().isEmpty(), "At least one error message is required");
+    return new BadRequestException(e);
   }
 
   public Errors errors() {
     return errors;
-  }
-
-  public Message firstError() {
-    return errors.messages().get(0);
-  }
-
-  @Override
-  public String getMessage() {
-    return firstError().getMessage();
   }
 
   @Override
@@ -74,4 +62,5 @@ public class BadRequestException extends ServerException {
       .add("errors", errors)
       .toString();
   }
+
 }

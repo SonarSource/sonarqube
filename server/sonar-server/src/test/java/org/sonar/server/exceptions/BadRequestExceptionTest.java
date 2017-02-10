@@ -19,11 +19,18 @@
  */
 package org.sonar.server.exceptions;
 
+import java.util.Collections;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BadRequestExceptionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void text_error() {
@@ -31,4 +38,49 @@ public class BadRequestExceptionTest {
     assertThat(exception.getMessage()).isEqualTo("error");
   }
 
+  @Test
+  public void create_exception_from_list() throws Exception {
+    BadRequestException underTest = BadRequestException.create(asList("error1", "error2"));
+
+    assertThat(underTest.errors().messages().stream().map(Message::getMessage)).containsOnly("error1", "error2");
+  }
+
+  @Test
+  public void create_exception_from_errors() throws Exception {
+    Errors errors = new Errors().add(Message.of("error1"), Message.of("error2"));
+    BadRequestException underTest = BadRequestException.create(errors);
+
+    assertThat(underTest.errors().messages().stream().map(Message::getMessage)).containsOnly("error1", "error2");
+  }
+
+  @Test
+  public void getMessage_return_first_error() throws Exception {
+    BadRequestException underTest = BadRequestException.create(asList("error1", "error2"));
+
+    assertThat(underTest.getMessage()).isEqualTo("error1");
+  }
+
+  @Test
+  public void fail_when_creating_exception_with_empty_list() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("At least one error message is required");
+
+    BadRequestException.create(Collections.emptyList());
+  }
+
+  @Test
+  public void fail_when_creating_exception_with_one_empty_element() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Message cannot be empty");
+
+    BadRequestException.create(asList("error", ""));
+  }
+
+  @Test
+  public void fail_when_creating_exception_with_one_null_element() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Message cannot be empty");
+
+    BadRequestException.create(asList("error", null));
+  }
 }

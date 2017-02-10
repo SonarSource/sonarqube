@@ -35,10 +35,10 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.Verifications;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Create, delete, rename and set as default profile.
@@ -140,7 +140,7 @@ public class QProfileFactory {
   }
 
   void setDefault(DbSession dbSession, String profileKey) {
-    Verifications.check(StringUtils.isNotBlank(profileKey), "Profile key must be set");
+    checkRequest(StringUtils.isNotBlank(profileKey), "Profile key must be set");
     QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
     if (profile == null) {
       throw new NotFoundException("Quality profile not found: " + profileKey);
@@ -198,8 +198,8 @@ public class QProfileFactory {
   // ------------- RENAME
 
   public boolean rename(String key, String newName) {
-    Verifications.check(StringUtils.isNotBlank(newName), "Name must be set");
-    Verifications.check(newName.length() < 100, String.format("Name is too long (>%d characters)", 100));
+    checkRequest(StringUtils.isNotBlank(newName), "Name must be set");
+    checkRequest(newName.length() < 100, String.format("Name is too long (>%d characters)", 100));
     DbSession dbSession = db.openSession(false);
     try {
       QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, key);

@@ -25,6 +25,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.measures.Metric;
 import org.sonar.server.exceptions.BadRequestException;
 
+import static java.lang.String.format;
+
 public class MetricLevelTypeValidation implements TypeValidation {
   @Override
   public String key() {
@@ -36,7 +38,7 @@ public class MetricLevelTypeValidation implements TypeValidation {
     try {
       Metric.Level.valueOf(value);
     } catch (IllegalArgumentException e) {
-      throw new BadRequestException("Value '%s' must be one of \"OK\", \"WARN\", \"ERROR\".", value);
+      throw new BadRequestException(format("Value '%s' must be one of \"OK\", \"WARN\", \"ERROR\".", value));
     }
   }
 }

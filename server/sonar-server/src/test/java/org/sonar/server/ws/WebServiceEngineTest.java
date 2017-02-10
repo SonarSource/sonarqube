@@ -39,6 +39,7 @@ import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -291,7 +292,7 @@ public class WebServiceEngineTest {
     DumbResponse response = new DumbResponse();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Error!");
+    expectedException.expectMessage("error writing json");
     underTest.execute(request, response);
   }
 
@@ -355,14 +356,15 @@ public class WebServiceEngineTest {
           for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
             errors.add(Message.of("Bad request reason #" + count));
           }
-          throw new BadRequestException(errors);
+          throw BadRequestException.create(errors);
         });
       createNewDefaultAction(newController, "fail_to_write_errors")
         .setHandler((request, response) -> {
           Errors errors = mock(Errors.class);
+          when(errors.messages()).thenReturn(singletonList(Message.of("invalid argument")));
           // Try to simulate an error when generating JSON errors
-          doThrow(new IllegalArgumentException("Error!")).when(errors).writeJson(any(JsonWriter.class));
-          throw new BadRequestException(errors);
+          doThrow(new IllegalArgumentException("error writing json")).when(errors).writeJson(any(JsonWriter.class));
+          throw BadRequestException.create(errors);
         });
       createNewDefaultAction(newController, "alive")
         .setHandler((request, response) -> response.noContent());

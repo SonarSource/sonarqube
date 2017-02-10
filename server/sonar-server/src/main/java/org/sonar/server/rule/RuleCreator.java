@@ -119,7 +119,7 @@ public class RuleCreator {
     }
 
     if (!errors.isEmpty()) {
-      throw new BadRequestException(errors);
+      throw BadRequestException.create(errors);
     }
   }
 

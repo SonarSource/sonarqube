@@ -172,7 +172,7 @@ public class QProfileExporters {
 
   private static void processValidationMessages(ValidationMessages messages, QProfileResult result) {
     if (!messages.getErrors().isEmpty()) {
-      throw new BadRequestException(messages);
+      throw BadRequestException.create(messages.getErrors());
     }
     result.addWarnings(messages.getWarnings());
     result.addInfos(messages.getInfos());

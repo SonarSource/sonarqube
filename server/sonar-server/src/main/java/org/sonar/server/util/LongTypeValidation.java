@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
+import static java.lang.String.format;
+
 public class LongTypeValidation implements TypeValidation {
   @Override
   public String key() {
@@ -35,7 +37,7 @@ public class LongTypeValidation implements TypeValidation {
     try {
       Long.parseLong(value);
     } catch (NumberFormatException e) {
-      throw new BadRequestException("Value '%s' must be a long.", value);
+      throw new BadRequestException(format("Value '%s' must be a long.", value));
     }
   }
 }

@@ -172,7 +172,7 @@ public class QProfileReset {
 
   private void processValidationMessages(ValidationMessages messages) {
     if (!messages.getErrors().isEmpty()) {
-      throw new BadRequestException(messages);
+      throw BadRequestException.create(messages.getErrors());
     }
   }
 }

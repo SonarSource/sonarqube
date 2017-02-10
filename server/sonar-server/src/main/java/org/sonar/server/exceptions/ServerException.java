@@ -19,6 +19,8 @@
  */
 package org.sonar.server.exceptions;
 
+import static java.util.Objects.requireNonNull;
+
 public class ServerException extends RuntimeException {
   private final int httpCode;
 
@@ -27,7 +29,7 @@ public class ServerException extends RuntimeException {
   }
 
   public ServerException(int httpCode, String message) {
-    super(message);
+    super(requireNonNull(message, "Error message cannot be null"));
     this.httpCode = httpCode;
   }
 

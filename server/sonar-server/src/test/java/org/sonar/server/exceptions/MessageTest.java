@@ -19,11 +19,16 @@
  */
 package org.sonar.server.exceptions;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MessageTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_message() {
@@ -35,6 +40,20 @@ public class MessageTest {
   public void create_message_without_params() {
     Message message = Message.of("key1");
     assertThat(message.getMessage()).isEqualTo("key1");
+  }
+
+  @Test
+  public void fail_when_message_is_null() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+
+    Message.of(null);
+  }
+
+  @Test
+  public void fail_when_message_is_empty() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+
+    Message.of("");
   }
 
   @Test

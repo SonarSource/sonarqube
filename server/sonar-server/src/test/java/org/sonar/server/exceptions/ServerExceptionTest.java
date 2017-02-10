@@ -27,7 +27,7 @@ public class ServerExceptionTest {
 
   @Test
   public void should_create_exception_with_status() {
-    ServerException exception = new ServerException(400);
+    ServerException exception = new ServerException(400, "error!");
     assertThat(exception.httpCode()).isEqualTo(400);
   }
 

@@ -137,7 +137,7 @@ public class QualityGateConditionsUpdater {
     checkPeriod(metric, period, errors);
     checkRatingMetric(metric, warningThreshold, errorThreshold, period, errors);
     if (!errors.isEmpty()) {
-      throw new BadRequestException(errors);
+      throw BadRequestException.create(errors);
     }
   }
 

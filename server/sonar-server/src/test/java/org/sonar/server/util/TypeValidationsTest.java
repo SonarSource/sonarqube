@@ -65,7 +65,7 @@ public class TypeValidationsTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
       BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getMessage()).isEqualTo("Type 'Unknown' is not valid.");
+      assertThat(badRequestException.getMessage()).isEqualTo("Type 'Unknown' is not valid.");
     }
   }
 

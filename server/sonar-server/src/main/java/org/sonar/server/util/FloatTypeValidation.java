@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
+import static java.lang.String.format;
+
 public class FloatTypeValidation implements TypeValidation {
 
   @Override
@@ -36,7 +38,7 @@ public class FloatTypeValidation implements TypeValidation {
     try {
       Double.parseDouble(value);
     } catch (NumberFormatException e) {
-      throw new BadRequestException("Value '%s' must be an floating point number.", value);
+      throw new BadRequestException(format("Value '%s' must be an floating point number.", value));
     }
   }
 

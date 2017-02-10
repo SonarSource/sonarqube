@@ -19,6 +19,9 @@
  */
 package org.sonar.server.exceptions;
 
+import com.google.common.base.Preconditions;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 
 public class Message {
@@ -26,6 +29,7 @@ public class Message {
   private final String msg;
 
   private Message(String format, Object... params) {
+    Preconditions.checkArgument(!isNullOrEmpty(format), "Message cannot be empty");
     this.msg = format(format, params);
   }
 

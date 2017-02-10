@@ -22,6 +22,8 @@ package org.sonar.server.util;
 import com.google.common.base.Strings;
 import org.sonar.server.exceptions.BadRequestException;
 
+import static java.lang.String.format;
+
 public class Validation {
 
   public static final String CANT_BE_EMPTY_MESSAGE = "%s can't be empty";
@@ -35,14 +37,14 @@ public class Validation {
 
   public static void checkMandatoryParameter(String value, String paramName) {
     if (Strings.isNullOrEmpty(value)) {
-      throw new BadRequestException(Validation.CANT_BE_EMPTY_MESSAGE, paramName);
+      throw new BadRequestException(format(Validation.CANT_BE_EMPTY_MESSAGE, paramName));
     }
   }
 
   public static void checkMandatorySizeParameter(String value, String paramName, Integer size) {
     checkMandatoryParameter(value, paramName);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw new BadRequestException(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
+      throw new BadRequestException(format(Validation.IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 

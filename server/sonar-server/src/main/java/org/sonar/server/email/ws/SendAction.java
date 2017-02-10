@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
 
@@ -83,12 +82,12 @@ public class SendAction implements EmailsWsAction {
   }
 
   private static BadRequestException createBadRequestException(EmailException emailException) {
-    List<Message> messages = Throwables.getCausalChain(emailException)
+    List<String> messages = Throwables.getCausalChain(emailException)
       .stream()
-      .map(e -> Message.of(e.getMessage()))
+      .map(Throwable::getMessage)
       .collect(Collectors.toList());
     Collections.reverse(messages);
-    return new BadRequestException(messages);
+    return BadRequestException.create(messages);
   }
 
 }
