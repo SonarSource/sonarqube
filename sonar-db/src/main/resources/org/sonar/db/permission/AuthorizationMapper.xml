@@ -274,4 +274,43 @@
       #{id,jdbcType=BIGINT}
     </foreach>
   </select>
+
+  <select id="selectProjectPermissions" parameterType="map" resultType="String">
+    select ur.role
+    from user_roles ur
+    inner join projects p on p.id = ur.resource_id
+    where
+      p.uuid = #{projectUuid,jdbcType=VARCHAR} and
+      p.organization_uuid = ur.organization_uuid and
+      ur.user_id = #{userId,jdbcType=BIGINT}
+
+    union
+
+    select gr.role
+    from group_roles gr
+    inner join groups_users gu on gr.group_id = gu.group_id
+    inner join projects p on p.id = gr.resource_id
+    where
+      p.uuid = #{projectUuid,jdbcType=VARCHAR} and
+      p.organization_uuid = gr.organization_uuid and
+      gu.user_id = #{userId,jdbcType=BIGINT}
+
+    union
+
+    <include refid="sql_selectProjectPermissionsOfAnonymous"/>
+  </select>
+
+  <select id="selectProjectPermissionsOfAnonymous" parameterType="map" resultType="String">
+    <include refid="sql_selectProjectPermissionsOfAnonymous"/>
+  </select>
+
+  <sql id="sql_selectProjectPermissionsOfAnonymous">
+    select gr.role
+    from group_roles gr
+    inner join projects p on p.id = gr.resource_id
+    where
+    p.uuid = #{projectUuid,jdbcType=VARCHAR} and
+    p.organization_uuid = gr.organization_uuid and
+    gr.group_id is null
+  </sql>
 </mapper>
