@@ -138,24 +138,11 @@ public class QProfileExporters {
     throw new NotFoundException("Unknown quality profile exporter: " + exporterKey);
   }
 
-  /**
-   * Used by rails
-   */
-  public List<ProfileImporter> findProfileImportersForLanguage(String language) {
-    List<ProfileImporter> result = new ArrayList<>();
-    for (ProfileImporter importer : importers) {
-      if (importer.getSupportedLanguages() == null || importer.getSupportedLanguages().length == 0 || ArrayUtils.contains(importer.getSupportedLanguages(), language)) {
-        result.add(importer);
-      }
-    }
-    return result;
-  }
-
   public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, InputStream xml, DbSession dbSession) {
     return importXml(profileDto, importerKey, new InputStreamReader(xml, StandardCharsets.UTF_8), dbSession);
   }
 
-  public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, Reader xml, DbSession dbSession) {
+  private QProfileResult importXml(QualityProfileDto profileDto, String importerKey, Reader xml, DbSession dbSession) {
     QProfileResult result = new QProfileResult();
     ValidationMessages messages = ValidationMessages.create();
     ProfileImporter importer = getProfileImporter(importerKey);

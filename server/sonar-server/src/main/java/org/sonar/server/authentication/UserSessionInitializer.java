@@ -60,8 +60,7 @@ public class UserSessionInitializer {
   // SONAR-6546 these urls should be get from WebService
   private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
     "/batch/index", "/batch/file",
-    "/maintenance/*",
-    "/setup/*",
+    "/maintenance/*", "/setup/*",
     "/sessions/*", "/oauth2/callback/*",
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
     "/api/server/version",
@@ -113,7 +112,7 @@ public class UserSessionInitializer {
         handleAuthenticationError(e, response, request.getContextPath());
         return false;
       }
-      // Rails will redirect to login page
+      // Web pages should redirect to the index.html file
       return true;
     }
   }

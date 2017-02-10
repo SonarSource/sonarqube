@@ -451,7 +451,6 @@ public class CeProcessLoggingTest {
   }
 
   private void verifyImmutableLogLevels(LoggerContext ctx) {
-    assertThat(ctx.getLogger("rails").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("org.apache.ibatis").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("java.sql").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("java.sql.ResultSet").getLevel()).isEqualTo(Level.WARN);

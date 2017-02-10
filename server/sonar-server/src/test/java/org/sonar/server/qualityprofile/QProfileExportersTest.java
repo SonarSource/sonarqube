@@ -103,11 +103,6 @@ public class QProfileExportersTest {
   }
 
   @Test
-  public void profile_importers_for_language() {
-    assertThat(exporters.findProfileImportersForLanguage("xoo")).hasSize(3);
-  }
-
-  @Test
   public void import_xml() {
     QualityProfileDto profileDto = QProfileTesting.newQProfileDto(QProfileName.createFor("xoo", "import_xml"), "import_xml");
     db.qualityProfileDao().insert(dbSession, profileDto);

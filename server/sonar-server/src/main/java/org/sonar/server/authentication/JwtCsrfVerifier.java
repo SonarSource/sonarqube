@@ -42,7 +42,6 @@ public class JwtCsrfVerifier {
 
   private static final Set<String> UPDATE_METHODS = ImmutableSet.of("POST", "PUT", "DELETE");
   private static final String API_URL = "/api";
-  private static final Set<String> RAILS_UPDATE_API_URLS = ImmutableSet.of("/api/projects/create", "/api/user_properties");
 
   public String generateState(HttpServletRequest request, HttpServletResponse response, int timeoutInSeconds) {
     // Create a state token to prevent request forgery.
@@ -89,14 +88,9 @@ public class JwtCsrfVerifier {
   private static boolean shouldRequestBeChecked(HttpServletRequest request) {
     if (UPDATE_METHODS.contains(request.getMethod())) {
       String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
-      return path.startsWith(API_URL)
-        && !isRailsWsUrl(path);
+      return path.startsWith(API_URL);
     }
     return false;
-  }
-
-  private static boolean isRailsWsUrl(String uri) {
-    return RAILS_UPDATE_API_URLS.stream().filter(uri::startsWith).findFirst().isPresent();
   }
 
 }
