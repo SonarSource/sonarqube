@@ -98,8 +98,8 @@ public class ChecksMediumTest {
 
   }
 
-  private LoadedActiveRule createActiveRuleWithParam(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,
-    @Nullable String internalKey, @Nullable String languag, String paramKey, String paramValue) {
+  private LoadedActiveRule createActiveRuleWithParam(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name,
+    @Nullable String severity, @Nullable String internalKey, @Nullable String languag, String paramKey, String paramValue) {
     LoadedActiveRule r = new LoadedActiveRule();
 
     r.setInternalKey(internalKey);

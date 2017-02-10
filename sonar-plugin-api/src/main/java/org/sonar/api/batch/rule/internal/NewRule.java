@@ -37,6 +37,7 @@ public class NewRule {
   String name;
   String description;
   String severity = DEFAULT_SEVERITY;
+  String type;
   String internalKey;
   RuleStatus status = RuleStatus.defaultStatus();
   Map<String, NewRuleParam> params = new HashMap<>();
@@ -62,6 +63,11 @@ public class NewRule {
 
   public NewRule setSeverity(@Nullable String severity) {
     this.severity = StringUtils.defaultIfBlank(severity, DEFAULT_SEVERITY);
+    return this;
+  }
+  
+  public NewRule setType(@Nullable String type) {
+    this.type = type;
     return this;
   }
 

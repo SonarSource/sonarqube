@@ -39,6 +39,7 @@ public class DefaultRule implements Rule {
   private final Integer id;
   private final String name;
   private final String severity;
+  private final String type;
   private final String description;
   private final String internalKey;
   private final RuleStatus status;
@@ -49,6 +50,7 @@ public class DefaultRule implements Rule {
     this.id = newRule.id;
     this.name = newRule.name;
     this.severity = newRule.severity;
+    this.type = newRule.type;
     this.description = newRule.description;
     this.internalKey = newRule.internalKey;
     this.status = newRule.status;
@@ -78,6 +80,11 @@ public class DefaultRule implements Rule {
   @Override
   public String severity() {
     return severity;
+  }
+
+  @CheckForNull
+  public String type() {
+    return type;
   }
 
   @Override
