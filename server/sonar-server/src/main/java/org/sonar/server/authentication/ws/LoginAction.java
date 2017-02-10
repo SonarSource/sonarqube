@@ -30,15 +30,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
-import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.UserSessionFactory;
 import org.sonar.server.ws.ServletFilterHandler;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -54,19 +53,19 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
   private static final String LOGIN_ACTION = "login";
   public static final String LOGIN_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + LOGIN_ACTION;
 
-  private final DbClient dbClient;
   private final CredentialsAuthenticator credentialsAuthenticator;
   private final JwtHttpHandler jwtHttpHandler;
   private final ThreadLocalUserSession threadLocalUserSession;
   private final AuthenticationEvent authenticationEvent;
+  private final UserSessionFactory userSessionFactory;
 
-  public LoginAction(DbClient dbClient, CredentialsAuthenticator credentialsAuthenticator, JwtHttpHandler jwtHttpHandler,
-    ThreadLocalUserSession threadLocalUserSession, AuthenticationEvent authenticationEvent) {
-    this.dbClient = dbClient;
+  public LoginAction(CredentialsAuthenticator credentialsAuthenticator, JwtHttpHandler jwtHttpHandler,
+    ThreadLocalUserSession threadLocalUserSession, AuthenticationEvent authenticationEvent, UserSessionFactory userSessionFactory) {
     this.credentialsAuthenticator = credentialsAuthenticator;
     this.jwtHttpHandler = jwtHttpHandler;
     this.threadLocalUserSession = threadLocalUserSession;
     this.authenticationEvent = authenticationEvent;
+    this.userSessionFactory = userSessionFactory;
   }
 
   @Override
@@ -104,7 +103,7 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
     try {
       UserDto userDto = authenticate(request, login, password);
       jwtHttpHandler.generateToken(userDto, request, response);
-      threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
+      threadLocalUserSession.set(userSessionFactory.create(userDto));
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
       response.setStatus(HTTP_UNAUTHORIZED);

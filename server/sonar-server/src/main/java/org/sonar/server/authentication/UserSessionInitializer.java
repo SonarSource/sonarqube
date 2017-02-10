@@ -26,12 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
-import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserSessionFactory;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
@@ -43,8 +43,6 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.ws.LoginAction.LOGIN_URL;
 import static org.sonar.server.authentication.ws.LogoutAction.LOGOUT_URL;
 import static org.sonar.server.authentication.ws.ValidateAction.VALIDATE_URL;
-import static org.sonar.server.user.ServerUserSession.createForAnonymous;
-import static org.sonar.server.user.ServerUserSession.createForUser;
 
 @ServerSide
 public class UserSessionInitializer {
@@ -72,23 +70,24 @@ public class UserSessionInitializer {
     .excludes(SKIPPED_URLS)
     .build();
 
-  private final DbClient dbClient;
   private final Settings settings;
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthenticator basicAuthenticator;
   private final SsoAuthenticator ssoAuthenticator;
   private final ThreadLocalUserSession threadLocalSession;
   private final AuthenticationEvent authenticationEvent;
+  private final UserSessionFactory userSessionFactory;
 
-  public UserSessionInitializer(DbClient dbClient, Settings settings, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
-    SsoAuthenticator ssoAuthenticator, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent) {
-    this.dbClient = dbClient;
+  public UserSessionInitializer(Settings settings, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
+    SsoAuthenticator ssoAuthenticator, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent,
+    UserSessionFactory userSessionFactory) {
     this.settings = settings;
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthenticator = basicAuthenticator;
     this.ssoAuthenticator = ssoAuthenticator;
     this.threadLocalSession = threadLocalSession;
     this.authenticationEvent = authenticationEvent;
+    this.userSessionFactory = userSessionFactory;
   }
 
   public boolean initUserSession(HttpServletRequest request, HttpServletResponse response) {
@@ -124,7 +123,7 @@ public class UserSessionInitializer {
   private void setUserSession(HttpServletRequest request, HttpServletResponse response) {
     Optional<UserDto> user = authenticate(request, response);
     if (user.isPresent()) {
-      ServerUserSession session = createForUser(dbClient, user.get());
+      UserSession session = userSessionFactory.create(user.get());
       threadLocalSession.set(session);
       request.setAttribute(ACCESS_LOG_LOGIN, session.getLogin());
     } else {
@@ -134,7 +133,7 @@ public class UserSessionInitializer {
           .setMessage("User must be authenticated")
           .build();
       }
-      threadLocalSession.set(createForAnonymous(dbClient));
+      threadLocalSession.set(userSessionFactory.createAnonymous());
       request.setAttribute(ACCESS_LOG_LOGIN, "-");
     }
   }

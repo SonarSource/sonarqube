@@ -24,24 +24,23 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.UserSessionFactory;
 
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class BaseContextFactory {
 
-  private final DbClient dbClient;
   private final ThreadLocalUserSession threadLocalUserSession;
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final Server server;
   private final JwtHttpHandler jwtHttpHandler;
+  private final UserSessionFactory userSessionFactory;
 
-  public BaseContextFactory(DbClient dbClient, UserIdentityAuthenticator userIdentityAuthenticator, Server server, JwtHttpHandler jwtHttpHandler,
-    ThreadLocalUserSession threadLocalUserSession) {
-    this.dbClient = dbClient;
+  public BaseContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server, JwtHttpHandler jwtHttpHandler,
+    ThreadLocalUserSession threadLocalUserSession, UserSessionFactory userSessionFactory) {
+    this.userSessionFactory = userSessionFactory;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.server = server;
     this.jwtHttpHandler = jwtHttpHandler;
@@ -82,7 +81,7 @@ public class BaseContextFactory {
     public void authenticate(UserIdentity userIdentity) {
       UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, Source.external(identityProvider));
       jwtHttpHandler.generateToken(userDto, request, response);
-      threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
+      threadLocalUserSession.set(userSessionFactory.create(userDto));
     }
   }
 }

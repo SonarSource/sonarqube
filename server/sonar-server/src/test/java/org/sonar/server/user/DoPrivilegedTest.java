@@ -48,6 +48,7 @@ public class DoPrivilegedTest {
     // verify the session used inside Privileged task
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
     assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
+    assertThat(catcher.userSession.isSystemAdministrator()).isTrue();
 
     // verify session in place after task is done
     assertThat(threadLocalUserSession.get()).isSameAs(session);

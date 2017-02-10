@@ -99,4 +99,12 @@ public abstract class AbstractUserSession implements UserSession {
   public static ForbiddenException insufficientPrivilegesException() {
     return INSUFFICIENT_PRIVILEGES_EXCEPTION;
   }
+
+  @Override
+  public final UserSession checkIsSystemAdministrator() {
+    if (!isSystemAdministrator()) {
+      throw insufficientPrivilegesException();
+    }
+    return this;
+  }
 }

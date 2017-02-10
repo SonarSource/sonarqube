@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -74,13 +75,14 @@ public class OAuth2ContextFactoryTest {
   private Server server = mock(Server.class);
   private OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private HttpSession session = mock(HttpSession.class);
   private OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
 
-  private OAuth2ContextFactory underTest = new OAuth2ContextFactory(dbClient, threadLocalUserSession, userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler);
+  private OAuth2ContextFactory underTest = new OAuth2ContextFactory(threadLocalUserSession, userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler, userSessionFactory);
 
   @Before
   public void setUp() throws Exception {

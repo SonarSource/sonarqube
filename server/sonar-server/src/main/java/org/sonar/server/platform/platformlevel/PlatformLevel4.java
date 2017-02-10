@@ -198,6 +198,7 @@ import org.sonar.server.user.DefaultUserFinder;
 import org.sonar.server.user.DeprecatedUserFinder;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
+import org.sonar.server.user.UserSessionFactoryImpl;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -334,6 +335,7 @@ public class PlatformLevel4 extends PlatformLevel {
       AuthenticationModule.class,
 
       // users
+      UserSessionFactoryImpl.class,
       SecurityRealmFactory.class,
       DeprecatedUserFinder.class,
       NewUserNotifier.class,

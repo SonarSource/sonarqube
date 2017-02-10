@@ -32,14 +32,16 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Implementation of {@link UserSession} used in web server
@@ -48,25 +50,21 @@ public class ServerUserSession extends AbstractUserSession {
   @CheckForNull
   private final UserDto userDto;
   private final DbClient dbClient;
-  private final Supplier<List<GroupDto>> groups;
+  private final OrganizationFlags organizationFlags;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final Supplier<List<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
+  private final Supplier<Boolean> isSystemAdministratorSupplier = Suppliers.memoize(this::loadIsSystemAdministrator);
   private SetMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private SetMultimap<String, String> permissionsByOrganizationUuid;
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
   private List<String> projectPermissionsCheckedByUuid = new ArrayList<>();
 
-  private ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
-    this.userDto = userDto;
+  ServerUserSession(DbClient dbClient, OrganizationFlags organizationFlags,
+    DefaultOrganizationProvider defaultOrganizationProvider, @Nullable UserDto userDto) {
     this.dbClient = dbClient;
-    this.groups = Suppliers.memoize(this::loadGroups);
-  }
-
-  public static ServerUserSession createForUser(DbClient dbClient, UserDto userDto) {
-    requireNonNull(userDto, "UserDto must not be null");
-    return new ServerUserSession(dbClient, userDto);
-  }
-
-  public static ServerUserSession createForAnonymous(DbClient dbClient) {
-    return new ServerUserSession(dbClient, null);
+    this.organizationFlags = organizationFlags;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.userDto = userDto;
   }
 
   private List<GroupDto> loadGroups() {
@@ -171,4 +169,22 @@ public class ServerUserSession extends AbstractUserSession {
     projectPermissionsCheckedByUuid.add(permission);
   }
 
+  @Override
+  public boolean isSystemAdministrator() {
+    return isSystemAdministratorSupplier.get();
+  }
+
+  private boolean loadIsSystemAdministrator() {
+    if (isRoot()) {
+      return true;
+    }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (!organizationFlags.isEnabled(dbSession)) {
+        String uuidOfDefaultOrg = defaultOrganizationProvider.get().getUuid();
+        return hasOrganizationPermission(uuidOfDefaultOrg, GlobalPermissions.SYSTEM_ADMIN);
+      }
+      // organization feature is enabled -> requires to be root
+      return false;
+    }
+  }
 }

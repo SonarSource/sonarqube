@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -72,8 +73,9 @@ public class BaseContextFactoryTest {
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private BaseIdentityProvider identityProvider = mock(BaseIdentityProvider.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
 
-  private BaseContextFactory underTest = new BaseContextFactory(dbClient, userIdentityAuthenticator, server, jwtHttpHandler, threadLocalUserSession);
+  private BaseContextFactory underTest = new BaseContextFactory(userIdentityAuthenticator, server, jwtHttpHandler, threadLocalUserSession, userSessionFactory);
 
   @Before
   public void setUp() throws Exception {

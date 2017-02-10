@@ -37,6 +37,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ServerUserSession;
+import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -73,13 +74,13 @@ public class UserSessionInitializerTest {
   private BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
   private SsoAuthenticator ssoAuthenticator = mock(SsoAuthenticator.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-
+  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
   private Settings settings = new MapSettings();
 
   private UserDto user = newUserDto();
 
-  private UserSessionInitializer underTest = new UserSessionInitializer(dbClient, settings, jwtHttpHandler, basicAuthenticator,
-    ssoAuthenticator, userSession, authenticationEvent);
+  private UserSessionInitializer underTest = new UserSessionInitializer(settings, jwtHttpHandler, basicAuthenticator,
+    ssoAuthenticator, userSession, authenticationEvent, userSessionFactory);
 
   @Before
   public void setUp() throws Exception {

@@ -34,6 +34,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private HashMultimap<String, String> permissionsByOrganizationUuid = HashMultimap.create();
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
   private List<String> projectPermissionsCheckedByUuid = newArrayList();
+  private boolean systemAdministrator = false;
 
   protected AbstractMockUserSession(Class<T> clazz) {
     this.clazz = clazz;
@@ -72,5 +73,15 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   public T addOrganizationPermission(String organizationUuid, String permission) {
     permissionsByOrganizationUuid.put(organizationUuid, permission);
     return clazz.cast(this);
+  }
+
+  public T setSystemAdministrator(boolean b) {
+    this.systemAdministrator = b;
+    return clazz.cast(this);
+  }
+
+  @Override
+  public boolean isSystemAdministrator() {
+    return systemAdministrator;
   }
 }

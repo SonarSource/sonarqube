@@ -38,6 +38,7 @@ import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,10 +72,10 @@ public class LoginActionTest {
   private CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
 
   private UserDto user = UserTesting.newUserDto().setLogin(LOGIN);
-
-  private LoginAction underTest = new LoginAction(dbClient, credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession, authenticationEvent);
+  private LoginAction underTest = new LoginAction(credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession, authenticationEvent, userSessionFactory);
 
   @Before
   public void setUp() throws Exception {

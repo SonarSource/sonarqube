@@ -34,13 +34,13 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.organization.TestOrganizationFlags;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.user.ServerUserSession.createForAnonymous;
-import static org.sonar.server.user.ServerUserSession.createForUser;
 
 public class ServerUserSessionTest {
   private static final String LOGIN = "marius";
@@ -66,6 +66,8 @@ public class ServerUserSessionTest {
 
   private DbClient dbClient = db.getDbClient();
   private UserDto userDto = newUserDto().setLogin(LOGIN);
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationDto organization;
   private ComponentDto project;
 
@@ -170,12 +172,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void fail_if_user_dto_is_null() throws Exception {
-    expectedException.expect(NullPointerException.class);
-    newUserSession(null);
-  }
-
-  @Test
   public void anonymous_user() throws Exception {
     UserSession session = newAnonymousSession();
 
@@ -210,7 +206,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void hasOrganizationPermission_for_logged_in_user() {
+  public void test_hasOrganizationPermission_for_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertProject(org);
     db.users().insertPermissionOnUser(org, userDto, PROVISIONING);
@@ -233,12 +229,97 @@ public class ServerUserSessionTest {
     assertThat(session.hasOrganizationPermission("another-org", PROVISIONING)).isFalse();
   }
 
-  private ServerUserSession newUserSession(UserDto userDto) {
-    return createForUser(dbClient, userDto);
+  @Test
+  public void isSystemAdministrator_returns_true_if_org_feature_is_enabled_and_user_is_root() {
+    organizationFlags.setEnabled(true);
+    userDto = db.users().makeRoot(userDto);
+    UserSession session = newUserSession(userDto);
+
+    assertThat(session.isSystemAdministrator()).isTrue();
+  }
+
+  @Test
+  public void isSystemAdministrator_returns_false_if_org_feature_is_enabled_and_user_is_not_root() {
+    organizationFlags.setEnabled(true);
+    userDto = db.users().makeNotRoot(userDto);
+    UserSession session = newUserSession(userDto);
+
+    assertThat(session.isSystemAdministrator()).isFalse();
+  }
+
+  @Test
+  public void isSystemAdministrator_returns_false_if_org_feature_is_enabled_and_user_is_administrator_of_default_organization() {
+    organizationFlags.setEnabled(true);
+    userDto = db.users().makeNotRoot(userDto);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, SYSTEM_ADMIN);
+    UserSession session = newUserSession(userDto);
+
+    assertThat(session.isSystemAdministrator()).isFalse();
+  }
+
+  @Test
+  public void isSystemAdministrator_returns_true_if_org_feature_is_disabled_and_user_is_administrator_of_default_organization() {
+    organizationFlags.setEnabled(false);
+    userDto = db.users().makeNotRoot(userDto);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, SYSTEM_ADMIN);
+    UserSession session = newUserSession(userDto);
+
+    assertThat(session.isSystemAdministrator()).isTrue();
+  }
+
+  @Test
+  public void isSystemAdministrator_returns_false_if_org_feature_is_disabled_and_user_is_not_administrator_of_default_organization() {
+    organizationFlags.setEnabled(true);
+    userDto = db.users().makeNotRoot(userDto);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, PROVISIONING);
+    UserSession session = newUserSession(userDto);
+
+    assertThat(session.isSystemAdministrator()).isFalse();
+  }
+
+  @Test
+  public void keep_isSystemAdministrator_flag_in_cache() {
+    organizationFlags.setEnabled(false);
+    userDto = db.users().makeNotRoot(userDto);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, SYSTEM_ADMIN);
+    UserSession session = newUserSession(userDto);
+
+    session.checkIsSystemAdministrator();
+
+    db.getDbClient().userDao().deactivateUserByLogin(db.getSession(), userDto.getLogin());
+    db.commit();
+
+    // should fail but succeeds because flag is kept in cache
+    session.checkIsSystemAdministrator();
+  }
+
+  @Test
+  public void checkIsSystemAdministrator_succeeds_if_system_administrator() {
+    organizationFlags.setEnabled(true);
+    userDto = db.users().makeRoot(userDto);
+    UserSession session = newUserSession(userDto);
+
+    session.checkIsSystemAdministrator();
+  }
+
+  @Test
+  public void checkIsSystemAdministrator_throws_ForbiddenException_if_not_system_administrator() {
+    organizationFlags.setEnabled(true);
+    userDto = db.users().makeNotRoot(userDto);
+    UserSession session = newUserSession(userDto);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    session.checkIsSystemAdministrator();
+  }
+
+  private ServerUserSession newUserSession(@Nullable UserDto userDto) {
+    return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, userDto);
   }
 
   private ServerUserSession newAnonymousSession() {
-    return createForAnonymous(dbClient);
+    return newUserSession(null);
   }
 
   private void addProjectPermissions(ComponentDto component, String... permissions) {

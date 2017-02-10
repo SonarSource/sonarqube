@@ -111,6 +111,11 @@ public final class DoPrivileged {
       protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
         return true;
       }
+
+      @Override
+      public boolean isSystemAdministrator() {
+        return true;
+      }
     }
 
     private void start() {
