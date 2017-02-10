@@ -48,8 +48,6 @@ public interface UserPermissionMapper {
 
   void insert(UserPermissionDto dto);
 
-  int countRowsByRootComponentId(@Param("rootComponentId") long projectId);
-
   void deleteGlobalPermission(@Param("userId") long userId, @Param("permission") String permission,
     @Param("organizationUuid") String organizationUuid);
 

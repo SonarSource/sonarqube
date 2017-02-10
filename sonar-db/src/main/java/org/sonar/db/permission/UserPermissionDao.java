@@ -83,13 +83,6 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * @return {@code true} if the project has at least one user permission defined, else returns {@code false}
-   */
-  public boolean hasRootComponentPermissions(DbSession dbSession, long rootComponentId) {
-    return mapper(dbSession).countRowsByRootComponentId(rootComponentId) > 0;
-  }
-
-  /**
    * Gets all the global permissions granted to user for the specified organization.
    *
    * @return the global permissions. An empty list is returned if user or organization do not exist.

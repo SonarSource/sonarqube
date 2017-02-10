@@ -320,15 +320,6 @@ public class UserPermissionDaoTest {
   }
 
   @Test
-  public void projectHasPermissions() {
-    addGlobalPermission(organizationDto, SYSTEM_ADMIN, user1);
-    addProjectPermission(organizationDto, USER, user1, project1);
-
-    assertThat(underTest.hasRootComponentPermissions(dbSession, project1.getId())).isTrue();
-    assertThat(underTest.hasRootComponentPermissions(dbSession, project2.getId())).isFalse();
-  }
-
-  @Test
   public void selectGlobalPermissionsOfUser() {
     OrganizationDto org = dbTester.organizations().insert();
     addGlobalPermission(dbTester.getDefaultOrganization(), "perm1", user1);
@@ -405,8 +396,8 @@ public class UserPermissionDaoTest {
 
   private void verifyOrganizationUuidsInTable(String... organizationUuids) {
     assertThat(dbTester.select("select organization_uuid as \"organizationUuid\" from user_roles"))
-        .extracting((row) -> (String) row.get("organizationUuid"))
-        .containsOnly(organizationUuids);
+      .extracting((row) -> (String) row.get("organizationUuid"))
+      .containsOnly(organizationUuids);
   }
 
   private void expectCount(List<Long> projectIds, CountPerProjectPermission... expected) {

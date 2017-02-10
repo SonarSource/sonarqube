@@ -80,12 +80,6 @@
     group by ur.resource_id, ur.role
   </select>
 
-  <select id="countRowsByRootComponentId" parameterType="long" resultType="int">
-    select count(1)
-    from user_roles
-    where resource_id=#{rootComponentId,jdbcType=BIGINT}
-  </select>
-
   <insert id="insert" parameterType="org.sonar.db.permission.UserPermissionDto" useGeneratedKeys="false">
     insert into user_roles (
     organization_uuid,
