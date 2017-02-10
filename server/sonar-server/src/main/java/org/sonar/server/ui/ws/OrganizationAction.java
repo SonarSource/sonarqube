@@ -27,9 +27,9 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class OrganizationAction implements NavigationWsAction {
@@ -38,12 +38,10 @@ public class OrganizationAction implements NavigationWsAction {
   private static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UserSession userSession;
 
-  public OrganizationAction(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
+  public OrganizationAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.userSession = userSession;
   }
 
@@ -79,11 +77,12 @@ public class OrganizationAction implements NavigationWsAction {
   }
 
   private void writeOrganization(JsonWriter json, OrganizationDto organization) {
+    String organizationUuid = organization.getUuid();
     json.name("organization")
       .beginObject()
-      .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
-      .prop("canAdmin", userSession.hasOrganizationPermission(organization.getUuid(), GlobalPermissions.SYSTEM_ADMIN))
-      .prop("canProvisionProjects", userSession.hasOrganizationPermission(organization.getUuid(), GlobalPermissions.PROVISIONING))
+      .prop("canAdmin", userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN))
+      .prop("canProvisionProjects", userSession.hasOrganizationPermission(organizationUuid, GlobalPermissions.PROVISIONING))
+      .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN))
       .endObject();
   }
 }

@@ -28,14 +28,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class OrganizationActionTest {
@@ -47,9 +46,8 @@ public class OrganizationActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
-  private WsActionTester underTest = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession));
+  private WsActionTester underTest = new WsActionTester(new OrganizationAction(dbClient, userSession));
 
   @Test
   public void verify_definition() {
@@ -76,45 +74,45 @@ public class OrganizationActionTest {
 
   @Test
   public void verify_example() {
-    OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
+    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
     userSession.logIn()
-      .addOrganizationPermission(defaultOrganization, "admin")
-      .addOrganizationPermission(defaultOrganization, "provisioning");
+      .addOrganizationPermission(organization, "admin")
+      .addOrganizationPermission(organization, "provisioning");
 
-    TestResponse response = executeRequest(defaultOrganization);
+    TestResponse response = executeRequest(organization);
 
     assertJson(response.getInput())
       .isSimilarTo(underTest.getDef().responseExampleAsString());
   }
 
   @Test
-  public void returns_non_admin_and_default_true_when_user_not_logged_in_and_key_is_the_default_organization() {
+  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_the_default_organization() {
     TestResponse response = executeRequest(dbTester.getDefaultOrganization());
 
-    verifyResponse(response, true, false, false);
+    verifyResponse(response, false, false, false);
   }
 
   @Test
-  public void returns_non_admin_and_default_true_when_user_logged_in_but_not_admin_and_key_is_the_default_organization() {
+  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_the_default_organization() {
     userSession.logIn();
 
     TestResponse response = executeRequest(dbTester.getDefaultOrganization());
 
-    verifyResponse(response, true, false, false);
+    verifyResponse(response, false, false, false);
   }
 
   @Test
-  public void returns_admin_and_default_true_when_user_logged_in_and_admin_and_key_is_the_default_organization() {
+  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_the_default_organization() {
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
     userSession.logIn().addOrganizationPermission(defaultOrganization.getUuid(), "admin");
 
     TestResponse response = executeRequest(defaultOrganization);
 
-    verifyResponse(response, true, true, false);
+    verifyResponse(response, true, false, true);
   }
 
   @Test
-  public void returns_non_admin_and_default_true_when_user_not_logged_in_and_key_is_not_the_default_organization() {
+  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_not_the_default_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     TestResponse response = executeRequest(organization);
 
@@ -122,16 +120,7 @@ public class OrganizationActionTest {
   }
 
   @Test
-  public void returns_non_admin_and_default_false_when_user_not_logged_in_and_key_is_not_the_default_organization() {
-    OrganizationDto organization = dbTester.organizations().insert();
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_non_admin_and_default_false_when_user_logged_in_but_not_admin_and_key_is_not_the_default_organization() {
+  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_not_the_default_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     userSession.logIn();
 
@@ -141,13 +130,33 @@ public class OrganizationActionTest {
   }
 
   @Test
-  public void returns_admin_and_default_false_when_user_logged_in_and_admin_and_key_is_not_the_default_organization() {
+  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_not_the_default_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     userSession.logIn().addOrganizationPermission(organization.getUuid(), "admin");
 
     TestResponse response = executeRequest(organization);
 
-    verifyResponse(response, false, true, false);
+    verifyResponse(response, true, false, true);
+  }
+
+  @Test
+  public void returns_admin_and_canDelete_false_when_user_logged_in_and_admin_and_key_is_guarded_organization() {
+    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+
+    TestResponse response = executeRequest(organization);
+
+    verifyResponse(response, true, false, false);
+  }
+
+  @Test
+  public void returns_only_canDelete_true_when_user_is_system_administrator_and_key_is_guarded_organization() {
+    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn().setSystemAdministrator();
+
+    TestResponse response = executeRequest(organization);
+
+    verifyResponse(response, false, false, true);
   }
 
   @Test
@@ -158,7 +167,7 @@ public class OrganizationActionTest {
     userSession.logIn().addOrganizationPermission(org2, "provisioning");
 
     verifyResponse(executeRequest(org1), false, false, false);
-    verifyResponse(executeRequest(org2), false, false, true);
+    verifyResponse(executeRequest(org2), false, true, false);
   }
 
   private TestResponse executeRequest(@Nullable OrganizationDto organization) {
@@ -169,13 +178,13 @@ public class OrganizationActionTest {
     return request.execute();
   }
 
-  private static void verifyResponse(TestResponse response, boolean isDefault, boolean canAdmin, boolean canProvisionProjects) {
+  private static void verifyResponse(TestResponse response, boolean canAdmin, boolean canProvisionProjects, boolean canDelete) {
     assertJson(response.getInput())
       .isSimilarTo("{" +
         "  \"organization\": {" +
-        "    \"isDefault\": " + isDefault + "," +
         "    \"canAdmin\": " + canAdmin + "," +
-        "    \"canProvisionProjects\": " + canProvisionProjects +
+        "    \"canProvisionProjects\": " + canProvisionProjects + "," +
+        "    \"canDelete\": " + canDelete +
         "  }" +
         "}");
   }
