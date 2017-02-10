@@ -10,6 +10,7 @@
     org.url as "url",
     org.avatar_url as "avatarUrl",
     org.guarded as "guarded",
+    org.user_id as "userId",
     org.created_at as "createdAt",
     org.updated_at as "updatedAt"
   </sql>
@@ -132,6 +133,7 @@
       url,
       avatar_url,
       guarded,
+      user_id,
       created_at,
       updated_at
     )
@@ -144,6 +146,7 @@
       #{organization.url, jdbcType=VARCHAR},
       #{organization.avatarUrl, jdbcType=VARCHAR},
       #{organization.guarded, jdbcType=BOOLEAN},
+      #{organization.userId, jdbcType=INTEGER},
       #{organization.createdAt, jdbcType=BIGINT},
       #{organization.updatedAt, jdbcType=BIGINT}
     )

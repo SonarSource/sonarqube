@@ -65,7 +65,8 @@ public class OrganizationDaoTest {
     .setDescription("the description 1")
     .setUrl("the url 1")
     .setAvatarUrl("the avatar url 1")
-    .setGuarded(false);
+    .setGuarded(false)
+    .setUserId(1_000L);
   private static final OrganizationDto ORGANIZATION_DTO_2 = new OrganizationDto()
     .setUuid("uuid 2")
     .setKey("the_key 2")
@@ -73,7 +74,8 @@ public class OrganizationDaoTest {
     .setDescription("the description 2")
     .setUrl("the url 2")
     .setAvatarUrl("the avatar url 2")
-    .setGuarded(true);
+    .setGuarded(true)
+    .setUserId(2_000L);
   private static final String PERMISSION_1 = "foo";
   private static final String PERMISSION_2 = "bar";
 
@@ -136,9 +138,9 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void description_url_and_avatarUrl_are_optional() {
+  public void description_url_avatarUrl_and_userId_are_optional() {
     when(system2.now()).thenReturn(SOME_DATE);
-    insertOrganization(copyOf(ORGANIZATION_DTO_1).setDescription(null).setUrl(null).setAvatarUrl(null));
+    insertOrganization(copyOf(ORGANIZATION_DTO_1).setDescription(null).setUrl(null).setAvatarUrl(null).setUserId(null));
 
     Map<String, Object> row = selectSingleRow();
     assertThat(row.get("uuid")).isEqualTo(ORGANIZATION_DTO_1.getUuid());
@@ -148,6 +150,7 @@ public class OrganizationDaoTest {
     assertThat(row.get("url")).isNull();
     assertThat(row.get("avatarUrl")).isNull();
     assertThat(row.get("guarded")).isEqualTo(toBool(ORGANIZATION_DTO_1.isGuarded()));
+    assertThat(row.get("userId")).isNull();
     assertThat(row.get("createdAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("updatedAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("defaultTemplate")).isNull();
@@ -905,6 +908,7 @@ public class OrganizationDaoTest {
     assertThat(dto.getUrl()).isEqualTo(ORGANIZATION_DTO_1.getUrl());
     assertThat(dto.isGuarded()).isEqualTo(ORGANIZATION_DTO_1.isGuarded());
     assertThat(dto.getAvatarUrl()).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
+    assertThat(dto.getUserId()).isEqualTo(ORGANIZATION_DTO_1.getUserId());
     assertThat(dto.getCreatedAt()).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
   }
@@ -916,6 +920,7 @@ public class OrganizationDaoTest {
     assertThat(dto.getDescription()).isEqualTo(expected.getDescription());
     assertThat(dto.getUrl()).isEqualTo(expected.getUrl());
     assertThat(dto.isGuarded()).isEqualTo(expected.isGuarded());
+    assertThat(dto.getUserId()).isEqualTo(expected.getUserId());
     assertThat(dto.getAvatarUrl()).isEqualTo(expected.getAvatarUrl());
     assertThat(dto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
@@ -924,7 +929,7 @@ public class OrganizationDaoTest {
   private Map<String, Object> selectSingleRow() {
     List<Map<String, Object>> rows = dbTester.select("select" +
       " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
-      " guarded as \"guarded\"," +
+      " guarded as \"guarded\", user_id as \"userId\"," +
       " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
       " default_perm_template_project as \"projectDefaultPermTemplate\"," +
       " default_perm_template_view as \"viewDefaultPermTemplate\"" +

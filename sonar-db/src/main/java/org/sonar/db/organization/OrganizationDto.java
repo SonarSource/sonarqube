@@ -19,6 +19,7 @@
  */
 package org.sonar.db.organization;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class OrganizationDto {
@@ -38,6 +39,8 @@ public class OrganizationDto {
    * Flag indicated whether being root is required to be able to delete this organization.
    */
   private boolean guarded = false;
+  /** If of the user for whom the organization was created, can be null. */
+  private Long userId;
   private long createdAt;
   private long updatedAt;
 
@@ -104,6 +107,16 @@ public class OrganizationDto {
     return this;
   }
 
+  @CheckForNull
+  public Long getUserId() {
+    return userId;
+  }
+
+  public OrganizationDto setUserId(@Nullable Long userId) {
+    this.userId = userId;
+    return this;
+  }
+
   public long getCreatedAt() {
     return createdAt;
   }
@@ -132,6 +145,7 @@ public class OrganizationDto {
       ", url='" + url + '\'' +
       ", avatarUrl='" + avatarUrl + '\'' +
       ", guarded=" + guarded +
+      ", userId=" + userId +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
       '}';
