@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.mediumtest;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,19 +41,19 @@ public class LogOutputRecorder implements LogOutput {
     asString.append(formattedMessage).append("\n");
   }
 
-  public Collection<String> getAll() {
-    return recorded;
+  public synchronized Collection<String> getAll() {
+    return new ArrayList<>(recorded);
   }
 
-  public String getAllAsString() {
+  public synchronized String getAllAsString() {
     return recorded.stream().collect(Collectors.joining("\n"));
   }
 
-  public Collection<String> get(String level) {
-    return recordedByLevel.get(level);
+  public synchronized Collection<String> get(String level) {
+    return new ArrayList<>(recordedByLevel.get(level));
   }
 
-  public String getAsString() {
+  public synchronized String getAsString() {
     return asString.toString();
   }
 
