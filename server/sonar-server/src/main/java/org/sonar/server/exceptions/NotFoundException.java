@@ -23,10 +23,6 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 public class NotFoundException extends ServerException {
 
-  public NotFoundException() {
-    super(HTTP_NOT_FOUND);
-  }
-
   public NotFoundException(String message) {
     super(HTTP_NOT_FOUND, message);
   }

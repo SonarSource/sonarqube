@@ -19,7 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class RawActionTest {
   public void get_txt() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
 
     Iterable<String> lines = newArrayList(
       "public class HelloWorld {",
@@ -91,7 +91,7 @@ public class RawActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void requires_code_viewer_permission() throws Exception {
-    when(componentDao.selectByKey(session, "src/Foo.java")).thenReturn(Optional.of(file));
+    when(componentDao.selectByKey(session, "src/Foo.java")).thenReturn(com.google.common.base.Optional.of(file));
     tester.newGetRequest("api/sources", "raw").setParam("key", "src/Foo.java").execute();
   }
 }

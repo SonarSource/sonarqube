@@ -19,7 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,9 +78,9 @@ public class IndexActionTest {
   public void get_json() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
 
-    when(sourceService.getLinesAsRawText(session, file.uuid(), 1, Integer.MAX_VALUE)).thenReturn(Optional.of((Iterable<String>) newArrayList(
+    when(sourceService.getLinesAsRawText(session, file.uuid(), 1, Integer.MAX_VALUE)).thenReturn(Optional.of(newArrayList(
       "public class HelloWorld {",
       "}")));
 
@@ -92,9 +92,9 @@ public class IndexActionTest {
   public void limit_range() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
 
-    when(sourceService.getLinesAsRawText(session, file.uuid(), 1, 2)).thenReturn(Optional.of((Iterable<String>) newArrayList(
+    when(sourceService.getLinesAsRawText(session, file.uuid(), 1, 2)).thenReturn(Optional.of(newArrayList(
       "public class HelloWorld {",
       "}")));
 
@@ -105,7 +105,7 @@ public class IndexActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void requires_code_viewer_permission() throws Exception {
-    when(componentDao.selectByKey(session, "foo")).thenReturn(Optional.of(file));
+    when(componentDao.selectByKey(session, "foo")).thenReturn(com.google.common.base.Optional.of(file));
     tester.newGetRequest("api/sources", "index").setParam("resource", "foo").execute();
   }
 
@@ -113,7 +113,7 @@ public class IndexActionTest {
   public void close_db_session() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.<ComponentDto>absent());
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.<ComponentDto>absent());
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
     try {

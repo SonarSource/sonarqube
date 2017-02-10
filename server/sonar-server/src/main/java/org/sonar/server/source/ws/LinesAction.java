@@ -34,13 +34,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class LinesAction implements SourcesWsAction {
 
@@ -112,24 +112,17 @@ public class LinesAction implements SourcesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_UUID), request.param(PARAM_KEY), UUID_AND_KEY);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 
-      com.google.common.base.Optional<Iterable<DbFileSources.Line>> lines = sourceService.getLines(dbSession, file.uuid(), from, to);
-      if (!lines.isPresent()) {
-        throw new NotFoundException();
-      }
-
+      Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.key());
       JsonWriter json = response.newJsonWriter().beginObject();
-      writeSource(lines.get(), json);
+      writeSource(lines, json);
       json.endObject().close();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

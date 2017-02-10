@@ -24,10 +24,6 @@ import static java.util.Objects.requireNonNull;
 public class ServerException extends RuntimeException {
   private final int httpCode;
 
-  public ServerException(int httpCode) {
-    this.httpCode = httpCode;
-  }
-
   public ServerException(int httpCode, String message) {
     super(requireNonNull(message, "Error message cannot be null"));
     this.httpCode = httpCode;

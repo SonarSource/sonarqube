@@ -26,10 +26,6 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
  */
 public class UnauthorizedException extends ServerException {
 
-  public UnauthorizedException() {
-    super(HTTP_UNAUTHORIZED);
-  }
-
   public UnauthorizedException(String message) {
     super(HTTP_UNAUTHORIZED, message);
   }

@@ -116,7 +116,7 @@ public class LoginActionTest {
 
   @Test
   public void return_authorized_code_when_unauthorized_exception_is_thrown() throws Exception {
-    doThrow(new UnauthorizedException()).when(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, FORM);
+    doThrow(new UnauthorizedException("error !")).when(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, FORM);
 
     executeRequest(LOGIN, PASSWORD);
 

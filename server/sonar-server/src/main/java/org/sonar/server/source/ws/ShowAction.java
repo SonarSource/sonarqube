@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
@@ -31,9 +30,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class ShowAction implements SourcesWsAction {
 
@@ -86,26 +86,19 @@ public class ShowAction implements SourcesWsAction {
     int from = Math.max(request.paramAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
-      Optional<Iterable<String>> linesHtml = sourceService.getLinesAsHtml(dbSession, file.uuid(), from, to);
-      if (linesHtml.isPresent()) {
-        JsonWriter json = response.newJsonWriter().beginObject();
-        writeSource(linesHtml.get(), from, json);
-        json.endObject().close();
-      } else {
-        throw new NotFoundException();
-      }
+      Iterable<String> linesHtml = checkFoundWithOptional(sourceService.getLinesAsHtml(dbSession, file.uuid(), from, to), "No source found for file '%s'", fileKey);
+      JsonWriter json = response.newJsonWriter().beginObject();
+      writeSource(linesHtml, from, json);
+      json.endObject().close();
 
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
-  private void writeSource(Iterable<String> lines, int from, JsonWriter json) {
+  private static void writeSource(Iterable<String> lines, int from, JsonWriter json) {
     json.name("sources").beginArray();
     long index = 0L;
     for (String line : lines) {

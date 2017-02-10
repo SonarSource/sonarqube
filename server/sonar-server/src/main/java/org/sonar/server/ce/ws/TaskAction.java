@@ -38,8 +38,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
@@ -96,18 +96,13 @@ public class TaskAction implements CeWsAction {
         checkPermission(component);
         wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get(), component));
       } else {
-        Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
-        if (activityDto.isPresent()) {
-          CeActivityDto ceActivityDto = activityDto.get();
-          Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
-          checkPermission(component);
-          Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
-          maskErrorStacktrace(ceActivityDto, additionalFields);
-          wsTaskResponse.setTask(
-            wsTaskFormatter.formatActivity(dbSession, ceActivityDto, component, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
-        } else {
-          throw new NotFoundException();
-        }
+        CeActivityDto ceActivityDto = WsUtils.checkFoundWithOptional(dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid), "No activity found for task '%s'", taskUuid);
+        Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
+        checkPermission(component);
+        Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
+        maskErrorStacktrace(ceActivityDto, additionalFields);
+        wsTaskResponse.setTask(
+          wsTaskFormatter.formatActivity(dbSession, ceActivityDto, component, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
       }
       writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
     }

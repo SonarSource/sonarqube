@@ -19,17 +19,15 @@
  */
 package org.sonar.server.source;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import javax.annotation.Nonnull;
+import java.util.Optional;
+import java.util.function.Function;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class SourceService {
 
@@ -47,7 +45,7 @@ public class SourceService {
    * @param toInclusive starts from 1, must be greater than or equal param {@code from}
    */
   public Optional<Iterable<DbFileSources.Line>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive) {
-    return getLines(dbSession, fileUuid, from, toInclusive, Functions.identity());
+    return getLines(dbSession, fileUuid, from, toInclusive, Function.identity());
   }
 
   /**
@@ -55,7 +53,7 @@ public class SourceService {
    * @see #getLines(DbSession, String, int, int)
    */
   public Optional<Iterable<String>> getLinesAsRawText(DbSession dbSession, String fileUuid, int from, int toInclusive) {
-    return getLines(dbSession, fileUuid, from, toInclusive, LineToRaw.INSTANCE);
+    return getLines(dbSession, fileUuid, from, toInclusive, DbFileSources.Line::getSource);
   }
 
   public Optional<Iterable<String>> getLinesAsHtml(DbSession dbSession, String fileUuid, int from, int toInclusive) {
@@ -64,45 +62,24 @@ public class SourceService {
 
   private <E> Optional<Iterable<E>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive, Function<DbFileSources.Line, E> function) {
     verifyLine(from);
-    Preconditions.checkArgument(toInclusive >= from, String.format("Line number must greater than or equal to %d, got %d", from, toInclusive));
+    checkArgument(toInclusive >= from, String.format("Line number must greater than or equal to %d, got %d", from, toInclusive));
     FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, fileUuid);
     if (dto == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
-    DbFileSources.Data data = dto.getSourceData();
-    return Optional.of(FluentIterable.from(data.getLinesList())
-      .filter(new IsGreaterOrEqualThanLine(from))
-      .limit(toInclusive - from + 1)
-      .transform(function));
+    return Optional.of(dto.getSourceData().getLinesList().stream()
+      .filter(line -> line.hasLine() && line.getLine() >= from)
+      .limit((toInclusive - from) + 1L)
+      .map(function)
+      .collect(Collectors.toList()));
   }
 
   private static void verifyLine(int line) {
-    Preconditions.checkArgument(line >= 1, String.format("Line number must start at 1, got %d", line));
+    checkArgument(line >= 1, String.format("Line number must start at 1, got %d", line));
   }
 
   private Function<DbFileSources.Line, String> lineToHtml() {
     return line -> htmlDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols());
   }
 
-  private enum LineToRaw implements Function<DbFileSources.Line, String> {
-    INSTANCE;
-    @Override
-    public String apply(@Nonnull DbFileSources.Line line) {
-      return line.getSource();
-    }
-
-  }
-
-  private static class IsGreaterOrEqualThanLine implements Predicate<DbFileSources.Line> {
-    private final int from;
-
-    IsGreaterOrEqualThanLine(int from) {
-      this.from = from;
-    }
-
-    @Override
-    public boolean apply(@Nonnull DbFileSources.Line line) {
-      return line.hasLine() && line.getLine() >= from;
-    }
-  }
 }

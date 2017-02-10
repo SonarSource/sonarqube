@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import java.util.Date;
@@ -36,9 +35,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class ScmAction implements SourcesWsAction {
 
@@ -105,12 +105,9 @@ public class ScmAction implements SourcesWsAction {
     try {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
-      Optional<Iterable<DbFileSources.Line>> sourceLines = sourceService.getLines(dbSession, file.uuid(), from, to);
-      if (!sourceLines.isPresent()) {
-        throw new NotFoundException(String.format("File '%s' has no sources", fileKey));
-      }
+      Iterable<DbFileSources.Line> sourceLines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "File '%s' has no sources", fileKey);
       JsonWriter json = response.newJsonWriter().beginObject();
-      writeSource(sourceLines.get(), commitsByLine, json);
+      writeSource(sourceLines, commitsByLine, json);
       json.endObject().close();
     } finally {
       dbClient.closeSession(dbSession);
