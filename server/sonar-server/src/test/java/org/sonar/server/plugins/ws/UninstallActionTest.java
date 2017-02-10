@@ -63,8 +63,8 @@ public class UninstallActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSessionRule.logIn();
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+    userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -74,7 +74,7 @@ public class UninstallActionTest {
 
   @Test
   public void action_uninstall_is_defined() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
@@ -99,7 +99,7 @@ public class UninstallActionTest {
 
   @Test
   public void IAE_is_raised_when_key_param_is_not_provided() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -108,7 +108,7 @@ public class UninstallActionTest {
 
   @Test
   public void IAE_is_raised_when_plugin_is_not_installed() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Plugin [findbugs] is not installed");
@@ -118,7 +118,7 @@ public class UninstallActionTest {
 
   @Test
   public void if_plugin_is_installed_uninstallation_is_triggered() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(pluginRepository.hasPlugin(PLUGIN_KEY)).thenReturn(true);
 
     underTest.handle(validRequest, response);
@@ -127,8 +127,8 @@ public class UninstallActionTest {
     assertThat(response.outputAsString()).isEmpty();
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSessionRule.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSessionRule.logIn().setSystemAdministrator();
   }
 
 }

@@ -669,7 +669,7 @@ public class SearchActionComponentsMediumTest {
   }
 
   private void setAnyoneProjectPermission(ComponentDto project, String permission) {
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));

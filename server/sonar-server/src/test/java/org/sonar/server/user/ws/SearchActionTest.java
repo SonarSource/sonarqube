@@ -93,7 +93,7 @@ public class SearchActionTest {
     dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(fmallet.getLogin()));
     db.commit();
     userIndexer.index();
-    loginAsRoot();
+    loginAsSystemAdministrator();
 
     String response = ws.newGetRequest("api/users", "search").execute().outputAsString();
 
@@ -176,7 +176,7 @@ public class SearchActionTest {
       .doesNotContain("scmAccounts")
       .doesNotContain("groups");
 
-    loginAsRoot();
+    loginAsSystemAdministrator();
 
     assertThat(ws.newGetRequest("api/users", "search").execute().outputAsString())
       .contains("login")
@@ -195,7 +195,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_groups() throws Exception {
-    loginAsRoot();
+    loginAsSystemAdministrator();
     List<UserDto> users = injectUsers(1);
 
     GroupDto group1 = dbClient.groupDao().insert(dbSession, newGroupDto().setName("sonar-users"));
@@ -259,8 +259,8 @@ public class SearchActionTest {
     return userDtos;
   }
 
-  private void loginAsRoot() {
-    userSession.logIn().setRoot();
+  private void loginAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
   private void loginAsSimpleUser() {

@@ -54,7 +54,7 @@ public class SendActionTest {
 
   @Test
   public void send_test_email() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     executeRequest("john@doo.com", "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
 
@@ -63,7 +63,7 @@ public class SendActionTest {
 
   @Test
   public void does_not_fail_when_subject_param_is_missing() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     executeRequest("john@doo.com", null, "This is a test message from SonarQube at http://localhost:9000");
 
@@ -72,7 +72,7 @@ public class SendActionTest {
 
   @Test
   public void fail_when_to_param_is_missing() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -81,7 +81,7 @@ public class SendActionTest {
 
   @Test
   public void fail_when_message_param_is_missing() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -89,8 +89,8 @@ public class SendActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() {
-    userSession.logIn();
+  public void throw_ForbiddenException_if_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -100,7 +100,7 @@ public class SendActionTest {
 
   @Test
   public void fail_with_BadRequestException_when_EmailException_is_generated() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     IllegalArgumentException exception1 = new IllegalArgumentException("root cause");
     IllegalArgumentException exception2 = new IllegalArgumentException("parent cause", exception1);
     IllegalArgumentException exception3 = new IllegalArgumentException("child cause", exception2);
@@ -140,8 +140,8 @@ public class SendActionTest {
     request.execute();
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
 }

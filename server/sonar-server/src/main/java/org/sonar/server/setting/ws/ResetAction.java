@@ -137,7 +137,7 @@ public class ResetAction implements SettingsWsAction {
     if (component.isPresent()) {
       userSession.checkComponentPermission(UserRole.ADMIN, component.get());
     } else {
-      userSession.checkIsRoot();
+      userSession.checkIsSystemAdministrator();
     }
   }
 }

@@ -95,7 +95,7 @@ public class SetRootActionTest {
 
   @Test
   public void execute_fails_with_IAE_when_login_param_is_not_provided() {
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'login' parameter is missing");
@@ -109,7 +109,7 @@ public class SetRootActionTest {
     userDao.insert(dbSession, otherUser);
     userDao.insert(dbSession, UserTesting.newUserDto(SOME_LOGIN, "name", "email"));
     dbSession.commit();
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     executeRequest(SOME_LOGIN);
 
@@ -124,7 +124,7 @@ public class SetRootActionTest {
     userDao.insert(dbSession, UserTesting.newUserDto(SOME_LOGIN, "name", "email"));
     userDao.setRoot(dbSession, SOME_LOGIN, true);
     dbSession.commit();
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     executeRequest(SOME_LOGIN);
 
@@ -134,7 +134,7 @@ public class SetRootActionTest {
 
   @Test
   public void execute_fails_with_NotFoundException_when_user_for_specified_login_does_not_exist() {
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'foo_bar' not found");
@@ -147,7 +147,7 @@ public class SetRootActionTest {
     UserDto userDto = UserTesting.newUserDto().setActive(false);
     userDao.insert(dbSession, userDto);
     dbSession.commit();
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login '" + userDto.getLogin() + "' not found");
@@ -155,7 +155,7 @@ public class SetRootActionTest {
     executeRequest(userDto.getLogin());
   }
 
-  private void makeAuthenticatedUserRoot() {
+  private void logInAsRoot() {
     userSessionRule.logIn().setRoot();
   }
 

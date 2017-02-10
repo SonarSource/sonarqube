@@ -62,21 +62,6 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void root_users_can_delete_custom_measures() throws Exception {
-    userSession.logIn().setRoot();
-    ComponentDto project = db.components().insertProject();
-
-    long id = insertCustomMeasure(project);
-    long anotherId = insertCustomMeasure(project);
-
-    WsTester.Result response = newRequest().setParam(PARAM_ID, valueOf(id)).execute();
-
-    assertThat(dbClient.customMeasureDao().selectById(dbSession, id)).isNull();
-    assertThat(dbClient.customMeasureDao().selectById(dbSession, anotherId)).isNotNull();
-    response.assertNoContent();
-  }
-
-  @Test
   public void project_administrator_can_delete_custom_measures() throws Exception {
     ComponentDto project = db.components().insertProject();
     userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
@@ -95,17 +80,17 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
     ComponentDto project = db.components().insertProject();
     long id = insertCustomMeasure(project);
-    userSession.logIn().setNonRoot();
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     newRequest().setParam(PARAM_ID, valueOf(id)).execute();
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_administrator() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
     ComponentDto project = db.components().insertProject();
     long id = insertCustomMeasure(project);
     userSession.anonymous();

@@ -65,7 +65,7 @@ public class ShowActionTest {
 
   @Test
   public void return_server_id_info() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
     setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
@@ -82,7 +82,7 @@ public class ShowActionTest {
 
   @Test
   public void return_invalid_server_id() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
     insertConfiguration("invalid", null, null);
 
@@ -97,7 +97,7 @@ public class ShowActionTest {
 
   @Test
   public void return_no_server_id_info_when_no_settings_and_no_available_ips() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     ShowWsResponse response = executeRequest();
 
@@ -110,7 +110,7 @@ public class ShowActionTest {
 
   @Test
   public void return_no_server_id_info_when_no_server_id_but_other_settings() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     insertConfiguration(null, "home", "127.0.0.1");
 
     ShowWsResponse response = executeRequest();
@@ -124,7 +124,7 @@ public class ShowActionTest {
 
   @Test
   public void return_available_ips_even_if_no_settings() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
 
     ShowWsResponse response = executeRequest();
@@ -137,8 +137,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() throws Exception {
-    userSession.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -158,7 +158,7 @@ public class ShowActionTest {
 
   @Test
   public void test_example_json_response() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
     setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
     insertConfiguration("1818a1eefb26f9g", "home", "127.0.0.1");
@@ -203,7 +203,7 @@ public class ShowActionTest {
     }
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

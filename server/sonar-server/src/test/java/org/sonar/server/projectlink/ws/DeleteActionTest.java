@@ -73,7 +73,7 @@ public class DeleteActionTest {
   public void no_response() {
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertCustomLink(project.uuid());
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    logInAsProjectAdministrator(project);
 
     TestResponse response = deleteLink(link.getId());
 
@@ -86,7 +86,7 @@ public class DeleteActionTest {
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertCustomLink(project.uuid());
     long id = link.getId();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    logInAsProjectAdministrator(project);
 
     deleteLink(id);
     assertLinkIsDeleted(id);
@@ -111,7 +111,7 @@ public class DeleteActionTest {
   public void fail_when_delete_provided_link() {
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertHomepageLink(project.uuid());
-    userSession.logIn().setRoot();
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);
 
@@ -202,5 +202,9 @@ public class DeleteActionTest {
 
   private void assertLinkIsNotDeleted(Long id) {
     assertThat(dbClient.componentLinkDao().selectById(dbSession, id)).isNotNull();
+  }
+
+  private void logInAsProjectAdministrator(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
   }
 }

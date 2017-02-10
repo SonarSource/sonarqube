@@ -51,7 +51,7 @@ public class PluginsWsMediumTest {
     WsTester wsTester = new WsTester(serverTester.get(PluginsWs.class));
 
     // 1 - check what's installed, available and pending
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
     wsTester.newGetRequest("api/plugins", "installed").execute().assertJson("{" +
       "  \"plugins\": [" +
       "    {" +
@@ -115,7 +115,7 @@ public class PluginsWsMediumTest {
     wsTester = restartServerTester();
 
     // 4 - make sure plugin is installed
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
     wsTester.newGetRequest("api/plugins", "installed").execute().assertJson("{" +
       "  \"plugins\": [" +
       "    {" +
@@ -148,7 +148,7 @@ public class PluginsWsMediumTest {
     wsTester = restartServerTester();
 
     // 7 - make sure plugin has been uninstalled
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
     wsTester.newGetRequest("api/plugins", "installed").execute().assertJson("{" +
       "  \"plugins\": [" +
       "    {" +

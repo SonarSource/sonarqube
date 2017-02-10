@@ -72,8 +72,8 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void root_deletes_projects_by_uuids_in_all_organizations() throws Exception {
-    userSession.logIn().setRoot();
+  public void system_administrator_deletes_projects_by_uuids_in_all_organizations() throws Exception {
+    userSession.logIn().setSystemAdministrator();
     ComponentDto toDeleteInOrg1 = db.components().insertProject(org1);
     ComponentDto toDeleteInOrg2 = db.components().insertProject(org2);
     ComponentDto toKeep = db.components().insertProject(org2);
@@ -87,8 +87,8 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void root_deletes_projects_by_keys_in_all_organizations() throws Exception {
-    userSession.logIn().setRoot();
+  public void system_administrator_deletes_projects_by_keys_in_all_organizations() throws Exception {
+    userSession.logIn().setSystemAdministrator();
     ComponentDto toDeleteInOrg1 = db.components().insertProject(org1);
     ComponentDto toDeleteInOrg2 = db.components().insertProject(org2);
     ComponentDto toKeep = db.components().insertProject(org2);
@@ -103,7 +103,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() throws Exception {
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
     ComponentDto toDelete1 = db.components().insertProject(org1);
     ComponentDto toDelete2 = db.components().insertProject(org1);
 
@@ -157,8 +157,8 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_root() throws Exception {
-    userSession.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_system_administrator() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

@@ -46,7 +46,7 @@ public class CreateActionMediumTest {
   public static ServerTester tester = new ServerTester().withEsIndexes();
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn().setRoot();
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn().setSystemAdministrator();
 
   WsTester wsTester;
   RuleDao ruleDao;

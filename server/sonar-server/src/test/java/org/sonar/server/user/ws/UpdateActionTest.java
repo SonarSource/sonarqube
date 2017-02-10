@@ -61,7 +61,7 @@ public class UpdateActionTest {
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn().setRoot();
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn().setSystemAdministrator();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession session = dbTester.getSession();

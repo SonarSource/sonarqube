@@ -66,7 +66,7 @@ public class CreateActionTest {
   @Before
   public void setUp() {
     ws = new WsTester(new MetricsWs(new CreateAction(dbClient, userSessionRule)));
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
   }
 
   @Test
@@ -228,8 +228,8 @@ public class CreateActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() throws Exception {
-    userSessionRule.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+    userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

@@ -96,7 +96,7 @@ public class UnsetRootActionTest {
 
   @Test
   public void execute_fails_with_IAE_when_login_param_is_not_provided() {
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'login' parameter is missing");
@@ -108,7 +108,7 @@ public class UnsetRootActionTest {
   public void execute_makes_user_with_specified_login_not_root_when_it_is() {
     UserDto otherUser = insertRootUser(newUserDto());
     insertRootUser(newUserDto(SOME_LOGIN, "name", "email"));
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     executeRequest(SOME_LOGIN);
 
@@ -120,7 +120,7 @@ public class UnsetRootActionTest {
   public void execute_has_no_effect_when_user_is_already_not_root() {
     UserDto otherUser = insertRootUser(newUserDto());
     insertNonRootUser(newUserDto(SOME_LOGIN, "name", "email"));
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     executeRequest(SOME_LOGIN);
 
@@ -132,7 +132,7 @@ public class UnsetRootActionTest {
   public void execute_fails_with_BadRequestException_when_attempting_to_unset_root_on_last_root_user() {
     insertRootUser(newUserDto(SOME_LOGIN, "name", "email"));
     insertNonRootUser(newUserDto());
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Last root can't be unset");
@@ -144,7 +144,7 @@ public class UnsetRootActionTest {
   public void execute_fails_with_BadRequestException_when_attempting_to_unset_non_root_and_there_is_no_root_at_all() {
     UserDto userDto1 = newUserDto(SOME_LOGIN, "name", "email");
     insertNonRootUser(userDto1);
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Last root can't be unset");
@@ -154,7 +154,7 @@ public class UnsetRootActionTest {
 
   @Test
   public void execute_fails_with_NotFoundException_when_user_for_specified_login_does_not_exist() {
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'bar_foo' not found");
@@ -165,7 +165,7 @@ public class UnsetRootActionTest {
   @Test
   public void execute_fails_with_NotFoundException_when_user_for_specified_login_is_inactive() {
     UserDto userDto = insertRootUser(newUserDto().setActive(false));
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login '" + userDto.getLogin() + "' not found");
@@ -186,7 +186,7 @@ public class UnsetRootActionTest {
     return dto;
   }
 
-  private void makeAuthenticatedUserRoot() {
+  private void logInAsRoot() {
     userSessionRule.logIn().setRoot();
   }
 

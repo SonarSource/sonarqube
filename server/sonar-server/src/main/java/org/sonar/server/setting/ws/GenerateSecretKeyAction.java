@@ -50,7 +50,7 @@ public class GenerateSecretKeyAction implements SettingsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     writeProtobuf(GenerateSecretKeyWsResponse.newBuilder().setSecretKey(settings.getEncryption().generateRandomSecretKey()).build(), request, response);
   }

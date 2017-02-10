@@ -88,7 +88,7 @@ public class DeleteAction implements OrganizationsAction {
         key);
 
       if (organizationDto.isGuarded()) {
-        userSession.checkIsRoot();
+        userSession.checkIsSystemAdministrator();
       } else {
         userSession.checkOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
       }

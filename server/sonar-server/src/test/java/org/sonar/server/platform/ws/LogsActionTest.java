@@ -66,7 +66,7 @@ public class LogsActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() {
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -76,7 +76,7 @@ public class LogsActionTest {
 
   @Test
   public void get_app_logs_by_default() throws IOException {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     createAllLogsFiles();
 
@@ -87,7 +87,7 @@ public class LogsActionTest {
 
   @Test
   public void return_404_not_found_if_file_does_not_exist() throws IOException {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     createLogsDir();
 
@@ -97,7 +97,7 @@ public class LogsActionTest {
 
   @Test
   public void get_ce_logs() throws IOException {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     createAllLogsFiles();
 
@@ -110,7 +110,7 @@ public class LogsActionTest {
 
   @Test
   public void get_es_logs() throws IOException {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     createAllLogsFiles();
 
@@ -123,7 +123,7 @@ public class LogsActionTest {
 
   @Test
   public void get_web_logs() throws IOException {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     createAllLogsFiles();
 
@@ -136,7 +136,7 @@ public class LogsActionTest {
 
   @Test
   public void do_not_return_rotated_files() throws IOException {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     File dir = createLogsDir();
     FileUtils.write(new File(dir, "sonar.1.log"), "{old}");
@@ -164,7 +164,7 @@ public class LogsActionTest {
     return dir;
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

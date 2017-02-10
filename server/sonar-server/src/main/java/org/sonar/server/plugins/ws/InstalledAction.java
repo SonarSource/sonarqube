@@ -79,7 +79,7 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     Collection<PluginInfo> pluginInfoList = searchPluginInfoList();
 

@@ -72,7 +72,7 @@ public class UpdateAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     String key = request.mandatoryParam(PARAM_KEY);
     PluginUpdate pluginUpdate = findPluginUpdateByKey(key);

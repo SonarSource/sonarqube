@@ -46,35 +46,35 @@ public class SettingsActionTest {
   private WsActionTester ws;
 
   @Test
-  public void empty() throws Exception {
+  public void empty() {
     init();
-    userSessionRule.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     executeAndVerify("empty.json");
   }
 
   @Test
-  public void with_pages() throws Exception {
+  public void returns_page_settings() {
     init(createPages());
-    userSessionRule.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     executeAndVerify("with_pages.json");
   }
 
   @Test
-  public void with_update_center() throws Exception {
+  public void returns_update_center_settings() {
     init();
     settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
-    userSessionRule.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     executeAndVerify("with_update_center.json");
   }
 
   @Test
-  public void with_views_and_update_center_but_not_root_administrator() throws Exception {
+  public void request_succeeds_but_settings_are_not_returned_when_user_is_not_system_administrator() {
     init(createPages());
     settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
-    userSessionRule.logIn().setNonRoot();
+    userSessionRule.logIn().setNonSystemAdministrator();
 
     executeAndVerify("empty.json");
   }
@@ -100,5 +100,9 @@ public class SettingsActionTest {
     Page secondPage = Page.builder("my_plugin/second_page").setName("Second Page").setAdmin(true).build();
 
     return new Page[] {firstPage, secondPage};
+  }
+
+  private void logInAsSystemAdministrator() {
+    userSessionRule.logIn().setSystemAdministrator();
   }
 }

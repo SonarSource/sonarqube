@@ -101,7 +101,7 @@ public class DeactivateActionTest {
       .setEmail("ada.lovelace@noteg.com")
       .setName("Ada Lovelace")
       .setScmAccounts(singletonList("al")));
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     String json = deactivate(user.getLogin()).getInput();
 
@@ -117,7 +117,7 @@ public class DeactivateActionTest {
   @Test
   public void cannot_deactivate_self() throws Exception {
     UserDto user = createUser();
-    userSession.logIn(user.getLogin()).setRoot();
+    userSession.logIn(user.getLogin()).setSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Self-deactivation is not possible");
@@ -147,7 +147,7 @@ public class DeactivateActionTest {
 
   @Test
   public void fail_if_user_does_not_exist() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User 'someone' doesn't exist");
@@ -157,7 +157,7 @@ public class DeactivateActionTest {
 
   @Test
   public void fail_if_login_is_blank() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User '' doesn't exist");
@@ -169,7 +169,7 @@ public class DeactivateActionTest {
   public void fail_to_deactivate_last_administrator_of_default_organization() throws Exception {
     UserDto admin = createUser();
     db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("User is last administrator, and cannot be deactivated");
@@ -190,7 +190,7 @@ public class DeactivateActionTest {
     db.users().insertPermissionOnUser(org3, user1, SYSTEM_ADMIN);
     UserDto user2 = createUser();
     db.users().insertPermissionOnUser(org3, user2, SYSTEM_ADMIN);
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("User is last administrator of organizations [org1, org2], and cannot be deactivated");
@@ -205,7 +205,7 @@ public class DeactivateActionTest {
     db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
     db.users().insertPermissionOnUser(anotherAdmin, SYSTEM_ADMIN);
     db.commit();
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     deactivate(admin.getLogin());
 
@@ -229,8 +229,8 @@ public class DeactivateActionTest {
     return user;
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
   private TestResponse deactivate(String login) {

@@ -84,7 +84,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void action_updatable_is_defined() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
@@ -109,7 +109,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -118,7 +118,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     underTest.handle(request, response);
 
@@ -127,7 +127,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void verify_response_against_example() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(ABAP_32, COMPATIBLE),
       pluginUpdate(ABAP_31, INCOMPATIBLE),
@@ -140,7 +140,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), COMPATIBLE)));
 
@@ -162,7 +162,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void plugins_are_sorted_by_name_and_made_unique() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate("key2", "name2"),
       pluginUpdate("key2", "name2"),
@@ -190,7 +190,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
         "}");
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

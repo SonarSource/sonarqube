@@ -77,7 +77,7 @@ public class GroupsAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsRoot();
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);

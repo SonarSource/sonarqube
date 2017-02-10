@@ -66,7 +66,7 @@ public class LogsAction implements SystemWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     String processKey = wsRequest.mandatoryParam(PROCESS_PROPERTY);
     ProcessId processId = ProcessId.fromKey(processKey);

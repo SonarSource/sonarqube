@@ -30,6 +30,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsRoot;
 
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements RootsWsAction {
@@ -54,7 +55,7 @@ public class SearchAction implements RootsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    checkIsRoot();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<UserDto> userDtos = dbClient.userDao().selectUsers(
@@ -85,4 +86,12 @@ public class SearchAction implements RootsWsAction {
     }
     return builder.build();
   }
+
+  private void checkIsRoot() {
+    if (!userSession.isRoot()) {
+      throw insufficientPrivilegesException();
+    }
+  }
+
+
 }

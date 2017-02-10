@@ -82,7 +82,7 @@ public class ChangePasswordActionTest {
 
   @Test
   public void fail_on_unknown_user() throws Exception {
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
 
@@ -93,8 +93,8 @@ public class ChangePasswordActionTest {
   }
 
   @Test
-  public void root_can_update_password_of_user() throws Exception {
-    userSessionRule.logIn().setRoot();
+  public void system_administrator_can_update_password_of_user() throws Exception {
+    userSessionRule.logIn().setSystemAdministrator();
     createUser();
     String originalPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
 
@@ -152,7 +152,7 @@ public class ChangePasswordActionTest {
 
   @Test
   public void fail_to_update_password_on_external_auth() throws Exception {
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
 
     userUpdater.create(NewUser.builder()
       .setEmail("john@email.com")

@@ -193,7 +193,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_no_snapshot_id_found() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis with id 'task-uuid' is not found");
@@ -215,7 +215,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_project_id_and_ce_task_id_provided() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("One (and only one) of the following parameters must be provided 'analysisId', 'projectId', 'projectKey'");
@@ -228,7 +228,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_no_parameter_provided() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("One (and only one) of the following parameters must be provided 'analysisId', 'projectId', 'projectKey'");
@@ -258,5 +258,9 @@ public class ProjectStatusActionTest {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

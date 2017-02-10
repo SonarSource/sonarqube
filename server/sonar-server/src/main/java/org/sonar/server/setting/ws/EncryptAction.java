@@ -58,7 +58,7 @@ public class EncryptAction implements SettingsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     String value = request.mandatoryParam(PARAM_VALUE);
     checkRequest(!value.isEmpty(), "Parameter '%s' must not be empty", PARAM_VALUE);

@@ -95,7 +95,7 @@ public class UpdateAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsRoot();
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
     int id = request.mandatoryParamAsInt(PARAM_ID);
 
     try (DbSession dbSession = dbClient.openSession(false)) {

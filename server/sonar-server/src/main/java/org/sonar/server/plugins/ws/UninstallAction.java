@@ -58,7 +58,7 @@ public class UninstallAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     String key = request.mandatoryParam(PARAM_KEY);
     ensurePluginIsInstalled(key);

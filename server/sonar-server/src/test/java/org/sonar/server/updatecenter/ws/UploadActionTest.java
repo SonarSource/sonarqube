@@ -66,7 +66,7 @@ public class UploadActionTest {
 
   @Test
   public void upload_plugin() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     TestResponse response = call(newInputStream(plugin.toPath()), PLUGIN_NAME);
 
@@ -76,7 +76,7 @@ public class UploadActionTest {
 
   @Test
   public void erase_existing_plugin_if_already_exists() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     File plugin1 = new File(getClass().getResource("UploadActionTest/plugin.jar").getFile());
     call(newInputStream(plugin1.toPath()), PLUGIN_NAME);
@@ -91,7 +91,7 @@ public class UploadActionTest {
 
   @Test
   public void fail_when_plugin_extension_is_not_jar() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only jar file is allowed");
@@ -100,7 +100,7 @@ public class UploadActionTest {
 
   @Test
   public void fail_when_no_files_param() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'file' parameter is missing");
@@ -109,7 +109,7 @@ public class UploadActionTest {
 
   @Test
   public void input_stream_should_be_closed() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     InputStream inputStream = newInputStream(plugin.toPath());
     call(inputStream, PLUGIN_NAME);
@@ -120,8 +120,8 @@ public class UploadActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() throws Exception {
-    userSession.logIn();
+  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -135,8 +135,8 @@ public class UploadActionTest {
       .execute();
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
   private void assertPluginIsUploaded(String pluginName) {

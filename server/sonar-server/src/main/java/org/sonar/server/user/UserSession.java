@@ -59,15 +59,10 @@ public interface UserSession {
   boolean isLoggedIn();
 
   /**
-   * Whether the user has root privileges when organizations are enabled.
-   * Always returns {@code false} when organizations are disabled.
+   * Whether the user has root privileges. If {@code true}, then user automatically
+   * benefits from all the permissions on all organizations and projects.
    */
   boolean isRoot();
-
-  /**
-   * Ensures that user is root otherwise throws {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkIsRoot();
 
   /**
    * Ensures that user is logged in otherwise throws {@link org.sonar.server.exceptions.UnauthorizedException}.
@@ -130,7 +125,7 @@ public interface UserSession {
   UserSession checkComponentUuidPermission(String permission, String componentUuid);
 
   /**
-   * Whether user can administrate system, for example to use cross-organizations services
+   * Whether user can administrate system, for example for using cross-organizations services
    * like update center, system info or management of users.
    *
    * Returns {@code true} if:

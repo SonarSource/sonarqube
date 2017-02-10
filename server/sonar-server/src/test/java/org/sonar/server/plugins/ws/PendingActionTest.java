@@ -63,7 +63,7 @@ public class PendingActionTest {
 
   @Test
   public void action_pending_is_defined() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -87,8 +87,8 @@ public class PendingActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSession.logIn();
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -97,7 +97,7 @@ public class PendingActionTest {
 
   @Test
   public void empty_arrays_are_returned_when_there_nothing_pending() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
@@ -110,7 +110,7 @@ public class PendingActionTest {
 
   @Test
   public void empty_arrays_are_returned_when_update_center_is_unavailable() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
 
     underTest.handle(request, response);
@@ -125,7 +125,7 @@ public class PendingActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     newUpdateCenter("scmgit");
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
@@ -156,7 +156,7 @@ public class PendingActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
     underTest.handle(request, response);
@@ -185,7 +185,7 @@ public class PendingActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_updating_plugin() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     newUpdateCenter("scmgit");
     when(serverPluginRepository.getPluginInfos()).thenReturn(of(newScmGitPluginInfo()));
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
@@ -207,7 +207,7 @@ public class PendingActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_removing_and_updating_plugins() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     PluginInfo installed = newPluginInfo("java");
     PluginInfo removedPlugin = newPluginInfo("js");
     PluginInfo newPlugin = newPluginInfo("php");
@@ -244,7 +244,7 @@ public class PendingActionTest {
 
   @Test
   public void installing_plugins_are_sorted_by_name_then_key_and_are_unique() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
@@ -276,7 +276,7 @@ public class PendingActionTest {
 
   @Test
   public void removing_plugins_are_sorted_and_unique() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
@@ -338,7 +338,7 @@ public class PendingActionTest {
     return new PluginInfo("key" + id).setName("name" + id);
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

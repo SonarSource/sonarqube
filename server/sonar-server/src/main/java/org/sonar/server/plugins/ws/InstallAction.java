@@ -71,7 +71,7 @@ public class InstallAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     String key = request.mandatoryParam(PARAM_KEY);
     PluginUpdate pluginUpdate = findAvailablePluginByKey(key);

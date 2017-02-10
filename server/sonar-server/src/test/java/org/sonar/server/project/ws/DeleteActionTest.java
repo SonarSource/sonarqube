@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_ID;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
@@ -77,10 +78,10 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void root_administrator_deletes_project_by_id() throws Exception {
+  public void organization_administrator_deletes_project_by_id() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
+    userSessionRule.logIn().addOrganizationPermission(project.getOrganizationUuid(), SYSTEM_ADMIN);
 
-    userSessionRule.logIn().setRoot();
     WsTester.TestRequest request = newRequest().setParam(PARAM_ID, project.uuid());
     call(request);
 
@@ -88,10 +89,10 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void root_administrator_deletes_project_by_key() throws Exception {
+  public void organization_administrator_deletes_project_by_key() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
+    userSessionRule.logIn().addOrganizationPermission(project.getOrganizationUuid(), SYSTEM_ADMIN);
 
-    userSessionRule.logIn().setRoot();
     call(newRequest().setParam(PARAM_KEY, project.key()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.key());

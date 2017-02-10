@@ -56,8 +56,8 @@ public class ChangeLogLevelActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() {
-    userSession.logIn();
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -66,7 +66,7 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void enable_debug_logs() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     actionTester.newRequest()
       .setParam("level", "DEBUG")
@@ -80,7 +80,7 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void enable_trace_logs() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     actionTester.newRequest()
       .setParam("level", "TRACE")
@@ -94,7 +94,7 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void fail_if_unsupported_level() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -106,7 +106,7 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void fail_if_missing_level() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -115,7 +115,7 @@ public class ChangeLogLevelActionTest {
       .execute();
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

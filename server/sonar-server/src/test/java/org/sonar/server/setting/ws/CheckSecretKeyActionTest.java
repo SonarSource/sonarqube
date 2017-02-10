@@ -56,7 +56,7 @@ public class CheckSecretKeyActionTest {
 
   @Test
   public void json_example() throws IOException {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     File secretKeyFile = temporaryFolder.newFile();
     FileUtils.writeStringToFile(secretKeyFile, "fCVFf/JHRi8Qwu5KLNva7g==");
@@ -69,7 +69,7 @@ public class CheckSecretKeyActionTest {
 
   @Test
   public void false_when_no_secret_key() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     encryption.setPathToSecretKey("unknown/path/to_secret_key.txt");
 
@@ -91,8 +91,8 @@ public class CheckSecretKeyActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() {
-    userSession.logIn();
+  public void throw_ForbiddenException_if_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -112,7 +112,7 @@ public class CheckSecretKeyActionTest {
     }
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

@@ -89,7 +89,7 @@ public class ResetActionTest {
 
   @Test
   public void remove_global_setting() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
@@ -99,7 +99,7 @@ public class ResetActionTest {
 
   @Test
   public void remove_global_setting_even_if_not_defined() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     executeRequestOnGlobalSetting("foo");
@@ -127,7 +127,7 @@ public class ResetActionTest {
 
   @Test
   public void remove_hidden_setting() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
@@ -137,7 +137,7 @@ public class ResetActionTest {
 
   @Test
   public void ignore_project_setting_when_removing_global_setting() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
@@ -161,7 +161,7 @@ public class ResetActionTest {
 
   @Test
   public void ignore_user_setting_when_removing_global_setting() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
     propertyDb.insertProperties(newUserPropertyDto("foo", "one", user));
 
@@ -181,14 +181,14 @@ public class ResetActionTest {
 
   @Test
   public void ignore_unknown_setting_key() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     executeRequestOnGlobalSetting("unknown");
   }
 
   @Test
   public void remove_setting_by_deprecated_key() throws Exception {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").deprecatedKey("old").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
@@ -198,7 +198,7 @@ public class ResetActionTest {
 
   @Test
   public void empty_204_response() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     TestResponse result = ws.newRequest()
       .setParam("keys", "my.key")
       .execute();
@@ -218,8 +218,8 @@ public class ResetActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_global_setting_and_not_root() throws Exception {
-    userSession.logIn();
+  public void throw_ForbiddenException_if_global_setting_and_not_system_administrator() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
@@ -240,8 +240,19 @@ public class ResetActionTest {
   }
 
   @Test
+  public void throw_ForbiddenException_if_project_setting_and_system_administrator() throws Exception {
+    logInAsSystemAdministrator();
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    executeRequestOnComponentSetting("foo", project);
+  }
+
+  @Test
   public void fail_when_not_global_and_no_component() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo")
       .onlyOnQualifiers(VIEW)
       .build());
@@ -254,7 +265,7 @@ public class ResetActionTest {
 
   @Test
   public void fail_when_qualifier_not_included() {
-    logInAsRoot();
+    userSession.logIn().setRoot();
     definitions.addComponent(PropertyDefinition.builder("foo")
       .onQualifiers(VIEW)
       .build());
@@ -268,7 +279,8 @@ public class ResetActionTest {
 
   @Test
   public void fail_to_reset_setting_component_when_setting_is_global() {
-    logInAsRoot();
+    userSession.logIn().setRoot();
+
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     i18n.put("qualifier." + PROJECT, "project");
 
@@ -300,8 +312,8 @@ public class ResetActionTest {
     request.execute();
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
   private void logInAsProjectAdmin() {

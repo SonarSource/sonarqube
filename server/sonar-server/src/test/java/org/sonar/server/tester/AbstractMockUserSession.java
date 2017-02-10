@@ -82,6 +82,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   @Override
   public boolean isSystemAdministrator() {
-    return systemAdministrator;
+    return isRoot() || systemAdministrator;
   }
 }

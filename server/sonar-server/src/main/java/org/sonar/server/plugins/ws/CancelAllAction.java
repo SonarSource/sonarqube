@@ -51,7 +51,7 @@ public class CancelAllAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     pluginDownloader.cancelDownloads();
     pluginRepository.cancelUninstalls();

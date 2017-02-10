@@ -45,7 +45,7 @@ public class CancelAllActionTest {
 
   @Test
   public void cancel_all_pending_tasks() {
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
 
     call();
 
@@ -53,8 +53,8 @@ public class CancelAllActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() {
-    userSession.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

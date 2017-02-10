@@ -106,7 +106,7 @@ public class CreateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsRoot();
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
     writeProtobuf(doHandle(toWsRequest(request)), request, response);
   }
 

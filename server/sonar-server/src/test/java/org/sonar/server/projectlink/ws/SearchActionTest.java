@@ -78,10 +78,10 @@ public class SearchActionTest {
 
   @Test
   public void example() {
-    logInAsRoot();
     ComponentDto project = insertProject();
     insertHomepageLink(project.uuid());
     insertCustomLink(project.uuid());
+    logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
@@ -92,9 +92,9 @@ public class SearchActionTest {
 
   @Test
   public void request_by_project_id() throws IOException {
-    logInAsRoot();
     ComponentDto project = insertProject();
     insertHomepageLink(project.uuid());
+    logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByUuid(project.uuid());
 
@@ -104,9 +104,9 @@ public class SearchActionTest {
 
   @Test
   public void request_by_project_key() throws IOException {
-    logInAsRoot();
     ComponentDto project = insertProject();
     insertHomepageLink(project.uuid());
+    logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByKey(project.key());
 
@@ -116,10 +116,10 @@ public class SearchActionTest {
 
   @Test
   public void response_fields() throws IOException {
-    logInAsRoot();
     ComponentDto project = insertProject();
     ComponentLinkDto homepageLink = insertHomepageLink(project.uuid());
     ComponentLinkDto customLink = insertCustomLink(project.uuid());
+    logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByKey(project.key());
 
@@ -132,11 +132,11 @@ public class SearchActionTest {
 
   @Test
   public void several_projects() throws IOException {
-    logInAsRoot();
     ComponentDto project1 = insertProject();
     ComponentDto project2 = insertProject("another", "abcd");
     ComponentLinkDto customLink1 = insertCustomLink(project1.uuid());
     insertCustomLink(project2.uuid());
+    userSession.logIn().setRoot();
 
     SearchWsResponse response = callByKey(project1.key());
 
@@ -146,20 +146,20 @@ public class SearchActionTest {
 
   @Test
   public void request_does_not_fail_when_link_has_no_name() throws IOException {
-    logInAsRoot();
     ComponentDto project = db.components().insertProject();
     ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setType("type");
     insertLink(foo);
+    logInAsProjectAdministrator(project);
 
     callByKey(project.key());
   }
 
   @Test
   public void request_does_not_fail_when_link_has_no_type() throws IOException {
-    logInAsRoot();
     ComponentDto project = db.components().insertProject();
     ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setName("name");
     insertLink(foo);
+    logInAsProjectAdministrator(project);
 
     callByKey(project.key());
   }
@@ -198,7 +198,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_both_id_and_key_are_provided() {
     ComponentDto project = insertProject();
-    logInAsRoot();
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
@@ -272,7 +272,7 @@ public class SearchActionTest {
     assertThat(response.getLinks(0).getName()).isEqualTo("Homepage");
   }
 
-  private UserSessionRule logInAsRoot() {
-    return userSession.logIn().setRoot();
+  private void logInAsProjectAdministrator(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
   }
 }

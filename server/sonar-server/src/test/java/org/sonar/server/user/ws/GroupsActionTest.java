@@ -68,7 +68,7 @@ public class GroupsActionTest {
     session.commit();
 
     tester = new WsTester(new UsersWs(new GroupsAction(dbClient, userSession)));
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
   }
 
   @After

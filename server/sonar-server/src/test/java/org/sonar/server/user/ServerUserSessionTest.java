@@ -120,20 +120,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkIsRoot_fails_with_ForbiddenException_when_flag_is_false_on_UserDto() {
-    expectInsufficientPrivilegesForbiddenException();
-
-    newUserSession(NON_ROOT_USER_DTO).checkIsRoot();
-  }
-
-  @Test
-  public void checkIsRoot_does_not_fails_when_flag_is_true_on_UserDto() {
-    ServerUserSession underTest = newUserSession(ROOT_USER_DTO);
-
-    assertThat(underTest.checkIsRoot()).isSameAs(underTest);
-  }
-
-  @Test
   public void hasComponentUuidPermission_returns_true_if_user_has_project_permission_for_given_uuid_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);

@@ -81,7 +81,7 @@ public class ActivityActionTest {
 
   @Test
   public void get_all_past_activity() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     OrganizationDto org1 = dbTester.organizations().insert();
     dbTester.components().insertProject(org1, "PROJECT_1");
     OrganizationDto org2 = dbTester.organizations().insert();
@@ -112,7 +112,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_status() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -129,7 +129,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_max_executed_at_exclude() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -143,7 +143,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_min_submitted_and_max_executed_at_include_day() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     dbTester.components().insertProject(organizationDto, "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -159,7 +159,7 @@ public class ActivityActionTest {
   @Test
   public void filter_on_current_activities() {
     dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
-    logInAsRoot();
+    logInAsSystemAdministrator();
     // T2 is the current activity (the most recent one)
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
@@ -175,7 +175,7 @@ public class ActivityActionTest {
 
   @Test
   public void limit_results() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     dbTester.components().insertProject(organizationDto, "PROJECT_1");
     dbTester.components().insertProject(organizationDto, "PROJECT_2");
@@ -237,7 +237,7 @@ public class ActivityActionTest {
     dbTester.components().insertProjectAndSnapshot(struts);
     dbTester.components().insertProjectAndSnapshot(zookeeper);
     dbTester.components().insertProjectAndSnapshot(eclipse);
-    logInAsRoot();
+    logInAsSystemAdministrator();
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
     insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
@@ -254,7 +254,7 @@ public class ActivityActionTest {
     ComponentDto developer = newDeveloper(organizationDto, "Apache Developer").setUuid("D1").setProjectUuid("D1");
     dbTester.components().insertDeveloperAndSnapshot(developer);
     dbTester.components().insertViewAndSnapshot(apacheView);
-    logInAsRoot();
+    logInAsSystemAdministrator();
     insertActivity("T1", "D1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);
 
@@ -265,7 +265,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
@@ -280,7 +280,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_id_in_activity() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
 
@@ -307,10 +307,10 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_by_component_id() {
-    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
+    ComponentDto project = dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    logInAsRoot();
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     ActivityResponse result = call(ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, "PROJECT_1")
@@ -344,7 +344,7 @@ public class ActivityActionTest {
 
   @Test
   public void fail_if_date_is_not_well_formatted() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Date 'ill-formatted-date' cannot be parsed as either a date or date+time");
@@ -356,7 +356,7 @@ public class ActivityActionTest {
 
   @Test
   public void support_json_response() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .execute();
@@ -364,8 +364,8 @@ public class ActivityActionTest {
     JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
   private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {

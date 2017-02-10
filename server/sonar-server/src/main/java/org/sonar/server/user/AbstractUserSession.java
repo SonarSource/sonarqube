@@ -38,14 +38,6 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final UserSession checkIsRoot() {
-    if (!isRoot()) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
-    }
-    return this;
-  }
-
-  @Override
   public final boolean hasOrganizationPermission(String organizationUuid, String permission) {
     return isRoot() || hasOrganizationPermissionImpl(organizationUuid, permission);
   }

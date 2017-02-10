@@ -55,26 +55,11 @@ public class DeleteActionTest {
   private WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSession));
 
   @Test
-  public void root_administrator_deletes_analysis() {
-    ComponentDto project = db.components().insertProject();
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_PROCESSED));
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setLast(true).setStatus(STATUS_PROCESSED));
-    userSession.logIn().setRoot();
-
-    call("A1");
-
-    db.commit();
-    assertThat(dbClient.snapshotDao().selectByUuids(dbSession, newArrayList("A1", "A2"))).extracting(SnapshotDto::getUuid, SnapshotDto::getStatus).containsExactly(
-      tuple("A1", STATUS_UNPROCESSED),
-      tuple("A2", STATUS_PROCESSED));
-  }
-
-  @Test
   public void project_administrator_deletes_analysis() {
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_PROCESSED));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setLast(true).setStatus(STATUS_PROCESSED));
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    logInAsProjectAdministrator(project);
 
     call("A1");
 
@@ -97,7 +82,7 @@ public class DeleteActionTest {
   public void last_analysis_cannot_be_deleted() {
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(true));
-    userSession.logIn().setRoot();
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The last analysis 'A1' cannot be deleted");
@@ -117,9 +102,9 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_analysis_is_unprocessed() {
-    userSession.logIn().setRoot();
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_UNPROCESSED));
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis 'A1' not found");
@@ -129,9 +114,9 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    userSession.logIn();
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false));
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -142,5 +127,9 @@ public class DeleteActionTest {
     ws.newRequest()
       .setParam(PARAM_ANALYSIS, analysis)
       .execute();
+  }
+
+  private void logInAsProjectAdministrator(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
   }
 }

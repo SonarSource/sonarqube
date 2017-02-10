@@ -72,7 +72,7 @@ public class RestartAction implements SystemWsAction {
         restartFlagHolder.unset();
       }
     } else {
-      userSession.checkIsRoot();
+      userSession.checkIsSystemAdministrator();
 
       LOGGER.info("SonarQube restart requested by {}", userSession.getLogin());
       restartFlagHolder.set();

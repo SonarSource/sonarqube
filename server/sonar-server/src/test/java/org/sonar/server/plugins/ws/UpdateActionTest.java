@@ -82,8 +82,8 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSessionRule.logIn();
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+    userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -93,7 +93,7 @@ public class UpdateActionTest {
 
   @Test
   public void action_update_is_defined() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
@@ -118,7 +118,7 @@ public class UpdateActionTest {
 
   @Test
   public void IAE_is_raised_when_key_param_is_not_provided() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -127,7 +127,7 @@ public class UpdateActionTest {
 
   @Test
   public void IAE_is_raised_when_there_is_no_plugin_update_for_the_key() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("No plugin with key 'pluginKey'");
@@ -137,7 +137,7 @@ public class UpdateActionTest {
 
   @Test
   public void IAE_is_raised_when_update_center_is_unavailable() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -148,7 +148,7 @@ public class UpdateActionTest {
 
   @Test
   public void if_plugin_has_an_update_download_is_triggered_with_latest_version_from_updatecenter() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     Version version = Version.create("1.0");
     when(updateCenter.findPluginUpdates()).thenReturn(ImmutableList.of(
       PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), Status.COMPATIBLE)
@@ -160,8 +160,8 @@ public class UpdateActionTest {
     assertThat(response.outputAsString()).isEmpty();
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSessionRule.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSessionRule.logIn().setSystemAdministrator();
   }
 
 }

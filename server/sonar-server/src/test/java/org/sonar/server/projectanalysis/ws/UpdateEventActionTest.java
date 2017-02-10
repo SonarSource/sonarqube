@@ -173,7 +173,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_event_is_not_found() {
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Event 'E42' not found");

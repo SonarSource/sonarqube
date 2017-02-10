@@ -93,7 +93,7 @@ public class CreateAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsRoot();
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
     String key = request.mandatoryParam(PARAM_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {

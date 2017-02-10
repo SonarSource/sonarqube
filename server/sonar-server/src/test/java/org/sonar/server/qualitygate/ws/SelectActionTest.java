@@ -69,7 +69,7 @@ public class SelectActionTest {
 
   @Test
   public void select_by_id() throws Exception {
-    userSession.logIn().setRoot();
+    logInAsRoot();
     String gateId = String.valueOf(gate.getId());
 
     callById(gateId, project.getId());
@@ -79,7 +79,7 @@ public class SelectActionTest {
 
   @Test
   public void select_by_uuid() throws Exception {
-    userSession.logIn().setRoot();
+    logInAsRoot();
     String gateId = String.valueOf(gate.getId());
 
     callByUuid(gateId, project.uuid());
@@ -89,7 +89,7 @@ public class SelectActionTest {
 
   @Test
   public void select_by_key() throws Exception {
-    userSession.logIn().setRoot();
+    logInAsRoot();
     String gateId = String.valueOf(gate.getId());
 
     callByKey(gateId, project.getKey());
@@ -199,5 +199,9 @@ public class SelectActionTest {
 
   private void assertSelected(String gateId, Long projectId) {
     assertThat(dbClient.propertiesDao().selectProjectProperty(projectId, SONAR_QUALITYGATE_PROPERTY).getValue()).isEqualTo(gateId);
+  }
+
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 }

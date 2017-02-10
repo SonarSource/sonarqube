@@ -88,14 +88,14 @@ public class SearchActionTest {
 
   @Test
   public void execute_returns_empty_list_of_root_when_DB_is_empty() {
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
 
     assertThat(executeRequest()).isEmpty();
   }
 
   @Test
-  public void execute_does_not_fail_when_root_user_has_neither_email_nor_name() {
-    makeAuthenticatedUserRoot();
+  public void execute_succeeds_when_root_user_has_neither_email_nor_name() {
+    logInAsRoot();
     UserDto rootDto = userDao.insert(dbSession, UserTesting.newUserDto().setName(null).setEmail(null));
     userDao.setRoot(dbSession, rootDto.getLogin(), true);
     dbSession.commit();
@@ -110,7 +110,7 @@ public class SearchActionTest {
 
   @Test
   public void execute_returns_root_users_sorted_by_name() {
-    makeAuthenticatedUserRoot();
+    logInAsRoot();
     userDao.insert(dbSession, UserTesting.newUserDto().setName("ddd"));
     UserDto root1 = userDao.insert(dbSession, UserTesting.newUserDto().setName("ccc"));
     userDao.setRoot(dbSession, root1.getLogin(), true);
@@ -124,7 +124,7 @@ public class SearchActionTest {
       .containsExactly("bbb", "ccc");
   }
 
-  private UserSessionRule makeAuthenticatedUserRoot() {
+  private UserSessionRule logInAsRoot() {
     return userSessionRule.logIn().setRoot();
   }
 

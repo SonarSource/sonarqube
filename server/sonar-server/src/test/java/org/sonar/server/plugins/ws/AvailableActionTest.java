@@ -70,7 +70,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void action_available_is_defined() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -94,8 +94,8 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSession.logIn();
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -104,7 +104,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
@@ -112,7 +112,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void empty_array_is_returned_when_update_center_is_not_accessible() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
 
     underTest.handle(request, response);
@@ -122,7 +122,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)));
 
@@ -133,25 +133,25 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     checkStatusDisplayedInJson(COMPATIBLE, "COMPATIBLE");
   }
 
   @Test
   public void status_INCOMPATIBLE_is_displayed_INCOMPATIBLE_in_JSON() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     checkStatusDisplayedInJson(INCOMPATIBLE, "INCOMPATIBLE");
   }
 
   @Test
   public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_SYSTEM_UPGRADE_in_JSON() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     checkStatusDisplayedInJson(REQUIRE_SONAR_UPGRADE, "REQUIRES_SYSTEM_UPGRADE");
   }
 
   @Test
   public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_SYSTEM_UPGRADE_in_JSON() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     checkStatusDisplayedInJson(DEPENDENCIES_REQUIRE_SONAR_UPGRADE, "DEPS_REQUIRE_SYSTEM_UPGRADE");
   }
 
@@ -173,8 +173,8 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
         "}");
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
 }

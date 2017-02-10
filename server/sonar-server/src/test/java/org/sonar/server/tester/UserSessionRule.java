@@ -286,12 +286,6 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public UserSession checkIsRoot() {
-    currentUserSession.checkIsRoot();
-    return this;
-  }
-
-  @Override
   public UserSession checkLoggedIn() {
     currentUserSession.checkLoggedIn();
     return this;

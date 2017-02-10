@@ -67,7 +67,7 @@ public class ComponentServiceUpdateKeyTest {
 
     dbSession.commit();
 
-    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    logInAsProjectAdministrator(project);
     underTest.updateKey(dbSession, project, "sample2:root");
     dbSession.commit();
 
@@ -92,7 +92,7 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto file = ComponentTesting.newFileDto(module, null).setKey("sample:root:module:src/File.xoo");
     dbClient.componentDao().insert(dbSession, file);
     dbSession.commit();
-    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    logInAsProjectAdministrator(project);
 
     underTest.updateKey(dbSession, module, "sample:root2:module");
     dbSession.commit();
@@ -110,7 +110,7 @@ public class ComponentServiceUpdateKeyTest {
 
     dbSession.commit();
 
-    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
+    logInAsProjectAdministrator(provisionedProject);
     underTest.updateKey(dbSession, provisionedProject, "provisionedProject2");
     dbSession.commit();
 
@@ -130,9 +130,9 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_old_key_and_new_key_are_the_same() {
-    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
     ComponentDto anotherProject = componentDb.insertProject();
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Impossible to update key: a component with key \"" + anotherProject.key() + "\" already exists.");
@@ -142,8 +142,8 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_new_key_is_empty() {
-    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
@@ -153,8 +153,8 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_new_key_is_not_formatted_correctly() {
-    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
@@ -164,9 +164,9 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_update_is_not_on_module_or_project() {
-    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
     ComponentDto file = componentDb.insertComponent(newFileDto(project, null));
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component updated must be a module or a key");
@@ -200,10 +200,6 @@ public class ComponentServiceUpdateKeyTest {
     assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
-  }
-
   private ComponentDto insertSampleRootProject() {
     return insertProject("sample:root");
   }
@@ -216,5 +212,9 @@ public class ComponentServiceUpdateKeyTest {
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
+  }
+
+  private void logInAsProjectAdministrator(ComponentDto provisionedProject) {
+    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
   }
 }

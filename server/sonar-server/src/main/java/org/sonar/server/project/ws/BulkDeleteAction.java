@@ -97,7 +97,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   private Optional<OrganizationDto> loadOrganizationByKey(DbSession dbSession, @Nullable String orgKey) {
     if (orgKey == null) {
-      userSession.checkIsRoot();
+      userSession.checkIsSystemAdministrator();
       return Optional.empty();
     }
     OrganizationDto org = support.getOrganization(dbSession, orgKey);

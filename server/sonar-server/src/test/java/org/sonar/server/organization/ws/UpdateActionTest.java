@@ -100,7 +100,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_fails_with_IllegalStateException_if_organization_feature_is_disabled() {
+  public void request_fails_with_IllegalStateException_if_organization_support_is_disabled() {
     organizationFlags.setEnabled(false);
     userSession.logIn();
 
@@ -111,9 +111,9 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_succeeds_if_user_is_root() {
-    logInAsRoot();
+  public void request_succeeds_if_user_is_organization_administrator() {
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(dto);
 
     verifyResponseAndDb(executeKeyRequest(dto.getKey(), "ab"), dto, "ab", DATE_2);
   }
@@ -135,7 +135,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_fails_if_user_is_not_root_and_is_not_organization_administrator() {
+  public void request_fails_if_user_is_not_system_administrator_and_is_not_organization_administrator() {
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
     userSession.logIn();
 
@@ -158,7 +158,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_key_is_missing() {
-    logInAsRoot();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'key' parameter is missing");
@@ -168,15 +168,15 @@ public class UpdateActionTest {
 
   @Test
   public void request_with_only_key_param_succeeds_and_updates_only_updateAt_field() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(org);
 
-    verifyResponseAndDb(executeKeyRequest(dto.getKey(), null), dto, dto.getName(), DATE_2);
+    verifyResponseAndDb(executeKeyRequest(org.getKey(), null), org, org.getName(), DATE_2);
   }
 
   @Test
   public void request_fails_if_name_is_one_char_long() {
-    logInAsRoot();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name 'a' must be at least 2 chars long");
@@ -186,15 +186,15 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_name_is_two_chars_long() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(org);
 
-    verifyResponseAndDb(executeKeyRequest(dto.getKey(), "ab"), dto, "ab", DATE_2);
+    verifyResponseAndDb(executeKeyRequest(org.getKey(), "ab"), org, "ab", DATE_2);
   }
 
   @Test
   public void request_fails_if_name_is_65_chars_long() {
-    logInAsRoot();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name '" + STRING_65_CHARS_LONG + "' must be at most 64 chars long");
@@ -204,35 +204,35 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_name_is_64_char_long() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(org);
 
     String name = STRING_65_CHARS_LONG.substring(0, 64);
 
-    verifyResponseAndDb(executeKeyRequest(dto.getKey(), name), dto, name, DATE_2);
+    verifyResponseAndDb(executeKeyRequest(org.getKey(), name), org, name, DATE_2);
   }
 
   @Test
   public void request_succeeds_if_description_url_and_avatar_are_not_specified() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(org);
 
-    Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, null, null);
-    verifyResponseAndDb(response, dto, "bar", DATE_2);
+    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", null, null, null);
+    verifyResponseAndDb(response, org, "bar", DATE_2);
   }
 
   @Test
   public void request_succeeds_if_description_url_and_avatar_are_specified() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(org);
 
-    Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", "moo", "doo", "boo");
-    verifyResponseAndDb(response, dto, "bar", "moo", "doo", "boo", DATE_2);
+    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", "moo", "doo", "boo");
+    verifyResponseAndDb(response, org, "bar", "moo", "doo", "boo", DATE_2);
   }
 
   @Test
   public void request_fails_if_description_is_257_chars_long() {
-    logInAsRoot();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -242,17 +242,17 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_description_is_256_chars_long() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
     String description = STRING_257_CHARS_LONG.substring(0, 256);
+    logInAsAdministrator(org);
 
-    Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", description, null, null);
-    verifyResponseAndDb(response, dto, "bar", description, dto.getUrl(), dto.getAvatarUrl(), DATE_2);
+    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", description, null, null);
+    verifyResponseAndDb(response, org, "bar", description, org.getUrl(), org.getAvatarUrl(), DATE_2);
   }
 
   @Test
   public void request_fails_if_url_is_257_chars_long() {
-    logInAsRoot();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -262,17 +262,17 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_url_is_256_chars_long() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
     String url = STRING_257_CHARS_LONG.substring(0, 256);
+    logInAsAdministrator(org);
 
-    Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, url, null);
-    verifyResponseAndDb(response, dto, "bar", dto.getDescription(), url, dto.getAvatarUrl(), DATE_2);
+    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", null, url, null);
+    verifyResponseAndDb(response, org, "bar", org.getDescription(), url, org.getAvatarUrl(), DATE_2);
   }
 
   @Test
   public void request_fails_if_avatar_is_257_chars_long() {
-    logInAsRoot();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -282,21 +282,21 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_avatar_is_256_chars_long() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
     String avatar = STRING_257_CHARS_LONG.substring(0, 256);
+    logInAsAdministrator(org);
 
-    Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, null, avatar);
-    verifyResponseAndDb(response, dto, "bar", dto.getDescription(), dto.getUrl(), avatar, DATE_2);
+    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", null, null, avatar);
+    verifyResponseAndDb(response, org, "bar", org.getDescription(), org.getUrl(), avatar, DATE_2);
   }
 
   @Test
   public void request_removes_optional_parameters_when_associated_parameter_are_empty() {
-    logInAsRoot();
-    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(org);
 
-    Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bla", "", "", "");
-    verifyResponseAndDb(response, dto, "bla", null, null, null, DATE_2);
+    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bla", "", "", "");
+    verifyResponseAndDb(response, org, "bla", null, null, null, DATE_2);
   }
 
   private OrganizationDto mockForSuccessfulUpdate(long createdAt, long nextNow) {
@@ -373,10 +373,6 @@ public class UpdateActionTest {
     assertThat(newDto.getAvatarUrl()).isEqualTo(avatar);
     assertThat(newDto.getCreatedAt()).isEqualTo(newDto.getCreatedAt());
     assertThat(newDto.getUpdatedAt()).isEqualTo(updateAt);
-  }
-
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
   }
 
   private void logInAsAdministrator(OrganizationDto organizationDto) {

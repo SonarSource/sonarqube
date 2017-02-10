@@ -89,7 +89,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_fails_with_IllegalStateException_if_organization_feature_is_disabled() {
+  public void request_fails_with_IllegalStateException_if_organization_support_is_disabled() {
     organizationFlags.setEnabled(false);
     userSession.logIn();
 
@@ -110,7 +110,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_fails_with_IAE_if_key_param_is_missing() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'key' parameter is missing");
@@ -120,7 +120,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_fails_with_IAE_if_key_is_the_one_of_default_organization() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Default Organization can't be deleted");
@@ -130,7 +130,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_fails_with_NotFoundException_if_organization_with_specified_key_does_not_exist() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Organization with key 'foo' not found");
@@ -139,7 +139,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root_and_is_not_administrator_of_specified_organization() {
+  public void request_fails_with_ForbiddenException_when_user_is_not_administrator_of_specified_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     userSession.logIn();
 
@@ -150,7 +150,18 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root_and_is_administrator_of_other_organization() {
+  public void request_fails_with_ForbiddenException_when_user_is_system_administrator() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    userSession.logIn().setSystemAdministrator();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    sendRequest(organization);
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_administrator_of_other_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     logInAsAdministrator(dbTester.getDefaultOrganization());
 
@@ -171,9 +182,9 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_deletes_specified_organization_if_exists_and_user_is_root() {
+  public void request_deletes_specified_organization_if_exists_and_user_is_organization_administrator() {
     OrganizationDto organization = dbTester.organizations().insert();
-    userSession.logIn().setRoot();
+    logInAsAdministrator(organization);
 
     sendRequest(organization);
 
@@ -181,9 +192,9 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_deletes_specified_guarded_organization_if_exists_and_user_is_root() {
+  public void request_deletes_specified_guarded_organization_if_exists_and_user_is_system_administrator() {
     OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     sendRequest(organization);
 
@@ -192,8 +203,6 @@ public class DeleteActionTest {
 
   @Test
   public void request_also_deletes_components_of_specified_organization() {
-    logInAsRoot();
-
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertProject(organization);
     ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
@@ -204,6 +213,7 @@ public class DeleteActionTest {
     ComponentDto subview1 = dbTester.components().insertComponent(ComponentTesting.newSubView(view, "v1", "ksv1"));
     ComponentDto subview2 = dbTester.components().insertComponent(ComponentTesting.newSubView(subview1, "v2", "ksv2"));
     ComponentDto projectCopy = dbTester.components().insertComponent(ComponentTesting.newProjectCopy("pc1", project, subview1));
+    logInAsAdministrator(organization);
 
     sendRequest(organization);
 
@@ -215,8 +225,6 @@ public class DeleteActionTest {
 
   @Test
   public void request_also_deletes_permissions_templates_and_permissions_and_groups_of_specified_organization() {
-    logInAsRoot();
-
     OrganizationDto org = dbTester.organizations().insert();
     OrganizationDto otherOrg = dbTester.organizations().insert();
 
@@ -245,6 +253,7 @@ public class DeleteActionTest {
 
     PermissionTemplateDto templateDto = dbTester.permissionTemplates().insertTemplate(org);
     PermissionTemplateDto otherTemplateDto = dbTester.permissionTemplates().insertTemplate(otherOrg);
+    logInAsAdministrator(org);
 
     sendRequest(org);
 
@@ -281,8 +290,8 @@ public class DeleteActionTest {
       .execute();
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
   private void logInAsAdministrator(OrganizationDto organization) {

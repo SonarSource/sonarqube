@@ -59,7 +59,7 @@ public class InfoAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     JsonWriter json = response.newJsonWriter();
     writeJson(json);

@@ -71,7 +71,7 @@ public class SendAction implements EmailsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
     try {
       emailNotificationChannel.sendTestEmail(request.mandatoryParam(PARAM_TO), request.param(PARAM_SUBJECT), request.mandatoryParam(PARAM_MESSAGE));
     } catch (EmailException emailException) {

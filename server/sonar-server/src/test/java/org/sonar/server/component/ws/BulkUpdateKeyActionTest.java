@@ -239,12 +239,11 @@ public class BulkUpdateKeyActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root_administrator() {
-    userSession.anonymous();
+  public void throw_ForbiddenException_if_not_project_administrator() {
+    userSession.logIn();
     ComponentDto project = insertMyProject();
 
     expectedException.expect(ForbiddenException.class);
-
 
     callDryRunByUuid(project.uuid(), FROM, TO);
   }

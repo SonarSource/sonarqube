@@ -266,16 +266,16 @@ public class TaskActionTest {
   }
 
   @Test
-  public void getting_global_queue_task_requires_root_permission() {
-    userSession.logIn().setRoot();
+  public void getting_global_queue_task_requires_to_be_system_administrator() {
+    logInAsSystemAdministrator();
     CeQueueDto task = createAndPersistQueueTask(null);
 
     call(task.getUuid());
   }
 
   @Test
-  public void getting_global_queue_throws_ForbiddenException_if_not_root() {
-    userSession.logIn().setNonRoot();
+  public void getting_global_queue_throws_ForbiddenException_if_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
     CeQueueDto task = createAndPersistQueueTask(null);
 
     expectedException.expect(ForbiddenException.class);
@@ -310,16 +310,16 @@ public class TaskActionTest {
   }
 
   @Test
-  public void getting_global_archived_task_requires_root_permission() {
-    userSession.logIn().setRoot();
+  public void getting_global_archived_task_requires_to_be_system_administrator() {
+    logInAsSystemAdministrator();
     CeActivityDto task = createAndPersistArchivedTask(null);
 
     call(task.getUuid());
   }
 
   @Test
-  public void getting_global_archived_throws_ForbiddenException_if_not_root() {
-    userSession.logIn().setNonRoot();
+  public void getting_global_archived_throws_ForbiddenException_if_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
     CeActivityDto task = createAndPersistArchivedTask(null);
 
     expectedException.expect(ForbiddenException.class);
@@ -381,6 +381,10 @@ public class TaskActionTest {
   private void persistScannerContext(String taskUuid, String scannerContext) {
     dbTester.getDbClient().ceScannerContextDao().insert(dbTester.getSession(), taskUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
     dbTester.commit();
+  }
+
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
   private void logInAsRoot() {

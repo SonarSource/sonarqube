@@ -57,7 +57,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   @Before
   public void setUp() {
     i18n.setProjectPermissions();
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
   }
 
   @Override

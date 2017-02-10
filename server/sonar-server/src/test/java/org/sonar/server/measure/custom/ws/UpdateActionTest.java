@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -65,17 +66,17 @@ public class UpdateActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  System2 system = mock(System2.class);
-  WsTester ws;
+
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private System2 system = mock(System2.class);
+  private WsTester ws;
 
   @Before
   public void setUp() {
     CustomMeasureValidator validator = new CustomMeasureValidator(newFullTypeValidations());
 
     ws = new WsTester(new CustomMeasuresWs(new UpdateAction(dbClient, userSessionRule, system, validator, new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule)))));
-    userSessionRule.logIn("login").setRoot();
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")
@@ -96,12 +97,14 @@ public class UpdateActionTest {
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
     when(system.now()).thenReturn(123_456_789L);
+    logInAsProjectAdministrator(component);
 
     ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
+    logInAsProjectAdministrator(component);
 
     CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
     assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("new-text-measure-value");
@@ -120,6 +123,7 @@ public class UpdateActionTest {
       .setValue(42d);
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
+    logInAsProjectAdministrator(component);
 
     ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
@@ -149,6 +153,7 @@ public class UpdateActionTest {
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
     when(system.now()).thenReturn(123_456_789L);
+    logInAsProjectAdministrator(component);
 
     WsTester.Result response = ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
@@ -173,11 +178,13 @@ public class UpdateActionTest {
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
     when(system.now()).thenReturn(123_456_789L);
+    logInAsProjectAdministrator(component);
 
     ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .execute();
+    logInAsProjectAdministrator(component);
 
     CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
     assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("text-measure-value");
@@ -200,6 +207,7 @@ public class UpdateActionTest {
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
     when(system.now()).thenReturn(123_456_789L);
+    logInAsProjectAdministrator(component);
 
     ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
@@ -239,7 +247,6 @@ public class UpdateActionTest {
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
     userSessionRule.logIn();
-    expectedException.expect(ForbiddenException.class);
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);
     ComponentDto component = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "project-uuid");
@@ -252,6 +259,8 @@ public class UpdateActionTest {
       .setTextValue("text-measure-value");
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
+
+    expectedException.expect(ForbiddenException.class);
 
     ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
@@ -316,5 +325,9 @@ public class UpdateActionTest {
       .setMetricId(metric.getId())
       .setComponentUuid(project.uuid())
       .setCreatedAt(system.now());
+  }
+
+  private void logInAsProjectAdministrator(ComponentDto component) {
+    userSessionRule.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, component.uuid());
   }
 }

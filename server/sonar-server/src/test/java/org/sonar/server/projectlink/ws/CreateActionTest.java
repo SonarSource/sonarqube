@@ -77,13 +77,12 @@ public class CreateActionTest {
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     underTest = new CreateAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-
-    userSession.logIn().setRoot();
   }
 
   @Test
   public void example_with_key() {
     ComponentDto project = insertProject();
+    logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
         .setMethod("POST")
@@ -98,6 +97,7 @@ public class CreateActionTest {
   @Test
   public void example_with_id() {
     ComponentDto project = insertProject();
+    logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
         .setMethod("POST")
@@ -112,13 +112,14 @@ public class CreateActionTest {
   @Test
   public void require_project_admin() throws IOException {
     ComponentDto project = insertProject();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    logInAsProjectAdministrator(project);
     createAndTest(project);
   }
 
   @Test
   public void with_long_name() throws IOException {
     ComponentDto project = insertProject();
+    logInAsProjectAdministrator(project);
 
     String longName = StringUtils.leftPad("", 60, "a");
     String expectedType = StringUtils.leftPad("", 20, "a");
@@ -128,6 +129,7 @@ public class CreateActionTest {
   @Test
   public void fail_if_no_name() {
     expectedException.expect(IllegalArgumentException.class);
+
     ws.newRequest()
         .setParam(PARAM_PROJECT_KEY, "unknown")
         .setParam(PARAM_URL, "http://example.org")
@@ -226,5 +228,9 @@ public class CreateActionTest {
 
   private void createAndTest(ComponentDto project) throws IOException {
     createAndTest(project, "Custom", "http://example.org", "custom");
+  }
+
+  private void logInAsProjectAdministrator(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
   }
 }

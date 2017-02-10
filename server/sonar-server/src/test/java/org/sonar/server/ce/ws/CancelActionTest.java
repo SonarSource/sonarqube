@@ -44,7 +44,7 @@ public class CancelActionTest {
 
   @Test
   public void cancel_pending_task() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     tester.newRequest()
       .setParam("id", "T1")
@@ -55,7 +55,7 @@ public class CancelActionTest {
 
   @Test
   public void throw_IllegalArgumentException_if_missing_id() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'id' parameter is missing");
@@ -66,8 +66,8 @@ public class CancelActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() {
-    userSession.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -77,5 +77,9 @@ public class CancelActionTest {
       .execute();
 
     verifyZeroInteractions(queue);
+  }
+
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

@@ -54,7 +54,7 @@ public class ShowActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -64,6 +64,7 @@ public class ShowActionTest {
 
   @Test
   public void json_example() throws IOException {
+    userSession.logIn().setRoot();
     insertJsonExampleComponentsAndSnapshots();
 
     String response = ws.newRequest()
@@ -86,6 +87,7 @@ public class ShowActionTest {
 
   @Test
   public void show_provided_project() {
+    userSession.logIn().setRoot();
     componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setEnabled(false));
 
     ShowWsResponse response = newRequest("project-uuid", null);
@@ -94,8 +96,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_if_not_enough_privilege() {
-    userSession.anonymous();
+  public void throw_ForbiddenException_if_user_doesnt_have_browse_permission_on_project() {
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));

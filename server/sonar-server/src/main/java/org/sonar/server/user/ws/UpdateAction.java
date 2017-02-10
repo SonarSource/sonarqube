@@ -96,7 +96,7 @@ public class UpdateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsRoot();
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
     UpdateRequest updateRequest = toWsRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       doHandle(dbSession, toWsRequest(request));

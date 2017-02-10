@@ -56,7 +56,7 @@ public class ActivityStatusActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 

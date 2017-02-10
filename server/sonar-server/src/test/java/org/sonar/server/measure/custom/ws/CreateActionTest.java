@@ -21,7 +21,6 @@ package org.sonar.server.measure.custom.ws;
 
 import java.util.List;
 import org.assertj.core.data.Offset;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -90,20 +89,15 @@ public class CreateActionTest {
   public void setUp() {
     ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
       new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), new ComponentFinder(dbClient))));
-    userSession.logIn("login").setRoot();
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")
       .setName("Login")
       .setEmail("login@login.com")
-      .setActive(true)
-      );
+      .setActive(true));
     dbSession.commit();
-  }
 
-  @After
-  public void tearDown() {
-    dbSession.close();
+    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
   }
 
   @Test
@@ -275,6 +269,7 @@ public class CreateActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newView(db.organizations().insert(), viewUuid));
     dbSession.commit();
     MetricDto metric = insertMetric(BOOL);
+    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, viewUuid);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, viewUuid)
@@ -298,6 +293,7 @@ public class CreateActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newSubView(view, subViewUuid, "SUB_VIEW_KEY"));
     dbSession.commit();
     MetricDto metric = insertMetric(BOOL);
+    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, view.uuid());
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, subViewUuid)
@@ -457,11 +453,12 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_not_enough_permission() throws Exception {
-    expectedException.expect(ForbiddenException.class);
-    userSession.logIn("login");
+  public void fail_when_not_project_administrator() throws Exception {
+    userSession.logIn();
     insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
+
+    expectedException.expect(ForbiddenException.class);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)

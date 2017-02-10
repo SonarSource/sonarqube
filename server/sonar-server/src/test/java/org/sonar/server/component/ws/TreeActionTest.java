@@ -88,7 +88,6 @@ public class TreeActionTest {
 
   @Before
   public void setUp() {
-    userSession.logIn().setRoot();
     ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient), resourceTypes, userSession, Mockito.mock(I18n.class)));
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
     resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
@@ -97,7 +96,7 @@ public class TreeActionTest {
   @Test
   public void json_example() throws IOException {
     ComponentDto project = initJsonExampleComponents();
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    logInWithBrowsePermission(project);
 
     String response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, project.uuid())
@@ -122,6 +121,7 @@ public class TreeActionTest {
     componentDb.insertComponent(directory);
     componentDb.insertComponent(newFileDto(module, directory, 10));
     db.commit();
+    logInWithBrowsePermission(project);
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -151,6 +151,7 @@ public class TreeActionTest {
     componentDb.insertComponent(directory);
     componentDb.insertComponent(newFileDto(module, directory, 1));
     db.commit();
+    logInWithBrowsePermission(project);
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -174,6 +175,7 @@ public class TreeActionTest {
     componentDb.insertComponent(newFileDto(project, 2));
     componentDb.insertComponent(newModuleDto("module-uuid-1", project));
     db.commit();
+    logInWithBrowsePermission(project);
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -195,6 +197,7 @@ public class TreeActionTest {
     componentDb.insertComponent(directory);
     componentDb.insertComponent(newFileDto(module, directory, 3));
     db.commit();
+    logInWithBrowsePermission(project);
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
@@ -216,6 +219,7 @@ public class TreeActionTest {
     componentDb.insertComponent(module);
     componentDb.insertComponent(newDirectory(project, "path/directory/", "directory-uuid-1"));
     db.commit();
+    logInWithBrowsePermission(project);
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -235,6 +239,7 @@ public class TreeActionTest {
     componentDb.insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
     componentDb.insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
     db.commit();
+    logInWithBrowsePermission(view);
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -248,7 +253,8 @@ public class TreeActionTest {
 
   @Test
   public void response_is_empty_on_provisioned_projects() {
-    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    logInWithBrowsePermission(project);
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
@@ -268,6 +274,7 @@ public class TreeActionTest {
     componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertComponent(newDevProjectCopy("project-copy-uuid", project, developer));
     db.commit();
+    logInWithBrowsePermission(developer);
 
     TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, developer.uuid()));
 
@@ -284,6 +291,7 @@ public class TreeActionTest {
     ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
     componentDb.insertViewAndSnapshot(view);
     componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
+    logInWithBrowsePermission(view);
 
     TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, view.uuid()));
 
@@ -295,11 +303,12 @@ public class TreeActionTest {
 
   @Test
   public void fail_when_not_enough_privileges() {
-    expectedException.expect(ForbiddenException.class);
-    userSession.anonymous().logIn()
+    userSession.logIn()
       .addProjectUuidPermissions(UserRole.CODEVIEWER, "project-uuid");
     componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     db.commit();
+
+    expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
@@ -425,5 +434,9 @@ public class TreeActionTest {
   private static String getJsonField(JsonObject jsonObject, String field) {
     JsonElement jsonElement = jsonObject.get(field);
     return jsonElement == null ? null : jsonElement.getAsString();
+  }
+
+  private void logInWithBrowsePermission(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
   }
 }

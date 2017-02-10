@@ -67,8 +67,8 @@ public class InfoActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() {
-    userSessionRule.logIn();
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
+    userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -77,7 +77,7 @@ public class InfoActionTest {
 
   @Test
   public void write_json() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
 
     Map<String, Object> attributes1 = new LinkedHashMap<>();
     attributes1.put("foo", "bar");
@@ -95,7 +95,7 @@ public class InfoActionTest {
     assertThat(response.getInput()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSessionRule.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSessionRule.logIn().setSystemAdministrator();
   }
 }

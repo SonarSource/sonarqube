@@ -67,7 +67,7 @@ public class InstalledActionTest {
 
   @Test
   public void action_installed_is_defined() {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -91,8 +91,8 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSession.logIn();
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -101,7 +101,7 @@ public class InstalledActionTest {
 
   @Test
   public void empty_array_is_returned_when_there_is_not_plugin_installed() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
@@ -109,7 +109,7 @@ public class InstalledActionTest {
 
   @Test
   public void empty_array_when_update_center_is_unavailable() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
 
     underTest.handle(request, response);
@@ -119,7 +119,7 @@ public class InstalledActionTest {
 
   @Test
   public void empty_fields_are_not_serialized_to_json() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(new PluginInfo("").setName("")));
 
@@ -130,7 +130,7 @@ public class InstalledActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
     when(pluginRepository.getPluginInfos()).thenReturn(of(
       new PluginInfo("plugKey")
@@ -173,7 +173,7 @@ public class InstalledActionTest {
 
   @Test
   public void category_is_returned_when_in_additional_fields() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
     when(pluginRepository.getPluginInfos()).thenReturn(of(
       new PluginInfo("plugKey")
@@ -225,7 +225,7 @@ public class InstalledActionTest {
 
   @Test
   public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),
@@ -252,7 +252,7 @@ public class InstalledActionTest {
 
   @Test
   public void only_one_plugin_can_have_a_specific_name_and_key() throws Exception {
-    makeAuthenticatedUserRoot();
+    logInAsSystemAdministrator();
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),
@@ -277,8 +277,8 @@ public class InstalledActionTest {
     return new PluginInfo(key).setName(name).setVersion(Version.create("1.0"));
   }
 
-  private void makeAuthenticatedUserRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 
 }

@@ -80,7 +80,7 @@ public class QualityGates {
   }
 
   public QualityGateDto rename(long idToRename, String name) {
-    checkRoot();
+    checkIsSystemAdministrator();
     QualityGateDto toRename = getNonNullQgate(idToRename);
     validateQualityGate(idToRename, name);
     toRename.setName(name);
@@ -89,7 +89,7 @@ public class QualityGates {
   }
 
   public QualityGateDto copy(long sourceId, String destinationName) {
-    checkRoot();
+    checkIsSystemAdministrator();
     getNonNullQgate(sourceId);
     validateQualityGate(null, destinationName);
     QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
@@ -114,7 +114,7 @@ public class QualityGates {
   }
 
   public void delete(long idToDelete) {
-    checkRoot();
+    checkIsSystemAdministrator();
     QualityGateDto qGate = getNonNullQgate(idToDelete);
     DbSession session = dbClient.openSession(false);
     try {
@@ -130,7 +130,7 @@ public class QualityGates {
   }
 
   public void setDefault(DbSession dbSession, @Nullable Long idToUseAsDefault) {
-    checkRoot();
+    checkIsSystemAdministrator();
     if (idToUseAsDefault == null) {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, dbSession);
     } else {
@@ -172,7 +172,7 @@ public class QualityGates {
   }
 
   public void deleteCondition(Long condId) {
-    checkRoot();
+    checkIsSystemAdministrator();
     conditionDao.delete(getNonNullCondition(condId));
   }
 
@@ -243,8 +243,8 @@ public class QualityGates {
     errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
   }
 
-  private void checkRoot() {
-    userSession.checkIsRoot();
+  private void checkIsSystemAdministrator() {
+    userSession.checkIsSystemAdministrator();
   }
 
   private void checkProjectAdmin(ComponentDto project) {

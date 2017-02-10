@@ -57,7 +57,7 @@ public class DeleteActionTest {
 
   @Before
   public void setUp() {
-    userSessionRule.logIn().setRoot();
+    userSessionRule.logIn().setSystemAdministrator();
     ws = new WsTester(new MetricsWs(new DeleteAction(dbClient, userSessionRule)));
     metricDao = dbClient.metricDao();
   }
@@ -124,8 +124,8 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() throws Exception {
-    userSessionRule.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+    userSessionRule.logIn().setNonSystemAdministrator();
     insertCustomEnabledMetrics(1);
 
     expectedException.expect(ForbiddenException.class);

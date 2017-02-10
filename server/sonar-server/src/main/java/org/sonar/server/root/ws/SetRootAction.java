@@ -29,6 +29,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class SetRootAction implements RootsWsAction {
   private static final String PARAM_LOGIN = "login";
@@ -60,7 +61,7 @@ public class SetRootAction implements RootsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsRoot();
+    checkIsRoot();
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -75,5 +76,11 @@ public class SetRootAction implements RootsWsAction {
       }
     }
     response.noContent();
+  }
+
+  private void checkIsRoot() {
+    if (!userSession.isRoot()) {
+      throw insufficientPrivilegesException();
+    }
   }
 }

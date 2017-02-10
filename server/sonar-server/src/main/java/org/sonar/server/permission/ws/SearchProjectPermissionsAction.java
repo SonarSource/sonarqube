@@ -128,7 +128,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, projectRef.get());
       PermissionPrivilegeChecker.checkProjectAdmin(userSession, project.getOrganizationUuid(), Optional.of(new ProjectId(project)));
     } else {
-      userSession.checkLoggedIn().checkIsRoot();
+      userSession.checkLoggedIn().checkIsSystemAdministrator();
     }
   }
 

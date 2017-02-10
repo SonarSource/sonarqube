@@ -62,7 +62,7 @@ public class DeleteAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsRoot();
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<Integer> ids = loadIds(dbSession, request);

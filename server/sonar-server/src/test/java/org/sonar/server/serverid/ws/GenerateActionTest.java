@@ -68,7 +68,7 @@ public class GenerateActionTest {
 
   @Test
   public void persist_settings() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     when(generator.generate("SonarSource", "10.51.42.255")).thenReturn("server_id");
 
@@ -82,7 +82,7 @@ public class GenerateActionTest {
 
   @Test
   public void json_example() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     when(generator.generate("SonarSource", "127.0.0.1")).thenReturn("1818a1eefb26f9g");
 
@@ -96,7 +96,7 @@ public class GenerateActionTest {
 
   @Test
   public void log_message_when_id_generated() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     when(generator.generate("SonarSource", "127.0.0.1")).thenReturn("server_id");
 
     call("SonarSource", "127.0.0.1");
@@ -117,8 +117,8 @@ public class GenerateActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root() {
-    userSession.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -127,7 +127,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_no_organization() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -136,7 +136,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_empty_organization() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -145,7 +145,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_no_ip() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -154,7 +154,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_empty_ip() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -189,7 +189,7 @@ public class GenerateActionTest {
     }
   }
 
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

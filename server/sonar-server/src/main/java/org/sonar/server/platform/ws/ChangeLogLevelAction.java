@@ -66,7 +66,7 @@ public class ChangeLogLevelAction implements SystemWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
-    userSession.checkIsRoot();
+    userSession.checkIsSystemAdministrator();
 
     LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
     db.enableSqlLogging(level.equals(LoggerLevel.TRACE));

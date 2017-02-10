@@ -95,7 +95,7 @@ public class QualityGatesTest {
 
     underTest = new QualityGates(dbClient, metricFinder, userSession);
 
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
   }
 
   @Test
