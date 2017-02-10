@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,37 +35,6 @@ public class ResourceDaoTest {
   public DbTester dbTester = DbTester.create(system);
 
   private ResourceDao underTest = dbTester.getDbClient().resourceDao();
-
-  @Test
-  public void get_resource_by_uuid() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    ResourceDto resource = underTest.selectResource("ABCD");
-
-    assertThat(resource.getUuid()).isEqualTo("ABCD");
-    assertThat(resource.getProjectUuid()).isEqualTo("ABCD");
-    assertThat(resource.getPath()).isNull();
-    assertThat(resource.getName()).isEqualTo("Struts");
-    assertThat(resource.getLongName()).isEqualTo("Apache Struts");
-    assertThat(resource.getScope()).isEqualTo("PRJ");
-    assertThat(resource.getDescription()).isEqualTo("the description");
-    assertThat(resource.getLanguage()).isEqualTo("java");
-    assertThat(resource.isEnabled()).isTrue();
-    assertThat(resource.getAuthorizationUpdatedAt()).isNotNull();
-    assertThat(resource.getCreatedAt()).isNotNull();
-  }
-
-  @Test
-  public void find_root_project_by_component_key() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    assertThat(underTest.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java").getKey()).isEqualTo("org.struts:struts");
-    assertThat(underTest.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts").getKey()).isEqualTo("org.struts:struts");
-    assertThat(underTest.getRootProjectByComponentKey("org.struts:struts-core").getKey()).isEqualTo("org.struts:struts");
-    assertThat(underTest.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
-
-    assertThat(underTest.getRootProjectByComponentKey("unknown")).isNull();
-  }
 
   @Test
   public void update_authorization_date() {

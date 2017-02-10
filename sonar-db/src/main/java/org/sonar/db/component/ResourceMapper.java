@@ -19,15 +19,9 @@
  */
 package org.sonar.db.component;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface ResourceMapper {
-  ResourceDto selectResourceByUuid(String uuid);
-
-  List<ResourceDto> selectResources(ResourceQuery query);
-
-  ResourceDto selectProvisionedProject(@Param("key") String key);
 
   void updateAuthorizationDate(@Param("projectId") Long projectId, @Param("authorizationDate") Long authorizationDate);
 
