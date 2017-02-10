@@ -152,3 +152,106 @@ exports[`test regular user 1`] = `
   </div>
 </nav>
 `;
+
+exports[`test undeletable org 1`] = `
+<nav
+  className="navbar navbar-context page-container"
+  id="context-navigation">
+  <div
+    className="navbar-context-inner">
+    <div
+      className="container">
+      <h2
+        className="navbar-context-title">
+        <span
+          className="navbar-context-title-qualifier little-spacer-right">
+          <OrganizationIcon />
+        </span>
+        <Link
+          className="link-base-color"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/organizations/foo">
+          <strong>
+            Foo
+          </strong>
+        </Link>
+      </h2>
+      <div
+        className="navbar-context-meta" />
+      <ul
+        className="nav navbar-nav nav-tabs">
+        <li>
+          <Link
+            className=""
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/projects">
+            projects.page
+          </Link>
+        </li>
+        <li
+          className="">
+          <a
+            className="dropdown-toggle navbar-admin-link"
+            data-toggle="dropdown"
+            href="#">
+            layout.settings
+             
+            <i
+              className="icon-dropdown" />
+          </a>
+          <ul
+            className="dropdown-menu">
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/foo/groups">
+                user_groups.page
+              </Link>
+            </li>
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/foo/permissions">
+                permissions.page
+              </Link>
+            </li>
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/foo/permission_templates">
+                permission_templates
+              </Link>
+            </li>
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/foo/projects_management">
+                projects_management
+              </Link>
+            </li>
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/foo/edit">
+                edit
+              </Link>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+`;

@@ -26,8 +26,9 @@ import without from 'lodash/without';
 export type Organization = {
   avatar?: string,
   canAdmin?: boolean,
+  canDelete?: boolean,
+  canProvisionProjects?: boolean,
   description?: string,
-  isDefault?: boolean,
   key: string,
   name: string,
   url?: string

@@ -61,7 +61,7 @@ class OrganizationPage extends React.Component {
   render () {
     const { organization } = this.props;
 
-    if (!organization || organization.isDefault == null) {
+    if (!organization || organization.canAdmin == null) {
       if (this.state.loading) {
         return null;
       } else {

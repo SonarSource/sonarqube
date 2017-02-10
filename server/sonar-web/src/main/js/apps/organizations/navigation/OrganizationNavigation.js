@@ -41,6 +41,7 @@ export default class OrganizationNavigation extends React.Component {
       key: string,
       name: string,
       canAdmin?: boolean,
+      canDelete?: boolean,
       url?: string
     }
   };
@@ -83,11 +84,13 @@ export default class OrganizationNavigation extends React.Component {
                 {translate('edit')}
               </Link>
             </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
-                {translate('delete')}
-              </Link>
-            </li>
+            {organization.canDelete && (
+                <li>
+                  <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
+                    {translate('delete')}
+                  </Link>
+                </li>
+            )}
           </ul>
         </li>
     );
