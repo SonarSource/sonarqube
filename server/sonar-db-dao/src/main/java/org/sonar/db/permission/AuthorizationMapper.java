@@ -53,4 +53,7 @@ public interface AuthorizationMapper {
 
   List<Integer> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Integer> userIds);
 
+  Set<String> selectProjectPermissions(@Param("projectUuid") String projectUuid, @Param("userId") long userId);
+
+  Set<String> selectProjectPermissionsOfAnonymous(@Param("projectUuid") String projectUuid);
 }

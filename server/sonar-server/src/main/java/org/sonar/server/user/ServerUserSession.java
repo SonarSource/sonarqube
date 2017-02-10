@@ -23,10 +23,8 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -52,12 +50,11 @@ public class ServerUserSession extends AbstractUserSession {
   private final DbClient dbClient;
   private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
-  private final Supplier<List<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
+  private final Supplier<Collection<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
   private final Supplier<Boolean> isSystemAdministratorSupplier = Suppliers.memoize(this::loadIsSystemAdministrator);
-  private SetMultimap<String, String> projectUuidByPermission = HashMultimap.create();
+  private final Map<String, String> projectUuidByComponentUuid = newHashMap();
   private SetMultimap<String, String> permissionsByOrganizationUuid;
-  private Map<String, String> projectUuidByComponentUuid = newHashMap();
-  private List<String> projectPermissionsCheckedByUuid = new ArrayList<>();
+  private SetMultimap<String, String> permissionsByProjectUuid;
 
   ServerUserSession(DbClient dbClient, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, @Nullable UserDto userDto) {
@@ -67,7 +64,7 @@ public class ServerUserSession extends AbstractUserSession {
     this.userDto = userDto;
   }
 
-  private List<GroupDto> loadGroups() {
+  private Collection<GroupDto> loadGroups() {
     if (this.userDto == null) {
       return Collections.emptyList();
     }
@@ -152,21 +149,29 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
-    if (!projectPermissionsCheckedByUuid.contains(permission)) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        // FIXME do not load all the authorized projects. It can be huge.
-        Collection<String> projectUuids = dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(dbSession, getUserId(), permission);
-        addProjectPermission(permission, projectUuids);
-      }
+    if (permissionsByProjectUuid == null) {
+      permissionsByProjectUuid = HashMultimap.create();
     }
-    return projectUuidByPermission.get(permission).contains(projectUuid);
+    Set<String> permissions;
+    if (permissionsByProjectUuid.containsKey(projectUuid)) {
+      permissions = permissionsByProjectUuid.get(projectUuid);
+    } else {
+      permissions = loadProjectPermissions(projectUuid);
+      permissionsByProjectUuid.putAll(projectUuid, permissions);
+    }
+    return permissions.contains(permission);
   }
 
-  private void addProjectPermission(String permission, Collection<String> authorizedProjectUuids) {
-    for (String key : authorizedProjectUuids) {
-      projectUuidByPermission.put(permission, key);
+  private Set<String> loadProjectPermissions(String projectUuid) {
+    Set<String> permissions;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (userDto != null && userDto.getId() != null) {
+        permissions = dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getId());
+      } else {
+        permissions = dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
+      }
     }
-    projectPermissionsCheckedByUuid.add(permission);
+    return permissions;
   }
 
   @Override

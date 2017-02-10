@@ -56,6 +56,22 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
+   * Loads all the permissions granted to logged-in user for the specified project.
+   * An empty Set is returned if user has no permissions on the project.
+   */
+  public Set<String> selectProjectPermissions(DbSession dbSession, String projectUuid, long userId) {
+    return mapper(dbSession).selectProjectPermissions(projectUuid, userId);
+  }
+
+  /**
+   * Loads all the permissions granted to anonymous for the specified project.
+   * An empty Set is returned if anonymous user has no permissions on the project.
+   */
+  public Set<String> selectProjectPermissionsOfAnonymous(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectProjectPermissionsOfAnonymous(projectUuid);
+  }
+
+  /**
    * The number of users who will still have the permission if the group {@code excludedGroupId}
    * is deleted. The anyone virtual group is not taken into account.
    */
@@ -117,6 +133,10 @@ public class AuthorizationDao implements Dao {
       });
   }
 
+  /**
+   * @deprecated it loads too many results and there's no functional need.
+   */
+  @Deprecated
   public Collection<String> selectAuthorizedRootProjectsUuids(DbSession dbSession, @Nullable Integer userId, String role) {
     String sql;
     Map<String, Object> params = new HashMap<>(2);

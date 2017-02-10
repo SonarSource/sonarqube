@@ -80,6 +80,15 @@ public class ServerUserSessionTest {
   }
 
   @Test
+  public void anonymous_is_not_logged_in_and_does_not_have_login() throws Exception {
+    UserSession session = newAnonymousSession();
+
+    assertThat(session.getLogin()).isNull();
+    assertThat(session.isLoggedIn()).isFalse();
+  }
+
+
+  @Test
   public void getGroups_is_empty_on_anonymous() {
     assertThat(newAnonymousSession().getGroups()).isEmpty();
   }
@@ -158,14 +167,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void anonymous_user() throws Exception {
-    UserSession session = newAnonymousSession();
-
-    assertThat(session.getLogin()).isNull();
-    assertThat(session.isLoggedIn()).isFalse();
-  }
-
-  @Test
   public void checkOrganizationPermission_throws_ForbiddenException_when_user_doesnt_have_the_specified_permission_on_organization() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertUser(NON_ROOT_USER_DTO);
@@ -213,6 +214,56 @@ public class ServerUserSessionTest {
     assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
     assertThat(session.hasOrganizationPermission(org.getUuid(), SYSTEM_ADMIN)).isFalse();
     assertThat(session.hasOrganizationPermission("another-org", PROVISIONING)).isFalse();
+  }
+
+  @Test
+  public void test_hasComponentPermission_with_anonymous_user() {
+    ServerUserSession underTest = newAnonymousSession();
+    ComponentDto project = db.components().insertProject();
+    db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
+    ComponentDto otherProject = db.components().insertProject();
+
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
+    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermission_returns_true_when_logged_in_user_has_permission_on_project_through_anyone() {
+    ServerUserSession underTest = newUserSession(userDto);
+    ComponentDto project = db.components().insertProject();
+    db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
+    ComponentDto otherProject = db.components().insertProject();
+
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
+    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermission_returns_true_when_logged_in_user_has_permission_on_project() {
+    ServerUserSession underTest = newUserSession(userDto);
+    ComponentDto project = db.components().insertProject();
+    db.users().insertProjectPermissionOnUser(userDto, UserRole.CODEVIEWER, project);
+    ComponentDto otherProject = db.components().insertProject();
+
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
+    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermission_returns_true_when_logged_in_user_has_permission_on_project_through_group_membership() {
+    ServerUserSession underTest = newUserSession(userDto);
+    ComponentDto project = db.components().insertProject();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertMember(group, userDto);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, project);
+    ComponentDto otherProject = db.components().insertProject();
+
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
+    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
+    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
   }
 
   @Test
