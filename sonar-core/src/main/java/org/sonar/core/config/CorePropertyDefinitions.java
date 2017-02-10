@@ -253,6 +253,7 @@ public class CorePropertyDefinitions {
         .defaultValue(Boolean.toString(false))
         .category(CATEGORY_ORGANIZATIONS)
         .type(PropertyType.BOOLEAN)
+        .hidden()
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS_CREATE_PERSONAL_ORG)
         .name("Create an organization for each new user")
