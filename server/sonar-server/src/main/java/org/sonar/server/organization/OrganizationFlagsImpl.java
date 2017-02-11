@@ -39,7 +39,7 @@ public class OrganizationFlagsImpl implements OrganizationFlags {
   @Override
   public boolean isEnabled(DbSession dbSession) {
     Optional<String> value = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.ORGANIZATION_ENABLED);
-    return value.map(s -> "true".equals(s)).orElse(false);
+    return value.map("true"::equals).orElse(false);
   }
 
   @Override

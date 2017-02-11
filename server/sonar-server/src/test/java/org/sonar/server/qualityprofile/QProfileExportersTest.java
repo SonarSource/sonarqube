@@ -49,7 +49,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

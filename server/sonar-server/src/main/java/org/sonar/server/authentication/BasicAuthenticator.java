@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.base.Charsets;
 import java.util.Base64;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +29,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.usertoken.UserTokenAuthenticator;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
@@ -86,7 +86,7 @@ public class BasicAuthenticator {
 
   private static String getDecodedBasicAuth(String basicAuthEncoded) {
     try {
-      return new String(BASE64_DECODER.decode(basicAuthEncoded.getBytes(Charsets.UTF_8)), Charsets.UTF_8);
+      return new String(BASE64_DECODER.decode(basicAuthEncoded.getBytes(UTF_8)), UTF_8);
     } catch (Exception e) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.BASIC))

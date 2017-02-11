@@ -24,14 +24,13 @@ import java.net.URLEncoder;
 import java.util.List;
 import javax.annotation.Nullable;
 import okhttp3.Response;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import util.user.UserRule;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.call;
 
@@ -130,7 +129,7 @@ public class SsoAuthenticationTest {
     assertThat(response.code()).isEqualTo(200);
     assertThat(response.request().url().toString()).contains("sessions/unauthorized");
 
-    List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8);
+    List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getWebLogs(), UTF_8);
     assertThat(logsLines).doesNotContain("org.sonar.server.exceptions.BadRequestException: Use only letters, numbers, and .-_@ please.");
     USER_RULE.verifyUserDoesNotExist(USER_LOGIN);
   }
@@ -144,7 +143,7 @@ public class SsoAuthenticationTest {
     String expectedError = "You can't sign up because email 'tester@email.com' is already used by an existing user. This means that you probably already registered with another account";
     assertThat(response.code()).isEqualTo(200);
     assertThat(response.request().url().toString()).contains(URLEncoder.encode(expectedError, UTF_8.name()));
-    assertThat(FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8)).doesNotContain(expectedError);
+    assertThat(FileUtils.readLines(orchestrator.getServer().getWebLogs(), UTF_8)).doesNotContain(expectedError);
   }
 
   private static Response doCall(String login, @Nullable String name, @Nullable String email, @Nullable String groups) {

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
@@ -46,9 +44,9 @@ import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 
 public class UserIdentityAuthenticator {
 
@@ -69,8 +67,7 @@ public class UserIdentityAuthenticator {
   }
 
   private UserDto register(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       String userLogin = user.getLogin();
       UserDto userDto = dbClient.userDao().selectByLogin(dbSession, userLogin);
       if (userDto != null && userDto.isActive()) {
@@ -78,8 +75,6 @@ public class UserIdentityAuthenticator {
         return userDto;
       }
       return registerNewUser(dbSession, user, provider, source);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -88,7 +83,7 @@ public class UserIdentityAuthenticator {
       throw AuthenticationException.newBuilder()
         .setSource(source)
         .setLogin(user.getLogin())
-        .setMessage("User signup disabled for provider '" + provider.getKey() + "'")
+        .setMessage(format("User signup disabled for provider '%s'", provider.getKey()))
         .setPublicMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
         .build();
     }
@@ -138,7 +133,9 @@ public class UserIdentityAuthenticator {
       Collection<String> allGroups = new ArrayList<>(groupsToAdd);
       allGroups.addAll(groupsToRemove);
       DefaultOrganization defaultOrganization = defaultOrganizationProvider.get();
-      Map<String, GroupDto> groupsByName = from(dbClient.groupDao().selectByNames(dbSession, defaultOrganization.getUuid(), allGroups)).uniqueIndex(GroupDtoToName.INSTANCE);
+      Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, defaultOrganization.getUuid(), allGroups)
+        .stream()
+        .collect(uniqueIndex(GroupDto::getName));
 
       addGroups(dbSession, userDto, groupsToAdd, groupsByName);
       removeGroups(dbSession, userDto, groupsToRemove, groupsByName);
@@ -161,14 +158,5 @@ public class UserIdentityAuthenticator {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
       });
-  }
-
-  private enum GroupDtoToName implements Function<GroupDto, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull GroupDto input) {
-      return input.getName();
-    }
   }
 }

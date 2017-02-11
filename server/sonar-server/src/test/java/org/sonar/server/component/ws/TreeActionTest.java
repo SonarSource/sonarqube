@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -59,6 +58,7 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
@@ -411,7 +411,7 @@ public class TreeActionTest {
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     Date now = new Date();
     JsonParser jsonParser = new JsonParser();
-    JsonElement jsonTree = jsonParser.parse(IOUtils.toString(getClass().getResource("tree-example.json"), Charsets.UTF_8));
+    JsonElement jsonTree = jsonParser.parse(IOUtils.toString(getClass().getResource("tree-example.json"), UTF_8));
     JsonArray components = jsonTree.getAsJsonObject().getAsJsonArray("components");
     for (JsonElement componentAsJsonElement : components) {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();

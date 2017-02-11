@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +28,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
 import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 final class AuthenticationError {
 
@@ -64,7 +64,7 @@ final class AuthenticationError {
 
   private static String encodeMessage(String message) {
     try {
-      return encode(message, Charsets.UTF_8.name());
+      return encode(message, UTF_8.name());
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException(format("Fail to encode %s", message), e);
     }
