@@ -8,20 +8,20 @@
     user_id,
     group_id
     ) values (
-    #{userId,jdbcType=BIGINT},
-    #{groupId,jdbcType=BIGINT}
+    #{userId,jdbcType=INTEGER},
+    #{groupId,jdbcType=INTEGER}
     )
   </insert>
 
   <delete id="delete" parameterType="map">
     delete from groups_users
-    where user_id = #{userId,jdbcType=BIGINT} and
-    group_id = #{groupId,jdbcType=BIGINT}
+    where user_id = #{userId,jdbcType=INTEGER} and
+    group_id = #{groupId,jdbcType=INTEGER}
   </delete>
 
-  <delete id="deleteByGroupId" parameterType="long">
+  <delete id="deleteByGroupId" parameterType="int">
     delete from groups_users
-    where group_id = #{groupId,jdbcType=BIGINT}
+    where group_id = #{groupId,jdbcType=INTEGER}
   </delete>
 
 </mapper>

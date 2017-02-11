@@ -424,7 +424,7 @@ public class SsoAuthenticatorTest {
     if (expectedGroups.length == 0) {
       assertThat(db.users().selectGroupIdsOfUser(userDto)).isEmpty();
     } else {
-      assertThat(db.users().selectGroupIdsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Long[] {}));
+      assertThat(db.users().selectGroupIdsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Integer[] {}));
     }
   }
 

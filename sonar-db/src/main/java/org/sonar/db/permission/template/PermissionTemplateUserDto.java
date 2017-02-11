@@ -24,7 +24,7 @@ import java.util.Date;
 public class PermissionTemplateUserDto {
   private Long id;
   private Long templateId;
-  private Long userId;
+  private Integer userId;
   private String permission;
   private String userName;
   private String userLogin;
@@ -49,11 +49,11 @@ public class PermissionTemplateUserDto {
     return this;
   }
 
-  public Long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 
-  public PermissionTemplateUserDto setUserId(Long userId) {
+  public PermissionTemplateUserDto setUserId(Integer userId) {
     this.userId = userId;
     return this;
   }

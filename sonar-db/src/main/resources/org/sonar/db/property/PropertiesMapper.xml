@@ -176,7 +176,7 @@
         and p.resource_id=#{query.componentId}
       </if>
       <if test="query.userId() != null">
-        and p.user_id=#{query.userId}
+        and p.user_id=#{query.userId,jdbcType=INTEGER}
       </if>
     </where>
   </select>
@@ -193,7 +193,7 @@
     values (
       #{key},
       #{componentId},
-      #{userId},
+      #{userId,jdbcType=INTEGER},
       ${_true},
       #{now}
     )
@@ -212,7 +212,7 @@
     values (
       #{key},
       #{componentId},
-      #{userId},
+      #{userId,jdbcType=INTEGER},
       ${_false},
       #{value},
       #{now}
@@ -232,7 +232,7 @@
     values (
       #{key},
       #{componentId},
-      #{userId},
+      #{userId,jdbcType=INTEGER},
       ${_false},
       #{value},
       #{now}
@@ -246,7 +246,7 @@
     <choose>
       <when test="componentId != null &amp;&amp; userId != null">
         and resource_id=#{componentId}
-        and user_id=#{userId}
+        and user_id=#{userId,jdbcType=INTEGER}
       </when>
       <when test="componentId != null">
         and resource_id=#{componentId}
@@ -254,7 +254,7 @@
       </when>
       <when test="userId != null">
         and resource_id is null
-        and user_id=#{userId}
+        and user_id=#{userId,jdbcType=INTEGER}
       </when>
       <otherwise>
         and resource_id is null
@@ -305,7 +305,7 @@
         and resource_id=#{query.componentId}
       </if>
       <if test="query.userId() != null">
-        and user_id=#{query.userId}
+        and user_id=#{query.userId,jdbcType=INTEGER}
       </if>
     </where>
   </delete>

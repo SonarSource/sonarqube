@@ -40,7 +40,7 @@ public class OrganizationDto {
    */
   private boolean guarded = false;
   /** If of the user for whom the organization was created, can be null. */
-  private Long userId;
+  private Integer userId;
   private long createdAt;
   private long updatedAt;
 
@@ -108,11 +108,11 @@ public class OrganizationDto {
   }
 
   @CheckForNull
-  public Long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 
-  public OrganizationDto setUserId(@Nullable Long userId) {
+  public OrganizationDto setUserId(@Nullable Integer userId) {
     this.userId = userId;
     return this;
   }

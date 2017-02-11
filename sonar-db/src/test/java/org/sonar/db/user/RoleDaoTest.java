@@ -94,7 +94,7 @@ public class RoleDaoTest {
   public void delete_all_group_permissions_by_group_id() {
     db.prepareDbUnit(getClass(), "deleteGroupPermissionsByGroupId.xml");
 
-    underTest.deleteGroupRolesByGroupId(db.getSession(), 100L);
+    underTest.deleteGroupRolesByGroupId(db.getSession(), 100);
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "deleteGroupPermissionsByGroupId-result.xml", "group_roles");

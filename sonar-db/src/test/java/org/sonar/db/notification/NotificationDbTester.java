@@ -44,7 +44,7 @@ public class NotificationDbTester {
     this.dbSession = db.getSession();
   }
 
-  public void assertExists(String channel, String dispatcher, long userId, @Nullable ComponentDto component) {
+  public void assertExists(String channel, String dispatcher, int userId, @Nullable ComponentDto component) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
       .setComponentId(component == null ? null : component.getId())
@@ -56,7 +56,7 @@ public class NotificationDbTester {
     assertThat(result.get(0).getValue()).isEqualTo("true");
   }
 
-  public void assertDoesNotExist(String channel, String dispatcher, long userId, @Nullable ComponentDto component) {
+  public void assertDoesNotExist(String channel, String dispatcher, int userId, @Nullable ComponentDto component) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
       .setComponentId(component == null ? null : component.getId())

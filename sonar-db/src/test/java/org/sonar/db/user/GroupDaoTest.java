@@ -40,7 +40,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 public class GroupDaoTest {
 
   private static final long NOW = 1_500_000L;
-  private static final long MISSING_ID = -1L;
+  private static final int MISSING_ID = -1;
   private static final OrganizationDto AN_ORGANIZATION = new OrganizationDto()
     .setKey("an-org")
     .setName("An Org")

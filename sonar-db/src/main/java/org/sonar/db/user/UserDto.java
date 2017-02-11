@@ -37,7 +37,7 @@ import static java.util.Objects.requireNonNull;
 public class UserDto {
   public static final char SCM_ACCOUNTS_SEPARATOR = '\n';
 
-  private Long id;
+  private Integer id;
   private String login;
   private String name;
   private String email;
@@ -52,11 +52,11 @@ public class UserDto {
   private boolean local = true;
   private boolean root = false;
 
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public UserDto setId(Long id) {
+  public UserDto setId(Integer id) {
     this.id = id;
     return this;
   }

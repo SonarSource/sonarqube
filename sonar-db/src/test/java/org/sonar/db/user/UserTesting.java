@@ -34,7 +34,7 @@ public class UserTesting {
 
   public static UserDto newUserDto(String login, String name, @Nullable String email) {
     return new UserDto()
-      .setId((long)nextInt())
+      .setId(nextInt())
       .setActive(true)
       .setLocal(true)
       .setName(name)
@@ -51,7 +51,7 @@ public class UserTesting {
 
   public static UserDto newLocalUser(String login, String name, @Nullable String email) {
     return new UserDto()
-      .setId((long)nextInt())
+      .setId(nextInt())
       .setActive(true)
       .setLocal(true)
       .setName(name)
@@ -68,7 +68,7 @@ public class UserTesting {
 
   public static UserDto newExternalUser(String login, String name, @Nullable String email) {
     return new UserDto()
-      .setId((long)nextInt())
+      .setId(nextInt())
       .setActive(true)
       .setLocal(false)
       .setName(name)
@@ -83,7 +83,7 @@ public class UserTesting {
 
   public static UserDto newDisabledUser(String login) {
     return new UserDto()
-      .setId((long)nextInt())
+      .setId(nextInt())
       .setLogin(login)
       .setActive(false)
       .setCreatedAt(nextLong())

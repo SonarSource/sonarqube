@@ -103,7 +103,7 @@ public class CreateAction implements OrganizationsAction {
       organizationFlags.checkEnabled(dbSession);
       OrganizationDto organization = organizationCreation.create(
         dbSession,
-        userSession.getUserId().longValue(),
+        userSession.getUserId(),
         newOrganizationBuilder()
           .setName(name)
           .setKey(key)

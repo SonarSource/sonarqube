@@ -37,7 +37,7 @@ public interface UserMapper {
   List<UserDto> selectNullableByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail, @Param("likeScmAccount") String likeScmAccount);
 
   @CheckForNull
-  UserDto selectUser(long userId);
+  UserDto selectUser(int userId);
 
   /**
    * Select user by login. Note that disabled users are ignored.
@@ -49,7 +49,7 @@ public interface UserMapper {
 
   List<UserDto> selectByLogins(List<String> logins);
 
-  List<UserDto> selectByIds(@Param("ids") List<Long> ids);
+  List<UserDto> selectByIds(@Param("ids") List<Integer> ids);
 
   long countByEmail(String email);
 
@@ -64,14 +64,14 @@ public interface UserMapper {
 
   void setRoot(@Param("login") String login, @Param("root") boolean root, @Param("now") long now);
 
-  void removeUserFromGroups(long userId);
+  void removeUserFromGroups(int userId);
 
-  void deleteUserProperties(long userId);
+  void deleteUserProperties(int userId);
 
-  void deleteUserRoles(long userId);
+  void deleteUserRoles(int userId);
 
   void deletePropertiesMatchingLogin(@Param("propertyKeys") List<String> propertyKeys, @Param("login") String login);
 
-  void deactivateUser(@Param("id") long userId, @Param("now") long now);
+  void deactivateUser(@Param("id") int userId, @Param("now") long now);
 
 }

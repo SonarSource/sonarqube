@@ -72,7 +72,7 @@ public class GroupWsSupport {
    * or if the virtual group "Anyone" is requested.
    */
   public GroupId findGroup(DbSession dbSession, Request request) {
-    Long id = request.paramAsLong(PARAM_GROUP_ID);
+    Integer id = request.paramAsInt(PARAM_GROUP_ID);
     String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
     String name = request.param(PARAM_GROUP_NAME);
     return findGroup(dbSession, GroupWsRef.create(id, organizationKey, name));

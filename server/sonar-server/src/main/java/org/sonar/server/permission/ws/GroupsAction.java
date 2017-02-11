@@ -126,14 +126,14 @@ public class GroupsAction implements PermissionsWsAction {
   }
 
   private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupPermissionDto> groupPermissions, Paging paging) {
-    Multimap<Long, String> permissionsByGroupId = TreeMultimap.create();
+    Multimap<Integer, String> permissionsByGroupId = TreeMultimap.create();
     groupPermissions.forEach(groupPermission -> permissionsByGroupId.put(groupPermission.getGroupId(), groupPermission.getRole()));
     WsGroupsResponse.Builder response = WsGroupsResponse.newBuilder();
 
     groups.forEach(group -> {
       Group.Builder wsGroup = response.addGroupsBuilder()
         .setName(group.getName());
-      if (group.getId() != 0L) {
+      if (group.getId() != 0) {
         wsGroup.setId(String.valueOf(group.getId()));
       }
       setNullable(group.getDescription(), wsGroup::setDescription);
@@ -152,7 +152,7 @@ public class GroupsAction implements PermissionsWsAction {
     List<String> orderedNames = dbClient.groupPermissionDao().selectGroupNamesByQuery(dbSession, org.getUuid(), dbQuery);
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, org.getUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
-      groups.add(0, new GroupDto().setId(0L).setName(DefaultGroups.ANYONE).setOrganizationUuid(org.getUuid()));
+      groups.add(0, new GroupDto().setId(0).setName(DefaultGroups.ANYONE).setOrganizationUuid(org.getUuid()));
     }
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
@@ -161,7 +161,7 @@ public class GroupsAction implements PermissionsWsAction {
     if (groups.isEmpty()) {
       return emptyList();
     }
-    List<Long> ids = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
+    List<Integer> ids = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
     return dbClient.groupPermissionDao().selectByGroupIds(dbSession, org.getUuid(), ids, project.isPresent() ? project.get().getId() : null);
   }
 }

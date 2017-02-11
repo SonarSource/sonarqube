@@ -25,18 +25,18 @@ import javax.annotation.Nullable;
 
 public class GroupDto {
 
-  private Long id;
+  private Integer id;
   private String name;
   private String description;
   private String organizationUuid;
   private Date createdAt;
   private Date updatedAt;
 
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public GroupDto setId(Long id) {
+  public GroupDto setId(Integer id) {
     this.id = id;
     return this;
   }

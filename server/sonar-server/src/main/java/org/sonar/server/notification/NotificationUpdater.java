@@ -70,7 +70,7 @@ public class NotificationUpdater {
 
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(key)
-      .setUserId(Long.valueOf(userSession.getUserId()))
+      .setUserId(userSession.getUserId())
       .setValue(PROP_NOTIFICATION_VALUE)
       .setResourceId(projectId));
   }
@@ -100,7 +100,7 @@ public class NotificationUpdater {
 
     dbClient.propertiesDao().delete(dbSession, new PropertyDto()
       .setKey(key)
-      .setUserId(Long.valueOf(userSession.getUserId()))
+      .setUserId(userSession.getUserId())
       .setValue(PROP_NOTIFICATION_VALUE)
       .setResourceId(projectId));
   }

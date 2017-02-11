@@ -74,7 +74,7 @@ public class PropertyTesting {
     return newPropertyDto(component.getId(), user.getId());
   }
 
-  private static PropertyDto newPropertyDto(@Nullable Long componentId, @Nullable Long userId) {
+  private static PropertyDto newPropertyDto(@Nullable Long componentId, @Nullable Integer userId) {
     String key = String.valueOf(cursor);
     cursor++;
     String value = String.valueOf(cursor);
@@ -82,7 +82,7 @@ public class PropertyTesting {
     return newPropertyDto(key, value, componentId, userId);
   }
 
-  private static PropertyDto newPropertyDto(String key, String value, @Nullable Long componentId, @Nullable Long userId) {
+  private static PropertyDto newPropertyDto(String key, String value, @Nullable Long componentId, @Nullable Integer userId) {
     PropertyDto propertyDto = new PropertyDto()
       .setKey(key)
       .setValue(value);

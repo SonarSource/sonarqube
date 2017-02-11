@@ -149,7 +149,7 @@ public class PermissionTemplateServiceTest {
     checkWouldUserHavePermission(dbTester.getDefaultOrganization(), null, UserRole.ADMIN, false);
   }
 
-  private void checkWouldUserHavePermission(OrganizationDto organization, @Nullable Long userId, String permission, boolean expectedResult) {
+  private void checkWouldUserHavePermission(OrganizationDto organization, @Nullable Integer userId, String permission, boolean expectedResult) {
     assertThat(underTest.wouldUserHavePermissionWithDefaultTemplate(session, organization.getUuid(), userId, permission, null, "PROJECT_KEY", Qualifiers.PROJECT))
       .isEqualTo(expectedResult);
   }

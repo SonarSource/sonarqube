@@ -32,7 +32,7 @@ public class PropertyDto {
   private String key;
   private String value;
   private Long resourceId;
-  private Long userId;
+  private Integer userId;
 
   public String getKey() {
     return key;
@@ -64,11 +64,11 @@ public class PropertyDto {
   }
 
   @CheckForNull
-  public Long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 
-  public PropertyDto setUserId(@Nullable Long userId) {
+  public PropertyDto setUserId(@Nullable Integer userId) {
     this.userId = userId;
     return this;
   }

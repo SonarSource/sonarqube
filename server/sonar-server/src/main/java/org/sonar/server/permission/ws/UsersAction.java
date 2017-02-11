@@ -139,7 +139,7 @@ public class UsersAction implements PermissionsWsAction {
   }
 
   private static UsersWsResponse buildResponse(List<UserDto> users, List<UserPermissionDto> userPermissions, Paging paging) {
-    Multimap<Long, String> permissionsByUserId = TreeMultimap.create();
+    Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
     userPermissions.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
     UsersWsResponse.Builder response = UsersWsResponse.newBuilder();
@@ -161,7 +161,7 @@ public class UsersAction implements PermissionsWsAction {
   }
 
   private List<UserDto> findUsers(DbSession dbSession, OrganizationDto org, PermissionQuery query) {
-    List<Long> orderedIds = dbClient.userPermissionDao().selectUserIds(dbSession, org.getUuid(), query);
+    List<Integer> orderedIds = dbClient.userPermissionDao().selectUserIds(dbSession, org.getUuid(), query);
     return Ordering.explicit(orderedIds).onResultOf(UserDto::getId).immutableSortedCopy(dbClient.userDao().selectByIds(dbSession, orderedIds));
   }
 

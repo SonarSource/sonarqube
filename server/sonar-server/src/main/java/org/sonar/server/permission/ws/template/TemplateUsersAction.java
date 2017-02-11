@@ -83,7 +83,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
   }
 
   private static WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
-    Multimap<Long, String> permissionsByUserId = TreeMultimap.create();
+    Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
     permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
     UsersWsResponse.Builder responseBuilder = UsersWsResponse.newBuilder();

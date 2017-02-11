@@ -49,8 +49,8 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class GroupPermissionDaoTest {
 
-  private static final long ANYONE_ID = 0L;
-  private static final long MISSING_ID = -1L;
+  private static final int ANYONE_ID = 0;
+  private static final int MISSING_ID = -1;
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -202,8 +202,8 @@ public class GroupPermissionDaoTest {
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
       defaultOrganizationUuid, PermissionQuery.builder().build()))
-      .doesNotContain(ANYONE)
-      .containsExactly(group.getName());
+        .doesNotContain(ANYONE)
+        .containsExactly(group.getName());
   }
 
   @Test
@@ -237,8 +237,8 @@ public class GroupPermissionDaoTest {
     assertThat(underTest.selectByGroupIds(dbSession, organizationDto.getUuid(), asList(ANYONE_ID), null))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(
-        tuple(0L, SCAN_EXECUTION, null),
-        tuple(0L, PROVISIONING, null));
+        tuple(0, SCAN_EXECUTION, null),
+        tuple(0, PROVISIONING, null));
 
     assertThat(underTest.selectByGroupIds(dbSession, organizationDto.getUuid(), asList(group1.getId(), group2.getId(), ANYONE_ID), null)).hasSize(3);
     assertThat(underTest.selectByGroupIds(dbSession, organizationDto.getUuid(), asList(MISSING_ID), null)).isEmpty();
@@ -274,7 +274,7 @@ public class GroupPermissionDaoTest {
 
     assertThat(underTest.selectByGroupIds(dbSession, org.getUuid(), singletonList(ANYONE_ID), project.getId()))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
-      .containsOnly(tuple(0L, PROVISIONING, project.getId()));
+      .containsOnly(tuple(0, PROVISIONING, project.getId()));
 
     assertThat(underTest.selectByGroupIds(dbSession, org.getUuid(), asList(group1.getId(), group2.getId(), ANYONE_ID), project.getId())).hasSize(2);
     assertThat(underTest.selectByGroupIds(dbSession, org.getUuid(), singletonList(MISSING_ID), project.getId())).isEmpty();
@@ -464,7 +464,7 @@ public class GroupPermissionDaoTest {
       .containsOnly(organizationUuids);
   }
 
-  private Long insertGroupWithPermissions(OrganizationDto organization1) {
+  private int insertGroupWithPermissions(OrganizationDto organization1) {
     GroupDto group = db.users().insertGroup(organization1);
     db.users().insertPermissionOnGroup(group, "foo");
     db.users().insertPermissionOnGroup(group, "bar");

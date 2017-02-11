@@ -191,7 +191,7 @@ public class GroupWithPermissionTemplateDaoTest {
     assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, anotherTemplate.getId(), asList("Anyone")))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(0L, "Anyone", USER));
+        tuple(0, "Anyone", USER));
 
     assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getId(), asList("Group-1", "Group-2", "Anyone"))).hasSize(3);
     assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getId(), asList("Unknown"))).isEmpty();
@@ -223,7 +223,7 @@ public class GroupWithPermissionTemplateDaoTest {
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(group1.getId(), "Group-1", PROVISIONING),
-        tuple(0L, "Anyone", USER));
+        tuple(0, "Anyone", USER));
 
     assertThat(underTest.selectGroupPermissionsByTemplateId(session, 321L)).isEmpty();
   }

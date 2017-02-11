@@ -98,7 +98,7 @@
     where
       sub.groupId in
       <foreach collection="groupIds" open="(" close=")" item="groupId" separator=",">
-        #{groupId,jdbcType=BIGINT}
+        #{groupId,jdbcType=INTEGER}
       </foreach>
       <if test="projectId != null">
         and sub.componentId=#{projectId,jdbcType=BIGINT}
@@ -116,7 +116,7 @@
     gr.resource_id is null and
     <choose>
       <when test="groupId != null">
-        gr.group_id = #{groupId,jdbcType=BIGINT}
+        gr.group_id = #{groupId,jdbcType=INTEGER}
       </when>
       <otherwise>
         gr.group_id is null
@@ -132,7 +132,7 @@
     gr.resource_id = #{projectId,jdbcType=BIGINT} and
     <choose>
       <when test="groupId != null">
-        gr.group_id = #{groupId,jdbcType=BIGINT}
+        gr.group_id = #{groupId,jdbcType=INTEGER}
       </when>
       <otherwise>
         gr.group_id is null
@@ -148,7 +148,7 @@
     role
     ) values (
     #{organizationUuid,jdbcType=VARCHAR},
-    #{groupId,jdbcType=BIGINT},
+    #{groupId,jdbcType=INTEGER},
     #{resourceId,jdbcType=BIGINT},
     #{role,jdbcType=VARCHAR}
     )
@@ -175,7 +175,7 @@
     and
     <choose>
       <when test="groupId != null">
-        group_id=#{groupId,jdbcType=BIGINT}
+        group_id=#{groupId,jdbcType=INTEGER}
       </when>
       <otherwise>
         group_id is null

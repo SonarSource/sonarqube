@@ -24,14 +24,14 @@ import javax.annotation.Nullable;
 
 final class PropertiesRow {
   private final String key;
-  private final Long userId;
+  private final Integer userId;
   private final Long resourceId;
   private final Boolean empty;
   private final String textValue;
   private final String clobValue;
   private final Long createdAt;
 
-  public PropertiesRow(String key, @Nullable Long userId, @Nullable Long resourceId,
+  public PropertiesRow(String key, @Nullable Integer userId, @Nullable Long resourceId,
     @Nullable Boolean empty, @Nullable String textValue, @Nullable String clobValue,
     @Nullable Long createdAt) {
     this.key = key;
@@ -47,7 +47,7 @@ final class PropertiesRow {
     return key;
   }
 
-  public Long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 

@@ -60,7 +60,7 @@ public class PermissionTemplateDbTester {
     addGroupToTemplate(permissionTemplate.getId(), group.getId(), permission);
   }
 
-  public void addGroupToTemplate(long templateId, @Nullable Long groupId, String permission) {
+  public void addGroupToTemplate(long templateId, @Nullable Integer groupId, String permission) {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, templateId, groupId, permission);
     db.commit();
   }
@@ -73,7 +73,7 @@ public class PermissionTemplateDbTester {
     addUserToTemplate(permissionTemplate.getId(), user.getId(), permission);
   }
 
-  public void addUserToTemplate(long templateId, long userId, String permission) {
+  public void addUserToTemplate(long templateId, int userId, String permission) {
     dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateId, userId, permission);
     db.commit();
   }

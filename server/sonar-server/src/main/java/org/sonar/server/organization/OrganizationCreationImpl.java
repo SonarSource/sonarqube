@@ -62,7 +62,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   }
 
   @Override
-  public OrganizationDto create(DbSession dbSession, long creatorUserId, NewOrganization newOrganization) throws KeyConflictException {
+  public OrganizationDto create(DbSession dbSession, int creatorUserId, NewOrganization newOrganization) throws KeyConflictException {
     validate(newOrganization);
     String key = newOrganization.getKey();
     if (organizationKeyIsUsed(dbSession, key)) {
@@ -201,7 +201,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
         .setRole(permission));
   }
 
-  private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, long createUserId) {
+  private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, int createUserId) {
     dbClient.userGroupDao().insert(
       dbSession,
       new UserGroupDto().setGroupId(group.getId()).setUserId(createUserId));

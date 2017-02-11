@@ -34,15 +34,15 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class GroupId {
 
-  private final long id;
+  private final int id;
   private final String organizationUuid;
 
-  public GroupId(String organizationUuid, long id) {
+  public GroupId(String organizationUuid, int id) {
     this.id = id;
     this.organizationUuid = requireNonNull(organizationUuid);
   }
 
-  public long getId() {
+  public int getId() {
     return id;
   }
 

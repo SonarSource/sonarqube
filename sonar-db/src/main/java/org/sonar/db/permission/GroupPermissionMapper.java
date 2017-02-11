@@ -34,7 +34,7 @@ public interface GroupPermissionMapper {
   int countGroupsByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query);
 
   List<GroupPermissionDto> selectByGroupIds(@Param("organizationUuid") String organizationUuid,
-    @Param("groupIds") List<Long> groupIds, @Nullable @Param("projectId") Long projectId);
+    @Param("groupIds") List<Integer> groupIds, @Nullable @Param("projectId") Long projectId);
 
   void groupsCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
@@ -43,13 +43,13 @@ public interface GroupPermissionMapper {
   void deleteByRootComponentId(@Param("rootComponentId") long componentId);
 
   void delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupId") Long groupId, @Nullable @Param("rootComponentId") Long rootComponentId);
+    @Nullable @Param("groupId") Integer groupId, @Nullable @Param("rootComponentId") Long rootComponentId);
 
   List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupId") Long groupId);
+    @Nullable @Param("groupId") Integer groupId);
 
   List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupId") Long groupId, @Param("projectId") long projectId);
+    @Nullable @Param("groupId") Integer groupId, @Param("projectId") long projectId);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 

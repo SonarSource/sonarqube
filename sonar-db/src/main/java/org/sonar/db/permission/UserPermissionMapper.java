@@ -48,17 +48,17 @@ public interface UserPermissionMapper {
 
   void insert(UserPermissionDto dto);
 
-  void deleteGlobalPermission(@Param("userId") long userId, @Param("permission") String permission,
+  void deleteGlobalPermission(@Param("userId") int userId, @Param("permission") String permission,
     @Param("organizationUuid") String organizationUuid);
 
-  void deleteProjectPermission(@Param("userId") long userId, @Param("permission") String permission,
+  void deleteProjectPermission(@Param("userId") int userId, @Param("permission") String permission,
     @Param("projectId") long projectId);
 
   void deleteProjectPermissions(@Param("projectId") long projectId);
 
-  List<String> selectGlobalPermissionsOfUser(@Param("userId") long userId, @Param("organizationUuid") String organizationUuid);
+  List<String> selectGlobalPermissionsOfUser(@Param("userId") int userId, @Param("organizationUuid") String organizationUuid);
 
-  List<String> selectProjectPermissionsOfUser(@Param("userId") long userId, @Param("projectId") long projectId);
+  List<String> selectProjectPermissionsOfUser(@Param("userId") int userId, @Param("projectId") long projectId);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 }

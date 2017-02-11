@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
 
 public class OrganizationCreationImplTest {
-  private static final long SOME_USER_ID = 1L;
+  private static final int SOME_USER_ID = 1;
   private static final String SOME_UUID = "org-uuid";
   private static final long SOME_DATE = 12893434L;
   private static final String A_LOGIN = "a-login";
@@ -316,7 +316,7 @@ public class OrganizationCreationImplTest {
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN),
-        tuple(0L, UserRole.USER), tuple(0L, UserRole.CODEVIEWER));
+        tuple(0, UserRole.USER), tuple(0, UserRole.CODEVIEWER));
   }
 
   @Test

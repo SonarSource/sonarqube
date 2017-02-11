@@ -81,7 +81,7 @@ public class AddActionTest {
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
       .extracting(PropertyDto::getResourceId, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(project.getId(), (long) USER_ID, "favourite");
+      .containsOnly(project.getId(), USER_ID, "favourite");
   }
 
   @Test
@@ -100,7 +100,7 @@ public class AddActionTest {
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
       .extracting(PropertyDto::getResourceId, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(file.getId(), (long) USER_ID, "favourite");
+      .containsOnly(file.getId(), USER_ID, "favourite");
   }
 
   @Test

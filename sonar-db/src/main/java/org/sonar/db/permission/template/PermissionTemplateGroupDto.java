@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 public class PermissionTemplateGroupDto {
   private Long id;
   private Long templateId;
-  private Long groupId;
+  private Integer groupId;
   private String permission;
   private String groupName;
   private Date createdAt;
@@ -49,11 +49,11 @@ public class PermissionTemplateGroupDto {
     return this;
   }
 
-  public Long getGroupId() {
+  public Integer getGroupId() {
     return groupId;
   }
 
-  public PermissionTemplateGroupDto setGroupId(@Nullable Long groupId) {
+  public PermissionTemplateGroupDto setGroupId(@Nullable Integer groupId) {
     this.groupId = groupId;
     return this;
   }

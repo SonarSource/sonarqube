@@ -377,7 +377,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplateGroup);
   }
 
-  private static PermissionTemplateGroupDto newPermissionTemplateGroup(String permission, long templateId, @Nullable Long groupId) {
+  private static PermissionTemplateGroupDto newPermissionTemplateGroup(String permission, long templateId, @Nullable Integer groupId) {
     return newPermissionTemplateGroupDto()
       .setPermission(permission)
       .setTemplateId(templateId)

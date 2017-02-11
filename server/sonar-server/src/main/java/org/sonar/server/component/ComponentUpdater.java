@@ -69,7 +69,7 @@ public class ComponentUpdater {
    * - Add component to favorite if the component has the 'Project Creators' permission
    * - Index component if es indexes
    */
-  public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable Long userId) {
+  public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto componentDto = createRootComponent(dbSession, newComponent);
     removeDuplicatedProjects(dbSession, componentDto.getKey());
@@ -119,7 +119,7 @@ public class ComponentUpdater {
     }
   }
 
-  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, String organizationUuid, @Nullable Long userId) {
+  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, String organizationUuid, @Nullable Integer userId) {
     permissionTemplateService.applyDefault(dbSession, organizationUuid, componentDto, userId);
     if (componentDto.qualifier().equals(PROJECT)
         && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, componentDto)) {

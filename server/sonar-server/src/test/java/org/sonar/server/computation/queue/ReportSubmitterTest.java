@@ -47,7 +47,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -142,7 +142,7 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newProjectDto(organization, PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyLong(), eq(SCAN_EXECUTION), anyString(),
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(organization.getUuid()), any(ComponentDto.class))).thenReturn(true);
@@ -174,7 +174,7 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class))).thenReturn(false);
@@ -193,7 +193,7 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
 

@@ -32,7 +32,7 @@
     <include refid="commonClauses"/>
   </select>
 
-  <select id="countUsersByGroup" parameterType="long" resultType="org.sonar.db.user.GroupUserCount">
+  <select id="countUsersByGroup" parameterType="int" resultType="org.sonar.db.user.GroupUserCount">
     SELECT g.name as groupName, count(gu.user_id) as userCount
     FROM groups g
     LEFT JOIN groups_users gu ON gu.group_id=g.id
@@ -92,7 +92,7 @@
     <include refid="userCommonClauses"/>
   </select>
 
-  <select id="selectGroupIdsByUserId" parameterType="map" resultType="long">
+  <select id="selectGroupIdsByUserId" parameterType="map" resultType="int">
     select group_id
     from groups_users
     where user_id = #{userId}

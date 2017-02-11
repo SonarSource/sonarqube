@@ -40,7 +40,7 @@ public class FavoriteUpdaterTest {
   private static final ComponentDto COMPONENT = newProjectDto(OrganizationTesting.newOrganizationDto())
     .setId(COMPONENT_ID)
     .setKey(COMPONENT_KEY);
-  private static final long USER_ID = 42L;
+  private static final int USER_ID = 42;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

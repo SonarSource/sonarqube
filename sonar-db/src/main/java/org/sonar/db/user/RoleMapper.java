@@ -24,8 +24,8 @@ import org.apache.ibatis.annotations.Param;
 
 public interface RoleMapper {
 
-  List<Long> selectComponentIdsByPermissionAndUserId(@Param("permission") String permission, @Param("userId") long userId);
+  List<Long> selectComponentIdsByPermissionAndUserId(@Param("permission") String permission, @Param("userId") int userId);
 
-  void deleteGroupRolesByGroupId(long groupId);
+  void deleteGroupRolesByGroupId(int groupId);
 
 }

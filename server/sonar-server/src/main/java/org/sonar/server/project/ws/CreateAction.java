@@ -112,7 +112,7 @@ public class CreateAction implements ProjectsWsAction {
         .setBranch(request.getBranch())
         .setQualifier(PROJECT)
         .build(),
-        userSession.isLoggedIn() ? userSession.getUserId().longValue() : null);
+        userSession.isLoggedIn() ? userSession.getUserId() : null);
       return toCreateResponse(componentDto);
     }
   }

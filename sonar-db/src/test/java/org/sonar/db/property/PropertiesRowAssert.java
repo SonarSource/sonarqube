@@ -67,9 +67,10 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
       return null;
     } else {
       Map<String, Object> row = rows.iterator().next();
+      Long userId = (Long) row.get("userId");
       return new PropertiesRow(
         (String) row.get("key"),
-        (Long) row.get("userId"),
+        userId == null ? null : userId.intValue(),
         (Long) row.get("resourceId"),
         toBoolean(row.get("isEmpty")),
         (String) row.get("textValue"),
@@ -113,7 +114,7 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
     return this;
   }
 
-  public PropertiesRowAssert hasUserId(long expected) {
+  public PropertiesRowAssert hasUserId(int expected) {
     isNotNull();
 
     if (!Objects.equals(actual.getUserId(), expected)) {

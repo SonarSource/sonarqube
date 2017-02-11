@@ -29,28 +29,28 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface AuthorizationMapper {
 
-  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid, @Param("userId") long userId);
+  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 
   Set<String> selectOrganizationPermissionsOfAnonymous(@Param("organizationUuid") String organizationUuid);
 
   int countUsersWithGlobalPermissionExcludingGroup(@Param("organizationUuid") String organizationUuid,
-    @Param("permission") String permission, @Param("excludedGroupId") long excludedGroupId);
+    @Param("permission") String permission, @Param("excludedGroupId") int excludedGroupId);
 
   int countUsersWithGlobalPermissionExcludingUser(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission,
-    @Param("excludedUserId") long excludedUserId);
+    @Param("excludedUserId") int excludedUserId);
 
   int countUsersWithGlobalPermissionExcludingGroupMember(@Param("organizationUuid") String organizationUuid,
-                                                         @Param("permission") String permission, @Param("groupId") long groupId, @Param("userId") long userId);
+                                                         @Param("permission") String permission, @Param("groupId") int groupId, @Param("userId") int userId);
 
   int countUsersWithGlobalPermissionExcludingUserPermission(@Param("organizationUuid") String organizationUuid,
-                                                            @Param("permission") String permission, @Param("userId") long userId);
+                                                            @Param("permission") String permission, @Param("userId") int userId);
 
-  Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(@Param("userId") long userId, @Param("permission") String permission);
+  Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(@Param("userId") int userId, @Param("permission") String permission);
 
   Set<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
   
-  Set<Long> keepAuthorizedProjectIdsForUser(@Param("userId") long userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+  Set<Long> keepAuthorizedProjectIdsForUser(@Param("userId") int userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 
-  List<Long> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Long> userIds);
+  List<Integer> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Integer> userIds);
 
 }

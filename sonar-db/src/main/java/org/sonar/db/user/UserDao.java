@@ -50,13 +50,13 @@ public class UserDao implements Dao {
     this.system2 = system2;
   }
 
-  public UserDto selectUserById(long userId) {
+  public UserDto selectUserById(int userId) {
     try (DbSession session = mybatis.openSession(false)) {
       return selectUserById(session, userId);
     }
   }
 
-  public UserDto selectUserById(DbSession session, long userId) {
+  public UserDto selectUserById(DbSession session, int userId) {
     return mapper(session).selectUser(userId);
   }
 
@@ -66,7 +66,7 @@ public class UserDao implements Dao {
    *
    * Used by the Governance plugin
    */
-  public List<UserDto> selectByIds(DbSession session, Collection<Long> ids) {
+  public List<UserDto> selectByIds(DbSession session, Collection<Integer> ids) {
     return executeLargeInputs(ids, mapper(session)::selectByIds);
   }
 

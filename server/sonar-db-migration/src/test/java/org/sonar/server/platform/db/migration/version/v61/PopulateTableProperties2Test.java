@@ -235,8 +235,9 @@ public class PopulateTableProperties2Test {
           " user_id as \"userId\", resource_id as \"resourceId\", is_empty as \"isEmpty\", text_value as \"textValue\", clob_value as \"clobValue\", created_at as \"createdAt\"" +
           " from properties2" +
           " where prop_key='" + key + "'");
+      Long userId = (Long) row.get("userId");
       return new Property2(
-        (Long) row.get("userId"),
+        userId == null ? null : userId.intValue(),
         (Long) row.get("resourceId"),
         isEmpty(row),
         (String) row.get("textValue"),
@@ -266,7 +267,7 @@ public class PopulateTableProperties2Test {
       return this;
     }
 
-    public Property2Assert hasUserId(long expected) {
+    public Property2Assert hasUserId(int expected) {
       isNotNull();
 
       if (!Objects.equals(actual.getUserId(), expected)) {
@@ -357,14 +358,14 @@ public class PopulateTableProperties2Test {
   }
 
   private static final class Property2 {
-    private final Long userId;
+    private final Integer userId;
     private final Long resourceId;
     private final Boolean empty;
     private final String textValue;
     private final String clobValue;
     private final Long createdAt;
 
-    private Property2(@Nullable Long userId, @Nullable Long resourceId,
+    private Property2(@Nullable Integer userId, @Nullable Long resourceId,
       @Nullable Boolean empty, @Nullable String textValue, @Nullable String clobValue,
       @Nullable Long createdAt) {
       this.userId = userId;
@@ -375,7 +376,7 @@ public class PopulateTableProperties2Test {
       this.createdAt = createdAt;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
       return userId;
     }
 

@@ -34,7 +34,7 @@ public class UserDoc extends BaseDoc implements User {
   }
 
   public UserDoc() {
-    this(Maps.<String, Object>newHashMap());
+    this(Maps.newHashMap());
   }
 
   @Override
