@@ -26,15 +26,15 @@
     select
     <include refid="columns"/>
     from ce_queue cq
-    where cq.uuid=#{uuid}
+    where cq.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
   <select id="countByStatusAndComponentUuid" parameterType="map" resultType="int">
     select count(1)
     from ce_queue
-    where status=#{status}
+    where status=#{status,jdbcType=VARCHAR}
     <if test="componentUuid!=null">
-      and component_uuid=#{componentUuid}
+      and component_uuid=#{componentUuid,jdbcType=VARCHAR}
     </if>
   </select>
 
@@ -46,7 +46,7 @@
     select
     <include refid="columns"/>
     from ce_queue cq
-    where cq.component_uuid=#{componentUuid}
+    where cq.component_uuid=#{componentUuid,jdbcType=VARCHAR}
     <include refid="orderByDateAndId"/>
   </select>
 
@@ -75,20 +75,20 @@
       <if test="query.componentUuids != null and query.componentUuids.size()>0">
         and cq.component_uuid in
         <foreach collection="query.componentUuids" open="(" close=")" item="cUuid" separator=",">
-          #{cUuid}
+          #{cUuid,jdbcType=VARCHAR}
         </foreach>
       </if>
       <if test="query.statuses != null">
         and cq.status in
         <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
-          #{status}
+          #{status,jdbcType=VARCHAR}
         </foreach>
       </if>
       <if test="query.type != null">
-        and cq.task_type=#{query.type}
+        and cq.task_type=#{query.type,jdbcType=VARCHAR}
       </if>
       <if test="query.minSubmittedAt != null">
-        and cq.created_at &gt;= #{query.minSubmittedAt}
+        and cq.created_at &gt;= #{query.minSubmittedAt,jdbcType=BIGINT}
       </if>
     </where>
   </sql>
@@ -131,11 +131,11 @@
     set status=#{newStatus,jdbcType=VARCHAR},
     started_at=#{startedAt,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT}
-    where uuid=#{uuid} and status=#{oldStatus}
+    where uuid=#{uuid,jdbcType=VARCHAR} and status=#{oldStatus,jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteByUuid">
-    delete from ce_queue where uuid=#{uuid}
+    delete from ce_queue where uuid=#{uuid,jdbcType=VARCHAR}
   </delete>
 
 </mapper>

@@ -13,7 +13,7 @@
     <choose>
       <when test="projectUuid == null">
         where
-          p.prop_key = #{notifKey}
+          p.prop_key = #{notifKey,jdbcType=VARCHAR}
           and p.text_value = 'true'
           and p.resource_id is null
       </when>
@@ -21,9 +21,9 @@
         inner join projects c on
           c.id=p.resource_id
         where
-          p.prop_key = #{notifKey}
+          p.prop_key = #{notifKey,jdbcType=VARCHAR}
           and p.text_value = 'true'
-          and c.uuid = #{projectUuid}
+          and c.uuid = #{projectUuid,jdbcType=VARCHAR}
           and p.resource_id is not null
       </otherwise>
     </choose>
@@ -37,10 +37,10 @@
     inner join users u on
       p.user_id = u.id
       <if test="componentKey != null">
-        left outer join projects p1 on p.resource_id=p1.id and p1.kee=#{componentKey}
+        left outer join projects p1 on p.resource_id=p1.id and p1.kee=#{componentKey,jdbcType=VARCHAR}
       </if>
     where
-      p.prop_key = #{propKey}
+      p.prop_key = #{propKey,jdbcType=VARCHAR}
       and p.text_value like 'true'
       and (
         p.resource_id is null
@@ -78,7 +78,7 @@
     where
       p.resource_id=r.id
       and p.user_id is null
-      and r.kee=#{resourceKey}
+      and r.kee=#{resourceKey,jdbcType=VARCHAR}
   </select>
 
   <select id="selectDescendantModuleProperties" parameterType="String" resultType="ScrapProperty">
@@ -109,7 +109,7 @@
         and p.user_id is null
       </if>
       <if test="userId != null">
-        and p.user_id=#{userId}
+        and p.user_id=#{userId,jdbcType=INTEGER}
       </if>
   </select>
 

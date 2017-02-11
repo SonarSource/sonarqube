@@ -29,7 +29,7 @@
     and analysis.component_uuid=pm.component_uuid
     and analysis.component_uuid in
     <foreach item="projectUuid" collection="query.getProjectUuids()" open="(" separator="," close=")">
-      #{projectUuid}
+      #{projectUuid,jdbcType=VARCHAR}
     </foreach>
   </select>
 
@@ -38,10 +38,10 @@
     <include refid="selectByQueryCommonJoins"/>
     where
     <include refid="selectByQueryCommonFilters"/>
-    and analysis.component_uuid=#{query.projectUuid}
+    and analysis.component_uuid=#{query.projectUuid,jdbcType=VARCHAR}
     and pm.component_uuid in
     <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
-      #{componentUuid}
+      #{componentUuid,jdbcType=VARCHAR}
     </foreach>
   </select>
 
@@ -52,7 +52,7 @@
       and p.uuid=pm.component_uuid
     where
     <include refid="selectByQueryCommonFilters"/>
-    and pm.component_uuid=#{query.componentUuid}
+    and pm.component_uuid=#{query.componentUuid,jdbcType=VARCHAR}
   </select>
 
   <sql id="selectByQueryCommonJoins">
@@ -67,7 +67,7 @@
       analysis.islast=${_true}
     </if>
     <if test="query.getAnalysisUuid() != null">
-      analysis.uuid = #{query.analysisUuid}
+      analysis.uuid = #{query.analysisUuid,jdbcType=VARCHAR}
     </if>
     <if test="query.getMetricIds() != null">
       and pm.metric_id in
@@ -76,12 +76,12 @@
     <if test="query.getMetricKeys() != null">
       and m.name in
       <foreach item="metricKey" collection="query.getMetricKeys()" open="(" separator="," close=")">
-        #{metricKey}
+        #{metricKey,jdbcType=VARCHAR}
       </foreach>
     </if>
     <choose>
       <when test="query.getPersonId() != null">
-        and pm.person_id = #{query.personId}
+        and pm.person_id = #{query.personId,jdbcType=BIGINT}
       </when>
       <otherwise>
         and pm.person_id is null
@@ -115,7 +115,7 @@
     </if>
     <choose>
       <when test="query.getPersonId() != null">
-        and pm.person_id = #{query.personId}
+        and pm.person_id = #{query.personId,jdbcType=BIGINT}
       </when>
       <otherwise>
         and pm.person_id is null
@@ -129,8 +129,8 @@
     from project_measures pm
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
-      pm.component_uuid = #{componentUuid}
-      and analysis.uuid = #{analysisUuid}
+      pm.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+      and analysis.uuid = #{analysisUuid,jdbcType=VARCHAR}
       and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
       and pm.person_id is null
   </select>
@@ -158,7 +158,7 @@
     from
       project_measures pm, snapshots s, projects p
     where
-      pm.person_id=#{developerId}
+      pm.person_id=#{developerId,jdbcType=BIGINT}
       and pm.metric_id in
         <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
           #{metricId}

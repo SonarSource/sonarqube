@@ -41,7 +41,7 @@
     ca.error_stacktrace as errorStacktrace
     from ce_activity ca
     left outer join ce_scanner_context csc on ca.uuid = csc.task_uuid
-    where ca.uuid=#{uuid}
+    where ca.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
@@ -84,23 +84,23 @@
       <if test="query.componentUuids != null and query.componentUuids.size()>0">
         and ca.component_uuid in
         <foreach collection="query.componentUuids" open="(" close=")" item="cUuid" separator=",">
-          #{cUuid}
+          #{cUuid,jdbcType=VARCHAR}
         </foreach>
       </if>
       <if test="query.statuses != null and !query.statuses.isEmpty()">
         and ca.status in
         <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
-          #{status}
+          #{status,jdbcType=VARCHAR}
         </foreach>
       </if>
       <if test="query.type != null">
-        and ca.task_type=#{query.type}
+        and ca.task_type=#{query.type,jdbcType=VARCHAR}
       </if>
       <if test="query.minSubmittedAt != null">
-        and ca.submitted_at &gt;= #{query.minSubmittedAt}
+        and ca.submitted_at &gt;= #{query.minSubmittedAt,jdbcType=BIGINT}
       </if>
       <if test="query.maxExecutedAt != null">
-        and ca.executed_at &lt;= #{query.maxExecutedAt}
+        and ca.executed_at &lt;= #{query.maxExecutedAt,jdbcType=BIGINT}
       </if>
     </where>
   </sql>
@@ -120,10 +120,10 @@
     from
       ce_activity
     where
-      status=#{status}
+      status=#{status,jdbcType=VARCHAR}
       and is_last=${_true}
       <if test="componentUuid!=null">
-        and component_uuid=#{componentUuid}
+        and component_uuid=#{componentUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
@@ -170,7 +170,7 @@
     update ce_activity
     set is_last=${_false},
     updated_at=#{updatedAt,jdbcType=BIGINT}
-    where is_last=${_true} and is_last_key=#{isLastKey}
+    where is_last=${_true} and is_last_key=#{isLastKey,jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteByUuids" parameterType="string">
@@ -179,7 +179,7 @@
     where
       uuid in
       <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
-        #{uuid}
+        #{uuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 </mapper>

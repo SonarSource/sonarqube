@@ -19,9 +19,9 @@
     AND file_component.enabled=${_true}
     <where>
       AND duplication_block.hash in
-      <foreach collection="hashes" open="(" close=")" item="hash" separator=",">#{hash}</foreach>
+      <foreach collection="hashes" open="(" close=")" item="hash" separator=",">#{hash,jdbcType=VARCHAR}</foreach>
       <if test="analysisUuid != null">
-        AND duplication_block.analysis_uuid &lt;&gt; #{analysisUuid}
+        AND duplication_block.analysis_uuid &lt;&gt; #{analysisUuid,jdbcType=VARCHAR}
       </if>
     </where>
   </select>

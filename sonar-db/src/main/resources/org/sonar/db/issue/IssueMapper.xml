@@ -147,7 +147,7 @@
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.uuid=i.component_uuid
     inner join projects root on root.uuid=i.project_uuid
-    where i.kee=#{kee}
+    where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
   <select id="selectNonClosedByComponentUuid" parameterType="String" resultType="Issue">
@@ -158,14 +158,14 @@
     inner join projects p on p.uuid=i.component_uuid
     inner join projects root on root.uuid=i.project_uuid
     where
-    i.component_uuid=#{componentUuid} and
+    i.component_uuid=#{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
   </select>
 
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
     select distinct(i.component_uuid)
     from issues i
-    where i.project_uuid=#{projectUuid} and i.status &lt;&gt; 'CLOSED'
+    where i.project_uuid=#{projectUuid,jdbcType=VARCHAR} and i.status &lt;&gt; 'CLOSED'
   </select>
 
   <select id="selectByKeys" parameterType="map" resultType="Issue">
@@ -177,7 +177,7 @@
     inner join projects root on root.uuid=i.project_uuid
     where i.kee in
     <foreach collection="list" open="(" close=")" item="key" separator=",">
-      #{key}
+      #{key,jdbcType=VARCHAR}
     </foreach>
   </select>
 </mapper>

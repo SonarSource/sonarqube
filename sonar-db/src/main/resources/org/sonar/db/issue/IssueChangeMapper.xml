@@ -29,16 +29,16 @@
   </delete>
 
   <update id="update" parameterType="map">
-    update issue_changes set change_data=#{changeData}, updated_at=#{updatedAt} where kee=#{kee}
+    update issue_changes set change_data=#{changeData}, updated_at=#{updatedAt,jdbcType=BIGINT} where kee=#{kee,jdbcType=VARCHAR}
   </update>
 
   <select id="selectByIssuesAndType" parameterType="map" resultType="IssueChange">
     select
     <include refid="issueChangeColumns"/>
     from issue_changes c
-    where c.change_type=#{changeType} and c.issue_key in
+    where c.change_type=#{changeType,jdbcType=VARCHAR} and c.issue_key in
     <foreach collection="issueKeys" open="(" close=")" item="key" separator=",">
-      #{key}
+      #{key,jdbcType=VARCHAR}
     </foreach>
     order by c.created_at
   </select>
@@ -47,14 +47,14 @@
     select
     <include refid="issueChangeColumns"/>
     from issue_changes c
-    where c.change_type=#{changeType} and c.kee=#{key}
+    where c.change_type=#{changeType,jdbcType=VARCHAR} and c.kee=#{key,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByIssue" parameterType="string" resultType="IssueChange">
     select
     <include refid="issueChangeColumns"/>
     from issue_changes c
-    where c.issue_key=#{id}
+    where c.issue_key=#{id,jdbcType=VARCHAR}
     order by created_at asc
   </select>
 
@@ -63,8 +63,8 @@
     <include refid="issueChangeColumns"/>
     from issue_changes c
     inner join issues i on i.kee = c.issue_key
-    where i.component_uuid=#{componentUuid}
-    and c.change_type=#{changeType}
+    where i.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+    and c.change_type=#{changeType,jdbcType=VARCHAR}
     and i.status &lt;&gt; 'CLOSED'
   </select>
 </mapper>

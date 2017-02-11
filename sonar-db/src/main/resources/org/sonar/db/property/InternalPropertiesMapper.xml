@@ -11,7 +11,7 @@
     from
       internal_properties
     where
-      kee = #{key}
+      kee = #{key,jdbcType=VARCHAR}
   </select>
 
   <select id="selectAsClob" parameterType="map" resultType="InternalProperty">
@@ -22,7 +22,7 @@
     from
       internal_properties
     where
-      kee = #{key}
+      kee = #{key,jdbcType=VARCHAR}
   </select>
 
   <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
@@ -31,7 +31,7 @@
       kee, is_empty, created_at
     )
     VALUES (
-      #{key}, ${_true}, #{createdAt}
+      #{key,jdbcType=VARCHAR}, ${_true}, #{createdAt,jdbcType=BIGINT}
     )
   </insert>
 
@@ -44,10 +44,10 @@
       created_at
     )
     VALUES (
-      #{key},
+      #{key,jdbcType=VARCHAR},
       ${_false},
-      #{value},
-      #{createdAt}
+      #{value,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT}
     )
   </insert>
 
@@ -60,17 +60,17 @@
       created_at
     )
     VALUES (
-      #{key},
+      #{key,jdbcType=VARCHAR},
       ${_false},
-      #{value},
-      #{createdAt}
+      #{value,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT}
     )
   </insert>
 
   <delete id="deleteByKey" parameterType="String">
     delete from internal_properties
     where
-      kee=#{key}
+      kee=#{key,jdbcType=VARCHAR}
   </delete>
 
 

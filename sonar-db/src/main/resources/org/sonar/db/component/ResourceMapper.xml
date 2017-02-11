@@ -5,7 +5,7 @@
 
   <update id="updateAuthorizationDate" parameterType="map">
     update projects set authorization_updated_at=#{authorizationDate}
-    where id=#{projectId}
+    where id=#{projectId,jdbcType=BIGINT}
   </update>
 
 </mapper>

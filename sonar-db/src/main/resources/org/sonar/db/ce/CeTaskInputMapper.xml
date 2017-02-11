@@ -12,7 +12,7 @@
 
   <delete id="deleteByUuids" parameterType="String">
     delete from ce_task_input
-    where task_uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid}</foreach>
+    where task_uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </delete>
 
 </mapper>
