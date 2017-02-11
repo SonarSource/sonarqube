@@ -66,7 +66,7 @@ public class OrganizationDaoTest {
     .setUrl("the url 1")
     .setAvatarUrl("the avatar url 1")
     .setGuarded(false)
-    .setUserId(1_000L);
+    .setUserId(1_000);
   private static final OrganizationDto ORGANIZATION_DTO_2 = new OrganizationDto()
     .setUuid("uuid 2")
     .setKey("the_key 2")
@@ -75,7 +75,7 @@ public class OrganizationDaoTest {
     .setUrl("the url 2")
     .setAvatarUrl("the avatar url 2")
     .setGuarded(true)
-    .setUserId(2_000L);
+    .setUserId(2_000);
   private static final String PERMISSION_1 = "foo";
   private static final String PERMISSION_2 = "bar";
 

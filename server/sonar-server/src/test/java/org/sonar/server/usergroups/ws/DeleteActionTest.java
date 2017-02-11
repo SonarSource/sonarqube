@@ -187,7 +187,7 @@ public class DeleteActionTest {
   public void fail_if_id_does_not_exist() throws Exception {
     addAdminToDefaultOrganization();
     loginAsAdminOnDefaultOrganization();
-    long groupId = defaultGroup.getId() + 123;
+    int groupId = defaultGroup.getId() + 123;
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No group with id '" + groupId + "'");

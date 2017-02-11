@@ -80,14 +80,14 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   }
 
   private static WsPermissions.WsGroupsResponse buildResponse(List<GroupDto> groups, List<PermissionTemplateGroupDto> groupPermissions, Paging paging) {
-    Multimap<Long, String> permissionsByGroupId = TreeMultimap.create();
+    Multimap<Integer, String> permissionsByGroupId = TreeMultimap.create();
     groupPermissions.forEach(groupPermission -> permissionsByGroupId.put(groupPermission.getGroupId(), groupPermission.getPermission()));
     WsPermissions.WsGroupsResponse.Builder response = WsPermissions.WsGroupsResponse.newBuilder();
 
     groups.forEach(group -> {
       WsPermissions.Group.Builder wsGroup = response.addGroupsBuilder()
         .setName(group.getName());
-      if (group.getId() != 0L) {
+      if (group.getId() != 0) {
         wsGroup.setId(String.valueOf(group.getId()));
       }
       setNullable(group.getDescription(), wsGroup::setDescription);
@@ -143,7 +143,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getOrganizationUuid(), template.getId());
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, template.getOrganizationUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
-      groups.add(0, new GroupDto().setId(0L).setName(DefaultGroups.ANYONE));
+      groups.add(0, new GroupDto().setId(0).setName(DefaultGroups.ANYONE));
     }
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }

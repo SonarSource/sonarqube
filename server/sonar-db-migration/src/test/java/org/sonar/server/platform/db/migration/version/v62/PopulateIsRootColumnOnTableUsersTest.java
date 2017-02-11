@@ -66,7 +66,7 @@ public class PopulateIsRootColumnOnTableUsersTest {
 
   @Test
   public void execute_sets_active_user_with_admin_role_has_root() throws SQLException {
-    long userId = insertUser("foo", true);
+    int userId = insertUser("foo", true);
     insertRole(userId, ROLE_ADMIN);
 
     underTest.execute();
@@ -76,7 +76,7 @@ public class PopulateIsRootColumnOnTableUsersTest {
 
   @Test
   public void execute_sets_inactive_user_with_admin_role_has_not_root() throws SQLException {
-    long userId = insertUser("bar", false);
+    int userId = insertUser("bar", false);
     insertRole(userId, ROLE_ADMIN);
 
     underTest.execute();
@@ -86,8 +86,8 @@ public class PopulateIsRootColumnOnTableUsersTest {
 
   @Test
   public void execute_sets_active_user_in_group_with_admin_role_has_root() throws SQLException {
-    long userId = insertUser("doo", true);
-    long groupId = insertGroup("admin group");
+    int userId = insertUser("doo", true);
+    int groupId = insertGroup("admin group");
     insertGroupRole(groupId, ROLE_ADMIN);
     addUserToGroup(userId, groupId);
 
@@ -98,8 +98,8 @@ public class PopulateIsRootColumnOnTableUsersTest {
 
   @Test
   public void execute_sets_inactive_user_in_group_with_admin_role_has_not_root() throws SQLException {
-    long userId = insertUser("bar", false);
-    long groupId = insertGroup("admin group");
+    int userId = insertUser("bar", false);
+    int groupId = insertGroup("admin group");
     insertGroupRole(groupId, ROLE_ADMIN);
     addUserToGroup(userId, groupId);
 
@@ -110,10 +110,10 @@ public class PopulateIsRootColumnOnTableUsersTest {
 
   @Test
   public void migration_is_reentrant() throws SQLException {
-    long adminGroupId = insertGroup("admin group");
+    int adminGroupId = insertGroup("admin group");
     insertGroupRole(adminGroupId, ROLE_ADMIN);
-    long groupId = insertGroup("other group");
-    long[] userIds = {
+    int groupId = insertGroup("other group");
+    int[] userIds = {
         insertUser("inactive_direct_admin", false),
         insertUser("active_direct_admin", true),
         insertUser("inactive_group_admin", false),
@@ -158,29 +158,31 @@ public class PopulateIsRootColumnOnTableUsersTest {
     verifyUser("no_perm_user", false);
   }
 
-  private void insertRole(long userId, String role) {
+  private void insertRole(int userId, String role) {
     dbTester.executeInsert("user_roles", "user_id", userId, "role", role);
     dbTester.commit();
   }
 
-  private long insertUser(String login, boolean active) {
+  private int insertUser(String login, boolean active) {
     dbTester.executeInsert(USERS_TABLE, "login", login, "active", active);
     dbTester.commit();
-    return (Long) dbTester.selectFirst("select id as \"id\" from users where login = '" + login + "'").get("id");
+    Long userId = (Long) dbTester.selectFirst("select id as \"id\" from users where login = '" + login + "'").get("id");
+    return userId.intValue();
   }
 
-  private long insertGroup(String groupName) {
+  private int insertGroup(String groupName) {
     dbTester.executeInsert("groups", "name", groupName);
     dbTester.commit();
-    return (Long) dbTester.selectFirst("select id as \"id\" from groups where name = '" + groupName + "'").get("id");
+    Long groupId = (Long) dbTester.selectFirst("select id as \"id\" from groups where name = '" + groupName + "'").get("id");
+    return groupId.intValue();
   }
 
-  private void insertGroupRole(long groupId, String role) {
+  private void insertGroupRole(int groupId, String role) {
     dbTester.executeInsert("group_roles", "group_id", groupId, "role", role);
     dbTester.commit();
   }
 
-  private void addUserToGroup(long userId, long groupId) {
+  private void addUserToGroup(int userId, int groupId) {
     dbTester.executeInsert("groups_users", "user_id", userId, "group_id", groupId);
     dbTester.commit();
   }

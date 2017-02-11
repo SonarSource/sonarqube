@@ -70,7 +70,7 @@ public class PermissionTemplateService {
   }
   
   public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession,
-    String organizationUuid, @Nullable Long userId, String globalPermission, @Nullable String branch, String projectKey,
+    String organizationUuid, @Nullable Integer userId, String globalPermission, @Nullable String branch, String projectKey,
     String qualifier) {
     if (userSession.hasOrganizationPermission(organizationUuid, globalPermission)) {
       return true;
@@ -109,7 +109,7 @@ public class PermissionTemplateService {
    * can be provisioned (so has no permissions yet).
    * @param projectCreatorUserId id of the user who creates the project, only if project is provisioned. He will
    */
-  public void applyDefault(DbSession dbSession, String organizationUuid, ComponentDto component, @Nullable Long projectCreatorUserId) {
+  public void applyDefault(DbSession dbSession, String organizationUuid, ComponentDto component, @Nullable Integer projectCreatorUserId) {
     PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, component);
     checkArgument(template != null, "Cannot retrieve default permission template");
     copyPermissions(dbSession, template, component, projectCreatorUserId);
@@ -131,7 +131,7 @@ public class PermissionTemplateService {
     permissionIndexer.indexProjectsByUuids(dbSession, projectOrViewUuids);
   }
 
-  private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Long projectCreatorUserId) {
+  private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Integer projectCreatorUserId) {
     dbClient.resourceDao().updateAuthorizationDate(project.getId(), dbSession);
     dbClient.groupPermissionDao().deleteByRootComponentId(dbSession, project.getId());
     dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.getId());

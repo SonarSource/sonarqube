@@ -48,7 +48,7 @@ public class DefaultRubyComponentService {
 
   // Used in GOV
   /**
-   * @deprecated Use {@link ComponentUpdater#create(DbSession, NewComponent, Long)} instead
+   * @deprecated Use {@link ComponentUpdater#create(DbSession, NewComponent, Integer)} instead
    */
   @Deprecated
   public Long createComponent(String key, String name, String qualifier) {
@@ -62,7 +62,7 @@ public class DefaultRubyComponentService {
       return componentUpdater.create(
         dbSession,
         newComponent,
-        userSession.isLoggedIn() ? userSession.getUserId().longValue() : null).getId();
+        userSession.isLoggedIn() ? userSession.getUserId() : null).getId();
     }
   }
 

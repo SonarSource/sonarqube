@@ -76,7 +76,7 @@ public class SearchMyProjectsDataLoader {
 
   @VisibleForTesting
   ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
-    long userId = requireNonNull(userSession.getUserId(), "Current user must be authenticated");
+    int userId = requireNonNull(userSession.getUserId(), "Current user must be authenticated");
 
     List<Long> componentIds = dbClient.roleDao().selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
     ComponentQuery dbQuery = ComponentQuery.builder()

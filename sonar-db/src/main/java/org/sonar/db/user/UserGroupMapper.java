@@ -25,7 +25,7 @@ public interface UserGroupMapper {
 
   void insert(UserGroupDto dto);
 
-  void delete(@Param("groupId") long groupId, @Param("userId") long userId);
+  void delete(@Param("groupId") int groupId, @Param("userId") int userId);
 
-  void deleteByGroupId(@Param("groupId") long groupId);
+  void deleteByGroupId(@Param("groupId") int groupId);
 }

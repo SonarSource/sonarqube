@@ -58,7 +58,7 @@
     from user_roles ur
     where
     ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-    ur.user_id = #{userId,jdbcType=BIGINT} and
+    ur.user_id = #{userId,jdbcType=INTEGER} and
     ur.resource_id is null
   </select>
 
@@ -66,7 +66,7 @@
     select ur.role
     from user_roles ur
     where
-    ur.user_id = #{userId,jdbcType=BIGINT} and
+    ur.user_id = #{userId,jdbcType=INTEGER} and
     ur.resource_id = #{projectId,jdbcType=BIGINT}
   </select>
 
@@ -88,7 +88,7 @@
     role
     ) values (
     #{organizationUuid,jdbcType=VARCHAR},
-    #{userId,jdbcType=BIGINT},
+    #{userId,jdbcType=INTEGER},
     #{componentId,jdbcType=BIGINT},
     #{permission,jdbcType=VARCHAR}
     )
@@ -98,7 +98,7 @@
     delete from user_roles
     where
     role = #{permission,jdbcType=VARCHAR} and
-    user_id = #{userId,jdbcType=BIGINT} and
+    user_id = #{userId,jdbcType=INTEGER} and
     organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     resource_id is null
   </delete>
@@ -107,7 +107,7 @@
     delete from user_roles
     where
     role = #{permission,jdbcType=VARCHAR} and
-    user_id = #{userId,jdbcType=BIGINT} and
+    user_id = #{userId,jdbcType=INTEGER} and
     resource_id = #{projectId,jdbcType=BIGINT}
   </delete>
 

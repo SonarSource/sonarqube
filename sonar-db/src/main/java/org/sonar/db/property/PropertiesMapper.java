@@ -46,16 +46,16 @@ public interface PropertiesMapper {
   List<PropertyDto> selectDescendantModuleProperties(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
     @Param(value = "excludeDisabled") boolean excludeDisabled);
 
-  void insertAsEmpty(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId,
+  void insertAsEmpty(@Param("key") String key, @Nullable @Param("userId") Integer userId, @Nullable @Param("componentId") Long componentId,
     @Param("now") long now);
 
-  void insertAsText(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId,
+  void insertAsText(@Param("key") String key, @Nullable @Param("userId") Integer userId, @Nullable @Param("componentId") Long componentId,
     @Param("value") String value, @Param("now") long now);
 
-  void insertAsClob(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId,
+  void insertAsClob(@Param("key") String key, @Nullable @Param("userId") Integer userId, @Nullable @Param("componentId") Long componentId,
     @Param("value") String value, @Param("now") long now);
 
-  int delete(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId);
+  int delete(@Param("key") String key, @Nullable @Param("userId") Integer userId, @Nullable @Param("componentId") Long componentId);
 
   int deleteById(long id);
 

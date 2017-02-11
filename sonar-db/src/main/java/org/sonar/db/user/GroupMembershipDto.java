@@ -30,7 +30,7 @@ public class GroupMembershipDto {
   private Long id;
   private String name;
   private String description;
-  private Long userId;
+  private Integer userId;
 
   public Long getId() {
     return id;
@@ -61,11 +61,11 @@ public class GroupMembershipDto {
   }
 
   @CheckForNull
-  public Long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 
-  public GroupMembershipDto setUserId(@Nullable Long userId) {
+  public GroupMembershipDto setUserId(@Nullable Integer userId) {
     this.userId = userId;
     return this;
   }

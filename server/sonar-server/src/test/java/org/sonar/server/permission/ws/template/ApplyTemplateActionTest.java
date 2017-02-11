@@ -220,7 +220,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), db.getDefaultOrganization().getUuid(), query);
   }
 
-  private List<Long> selectProjectPermissionUsers(ComponentDto project, String permission) {
+  private List<Integer> selectProjectPermissionUsers(ComponentDto project, String permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
     return db.getDbClient().userPermissionDao().selectUserIds(db.getSession(), db.getDefaultOrganization().getUuid(), query);
   }

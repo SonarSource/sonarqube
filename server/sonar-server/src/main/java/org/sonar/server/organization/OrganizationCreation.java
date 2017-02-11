@@ -62,7 +62,7 @@ public interface OrganizationCreation {
    * @throws KeyConflictException if an organization with the specified key already exists
    * @throws IllegalArgumentException if any field of {@code newOrganization} is invalid according to {@link OrganizationValidation}
    */
-  OrganizationDto create(DbSession dbSession, long createUserId, NewOrganization newOrganization) throws KeyConflictException;
+  OrganizationDto create(DbSession dbSession, int createUserId, NewOrganization newOrganization) throws KeyConflictException;
 
   /**
    * Create a new guarded organization which details are based on the login of the specified User.

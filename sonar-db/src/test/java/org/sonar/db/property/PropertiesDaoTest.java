@@ -80,9 +80,9 @@ public class PropertiesDaoTest {
   public void shouldFindUsersForNotification() throws SQLException {
     ComponentDto project1 = insertProject("uuid_45");
     ComponentDto project2 = insertProject("uuid_56");
-    long userId1 = insertUser("user1");
-    long userId2 = insertUser("user2");
-    long userId3 = insertUser("user3");
+    int userId1 = insertUser("user1");
+    int userId2 = insertUser("user2");
+    int userId3 = insertUser("user3");
     insertProperty("notification.NewViolations.Email", "true", project1.getId(), userId2);
     insertProperty("notification.NewViolations.Twitter", "true", null, userId3);
     insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), userId1);
@@ -111,8 +111,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void findNotificationSubscribers() throws SQLException {
-    long userId1 = insertUser("user1");
-    long userId2 = insertUser("user2");
+    int userId1 = insertUser("user1");
+    int userId2 = insertUser("user2");
     ComponentDto projectDto = insertProject("PROJECT_A");
     long projectId = projectDto.getId();
     String projectKey = projectDto.key();
@@ -148,8 +148,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void hasNotificationSubscribers() throws SQLException {
-    long userId1 = insertUser("user1");
-    long userId2 = insertUser("user2");
+    int userId1 = insertUser("user1");
+    int userId2 = insertUser("user2");
     Long projectId = insertProject("PROJECT_A").getId();
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userId2);
@@ -227,7 +227,7 @@ public class PropertiesDaoTest {
     // project
     insertProperty("project.one", "one", 10L, null);
     // user
-    insertProperty("user.one", "one", null, 100L);
+    insertProperty("user.one", "one", null, 100);
 
     assertThatDto(underTest.selectGlobalProperty("global.one"))
       .hasNoResourceId()
@@ -361,8 +361,8 @@ public class PropertiesDaoTest {
     // commons
     insertProperty("commonslang.one", "one", 11L, null);
     // user
-    insertProperty("user.one", "one", null, 100L);
-    insertProperty("user.two", "two", 10L, 100L);
+    insertProperty("user.one", "one", null, 100);
+    insertProperty("user.two", "two", 10L, 100);
     // other
     insertProperty("other.one", "one", 12L, null);
 
@@ -378,7 +378,7 @@ public class PropertiesDaoTest {
   @Test
   public void select_global_properties_by_keys() throws Exception {
     insertProject("A");
-    long userId = insertUser("B");
+    int userId = insertUser("B");
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -563,7 +563,7 @@ public class PropertiesDaoTest {
   public void saveProperty_inserts_user_properties_when_they_do_not_exist_in_db() {
     when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
 
-    long userId = 100;
+    int userId = 100;
     underTest.saveProperty(new PropertyDto().setKey("user.null").setUserId(userId).setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("user.empty").setUserId(userId).setValue(""));
     underTest.saveProperty(new PropertyDto().setKey("user.text").setUserId(userId).setValue("some text"));
@@ -649,7 +649,7 @@ public class PropertiesDaoTest {
   @Test
   @UseDataProvider("valueUpdatesDataProvider")
   public void saveProperty_deletes_then_inserts_user_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) throws SQLException {
-    long userId = 90L;
+    int userId = 90;
     long id = insertProperty("global", oldValue, null, userId, DATE_1);
     when(system2.now()).thenReturn(DATE_4);
 
@@ -714,8 +714,8 @@ public class PropertiesDaoTest {
     long id2 = insertProperty("global.two", "two", null, null);
     long id3 = insertProperty("struts.one", "one", projectId1, null);
     long id4 = insertProperty("commonslang.one", "one", projectId2, null);
-    long id5 = insertProperty("user.one", "one", null, 100L);
-    long id6 = insertProperty("user.two", "two", null, 100L);
+    long id5 = insertProperty("user.one", "one", null, 100);
+    long id6 = insertProperty("user.two", "two", null, 100);
     long id7 = insertProperty("other.one", "one", projectId3, null);
 
     underTest.deleteProjectProperty("struts.one", projectId1);
@@ -801,7 +801,7 @@ public class PropertiesDaoTest {
     // project - do not delete this project property that has the same key
     long id3 = insertProperty("to_be_deleted", "new_project", 10L, null);
     // user
-    long id4 = insertProperty("user.key", "new_user", null, 100L);
+    long id4 = insertProperty("user.key", "new_user", null, 100);
 
     underTest.deleteGlobalProperty("to_be_deleted");
 
@@ -898,8 +898,8 @@ public class PropertiesDaoTest {
     long id2 = insertProperty("old_name", "doc1", null, null, DATE_1);
     long id3 = insertProperty("old_name", "doc2", 15L, null, DATE_1);
     long id4 = insertProperty("old_name", "doc3", 16L, null, DATE_1);
-    long id5 = insertProperty("old_name", "doc4", null, 100L, DATE_1);
-    long id6 = insertProperty("old_name", "doc5", null, 101L, DATE_1);
+    long id5 = insertProperty("old_name", "doc4", null, 100, DATE_1);
+    long id6 = insertProperty("old_name", "doc5", null, 101, DATE_1);
 
     underTest.renamePropertyKey("old_name", "new_name");
 
@@ -987,12 +987,12 @@ public class PropertiesDaoTest {
     session.commit();
   }
 
-  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Long userId, long createdAt) throws SQLException {
+  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId, long createdAt) throws SQLException {
     when(system2.now()).thenReturn(createdAt);
     return insertProperty(key, value, resourceId, userId);
   }
 
-  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Long userId) throws SQLException {
+  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId) throws SQLException {
     DbSession session = dbTester.getSession();
     PropertyDto dto = new PropertyDto().setKey(key)
       .setResourceId(resourceId == null ? null : resourceId.longValue())
@@ -1015,7 +1015,7 @@ public class PropertiesDaoTest {
     return project;
   }
 
-  private long insertUser(String login) {
+  private int insertUser(String login) {
     UserDto dto = new UserDto().setLogin(login);
     DbSession session = dbTester.getSession();
     dbClient.userDao().insert(session, dto);

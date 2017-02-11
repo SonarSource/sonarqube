@@ -33,9 +33,9 @@ public class GroupWsRefTest {
 
   @Test
   public void test_ref_by_id() {
-    GroupWsRef ref = GroupWsRef.fromId(10L);
+    GroupWsRef ref = GroupWsRef.fromId(10);
     assertThat(ref.hasId()).isTrue();
-    assertThat(ref.getId()).isEqualTo(10L);
+    assertThat(ref.getId()).isEqualTo(10);
     assertThat(ref.isAnyone()).isFalse();
   }
 
@@ -50,11 +50,11 @@ public class GroupWsRefTest {
 
   @Test
   public void test_equals_and_hashCode() {
-    GroupWsRef refId1 = GroupWsRef.fromId(10L);
-    GroupWsRef refId2 = GroupWsRef.fromId(11L);
+    GroupWsRef refId1 = GroupWsRef.fromId(10);
+    GroupWsRef refId2 = GroupWsRef.fromId(11);
     assertThat(refId1.equals(refId1)).isTrue();
-    assertThat(refId1.equals(GroupWsRef.fromId(10L))).isTrue();
-    assertThat(refId1.hashCode()).isEqualTo(GroupWsRef.fromId(10L).hashCode());
+    assertThat(refId1.equals(GroupWsRef.fromId(10))).isTrue();
+    assertThat(refId1.hashCode()).isEqualTo(GroupWsRef.fromId(10).hashCode());
     assertThat(refId1.equals(refId2)).isFalse();
 
     GroupWsRef refName1 = fromName("ORG1", "the-group");
@@ -69,7 +69,7 @@ public class GroupWsRefTest {
 
   @Test
   public void test_toString() {
-    GroupWsRef refId = GroupWsRef.fromId(10L);
+    GroupWsRef refId = GroupWsRef.fromId(10);
     assertThat(refId.toString()).isEqualTo("GroupWsRef{id=10, organizationKey='null', name='null'}");
   }
 

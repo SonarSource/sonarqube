@@ -21,23 +21,23 @@ package org.sonar.db.user;
 
 public class UserGroupDto {
 
-  private Long userId;
-  private Long groupId;
+  private int userId;
+  private int groupId;
 
-  public Long getUserId() {
+  public int getUserId() {
     return userId;
   }
 
-  public UserGroupDto setUserId(Long userId) {
+  public UserGroupDto setUserId(int userId) {
     this.userId = userId;
     return this;
   }
 
-  public Long getGroupId() {
+  public int getGroupId() {
     return groupId;
   }
 
-  public UserGroupDto setGroupId(Long groupId) {
+  public UserGroupDto setGroupId(int groupId) {
     this.groupId = groupId;
     return this;
   }

@@ -49,10 +49,10 @@ public class PopulateOrganizationUuidOfPermissionTemplates extends DataChange {
     massUpdate.update("update permission_templates set organization_uuid=?, updated_at=? where id=?");
     massUpdate.rowPluralName("permission_templates");
     massUpdate.execute((row, update) -> {
-      long groupId = row.getLong(1);
+      int groupId = row.getInt(1);
       update.setString(1, organizationUuid);
       update.setDate(2, new Date(system2.now()));
-      update.setLong(3, groupId);
+      update.setInt(3, groupId);
       return true;
     });
   }

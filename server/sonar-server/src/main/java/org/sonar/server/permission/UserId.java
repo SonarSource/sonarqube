@@ -32,15 +32,15 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class UserId {
 
-  private final long id;
+  private final int id;
   private final String login;
 
-  public UserId(long userId, String login) {
+  public UserId(int userId, String login) {
     this.id = userId;
     this.login = requireNonNull(login);
   }
 
-  public long getId() {
+  public int getId() {
     return id;
   }
 

@@ -75,7 +75,7 @@ public class AddAction implements FavoritesWsAction {
         userSession
           .checkLoggedIn()
           .checkComponentPermission(UserRole.USER, componentDto);
-        favoriteUpdater.add(dbSession, componentDto, userSession.isLoggedIn() ? userSession.getUserId().longValue() : null);
+        favoriteUpdater.add(dbSession, componentDto, userSession.isLoggedIn() ? userSession.getUserId() : null);
         dbSession.commit();
       }
     };

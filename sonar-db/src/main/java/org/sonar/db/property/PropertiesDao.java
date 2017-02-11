@@ -183,7 +183,7 @@ public class PropertiesDao implements Dao {
   }
 
   private void save(PropertiesMapper mapper,
-    String key, @Nullable Long userId, @Nullable Long componentId,
+    String key, @Nullable Integer userId, @Nullable Long componentId,
     @Nullable String value) {
     checkKey(key);
 

@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 public class UserMembershipDto {
 
   private Long id;
-  private Long groupId;
+  private Integer groupId;
   private String login;
   private String name;
 
@@ -58,11 +58,11 @@ public class UserMembershipDto {
   }
 
   @CheckForNull
-  public Long getGroupId() {
+  public Integer getGroupId() {
     return groupId;
   }
 
-  public UserMembershipDto setGroupId(@Nullable Long groupId) {
+  public UserMembershipDto setGroupId(@Nullable Integer groupId) {
     this.groupId = groupId;
     return this;
   }

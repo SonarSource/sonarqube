@@ -96,7 +96,7 @@ public class SearchAction implements UserGroupsWsAction {
 
       int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);
-      List<Long> groupIds = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
+      List<Integer> groupIds = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupIds);
 
       JsonWriter json = response.newJsonWriter().beginObject();

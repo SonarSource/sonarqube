@@ -81,7 +81,7 @@ public class PermissionWsSupport {
   }
 
   public GroupIdOrAnyone findGroup(DbSession dbSession, Request request) {
-    Long groupId = request.paramAsLong(PARAM_GROUP_ID);
+    Integer groupId = request.paramAsInt(PARAM_GROUP_ID);
     String orgKey = request.param(PARAM_ORGANIZATION);
     String groupName = request.param(PARAM_GROUP_NAME);
     GroupWsRef groupRef = GroupWsRef.create(groupId, orgKey, groupName);

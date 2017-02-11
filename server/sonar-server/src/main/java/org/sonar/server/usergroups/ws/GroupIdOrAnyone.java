@@ -37,10 +37,10 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class GroupIdOrAnyone {
 
-  private final Long id;
+  private final Integer id;
   private final String organizationUuid;
 
-  public GroupIdOrAnyone(String organizationUuid, @Nullable Long id) {
+  public GroupIdOrAnyone(String organizationUuid, @Nullable Integer id) {
     this.id = id;
     this.organizationUuid = requireNonNull(organizationUuid);
   }
@@ -55,7 +55,7 @@ public class GroupIdOrAnyone {
   }
 
   @CheckForNull
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 

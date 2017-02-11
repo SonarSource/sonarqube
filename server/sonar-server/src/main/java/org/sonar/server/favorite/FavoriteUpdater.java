@@ -42,14 +42,14 @@ public class FavoriteUpdater {
   /**
    * Set favorite to the logged in user. If no user, no action is done
    */
-  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable Long userId) {
+  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable Integer userId) {
     if (userId == null) {
       return;
     }
 
     List<PropertyDto> existingFavoriteOnComponent = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
-      .setUserId(userId.intValue())
+      .setUserId(userId)
       .setComponentId(componentDto.getId())
       .build(), dbSession);
     checkRequest(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getKey());
@@ -63,7 +63,7 @@ public class FavoriteUpdater {
    * Remove a favorite to the user.
    * @throws BadRequestException if the component is not a favorite
    */
-  public void remove(DbSession dbSession, ComponentDto component, @Nullable Long userId) {
+  public void remove(DbSession dbSession, ComponentDto component, @Nullable Integer userId) {
     if (userId == null) {
       return;
     }

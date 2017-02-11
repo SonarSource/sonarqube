@@ -34,10 +34,10 @@ public interface GroupMembershipMapper {
 
   int countMembers(Map<String, Object> params);
 
-  List<GroupUserCount> countUsersByGroup(@Param("groupIds") List<Long> groupIds);
+  List<GroupUserCount> countUsersByGroup(@Param("groupIds") List<Integer> groupIds);
 
   List<LoginGroup> selectGroupsByLogins(@Param("logins") List<String> logins);
 
-  List<Long> selectGroupIdsByUserId(@Param("userId") long userId);
+  List<Integer> selectGroupIdsByUserId(@Param("userId") int userId);
   
 }

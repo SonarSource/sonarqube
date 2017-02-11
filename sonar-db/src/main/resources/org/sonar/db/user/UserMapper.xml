@@ -37,7 +37,7 @@
     OR u.scm_accounts like #{likeScmAccount}
   </select>
 
-  <select id="selectUser" parameterType="long" resultType="User">
+  <select id="selectUser" parameterType="int" resultType="User">
     SELECT
     <include refid="userColumns"/>
     FROM users u
@@ -115,30 +115,30 @@
       and u.login &lt;&gt; #{login}
   </select>
 
-  <delete id="removeUserFromGroups" parameterType="long">
+  <delete id="removeUserFromGroups" parameterType="int">
     DELETE FROM groups_users WHERE user_id=#{id}
   </delete>
 
-  <delete id="deleteUserRoles" parameterType="long">
-    DELETE FROM user_roles WHERE user_id=#{id}
+  <delete id="deleteUserRoles" parameterType="int">
+    DELETE FROM user_roles WHERE user_id=#{id,jdbcType=INTEGER}
   </delete>
 
-  <delete id="deleteUserProperties" parameterType="long">
-    DELETE FROM properties WHERE user_id=#{id}
+  <delete id="deleteUserProperties" parameterType="int">
+    DELETE FROM properties WHERE user_id=#{id,jdbcType=BIGINT}
   </delete>
 
   <delete id="deletePropertiesMatchingLogin" parameterType="String">
     DELETE FROM properties
     <where>
-      text_value LIKE #{login}
+      text_value LIKE #{login,jdbcType=VARCHAR}
       AND prop_key IN
       <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
-        #{property}
+        #{property,jdbcType=VARCHAR}
       </foreach>
     </where>
   </delete>
 
-  <update id="deactivateUser" parameterType="long">
+  <update id="deactivateUser" parameterType="map">
     UPDATE users SET
       active=${_false},
       email=null,
@@ -149,7 +149,7 @@
       crypted_password=null,
       updated_at=#{now,jdbcType=BIGINT}
     WHERE
-      id=#{id}
+      id=#{id,jdbcType=INTEGER}
   </update>
 
   <update id="setRoot">
@@ -207,7 +207,7 @@
       crypted_password=#{cryptedPassword,jdbcType=BIGINT},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     WHERE
-      login = #{login}
+      login = #{login,jdbcType=VARCHAR}
   </insert>
 
 </mapper>

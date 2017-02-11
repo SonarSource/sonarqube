@@ -58,7 +58,7 @@ public class UserPermissionDao implements Dao {
    * Shortcut over {@link #select(DbSession, String, PermissionQuery, Collection)} to return only distinct user
    * ids, keeping the same order.
    */
-  public List<Long> selectUserIds(DbSession dbSession, String organizationUuid, PermissionQuery query) {
+  public List<Integer> selectUserIds(DbSession dbSession, String organizationUuid, PermissionQuery query) {
     List<UserPermissionDto> dtos = select(dbSession, organizationUuid, query, null);
     return dtos.stream()
       .map(UserPermissionDto::getUserId)
@@ -87,7 +87,7 @@ public class UserPermissionDao implements Dao {
    *
    * @return the global permissions. An empty list is returned if user or organization do not exist.
    */
-  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, long userId, String organizationUuid) {
+  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, int userId, String organizationUuid) {
     return mapper(dbSession).selectGlobalPermissionsOfUser(userId, organizationUuid);
   }
 
@@ -96,7 +96,7 @@ public class UserPermissionDao implements Dao {
    *
    * @return the project permissions. An empty list is returned if project or user do not exist.
    */
-  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, long userId, long projectId) {
+  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, int userId, long projectId) {
     return mapper(dbSession).selectProjectPermissionsOfUser(userId, projectId);
   }
 
@@ -119,14 +119,14 @@ public class UserPermissionDao implements Dao {
   /**
    * Removes a single global permission from user
    */
-  public void deleteGlobalPermission(DbSession dbSession, long userId, String permission, String organizationUuid) {
+  public void deleteGlobalPermission(DbSession dbSession, int userId, String permission, String organizationUuid) {
     mapper(dbSession).deleteGlobalPermission(userId, permission, organizationUuid);
   }
 
   /**
    * Removes a single project permission from user
    */
-  public void deleteProjectPermission(DbSession dbSession, long userId, String permission, long projectId) {
+  public void deleteProjectPermission(DbSession dbSession, int userId, String permission, long projectId) {
     mapper(dbSession).deleteProjectPermission(userId, permission, projectId);
   }
 

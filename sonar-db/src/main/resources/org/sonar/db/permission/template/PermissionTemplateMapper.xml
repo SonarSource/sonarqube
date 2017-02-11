@@ -98,16 +98,16 @@
     INSERT INTO perm_templates_groups (template_id, group_id, permission_reference, created_at, updated_at)
     VALUES (
     #{templateId,jdbcType=BIGINT},
-    #{groupId,jdbcType=BIGINT},
+    #{groupId,jdbcType=INTEGER},
     #{permission,jdbcType=VARCHAR},
     #{createdAt,jdbcType=TIMESTAMP},
     #{updatedAt,jdbcType=TIMESTAMP}
     )
   </insert>
 
-  <delete id="deleteByGroupId" parameterType="long">
+  <delete id="deleteByGroupId" parameterType="int">
     delete from perm_templates_groups
-    where group_id = #{groupId,jdbcType=BIGINT}
+    where group_id = #{groupId,jdbcType=INTEGER}
   </delete>
 
   <select id="selectUserLoginsByQueryAndTemplate" parameterType="map" resultType="string">

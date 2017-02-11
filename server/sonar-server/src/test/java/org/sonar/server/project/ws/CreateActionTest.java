@@ -48,7 +48,7 @@ import org.sonarqube.ws.client.project.CreateRequest;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -133,7 +133,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_already_exists() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyLong())).thenThrow(new BadRequestException("already exists"));
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyInt())).thenThrow(new BadRequestException("already exists"));
     userSession.addOrganizationPermission(organization, PROVISIONING);
 
     expectedException.expect(BadRequestException.class);
@@ -216,12 +216,12 @@ public class CreateActionTest {
 
   private NewComponent verifyCallToComponentUpdater() {
     ArgumentCaptor<NewComponent> argument = ArgumentCaptor.forClass(NewComponent.class);
-    verify(componentUpdater).create(any(DbSession.class), argument.capture(), anyLong());
+    verify(componentUpdater).create(any(DbSession.class), argument.capture(), anyInt());
     return argument.getValue();
   }
 
   private void expectSuccessfulCallToComponentUpdater() {
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyLong())).thenAnswer(invocation -> {
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyInt())).thenAnswer(invocation -> {
       NewComponent newC = invocation.getArgumentAt(1, NewComponent.class);
       return new ComponentDto().setKey(newC.key()).setQualifier(newC.qualifier()).setName(newC.name());
     });

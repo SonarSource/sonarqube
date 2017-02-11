@@ -29,11 +29,11 @@ public class RoleDao implements Dao {
    * All the projects on which the user has {@code permission}, directly or through
    * groups.
    */
-  public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, long userId) {
+  public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, int userId) {
     return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
   }
 
-  public void deleteGroupRolesByGroupId(DbSession session, long groupId) {
+  public void deleteGroupRolesByGroupId(DbSession session, int groupId) {
     mapper(session).deleteGroupRolesByGroupId(groupId);
   }
 

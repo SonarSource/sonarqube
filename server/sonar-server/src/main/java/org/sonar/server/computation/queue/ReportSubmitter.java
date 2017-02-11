@@ -109,10 +109,9 @@ public class ReportSubmitter {
   private ComponentDto createProject(DbSession dbSession, String organizationUuid, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
     userSession.checkOrganizationPermission(organizationUuid, PROVISIONING);
     Integer userId = userSession.getUserId();
-    Long projectCreatorUserId = userId == null ? null : userId.longValue();
 
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(
-      dbSession, organizationUuid, projectCreatorUserId, SCAN_EXECUTION, projectBranch, projectKey, Qualifiers.PROJECT);
+      dbSession, organizationUuid, userId, SCAN_EXECUTION, projectBranch, projectKey, Qualifiers.PROJECT);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
@@ -124,7 +123,7 @@ public class ReportSubmitter {
       .setBranch(projectBranch)
       .setQualifier(Qualifiers.PROJECT)
       .build();
-    return componentUpdater.create(dbSession, newProject, projectCreatorUserId);
+    return componentUpdater.create(dbSession, newProject, userId);
   }
 
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project) {

@@ -149,7 +149,7 @@ public class PermissionTemplateDaoTest {
   public void should_add_user_permission_to_template() {
     db.prepareDbUnit(getClass(), "addUserPermissionToTemplate.xml");
 
-    underTest.insertUserPermission(dbSession, 1L, 1L, "new_permission");
+    underTest.insertUserPermission(dbSession, 1L, 1, "new_permission");
 
     checkTemplateTables("addUserPermissionToTemplate-result.xml");
   }
@@ -158,7 +158,7 @@ public class PermissionTemplateDaoTest {
   public void should_remove_user_permission_from_template() {
     db.prepareDbUnit(getClass(), "removeUserPermissionFromTemplate.xml");
 
-    underTest.deleteUserPermission(dbSession, 1L, 2L, "permission_to_remove");
+    underTest.deleteUserPermission(dbSession, 1L, 2, "permission_to_remove");
 
     checkTemplateTables("removeUserPermissionFromTemplate-result.xml");
   }
@@ -167,7 +167,7 @@ public class PermissionTemplateDaoTest {
   public void should_add_group_permission_to_template() {
     db.prepareDbUnit(getClass(), "addGroupPermissionToTemplate.xml");
 
-    underTest.insertGroupPermission(dbSession, 1L, 1L, "new_permission");
+    underTest.insertGroupPermission(dbSession, 1L, 1, "new_permission");
     dbSession.commit();
 
     checkTemplateTables("addGroupPermissionToTemplate-result.xml");
@@ -177,7 +177,7 @@ public class PermissionTemplateDaoTest {
   public void remove_by_group() {
     db.prepareDbUnit(getClass(), "remove_by_group.xml");
 
-    underTest.deleteByGroup(db.getSession(), 2L);
+    underTest.deleteByGroup(db.getSession(), 2);
     db.getSession().commit();
 
     db.assertDbUnitTable(getClass(), "remove_by_group-result.xml", "permission_templates", "id", "name", "kee", "description");

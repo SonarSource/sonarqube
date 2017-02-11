@@ -272,12 +272,12 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     return insert;
   }
 
-  private void addGroupToTemplate(long templateId, @Nullable Long groupId, String permission) {
+  private void addGroupToTemplate(long templateId, @Nullable Integer groupId, String permission) {
     dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateId, groupId, permission);
     db.getSession().commit();
   }
 
-  private void addUserToTemplate(long templateId, long userId, String permission) {
+  private void addUserToTemplate(long templateId, int userId, String permission) {
     dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateId, userId, permission);
     db.getSession().commit();
   }

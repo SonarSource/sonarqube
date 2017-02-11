@@ -26,14 +26,14 @@ public class UserPermissionDto {
 
   private String organizationUuid;
   private String permission;
-  private long userId;
+  private int userId;
   private Long componentId;
 
   public UserPermissionDto() {
     // used by MyBatis
   }
 
-  public UserPermissionDto(String organizationUuid, String permission, long userId, @Nullable Long componentId) {
+  public UserPermissionDto(String organizationUuid, String permission, int userId, @Nullable Long componentId) {
     this.organizationUuid = organizationUuid;
     this.permission = permission;
     this.userId = userId;
@@ -44,7 +44,7 @@ public class UserPermissionDto {
     return permission;
   }
 
-  public long getUserId() {
+  public int getUserId() {
     return userId;
   }
 

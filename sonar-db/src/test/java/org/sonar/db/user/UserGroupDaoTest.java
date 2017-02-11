@@ -33,7 +33,7 @@ public class UserGroupDaoTest {
 
   @Test
   public void insert() {
-    UserGroupDto userGroupDto = new UserGroupDto().setUserId(1L).setGroupId(2L);
+    UserGroupDto userGroupDto = new UserGroupDto().setUserId(1).setGroupId(2);
     underTest.insert(dbTester.getSession(), userGroupDto);
     dbTester.getSession().commit();
 
@@ -43,7 +43,7 @@ public class UserGroupDaoTest {
   @Test
   public void delete_members_by_group_id() {
     dbTester.prepareDbUnit(getClass(), "delete_members_by_group_id.xml");
-    underTest.deleteByGroupId(dbTester.getSession(), 1L);
+    underTest.deleteByGroupId(dbTester.getSession(), 1);
     dbTester.getSession().commit();
     dbTester.assertDbUnit(getClass(), "delete_members_by_group_id-result.xml", "groups_users");
   }

@@ -42,7 +42,7 @@ public class UserMembershipQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
-  private final long groupId;
+  private final int groupId;
   private final String membership;
 
   private final String memberSearch;
@@ -67,7 +67,7 @@ public class UserMembershipQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  public long groupId() {
+  public int groupId() {
     return groupId;
   }
 
@@ -97,7 +97,7 @@ public class UserMembershipQuery {
   }
 
   public static class Builder {
-    private Long groupId;
+    private Integer groupId;
     private String membership;
     private String memberSearch;
 
@@ -107,7 +107,7 @@ public class UserMembershipQuery {
     private Builder() {
     }
 
-    public Builder groupId(Long groupId) {
+    public Builder groupId(Integer groupId) {
       this.groupId = groupId;
       return this;
     }

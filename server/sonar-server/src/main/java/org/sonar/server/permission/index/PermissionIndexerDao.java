@@ -44,8 +44,8 @@ public class PermissionIndexerDao {
     private final String projectUuid;
     private final long updatedAt;
     private final String qualifier;
-    private final List<Long> userIds = new ArrayList<>();
-    private final List<Long> groupIds = new ArrayList<>();
+    private final List<Integer> userIds = new ArrayList<>();
+    private final List<Integer> groupIds = new ArrayList<>();
     private boolean allowAnyone = false;
 
     public Dto(String projectUuid, long updatedAt, String qualifier) {
@@ -66,21 +66,21 @@ public class PermissionIndexerDao {
       return qualifier;
     }
 
-    public List<Long> getUserIds() {
+    public List<Integer> getUserIds() {
       return userIds;
     }
 
-    public Dto addUserId(long l) {
+    public Dto addUserId(int l) {
       userIds.add(l);
       return this;
     }
 
-    public Dto addGroupId(long id) {
+    public Dto addGroupId(int id) {
       groupIds.add(id);
       return this;
     }
 
-    public List<Long> getGroupIds() {
+    public List<Integer> getGroupIds() {
       return groupIds;
     }
 
@@ -222,10 +222,10 @@ public class PermissionIndexerDao {
     }
     switch (rowKind) {
       case USER:
-        dto.addUserId(rs.getLong(3));
+        dto.addUserId(rs.getInt(3));
         break;
       case GROUP:
-        dto.addGroupId(rs.getLong(4));
+        dto.addGroupId(rs.getInt(4));
         break;
       case ANYONE:
         dto.allowAnyone();

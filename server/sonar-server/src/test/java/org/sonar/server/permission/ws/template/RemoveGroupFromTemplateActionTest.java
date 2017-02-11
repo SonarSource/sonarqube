@@ -187,7 +187,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
     request.execute();
   }
 
-  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable Long groupId, String permission) {
+  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable Integer groupId, String permission) {
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getId(), groupId, permission);
     db.commit();
   }

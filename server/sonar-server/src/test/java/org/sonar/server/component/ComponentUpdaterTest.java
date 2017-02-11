@@ -107,7 +107,7 @@ public class ComponentUpdaterTest {
 
   @Test
   public void should_apply_default_permission_template() throws Exception {
-    long userId = 42;
+    int userId = 42;
     NewComponent project = NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)

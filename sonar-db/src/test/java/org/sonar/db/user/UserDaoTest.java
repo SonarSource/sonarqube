@@ -70,11 +70,11 @@ public class UserDaoTest {
   public void selectUsersIds() {
     db.prepareDbUnit(getClass(), "selectUsersByIds.xml");
 
-    Collection<UserDto> users = underTest.selectByIds(session, asList(100L, 101L, 987L));
+    Collection<UserDto> users = underTest.selectByIds(session, asList(100, 101, 987));
     assertThat(users).hasSize(2);
     assertThat(users).extracting("login").containsOnly("marius", "inactive_user");
 
-    assertThat(underTest.selectByIds(session, Collections.<Long>emptyList())).isEmpty();
+    assertThat(underTest.selectByIds(session, Collections.emptyList())).isEmpty();
   }
 
   @Test
@@ -305,7 +305,7 @@ public class UserDaoTest {
     Long date = DateUtils.parseDate("2014-06-20").getTime();
 
     UserDto userDto = new UserDto()
-      .setId(1L)
+      .setId(1)
       .setLogin("john")
       .setName("John")
       .setEmail("jo@hn.com")
@@ -353,7 +353,7 @@ public class UserDaoTest {
     db.getSession().commit();
 
     UserDto userDto = new UserDto()
-      .setId(1L)
+      .setId(1)
       .setLogin("john")
       .setName("John Doo")
       .setEmail("jodoo@hn.com")
