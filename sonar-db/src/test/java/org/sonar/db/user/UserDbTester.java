@@ -22,6 +22,7 @@ package org.sonar.db.user;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
@@ -55,6 +56,12 @@ public class UserDbTester {
 
   public UserDto insertUser(String login) {
     UserDto dto = newUserDto().setLogin(login).setActive(true);
+    return insertUser(dto);
+  }
+
+  public UserDto insertUser(Consumer<UserDto> populateUserDto) {
+    UserDto dto = newUserDto().setActive(true);
+    populateUserDto.accept(dto);
     return insertUser(dto);
   }
 

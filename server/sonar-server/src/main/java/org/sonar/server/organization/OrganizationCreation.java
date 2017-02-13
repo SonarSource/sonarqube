@@ -33,6 +33,7 @@ public interface OrganizationCreation {
   String OWNERS_GROUP_NAME = "Owners";
   String OWNERS_GROUP_DESCRIPTION_PATTERN = "Owners of organization %s";
   String PERM_TEMPLATE_DESCRIPTION_PATTERN = "Default permission template of organization %s";
+  String PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN = "%s's personal organization";
 
   /**
    * Create a new non guarded organization with the specified properties and of which the specified user will assign
@@ -71,8 +72,10 @@ public interface OrganizationCreation {
    * user's login:
    * <ul>
    *   <li>key: generated from the user's login</li>
-   *   <li>name: the user's login</li>
-   *   <li>description, url and avatar: null</li>
+   *   <li>name: the user's name if set, otherwise the user's login</li>
+   *   <li>description: {@link #PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN "[name]'s personal organization"} where name
+   *       is user name (when non null and non empty) or login</li>
+   *   <li>url and avatar: null</li>
    * </ul>
    * </p>
    *

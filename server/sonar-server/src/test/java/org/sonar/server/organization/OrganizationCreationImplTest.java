@@ -55,7 +55,8 @@ public class OrganizationCreationImplTest {
   private static final long SOME_DATE = 12893434L;
   private static final String A_LOGIN = "a-login";
   private static final String SLUG_OF_A_LOGIN = "slug-of-a-login";
-  public static final String STRING_64_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  private static final String STRING_64_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  private static final String A_NAME = "a name";
 
   private OrganizationCreation.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
     .setName("a-name")
@@ -226,7 +227,7 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
-  public void createForUser_creates_guarded_organization_with_name_and_key_generated_from_login_and_associated_to_user() {
+  public void createForUser_creates_guarded_organization_with_key_name_and_description_generated_from_user_login_and_name_and_associated_to_user() {
     UserDto user = dbTester.users().insertUser(A_LOGIN);
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
@@ -237,8 +238,8 @@ public class OrganizationCreationImplTest {
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(organization.getUuid()).isEqualTo(SOME_UUID);
     assertThat(organization.getKey()).isEqualTo(SLUG_OF_A_LOGIN);
-    assertThat(organization.getName()).isEqualTo(user.getLogin());
-    assertThat(organization.getDescription()).isNull();
+    assertThat(organization.getName()).isEqualTo(user.getName());
+    assertThat(organization.getDescription()).isEqualTo(user.getName() + "'s personal organization");
     assertThat(organization.getUrl()).isNull();
     assertThat(organization.getAvatarUrl()).isNull();
     assertThat(organization.isGuarded()).isTrue();
@@ -264,14 +265,14 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
-    UserDto user = dbTester.users().insertUser(A_LOGIN);
+    UserDto user = dbTester.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
 
     underTest.createForUser(dbSession, user);
 
-    verifyGroupOwners(user, SLUG_OF_A_LOGIN, A_LOGIN);
+    verifyGroupOwners(user, SLUG_OF_A_LOGIN, A_NAME);
   }
 
   private void verifyGroupOwners(UserDto user, String organizationKey, String organizationName) {
@@ -292,14 +293,14 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_creates_default_template_for_new_organization() throws OrganizationCreation.KeyConflictException {
-    UserDto user = dbTester.users().insertUser(A_LOGIN);
+    UserDto user = dbTester.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
 
     underTest.createForUser(dbSession, user);
 
-    verifyDefaultTemplate(SLUG_OF_A_LOGIN, A_LOGIN);
+    verifyDefaultTemplate(SLUG_OF_A_LOGIN, A_NAME);
   }
 
   private void verifyDefaultTemplate(String organizationKey, String organizationName) {
@@ -319,9 +320,24 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
-  public void createForUser_does_not_fail_if_login_is_too_long_for_an_organization_name() {
+  public void createForUser_does_not_fail_if_name_is_too_long_for_an_organization_name() {
+    String nameTooLong = STRING_64_CHARS + "b";
+    UserDto user = dbTester.users().insertUser(dto -> dto.setName(nameTooLong).setLogin(A_LOGIN));
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
+    assertThat(organization.getDescription()).isEqualTo(nameTooLong + "'s personal organization");
+  }
+
+  @Test
+  public void createForUser_does_not_fail_if_name_is_empty_and_login_is_too_long_for_an_organization_name() {
     String login = STRING_64_CHARS + "b";
-    UserDto user = dbTester.users().insertUser(login);
+    UserDto user = dbTester.users().insertUser(dto -> dto.setName("").setLogin(login));
     when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
@@ -330,6 +346,22 @@ public class OrganizationCreationImplTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
+    assertThat(organization.getDescription()).isEqualTo(login + "'s personal organization");
+  }
+
+  @Test
+  public void createForUser_does_not_fail_if_name_is_null_and_login_is_too_long_for_an_organization_name() {
+    String login = STRING_64_CHARS + "b";
+    UserDto user = dbTester.users().insertUser(dto -> dto.setName(null).setLogin(login));
+    when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
+    assertThat(organization.getDescription()).isEqualTo(login + "'s personal organization");
   }
 
   private void enableCreatePersonalOrg(boolean flag) {

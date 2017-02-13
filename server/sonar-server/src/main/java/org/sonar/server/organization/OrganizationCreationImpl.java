@@ -45,6 +45,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
 
 public class OrganizationCreationImpl implements OrganizationCreation {
+
   private final DbClient dbClient;
   private final System2 system2;
   private final UuidFactory uuidFactory;
@@ -85,9 +86,11 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       return Optional.empty();
     }
 
+    String nameOrLogin = nameOrLogin(newUser);
     NewOrganization newOrganization = newOrganizationBuilder()
       .setKey(organizationValidation.generateKeyFrom(newUser.getLogin()))
-      .setName(toName(newUser.getLogin()))
+      .setName(toName(nameOrLogin))
+      .setDescription(format(PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN, nameOrLogin))
       .build();
     checkState(!organizationKeyIsUsed(dbSession, newOrganization.getKey()),
       "Can't create organization with key '%s' for new user '%s' because an organization with this key already exists",
@@ -103,6 +106,14 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     dbSession.commit();
 
     return Optional.of(organization);
+  }
+
+  private static String nameOrLogin(UserDto newUser) {
+    String name = newUser.getName();
+    if (name == null || name.isEmpty()) {
+      return newUser.getLogin();
+    }
+    return name;
   }
 
   private String toName(String login) {
