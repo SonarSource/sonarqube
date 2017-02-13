@@ -219,6 +219,24 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void filter_on_organization() {
+    OrganizationDto org1 = OrganizationTesting.newOrganizationDto();
+    OrganizationDto org2 = OrganizationTesting.newOrganizationDto();
+    ComponentDto projectInOrg1 = newProjectDto(org1);
+    ComponentDto projectInOrg2 = newProjectDto(org2);
+    index(newDoc(projectInOrg1), newDoc(projectInOrg2));
+
+    ProjectMeasuresQuery query1 = new ProjectMeasuresQuery().setOrganizationUuid(org1.getUuid());
+    assertResults(query1, projectInOrg1);
+
+    ProjectMeasuresQuery query2 = new ProjectMeasuresQuery().setOrganizationUuid(org2.getUuid());
+    assertResults(query2, projectInOrg2);
+
+    ProjectMeasuresQuery query3 = new ProjectMeasuresQuery().setOrganizationUuid("another_org");
+    assertNoResults(query3);
+  }
+
+  @Test
   public void return_only_projects_authorized_for_user() throws Exception {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2));
     indexForUser(USER2, newDoc(PROJECT3));
@@ -878,9 +896,10 @@ public class ProjectMeasuresIndexTest {
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {
     return new ProjectMeasuresDoc()
-        .setId(project.uuid())
-        .setKey(project.key())
-        .setName(project.name());
+      .setOrganizationUuid(project.getOrganizationUuid())
+      .setId(project.uuid())
+      .setKey(project.key())
+      .setName(project.name());
   }
 
   private static ProjectMeasuresDoc newDoc() {

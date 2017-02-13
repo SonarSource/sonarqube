@@ -23,12 +23,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.Level;
-import org.sonar.server.measure.index.ProjectMeasuresQuery;
+import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
 
 public class ProjectMeasuresQueryTest {
@@ -36,12 +35,13 @@ public class ProjectMeasuresQueryTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  ProjectMeasuresQuery underTest = new ProjectMeasuresQuery();
+  private ProjectMeasuresQuery underTest = new ProjectMeasuresQuery();
 
   @Test
   public void empty_query() throws Exception {
     assertThat(underTest.getMetricCriteria()).isEmpty();
-    assertThat(underTest.hasQualityGateStatus()).isFalse();
+    assertThat(underTest.getQualityGateStatus()).isEmpty();
+    assertThat(underTest.getOrganizationUuid()).isEmpty();
   }
 
   @Test
@@ -57,13 +57,7 @@ public class ProjectMeasuresQueryTest {
   public void set_quality_gate_status() throws Exception {
     underTest.setQualityGateStatus(OK);
 
-    assertThat(underTest.getQualityGateStatus()).isEqualTo(Level.OK);
-  }
-
-  @Test
-  public void fail_to_get_quality_gate_status_if_no_set() throws Exception {
-    expectedException.expect(IllegalStateException.class);
-    underTest.getQualityGateStatus();
+    assertThat(underTest.getQualityGateStatus().get()).isEqualTo(Level.OK);
   }
 
   @Test
