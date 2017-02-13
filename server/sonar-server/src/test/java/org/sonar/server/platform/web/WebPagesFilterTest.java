@@ -68,8 +68,6 @@ public class WebPagesFilterTest {
     verifyPathIsHandled("/");
     verifyPathIsHandled("/issues");
     verifyPathIsHandled("/foo");
-    verifyPthIsIgnored("/api/issues/search");
-    verifyPthIsIgnored("/batch/index");
   }
 
   @Test

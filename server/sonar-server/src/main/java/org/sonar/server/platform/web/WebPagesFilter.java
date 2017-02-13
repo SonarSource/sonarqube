@@ -54,8 +54,6 @@ public class WebPagesFilter implements Filter {
   private static final ServletFilter.UrlPattern URL_PATTERN = ServletFilter.UrlPattern
     .builder()
     .excludes(staticResourcePatterns())
-    // These exclusions won't be needed anymore when this filter will be last filter (no more rails filter)
-    .excludes("/api/*", "/batch/*")
     .build();
 
   private String indexDotHtml;
