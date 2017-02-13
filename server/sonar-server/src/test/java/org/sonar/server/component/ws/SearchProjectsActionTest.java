@@ -397,7 +397,12 @@ public class SearchProjectsActionTest {
     ComponentDto res = componentDb.insertComponent(project);
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE,
-        new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()).setMeasures(measures));
+        new ProjectMeasuresDoc()
+          .setOrganizationUuid(project.getOrganizationUuid())
+          .setId(project.uuid())
+          .setKey(project.key())
+          .setName(project.name())
+          .setMeasures(measures));
       authorizationIndexerTester.allowOnlyAnyone(project);
     } catch (Exception e) {
       Throwables.propagate(e);

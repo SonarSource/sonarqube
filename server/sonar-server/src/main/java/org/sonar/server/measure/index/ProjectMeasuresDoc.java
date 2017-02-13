@@ -34,7 +34,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 public class ProjectMeasuresDoc extends BaseDoc {
 
   public ProjectMeasuresDoc() {
-    super(new HashMap<>(4));
+    super(new HashMap<>(7));
   }
 
   @Override
@@ -54,6 +54,15 @@ public class ProjectMeasuresDoc extends BaseDoc {
 
   public ProjectMeasuresDoc setId(String s) {
     setField("_id", s);
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return getField(ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID);
+  }
+
+  public ProjectMeasuresDoc setOrganizationUuid(String s) {
+    setField(ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID, s);
     return this;
   }
 

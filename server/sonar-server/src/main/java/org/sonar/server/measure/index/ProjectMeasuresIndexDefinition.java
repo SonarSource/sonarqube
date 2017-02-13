@@ -28,6 +28,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String INDEX_PROJECT_MEASURES = "projectmeasures";
 
   public static final String TYPE_PROJECT_MEASURE = "projectmeasure";
+  public static final String FIELD_ORGANIZATION_UUID = "organizationUuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
@@ -51,6 +52,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType mapping = index.createType(TYPE_PROJECT_MEASURE)
       .requireProjectAuthorization();
 
+    mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUID).build();
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_NAME).enableSorting().build();
     mapping.stringFieldBuilder(FIELD_QUALITY_GATE).build();
