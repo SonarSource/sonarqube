@@ -58,7 +58,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static final Joiner METRICS_JOINER = Joiner.on("','");
 
-  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, s.uuid, s.created_at FROM projects p " +
+  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.uuid, s.created_at FROM projects p " +
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
     "WHERE p.enabled=? AND p.scope=? AND p.qualifier=?";
 
@@ -121,8 +121,13 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     try (PreparedStatement stmt = createProjectsStatement(session, afterDate, projectUuid);
       ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
-        long analysisDate = rs.getLong(5);
-        Project project = new Project(rs.getString(1), rs.getString(2), rs.getString(3), getString(rs, 4).orElseGet(() -> null), rs.wasNull() ? null : analysisDate);
+        String orgUuid = rs.getString(1);
+        String uuid = rs.getString(2);
+        String key = rs.getString(3);
+        String name = rs.getString(4);
+        String analysisUuid = DatabaseUtils.getString(rs, 5);
+        Long analysisDate = DatabaseUtils.getLong(rs, 6);
+        Project project = new Project(orgUuid, uuid, key, name, analysisUuid, analysisDate);
         projects.add(project);
       }
       return projects;
@@ -248,18 +253,24 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   public static class Project {
+    private final String organizationUuid;
     private final String uuid;
     private final String key;
     private final String name;
     private final String analysisUuid;
     private final Long analysisDate;
 
-    public Project(String uuid, String key, String name, @Nullable String analysisUuid, @Nullable Long analysisDate) {
+    public Project(String organizationUuid, String uuid, String key, String name, @Nullable String analysisUuid, @Nullable Long analysisDate) {
+      this.organizationUuid = organizationUuid;
       this.uuid = uuid;
       this.key = key;
       this.name = name;
       this.analysisUuid = analysisUuid;
       this.analysisDate = analysisDate;
+    }
+
+    public String getOrganizationUuid() {
+      return organizationUuid;
     }
 
     public String getUuid() {

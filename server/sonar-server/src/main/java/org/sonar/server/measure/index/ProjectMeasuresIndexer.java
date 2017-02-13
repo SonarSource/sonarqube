@@ -123,11 +123,13 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
   }
 
   private static ProjectMeasuresDoc toProjectMeasuresDoc(ProjectMeasures projectMeasures) {
-    Long analysisDate = projectMeasures.getProject().getAnalysisDate();
+    ProjectMeasuresIndexerIterator.Project project = projectMeasures.getProject();
+    Long analysisDate = project.getAnalysisDate();
     return new ProjectMeasuresDoc()
-      .setId(projectMeasures.getProject().getUuid())
-      .setKey(projectMeasures.getProject().getKey())
-      .setName(projectMeasures.getProject().getName())
+      .setId(project.getUuid())
+      .setOrganizationUuid(project.getOrganizationUuid())
+      .setKey(project.getKey())
+      .setName(project.getName())
       .setQualityGate(projectMeasures.getMeasures().getQualityGateStatus())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
       .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures());
