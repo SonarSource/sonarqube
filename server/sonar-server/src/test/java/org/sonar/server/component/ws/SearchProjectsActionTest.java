@@ -235,6 +235,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void filter_favourite_projects_with_query_with_or_without_a_specified_organization() {
+    userSession.logIn();
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
     OrganizationDto organization3 = db.organizations().insert();
@@ -283,6 +284,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void filter_projects_on_favorites() {
+    userSession.logIn();
     ComponentDto javaProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"),
       newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
     ComponentDto markDownProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "markdown-id").setName("Sonar Markdown"),
@@ -297,6 +299,21 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsCount()).isEqualTo(2);
     assertThat(result.getComponentsList()).extracting(Component::getId).containsExactly("java-id", "markdown-id");
+  }
+
+  @Test
+  public void filtering_on_favorites_returns_empty_results_if_not_logged_in() {
+    ComponentDto javaProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"),
+      newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(db.organizations().insert()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    addFavourite(javaProject);
+    dbSession.commit();
+    request.setFilter("isFavorite");
+    userSession.anonymous();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(0);
   }
 
   @Test
