@@ -33,6 +33,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -170,8 +171,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
     List<String> criteria = toCriteria(firstNonNull(request.getFilter(), ""));
 
-    List<ComponentDto> favoriteProjects = searchFavoriteProjects(dbSession);
-    Set<String> projectUuids = buildFilterOnFavoriteProjectUuids(criteria, favoriteProjects);
+    Set<String> favoriteProjectUuids = loadFavoriteProjectUuids(dbSession);
+    Set<String> projectUuids = buildFilterOnFavoriteProjectUuids(criteria, favoriteProjectUuids);
 
     ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, projectUuids);
     Optional.ofNullable(organization)
@@ -187,32 +188,38 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Ordering<ComponentDto> ordering = Ordering.explicit(esResults.getIds()).onResultOf(ComponentDto::uuid);
     List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, esResults.getIds()));
 
-    return new SearchResults(projects, favoriteProjects.stream().map(ComponentDto::uuid).collect(toSet()), esResults);
+    return new SearchResults(projects, favoriteProjectUuids, esResults);
   }
 
   @CheckForNull
-  private Set<String> buildFilterOnFavoriteProjectUuids(List<String> criteria, List<ComponentDto> favoriteProjects) {
-    boolean hasIsFavouriteCriterion = hasIsFavouriteCriterion(criteria);
-    if (hasIsFavouriteCriterion) {
-      return favoriteProjects.stream()
-        .map(ComponentDto::uuid)
-        .collect(toSet());
+  private Set<String> buildFilterOnFavoriteProjectUuids(List<String> criteria, Set<String> favoriteProjectUuids) {
+    if (hasIsFavouriteCriterion(criteria)) {
+      return favoriteProjectUuids;
     }
     return null;
   }
 
-  private List<ComponentDto> searchFavoriteProjects(DbSession dbSession) {
-    List<Long> favoriteDbIds = dbClient.propertiesDao().selectByQuery(
+  private Set<String> loadFavoriteProjectUuids(DbSession dbSession) {
+    if (!userSession.isLoggedIn()) {
+      return Collections.emptySet();
+    }
+
+    List<PropertyDto> props = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
         .setUserId(userSession.getUserId())
         .setKey("favourite")
         .build(),
-      dbSession)
-      .stream()
-      .map(PropertyDto::getResourceId)
-      .collect(Collectors.toList());
+      dbSession);
 
-    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds);
+    List<Long> favoriteDbIds = props.stream()
+      .map(PropertyDto::getResourceId)
+      .collect(Collectors.toList(props.size()));
+
+    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds).stream()
+      .filter(ComponentDto::isEnabled)
+      .filter(f -> f.qualifier().equals(Qualifiers.PROJECT))
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toSet());
   }
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
