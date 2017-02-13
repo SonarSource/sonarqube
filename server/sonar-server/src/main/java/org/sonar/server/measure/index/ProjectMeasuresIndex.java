@@ -61,6 +61,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
@@ -209,12 +210,15 @@ public class ProjectMeasuresIndex extends BaseIndex {
       filters.put(entry.getKey(), metricFilters);
 
     });
-    if (query.hasQualityGateStatus()) {
-      filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE, query.getQualityGateStatus().name()));
-    }
-    if (query.doesFilterOnProjectUuids()) {
-      filters.put("ids", termsQuery("_id", query.getProjectUuids()));
-    }
+
+    query.getQualityGateStatus()
+      .ifPresent(qualityGateStatus -> filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE, qualityGateStatus.name())));
+
+    query.getProjectUuids()
+      .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));
+
+    query.getOrganizationUuid()
+      .ifPresent(organizationUuid -> filters.put(FIELD_ORGANIZATION_UUID, termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
     return filters;
   }
 

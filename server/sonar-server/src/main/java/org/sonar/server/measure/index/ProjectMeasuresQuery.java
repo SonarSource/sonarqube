@@ -21,10 +21,11 @@ package org.sonar.server.measure.index;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
@@ -32,6 +33,7 @@ import static java.util.Objects.requireNonNull;
 public class ProjectMeasuresQuery {
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus;
+  private String organizationUuid = null;
   private Set<String> projectUuids = null;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
@@ -48,26 +50,26 @@ public class ProjectMeasuresQuery {
     return this;
   }
 
-  public boolean hasQualityGateStatus() {
-    return qualityGateStatus != null;
+  public Optional<Metric.Level> getQualityGateStatus() {
+    return Optional.ofNullable(qualityGateStatus);
   }
 
-  public Metric.Level getQualityGateStatus() {
-    checkState(qualityGateStatus != null);
-    return qualityGateStatus;
-  }
-
-  public ProjectMeasuresQuery setProjectUuids(Set<String> projectUuids) {
-    this.projectUuids = requireNonNull(projectUuids);
+  public ProjectMeasuresQuery setOrganizationUuid(@Nullable String organizationUuid) {
+    this.organizationUuid = organizationUuid;
     return this;
   }
 
-  public boolean doesFilterOnProjectUuids() {
-    return projectUuids != null;
+  public Optional<String> getOrganizationUuid() {
+    return Optional.ofNullable(organizationUuid);
   }
 
-  public Set<String> getProjectUuids() {
-    return requireNonNull(projectUuids);
+  public ProjectMeasuresQuery setProjectUuids(@Nullable Set<String> projectUuids) {
+    this.projectUuids = projectUuids;
+    return this;
+  }
+
+  public Optional<Set<String>> getProjectUuids() {
+    return Optional.ofNullable(projectUuids);
   }
 
   public enum Operator {

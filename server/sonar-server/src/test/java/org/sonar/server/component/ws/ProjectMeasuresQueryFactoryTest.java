@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
+import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyList;
@@ -33,8 +35,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.toCriteria;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 
 public class ProjectMeasuresQueryFactoryTest {
 
@@ -103,42 +103,42 @@ public class ProjectMeasuresQueryFactoryTest {
   public void create_query_on_quality_gate() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(toCriteria("alert_status = OK"), emptySet());
 
-    assertThat(query.getQualityGateStatus().name()).isEqualTo(OK.name());
+    assertThat(query.getQualityGateStatus().get().name()).isEqualTo(OK.name());
   }
 
   @Test
   public void do_not_filter_on_projectUuids_if_criteria_non_empty_and_projectUuid_is_null() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(toCriteria("ncloc = 10"), null);
 
-    assertThat(query.doesFilterOnProjectUuids()).isFalse();
+    assertThat(query.getProjectUuids()).isEmpty();
   }
 
   @Test
   public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_non_empty() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(toCriteria("ncloc > 10"), emptySet());
 
-    assertThat(query.doesFilterOnProjectUuids()).isTrue();
+    assertThat(query.getProjectUuids()).isPresent();
   }
 
   @Test
   public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_non_empty() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(toCriteria("ncloc > 10"), Collections.singleton("foo"));
 
-    assertThat(query.doesFilterOnProjectUuids()).isTrue();
+    assertThat(query.getProjectUuids()).isPresent();
   }
 
   @Test
   public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_is_empty() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), emptySet());
 
-    assertThat(query.doesFilterOnProjectUuids()).isTrue();
+    assertThat(query.getProjectUuids()).isPresent();
   }
 
   @Test
   public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_empty() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), Collections.singleton("foo"));
 
-    assertThat(query.doesFilterOnProjectUuids()).isTrue();
+    assertThat(query.getProjectUuids()).isPresent();
   }
 
   @Test
