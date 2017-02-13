@@ -363,6 +363,10 @@ public final class CoreMetrics {
     .create();
 
   public static final String FILE_COMPLEXITY_KEY = "file_complexity";
+
+  /**
+   * Information about the cyclomatic complexity per file, calculated by divided the {@link #COMPLEXITY} by the number of {@link #FILES}.
+   */
   public static final Metric<Double> FILE_COMPLEXITY = new Metric.Builder(FILE_COMPLEXITY_KEY, "Complexity / File", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by file")
     .setDirection(Metric.DIRECTION_WORST)
@@ -390,8 +394,7 @@ public final class CoreMetrics {
   public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
 
   /**
-   * Information about the cyclomatic complexity per class, calculated by divided the complexity in classes by the number of classes.
-   * If the complexity in classes is not available, the complexity of the file is used.
+   * Information about the cyclomatic complexity per class, calculated by divided the {@link #COMPLEXITY_IN_CLASSES} by the number of {@link #CLASSES}.
    */
   public static final Metric<Double> CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity / Class", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by class")
@@ -420,8 +423,7 @@ public final class CoreMetrics {
   public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
 
   /**
-   * Information about the cyclomatic complexity per function, calculated by divided the complexity in functions by the number of functions.
-   * If the complexity in functions is not available, the complexity of the file is used.
+   * Information about the cyclomatic complexity per function, calculated by divided the {@link #COMPLEXITY_IN_FUNCTIONS} by the number of {@link #FUNCTIONS}.
    */
   public static final Metric<Double> FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity / Function", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by function")
