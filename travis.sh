@@ -48,7 +48,7 @@ CI)
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
           $MAVEN_OPTIONS \
-          -Pdeploy-sonarsource \
+          -Pdeploy-sonarsource,release \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.projectVersion=$INITIAL_VERSION
