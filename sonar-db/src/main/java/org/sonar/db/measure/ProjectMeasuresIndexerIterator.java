@@ -240,18 +240,6 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private static Optional<String> getString(ResultSet rs, int index) {
-    try {
-      String value = rs.getString(index);
-      if (!rs.wasNull()) {
-        return Optional.of(value);
-      }
-      return Optional.empty();
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to get string value", e);
-    }
-  }
-
   public static class Project {
     private final String organizationUuid;
     private final String uuid;
