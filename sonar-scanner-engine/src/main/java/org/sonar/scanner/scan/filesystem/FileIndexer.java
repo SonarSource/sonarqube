@@ -44,7 +44,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -67,7 +66,6 @@ public class FileIndexer {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
   private final InputFileFilter[] filters;
-  private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilder inputFileBuilder;
   private final DefaultComponentTree componentTree;
@@ -80,7 +78,7 @@ public class FileIndexer {
   private ProgressReport progressReport;
 
   public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ProjectDefinition def, InputFileFilter[] filters) {
+    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, InputFileFilter[] filters) {
     this.batchIdGenerator = batchIdGenerator;
     this.componentStore = componentStore;
     this.module = module;
@@ -89,20 +87,14 @@ public class FileIndexer {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.tasks = new ArrayList<>();
-    this.isAggregator = !def.getSubProjects().isEmpty();
   }
 
   public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ProjectDefinition def) {
-    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, def, new InputFileFilter[0]);
+    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder) {
+    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, new InputFileFilter[0]);
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
-    if (isAggregator) {
-      // No indexing for an aggregator module
-      return;
-    }
-
     int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     this.executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("FileIndexer-%d").build());
 

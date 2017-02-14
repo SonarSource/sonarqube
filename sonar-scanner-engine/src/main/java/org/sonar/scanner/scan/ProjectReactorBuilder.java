@@ -82,8 +82,8 @@ public class ProjectReactorBuilder {
    *
    * @since 1.5
    */
-  private static final String PROPERTY_SOURCES = "sonar.sources";
-  private static final String PROPERTY_TESTS = "sonar.tests";
+  private static final String PROPERTY_SOURCES = ProjectDefinition.SOURCES_PROPERTY;
+  private static final String PROPERTY_TESTS = ProjectDefinition.TESTS_PROPERTY;
 
   /**
    * Array of all mandatory properties required for a project without child.
@@ -333,8 +333,6 @@ public class ProjectReactorBuilder {
     if (project.getSubProjects().isEmpty()) {
       cleanAndCheckModuleProperties(project);
     } else {
-      cleanAndCheckAggregatorProjectProperties(project);
-
       // clean modules properties as well
       for (ProjectDefinition module : project.getSubProjects()) {
         cleanAndCheckProjectDefinitions(module);
@@ -349,26 +347,6 @@ public class ProjectReactorBuilder {
     // We need to check the existence of source directories
     String[] sourcePaths = getListFromProperty(properties, PROPERTY_SOURCES);
     checkExistenceOfPaths(project.getKey(), project.getBaseDir(), sourcePaths, PROPERTY_SOURCES);
-  }
-
-  @VisibleForTesting
-  protected static void cleanAndCheckAggregatorProjectProperties(ProjectDefinition project) {
-    Map<String, String> properties = project.properties();
-
-    // SONARPLUGINS-2295
-    String[] sourceDirs = getListFromProperty(properties, PROPERTY_SOURCES);
-    for (String path : sourceDirs) {
-      File sourceFolder = resolvePath(project.getBaseDir(), path);
-      if (sourceFolder.isDirectory()) {
-        LOG.warn("/!\\ A multi-module project can't have source folders, so '{}' won't be used for the analysis. " +
-          "If you want to analyse files of this folder, you should create another sub-module and move them inside it.",
-          sourceFolder.toString());
-      }
-    }
-
-    // "aggregator" project must not have the following properties:
-    properties.remove(PROPERTY_SOURCES);
-    properties.remove(PROPERTY_TESTS);
   }
 
   @VisibleForTesting
