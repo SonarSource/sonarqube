@@ -86,7 +86,7 @@ export function enhanceMeasuresWithMetrics (measures, metrics) {
  */
 export function getPeriodValue (measure, periodIndex) {
   const { periods } = measure;
-  const period = periods.find(period => period.index === periodIndex);
+  const period = periods ? periods.find(period => period.index === periodIndex) : null;
   return period ? period.value : null;
 }
 
