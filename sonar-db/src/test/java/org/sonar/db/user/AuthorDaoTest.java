@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,6 +60,25 @@ public class AuthorDaoTest {
   }
 
   @Test
+  public void selectAll_returns_empty_list_when_db_is_empty() {
+    assertThat(dao.selectAll(dbSession)).isEmpty();
+  }
+
+  @Test
+  public void selectAll_returns_all_lines_in_table_AUTHORS() {
+    dbTester.getDbClient().authorDao().insertAuthor(dbSession, "aaa", 12);
+    dbTester.getDbClient().authorDao().insertAuthor(dbSession, "bbb", 13);
+    dbTester.getDbClient().authorDao().insertAuthor(dbSession, "ccc", 14);
+    dbSession.commit();
+
+    assertThat(dao.selectAll(dbSession))
+        .extracting("login", "personId")
+        .containsOnly(
+            new Tuple("aaa", 12L), new Tuple("bbb", 13L), new Tuple("ccc", 14L)
+        );
+  }
+
+  @Test
   public void shouldInsertAuthor() {
     dbTester.prepareDbUnit(getClass(), "shouldInsertAuthor.xml");
     dbSession.commit();
@@ -66,7 +86,7 @@ public class AuthorDaoTest {
     dao.insertAuthor(dbSession, "godin", 13L);
     dbSession.commit();
 
-    dbTester.assertDbUnit(getClass(), "shouldInsertAuthor-result.xml", new String[] {"created_at", "updated_at"}, "authors");
+    dbTester.assertDbUnit(getClass(), "shouldInsertAuthor-result.xml", new String[]{"created_at", "updated_at"}, "authors");
   }
 
   @Test
@@ -89,7 +109,7 @@ public class AuthorDaoTest {
       dao.insertAuthor(dbSession, "godin", 20L);
     } catch (RuntimeException ex) {
       dbSession.commit();
-      dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsDuplication-result.xml", new String[] {"created_at", "updated_at"}, "authors");
+      dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsDuplication-result.xml", new String[]{"created_at", "updated_at"}, "authors");
       throw ex;
     }
   }

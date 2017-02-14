@@ -30,6 +30,8 @@ public interface AuthorMapper {
 
   AuthorDto selectByLogin(String login);
 
+  List<AuthorDto> selectAll();
+
   void insert(AuthorDto authorDto);
 
   int countDeveloperLogins(long developerId);
