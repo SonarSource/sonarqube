@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.server.ws.ws;
 
 import com.google.common.collect.Ordering;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -56,6 +55,7 @@ public class WebServicesWs implements WebService {
       .setDescription("List web services")
       .setResponseExample(getClass().getResource("list-example.json"))
       .setHandler((request, response) -> handleList(context.controllers(), request, response));
+
     action
       .createParam("include_internals")
       .setDescription("Include web services that are implemented for internal use only. Their forward-compatibility is " +
@@ -70,21 +70,18 @@ public class WebServicesWs implements WebService {
       .setDescription("Display web service response example")
       .setResponseExample(WebServicesWs.class.getResource("response_example-example.json"))
       .setSince("4.4")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) throws Exception {
-          String controllerKey = request.mandatoryParam("controller");
-          Controller controller = context.controller(controllerKey);
-          if (controller == null) {
-            throw new IllegalArgumentException("Controller does not exist: " + controllerKey);
-          }
-          String actionKey = request.mandatoryParam("action");
-          Action action = controller.action(actionKey);
-          if (action == null) {
-            throw new IllegalArgumentException("Action does not exist: " + actionKey);
-          }
-          handleResponseExample(action, response);
+      .setHandler((request, response) -> {
+        String controllerKey = request.mandatoryParam("controller");
+        Controller controller1 = context.controller(controllerKey);
+        if (controller1 == null) {
+          throw new IllegalArgumentException("Controller does not exist: " + controllerKey);
         }
+        String actionKey = request.mandatoryParam("action");
+        Action action1 = controller1.action(actionKey);
+        if (action1 == null) {
+          throw new IllegalArgumentException("Action does not exist: " + actionKey);
+        }
+        handleResponseExample(action1, response);
       });
     action.createParam("controller")
       .setRequired(true)
