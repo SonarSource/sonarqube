@@ -221,7 +221,7 @@ public class WebServiceTest {
           .setDefaultValue("MAJOR")
           .setSince("4.4")
           .setDeprecatedSince("5.3")
-          .setDeprecatedKey("old-severity")
+          .setDeprecatedKey("old-severity", "4.5")
           .setPossibleValues("INFO", "MAJOR", "BLOCKER");
         newAction.createParam("internal")
           .setInternal(true);
@@ -247,6 +247,7 @@ public class WebServiceTest {
     assertThat(severityParam.deprecatedSince()).isEqualTo("5.3");
     assertThat(severityParam.since()).isEqualTo("4.4");
     assertThat(severityParam.deprecatedKey()).isEqualTo("old-severity");
+    assertThat(severityParam.deprecatedKeySince()).isEqualTo("4.5");
     assertThat(severityParam.defaultValue()).isEqualTo("MAJOR");
     assertThat(severityParam.possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
 

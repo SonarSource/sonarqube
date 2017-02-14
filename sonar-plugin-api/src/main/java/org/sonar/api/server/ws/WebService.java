@@ -600,6 +600,7 @@ public interface WebService extends Definable<WebService.Context> {
     private String since;
     private String deprecatedSince;
     private String deprecatedKey;
+    private String deprecatedKeySince;
     private String description;
     private String exampleValue;
     private String defaultValue;
@@ -629,9 +630,23 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 5.0
+     * @deprecated since 6.4
+     * @see #setDeprecatedKey(String, String) 
      */
+    @Deprecated
     public NewParam setDeprecatedKey(@Nullable String s) {
       this.deprecatedKey = s;
+      return this;
+    }
+
+    /**
+     *
+     * @param deprecatedSince Version when the old key was replaced/deprecated. Ex: 5.6
+     * @since 6.4
+     */
+    public NewParam setDeprecatedKey(@Nullable String key, @Nullable String deprecatedSince) {
+      this.deprecatedKey = key;
+      this.deprecatedKeySince = deprecatedSince;
       return this;
     }
 
@@ -767,6 +782,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final String since;
     private final String deprecatedSince;
     private final String deprecatedKey;
+    private final String deprecatedKeySince;
     private final String description;
     private final String exampleValue;
     private final String defaultValue;
@@ -779,6 +795,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.since = newParam.since;
       this.deprecatedSince = newParam.deprecatedSince;
       this.deprecatedKey = newParam.deprecatedKey;
+      this.deprecatedKeySince = newParam.deprecatedKeySince;
       this.description = newParam.description;
       this.exampleValue = newParam.exampleValue;
       this.defaultValue = newParam.defaultValue;
@@ -816,6 +833,14 @@ public interface WebService extends Definable<WebService.Context> {
     @CheckForNull
     public String deprecatedKey() {
       return deprecatedKey;
+    }
+
+    /**
+     * @since 6.4
+     */
+    @CheckForNull
+    public String deprecatedKeySince() {
+      return deprecatedKeySince;
     }
 
     @CheckForNull
