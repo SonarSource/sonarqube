@@ -125,9 +125,8 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.getName()).isEqualTo("Foo Project");
     assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
-    // root project must not contain some properties - even if they are defined in the root properties file
-    assertThat(rootProject.sources().contains("sources")).isFalse();
-    assertThat(rootProject.tests().contains("tests")).isFalse();
+    assertThat(rootProject.sources().contains("sources")).isTrue();
+    assertThat(rootProject.tests().contains("tests")).isTrue();
     // and module properties must have been cleaned
     assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
@@ -565,8 +564,8 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
     // root project must not contain some properties - even if they are defined in the root properties file
-    assertThat(rootProject.sources().contains("sources")).isFalse();
-    assertThat(rootProject.tests().contains("tests")).isFalse();
+    assertThat(rootProject.sources().contains("sources")).isTrue();
+    assertThat(rootProject.tests().contains("tests")).isTrue();
     // and module properties must have been cleaned
     assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
