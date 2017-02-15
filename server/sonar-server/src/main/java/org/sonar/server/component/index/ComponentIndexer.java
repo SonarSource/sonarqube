@@ -59,11 +59,24 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   /**
+   * Make sure, that the component index is filled.
+   */
+  public void index() {
+    if (isEmpty()) {
+      reindex();
+    }
+  }
+
+  private boolean isEmpty() {
+    return esClient.prepareSearch(INDEX_COMPONENTS).setTypes(TYPE_COMPONENT).setSize(0).get().getHits().getTotalHits() <= 0;
+  }
+
+  /**
    * Copy all components of all projects to the elastic search index.
    * <p>
    * <b>Warning</b>: This should only be called on an empty index and it should only be called during startup.
    */
-  public void index() {
+  private void reindex() {
     doIndexByProjectUuid(null);
   }
 
