@@ -31,9 +31,8 @@ public class DbVersion60Test {
   @Test
   public void verify_supports_components() {
     assertThat(underTest.getSupportComponents()).containsExactly(
-        FixProjectUuidOfDeveloperProjects.class,
-        CleanUsurperRootComponents.class
-    );
+      FixProjectUuidOfDeveloperProjects.class,
+      CleanUsurperRootComponents.class);
   }
 
   @Test

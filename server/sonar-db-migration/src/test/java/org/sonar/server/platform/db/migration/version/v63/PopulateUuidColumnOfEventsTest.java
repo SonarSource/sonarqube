@@ -27,9 +27,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryImpl;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +38,7 @@ public class PopulateUuidColumnOfEventsTest {
   private static final String TABLE_EVENTS = "events";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidColumnOfEventsTest.class, "in_progress_events.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateUuidColumnOfEventsTest.class, "in_progress_events.sql");
 
   private PopulateUuidColumnOfEvents underTest = new PopulateUuidColumnOfEvents(db.database(), UuidFactoryImpl.INSTANCE);
 
@@ -55,7 +54,6 @@ public class PopulateUuidColumnOfEventsTest {
     insertEvents(1);
     insertEvents(2);
     insertEvents(3);
-    db.commit();
 
     underTest.execute();
 

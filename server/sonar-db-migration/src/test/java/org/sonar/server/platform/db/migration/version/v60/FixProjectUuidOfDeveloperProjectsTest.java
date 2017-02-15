@@ -24,8 +24,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +39,7 @@ public class FixProjectUuidOfDeveloperProjectsTest {
   private static final String DEV2_IN_PROJECT_UUID = "U5";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, FixProjectUuidOfDeveloperProjectsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(FixProjectUuidOfDeveloperProjectsTest.class,
     "projects_5.6.sql");
 
   private FixProjectUuidOfDeveloperProjects underTest = new FixProjectUuidOfDeveloperProjects(db.database());
@@ -88,7 +87,6 @@ public class FixProjectUuidOfDeveloperProjectsTest {
     Long personId = insert(DEVELOPER_UUID, "DEV", null, DEVELOPER_UUID);
     insert(DEV1_IN_PROJECT_UUID, "DEV_PRJ", personId, /* not correct */PROJECT_UUID);
     insert(DEV2_IN_PROJECT_UUID, "DEV_PRJ", personId, /* not correct */PROJECT_UUID);
-    db.commit();
   }
 
   private void verifyProjectUuid(String uuid, @Nullable String expectedProjectUuid) {
@@ -103,7 +101,7 @@ public class FixProjectUuidOfDeveloperProjectsTest {
       "PERSON_ID", personId == null ? null : valueOf(personId),
       "PROJECT_UUID", projectUuid,
       "QUALIFIER", qualifier);
-    db.commit();
+
     return db.select("select ID from projects where UUID='" + uuid + "'").stream()
       .findFirst()
       .map(f -> (Long) f.get("ID"))

@@ -23,8 +23,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ public class PopulateUuidPathColumnOnProjectsTest {
   private static final String QUALIFIER_FILE = "FIL";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidPathColumnOnProjectsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateUuidPathColumnOnProjectsTest.class,
     "in_progress_projects_and_snapshots.sql");
 
   private PopulateUuidPathColumnOnProjects underTest = new PopulateUuidPathColumnOnProjects(db.database());
@@ -149,7 +148,6 @@ public class PopulateUuidPathColumnOnProjectsTest {
         "root_component_uuid", rootUuid,
         "qualifier", qualifier);
     }
-    db.commit();
   }
 
   private void verifyPath(String componentUuid, String expectedUuidPath) {

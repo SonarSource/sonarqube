@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class DropTableResourceIndexTest {
 
@@ -32,7 +32,7 @@ public class DropTableResourceIndexTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DropTableResourceIndexTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DropTableResourceIndexTest.class, "schema.sql");
 
   private DropTableResourceIndex underTest = new DropTableResourceIndex(db.database());
 

@@ -23,8 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ public class CreatePermTemplatesCharacteristicsTest {
   private static final String TABLE_NAME = "perm_tpl_characteristics";
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, CreatePermTemplatesCharacteristicsTest.class, "empty.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(CreatePermTemplatesCharacteristicsTest.class, "empty.sql");
 
   private CreatePermTemplatesCharacteristics underTest = new CreatePermTemplatesCharacteristics(dbTester.database());
 

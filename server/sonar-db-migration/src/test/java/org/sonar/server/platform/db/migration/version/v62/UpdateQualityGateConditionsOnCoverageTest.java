@@ -37,8 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +49,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
   private static final String TABLE_QUALITY_GATE_CONDITIONS = "quality_gate_conditions";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, UpdateQualityGateConditionsOnCoverageTest.class, "schema.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(UpdateQualityGateConditionsOnCoverageTest.class, "schema.sql");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -238,12 +237,12 @@ public class UpdateQualityGateConditionsOnCoverageTest {
 
   private long insertMetric(String key) {
     dbTester.executeInsert("metrics", "NAME", key);
-    return (Long) dbTester.selectFirst(dbTester.getSession(), format("select id as \"id\" from metrics where name='%s'", key)).get("id");
+    return (Long) dbTester.selectFirst(format("select id as \"id\" from metrics where name='%s'", key)).get("id");
   }
 
   private long insertQualityGate(String qualityGate) {
     dbTester.executeInsert(TABLE_QUALITY_GATES, "NAME", qualityGate);
-    return (Long) dbTester.selectFirst(dbTester.getSession(), format("select id as \"id\" from %s where name='%s'", TABLE_QUALITY_GATES, qualityGate)).get("id");
+    return (Long) dbTester.selectFirst(format("select id as \"id\" from %s where name='%s'", TABLE_QUALITY_GATES, qualityGate)).get("id");
   }
 
   private long insertQualityGateCondition(long qualityGateId, long metricId, @Nullable Long period, String operator, @Nullable String error, @Nullable String warning) {
@@ -259,12 +258,12 @@ public class UpdateQualityGateConditionsOnCoverageTest {
     }
     dbTester.executeInsert(TABLE_QUALITY_GATE_CONDITIONS, values);
     return (Long) dbTester
-      .selectFirst(dbTester.getSession(), format("select id as \"id\" from %s where qgate_id='%s' and metric_id='%s'", TABLE_QUALITY_GATE_CONDITIONS, qualityGateId, metricId))
+      .selectFirst(format("select id as \"id\" from %s where qgate_id='%s' and metric_id='%s'", TABLE_QUALITY_GATE_CONDITIONS, qualityGateId, metricId))
       .get("id");
   }
 
   private void verifyConditions(long qualityGateId, QualityGateCondition... expectedConditions) {
-    List<Map<String, Object>> results = dbTester.select(dbTester.getSession(),
+    List<Map<String, Object>> results = dbTester.select(
       format("select m.name as \"metricKey\", qgc.period as \"period\", qgc.operator as \"operator\", qgc.value_error as \"error\", qgc.value_warning as \"warning\" from %s qgc " +
         "inner join metrics m on m.id=qgc.metric_id " +
         "where qgc.qgate_id = '%s'", TABLE_QUALITY_GATE_CONDITIONS, qualityGateId));

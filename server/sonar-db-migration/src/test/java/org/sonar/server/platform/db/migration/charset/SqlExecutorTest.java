@@ -25,8 +25,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 import org.sonar.db.dialect.H2;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +38,10 @@ public class SqlExecutorTest {
   private static final String USERS_DB_TABLE = "users";
   private static final String IS_ROOT_DB_COLUMN = "is_root";
 
-  SqlExecutor underTest = new SqlExecutor();
+  private SqlExecutor underTest = new SqlExecutor();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(SqlExecutorTest.class, "users_table.sql");
 
   @Before
   public void disableIfNotH2() {
@@ -58,7 +57,7 @@ public class SqlExecutorTest {
     dbTester.executeInsert(USERS_DB_TABLE, LOGIN_DB_COLUMN, "login2", NAME_DB_COLUMN, "name two", IS_ROOT_DB_COLUMN, false);
 
     try (Connection connection = dbTester.openConnection()) {
-      List<String[]> users = underTest.select(connection, "select " + LOGIN_DB_COLUMN + ", " + NAME_DB_COLUMN + " from users order by id", new SqlExecutor.StringsConverter(
+      List<String[]> users = underTest.select(connection, "select " + LOGIN_DB_COLUMN + ", " + NAME_DB_COLUMN + " from users order by login", new SqlExecutor.StringsConverter(
         2));
       assertThat(users).hasSize(2);
       assertThat(users.get(0)[0]).isEqualTo("login1");

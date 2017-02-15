@@ -24,13 +24,12 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class AddProfileKeyToActivitiesTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddProfileKeyToActivitiesTest.class, "activities.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddProfileKeyToActivitiesTest.class, "activities.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -51,7 +50,6 @@ public class AddProfileKeyToActivitiesTest {
         "log_key", "LOG_KEY_" + i,
         "user_login", "login");
     }
-    db.commit();
 
     underTest.execute();
 

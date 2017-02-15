@@ -25,12 +25,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class AddOrganizationUuidToProjectsTest {
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddOrganizationUuidToProjectsTest.class, "previous-projects.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddOrganizationUuidToProjectsTest.class, "previous-projects.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

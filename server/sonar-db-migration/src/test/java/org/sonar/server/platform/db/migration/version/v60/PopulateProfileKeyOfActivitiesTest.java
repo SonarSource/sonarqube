@@ -23,8 +23,7 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,7 @@ public class PopulateProfileKeyOfActivitiesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateProfileKeyOfActivitiesTest.class, "activities.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateProfileKeyOfActivitiesTest.class, "activities.sql");
 
   PopulateProfileKeyOfActivities underTest = new PopulateProfileKeyOfActivities(db.database());
 

@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
   private static final String DEFAULT_ORGANIZATION_UUID = "def org uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, PopulateDefaultPermTemplateColumnsOfOrganizationsTest.class, "properties_and_organizations.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateDefaultPermTemplateColumnsOfOrganizationsTest.class, "properties_and_organizations.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

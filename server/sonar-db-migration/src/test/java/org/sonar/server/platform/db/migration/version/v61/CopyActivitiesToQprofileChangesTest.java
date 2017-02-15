@@ -25,8 +25,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +37,7 @@ public class CopyActivitiesToQprofileChangesTest {
   private static final String TABLE_QPROFILE_CHANGES = "qprofile_changes";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, CopyActivitiesToQprofileChangesTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(CopyActivitiesToQprofileChangesTest.class, "schema.sql");
 
   private CopyActivitiesToQprofileChanges underTest = new CopyActivitiesToQprofileChanges(db.database());
 
@@ -123,11 +122,15 @@ public class CopyActivitiesToQprofileChangesTest {
     assertThat(db.countRowsOfTable(TABLE_QPROFILE_CHANGES)).isEqualTo(0);
   }
 
-  private void insertActivity(String key, @Nullable String profileKey, @Nullable String login, @Nullable String activityType, @Nullable String type, @Nullable String data, @Nullable Long createdAt) {
-    db.executeInsert(TABLE_ACTIVITIES, "log_key", key, "profile_key", profileKey, "user_login", login, "log_type", activityType, "log_action", type, "data_field", data, "created_at", createdAt != null ? new Date(createdAt) : null);
+  private void insertActivity(String key, @Nullable String profileKey, @Nullable String login, @Nullable String activityType, @Nullable String type, @Nullable String data,
+    @Nullable Long createdAt) {
+    db.executeInsert(TABLE_ACTIVITIES, "log_key", key, "profile_key", profileKey, "user_login", login, "log_type", activityType, "log_action", type, "data_field", data,
+      "created_at", createdAt != null ? new Date(createdAt) : null);
   }
 
   private Map<String, Object> selectChangeByKey(String key) {
-    return db.selectFirst("select qprofile_key as \"qprofileKey\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='" + key + "'");
+    return db.selectFirst(
+      "select qprofile_key as \"qprofileKey\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
+        + key + "'");
   }
 }

@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
-import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +34,7 @@ public class DeleteReportsFromCeQueueTest {
   private static final String TABLE_NAME = "ce_queue";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DeleteReportsFromCeQueueTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DeleteReportsFromCeQueueTest.class, "schema.sql");
 
   private DeleteReportsFromCeQueue underTest = new DeleteReportsFromCeQueue(db.database());
 
@@ -49,7 +47,7 @@ public class DeleteReportsFromCeQueueTest {
 
   @Test
   public void delete_tasks_with_type_REPORT_only() throws SQLException {
-    db.executeInsert("ce_queue", "uuid", "U1", "task_type", CeTaskTypes.REPORT, "status", "PENDING", "created_at", NOW, "updated_at", NOW);
+    db.executeInsert("ce_queue", "uuid", "U1", "task_type", "REPORT", "status", "PENDING", "created_at", NOW, "updated_at", NOW);
     db.executeInsert("ce_queue", "uuid", "U2", "task_type", "REFRESH_VIEWS", "status", "PENDING", "created_at", NOW, "updated_at", NOW);
 
     underTest.execute();

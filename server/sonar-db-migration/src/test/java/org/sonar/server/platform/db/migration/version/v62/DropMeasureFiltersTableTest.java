@@ -23,12 +23,12 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class DropMeasureFiltersTableTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DropMeasureFiltersTableTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DropMeasureFiltersTableTest.class, "schema.sql");
 
   private DropMeasureFiltersTables underTest = new DropMeasureFiltersTables(db.database());
 

@@ -24,8 +24,7 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ public class CreateTableProperties2Test {
   private static final String TABLE_PROPERTIES_2 = "properties2";
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, CreateTableProperties2Test.class, "empty.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(CreateTableProperties2Test.class, "empty.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

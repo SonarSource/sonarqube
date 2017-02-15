@@ -24,8 +24,7 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
@@ -34,7 +33,7 @@ public class AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndexTest {
   private static final String TABLE = "duplications_index";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndexTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndexTest.class,
     "duplications_index_5.6.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -61,7 +60,6 @@ public class AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndexTest {
         "START_LINE", "3",
         "END_LINE", "4");
     }
-    db.commit();
 
     underTest.execute();
 

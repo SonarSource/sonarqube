@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.version.v61;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 /**
@@ -40,7 +39,7 @@ public class DeleteReportsFromCeQueue extends DataChange {
   public void execute(Context context) throws SQLException {
     context
       .prepareUpsert("delete from ce_queue where task_type=?")
-      .setString(1, CeTaskTypes.REPORT)
+      .setString(1, "REPORT")
       .execute()
       .commit();
   }

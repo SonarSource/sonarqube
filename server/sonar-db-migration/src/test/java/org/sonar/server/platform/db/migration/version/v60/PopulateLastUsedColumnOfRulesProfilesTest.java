@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +38,7 @@ public class PopulateLastUsedColumnOfRulesProfilesTest {
   private static final String METRIC_ID = "1";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateLastUsedColumnOfRulesProfilesTest.class, "rules_profiles.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateLastUsedColumnOfRulesProfilesTest.class, "rules_profiles.sql");
 
   PopulateLastUsedColumnOfRulesProfiles underTest = new PopulateLastUsedColumnOfRulesProfiles(db.database());
 

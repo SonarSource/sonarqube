@@ -25,8 +25,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,7 @@ public class PopulateAnalysisUuidOnMeasuresTest {
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateAnalysisUuidOnMeasuresTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateAnalysisUuidOnMeasuresTest.class,
     "old_measures.sql");
 
   private PopulateAnalysisUuidOnMeasures underTest = new PopulateAnalysisUuidOnMeasures(db.database());
@@ -57,7 +56,6 @@ public class PopulateAnalysisUuidOnMeasuresTest {
     insertMeasure(21, 1);
     insertMeasure(22, 2);
     insertMeasure(23, 3);
-    db.commit();
 
     underTest.execute();
 

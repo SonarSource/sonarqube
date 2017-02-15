@@ -25,13 +25,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 
 public class AddUuidToEventsTest {
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddUuidToEventsTest.class, "previous-events.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddUuidToEventsTest.class, "previous-events.sql");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

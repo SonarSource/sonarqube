@@ -24,14 +24,14 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PopulateColumnGuardedOfOrganizationsTest {
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, PopulateColumnGuardedOfOrganizationsTest.class, "organizations.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateColumnGuardedOfOrganizationsTest.class, "organizations.sql");
 
   private PopulateColumnGuardedOfOrganizations underTest = new PopulateColumnGuardedOfOrganizations(dbTester.database());
 

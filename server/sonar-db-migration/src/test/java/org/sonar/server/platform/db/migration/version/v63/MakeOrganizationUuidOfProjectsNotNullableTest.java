@@ -25,8 +25,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
@@ -34,7 +33,7 @@ public class MakeOrganizationUuidOfProjectsNotNullableTest {
   private static final String TABLE_PROJECTS = "projects";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, PopulateOrganizationUuidToProjectsTest.class, "projects_with_nullable_organization.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateOrganizationUuidToProjectsTest.class, "projects_with_nullable_organization.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

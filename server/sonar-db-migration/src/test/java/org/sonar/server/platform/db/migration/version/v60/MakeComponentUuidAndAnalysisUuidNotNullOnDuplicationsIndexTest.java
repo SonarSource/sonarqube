@@ -26,8 +26,7 @@ import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest.class,
     "in_progress_duplications_index.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

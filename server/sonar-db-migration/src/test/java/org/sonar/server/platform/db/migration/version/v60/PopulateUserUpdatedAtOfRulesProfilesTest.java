@@ -28,8 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +38,7 @@ public class PopulateUserUpdatedAtOfRulesProfilesTest {
   private static final String TABLE_ACTIVITIES = "activities";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUserUpdatedAtOfRulesProfilesTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateUserUpdatedAtOfRulesProfilesTest.class, "schema.sql");
 
   PopulateUserUpdatedAtOfRulesProfiles underTest = new PopulateUserUpdatedAtOfRulesProfiles(db.database());
 
@@ -100,8 +99,8 @@ public class PopulateUserUpdatedAtOfRulesProfilesTest {
   private void insertActivity(String profileKey, @Nullable String login, @Nullable Long createdAt) {
     final String sqlInsertActivity = "insert into activities (profile_key, user_login, created_at) values (?, ?, ?) ";
 
-    Connection connection = db.getSession().getConnection();
-    try (PreparedStatement ps = connection.prepareStatement(sqlInsertActivity)) {
+    try (Connection connection = db.openConnection();
+      PreparedStatement ps = connection.prepareStatement(sqlInsertActivity)) {
       ps.setString(1, profileKey);
       ps.setString(2, login);
       ps.setTimestamp(3, createdAt == null ? null : new Timestamp(createdAt));

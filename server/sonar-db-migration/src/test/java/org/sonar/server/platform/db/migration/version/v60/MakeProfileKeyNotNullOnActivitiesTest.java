@@ -24,15 +24,14 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class MakeProfileKeyNotNullOnActivitiesTest {
 
   private static final String TABLE_ACTIVITIES = "activities";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeProfileKeyNotNullOnActivitiesTest.class, "activities.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeProfileKeyNotNullOnActivitiesTest.class, "activities.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

@@ -23,12 +23,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -43,7 +45,7 @@ public class CreateDefaultOrganizationTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(system2, CreateDefaultOrganizationTest.class, "organizations_and_internal_properties.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(CreateDefaultOrganizationTest.class, "organizations_and_internal_properties.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -98,8 +100,14 @@ public class CreateDefaultOrganizationTest {
   }
 
   private void verifyInternalProperty(String expectedUuid) {
-    assertThat(dbTester.getDbClient().internalPropertiesDao().selectByKey(dbTester.getSession(), INTERNAL_PROPERTY_ORGANIZATION_DEFAULT))
-      .contains(expectedUuid);
+
+    Map<String, Object> row = dbTester.selectFirst("select" +
+      " kee as \"KEE\"," +
+      " is_empty as \"IS_EMPTY\"," +
+      " text_value as \"TEXT_VALUE\"" +
+      " from internal_properties" +
+      " where kee = '" + INTERNAL_PROPERTY_ORGANIZATION_DEFAULT + "'");
+    assertThat(row.get("TEXT_VALUE")).isEqualTo(expectedUuid);
   }
 
   @Test
@@ -128,8 +136,11 @@ public class CreateDefaultOrganizationTest {
   }
 
   private void insertExistingInternalProperty(String uuid) {
-    dbTester.getDbClient().internalPropertiesDao().save(dbTester.getSession(), INTERNAL_PROPERTY_ORGANIZATION_DEFAULT, uuid);
-    dbTester.commit();
+    dbTester.executeInsert("INTERNAL_PROPERTIES",
+      "KEE", INTERNAL_PROPERTY_ORGANIZATION_DEFAULT,
+      "TEXT_VALUE", uuid,
+      "CREATED_AT", new Date().getTime(),
+      "IS_EMPTY", false);
   }
 
   private void insertExistingOrganization(String uuid, long past) throws Exception {

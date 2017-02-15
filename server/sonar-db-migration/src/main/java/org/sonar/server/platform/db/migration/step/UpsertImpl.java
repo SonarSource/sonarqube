@@ -22,9 +22,10 @@ package org.sonar.server.platform.db.migration.step;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.sonar.db.BatchSession;
 
 public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
+
+  private static final int MAX_BATCH_SIZE = 250;
 
   private long batchCount = 0L;
 
@@ -37,7 +38,7 @@ public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
     pstmt.addBatch();
     pstmt.clearParameters();
     batchCount++;
-    if (batchCount % BatchSession.MAX_BATCH_SIZE == 0L) {
+    if (batchCount % MAX_BATCH_SIZE == 0L) {
       pstmt.executeBatch();
       pstmt.getConnection().commit();
     }

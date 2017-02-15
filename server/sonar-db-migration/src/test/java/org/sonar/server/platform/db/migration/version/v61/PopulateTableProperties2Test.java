@@ -28,8 +28,7 @@ import org.assertj.core.api.AbstractAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -52,7 +51,7 @@ public class PopulateTableProperties2Test {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(system2, PopulateTableProperties2Test.class,
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateTableProperties2Test.class,
     "properties_and_properties_2_tables.sql");
 
   private PopulateTableProperties2 underTest = new PopulateTableProperties2(dbTester.database(), system2);
@@ -202,7 +201,6 @@ public class PopulateTableProperties2Test {
       "text_value", value,
       "resource_id", resourceId == null ? null : valueOf(resourceId),
       "user_id", userId == null ? null : valueOf(userId));
-    dbTester.commit();
   }
 
   private void insertProperty2(int idAndKey, @Nullable String value, @Nullable Integer resourceId, @Nullable Integer userId) {
@@ -215,22 +213,20 @@ public class PopulateTableProperties2Test {
       "text_value", value != null && value.length() <= 4000 ? value : null,
       "clob_value", value != null && value.length() > 4000 ? value : null,
       "created_at", valueOf(1_55555_555));
-    dbTester.commit();
   }
 
   private Property2Assert assertThatProperty2(int key) {
-    return new Property2Assert(dbTester, dbTester.getSession(), valueOf(key));
+    return new Property2Assert(dbTester, valueOf(key));
   }
 
   private static class Property2Assert extends AbstractAssert<Property2Assert, Property2> {
 
-    private Property2Assert(DbTester dbTester, DbSession dbSession, String internalPropertyKey) {
-      super(asInternalProperty(dbTester, dbSession, internalPropertyKey), Property2Assert.class);
+    private Property2Assert(CoreDbTester dbTester, String internalPropertyKey) {
+      super(asInternalProperty(dbTester, internalPropertyKey), Property2Assert.class);
     }
 
-    private static Property2 asInternalProperty(DbTester dbTester, DbSession dbSession, String key) {
+    private static Property2 asInternalProperty(CoreDbTester dbTester, String key) {
       Map<String, Object> row = dbTester.selectFirst(
-        dbSession,
         "select" +
           " user_id as \"userId\", resource_id as \"resourceId\", is_empty as \"isEmpty\", text_value as \"textValue\", clob_value as \"clobValue\", created_at as \"createdAt\"" +
           " from properties2" +

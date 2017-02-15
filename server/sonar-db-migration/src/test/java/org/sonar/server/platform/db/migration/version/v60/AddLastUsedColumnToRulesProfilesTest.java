@@ -24,13 +24,12 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class AddLastUsedColumnToRulesProfilesTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddLastUsedColumnToRulesProfilesTest.class, "rules_profiles.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddLastUsedColumnToRulesProfilesTest.class, "rules_profiles.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -53,7 +52,6 @@ public class AddLastUsedColumnToRulesProfilesTest {
         "kee", "" + i,
         "rules_updated_at", "2016-06-21");
     }
-    db.commit();
 
     underTest.execute();
 

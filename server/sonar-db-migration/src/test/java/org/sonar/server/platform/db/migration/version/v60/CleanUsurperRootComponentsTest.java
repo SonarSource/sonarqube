@@ -28,8 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +41,7 @@ public class CleanUsurperRootComponentsTest {
     "user_roles", "properties", "widgets", "projects");
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, CleanUsurperRootComponentsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(CleanUsurperRootComponentsTest.class,
     "complete_schema.sql");
 
   private CleanUsurperRootComponents underTest = new CleanUsurperRootComponents(db.database());
@@ -183,7 +182,7 @@ public class CleanUsurperRootComponentsTest {
       "INDEX_IN_FILE", valueOf(0),
       "START_LINE", valueOf(0),
       "END_LINE", valueOf(0));
-    db.commit();
+
   }
 
   private void insertProjectMeasures(String componentUuid, Long snapshotId) {
@@ -192,7 +191,7 @@ public class CleanUsurperRootComponentsTest {
       "METRIC_ID", valueOf(123L),
       "COMPONENT_UUID", componentUuid,
       "SNAPSHOT_ID", valueOf(snapshotId));
-    db.commit();
+
   }
 
   private void insertCeActivity(String componentUuid, Long snapshotId) {
@@ -208,7 +207,7 @@ public class CleanUsurperRootComponentsTest {
       "SUBMITTED_AT", valueOf(121L),
       "CREATED_AT", valueOf(122L),
       "UPDATED_AT", valueOf(123L));
-    db.commit();
+
   }
 
   private void insertEvent(String componentUuid, Long snapshotId) {
@@ -218,7 +217,7 @@ public class CleanUsurperRootComponentsTest {
       "COMPONENT_UUID", componentUuid,
       "CREATED_AT", valueOf(122L),
       "EVENT_DATE", valueOf(123L));
-    db.commit();
+
   }
 
   private Long insertSnapshot(String componentUuid, String rootComponentUuid) {
@@ -228,7 +227,7 @@ public class CleanUsurperRootComponentsTest {
       "ID", valueOf(id),
       "COMPONENT_UUID", componentUuid,
       "ROOT_COMPONENT_UUID", rootComponentUuid);
-    db.commit();
+
     return id;
   }
 
@@ -237,7 +236,7 @@ public class CleanUsurperRootComponentsTest {
       "project_links",
       "COMPONENT_UUID", componentUuid,
       "HREF", dontCare());
-    db.commit();
+
   }
 
   private void insertIssue(@Nullable String componentUuid, @Nullable String projectUuid) {
@@ -247,7 +246,7 @@ public class CleanUsurperRootComponentsTest {
       "PROJECT_UUID", projectUuid == null ? dontCare() : projectUuid,
       "KEE", "kee_" + componentUuid + projectUuid,
       "MANUAL_SEVERITY", valueOf(true));
-    db.commit();
+
   }
 
   private void insertFileSource(@Nullable String fileUuid, @Nullable String projectUuid) {
@@ -257,7 +256,7 @@ public class CleanUsurperRootComponentsTest {
       "PROJECT_UUID", projectUuid == null ? dontCare() : projectUuid,
       "CREATED_AT", valueOf(122L),
       "UPDATED_AT", valueOf(123L));
-    db.commit();
+
   }
 
   private void insertGroupRole(long componentId) {
@@ -265,7 +264,7 @@ public class CleanUsurperRootComponentsTest {
       "group_roles",
       "RESOURCE_ID", valueOf(componentId),
       "ROLE", dontCare());
-    db.commit();
+
   }
 
   private void insertUserRole(long componentId) {
@@ -273,14 +272,14 @@ public class CleanUsurperRootComponentsTest {
       "user_roles",
       "RESOURCE_ID", valueOf(componentId),
       "ROLE", dontCare());
-    db.commit();
+
   }
 
   private void insertProperties(long componentId) {
     db.executeInsert(
       "properties",
       "RESOURCE_ID", valueOf(componentId));
-    db.commit();
+
   }
 
   private void insertWidget(long componentId) {
@@ -289,7 +288,7 @@ public class CleanUsurperRootComponentsTest {
       "DASHBOARD_ID", valueOf(95),
       "WIDGET_KEY", dontCare(),
       "RESOURCE_ID", valueOf(componentId));
-    db.commit();
+
   }
 
   private long idGenerator = 0;
@@ -314,7 +313,7 @@ public class CleanUsurperRootComponentsTest {
       "PROJECT_UUID", projectUuid,
       "SCOPE", scope,
       "QUALIFIER", qualifier);
-    db.commit();
+
     return uuid;
   }
 
@@ -328,7 +327,7 @@ public class CleanUsurperRootComponentsTest {
       "root_component_uuid", dontCare(),
       "scope", scope,
       "qualifier", qualifier);
-    db.commit();
+
     return id;
   }
 

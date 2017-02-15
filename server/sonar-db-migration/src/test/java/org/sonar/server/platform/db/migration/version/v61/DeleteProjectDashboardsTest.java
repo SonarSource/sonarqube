@@ -25,15 +25,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteProjectDashboardsTest {
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DeleteProjectDashboardsTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DeleteProjectDashboardsTest.class, "schema.sql");
 
   private DeleteProjectDashboards underTest = new DeleteProjectDashboards(db.database());
 

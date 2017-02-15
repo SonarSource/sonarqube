@@ -25,8 +25,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PopulateUuidColumnsOfResourceIndexTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidColumnsOfResourceIndexTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateUuidColumnsOfResourceIndexTest.class,
     "in_progress_resourceindex_with_projects.sql");
 
   private PopulateUuidColumnsOfResourceIndex underTest = new PopulateUuidColumnsOfResourceIndex(db.database());
@@ -59,7 +58,6 @@ public class PopulateUuidColumnsOfResourceIndexTest {
     insertResourceIndex(3, 90, 70); // 90 does not exist
     insertResourceIndex(4, 40, 100); // 100 does not exist
     insertResourceIndex(5, 110, 100); // 110 and 100 do not exist
-    db.commit();
 
     underTest.execute();
 

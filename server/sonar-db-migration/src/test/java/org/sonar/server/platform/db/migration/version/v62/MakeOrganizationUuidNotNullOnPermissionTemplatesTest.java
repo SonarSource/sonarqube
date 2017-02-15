@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
@@ -35,7 +35,7 @@ public class MakeOrganizationUuidNotNullOnPermissionTemplatesTest {
   private static final String TABLE_PERMISSION_TEMPLATES = "permission_templates";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeOrganizationUuidNotNullOnPermissionTemplatesTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeOrganizationUuidNotNullOnPermissionTemplatesTest.class,
     "in_progress_permission_templates.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

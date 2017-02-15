@@ -27,8 +27,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -39,7 +38,7 @@ public class DeleteMeasuresHavingNoValueTest {
   private static final String TABLE_MEASURES = "project_measures";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DeleteMeasuresHavingNoValueTest.class, "project_measures.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DeleteMeasuresHavingNoValueTest.class, "project_measures.sql");
 
   private DeleteMeasuresHavingNoValue underTest = new DeleteMeasuresHavingNoValue(db.database());
 
@@ -56,7 +55,6 @@ public class DeleteMeasuresHavingNoValueTest {
     insertMeasure(null, "text", null, null);
     insertMeasure(null, null, "data", null);
     insertMeasure(null, null, null, 50d);
-    db.commit();
 
     underTest.execute();
 
@@ -68,7 +66,6 @@ public class DeleteMeasuresHavingNoValueTest {
     insertMeasure(null, null, null, null);
     insertMeasure(null, null, null, null);
     insertMeasure(null, null, null, null);
-    db.commit();
 
     underTest.execute();
 
@@ -81,7 +78,6 @@ public class DeleteMeasuresHavingNoValueTest {
     insertMeasureOnlyOnVariations(11d, 2d, null, null, null);
     insertMeasureOnlyOnVariations(12d, null, 3d, 4d, 5d);
     insertMeasureOnlyOnVariations(12d, 2d, 3d, 4d, 5d);
-    db.commit();
 
     underTest.execute();
 
@@ -95,7 +91,6 @@ public class DeleteMeasuresHavingNoValueTest {
     insertMeasureOnlyOnVariations(null, null, null, 4d, null);
     insertMeasureOnlyOnVariations(null, null, null, null, 5d);
     insertMeasureOnlyOnVariations(null, 2d, 3d, 4d, 5d);
-    db.commit();
 
     underTest.execute();
 
@@ -108,7 +103,6 @@ public class DeleteMeasuresHavingNoValueTest {
     insertMeasure(null, "text", null, null);
     insertMeasure(null, null, null, null);
     insertMeasure(null, null, null, null);
-    db.commit();
 
     underTest.execute();
     assertThat(db.countRowsOfTable(TABLE_MEASURES)).isEqualTo(2);

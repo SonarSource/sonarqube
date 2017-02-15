@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +33,7 @@ public class PopulateOrganizationUuidToProjectsTest {
   private static final String ORGANIZATION_UUID = "some uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, PopulateOrganizationUuidToProjectsTest.class, "projects_with_nullable_organization.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateOrganizationUuidToProjectsTest.class, "projects_with_nullable_organization.sql");
 
   private PopulateOrganizationUuidToProjects underTest = new PopulateOrganizationUuidToProjects(dbTester.database(), new TestDefaultOrganizationUuid(ORGANIZATION_UUID));
 

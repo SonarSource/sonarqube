@@ -25,8 +25,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndexTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndexTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndexTest.class,
     "in_progress_measures_with_snapshots.sql");
 
   private PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex underTest = new PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex(db.database());
@@ -60,7 +59,6 @@ public class PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndexTest {
     insertDuplicationIndex(4, 60, 110); // 110 doesn't exist
     insertDuplicationIndex(5, 90, 120); // 90 and 120 does not exist
     insertDuplicationIndex(6, 100, 70); // 100 does not exist
-    db.commit();
 
     underTest.execute();
 

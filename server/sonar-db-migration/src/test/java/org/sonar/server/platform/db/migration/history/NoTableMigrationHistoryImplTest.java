@@ -23,16 +23,15 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class NoTableMigrationHistoryImplTest {
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, NoTableMigrationHistoryImplTest.class, "empty.sql");
+  public CoreDbTester dbTester = CoreDbTester.createEmpty();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.getDbClient());
+  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database());
 
   @Test
   public void start_fails_with_ISE_if_table_history_does_not_exist() throws SQLException {

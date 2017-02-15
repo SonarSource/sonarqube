@@ -21,28 +21,33 @@ package org.sonar.server.platform.db.migration.history;
 
 import com.google.common.base.Throwables;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.core.util.stream.Collectors.toList;
 
 public class MigrationHistoryImpl implements MigrationHistory {
-  private final DbClient dbClient;
+  private static final String SCHEMA_MIGRATIONS_TABLE = "schema_migrations";
 
-  public MigrationHistoryImpl(DbClient dbClient) {
-    this.dbClient = dbClient;
+  private final Database database;
+
+  public MigrationHistoryImpl(Database database) {
+    this.database = database;
   }
 
   @Override
   public void start() {
-    try (Connection connection = dbClient.getDatabase().getDataSource().getConnection()) {
+    try (Connection connection = database.getDataSource().getConnection()) {
       checkState(DatabaseUtils.tableExists(MigrationHistoryTable.NAME, connection), "Migration history table is missing");
     } catch (SQLException e) {
       Throwables.propagate(e);
@@ -56,26 +61,44 @@ public class MigrationHistoryImpl implements MigrationHistory {
 
   @Override
   public Optional<Long> getLastMigrationNumber() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<Integer> versions = getMapper(dbSession).selectVersions();
+    try (Connection connection = database.getDataSource().getConnection()) {
+      List<Long> versions = selectVersions(connection);
 
       if (!versions.isEmpty()) {
-        Collections.sort(versions);
-        return Optional.of(versions.get(versions.size() - 1).longValue());
+        return Optional.of(versions.get(versions.size() - 1));
       }
       return Optional.empty();
+    } catch (SQLException e) {
+      throw new IllegalStateException("Failed to read content of table " + SCHEMA_MIGRATIONS_TABLE, e);
     }
   }
 
   @Override
   public void done(RegisteredMigrationStep dbMigration) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      getMapper(dbSession).insert(String.valueOf(dbMigration.getMigrationNumber()));
-      dbSession.commit();
+    long migrationNumber = dbMigration.getMigrationNumber();
+    try (Connection connection = database.getDataSource().getConnection();
+      PreparedStatement statement = connection.prepareStatement("insert into schema_migrations(version) values (?)")) {
+
+      statement.setString(1, String.valueOf(migrationNumber));
+      statement.execute();
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    } catch (SQLException e) {
+      throw new IllegalStateException(String.format("Failed to insert row with value %s in table %s", migrationNumber, SCHEMA_MIGRATIONS_TABLE), e);
     }
   }
 
-  private static SchemaMigrationMapper getMapper(DbSession dbSession) {
-    return dbSession.getMapper(SchemaMigrationMapper.class);
+  private static List<Long> selectVersions(Connection connection) throws SQLException {
+    try (Statement statement = connection.createStatement();
+      ResultSet resultSet = statement.executeQuery("select version from " + SCHEMA_MIGRATIONS_TABLE)) {
+      List<Long> res = new ArrayList<>();
+      while (resultSet.next()) {
+        res.add(resultSet.getLong(1));
+      }
+      return res.stream()
+        .sorted(Comparator.naturalOrder())
+        .collect(toList());
+    }
   }
 }

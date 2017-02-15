@@ -24,14 +24,13 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
 public class AddUuidColumnToSnapshotsTest {
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUuidColumnToSnapshotsTest.class, "old_snapshots.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddUuidColumnToSnapshotsTest.class, "old_snapshots.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -53,7 +52,6 @@ public class AddUuidColumnToSnapshotsTest {
         "root_component_uuid", valueOf(i + 10),
         "QUALIFIER", (i % 2 == 0 ? "FIL" : "TRK"));
     }
-    db.commit();
 
     underTest.execute();
 

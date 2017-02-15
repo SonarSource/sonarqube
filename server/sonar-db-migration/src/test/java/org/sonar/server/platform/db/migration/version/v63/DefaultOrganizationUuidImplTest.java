@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +33,7 @@ public class DefaultOrganizationUuidImplTest {
   private static final String AN_ORG_UUID = "org1";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, DefaultOrganizationUuidImplTest.class, "internal_properties.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DefaultOrganizationUuidImplTest.class, "internal_properties.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

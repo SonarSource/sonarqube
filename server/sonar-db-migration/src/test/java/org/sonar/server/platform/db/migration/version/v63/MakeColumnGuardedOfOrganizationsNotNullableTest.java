@@ -26,13 +26,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class MakeColumnGuardedOfOrganizationsNotNullableTest {
   private static final String TABLE_ORGANIZATIONS = "organizations";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, MakeColumnGuardedOfOrganizationsNotNullableTest.class, "organizations_with_nullable_guarded.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(MakeColumnGuardedOfOrganizationsNotNullableTest.class, "organizations_with_nullable_guarded.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

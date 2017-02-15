@@ -40,14 +40,8 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-db</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
+      <artifactId>sonar-db-testing</artifactId>
+      <type>pom</type>
       <scope>test</scope>
     </dependency>
   </dependencies>

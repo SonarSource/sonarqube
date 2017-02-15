@@ -24,8 +24,7 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ public class CreateTableRuleRepositoriesTest {
   private static final String TABLE_RULE_REPOSITORIES = "rule_repositories";
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, CreateTableRuleRepositoriesTest.class, "empty.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(CreateTableRuleRepositoriesTest.class, "empty.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

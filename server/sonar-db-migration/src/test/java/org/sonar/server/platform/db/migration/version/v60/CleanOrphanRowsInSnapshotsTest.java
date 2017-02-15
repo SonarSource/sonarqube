@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,7 @@ public class CleanOrphanRowsInSnapshotsTest {
   private static final String SNAPSHOTS_TABLE = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, CleanOrphanRowsInSnapshotsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(CleanOrphanRowsInSnapshotsTest.class,
     "in_progress_snapshots_and_children_tables.sql");
 
   private CleanOrphanRowsInSnapshots underTest = new CleanOrphanRowsInSnapshots(db.database());
@@ -54,7 +53,6 @@ public class CleanOrphanRowsInSnapshotsTest {
     insertSnapshots(3, true, false);
     insertSnapshots(4, false, true);
     insertSnapshots(5, true, true);
-    db.commit();
 
     underTest.execute();
 
@@ -84,7 +82,6 @@ public class CleanOrphanRowsInSnapshotsTest {
     insertEvents(1);
     insertEvents(2);
     insertEvents(3);
-    db.commit();
 
     underTest.execute();
 

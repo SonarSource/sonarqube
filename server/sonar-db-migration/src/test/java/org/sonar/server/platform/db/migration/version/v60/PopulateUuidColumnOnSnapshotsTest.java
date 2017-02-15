@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryImpl;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ public class PopulateUuidColumnOnSnapshotsTest {
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidColumnOnSnapshotsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateUuidColumnOnSnapshotsTest.class,
     "in_progress_snapshots.sql");
 
   private PopulateUuidColumnOnSnapshots underTest = new PopulateUuidColumnOnSnapshots(db.database(), UuidFactoryImpl.INSTANCE);
@@ -56,7 +56,6 @@ public class PopulateUuidColumnOnSnapshotsTest {
     insertSnapshot(1);
     insertSnapshot(2);
     insertSnapshot(3);
-    db.commit();
 
     underTest.execute();
 

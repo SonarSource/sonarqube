@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +40,7 @@ public class PopulateOrganizationUuidOfGroupsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(system2, PopulateOrganizationUuidOfGroupsTest.class, "user_groups.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateOrganizationUuidOfGroupsTest.class, "user_groups.sql");
 
   private PopulateOrganizationUuidOfGroups underTest = new PopulateOrganizationUuidOfGroups(dbTester.database(), system2);
 

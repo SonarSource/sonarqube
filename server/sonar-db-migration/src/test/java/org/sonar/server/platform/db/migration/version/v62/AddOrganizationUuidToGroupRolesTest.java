@@ -25,13 +25,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 
 public class AddOrganizationUuidToGroupRolesTest {
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddOrganizationUuidToGroupRolesTest.class, "previous-group_roles.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddOrganizationUuidToGroupRolesTest.class, "previous-group_roles.sql");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

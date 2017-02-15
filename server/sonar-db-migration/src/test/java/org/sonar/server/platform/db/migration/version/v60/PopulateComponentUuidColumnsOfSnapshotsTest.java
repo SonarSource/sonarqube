@@ -25,8 +25,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +35,7 @@ public class PopulateComponentUuidColumnsOfSnapshotsTest {
   private static final String SNAPSHOTS_TABLE = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateComponentUuidColumnsOfSnapshotsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateComponentUuidColumnsOfSnapshotsTest.class,
     "in_progress_snapshots_with_projects.sql");
 
   private PopulateComponentUuidColumnsOfSnapshots underTest = new PopulateComponentUuidColumnsOfSnapshots(db.database());
@@ -64,7 +63,6 @@ public class PopulateComponentUuidColumnsOfSnapshotsTest {
     insertSnapshots(5, 110, 100L); // 110 and 100 do not exist
     insertSnapshots(6, 80, null); // no root
     insertSnapshots(7, 120, null); // no root and 120 does not exist
-    db.commit();
 
     underTest.execute();
 

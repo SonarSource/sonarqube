@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ public class RemoveUsersPasswordWhenNotLocalTest {
   System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, RemoveUsersPasswordWhenNotLocalTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(RemoveUsersPasswordWhenNotLocalTest.class, "schema.sql");
 
   private RemoveUsersPasswordWhenNotLocal migration = new RemoveUsersPasswordWhenNotLocal(db.database(), system2);
 

@@ -29,8 +29,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +41,7 @@ public class DeleteUselessPropertiesTest {
   private static final int COMPONENT_ID_2 = 604;
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DeleteUselessPropertiesTest.class, "properties.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DeleteUselessPropertiesTest.class, "properties.sql");
 
   private DeleteUselessProperties underTest = new DeleteUselessProperties(db.database());
 
@@ -56,7 +55,6 @@ public class DeleteUselessPropertiesTest {
   @Test
   public void migration_removes_hours_in_day_setting() throws SQLException {
     insertProperty("sonar.technicalDebt.hoursInDay", null);
-    db.commit();
 
     underTest.execute();
 
@@ -66,7 +64,6 @@ public class DeleteUselessPropertiesTest {
   @Test
   public void migration_removes_create_user_setting() throws SQLException {
     insertProperty("sonar.authenticator.createUser", null);
-    db.commit();
 
     underTest.execute();
 
@@ -79,7 +76,6 @@ public class DeleteUselessPropertiesTest {
     insertProperty("sonar.timemachine.period3", null);
     insertProperty("sonar.timemachine.period4", null);
     insertProperty("sonar.timemachine.period5", null);
-    db.commit();
 
     underTest.execute();
 
@@ -94,7 +90,6 @@ public class DeleteUselessPropertiesTest {
     insertProperty("sonar.timemachine.period3", COMPONENT_ID_1);
     insertProperty("sonar.timemachine.period4", COMPONENT_ID_2);
     insertProperty("sonar.timemachine.period5", COMPONENT_ID_2);
-    db.commit();
 
     underTest.execute();
 
@@ -110,7 +105,6 @@ public class DeleteUselessPropertiesTest {
     insertProperty("sonar.timemachine.period2", COMPONENT_ID_1);
     insertProperty("sonar.timemachine.period3", COMPONENT_ID_2);
     insertProperty("sonar.timemachine.period3.TRK", COMPONENT_ID_2);
-    db.commit();
 
     underTest.execute();
 
@@ -125,7 +119,6 @@ public class DeleteUselessPropertiesTest {
     // Only these settings should be removed
     insertProperty("sonar.timemachine.period4", null);
     insertProperty("sonar.timemachine.period5", null);
-    db.commit();
 
     underTest.execute();
 
@@ -141,7 +134,6 @@ public class DeleteUselessPropertiesTest {
     // Only these settings should be removed
     insertProperty("sonar.timemachine.period4", null);
     insertProperty("sonar.timemachine.period5", null);
-    db.commit();
 
     underTest.execute();
     assertThat(db.countRowsOfTable(TABLE_PROPERTIES)).isEqualTo(3);

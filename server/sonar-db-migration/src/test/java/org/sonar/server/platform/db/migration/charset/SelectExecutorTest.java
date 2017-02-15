@@ -23,26 +23,21 @@ import java.sql.Connection;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.user.UserDto;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SelectExecutorTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(SelectExecutorTest.class, "users_table.sql");
 
   SqlExecutor underTest = new SqlExecutor();
 
   @Test
   public void testExecuteQuery() throws Exception {
-    DbSession session = dbTester.getSession();
-    dbTester.getDbClient().userDao().insert(session, new UserDto().setLogin("him").setName("Him"));
-    dbTester.getDbClient().userDao().insert(session, new UserDto().setLogin("her").setName("Her"));
-    session.commit();
+    insertUser("him", "Him");
+    insertUser("her", "Her");
 
     try (Connection connection = dbTester.openConnection()) {
       List<String[]> rows = underTest.select(connection, "select login, name from users order by login", new SqlExecutor.StringsConverter(2));
@@ -52,5 +47,11 @@ public class SelectExecutorTest {
       assertThat(rows.get(1)[0]).isEqualTo("him");
       assertThat(rows.get(1)[1]).isEqualTo("Him");
     }
+  }
+
+  private void insertUser(String login, String name) {
+    dbTester.executeInsert("users",
+      "LOGIN", login,
+      "NAME", name);
   }
 }

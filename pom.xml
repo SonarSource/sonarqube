@@ -24,7 +24,6 @@
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
-    <module>sonar-db</module>
     <module>sonar-duplications</module>
     <module>sonar-home</module>
     <module>sonar-markdown</module>
@@ -419,13 +418,19 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-db</artifactId>
+        <artifactId>sonar-db-dao</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-db-migration</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-db-testing</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
@@ -514,6 +519,16 @@
             <artifactId>svnkit</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-db-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-db-testing</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>

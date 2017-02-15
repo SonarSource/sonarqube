@@ -26,8 +26,7 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +36,7 @@ public class MakeDefaultOrganizationGuardedTest {
   private static final String DEFAULT_ORGANIZATION_UUID = "def-org";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeDefaultOrganizationGuardedTest.class, "organizations_and_internal_properties.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeDefaultOrganizationGuardedTest.class, "organizations_and_internal_properties.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

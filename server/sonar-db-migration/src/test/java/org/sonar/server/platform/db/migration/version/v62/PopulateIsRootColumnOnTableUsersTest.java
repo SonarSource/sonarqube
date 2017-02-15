@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,7 @@ public class PopulateIsRootColumnOnTableUsersTest {
   private static final String ROLE_ADMIN = "admin";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, PopulateIsRootColumnOnTableUsersTest.class, "users_and_permissions_tables.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateIsRootColumnOnTableUsersTest.class, "users_and_permissions_tables.sql");
 
   private PopulateIsRootColumnOnTableUsers underTest = new PopulateIsRootColumnOnTableUsers(dbTester.database());
 
@@ -57,7 +56,6 @@ public class PopulateIsRootColumnOnTableUsersTest {
   @Test
   public void execute_sets_inactive_user_with_no_permission_has_not_root() throws SQLException {
     insertUser("foo", false);
-    dbTester.commit();
 
     underTest.execute();
 
@@ -114,14 +112,14 @@ public class PopulateIsRootColumnOnTableUsersTest {
     insertGroupRole(adminGroupId, ROLE_ADMIN);
     int groupId = insertGroup("other group");
     int[] userIds = {
-        insertUser("inactive_direct_admin", false),
-        insertUser("active_direct_admin", true),
-        insertUser("inactive_group_admin", false),
-        insertUser("active_group_admin", true),
-        insertUser("group_and_direct_admin", true),
-        insertUser("group_perm_user", true),
-        insertUser("no_perm_user", true),
-        insertUser("all_groups_user", true)
+      insertUser("inactive_direct_admin", false),
+      insertUser("active_direct_admin", true),
+      insertUser("inactive_group_admin", false),
+      insertUser("active_group_admin", true),
+      insertUser("group_and_direct_admin", true),
+      insertUser("group_perm_user", true),
+      insertUser("no_perm_user", true),
+      insertUser("all_groups_user", true)
     };
     // inactive_direct_admin
     insertRole(userIds[0], ROLE_ADMIN);
@@ -160,31 +158,26 @@ public class PopulateIsRootColumnOnTableUsersTest {
 
   private void insertRole(int userId, String role) {
     dbTester.executeInsert("user_roles", "user_id", userId, "role", role);
-    dbTester.commit();
   }
 
   private int insertUser(String login, boolean active) {
     dbTester.executeInsert(USERS_TABLE, "login", login, "active", active);
-    dbTester.commit();
     Long userId = (Long) dbTester.selectFirst("select id as \"id\" from users where login = '" + login + "'").get("id");
     return userId.intValue();
   }
 
   private int insertGroup(String groupName) {
     dbTester.executeInsert("groups", "name", groupName);
-    dbTester.commit();
     Long groupId = (Long) dbTester.selectFirst("select id as \"id\" from groups where name = '" + groupName + "'").get("id");
     return groupId.intValue();
   }
 
   private void insertGroupRole(int groupId, String role) {
     dbTester.executeInsert("group_roles", "group_id", groupId, "role", role);
-    dbTester.commit();
   }
 
   private void addUserToGroup(int userId, int groupId) {
     dbTester.executeInsert("groups_users", "user_id", userId, "group_id", groupId);
-    dbTester.commit();
   }
 
   private void verifySingleUser(String login, boolean root) {

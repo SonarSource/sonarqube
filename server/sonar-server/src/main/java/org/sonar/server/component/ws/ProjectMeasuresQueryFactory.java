@@ -31,12 +31,12 @@ import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
-import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 
 class ProjectMeasuresQueryFactory {
   private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
