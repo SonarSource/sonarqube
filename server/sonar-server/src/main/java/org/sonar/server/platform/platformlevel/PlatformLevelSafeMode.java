@@ -33,7 +33,7 @@ import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.WebServiceFilter;
-import org.sonar.server.ws.ws.WebServicesWs;
+import org.sonar.server.ws.ws.WebServicesWsModule;
 
 public class PlatformLevelSafeMode extends PlatformLevel {
   public PlatformLevelSafeMode(PlatformLevel parent) {
@@ -57,7 +57,7 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       SystemWs.class,
 
       // Listing WS
-      WebServicesWs.class,
+      WebServicesWsModule.class,
 
       // WS engine
       WebServiceEngine.class,
