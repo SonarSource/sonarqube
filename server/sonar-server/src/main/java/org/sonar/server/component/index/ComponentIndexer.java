@@ -75,7 +75,6 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       case PROJECT_CREATION:
       case PROJECT_KEY_UPDATE:
       case NEW_ANALYSIS:
-        deleteProject(projectUuid);
         doIndexByProjectUuid(projectUuid);
         break;
       default:
