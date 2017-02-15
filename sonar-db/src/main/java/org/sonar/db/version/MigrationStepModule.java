@@ -173,6 +173,8 @@ public class MigrationStepModule extends Module {
 
       // 5.6.4
       FixProjectUuidOfDeveloperProjects.class,
+
+      // 5.6.6
       CleanUsurperRootComponents.class
     );
   }
