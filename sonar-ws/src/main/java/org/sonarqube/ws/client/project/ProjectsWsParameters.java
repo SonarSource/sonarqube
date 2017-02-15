@@ -27,6 +27,7 @@ public class ProjectsWsParameters {
   public static final String ACTION_INDEX = "index";
 
   public static final String PARAM_PROJECT = "project";
+  public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_BRANCH = "branch";
 

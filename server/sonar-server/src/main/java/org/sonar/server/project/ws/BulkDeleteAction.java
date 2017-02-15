@@ -38,8 +38,8 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 public class BulkDeleteAction implements ProjectsWsAction {
 
   private static final String ACTION = "bulk_delete";
-  private static final String PARAM_IDS = "ids";
-  private static final String PARAM_KEYS = "keys";
+  private static final String PARAM_PROJECT_IDS = "projectIds";
+  private static final String PARAM_PROJECTS = "projects";
 
   private final ComponentCleanerService componentCleanerService;
   private final DbClient dbClient;
@@ -59,18 +59,21 @@ public class BulkDeleteAction implements ProjectsWsAction {
     WebService.NewAction action = context
       .createAction(ACTION)
       .setPost(true)
-      .setDescription("Delete one or several projects.<br /> Requires 'Administer System' permission.")
+      .setDescription("Delete one or several projects.<br />" +
+        "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this);
 
     action
-      .createParam(PARAM_IDS)
-      .setDescription("List of project ids to delete")
+      .createParam(PARAM_PROJECT_IDS)
+      .setDescription("List of project IDs to delete")
+      .setDeprecatedKey("ids", "6.4")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d,c526ef20-131b-4486-9357-063fa64b5079");
 
     action
-      .createParam(PARAM_KEYS)
+      .createParam(PARAM_PROJECTS)
       .setDescription("List of project keys to delete")
+      .setDeprecatedKey("keys", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     support.addOrganizationParam(action);
@@ -80,8 +83,8 @@ public class BulkDeleteAction implements ProjectsWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
 
-    List<String> uuids = request.paramAsStrings(PARAM_IDS);
-    List<String> keys = request.paramAsStrings(PARAM_KEYS);
+    List<String> uuids = request.paramAsStrings(PARAM_PROJECT_IDS);
+    List<String> keys = request.paramAsStrings(PARAM_PROJECTS);
     String orgKey = request.param(ProjectsWsSupport.PARAM_ORGANIZATION);
 
     try (DbSession dbSession = dbClient.openSession(false)) {

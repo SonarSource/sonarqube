@@ -48,7 +48,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_INDEX;
  */
 public class IndexAction implements ProjectsWsAction {
 
-  private static final String PARAM_KEY = "key";
+  private static final String PARAM_PROJECT = "project";
   private static final String PARAM_SEARCH = "search";
   private static final String PARAM_SUB_PROJECTS = "subprojects";
   private static final String PARAM_FORMAT = "format";
@@ -69,9 +69,12 @@ public class IndexAction implements ProjectsWsAction {
       .setDeprecatedSince("6.3")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "index-example.json"));
-    action.createParam(PARAM_KEY)
-      .setDescription("key or id of the project")
+
+    action.createParam(PARAM_PROJECT)
+      .setDescription("key or ID of the project")
+      .setDeprecatedKey("key", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
     action.createParam(PARAM_SEARCH)
       .setDescription("Substring of project name, case insensitive. Ignored if the parameter key is set")
       .setExampleValue("Sonar");
@@ -79,9 +82,11 @@ public class IndexAction implements ProjectsWsAction {
       .setDescription("Load sub-projects. Ignored if the parameter key is set")
       .setDefaultValue("false")
       .setBooleanPossibleValues();
+
     action.createParam(PARAM_FORMAT)
       .setDescription("Only json response format is available")
       .setPossibleValues("json");
+
     addRemovedParameter("desc", action);
     addRemovedParameter("views", action);
     addRemovedParameter("libs", action);
@@ -112,7 +117,7 @@ public class IndexAction implements ProjectsWsAction {
   }
 
   private List<ComponentDto> searchComponents(DbSession dbSession, Request request) {
-    String projectKey = request.param(PARAM_KEY);
+    String projectKey = request.param(PARAM_PROJECT);
     List<ComponentDto> projects = new ArrayList<>();
     if (projectKey != null) {
       getProjectByKeyOrId(dbSession, projectKey).ifPresent(projects::add);

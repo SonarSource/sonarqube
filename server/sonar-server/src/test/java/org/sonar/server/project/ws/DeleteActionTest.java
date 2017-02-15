@@ -43,9 +43,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.server.project.ws.DeleteAction.PARAM_ID;
-import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 
 public class DeleteActionTest {
 
@@ -82,7 +82,7 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertProject();
     userSessionRule.logIn().addOrganizationPermission(project.getOrganizationUuid(), SYSTEM_ADMIN);
 
-    WsTester.TestRequest request = newRequest().setParam(PARAM_ID, project.uuid());
+    WsTester.TestRequest request = newRequest().setParam(PARAM_PROJECT_ID, project.uuid());
     call(request);
 
     assertThat(verifyDeletedKey()).isEqualTo(project.key());
@@ -93,7 +93,7 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertProject();
     userSessionRule.logIn().addOrganizationPermission(project.getOrganizationUuid(), SYSTEM_ADMIN);
 
-    call(newRequest().setParam(PARAM_KEY, project.key()));
+    call(newRequest().setParam(PARAM_PROJECT, project.key()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.key());
   }
@@ -109,7 +109,7 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertProject();
     userSessionRule.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    call(newRequest().setParam(PARAM_ID, project.uuid()));
+    call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.key());
   }
@@ -119,7 +119,7 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertProject();
     userSessionRule.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    call(newRequest().setParam(PARAM_KEY, project.key()));
+    call(newRequest().setParam(PARAM_PROJECT, project.key()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.key());
   }
@@ -131,7 +131,7 @@ public class DeleteActionTest {
     userSessionRule.logIn().addProjectUuidPermissions(project.uuid(), UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
     expectedException.expect(ForbiddenException.class);
 
-    call(newRequest().setParam(PARAM_ID, project.uuid()));
+    call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
   }
 
   @Test
@@ -141,7 +141,7 @@ public class DeleteActionTest {
     userSessionRule.anonymous();
     expectedException.expect(UnauthorizedException.class);
 
-    call(newRequest().setParam(PARAM_ID, project.uuid()));
+    call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
   }
 
   private WsTester.TestRequest newRequest() {

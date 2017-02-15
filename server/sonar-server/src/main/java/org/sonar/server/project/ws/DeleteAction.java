@@ -31,14 +31,13 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
+import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_PROJECT;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 
 public class DeleteAction implements ProjectsWsAction {
   private static final String ACTION = "delete";
-
-  public static final String PARAM_ID = "id";
-  public static final String PARAM_KEY = "key";
 
   private final ComponentCleanerService componentCleanerService;
   private final ComponentFinder componentFinder;
@@ -57,18 +56,21 @@ public class DeleteAction implements ProjectsWsAction {
     WebService.NewAction action = context
       .createAction(ACTION)
       .setPost(true)
-      .setDescription("Delete a project.<br /> Requires 'Administer System' permission or 'Administer' permission on the project.")
+      .setDescription("Delete a project.<br> " +
+        "Requires 'Administer System' permission or 'Administer' permission on the project.")
       .setSince("5.2")
       .setHandler(this);
 
     action
-      .createParam(PARAM_ID)
-      .setDescription("Project id")
+      .createParam(PARAM_PROJECT_ID)
+      .setDescription("Project ID")
+      .setDeprecatedKey("id", "6.4")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
 
     action
-      .createParam(PARAM_KEY)
+      .createParam(PARAM_PROJECT)
       .setDescription("Project key")
+      .setDeprecatedKey("key", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
@@ -76,11 +78,11 @@ public class DeleteAction implements ProjectsWsAction {
   public void handle(Request request, Response response) throws Exception {
     // fail-fast if not logged in
     userSession.checkLoggedIn();
-    String uuid = request.param(PARAM_ID);
-    String key = request.param(PARAM_KEY);
+    String uuid = request.param(PARAM_PROJECT_ID);
+    String key = request.param(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key, ID_AND_KEY);
+      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key, PROJECT_ID_AND_PROJECT);
       checkPermission(project);
       componentCleanerService.delete(dbSession, project);
     }
