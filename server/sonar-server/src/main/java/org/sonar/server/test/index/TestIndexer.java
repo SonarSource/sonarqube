@@ -20,12 +20,14 @@
 package org.sonar.server.test.index;
 
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.purge.PurgeListener;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
@@ -41,7 +43,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
  * db table FILE_SOURCES of type TEST that are not indexed yet
  */
-public class TestIndexer extends BaseIndexer implements ProjectIndexer {
+public class TestIndexer extends BaseIndexer implements ProjectIndexer, PurgeListener {
 
   private final DbClient dbClient;
 
@@ -120,5 +122,15 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer {
       .setTypes(TYPE)
       .setQuery(QueryBuilders.termQuery(TestIndexDefinition.FIELD_PROJECT_UUID, projectUuid));
     BulkIndexer.delete(esClient, INDEX, searchRequest);
+  }
+
+  @Override
+  public void onComponentDisabling(String uuid) {
+    deleteByFile(uuid);
+  }
+
+  @Override
+  public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
+    // no action required
   }
 }
