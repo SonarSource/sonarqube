@@ -22,6 +22,7 @@ package org.sonar.server.component.index;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -33,6 +34,7 @@ import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.purge.PurgeListener;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.ProjectIndexer;
@@ -44,7 +46,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
-public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable {
+public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable, PurgeListener {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_COMPONENTS, project -> true);
 
@@ -160,5 +162,15 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   @Override
   public void stop() {
     executor.shutdown();
+  }
+
+  @Override
+  public void onComponentDisabling(String uuid) {
+    esClient.prepareDelete(INDEX_COMPONENTS, TYPE_COMPONENT, uuid).execute();
+  }
+
+  @Override
+  public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
+    // no action required
   }
 }
