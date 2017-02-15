@@ -81,7 +81,7 @@ public class WebServicesWsTest {
       .execute().assertJson(getClass(), "response_example.json");
   }
 
-  static class MetricWs implements WebService {
+  private static class MetricWs implements WebService {
     @Override
     public void define(Context context) {
       NewController newController = context
@@ -106,11 +106,13 @@ public class WebServicesWsTest {
         .setResponseExample(Resources.getResource(getClass(), "WebServicesWsTest/metrics_example.json"))
         .setHandler((request, response) -> {
         });
+
       create
         .createParam("severity")
         .setDescription("Severity")
         .setSince("4.4")
         .setDeprecatedSince("5.2")
+        .setDeprecatedKey("old_severity", "4.6")
         .setRequired(false)
         .setPossibleValues("BLOCKER", "INFO")
         .setExampleValue("INFO")

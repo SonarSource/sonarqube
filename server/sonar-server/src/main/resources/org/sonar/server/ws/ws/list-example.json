@@ -28,6 +28,8 @@
               "exampleValue": "INFO",
               "since": "4.4",
               "deprecatedSince": "5.2",
+              "deprecatedKey": "old_severity",
+              "deprecatedKeySince": "4.6",
               "possibleValues": [
                 "BLOCKER",
                 "INFO"
