@@ -22,8 +22,6 @@ package org.sonar.ce;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.test.index.TestIndexer;
 
 /**
  * Globally available components in CE for tasks to use.
@@ -33,8 +31,6 @@ public class CeTaskCommonsModule extends Module {
   protected void configureModule() {
     add(
       DefaultPeriodCleaner.class,
-      ProjectCleaner.class,
-      IssueIndexer.class,
-      TestIndexer.class);
+      ProjectCleaner.class);
   }
 }
