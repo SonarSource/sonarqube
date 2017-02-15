@@ -44,8 +44,10 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_BULK_UPDATE_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DRY_RUN;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
 
 public class BulkUpdateKeyAction implements ComponentsWsAction {
@@ -82,19 +84,21 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
         "<li>'Administer' rights on the specified project</li>" +
         "</ul>",
         PARAM_DRY_RUN,
-        PARAM_KEY, PARAM_FROM, PARAM_TO,
-        PARAM_ID, PARAM_KEY)
+        PARAM_PROJECT, PARAM_FROM, PARAM_TO,
+        PARAM_PROJECT_ID, PARAM_PROJECT)
       .setSince("6.1")
       .setPost(true)
       .setResponseExample(getClass().getResource("bulk_update_key-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setDescription("Project or module id")
+    action.createParam(PARAM_PROJECT_ID)
+      .setDescription("Project or module ID")
+      .setDeprecatedKey(PARAM_DEPRECATED_ID, "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
-    action.createParam(PARAM_KEY)
+    action.createParam(PARAM_PROJECT)
       .setDescription("Project or module key")
+      .setDeprecatedKey(PARAM_DEPRECATED_KEY, "6.4")
       .setExampleValue("my_old_project");
 
     action.createParam(PARAM_FROM)
@@ -168,8 +172,8 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
 
   private static BulkUpdateWsRequest toWsRequest(Request request) {
     return BulkUpdateWsRequest.builder()
-      .setId(request.param(PARAM_ID))
-      .setKey(request.param(PARAM_KEY))
+      .setId(request.param(PARAM_PROJECT_ID))
+      .setKey(request.param(PARAM_PROJECT))
       .setFrom(request.mandatoryParam(PARAM_FROM))
       .setTo(request.mandatoryParam(PARAM_TO))
       .setDryRun(request.mandatoryParamAsBoolean(PARAM_DRY_RUN))

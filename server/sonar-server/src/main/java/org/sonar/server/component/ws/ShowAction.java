@@ -40,8 +40,10 @@ import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentD
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_KEY;
 
 public class ShowAction implements ComponentsWsAction {
   private final UserSession userSession;
@@ -70,8 +72,8 @@ public class ShowAction implements ComponentsWsAction {
 
   private static ShowWsRequest toShowWsRequest(Request request) {
     return new ShowWsRequest()
-      .setId(request.param(PARAM_ID))
-      .setKey(request.param(PARAM_KEY));
+      .setId(request.param(PARAM_COMPONENT_ID))
+      .setKey(request.param(PARAM_COMPONENT));
   }
 
   @Override
@@ -79,19 +81,21 @@ public class ShowAction implements ComponentsWsAction {
     WebService.NewAction action = context.createAction(ACTION_SHOW)
       .setDescription(format("Returns a component (file, directory, project, view…) and its ancestors. " +
         "The ancestors are ordered from the parent to the root project. " +
-        "The '%s' or '%s' must be provided.<br>" +
+        "The '%s' or '%s' parameter must be provided.<br>" +
         "Requires the following permission: 'Browse' on the project of the specified component.",
-        PARAM_ID, PARAM_KEY))
+        PARAM_COMPONENT_ID, PARAM_COMPONENT))
       .setResponseExample(getClass().getResource("show-example.json"))
       .setSince("5.4")
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
+    action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Component id")
+      .setDeprecatedKey(PARAM_DEPRECATED_ID, "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
-    action.createParam(PARAM_KEY)
+    action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
+      .setDeprecatedKey(PARAM_DEPRECATED_KEY, "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
@@ -116,7 +120,7 @@ public class ShowAction implements ComponentsWsAction {
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, ShowWsRequest request) {
-    ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
+    ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.COMPONENT_ID_AND_COMPONENT);
     userSession.checkComponentPermission(UserRole.USER, component);
     return component;
   }

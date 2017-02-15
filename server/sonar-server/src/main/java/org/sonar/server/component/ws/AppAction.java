@@ -51,7 +51,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 
 public class AppAction implements RequestHandler {
 
-  private static final String PARAM_UUID = "uuid";
+  private static final String PARAM_COMPONENT_ID = "componentId";
   private static final String PARAM_PERIOD = "period";
   static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.VIOLATIONS_KEY,
     CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TESTS_KEY,
@@ -78,9 +78,10 @@ public class AppAction implements RequestHandler {
       .setHandler(this);
 
     action
-      .createParam(PARAM_UUID)
+      .createParam(PARAM_COMPONENT_ID)
       .setRequired(true)
       .setDescription("Component ID")
+      .setDeprecatedKey("uuid", "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action
@@ -94,7 +95,7 @@ public class AppAction implements RequestHandler {
     try (DbSession session = dbClient.openSession(false);
       JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
-      String componentUuid = request.mandatoryParam(PARAM_UUID);
+      String componentUuid = request.mandatoryParam(PARAM_COMPONENT_ID);
       ComponentDto component = componentFinder.getByUuid(session, componentUuid);
       userSession.checkComponentPermission(UserRole.USER, component);
 
@@ -140,7 +141,7 @@ public class AppAction implements RequestHandler {
     json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
   }
 
-  private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {
+  private static void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {
     json.name("measures").beginObject();
     json.prop("lines", formatMeasure(measuresByMetricKey, CoreMetrics.LINES));
     json.prop("coverage", formatCoverageMeasure(measuresByMetricKey));

@@ -37,15 +37,21 @@ public class ComponentsWsParameters {
   public static final String PARAM_QUALIFIERS = "qualifiers";
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
-  public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
+  public static final String PARAM_BASE_COMPONENT = "baseComponent";
+  public static final String PARAM_DEPRECATED_BASE_COMPONENT_KEY = "baseComponentKey";
   public static final String PARAM_STRATEGY = "strategy";
-  public static final String PARAM_ID = "id";
-  public static final String PARAM_KEY = "key";
-  public static final String PARAM_NEW_KEY = "newKey";
+  public static final String PARAM_DEPRECATED_ID = "id";
+  public static final String PARAM_DEPRECATED_KEY = "key";
+  public static final String PARAM_DEPRECATED_NEW_KEY = "newKey";
   public static final String PARAM_FROM = "from";
   public static final String PARAM_TO = "to";
   public static final String PARAM_DRY_RUN = "dryRun";
   public static final String PARAM_FILTER = "filter";
+  public static final String PARAM_PROJECT_ID = "projectId";
+  public static final String PARAM_PROJECT = "project";
+  public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String PARAM_COMPONENT = "component";
+  public static final String PARAM_NEW_PROJECT = "newProject";
 
   private ComponentsWsParameters() {
     // static utility class

@@ -32,9 +32,12 @@ import org.sonarqube.ws.client.component.UpdateWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_UPDATE_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_NEW_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_PROJECT;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
 
 public class UpdateKeyAction implements ComponentsWsAction {
   private final DbClient dbClient;
@@ -57,22 +60,25 @@ public class UpdateKeyAction implements ComponentsWsAction {
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified project</li>" +
         "</ul>",
-        PARAM_ID, PARAM_KEY)
+        PARAM_PROJECT, PARAM_PROJECT_ID)
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
+    action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project or module id")
+      .setDeprecatedKey(PARAM_DEPRECATED_ID, "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
-    action.createParam(PARAM_KEY)
+    action.createParam(PARAM_PROJECT)
       .setDescription("Project or module key")
+      .setDeprecatedKey(PARAM_DEPRECATED_KEY, "6.4")
       .setExampleValue("my_old_project");
 
-    action.createParam(PARAM_NEW_KEY)
+    action.createParam(PARAM_NEW_PROJECT)
       .setDescription("New component key")
       .setRequired(true)
+      .setDeprecatedKey(PARAM_DEPRECATED_NEW_KEY, "6.4")
       .setExampleValue("my_new_project");
   }
 
@@ -85,7 +91,7 @@ public class UpdateKeyAction implements ComponentsWsAction {
   private void doHandle(UpdateWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
+      ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_PROJECT);
       componentService.updateKey(dbSession, projectOrModule, request.getNewKey());
       dbSession.commit();
     } finally {
@@ -95,9 +101,9 @@ public class UpdateKeyAction implements ComponentsWsAction {
 
   private static UpdateWsRequest toWsRequest(Request request) {
     return UpdateWsRequest.builder()
-      .setId(request.param(PARAM_ID))
-      .setKey(request.param(PARAM_KEY))
-      .setNewKey(request.mandatoryParam(PARAM_NEW_KEY))
+      .setId(request.param(PARAM_PROJECT_ID))
+      .setKey(request.param(PARAM_PROJECT))
+      .setNewKey(request.mandatoryParam(PARAM_NEW_PROJECT))
       .build();
   }
 }

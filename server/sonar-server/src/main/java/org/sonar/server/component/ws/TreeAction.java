@@ -60,7 +60,7 @@ import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
-import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
+import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_BASE_COMPONENT;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
@@ -68,8 +68,9 @@ import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
@@ -110,7 +111,7 @@ public class TreeAction implements ComponentsWsAction {
       .setDescription(format("Navigate through components based on the chosen strategy. The %s or the %s parameter must be provided.<br>" +
         "Requires the following permission: 'Browse' on the specified project.<br>" +
         "When limiting search with the %s parameter, directories are not returned.",
-        PARAM_BASE_COMPONENT_ID, PARAM_BASE_COMPONENT_KEY, Param.TEXT_QUERY))
+        PARAM_BASE_COMPONENT_ID, PARAM_BASE_COMPONENT, Param.TEXT_QUERY))
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setHandler(this)
@@ -120,8 +121,9 @@ public class TreeAction implements ComponentsWsAction {
       .setDescription("Base component id. The search is based on this component.")
       .setExampleValue(UUID_EXAMPLE_02);
 
-    action.createParam(PARAM_BASE_COMPONENT_KEY)
+    action.createParam(PARAM_BASE_COMPONENT)
       .setDescription("Base component key.The search is based on this component.")
+      .setDeprecatedKey(PARAM_DEPRECATED_BASE_COMPONENT_KEY, "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createSortParams(SORTS, NAME_SORT, true)
@@ -157,7 +159,8 @@ public class TreeAction implements ComponentsWsAction {
 
   private TreeWsResponse doHandle(TreeWsRequest treeWsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
+      ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey(),
+        BASE_COMPONENT_ID_AND_BASE_COMPONENT);
       checkPermissions(baseComponent);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, baseComponent);
 
@@ -261,7 +264,7 @@ public class TreeAction implements ComponentsWsAction {
   private static TreeWsRequest toTreeWsRequest(Request request) {
     TreeWsRequest treeWsRequest = new TreeWsRequest()
       .setBaseComponentId(request.param(PARAM_BASE_COMPONENT_ID))
-      .setBaseComponentKey(request.param(PARAM_BASE_COMPONENT_KEY))
+      .setBaseComponentKey(request.param(PARAM_BASE_COMPONENT))
       .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setQualifiers(request.paramAsStrings(PARAM_QUALIFIERS))

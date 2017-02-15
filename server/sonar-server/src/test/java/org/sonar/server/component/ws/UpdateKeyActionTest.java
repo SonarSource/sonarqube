@@ -43,9 +43,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_PROJECT;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
 
 public class UpdateKeyActionTest {
   private static final String ANOTHER_KEY = "another_key";
@@ -66,7 +66,7 @@ public class UpdateKeyActionTest {
 
     callByKey(project.key(), ANOTHER_KEY);
 
-    assertCallComponentService(project.key(), ANOTHER_KEY);
+    assertCallComponentService(ANOTHER_KEY);
   }
 
   @Test
@@ -75,7 +75,7 @@ public class UpdateKeyActionTest {
 
     callByUuid(project.uuid(), ANOTHER_KEY);
 
-    assertCallComponentService(project.key(), ANOTHER_KEY);
+    assertCallComponentService(ANOTHER_KEY);
   }
 
   @Test
@@ -120,10 +120,10 @@ public class UpdateKeyActionTest {
     assertThat(definition.params())
       .hasSize(3)
       .extracting(Param::key)
-      .containsOnlyOnce("id", "key", "newKey");
+      .containsOnlyOnce("projectId", "project", "newProject");
   }
 
-  private void assertCallComponentService(@Nullable String oldKey, @Nullable String newKey) {
+  private void assertCallComponentService(@Nullable String newKey) {
     verify(componentService).updateKey(any(DbSession.class), any(ComponentDto.class), eq(newKey));
   }
 
@@ -143,13 +143,13 @@ public class UpdateKeyActionTest {
     TestRequest request = ws.newRequest();
 
     if (uuid != null) {
-      request.setParam(PARAM_ID, uuid);
+      request.setParam(PARAM_PROJECT_ID, uuid);
     }
     if (key != null) {
-      request.setParam(PARAM_KEY, key);
+      request.setParam(PARAM_PROJECT, key);
     }
     if (newKey != null) {
-      request.setParam(PARAM_NEW_KEY, newKey);
+      request.setParam(PARAM_NEW_PROJECT, newKey);
     }
 
     return request.execute().getInput();

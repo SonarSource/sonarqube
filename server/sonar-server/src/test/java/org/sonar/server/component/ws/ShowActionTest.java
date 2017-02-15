@@ -47,8 +47,8 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 
 public class ShowActionTest {
   @Rule
@@ -118,10 +118,10 @@ public class ShowActionTest {
       .setMediaType(MediaTypes.PROTOBUF);
 
     if (uuid != null) {
-      request.setParam(PARAM_ID, uuid);
+      request.setParam(PARAM_COMPONENT_ID, uuid);
     }
     if (key != null) {
-      request.setParam(PARAM_KEY, key);
+      request.setParam(PARAM_COMPONENT, key);
     }
 
     try (InputStream responseStream = request.execute().getInputStream()) {
