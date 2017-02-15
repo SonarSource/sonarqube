@@ -146,7 +146,7 @@ public class ActivityAction implements CeWsAction {
     action.createParam(Param.PAGE)
       .setDescription("Deprecated parameter")
       .setDeprecatedSince("5.5")
-      .setDeprecatedKey("pageIndex");
+      .setDeprecatedKey("pageIndex", "5.4");
     action.addPageSize(100, MAX_PAGE_SIZE);
   }
 

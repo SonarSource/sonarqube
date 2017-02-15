@@ -70,7 +70,7 @@ public class DeleteCommentAction implements IssuesWsAction {
 
     action.createParam(PARAM_COMMENT)
       .setDescription("Comment key")
-      .setDeprecatedKey("key")
+      .setDeprecatedKey("key", "6.3")
       .setSince("6.3")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_01);

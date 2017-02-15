@@ -636,8 +636,8 @@ public class RequestTest {
 
       action.createParam("has_possible_values").setPossibleValues("foo", "bar");
 
-      action.createParam("new_param").setDeprecatedKey("deprecated_param");
-      action.createParam("new_param_with_default_value").setDeprecatedKey("deprecated_new_param_with_default_value").setDefaultValue("the_default_string");
+      action.createParam("new_param").setDeprecatedKey("deprecated_param", "6.3");
+      action.createParam("new_param_with_default_value").setDeprecatedKey("deprecated_new_param_with_default_value", "6.2").setDefaultValue("the_default_string");
 
       controller.done();
     }

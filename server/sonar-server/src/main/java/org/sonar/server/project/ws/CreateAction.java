@@ -77,7 +77,7 @@ public class CreateAction implements ProjectsWsAction {
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Key of the project")
-      .setDeprecatedKey(DEPRECATED_PARAM_KEY)
+      .setDeprecatedKey(DEPRECATED_PARAM_KEY, "6.3")
       .setRequired(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 

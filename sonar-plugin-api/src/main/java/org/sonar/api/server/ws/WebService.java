@@ -348,13 +348,13 @@ public interface WebService extends Definable<WebService.Context> {
       createParam(Param.PAGE)
         .setDescription("1-based page number")
         .setExampleValue("42")
-        .setDeprecatedKey("pageIndex")
+        .setDeprecatedKey("pageIndex", "5.2")
         .setDefaultValue("1");
 
       createParam(Param.PAGE_SIZE)
         .setDescription("Page size. Must be greater than 0.")
         .setExampleValue("20")
-        .setDeprecatedKey("pageSize")
+        .setDeprecatedKey("pageSize", "5.2")
         .setDefaultValue(String.valueOf(defaultPageSize));
       return this;
     }
@@ -373,7 +373,7 @@ public interface WebService extends Definable<WebService.Context> {
       createParam(Param.PAGE)
         .setDescription("1-based page number")
         .setExampleValue("42")
-        .setDeprecatedKey("pageIndex")
+        .setDeprecatedKey("pageIndex", "5.2")
         .setDefaultValue("1");
       return this;
     }
@@ -382,7 +382,7 @@ public interface WebService extends Definable<WebService.Context> {
       createParam(Param.PAGE_SIZE)
         .setDescription("Page size. Must be greater than 0 and less than " + maxPageSize)
         .setExampleValue("20")
-        .setDeprecatedKey("pageSize")
+        .setDeprecatedKey("pageSize", "5.2")
         .setDefaultValue(String.valueOf(defaultPageSize));
       return this;
     }
@@ -437,7 +437,7 @@ public interface WebService extends Definable<WebService.Context> {
 
       return createParam(Param.SORT)
         .setDescription("Sort field")
-        .setDeprecatedKey("sort")
+        .setDeprecatedKey("sort", "5.4")
         .setDefaultValue(defaultValue)
         .setPossibleValues(possibleValues);
     }

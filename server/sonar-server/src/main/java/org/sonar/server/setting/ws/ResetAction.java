@@ -82,7 +82,7 @@ public class ResetAction implements SettingsWsAction {
       .setRequired(true);
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
-      .setDeprecatedKey("componentKey")
+      .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 

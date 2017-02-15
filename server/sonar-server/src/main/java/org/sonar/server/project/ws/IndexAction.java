@@ -150,7 +150,7 @@ public class IndexAction implements ProjectsWsAction {
   private static void addRemovedParameter(String key, WebService.NewAction action) {
     action.createParam(key)
       .setDescription("Since 6.3, this parameter has no effect")
-      .setDeprecatedKey("6.3");
+      .setDeprecatedSince("6.3");
   }
 
 }

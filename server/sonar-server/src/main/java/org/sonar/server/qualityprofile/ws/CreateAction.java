@@ -85,7 +85,7 @@ public class CreateAction implements QProfileWsAction {
     create.createParam(PARAM_PROFILE_NAME)
       .setDescription("The name for the new quality profile. Since 6.1, this parameter has been renamed from '%s' to '%s'", DEPRECATED_PARAM_PROFILE_NAME, PARAM_PROFILE_NAME)
       .setExampleValue("My Sonar way")
-      .setDeprecatedKey(DEPRECATED_PARAM_PROFILE_NAME)
+      .setDeprecatedKey(DEPRECATED_PARAM_PROFILE_NAME, "6.3")
       .setRequired(true);
 
     create.createParam(PARAM_LANGUAGE)

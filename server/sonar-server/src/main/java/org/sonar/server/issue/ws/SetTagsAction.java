@@ -60,7 +60,7 @@ public class SetTagsAction implements IssuesWsAction {
     action.createParam(PARAM_ISSUE)
       .setDescription("Issue key")
       .setSince("6.3")
-      .setDeprecatedKey("key")
+      .setDeprecatedKey("key", "6.3")
       .setExampleValue(Uuids.UUID_EXAMPLE_01)
       .setRequired(true);
     action.createParam(PARAM_TAGS)

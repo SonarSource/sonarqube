@@ -139,18 +139,18 @@ public class BulkChangeAction implements IssuesWsAction {
     action.createParam(PARAM_ASSIGN)
       .setDescription("To assign the list of issues to a specific user (login), or un-assign all the issues")
       .setExampleValue("john.smith")
-      .setDeprecatedKey("assign.assignee");
+      .setDeprecatedKey("assign.assignee", "6.2");
     action.createParam(PARAM_SET_SEVERITY)
       .setDescription("To change the severity of the list of issues")
       .setExampleValue(BLOCKER)
       .setPossibleValues(Severity.ALL)
-      .setDeprecatedKey("set_severity.severity");
+      .setDeprecatedKey("set_severity.severity", "6.2");
     action.createParam(PARAM_SET_TYPE)
       .setDescription("To change the type of the list of issues")
       .setExampleValue(BUG)
       .setPossibleValues(RuleType.names())
       .setSince("5.5")
-      .setDeprecatedKey("set_type.type");
+      .setDeprecatedKey("set_type.type", "6.2");
     action.createParam(PARAM_PLAN)
       .setDescription("In 5.5, action plans are dropped. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
       .setDeprecatedSince("5.5");
@@ -158,15 +158,15 @@ public class BulkChangeAction implements IssuesWsAction {
       .setDescription("Transition")
       .setExampleValue(REOPEN)
       .setPossibleValues(DefaultTransitions.ALL)
-      .setDeprecatedKey("do_transition.transition");
+      .setDeprecatedKey("do_transition.transition", "6.2");
     action.createParam(PARAM_ADD_TAGS)
       .setDescription("Add tags")
       .setExampleValue("security,java8")
-      .setDeprecatedKey("add_tags.tags");
+      .setDeprecatedKey("add_tags.tags", "6.2");
     action.createParam(PARAM_REMOVE_TAGS)
       .setDescription("Remove tags")
       .setExampleValue("security,java8")
-      .setDeprecatedKey("remove_tags.tags");
+      .setDeprecatedKey("remove_tags.tags", "6.2");
     action.createParam(PARAM_COMMENT)
       .setDescription("To add a comment to a list of issues")
       .setExampleValue("Here is my comment");

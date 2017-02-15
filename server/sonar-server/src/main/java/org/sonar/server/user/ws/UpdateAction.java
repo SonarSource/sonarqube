@@ -85,7 +85,7 @@ public class UpdateAction implements UsersWsAction {
 
     action.createParam(PARAM_SCM_ACCOUNTS)
       .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_SCM_ACCOUNT)
-      .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED)
+      .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED, "6.0")
       .setDeprecatedSince("6.1")
       .setExampleValue("myscmaccount1,myscmaccount2");
 

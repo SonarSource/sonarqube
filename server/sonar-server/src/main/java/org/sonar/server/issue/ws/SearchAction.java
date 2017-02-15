@@ -253,12 +253,14 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_PROJECTS)
       .setDeprecatedSince("5.1")
       .setDescription("See projectKeys");
+
     action.createParam(PARAM_PROJECT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "If this parameter is set, projectUuids must not be set.")
-      .setDeprecatedKey(PARAM_PROJECTS)
+      .setDeprecatedKey(PARAM_PROJECTS, "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
     action.createParam(PARAM_PROJECT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +

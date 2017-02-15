@@ -95,7 +95,7 @@ public class ExportAction implements QProfileWsAction {
           "Possible values are described by api/qualityprofiles/exporters.")
         .setPossibleValues(exporterKeys)
         // This deprecated key is only there to be able to deal with redirection from /profiles/export
-        .setDeprecatedKey("format");
+        .setDeprecatedKey("format", "6.3");
     }
   }
 
