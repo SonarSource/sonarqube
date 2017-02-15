@@ -48,6 +48,8 @@ public class DbVersion63 implements DbVersion {
       .add(1513, "Make default organization guarded", MakeDefaultOrganizationGuarded.class)
       .add(1514, "Delete some entries in PROPERTIES", DeleteUselessProperties.class)
       .add(1515, "Unset user root flags", UnsetUserRootFlags.class)
-      .add(1516, "Add ORGANIZATIONS.USER_ID", AddUserIdToOrganizations.class);
+      .add(1516, "Add ORGANIZATIONS.USER_ID", AddUserIdToOrganizations.class)
+      .add(1517, "Delete PROJECT_MEASURES rows having no value", DeleteMeasuresHavingNoValue.class)
+    ;
   }
 }
