@@ -91,7 +91,7 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   @CheckForNull
   public Integer getUserId() {
-    return userDto == null ? null : userDto.getId().intValue();
+    return userDto == null ? null : userDto.getId();
   }
 
   @Override

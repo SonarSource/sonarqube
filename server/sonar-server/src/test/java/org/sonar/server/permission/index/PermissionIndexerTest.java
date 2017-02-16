@@ -282,7 +282,7 @@ public class PermissionIndexerTest {
   }
 
   private UserSessionRule log_in(UserDto u) {
-    userSession.logIn(u.getLogin()).setUserId(u.getId().intValue());
+    userSession.logIn(u.getLogin()).setUserId(u.getId());
     return userSession;
   }
 

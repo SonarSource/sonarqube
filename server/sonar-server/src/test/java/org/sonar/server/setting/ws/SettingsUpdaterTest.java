@@ -216,7 +216,7 @@ public class SettingsUpdaterTest {
   private void assertUserPropertyExists(String key, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
         .setKey(key)
-        .setUserId(user.getId().intValue())
+        .setUserId(user.getId())
         .build(),
       dbSession)).isNotEmpty();
   }

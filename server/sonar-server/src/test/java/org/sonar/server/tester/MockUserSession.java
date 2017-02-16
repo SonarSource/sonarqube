@@ -48,7 +48,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     super(MockUserSession.class);
     checkArgument(!userDto.getLogin().isEmpty());
     this.login = userDto.getLogin();
-    setUserId(userDto.getId().intValue());
+    setUserId(userDto.getId());
     setName(userDto.getName());
   }
 

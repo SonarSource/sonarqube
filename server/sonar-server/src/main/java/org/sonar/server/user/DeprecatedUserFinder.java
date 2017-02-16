@@ -49,7 +49,7 @@ public class DeprecatedUserFinder implements UserFinder {
   private static User copy(@Nullable UserDto dto) {
     if (dto != null) {
       User user = new User().setEmail(dto.getEmail()).setLogin(dto.getLogin()).setName(dto.getName());
-      user.setId(dto.getId().intValue());
+      user.setId(dto.getId());
       return user;
     }
     return null;

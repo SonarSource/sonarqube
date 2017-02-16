@@ -72,7 +72,7 @@ public class TestUserSessionFactory implements UserSessionFactory {
 
     @Override
     public Integer getUserId() {
-      return user != null ? user.getId().intValue() : null;
+      return user != null ? user.getId() : null;
     }
 
     @Override
