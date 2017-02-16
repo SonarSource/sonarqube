@@ -34,6 +34,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -74,6 +75,7 @@ public class WebServiceTest {
     assertThat(showAction.responseExampleFormat()).isNotEmpty();
     assertThat(showAction.responseExampleAsString()).isNotEmpty();
     assertThat(showAction.deprecatedSince()).isNull();
+    assertThat(showAction.history()).isEmpty();
     // same as controller
     assertThat(showAction.since()).isEqualTo("4.2");
     assertThat(showAction.isPost()).isFalse();
@@ -88,6 +90,8 @@ public class WebServiceTest {
     assertThat(createAction.since()).isEqualTo("4.1");
     assertThat(createAction.isPost()).isTrue();
     assertThat(createAction.isInternal()).isTrue();
+    assertThat(createAction.history()).extracting(Changelog::getVersion, Changelog::getDescription).containsOnly(
+      tuple("6.4", "Last event"), tuple("6.0", "Old event"), tuple("4.5.6", "Very old event"));
   }
 
   @Test
@@ -197,6 +201,7 @@ public class WebServiceTest {
       newAction.addPagingParams(20);
       newAction.addFieldsParam(Arrays.asList("name", "severity"));
       newAction.addSortParams(Arrays.asList("name", "updatedAt", "severity"), "updatedAt", false);
+
       newController.done();
     }).define(context);
 
@@ -470,6 +475,10 @@ public class WebServiceTest {
         .setPost(true)
         .setInternal(true)
         .setResponseExample(getClass().getResource("WebServiceTest/response-example.txt"))
+        .setHistory(
+          new Changelog("6.4", "Last event"),
+          new Changelog("6.0", "Old event"),
+          new Changelog("4.5.6", "Very old event"))
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {

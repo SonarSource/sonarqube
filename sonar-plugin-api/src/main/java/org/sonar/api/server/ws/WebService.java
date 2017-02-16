@@ -27,11 +27,15 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -48,6 +52,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Defines a web service.
@@ -251,6 +256,7 @@ public interface WebService extends Definable<WebService.Context> {
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
     private URL responseExample = null;
+    private List<Changelog> history = new ArrayList<>();
 
     private NewAction(String key) {
       this.key = key;
@@ -322,6 +328,19 @@ public interface WebService extends Definable<WebService.Context> {
      */
     public NewAction setResponseExample(@Nullable URL url) {
       this.responseExample = url;
+      return this;
+    }
+
+    /**
+     * List of changes made to the contract or valuable insight. Example: changes to the response format.
+     *
+     * @since 6.4
+     */
+    public NewAction setHistory(Changelog... changelogs) {
+      this.history = Arrays.stream(requireNonNull(changelogs))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+
       return this;
     }
 
@@ -470,6 +489,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final RequestHandler handler;
     private final Map<String, Param> params;
     private final URL responseExample;
+    private final List<Changelog> history;
 
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
@@ -482,6 +502,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.isInternal = newAction.isInternal;
       this.responseExample = newAction.responseExample;
       this.handler = newAction.handler;
+      this.history = newAction.history;
 
       checkState(this.handler != null, "RequestHandler is not set on action %s", path);
       logWarningIf(isNullOrEmpty(this.description), "Description is not set on action " + path);
@@ -533,6 +554,14 @@ public interface WebService extends Definable<WebService.Context> {
 
     public boolean isPost() {
       return post;
+    }
+
+    /**
+     * @see NewAction#setHistory(Changelog...)  
+     * @since 6.4
+     */
+    public List<Changelog> history() {
+      return history;
     }
 
     /**
