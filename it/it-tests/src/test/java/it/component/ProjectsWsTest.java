@@ -31,20 +31,38 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse.Key;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.project.BulkUpdateKeyWsRequest;
+import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-public class ProjectSearchTest {
+public class ProjectsWsTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  private static final String PROJECT_KEY = "sample";
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private WsClient wsClient;
 
   @Before
   public void inspectProject() {
     orchestrator.resetData();
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+
+    wsClient = ItUtils.newAdminWsClient(orchestrator);
   }
 
   /**
@@ -70,5 +88,38 @@ public class ProjectSearchTest {
     } finally {
       httpclient.getConnectionManager().shutdown();
     }
+  }
+
+  @Test
+  public void update_key() {
+    String newProjectKey = "another_project_key";
+    WsComponents.Component project = wsClient.components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
+
+    wsClient.projects().updateKey(UpdateKeyWsRequest.builder()
+      .setKey(PROJECT_KEY)
+      .setNewKey(newProjectKey)
+      .build());
+
+    assertThat(wsClient.components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+  }
+
+  @Test
+  public void bulk_update_key() {
+    String newProjectKey = "another_project_key";
+    WsComponents.Component project = wsClient.components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
+
+    BulkUpdateKeyWsResponse result = wsClient.projects().bulkUpdateKey(BulkUpdateKeyWsRequest.builder()
+      .setKey(PROJECT_KEY)
+      .setFrom(PROJECT_KEY)
+      .setTo(newProjectKey)
+      .build());
+
+    assertThat(wsClient.components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+    assertThat(result.getKeysCount()).isEqualTo(1);
+    assertThat(result.getKeys(0))
+      .extracting(Key::getKey, Key::getNewKey, Key::getDuplicate)
+      .containsOnlyOnce(PROJECT_KEY, newProjectKey, false);
   }
 }

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.ws;
+
+package org.sonar.server.project.ws;
 
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -43,9 +44,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_PROJECT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 
 public class UpdateKeyActionTest {
   private static final String ANOTHER_KEY = "another_key";
@@ -58,7 +59,7 @@ public class UpdateKeyActionTest {
 
   ComponentService componentService = mock(ComponentService.class);
 
-  WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, new ComponentFinder(dbClient), componentService));
+  WsActionTester ws = new WsActionTester(new org.sonar.server.project.ws.UpdateKeyAction(dbClient, new ComponentFinder(dbClient), componentService));
 
   @Test
   public void call_by_key() {

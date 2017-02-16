@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.component;
+
+package org.sonarqube.ws.client.project;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -26,12 +27,12 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
-public class UpdateWsRequest {
+public class UpdateKeyWsRequest {
   private final String id;
   private final String key;
   private final String newKey;
 
-  public UpdateWsRequest(Builder builder) {
+  public UpdateKeyWsRequest(Builder builder) {
     this.id = builder.id;
     this.key = builder.key;
     this.newKey = builder.newKey;
@@ -79,9 +80,9 @@ public class UpdateWsRequest {
       return this;
     }
 
-    public UpdateWsRequest build() {
+    public UpdateKeyWsRequest build() {
       checkArgument(newKey != null && !newKey.isEmpty(), "The new key must not be empty");
-      return new UpdateWsRequest(this);
+      return new UpdateKeyWsRequest(this);
     }
   }
 }

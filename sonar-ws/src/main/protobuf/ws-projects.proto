@@ -71,3 +71,13 @@ message SearchWsResponse {
   }
 }
 
+// WS api/projects/prepare_bulk_update_key
+message BulkUpdateKeyWsResponse {
+  repeated Key keys = 1;
+
+  message Key {
+    optional string key = 1;
+    optional string newKey = 2;
+    optional bool duplicate = 3;
+  }
+}

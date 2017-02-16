@@ -33,8 +33,6 @@ public class ComponentsWsModule extends Module {
       SuggestionsAction.class,
       TreeAction.class,
       ShowAction.class,
-      UpdateKeyAction.class,
-      BulkUpdateKeyAction.class,
       SearchProjectsAction.class,
       ProjectMeasuresQueryValidator.class);
   }

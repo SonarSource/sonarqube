@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.ws;
 
+package org.sonar.server.project.ws;
+
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -28,15 +30,15 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
-import org.sonarqube.ws.client.component.UpdateWsRequest;
+import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_UPDATE_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_PROJECT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 
-public class UpdateKeyAction implements ComponentsWsAction {
+public class UpdateKeyAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final ComponentService componentService;
@@ -49,6 +51,10 @@ public class UpdateKeyAction implements ComponentsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
+    doDefine(context);
+  }
+
+  public WebService.NewAction doDefine(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_UPDATE_KEY)
       .setDescription("Update a project or module key and all its sub-components keys.<br>" +
         "Either '%s' or '%s' must be provided, not both.<br> " +
@@ -61,6 +67,9 @@ public class UpdateKeyAction implements ComponentsWsAction {
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);
+
+    action.setChangelog(
+      new Change("6.4", "Move from api/components/update_key to api/projects/update_key"));
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project or module id")
@@ -77,6 +86,8 @@ public class UpdateKeyAction implements ComponentsWsAction {
       .setRequired(true)
       .setDeprecatedKey("newKey", "6.4")
       .setExampleValue("my_new_project");
+
+    return action;
   }
 
   @Override
@@ -85,7 +96,7 @@ public class UpdateKeyAction implements ComponentsWsAction {
     response.noContent();
   }
 
-  private void doHandle(UpdateWsRequest request) {
+  private void doHandle(UpdateKeyWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_PROJECT);
@@ -96,8 +107,8 @@ public class UpdateKeyAction implements ComponentsWsAction {
     }
   }
 
-  private static UpdateWsRequest toWsRequest(Request request) {
-    return UpdateWsRequest.builder()
+  private static UpdateKeyWsRequest toWsRequest(Request request) {
+    return UpdateKeyWsRequest.builder()
       .setId(request.param(PARAM_PROJECT_ID))
       .setKey(request.param(PARAM_PROJECT))
       .setNewKey(request.mandatoryParam(PARAM_NEW_PROJECT))

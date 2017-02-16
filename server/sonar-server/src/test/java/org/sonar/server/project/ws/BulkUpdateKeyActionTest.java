@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.ws;
+
+package org.sonar.server.project.ws;
 
 import com.google.common.base.Throwables;
 import java.io.IOException;
@@ -47,9 +48,8 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse;
-import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse.Key;
+import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse.Key;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -61,11 +61,11 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DRY_RUN;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_DRY_RUN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class BulkUpdateKeyActionTest {
   private static final String MY_PROJECT_KEY = "my_project";
@@ -265,7 +265,7 @@ public class BulkUpdateKeyActionTest {
     return componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey(MY_PROJECT_KEY));
   }
 
-  private WsComponents.BulkUpdateKeyWsResponse callDryRunByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {
+  private BulkUpdateKeyWsResponse callDryRunByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {
     return call(uuid, null, from, to, true);
   }
 
@@ -273,7 +273,7 @@ public class BulkUpdateKeyActionTest {
     return call(null, key, from, to, true);
   }
 
-  private WsComponents.BulkUpdateKeyWsResponse callByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {
+  private BulkUpdateKeyWsResponse callByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {
     return call(uuid, null, from, to, false);
   }
 
@@ -302,7 +302,7 @@ public class BulkUpdateKeyActionTest {
     }
 
     try {
-      return WsComponents.BulkUpdateKeyWsResponse.parseFrom(request.execute().getInputStream());
+      return BulkUpdateKeyWsResponse.parseFrom(request.execute().getInputStream());
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

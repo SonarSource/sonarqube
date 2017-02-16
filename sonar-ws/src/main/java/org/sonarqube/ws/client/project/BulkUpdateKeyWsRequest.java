@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.component;
+
+package org.sonarqube.ws.client.project;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -26,14 +27,14 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
-public class BulkUpdateWsRequest {
+public class BulkUpdateKeyWsRequest {
   private final String id;
   private final String key;
   private final String from;
   private final String to;
   private final boolean dryRun;
 
-  public BulkUpdateWsRequest(Builder builder) {
+  public BulkUpdateKeyWsRequest(Builder builder) {
     this.id = builder.id;
     this.key = builder.key;
     this.from = builder.from;
@@ -103,10 +104,10 @@ public class BulkUpdateWsRequest {
       return this;
     }
 
-    public BulkUpdateWsRequest build() {
+    public BulkUpdateKeyWsRequest build() {
       checkArgument(from != null && !from.isEmpty(), "The string to match must not be empty");
       checkArgument(to != null && !to.isEmpty(), "The string replacement must not be empty");
-      return new BulkUpdateWsRequest(this);
+      return new BulkUpdateKeyWsRequest(this);
     }
   }
 }

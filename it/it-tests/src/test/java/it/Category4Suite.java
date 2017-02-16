@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.analysisExclusion.FileExclusionsTest;
 import it.analysisExclusion.IssueExclusionsTest;
 import it.component.ComponentsWsTest;
-import it.component.ProjectSearchTest;
+import it.component.ProjectsWsTest;
 import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
@@ -69,7 +69,7 @@ import static util.ItUtils.xooPlugin;
   BaseIdentityProviderTest.class,
   OAuth2IdentityProviderTest.class,
   // component search
-  ProjectSearchTest.class,
+  ProjectsWsTest.class,
   ComponentsWsTest.class,
   // analysis exclusion
   FileExclusionsTest.class,

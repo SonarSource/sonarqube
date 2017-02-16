@@ -21,35 +21,26 @@ package org.sonarqube.ws.client.component;
 
 import com.google.common.base.Joiner;
 import java.util.List;
-import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonar.api.server.ws.WebService.Param;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_BULK_UPDATE_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH_PROJECTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_UPDATE_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLER_COMPONENTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_PROJECT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
 
 public class ComponentsService extends BaseService {
 
@@ -85,25 +76,6 @@ public class ComponentsService extends BaseService {
       .setParam(PARAM_COMPONENT_ID, request.getId())
       .setParam(PARAM_COMPONENT, request.getKey());
     return call(get, ShowWsResponse.parser());
-  }
-
-  public void updateKey(UpdateWsRequest request) {
-    PostRequest post = new PostRequest(path(ACTION_UPDATE_KEY))
-      .setParam(PARAM_PROJECT_ID, request.getId())
-      .setParam(PARAM_PROJECT, request.getKey())
-      .setParam(PARAM_NEW_PROJECT, request.getNewKey());
-
-    call(post);
-  }
-
-  public BulkUpdateKeyWsResponse bulkUpdateKey(BulkUpdateWsRequest request) {
-    PostRequest post = new PostRequest(path(ACTION_BULK_UPDATE_KEY))
-      .setParam(PARAM_PROJECT_ID, request.getId())
-      .setParam(PARAM_PROJECT, request.getKey())
-      .setParam(PARAM_FROM, request.getFrom())
-      .setParam(PARAM_TO, request.getTo());
-
-    return call(post, BulkUpdateKeyWsResponse.parser());
   }
 
   public SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) {

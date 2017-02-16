@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.component;
+
+package org.sonarqube.ws.client.project;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class UpdateWsRequestTest {
+public class UpdateKeyWsRequestTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  UpdateWsRequest.Builder underTest = UpdateWsRequest.builder();
+  UpdateKeyWsRequest.Builder underTest = UpdateKeyWsRequest.builder();
 
   @Test
   public void fail_if_new_key_is_null() {

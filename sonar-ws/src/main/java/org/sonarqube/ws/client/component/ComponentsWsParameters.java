@@ -25,10 +25,8 @@ public class ComponentsWsParameters {
 
   // actions
   public static final String ACTION_SEARCH = "search";
-  public static final String ACTION_UPDATE_KEY = "update_key";
   public static final String ACTION_TREE = "tree";
   public static final String ACTION_SHOW = "show";
-  public static final String ACTION_BULK_UPDATE_KEY = "bulk_update_key";
   public static final String ACTION_SEARCH_PROJECTS = "search_projects";
   public static final String ACTION_SUGGESTIONS = "suggestions";
 
@@ -37,15 +35,9 @@ public class ComponentsWsParameters {
   public static final String PARAM_QUALIFIERS = "qualifiers";
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_STRATEGY = "strategy";
-  public static final String PARAM_FROM = "from";
-  public static final String PARAM_TO = "to";
-  public static final String PARAM_DRY_RUN = "dryRun";
   public static final String PARAM_FILTER = "filter";
-  public static final String PARAM_PROJECT_ID = "projectId";
-  public static final String PARAM_PROJECT = "project";
   public static final String PARAM_COMPONENT_ID = "componentId";
   public static final String PARAM_COMPONENT = "component";
-  public static final String PARAM_NEW_PROJECT = "newProject";
 
   private ComponentsWsParameters() {
     // static utility class

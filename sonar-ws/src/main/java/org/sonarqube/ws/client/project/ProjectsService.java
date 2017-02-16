@@ -20,21 +20,28 @@
 package org.sonarqube.ws.client.project;
 
 import com.google.common.base.Joiner;
-import org.sonarqube.ws.WsProjects;
+import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
+import org.sonarqube.ws.WsProjects.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonar.api.server.ws.WebService.Param.*;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 /**
@@ -70,13 +77,32 @@ public class ProjectsService extends BaseService {
       .setParam("key", request.getKey()));
   }
 
-  public WsProjects.SearchWsResponse search(SearchWsRequest request) {
+  public void updateKey(UpdateKeyWsRequest request) {
+    PostRequest post = new PostRequest(path(ACTION_UPDATE_KEY))
+      .setParam(PARAM_PROJECT_ID, request.getId())
+      .setParam(PARAM_PROJECT, request.getKey())
+      .setParam(PARAM_NEW_PROJECT, request.getNewKey());
+
+    call(post);
+  }
+
+  public BulkUpdateKeyWsResponse bulkUpdateKey(BulkUpdateKeyWsRequest request) {
+    PostRequest post = new PostRequest(path(ACTION_BULK_UPDATE_KEY))
+      .setParam(PARAM_PROJECT_ID, request.getId())
+      .setParam(PARAM_PROJECT, request.getKey())
+      .setParam(ProjectsWsParameters.PARAM_FROM, request.getFrom())
+      .setParam(ProjectsWsParameters.PARAM_TO, request.getTo());
+
+    return call(post, BulkUpdateKeyWsResponse.parser());
+  }
+
+  public SearchWsResponse search(SearchWsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SEARCH))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(request.getQualifiers()))
       .setParam(TEXT_QUERY, request.getQuery())
       .setParam(PAGE, request.getPage())
       .setParam(PAGE_SIZE, request.getPageSize());
-    return call(get, WsProjects.SearchWsResponse.parser());
+    return call(get, SearchWsResponse.parser());
   }
 }

@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.ws;
+package org.sonar.server.project.ws;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Comparator;
 import java.util.Map;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,22 +35,21 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse;
-import org.sonarqube.ws.client.component.BulkUpdateWsRequest;
+import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.client.project.BulkUpdateKeyWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_BULK_UPDATE_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DRY_RUN;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_UPDATE_KEY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_DRY_RUN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
-public class BulkUpdateKeyAction implements ComponentsWsAction {
+public class BulkUpdateKeyAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final ComponentKeyUpdaterDao componentKeyUpdater;
@@ -65,6 +66,10 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
+    doDefine(context);
+  }
+
+  public WebService.NewAction doDefine(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_UPDATE_KEY)
       .setDescription("Bulk update a project or module key and all its sub-components keys. " +
         "The bulk update allows to replace a part of the current key by another string on the current project and all its sub-modules.<br>" +
@@ -88,6 +93,9 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
       .setPost(true)
       .setResponseExample(getClass().getResource("bulk_update_key-example.json"))
       .setHandler(this);
+
+    action.setChangelog(
+      new Change("6.4", "Moved from api/components/bulk_update_key to api/projects/bulk_update_key"));
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project or module ID")
@@ -113,6 +121,8 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
       .setDescription("Simulate bulk update. No component key is updated.")
       .setBooleanPossibleValues()
       .setDefaultValue(false);
+
+    return action;
   }
 
   @Override
@@ -120,7 +130,7 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
     writeProtobuf(doHandle(toWsRequest(request)), request, response);
   }
 
-  private BulkUpdateKeyWsResponse doHandle(BulkUpdateWsRequest request) {
+  private BulkUpdateKeyWsResponse doHandle(BulkUpdateKeyWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
@@ -145,17 +155,17 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
     newKeysWithDuplicateMap.entrySet().forEach(entry -> checkRequest(!entry.getValue(), "Impossible to update key: a component with key \"%s\" already exists.", entry.getKey()));
   }
 
-  private void bulkUpdateKey(DbSession dbSession, BulkUpdateWsRequest request, ComponentDto projectOrModule) {
+  private void bulkUpdateKey(DbSession dbSession, BulkUpdateKeyWsRequest request, ComponentDto projectOrModule) {
     componentService.bulkUpdateKey(dbSession, projectOrModule.uuid(), request.getFrom(), request.getTo());
     dbSession.commit();
   }
 
   private static BulkUpdateKeyWsResponse buildResponse(Map<String, String> newKeysByOldKeys, Map<String, Boolean> newKeysWithDuplicateMap) {
-    WsComponents.BulkUpdateKeyWsResponse.Builder response = WsComponents.BulkUpdateKeyWsResponse.newBuilder();
+    BulkUpdateKeyWsResponse.Builder response = BulkUpdateKeyWsResponse.newBuilder();
 
     newKeysByOldKeys.entrySet().stream()
       // sort by old key
-      .sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
+      .sorted(Comparator.comparing(Map.Entry::getKey))
       .forEach(
         entry -> {
           String newKey = entry.getValue();
@@ -168,8 +178,8 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
     return response.build();
   }
 
-  private static BulkUpdateWsRequest toWsRequest(Request request) {
-    return BulkUpdateWsRequest.builder()
+  private static BulkUpdateKeyWsRequest toWsRequest(Request request) {
+    return BulkUpdateKeyWsRequest.builder()
       .setId(request.param(PARAM_PROJECT_ID))
       .setKey(request.param(PARAM_PROJECT))
       .setFrom(request.mandatoryParam(PARAM_FROM))
