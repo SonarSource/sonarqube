@@ -21,12 +21,13 @@ package org.sonar.server.ws.ws;
 
 import com.google.common.io.Resources;
 import org.junit.Test;
+import org.sonar.api.server.ws.Changelog;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.JsonAssert;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebServicesWsTest {
 
@@ -59,7 +60,7 @@ public class WebServicesWsTest {
 
     String response = tester.newGetRequest("api/webservices", "list").execute().outputAsString();
 
-    JsonAssert.assertJson(response).isSimilarTo(getClass().getResource("list-example.json"));
+    assertJson(response).withStrictArrayOrder().isSimilarTo(getClass().getResource("list-example.json"));
   }
 
   @Test
@@ -104,6 +105,10 @@ public class WebServicesWsTest {
         .setDeprecatedSince("5.3")
         .setPost(true)
         .setResponseExample(Resources.getResource(getClass(), "WebServicesWsTest/metrics_example.json"))
+        .setHistory(
+          new Changelog("4.5", "Deprecate database ID in response"),
+          new Changelog("6.0", "Remove database ID from response"),
+          new Changelog("6.6", "Requires 'Administer System' permission instead of 'Administer Quality Profiles'"))
         .setHandler((request, response) -> {
         });
 

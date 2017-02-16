@@ -20,8 +20,10 @@
 package org.sonar.server.ws.ws;
 
 import com.google.common.collect.Ordering;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import org.sonar.api.server.ws.Changelog;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -100,17 +102,22 @@ public class ListAction implements WebServicesWsAction {
       writer.prop("internal", action.isInternal());
       writer.prop("post", action.isPost());
       writer.prop("hasResponseExample", action.responseExample() != null);
-      List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).collect(Collectors.toList());
-      if (!params.isEmpty()) {
-        // sort parameters by key
-        Ordering<WebService.Param> ordering = Ordering.natural().onResultOf(WebService.Param::key);
-        writer.name("params").beginArray();
-        for (WebService.Param param : ordering.sortedCopy(params)) {
-          writeParam(writer, param);
-        }
-        writer.endArray();
-      }
+      writeHistory(writer, action);
+      writeParameters(writer, action, includeInternals);
       writer.endObject();
+    }
+  }
+
+  private static void writeParameters(JsonWriter writer, WebService.Action action, boolean includeInternals) {
+    List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).collect(Collectors.toList());
+    if (!params.isEmpty()) {
+      // sort parameters by key
+      Ordering<WebService.Param> ordering = Ordering.natural().onResultOf(WebService.Param::key);
+      writer.name("params").beginArray();
+      for (WebService.Param param : ordering.sortedCopy(params)) {
+        writeParam(writer, param);
+      }
+      writer.endArray();
     }
   }
 
@@ -132,4 +139,18 @@ public class ListAction implements WebServicesWsAction {
     }
     writer.endObject();
   }
+
+  private static void writeHistory(JsonWriter writer, WebService.Action action) {
+    writer.name("history").beginArray();
+    action.history().stream()
+      .sorted(Comparator.comparing(Changelog::getVersion).reversed())
+      .forEach(changelog -> {
+        writer.beginObject();
+        writer.prop("description", changelog.getDescription());
+        writer.prop("version", changelog.getVersion());
+        writer.endObject();
+      });
+    writer.endArray();
+  }
+
 }

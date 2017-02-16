@@ -13,6 +13,20 @@
           "internal": false,
           "post": true,
           "hasResponseExample": true,
+          "history": [
+            {
+              "description": "Requires 'Administer System' permission instead of 'Administer Quality Profiles'",
+              "version": "6.6"
+            },
+            {
+              "description": "Remove database ID from response",
+              "version": "6.0"
+            },
+            {
+              "description": "Deprecate database ID in response",
+              "version": "4.5"
+            }
+          ],
           "params": [
             {
               "key": "name",
