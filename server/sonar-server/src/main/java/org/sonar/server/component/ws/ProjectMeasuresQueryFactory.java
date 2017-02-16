@@ -51,10 +51,11 @@ class ProjectMeasuresQueryFactory {
     return StreamSupport.stream(CRITERIA_SPLITTER.split(filter).spliterator(), false)
       .filter(Objects::nonNull)
       .filter(criterion -> !criterion.isEmpty())
+      .map(String::trim)
       .collect(Collectors.toList());
   }
 
-  static boolean hasIsFavouriteCriterion(List<String> criteria) {
+  static boolean hasIsFavoriteCriterion(List<String> criteria) {
     return criteria.stream().anyMatch(IS_FAVORITE_CRITERION::equalsIgnoreCase);
   }
 

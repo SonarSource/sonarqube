@@ -218,4 +218,17 @@ public class ProjectMeasuresQueryFactoryTest {
     expectedException.expectMessage("Invalid criterion 'ncloc >='");
     newProjectMeasuresQuery(toCriteria("ncloc >="), emptySet());
   }
+
+  @Test
+  public void test_hasIsFavouriteCriterion() throws Exception {
+    assertThat(ProjectMeasuresQueryFactory.hasIsFavoriteCriterion(toCriteria("isFavorite"))).isTrue();
+    assertThat(ProjectMeasuresQueryFactory.hasIsFavoriteCriterion(toCriteria("isFavorite "))).isTrue();
+    assertThat(ProjectMeasuresQueryFactory.hasIsFavoriteCriterion(toCriteria("    isFavorite  "))).isTrue();
+    assertThat(ProjectMeasuresQueryFactory.hasIsFavoriteCriterion(toCriteria("isFavorite and reliability_rating = 1"))).isTrue();
+    assertThat(ProjectMeasuresQueryFactory.hasIsFavoriteCriterion(toCriteria("  isFavorite  and  reliability_rating = 1"))).isTrue();
+
+    assertThat(ProjectMeasuresQueryFactory.hasIsFavoriteCriterion(toCriteria("ncloc > 10"))).isFalse();
+    assertThat(ProjectMeasuresQueryFactory.hasIsFavoriteCriterion(toCriteria("ncloc > 10 and coverage <= 80"))).isFalse();
+  }
+
 }

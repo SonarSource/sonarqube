@@ -60,7 +60,7 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.core.util.stream.Collectors.toSet;
-import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.hasIsFavouriteCriterion;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.hasIsFavoriteCriterion;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.toCriteria;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
@@ -193,7 +193,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   @CheckForNull
   private Set<String> buildFilterOnFavoriteProjectUuids(List<String> criteria, Set<String> favoriteProjectUuids) {
-    if (hasIsFavouriteCriterion(criteria)) {
+    if (hasIsFavoriteCriterion(criteria)) {
       return favoriteProjectUuids;
     }
     return null;
