@@ -23,18 +23,6 @@ import java.util.List;
 
 public interface PurgeListener {
 
-  PurgeListener EMPTY = new PurgeListener() {
-    @Override
-    public void onComponentDisabling(String uuid) {
-      // do nothing
-    }
-
-    @Override
-    public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
-      // do nothing
-    }
-  };
-
   void onComponentDisabling(String uuid);
 
   void onIssuesRemoval(String projectUuid, List<String> issueKeys);
