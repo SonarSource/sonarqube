@@ -28,6 +28,7 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.text.JsonWriter;
 
 import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
@@ -35,11 +36,18 @@ import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 @ComputeEngineSide
 public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 
+  private final Server server;
+
+  public WebhookPayloadFactoryImpl(Server server) {
+    this.server = server;
+  }
+
   @Override
   public WebhookPayload create(PostProjectAnalysisTask.ProjectAnalysis analysis) {
     Writer string = new StringWriter();
     try (JsonWriter writer = JsonWriter.of(string)) {
       writer.beginObject();
+      writeServer(writer);
       writeTask(writer, analysis.getCeTask());
       analysis.getAnalysisDate().ifPresent(date -> writer.propDateTime("analysedAt", date));
       writeProject(analysis, writer, analysis.getProject());
@@ -48,6 +56,10 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       writer.endObject().close();
       return new WebhookPayload(analysis.getProject().getKey(), string.toString());
     }
+  }
+
+  private void writeServer(JsonWriter writer) {
+    writer.prop("serverUrl", server.getPublicRootUrl());
   }
 
   private static void writeAnalysisProperties(JsonWriter writer, ScannerContext scannerContext) {

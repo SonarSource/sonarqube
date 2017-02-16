@@ -1,4 +1,5 @@
 {
+  "serverUrl": "http://foo",
   "taskId": "#1",
   "status": "SUCCESS",
   "analysedAt": "2017-07-14T04:40:00+0200",
