@@ -21,10 +21,9 @@ package org.sonar.server.user;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -53,8 +52,8 @@ public class ServerUserSession extends AbstractUserSession {
   private final Supplier<Collection<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
   private final Supplier<Boolean> isSystemAdministratorSupplier = Suppliers.memoize(this::loadIsSystemAdministrator);
   private final Map<String, String> projectUuidByComponentUuid = newHashMap();
-  private SetMultimap<String, String> permissionsByOrganizationUuid;
-  private SetMultimap<String, String> permissionsByProjectUuid;
+  private Map<String, Set<String>> permissionsByOrganizationUuid;
+  private Map<String, Set<String>> permissionsByProjectUuid;
 
   ServerUserSession(DbClient dbClient, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, @Nullable UserDto userDto) {
@@ -109,15 +108,9 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
     if (permissionsByOrganizationUuid == null) {
-      permissionsByOrganizationUuid = HashMultimap.create();
+      permissionsByOrganizationUuid = new HashMap<>();
     }
-    Set<String> permissions;
-    if (permissionsByOrganizationUuid.containsKey(organizationUuid)) {
-      permissions = permissionsByOrganizationUuid.get(organizationUuid);
-    } else {
-      permissions = loadOrganizationPermissions(organizationUuid);
-      permissionsByOrganizationUuid.putAll(organizationUuid, permissions);
-    }
+    Set<String> permissions = permissionsByOrganizationUuid.computeIfAbsent(organizationUuid, this::loadOrganizationPermissions);
     return permissions.contains(permission);
   }
 
@@ -150,28 +143,19 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
     if (permissionsByProjectUuid == null) {
-      permissionsByProjectUuid = HashMultimap.create();
+      permissionsByProjectUuid = new HashMap<>();
     }
-    Set<String> permissions;
-    if (permissionsByProjectUuid.containsKey(projectUuid)) {
-      permissions = permissionsByProjectUuid.get(projectUuid);
-    } else {
-      permissions = loadProjectPermissions(projectUuid);
-      permissionsByProjectUuid.putAll(projectUuid, permissions);
-    }
+    Set<String> permissions = permissionsByProjectUuid.computeIfAbsent(projectUuid, this::loadProjectPermissions);
     return permissions.contains(permission);
   }
 
   private Set<String> loadProjectPermissions(String projectUuid) {
-    Set<String> permissions;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (userDto != null && userDto.getId() != null) {
-        permissions = dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getId());
-      } else {
-        permissions = dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
+        return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getId());
       }
+      return dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
     }
-    return permissions;
   }
 
   @Override

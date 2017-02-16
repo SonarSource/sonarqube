@@ -39,6 +39,7 @@ import org.sonar.server.organization.TestOrganizationFlags;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
@@ -217,6 +218,40 @@ public class ServerUserSessionTest {
   }
 
   @Test
+  public void hasOrganizationPermission_keeps_cache_of_permissions_of_logged_in_user() {
+    OrganizationDto org = db.organizations().insert();
+    db.users().insertPermissionOnUser(org, userDto, PROVISIONING);
+
+    UserSession session = newUserSession(userDto);
+
+    // feed the cache
+    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+
+    // change permissions without updating the cache
+    db.users().deletePermissionFromUser(org, userDto, PROVISIONING);
+    db.users().insertPermissionOnUser(org, userDto, SCAN_EXECUTION);
+    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), SYSTEM_ADMIN)).isFalse();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), SCAN_EXECUTION)).isFalse();
+  }
+
+  @Test
+  public void hasOrganizationPermission_keeps_cache_of_permissions_of_anonymous_user() {
+    OrganizationDto org = db.organizations().insert();
+    db.users().insertPermissionOnAnyone(org, PROVISIONING);
+
+    UserSession session = newAnonymousSession();
+
+    // feed the cache
+    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+
+    // change permissions without updating the cache
+    db.users().insertPermissionOnAnyone(org, SCAN_EXECUTION);
+    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), SCAN_EXECUTION)).isFalse();
+  }
+
+  @Test
   public void test_hasComponentPermission_with_anonymous_user() {
     ServerUserSession underTest = newAnonymousSession();
     ComponentDto project = db.components().insertProject();
@@ -265,6 +300,24 @@ public class ServerUserSessionTest {
     assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
     assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
   }
+
+  @Test
+  public void hasComponentPermission_keeps_cache_of_permissions_of_logged_in_user() {
+    ComponentDto project = db.components().insertProject();
+    db.users().insertProjectPermissionOnUser(userDto, UserRole.USER, project);
+
+    UserSession session = newUserSession(userDto);
+
+    // feed the cache
+    assertThat(session.hasComponentPermission(UserRole.USER, project)).isTrue();
+
+    // change permissions without updating the cache
+    db.users().deletePermissionFromUser(project, userDto, UserRole.USER);
+    db.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, project);
+    assertThat(session.hasComponentPermission(UserRole.USER, project)).isTrue();
+    assertThat(session.hasComponentPermission(UserRole.ADMIN, project)).isFalse();
+  }
+
 
   @Test
   public void isSystemAdministrator_returns_true_if_org_feature_is_enabled_and_user_is_root() {
