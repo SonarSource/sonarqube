@@ -19,13 +19,9 @@
  */
 package org.sonar.server.component.index;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHits;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -42,9 +38,11 @@ import org.sonar.server.es.ProjectIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
@@ -165,28 +163,29 @@ public class ComponentIndexerTest {
 
   @Test
   public void full_reindexing_should_not_do_anything_if_index_is_not_empty() {
-    long numberOfHits = 123L;
+    EsClient esMock = mock(EsClient.class);
 
-    // mock elasticsearch, let it have some content
-    DbClient dbClientMock = mock(DbClient.class);
-    EsClient esClientMock = mock(EsClient.class);
-    SearchRequestBuilder builderMock = mock(SearchRequestBuilder.class);
-    when(esClientMock.prepareSearch(eq(INDEX_COMPONENTS))).thenReturn(builderMock);
-    when(builderMock.setTypes(eq(TYPE_COMPONENT))).thenReturn(builderMock);
-    when(builderMock.setSize(eq(0))).thenReturn(builderMock);
-    SearchResponse response = mock(SearchResponse.class);
-    when(builderMock.get()).thenReturn(response);
-    SearchHits hits = mock(SearchHits.class);
-    when(response.getHits()).thenReturn(hits);
-    when(hits.getTotalHits()).thenReturn(numberOfHits);
-
-    // start indexing
-    new ComponentIndexer(dbClientMock, esClientMock).index();
+    // attempt to start indexing
+    ComponentIndexer indexer = spy(new ComponentIndexer(dbClient, esMock));
+    doReturn(false).when(indexer).isEmpty();
+    indexer.index();
 
     // verify, that index has not been altered
-    Mockito.verifyNoMoreInteractions(dbClientMock);
-    Mockito.verify(esClientMock).prepareSearch(eq(INDEX_COMPONENTS));
-    Mockito.verifyNoMoreInteractions(esClientMock);
+    verify(indexer).index();
+    verify(indexer).isEmpty();
+    verifyNoMoreInteractions(indexer);
+    verifyNoMoreInteractions(esMock);
+  }
+
+  @Test
+  public void isEmpty_should_return_true_if_index_is_empty() {
+    assertThat(createIndexer().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void isEmpty_should_return_false_if_index_is_not_empty() {
+    index_one_project();
+    assertThat(createIndexer().isEmpty()).isFalse();
   }
 
   private void insert(ComponentDto component) {

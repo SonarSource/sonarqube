@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
@@ -67,7 +68,8 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     }
   }
 
-  private boolean isEmpty() {
+  @VisibleForTesting
+  boolean isEmpty() {
     return esClient.prepareSearch(INDEX_COMPONENTS).setTypes(TYPE_COMPONENT).setSize(0).get().getHits().getTotalHits() <= 0;
   }
 
