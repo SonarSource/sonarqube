@@ -19,16 +19,23 @@
  */
 package org.sonarqube.ws.client.project;
 
+import com.google.common.base.Joiner;
+import org.sonarqube.ws.WsProjects;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonar.api.server.ws.WebService.Param.*;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 /**
  * Maps web service {@code api/projects}.
@@ -47,7 +54,7 @@ public class ProjectsService extends BaseService {
    */
   public CreateWsResponse create(CreateRequest project) {
     PostRequest request = new PostRequest(path(ACTION_CREATE))
-      .setParam("organization", project.getOrganization())
+      .setParam(PARAM_ORGANIZATION, project.getOrganization())
       .setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_NAME, project.getName())
       .setParam(PARAM_BRANCH, project.getBranch());
@@ -61,5 +68,15 @@ public class ProjectsService extends BaseService {
     call(new PostRequest(path("delete"))
       .setParam("id", request.getId())
       .setParam("key", request.getKey()));
+  }
+
+  public WsProjects.SearchWsResponse search(SearchWsRequest request) {
+    GetRequest get = new GetRequest(path(ACTION_SEARCH))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(request.getQualifiers()))
+      .setParam(TEXT_QUERY, request.getQuery())
+      .setParam(PAGE, request.getPage())
+      .setParam(PAGE_SIZE, request.getPageSize());
+    return call(get, WsProjects.SearchWsResponse.parser());
   }
 }

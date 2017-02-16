@@ -25,9 +25,12 @@ import org.sonarqube.ws.WsProjects;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 
 public class ProjectsServiceTest {
 
@@ -95,5 +98,25 @@ public class ProjectsServiceTest {
 
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/delete");
     assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("key", "project_key"));
+  }
+
+  @Test
+  public void search() {
+    underTest.search(SearchWsRequest.builder()
+      .setOrganization("default")
+      .setQuery("project")
+      .setQualifiers(asList("TRK", "VW"))
+      .setPage(3)
+      .setPageSize(10)
+      .build());
+
+    serviceTester.assertThat(serviceTester.getGetRequest())
+      .hasPath("search")
+      .hasParam("organization", "default")
+      .hasParam("q", "project")
+      .hasParam("qualifiers", "TRK,VW")
+      .hasParam(PAGE, 3)
+      .hasParam(PAGE_SIZE, 10)
+      .andNoOtherParam();
   }
 }
