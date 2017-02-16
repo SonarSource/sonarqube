@@ -28,10 +28,11 @@ import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
+import org.sonar.db.purge.ComponentDisabledListener;
 import org.sonar.db.purge.IdUuidPair;
+import org.sonar.db.purge.IssueRemovedListener;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
-import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
@@ -43,15 +44,18 @@ public class ProjectCleaner {
   private static final Logger LOG = Loggers.get(ProjectCleaner.class);
 
   private final PurgeProfiler profiler;
-  private final PurgeListener purgeListener;
+  private final ComponentDisabledListener componentDisabledListener;
+  private final IssueRemovedListener issueRemovedListener;
   private final PurgeDao purgeDao;
   private final DefaultPeriodCleaner periodCleaner;
 
-  public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener) {
+  public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, ComponentDisabledListener componentDisabledListener,
+    IssueRemovedListener issueRemovedListener) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
-    this.purgeListener = purgeListener;
+    this.componentDisabledListener = componentDisabledListener;
+    this.issueRemovedListener = issueRemovedListener;
   }
 
   public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Settings projectSettings, Collection<String> disabledComponentUuids) {
@@ -88,7 +92,7 @@ public class ProjectCleaner {
 
   private void doPurge(DbSession session, PurgeConfiguration configuration) {
     try {
-      purgeDao.purge(session, configuration, purgeListener, profiler);
+      purgeDao.purge(session, configuration, componentDisabledListener, issueRemovedListener, profiler);
     } catch (Exception e) {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + configuration.rootProjectIdUuid().getId() + "]", e);

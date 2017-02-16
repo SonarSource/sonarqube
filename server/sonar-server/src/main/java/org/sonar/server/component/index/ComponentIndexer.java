@@ -34,6 +34,7 @@ import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.purge.ComponentDisabledListener;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.ProjectIndexer;
@@ -45,7 +46,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
-public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable {
+public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable, ComponentDisabledListener {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_COMPONENTS, project -> true);
 
@@ -175,5 +176,10 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   @Override
   public void stop() {
     executor.shutdown();
+  }
+
+  @Override
+  public void onComponentDisabling(String uuid) {
+    esClient.prepareDelete(INDEX_COMPONENTS, TYPE_COMPONENT, uuid).execute();
   }
 }

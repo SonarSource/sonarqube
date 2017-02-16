@@ -19,11 +19,7 @@
  */
 package org.sonar.db.purge;
 
-import java.util.List;
-
-public interface PurgeListener {
+public interface ComponentDisabledListener {
 
   void onComponentDisabling(String uuid);
-
-  void onIssuesRemoval(String projectUuid, List<String> issueKeys);
 }

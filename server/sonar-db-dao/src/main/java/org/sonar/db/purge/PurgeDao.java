@@ -55,15 +55,16 @@ public class PurgeDao implements Dao {
     this.system2 = system2;
   }
 
-  public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
+  public void purge(DbSession session, PurgeConfiguration conf, ComponentDisabledListener componentDisabledListener, IssueRemovedListener issueRemovedListener,
+    PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     String rootUuid = conf.rootProjectIdUuid().getUuid();
     deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.scopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
-    purgeDisabledComponents(session, conf.getDisabledComponentUuids(), listener);
-    deleteOldClosedIssues(conf, mapper, listener);
+    purgeDisabledComponents(session, conf.getDisabledComponentUuids(), componentDisabledListener);
+    deleteOldClosedIssues(conf, mapper, issueRemovedListener);
   }
 
   private static void purgeAnalyses(PurgeCommands commands, String rootUuid) {
@@ -75,7 +76,7 @@ public class PurgeDao implements Dao {
     commands.purgeAnalyses(analysisUuids);
   }
 
-  private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
+  private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, IssueRemovedListener issueRemovedListener) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
     String rootUuid = conf.rootProjectIdUuid().getUuid();
     List<String> issueKeys = mapper.selectOldClosedIssueKeys(rootUuid, dateToLong(toDate));
@@ -87,7 +88,7 @@ public class PurgeDao implements Dao {
       mapper.deleteIssuesFromKeys(input);
       return emptyList();
     });
-    listener.onIssuesRemoval(rootUuid, issueKeys);
+    issueRemovedListener.onIssuesRemoval(rootUuid, issueKeys);
   }
 
   private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {
@@ -123,7 +124,7 @@ public class PurgeDao implements Dao {
     purgeCommands.deleteComponentMeasures(analysisUuids, componentWithoutHistoricalDataUuids);
   }
 
-  private void purgeDisabledComponents(DbSession session, Collection<String> uuids, PurgeListener listener) {
+  private void purgeDisabledComponents(DbSession session, Collection<String> uuids, ComponentDisabledListener componentDisabledListener) {
     PurgeMapper mapper = mapper(session);
     executeLargeInputs(uuids,
       input -> {
@@ -133,7 +134,7 @@ public class PurgeDao implements Dao {
       });
 
     for (String componentUuid : uuids) {
-      listener.onComponentDisabling(componentUuid);
+      componentDisabledListener.onComponentDisabling(componentUuid);
     }
 
     session.commit();
