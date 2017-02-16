@@ -40,7 +40,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public RuleDoc() {
-    super(Maps.<String, Object>newHashMap());
+    super(Maps.newHashMap());
   }
 
   @Override
@@ -59,7 +59,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public RuleKey key() {
-    return RuleKey.parse(this.<String>getField(RuleIndexDefinition.FIELD_RULE_KEY));
+    return RuleKey.parse(this.getField(RuleIndexDefinition.FIELD_RULE_KEY));
   }
 
   public RuleDoc setKey(@Nullable String s) {
@@ -128,7 +128,7 @@ public class RuleDoc extends BaseDoc {
 
   @CheckForNull
   public String severity() {
-    return (String) getNullableField(RuleIndexDefinition.FIELD_RULE_SEVERITY);
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_SEVERITY);
   }
 
   public RuleDoc setSeverity(@Nullable String s) {
@@ -138,7 +138,7 @@ public class RuleDoc extends BaseDoc {
 
   @CheckForNull
   public RuleStatus status() {
-    return RuleStatus.valueOf((String) getField(RuleIndexDefinition.FIELD_RULE_STATUS));
+    return RuleStatus.valueOf(getField(RuleIndexDefinition.FIELD_RULE_STATUS));
   }
 
   public RuleDoc setStatus(@Nullable String s) {
@@ -167,7 +167,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public Collection<String> allTags() {
-    return (Collection<String>) getField(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
+    return getField(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
   }
 
   public RuleDoc setAllTags(@Nullable Collection<String> l) {
@@ -176,7 +176,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public RuleType type() {
-    return RuleType.valueOf((String) getField(RuleIndexDefinition.FIELD_RULE_TYPE));
+    return RuleType.valueOf(getField(RuleIndexDefinition.FIELD_RULE_TYPE));
   }
 
   public RuleDoc setType(RuleType ruleType) {

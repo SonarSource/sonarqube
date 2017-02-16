@@ -41,7 +41,7 @@ public class ActiveRuleDoc extends BaseDoc {
   private final ActiveRuleKey key;
 
   public ActiveRuleDoc(ActiveRuleKey key) {
-    super(Maps.<String, Object>newHashMapWithExpectedSize(8));
+    super(Maps.newHashMapWithExpectedSize(8));
     checkNotNull(key, "ActiveRuleKey cannot be null");
     this.key = key;
     setField(FIELD_ACTIVE_RULE_KEY, key.toString());
@@ -70,7 +70,7 @@ public class ActiveRuleDoc extends BaseDoc {
   }
 
   String severity() {
-    return (String) getNullableField(FIELD_ACTIVE_RULE_SEVERITY);
+    return getNullableField(FIELD_ACTIVE_RULE_SEVERITY);
   }
 
   public ActiveRuleDoc setSeverity(@Nullable String s) {

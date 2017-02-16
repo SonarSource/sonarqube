@@ -34,7 +34,7 @@ public class UserDoc extends BaseDoc implements User {
   }
 
   public UserDoc() {
-    this(Maps.<String, Object>newHashMap());
+    this(Maps.newHashMap());
   }
 
   @Override
@@ -74,7 +74,7 @@ public class UserDoc extends BaseDoc implements User {
   }
 
   public List<String> scmAccounts() {
-    return (List<String>) getField(UserIndexDefinition.FIELD_SCM_ACCOUNTS);
+    return getField(UserIndexDefinition.FIELD_SCM_ACCOUNTS);
   }
 
   public long createdAt() {
