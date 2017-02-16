@@ -286,7 +286,7 @@ public class SetAction implements SettingsWsAction {
     }.getType();
     Gson gson = GsonHelper.create();
     try {
-      return (Map<String, String>) gson.fromJson(json, type);
+      return gson.fromJson(json, type);
     } catch (JsonSyntaxException e) {
       throw new BadRequestException(String.format("JSON '%s' does not respect expected format for setting '%s'. Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}", json, key));
     }
