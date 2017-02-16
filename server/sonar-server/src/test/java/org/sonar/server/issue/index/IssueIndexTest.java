@@ -1218,6 +1218,15 @@ public class IssueIndexTest {
   }
 
   @Test
+  public void root_user_is_authorized_to_access_all_issues() {
+    ComponentDto project = newProjectDto(newOrganizationDto());
+    indexIssue(IssueDocTesting.newDoc("I1", project));
+    userSessionRule.logIn().setRoot();
+
+    assertThat(underTest.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
+  }
+
+  @Test
   public void search_issues_for_batch_return_needed_fields() {
     ComponentDto project = newProjectDto(newOrganizationDto(), "PROJECT");
     ComponentDto file = newFileDto(project, null).setPath("src/File.xoo");

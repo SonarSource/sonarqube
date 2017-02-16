@@ -68,4 +68,14 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
     authorizationIndexerTester.allowOnlyGroup(project, group);
     assertSearchResults("sonarqube", project);
   }
+
+  @Test
+  public void do_not_check_permissions_when_logged_in_user_is_root() {
+    userSession.logIn().setRoot();
+    ComponentDto project = newProject("sonarqube", "Quality Product");
+    indexer.index(project);
+    // do not give any permissions to that project
+
+    assertSearchResults("sonarqube", project);
+  }
 }

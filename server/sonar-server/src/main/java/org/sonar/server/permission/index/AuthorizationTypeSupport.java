@@ -85,6 +85,10 @@ public class AuthorizationTypeSupport {
    * user has read access.
    */
   public QueryBuilder createQueryFilter() {
+    if (userSession.isRoot()) {
+      return QueryBuilders.matchAllQuery();
+    }
+
     Integer userId = userSession.getUserId();
     BoolQueryBuilder filter = boolQuery();
 

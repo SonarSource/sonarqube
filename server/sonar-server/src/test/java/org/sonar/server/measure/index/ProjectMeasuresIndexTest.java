@@ -273,6 +273,15 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void root_user_can_access_all_projects() {
+    indexForUser(USER1, newDoc(PROJECT1));
+    // connecting with a root but not USER1
+    userSession.logIn().setRoot();
+
+    assertResults(new ProjectMeasuresQuery(), PROJECT1);
+  }
+
+  @Test
   public void does_not_return_facet_when_no_facets_in_options() throws Exception {
     index(
         newDoc(PROJECT1, NCLOC, 10d, COVERAGE_KEY, 30d, MAINTAINABILITY_RATING, 3d)
