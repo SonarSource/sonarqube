@@ -135,6 +135,7 @@ public class FileSystemMediumTest {
   public void logProjectKeyAndOrganizationKey() throws IOException {
     builder = createBuilder();
     builder.put("sonar.organization", "my org");
+    builder.put("sonar.branch", "");
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -149,8 +150,29 @@ public class FileSystemMediumTest {
 
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
     assertThat(logs.getAllAsString()).contains("Organization key: my org");
+    assertThat(logs.getAllAsString()).doesNotContain("Branch key");
   }
-  
+
+  @Test
+  public void logBranchKey() throws IOException {
+    builder = createBuilder();
+    builder.put("sonar.branch", "my-branch");
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
+    assertThat(logs.getAllAsString()).contains("Branch key: my-branch");
+  }
+
   @Test
   public void dontLogInvalidOrganization() throws IOException {
     builder = createBuilder();
@@ -168,6 +190,7 @@ public class FileSystemMediumTest {
 
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
     assertThat(logs.getAllAsString()).doesNotContain("Organization key");
+    assertThat(logs.getAllAsString()).doesNotContain("Branch key");
   }
 
   @Test
