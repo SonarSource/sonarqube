@@ -306,12 +306,18 @@ public class NewIndex {
       return this;
     }
 
-    public NestedFieldBuilder addStringFied(String fieldName) {
-      return setProperty(fieldName, ImmutableMap.of("type", "string"));
+    public NestedFieldBuilder addStringField(String fieldName) {
+      return setProperty(fieldName, ImmutableMap.of(
+        "type", "string",
+        "index", "not_analyzed"));
     }
 
     public NestedFieldBuilder addDoubleField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "double"));
+    }
+
+    public NestedFieldBuilder addIntegerField(String fieldName) {
+      return setProperty(fieldName, ImmutableMap.of("type", "integer"));
     }
 
     public NewIndexType build() {

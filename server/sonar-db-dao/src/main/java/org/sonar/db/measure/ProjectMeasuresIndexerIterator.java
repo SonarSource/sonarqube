@@ -41,6 +41,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
@@ -49,6 +50,7 @@ import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
+import static org.sonar.api.utils.KeyValueFormat.parseStringInt;
 import static org.sonar.db.DatabaseUtils.repeatCondition;
 
 public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMeasuresIndexerIterator.ProjectMeasures> {
@@ -67,7 +69,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
   private static final String SQL_METRICS = "SELECT m.id, m.name FROM metrics m " +
-    "WHERE m.val_type IN ('" + METRICS_JOINER.join(METRIC_TYPES) + "') " +
+    "WHERE (m.val_type IN ('" + METRICS_JOINER.join(METRIC_TYPES) + "') OR m.name=?)" +
     "AND m.enabled=?";
 
   private static final String SQL_MEASURES = "SELECT pm.metric_id, pm.value, pm.variation_value_1, pm.text_value FROM project_measures pm " +
@@ -112,7 +114,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static PreparedStatement createMetricsStatement(DbSession session) throws SQLException {
     PreparedStatement stmt = session.getConnection().prepareStatement(SQL_METRICS);
-    stmt.setBoolean(1, true);
+    stmt.setString(1, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+    stmt.setBoolean(2, true);
     return stmt;
   }
 
@@ -219,6 +222,12 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
         measures.setQualityGateStatus(textValue);
         return;
       }
+    } else if (NCLOC_LANGUAGE_DISTRIBUTION_KEY.equals(metricKey)) {
+      String textValue = rs.getString(4);
+      if (!rs.wasNull()) {
+        measures.setLanguageDistribution(textValue);
+        return;
+      }
     }
     throw new IllegalArgumentException("Measure has no value");
   }
@@ -288,6 +297,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
     private Map<String, Double> numericMeasures = new HashMap<>();
     private String qualityGateStatus;
+    private Map<String, Integer> languageDistribution = new HashMap<>();
 
     Measures addNumericMeasure(String metricKey, double value) {
       numericMeasures.put(metricKey, value);
@@ -306,6 +316,15 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     @CheckForNull
     public String getQualityGateStatus() {
       return qualityGateStatus;
+    }
+
+    Measures setLanguageDistribution(String languageDistributionValue) {
+      this.languageDistribution = parseStringInt(languageDistributionValue);
+      return this;
+    }
+
+    public Map<String, Integer> getLanguageDistribution() {
+      return languageDistribution;
     }
   }
 

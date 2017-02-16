@@ -122,7 +122,7 @@ public class NewIndexTest {
     NewIndex.NewIndexType mapping = index.createType("projectmeasures");
 
     mapping.nestedFieldBuilder("measures")
-      .addStringFied("key")
+      .addStringField("key")
       .addDoubleField("value")
       .build();
     Map<String, Object> result = (Map) mapping.getProperty("measures");

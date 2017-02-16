@@ -56,10 +56,12 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
@@ -81,6 +83,9 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
+
+  private static final String FIELD_LANGUAGES_KEY = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_KEY;
+  private static final String FIELD_LANGUAGES_VALUE = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_VALUE;
 
   private final AuthorizationTypeSupport authorizationTypeSupport;
 
@@ -128,28 +133,32 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters) {
-    if (!options.getFacets().isEmpty()) {
-      if (options.getFacets().contains(NCLOC_KEY)) {
-        addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
-      }
-      if (options.getFacets().contains(DUPLICATED_LINES_DENSITY_KEY)) {
-        addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
-      }
-      if (options.getFacets().contains(COVERAGE_KEY)) {
-        addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
-      }
-      if (options.getFacets().contains(SQALE_RATING_KEY)) {
-        addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
-      }
-      if (options.getFacets().contains(RELIABILITY_RATING_KEY)) {
-        addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
-      }
-      if (options.getFacets().contains(SECURITY_RATING_KEY)) {
-        addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
-      }
-      if (options.getFacets().contains(ALERT_STATUS_KEY)) {
-        esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
-      }
+    if (options.getFacets().isEmpty()) {
+      return;
+    }
+    if (options.getFacets().contains(NCLOC_KEY)) {
+      addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
+    }
+    if (options.getFacets().contains(DUPLICATED_LINES_DENSITY_KEY)) {
+      addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
+    }
+    if (options.getFacets().contains(COVERAGE_KEY)) {
+      addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
+    }
+    if (options.getFacets().contains(SQALE_RATING_KEY)) {
+      addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
+    }
+    if (options.getFacets().contains(RELIABILITY_RATING_KEY)) {
+      addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
+    }
+    if (options.getFacets().contains(SECURITY_RATING_KEY)) {
+      addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
+    }
+    if (options.getFacets().contains(ALERT_STATUS_KEY)) {
+      esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
+    }
+    if (options.getFacets().contains(NCLOC_LANGUAGE_DISTRIBUTION_KEY)) {
+      esSearch.addAggregation(createStickyFacet(NCLOC_LANGUAGE_DISTRIBUTION_KEY, filters, createLanguagesFacet()));
     }
   }
 
@@ -214,6 +223,16 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .filter(Metric.Level.ERROR.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.ERROR.name()))
       .filter(Metric.Level.WARN.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.WARN.name()))
       .filter(Metric.Level.OK.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.OK.name()));
+  }
+
+  private static AbstractAggregationBuilder createLanguagesFacet() {
+    return AggregationBuilders.nested("nested_" + NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+      .path(FIELD_LANGUAGES)
+      .subAggregation(
+        AggregationBuilders.terms(NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+          .field(FIELD_LANGUAGES_KEY)
+          .subAggregation(AggregationBuilders.sum("size_" + NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+            .field(FIELD_LANGUAGES_VALUE)));
   }
 
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
