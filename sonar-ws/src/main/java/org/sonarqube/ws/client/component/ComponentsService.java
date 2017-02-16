@@ -110,6 +110,8 @@ public class ComponentsService extends BaseService {
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_FILTER, request.getFilter())
       .setParam(Param.FACETS, request.getFacets())
+      .setParam(Param.SORT, request.getSort())
+      .setParam(Param.ASCENDING, request.getAsc())
       .setParam(Param.PAGE, request.getPage())
       .setParam(Param.PAGE_SIZE, request.getPageSize());
     return call(get, SearchProjectsWsResponse.parser());

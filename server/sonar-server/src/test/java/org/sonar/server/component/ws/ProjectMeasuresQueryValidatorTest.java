@@ -27,7 +27,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -44,9 +43,6 @@ public class ProjectMeasuresQueryValidatorTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -69,6 +65,21 @@ public class ProjectMeasuresQueryValidatorTest {
   }
 
   @Test
+  public void does_not_fail_when_sort_is_by_name() throws Exception {
+    insertValidMetric("ncloc");
+
+    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("ncloc > 10"), emptySet()).setSort("name"));
+  }
+
+  @Test
+  public void does_not_fail_when_sort_contains_an_existing_metric() throws Exception {
+    insertValidMetric("ncloc");
+    insertValidMetric("debt");
+
+    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("ncloc > 10"), emptySet()).setSort("debt"));
+  }
+
+  @Test
   public void fail_when_metric_are_not_numeric() throws Exception {
     insertMetric(createValidMetric("ncloc").setValueType(INT.name()));
     insertMetric(createValidMetric("debt").setValueType(WORK_DUR.name()));
@@ -84,10 +95,11 @@ public class ProjectMeasuresQueryValidatorTest {
   @Test
   public void fail_when_metric_is_disabled() throws Exception {
     insertMetric(createValidMetric("ncloc").setEnabled(false));
+    insertMetric(createValidMetric("debt").setEnabled(false));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Following metrics are disabled : [ncloc]");
-    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("ncloc > 10"), emptySet()));
+    expectedException.expectMessage("Following metrics are disabled : [debt, ncloc]");
+    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("ncloc > 10"), emptySet()).setSort("debt"));
   }
 
   @Test
@@ -95,8 +107,8 @@ public class ProjectMeasuresQueryValidatorTest {
     insertValidMetric("ncloc");
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown metric(s) [unknown]");
-    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("unknown > 10"), emptySet()));
+    expectedException.expectMessage("Unknown metric(s) [debt, unknown]");
+    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("unknown > 10"), emptySet()).setSort("debt"));
   }
 
   @Test
@@ -104,8 +116,8 @@ public class ProjectMeasuresQueryValidatorTest {
     insertValidMetric("ncloc");
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown metric(s) [coverage, debt]");
-    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("debt > 10 AND ncloc <= 20 AND coverage > 30"), emptySet()));
+    expectedException.expectMessage("Unknown metric(s) [coverage, debt, duplications]");
+    underTest.validate(dbSession, newProjectMeasuresQuery(toCriteria("debt > 10 AND ncloc <= 20 AND coverage > 30"), emptySet()).setSort("duplications"));
   }
 
   private void insertValidMetric(String metricKey) {

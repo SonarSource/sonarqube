@@ -21,12 +21,16 @@ package org.sonarqube.ws.client.component;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 
 public class ComponentsServiceTest {
@@ -41,6 +45,8 @@ public class ComponentsServiceTest {
     underTest.searchProjects(SearchProjectsRequest.builder()
       .setFilter("ncloc > 10")
       .setFacets(singletonList("ncloc"))
+      .setSort("coverage")
+      .setAsc(true)
       .setPage(3)
       .setPageSize(10)
       .build());
@@ -48,9 +54,29 @@ public class ComponentsServiceTest {
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("search_projects")
       .hasParam(PARAM_FILTER, "ncloc > 10")
-      .hasParam(Param.FACETS, singletonList("ncloc"))
-      .hasParam(Param.PAGE, 3)
-      .hasParam(Param.PAGE_SIZE, 10)
+      .hasParam(FACETS, singletonList("ncloc"))
+      .hasParam(SORT, "coverage")
+      .hasParam(ASCENDING, true)
+      .hasParam(PAGE, 3)
+      .hasParam(PAGE_SIZE, 10)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void search_projects_without_sort() {
+    underTest.searchProjects(SearchProjectsRequest.builder()
+      .setFilter("ncloc > 10")
+      .setFacets(singletonList("ncloc"))
+      .setPage(3)
+      .setPageSize(10)
+      .build());
+
+    serviceTester.assertThat(serviceTester.getGetRequest())
+      .hasPath("search_projects")
+      .hasParam(PARAM_FILTER, "ncloc > 10")
+      .hasParam(FACETS, singletonList("ncloc"))
+      .hasParam(PAGE, 3)
+      .hasParam(PAGE_SIZE, 10)
       .andNoOtherParam();
   }
 

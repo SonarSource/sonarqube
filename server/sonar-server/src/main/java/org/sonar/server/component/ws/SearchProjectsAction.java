@@ -59,11 +59,13 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.core.util.stream.Collectors.toSet;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.hasIsFavoriteCriterion;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.toCriteria;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
@@ -72,6 +74,7 @@ import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PA
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_SIZE;
 
 public class SearchProjectsAction implements ComponentsWsAction {
+
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
   private final ProjectMeasuresQueryValidator queryValidator;
@@ -131,6 +134,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>'WARN' for Warning</li>" +
         " <li>'ERROR' for Failed</li>" +
         "</ul>");
+
+    action.createParam(Param.SORT)
+      .setDescription("Sort projects by numeric metric key or by name.<br/>" +
+        "See '%s' parameter description for the possible metric values", PARAM_FILTER)
+      .setDefaultValue(SORT_BY_NAME)
+      .setExampleValue(NCLOC_KEY);
+    action.createParam(Param.ASCENDING)
+      .setDescription("Ascending sort")
+      .setBooleanPossibleValues()
+      .setDefaultValue(true);
   }
 
   @Override
@@ -169,12 +182,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
-    List<String> criteria = toCriteria(firstNonNull(request.getFilter(), ""));
-
     Set<String> favoriteProjectUuids = loadFavoriteProjectUuids(dbSession);
+
+    List<String> criteria = toCriteria(firstNonNull(request.getFilter(), ""));
     Set<String> projectUuids = buildFilterOnFavoriteProjectUuids(criteria, favoriteProjectUuids);
 
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, projectUuids);
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, projectUuids)
+      .setSort(request.getSort())
+      .setAsc(request.getAsc());
     Optional.ofNullable(organization)
       .map(OrganizationDto::getUuid)
       .ifPresent(query::setOrganizationUuid);
@@ -226,6 +241,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
     SearchProjectsRequest.Builder request = SearchProjectsRequest.builder()
       .setOrganization(httpRequest.param(PARAM_ORGANIZATION))
       .setFilter(httpRequest.param(PARAM_FILTER))
+      .setSort(httpRequest.mandatoryParam(Param.SORT))
+      .setAsc(httpRequest.mandatoryParamAsBoolean(Param.ASCENDING))
       .setPage(httpRequest.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(httpRequest.mandatoryParamAsInt(Param.PAGE_SIZE));
     if (httpRequest.hasParam(Param.FACETS)) {

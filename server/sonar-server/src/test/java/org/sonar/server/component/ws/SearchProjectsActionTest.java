@@ -62,9 +62,16 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SORT;
+import static org.sonar.core.util.stream.Collectors.toList;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -115,10 +122,21 @@ public class SearchProjectsActionTest {
     assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
+    assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p");
+
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
     assertThat(organization.description()).isEqualTo("the organization to search projects in");
     assertThat(organization.since()).isEqualTo("6.3");
+
+    Param sort = def.param("s");
+    assertThat(sort.defaultValue()).isEqualTo("name");
+    assertThat(sort.exampleValue()).isEqualTo("ncloc");
+    assertThat(sort.possibleValues()).isNull();
+
+    Param asc = def.param("asc");
+    assertThat(asc.defaultValue()).isEqualTo("true");
+    assertThat(asc.possibleValues()).containsOnly("true", "false", "yes", "no");
   }
 
   @Test
@@ -348,6 +366,7 @@ public class SearchProjectsActionTest {
     insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
     insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
     insertMetrics(COVERAGE, NCLOC);
+
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(NCLOC)));
 
     Common.Facet facet = result.getFacets().getFacetsList().stream()
@@ -366,11 +385,53 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void fail_if_metric_is_unknown() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown metric(s) [coverage]");
+  public void default_sort_is_by_ascending_name() throws Exception {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
 
-    request.setFilter("coverage > 80");
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getName).containsExactly("Sonar Groovy", "Sonar Java", "Sonar Markdown", "Sonar Qube");
+  }
+
+  @Test
+  public void sort_by_name() throws Exception {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+
+    assertThat(call(request.setSort("name").setAsc(true)).getComponentsList()).extracting(Component::getName)
+      .containsExactly("Sonar Groovy", "Sonar Java", "Sonar Markdown", "Sonar Qube");
+    assertThat(call(request.setSort("name").setAsc(false)).getComponentsList()).extracting(Component::getName)
+      .containsExactly("Sonar Qube", "Sonar Markdown", "Sonar Java", "Sonar Groovy");
+  }
+
+  @Test
+  public void sort_by_coverage() throws Exception {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    insertMetrics(COVERAGE);
+
+    assertThat(call(request.setSort(COVERAGE).setAsc(true)).getComponentsList()).extracting(Component::getName)
+      .containsExactly("Sonar Markdown", "Sonar Qube", "Sonar Groovy", "Sonar Java");
+    assertThat(call(request.setSort(COVERAGE).setAsc(false)).getComponentsList()).extracting(Component::getName)
+      .containsExactly("Sonar Groovy", "Sonar Java", "Sonar Markdown", "Sonar Qube");
+  }
+
+  @Test
+  public void fail_when_metrics_are_unknown() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unknown metric(s) [coverage, debt]");
+
+    request.setFilter("coverage > 80").setSort("debt");
 
     call(request);
   }
@@ -386,19 +447,13 @@ public class SearchProjectsActionTest {
     SearchProjectsRequest wsRequest = requestBuilder.build();
     TestRequest httpRequest = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
-
-    String organization = wsRequest.getOrganization();
-    if (organization != null) {
-      httpRequest.setParam(PARAM_ORGANIZATION, organization);
-    }
-    httpRequest.setParam(Param.PAGE, String.valueOf(wsRequest.getPage()));
-    httpRequest.setParam(Param.PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
-    String filter = wsRequest.getFilter();
-    if (filter != null) {
-      httpRequest.setParam(PARAM_FILTER, filter);
-    }
-    httpRequest.setParam(Param.FACETS, Joiner.on(",").join(wsRequest.getFacets()));
-
+    ofNullable(wsRequest.getOrganization()).ifPresent(organization -> httpRequest.setParam(PARAM_ORGANIZATION, organization));
+    ofNullable(wsRequest.getFilter()).ifPresent(filter -> httpRequest.setParam(PARAM_FILTER, filter));
+    ofNullable(wsRequest.getSort()).ifPresent(sort -> httpRequest.setParam(SORT, sort));
+    ofNullable(wsRequest.getAsc()).ifPresent(asc -> httpRequest.setParam(ASCENDING, Boolean.toString(asc)));
+    httpRequest.setParam(PAGE, String.valueOf(wsRequest.getPage()));
+    httpRequest.setParam(PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
+    httpRequest.setParam(FACETS, Joiner.on(",").join(wsRequest.getFacets()));
     try {
       return SearchProjectsWsResponse.parseFrom(httpRequest.execute().getInputStream());
     } catch (IOException e) {

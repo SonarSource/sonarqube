@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class SearchProjectsRequest {
+
   public static final int MAX_PAGE_SIZE = 500;
   public static final int DEFAULT_PAGE_SIZE = 100;
 
@@ -36,6 +37,8 @@ public class SearchProjectsRequest {
   private final String organization;
   private final String filter;
   private final List<String> facets;
+  private final String sort;
+  private final Boolean asc;
 
   private SearchProjectsRequest(Builder builder) {
     this.page = builder.page;
@@ -43,6 +46,8 @@ public class SearchProjectsRequest {
     this.organization = builder.organization;
     this.filter = builder.filter;
     this.facets = builder.facets;
+    this.sort = builder.sort;
+    this.asc = builder.asc;
   }
 
   @CheckForNull
@@ -59,12 +64,22 @@ public class SearchProjectsRequest {
     return facets;
   }
 
+  @CheckForNull
+  public String getSort() {
+    return sort;
+  }
+
   public int getPageSize() {
     return pageSize;
   }
 
   public int getPage() {
     return page;
+  }
+
+  @CheckForNull
+  public Boolean getAsc() {
+    return asc;
   }
 
   public static Builder builder() {
@@ -77,6 +92,8 @@ public class SearchProjectsRequest {
     private Integer pageSize;
     private String filter;
     private List<String> facets = new ArrayList<>();
+    private String sort;
+    private Boolean asc;
 
     private Builder() {
       // enforce static factory method
@@ -104,6 +121,16 @@ public class SearchProjectsRequest {
 
     public Builder setPageSize(int pageSize) {
       this.pageSize = pageSize;
+      return this;
+    }
+
+    public Builder setSort(@Nullable String sort) {
+      this.sort = sort;
+      return this;
+    }
+
+    public Builder setAsc(boolean asc) {
+      this.asc = asc;
       return this;
     }
 

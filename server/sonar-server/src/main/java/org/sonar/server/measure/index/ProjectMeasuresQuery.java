@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 
@@ -31,10 +32,15 @@ import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
 public class ProjectMeasuresQuery {
+
+  public static final String SORT_BY_NAME = "name";
+
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus;
-  private String organizationUuid = null;
-  private Set<String> projectUuids = null;
+  private String organizationUuid;
+  private Set<String> projectUuids;
+  private String sort;
+  private boolean asc = true;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);
@@ -72,25 +78,23 @@ public class ProjectMeasuresQuery {
     return Optional.ofNullable(projectUuids);
   }
 
-  public enum Operator {
-    LT("<"), LTE("<="), GT(">"), GTE(">="), EQ("=");
+  @CheckForNull
+  public String getSort() {
+    return sort;
+  }
 
-    String value;
+  public ProjectMeasuresQuery setSort(@Nullable String sort) {
+    this.sort = sort;
+    return this;
+  }
 
-    Operator(String value) {
-      this.value = value;
-    }
+  public boolean isAsc() {
+    return asc;
+  }
 
-    String getValue() {
-      return value;
-    }
-
-    public static Operator getByValue(String value) {
-      return stream(Operator.values())
-        .filter(operator -> operator.getValue().equals(value))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(format("Unknown operator '%s'", value)));
-    }
+  public ProjectMeasuresQuery setAsc(boolean asc) {
+    this.asc = asc;
+    return this;
   }
 
   public static class MetricCriterion {
@@ -114,6 +118,27 @@ public class ProjectMeasuresQuery {
 
     public double getValue() {
       return value;
+    }
+  }
+
+  public enum Operator {
+    LT("<"), LTE("<="), GT(">"), GTE(">="), EQ("=");
+
+    String value;
+
+    Operator(String value) {
+      this.value = value;
+    }
+
+    String getValue() {
+      return value;
+    }
+
+    public static Operator getByValue(String value) {
+      return stream(Operator.values())
+        .filter(operator -> operator.getValue().equals(value))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(format("Unknown operator '%s'", value)));
     }
   }
 }

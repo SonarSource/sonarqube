@@ -33,11 +33,12 @@ public class SearchWsRequest {
   private String query;
   private String language;
 
+  @CheckForNull
   public String getOrganization() {
     return organization;
   }
 
-  public SearchWsRequest setOrganization(String organization) {
+  public SearchWsRequest setOrganization(@Nullable String organization) {
     this.organization = organization;
     return this;
   }
