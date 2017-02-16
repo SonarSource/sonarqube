@@ -58,7 +58,7 @@ public class WebhookPostTaskTest {
 
   private final MapSettings settings = new MapSettings();
   private final TestWebhookCaller caller = new TestWebhookCaller();
-  private final WebhookPayloadFactory payloadFactory = new WebhookPayloadFactoryImpl();
+  private final WebhookPayloadFactory payloadFactory = new TestWebhookPayloadFactory();
   private final WebhookDeliveryStorage deliveryStorage = mock(WebhookDeliveryStorage.class);
 
   @Test

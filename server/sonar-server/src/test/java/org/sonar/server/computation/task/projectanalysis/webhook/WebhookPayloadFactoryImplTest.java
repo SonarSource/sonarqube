@@ -24,15 +24,19 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
+import org.sonar.api.platform.Server;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newConditionBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
@@ -40,11 +44,18 @@ import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newQuality
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class WebhookPayloadFactoryTest {
+public class WebhookPayloadFactoryImplTest {
 
   private static final String PROJECT_KEY = "P1";
 
-  private WebhookPayloadFactory underTest = new WebhookPayloadFactoryImpl();
+  private Server server = mock(Server.class);
+  private WebhookPayloadFactory underTest = new WebhookPayloadFactoryImpl(server);
+
+  @Before
+  public void setUp() throws Exception {
+    when(server.getPublicRootUrl()).thenReturn("http://foo");
+
+  }
 
   @Test
   public void create_payload_for_successful_analysis() {
@@ -110,7 +121,7 @@ public class WebhookPayloadFactoryTest {
       "sonar.analysis.revision", "ab45d24",
       "sonar.analysis.buildNumber", "B123",
       "not.prefixed.with.sonar.analysis", "should be ignored",
-      "foo", "should be ignored too"
+      "ignored", "should be ignored too"
     );
     PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, scannerProperties);
 
@@ -118,8 +129,7 @@ public class WebhookPayloadFactoryTest {
     assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/with_analysis_properties.json"));
     assertThat(payload.getJson())
       .doesNotContain("not.prefixed.with.sonar.analysis")
-      .doesNotContain("foo")
-      .doesNotContain("should be ignored");
+      .doesNotContain("ignored");
   }
 
   @Test
