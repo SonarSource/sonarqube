@@ -58,6 +58,7 @@ public class WebhookPostTaskTest {
 
   private final MapSettings settings = new MapSettings();
   private final TestWebhookCaller caller = new TestWebhookCaller();
+  private final WebhookPayloadFactory payloadFactory = new WebhookPayloadFactoryImpl();
   private final WebhookDeliveryStorage deliveryStorage = mock(WebhookDeliveryStorage.class);
 
   @Test
@@ -130,7 +131,7 @@ public class WebhookPostTaskTest {
 
   private void execute() {
     SettingsRepository settingsRepository = new TestSettingsRepository(settings);
-    WebhookPostTask task = new WebhookPostTask(rootHolder, settingsRepository, caller, deliveryStorage);
+    WebhookPostTask task = new WebhookPostTask(rootHolder, settingsRepository, payloadFactory, caller, deliveryStorage);
 
     PostProjectAnalysisTaskTester.of(task)
       .at(new Date())

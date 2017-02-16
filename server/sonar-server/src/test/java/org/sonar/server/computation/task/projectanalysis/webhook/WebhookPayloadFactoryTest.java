@@ -40,9 +40,11 @@ import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newQuality
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class WebhookPayloadTest {
+public class WebhookPayloadFactoryTest {
 
   private static final String PROJECT_KEY = "P1";
+
+  private WebhookPayloadFactory underTest = new WebhookPayloadFactoryImpl();
 
   @Test
   public void create_payload_for_successful_analysis() {
@@ -64,9 +66,9 @@ public class WebhookPayloadTest {
       .build();
     PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, emptyMap());
 
-    WebhookPayload payload = WebhookPayload.from(analysis);
+    WebhookPayload payload = underTest.create(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
-    assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/success.json"));
+    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/success.json"));
   }
 
   @Test
@@ -88,9 +90,9 @@ public class WebhookPayloadTest {
       .build();
     PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, emptyMap());
 
-    WebhookPayload payload = WebhookPayload.from(analysis);
+    WebhookPayload payload = underTest.create(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
-    assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/gate_condition_without_value.json"));
+    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/gate_condition_without_value.json"));
   }
 
   @Test
@@ -112,9 +114,9 @@ public class WebhookPayloadTest {
     );
     PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, scannerProperties);
 
-    WebhookPayload payload = WebhookPayload.from(analysis);
-    assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/with_analysis_properties.json"));
-    assertThat(payload.toJson())
+    WebhookPayload payload = underTest.create(analysis);
+    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/with_analysis_properties.json"));
+    assertThat(payload.getJson())
       .doesNotContain("not.prefixed.with.sonar.analysis")
       .doesNotContain("foo")
       .doesNotContain("should be ignored");
@@ -125,10 +127,10 @@ public class WebhookPayloadTest {
     CeTask ceTask = newCeTaskBuilder().setStatus(CeTask.Status.FAILED).setId("#1").build();
     PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null, emptyMap());
 
-    WebhookPayload payload = WebhookPayload.from(analysis);
+    WebhookPayload payload = underTest.create(analysis);
 
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
-    assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/failed.json"));
+    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/failed.json"));
   }
 
   private static PostProjectAnalysisTask.ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,

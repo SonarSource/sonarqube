@@ -73,7 +73,7 @@ public class WebhookDeliveryStorage {
     dto.setHttpStatus(delivery.getHttpStatus().orElse(null));
     dto.setDurationMs(delivery.getDurationInMs().orElse(null));
     dto.setErrorStacktrace(delivery.getError().map(Throwables::getStackTraceAsString).orElse(null));
-    dto.setPayload(delivery.getPayload().toJson());
+    dto.setPayload(delivery.getPayload().getJson());
     dto.setCreatedAt(delivery.getAt());
     return dto;
   }

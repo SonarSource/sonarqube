@@ -19,15 +19,27 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
-import org.sonar.core.platform.Module;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.core.platform.ComponentContainer;
 
-public class WebhookModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      WebhookCallerImpl.class,
-      WebhookDeliveryStorage.class,
-      WebhookPayloadFactoryImpl.class,
-      WebhookPostTask.class);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+
+public class WebhookModuleTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private WebhookModule underTest = new WebhookModule();
+
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    assertThat(container.size()).isEqualTo(4 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
   }
 }

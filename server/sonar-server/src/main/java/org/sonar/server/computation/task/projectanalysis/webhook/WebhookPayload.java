@@ -19,21 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Date;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.ce.posttask.CeTask;
-import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.api.ce.posttask.Project;
-import org.sonar.api.ce.posttask.QualityGate;
-import org.sonar.api.ce.posttask.ScannerContext;
-import org.sonar.api.utils.text.JsonWriter;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 
 @Immutable
 public class WebhookPayload {
@@ -50,72 +38,7 @@ public class WebhookPayload {
     return projectKey;
   }
 
-  public String toJson() {
+  public String getJson() {
     return json;
-  }
-
-  public static WebhookPayload from(PostProjectAnalysisTask.ProjectAnalysis analysis) {
-    Writer string = new StringWriter();
-    try (JsonWriter writer = JsonWriter.of(string)) {
-      writer.beginObject();
-      writeTask(writer, analysis.getCeTask());
-      Optional<Date> analysisDate = analysis.getAnalysisDate();
-      if (analysisDate.isPresent()) {
-        writer.propDateTime("analysedAt", analysisDate.get());
-      }
-      writeProject(analysis, writer, analysis.getProject());
-      writeQualityGate(writer, analysis.getQualityGate());
-      writeAnalysisProperties(writer, analysis.getScannerContext());
-      writer.endObject().close();
-      return new WebhookPayload(analysis.getProject().getKey(), string.toString());
-    }
-  }
-
-  private static void writeAnalysisProperties(JsonWriter writer, ScannerContext scannerContext) {
-    writer.name("properties");
-    writer.beginObject();
-    scannerContext.getProperties().entrySet()
-      .stream()
-      .filter(prop -> prop.getKey().startsWith(ANALYSIS_PROPERTY_PREFIX))
-      .forEach(prop ->  writer.prop(prop.getKey(), prop.getValue()));
-    writer.endObject();
-  }
-
-  private static void writeTask(JsonWriter writer, CeTask ceTask) {
-    writer.prop("taskId", ceTask.getId());
-    writer.prop("status", ceTask.getStatus().toString());
-  }
-
-  private static void writeProject(PostProjectAnalysisTask.ProjectAnalysis analysis, JsonWriter writer, Project project) {
-    writer.name("project");
-    writer.beginObject();
-    writer.prop("key", project.getKey());
-    writer.prop("name", analysis.getProject().getName());
-    writer.endObject();
-  }
-
-  private static void writeQualityGate(JsonWriter writer, @Nullable QualityGate gate) {
-    if (gate != null) {
-      writer.name("qualityGate");
-      writer.beginObject();
-      writer.prop("name", gate.getName());
-      writer.prop("status", gate.getStatus().toString());
-      writer.name("conditions").beginArray();
-      for (QualityGate.Condition condition : gate.getConditions()) {
-        writer.beginObject();
-        writer.prop("metric", condition.getMetricKey());
-        writer.prop("operator", condition.getOperator().name());
-        if (condition.getStatus() != QualityGate.EvaluationStatus.NO_VALUE) {
-          writer.prop("value", condition.getValue());
-        }
-        writer.prop("status", condition.getStatus().name());
-        writer.prop("onLeakPeriod", condition.isOnLeakPeriod());
-        writer.prop("errorThreshold", condition.getErrorThreshold());
-        writer.prop("warningThreshold", condition.getWarningThreshold());
-        writer.endObject();
-      }
-      writer.endArray();
-      writer.endObject();
-    }
   }
 }

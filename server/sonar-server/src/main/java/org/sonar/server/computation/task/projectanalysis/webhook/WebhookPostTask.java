@@ -41,13 +41,15 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
   private final TreeRootHolder rootHolder;
   private final SettingsRepository settingsRepository;
+  private final WebhookPayloadFactory payloadFactory;
   private final WebhookCaller caller;
   private final WebhookDeliveryStorage deliveryStorage;
 
-  public WebhookPostTask(TreeRootHolder rootHolder, SettingsRepository settingsRepository, WebhookCaller caller,
-    WebhookDeliveryStorage deliveryStorage) {
+  public WebhookPostTask(TreeRootHolder rootHolder, SettingsRepository settingsRepository, WebhookPayloadFactory payloadFactory,
+    WebhookCaller caller, WebhookDeliveryStorage deliveryStorage) {
     this.rootHolder = rootHolder;
     this.settingsRepository = settingsRepository;
+    this.payloadFactory = payloadFactory;
     this.caller = caller;
     this.deliveryStorage = deliveryStorage;
   }
@@ -74,7 +76,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
   }
 
   private void process(Settings settings, ProjectAnalysis analysis, Iterable<String> webhookProperties) {
-    WebhookPayload payload = WebhookPayload.from(analysis);
+    WebhookPayload payload = payloadFactory.create(analysis);
     for (String webhookProp : webhookProperties) {
       String name = settings.getString(format("%s.%s", webhookProp, WebhookProperties.NAME_FIELD));
       String url = settings.getString(format("%s.%s", webhookProp, WebhookProperties.URL_FIELD));
