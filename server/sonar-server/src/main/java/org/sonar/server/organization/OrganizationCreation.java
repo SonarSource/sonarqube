@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
@@ -32,6 +33,7 @@ import static java.util.Objects.requireNonNull;
 public interface OrganizationCreation {
   String OWNERS_GROUP_NAME = "Owners";
   String OWNERS_GROUP_DESCRIPTION_PATTERN = "Owners of organization %s";
+  String PERM_TEMPLATE_NAME = "Default template";
   String PERM_TEMPLATE_DESCRIPTION_PATTERN = "Default permission template of organization %s";
   String PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN = "%s's personal organization";
 
@@ -67,16 +69,36 @@ public interface OrganizationCreation {
   /**
    * Create a new guarded organization which details are based on the login of the specified User.
    * <p>
-   * This method create the organization and its associated elements in exactly the same was as
-   * {@link #create(DbSession, long, NewOrganization)} with the organization's details computed from the
-   * user's login:
-   * <ul>
-   *   <li>key: generated from the user's login</li>
-   *   <li>name: the user's name if set, otherwise the user's login</li>
-   *   <li>description: {@link #PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN "[name]'s personal organization"} where name
-   *       is user name (when non null and non empty) or login</li>
-   *   <li>url and avatar: null</li>
-   * </ul>
+   * This method does several operations at once:
+   * <ol>
+   *   <li>
+   *     create a guarded organization with the details computed from user's details:
+   *     <ul>
+   *       <li>key: generated from the user's login</li>
+   *       <li>name: the user's name if set, otherwise the user's login</li>
+   *       <li>description: {@link #PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN "[name]'s personal organization"} where name
+   *           is user name (when non null and non empty) or login</li>
+   *       <li>url and avatar: null</li>
+   *     </ul>
+   *   </li>
+   *   <li>give all organization wide permissions to the user</li>
+   *   <li>create a default template for the organization
+   *       <ul>
+   *         <li>name is {@link #PERM_TEMPLATE_NAME Default template}</li>
+   *         <li>description follows pattern {@link #PERM_TEMPLATE_DESCRIPTION_PATTERN} based on the organization name</li>
+   *       </ul>
+   *   </li>
+   *   <li>this permission template defines the specified permissions (which effectively makes projects public and
+   *       automatically adds new projects to the user's favorites):
+   *     <ul>
+   *       <li>project creator : {@link UserRole#ADMIN ADMIN}</li>
+   *       <li>project creator : {@link UserRole#ISSUE_ADMIN ISSUE_ADMIN}</li>
+   *       <li>project creator : {@link GlobalPermissions#SCAN_EXECUTION SCAN_EXECUTION}</li>
+   *       <li>anyone : {@link UserRole#USER USER}</li>
+   *       <li>anyone : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
+   *     </ul>
+   *   </li>
+   * </ol>
    * </p>
    *
    * @return the created organization or empty if feature is disabled
