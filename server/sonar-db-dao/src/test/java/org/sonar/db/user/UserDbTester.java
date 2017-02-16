@@ -298,6 +298,16 @@ public class UserDbTester {
     return dto;
   }
 
+  public void deletePermissionFromUser(OrganizationDto org, UserDto user, String permission) {
+    db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user.getId(), permission, org.getUuid());
+    db.commit();
+  }
+
+  public void deletePermissionFromUser(ComponentDto project, UserDto user, String permission) {
+    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user.getId(), permission, project.getId());
+    db.commit();
+  }
+
   /**
    * Grant permission on given project
    */
