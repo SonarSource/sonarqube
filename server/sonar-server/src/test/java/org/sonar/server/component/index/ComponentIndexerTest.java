@@ -32,11 +32,17 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
@@ -141,6 +147,45 @@ public class ComponentIndexerTest {
     index(project);
     assertMatches("OldFile", 0);
     assertMatches("NewFile", 1);
+  }
+
+  @Test
+  public void full_reindexing_on_empty_index() {
+
+    // insert
+    ComponentDto project = dbTester.components().insertProject();
+    dbTester.components().insertComponent(ComponentTesting.newFileDto(project).setName("OldFile"));
+
+    // verify insert
+    index();
+    assertMatches("OldFile", 1);
+  }
+
+  @Test
+  public void full_reindexing_should_not_do_anything_if_index_is_not_empty() {
+    EsClient esMock = mock(EsClient.class);
+
+    // attempt to start indexing
+    ComponentIndexer indexer = spy(new ComponentIndexer(dbClient, esMock));
+    doReturn(false).when(indexer).isEmpty();
+    indexer.index();
+
+    // verify, that index has not been altered
+    verify(indexer).index();
+    verify(indexer).isEmpty();
+    verifyNoMoreInteractions(indexer);
+    verifyNoMoreInteractions(esMock);
+  }
+
+  @Test
+  public void isEmpty_should_return_true_if_index_is_empty() {
+    assertThat(createIndexer().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void isEmpty_should_return_false_if_index_is_not_empty() {
+    index_one_project();
+    assertThat(createIndexer().isEmpty()).isFalse();
   }
 
   private void insert(ComponentDto component) {
