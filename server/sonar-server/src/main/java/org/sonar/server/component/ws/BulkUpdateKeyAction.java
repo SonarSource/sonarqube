@@ -44,10 +44,8 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_BULK_UPDATE_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DRY_RUN;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
 
 public class BulkUpdateKeyAction implements ComponentsWsAction {
@@ -93,12 +91,12 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project or module ID")
-      .setDeprecatedKey(PARAM_DEPRECATED_ID, "6.4")
+      .setDeprecatedKey("id", "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project or module key")
-      .setDeprecatedKey(PARAM_DEPRECATED_KEY, "6.4")
+      .setDeprecatedKey("key", "6.4")
       .setExampleValue("my_old_project");
 
     action.createParam(PARAM_FROM)

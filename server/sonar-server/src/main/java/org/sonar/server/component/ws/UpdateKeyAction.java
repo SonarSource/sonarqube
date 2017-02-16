@@ -32,9 +32,6 @@ import org.sonarqube.ws.client.component.UpdateWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_UPDATE_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_NEW_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_PROJECT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT_ID;
@@ -67,18 +64,18 @@ public class UpdateKeyAction implements ComponentsWsAction {
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project or module id")
-      .setDeprecatedKey(PARAM_DEPRECATED_ID, "6.4")
+      .setDeprecatedKey("id", "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project or module key")
-      .setDeprecatedKey(PARAM_DEPRECATED_KEY, "6.4")
+      .setDeprecatedKey("key", "6.4")
       .setExampleValue("my_old_project");
 
     action.createParam(PARAM_NEW_PROJECT)
       .setDescription("New component key")
       .setRequired(true)
-      .setDeprecatedKey(PARAM_DEPRECATED_NEW_KEY, "6.4")
+      .setDeprecatedKey("newKey", "6.4")
       .setExampleValue("my_new_project");
   }
 

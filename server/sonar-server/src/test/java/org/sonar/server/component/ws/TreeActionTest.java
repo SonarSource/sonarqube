@@ -68,7 +68,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
@@ -99,7 +99,7 @@ public class TreeActionTest {
     logInWithBrowsePermission(project);
 
     String response = ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, project.uuid())
+      .setParam(PARAM_COMPONENT_ID, project.uuid())
       .execute().getInput();
 
     JsonAssert.assertJson(response)
@@ -125,7 +125,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
-      .setParam(PARAM_BASE_COMPONENT_ID, "module-uuid-1")
+      .setParam(PARAM_COMPONENT_ID, "module-uuid-1")
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
@@ -155,7 +155,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
-      .setParam(PARAM_BASE_COMPONENT_ID, "module-uuid-1")
+      .setParam(PARAM_COMPONENT_ID, "module-uuid-1")
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
@@ -180,7 +180,7 @@ public class TreeActionTest {
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(PARAM_QUALIFIERS, Qualifiers.FILE)
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
+      .setParam(PARAM_COMPONENT_ID, "project-uuid"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2");
   }
@@ -201,7 +201,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_QUALIFIERS, Qualifiers.FILE));
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
@@ -224,7 +224,7 @@ public class TreeActionTest {
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(Param.SORT, "qualifier, name")
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
+      .setParam(PARAM_COMPONENT_ID, "project-uuid"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("module-uuid-1", "path/directory/", "file-uuid-1", "file-uuid-2");
   }
@@ -243,7 +243,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
-      .setParam(PARAM_BASE_COMPONENT_ID, "view-uuid")
+      .setParam(PARAM_COMPONENT_ID, "view-uuid")
       .setParam(Param.TEXT_QUERY, "name"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("project-uuid-1-copy", "sub-view-uuid");
@@ -257,7 +257,7 @@ public class TreeActionTest {
     logInWithBrowsePermission(project);
 
     TreeWsResponse response = call(ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
+      .setParam(PARAM_COMPONENT_ID, "project-uuid"));
 
     assertThat(response.getBaseComponent().getId()).isEqualTo("project-uuid");
     assertThat(response.getComponentsList()).isEmpty();
@@ -276,7 +276,7 @@ public class TreeActionTest {
     db.commit();
     logInWithBrowsePermission(developer);
 
-    TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, developer.uuid()));
+    TreeWsResponse response = call(ws.newRequest().setParam(PARAM_COMPONENT_ID, developer.uuid()));
 
     assertThat(response.getBaseComponent().getId()).isEqualTo(developer.uuid());
     assertThat(response.getComponentsCount()).isEqualTo(1);
@@ -293,7 +293,7 @@ public class TreeActionTest {
     componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
     logInWithBrowsePermission(view);
 
-    TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, view.uuid()));
+    TreeWsResponse response = call(ws.newRequest().setParam(PARAM_COMPONENT_ID, view.uuid()));
 
     assertThat(response.getBaseComponent().getId()).isEqualTo(view.uuid());
     assertThat(response.getComponentsCount()).isEqualTo(1);
@@ -311,7 +311,7 @@ public class TreeActionTest {
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT_ID, "project-uuid")
       .execute();
   }
 
@@ -323,7 +323,7 @@ public class TreeActionTest {
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT_ID, "project-uuid")
       .setParam(Param.PAGE_SIZE, "501")
       .execute();
   }
@@ -336,7 +336,7 @@ public class TreeActionTest {
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT_ID, "project-uuid")
       .setParam(Param.TEXT_QUERY, "fi")
       .execute();
   }
@@ -348,7 +348,7 @@ public class TreeActionTest {
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT_ID, "project-uuid")
       .setParam(Param.SORT, "unknown-sort")
       .execute();
   }
@@ -360,7 +360,7 @@ public class TreeActionTest {
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_STRATEGY, "unknown-strategy")
       .execute();
   }
@@ -370,14 +370,14 @@ public class TreeActionTest {
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT_ID, "project-uuid")
       .execute();
   }
 
   @Test
   public void fail_when_no_base_component_parameter() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'baseComponentId' or 'baseComponent' must be provided, not both");
+    expectedException.expectMessage("Either 'componentId' or 'component' must be provided, not both");
 
     ws.newRequest().execute();
   }

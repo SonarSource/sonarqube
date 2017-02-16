@@ -61,7 +61,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DRY_RUN;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PROJECT;
@@ -108,7 +107,7 @@ public class BulkUpdateKeyActionTest {
     componentDb.insertComponent(newFileDto(module2, null));
 
     String result = ws.newRequest()
-      .setParam(PARAM_DEPRECATED_KEY, "my_project")
+      .setParam(PARAM_PROJECT, "my_project")
       .setParam(PARAM_FROM, "my_")
       .setParam(PARAM_TO, "my_new_")
       .setParam(PARAM_DRY_RUN, String.valueOf(true))

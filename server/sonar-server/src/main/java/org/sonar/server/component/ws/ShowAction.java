@@ -40,10 +40,8 @@ import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentD
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DEPRECATED_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 
 public class ShowAction implements ComponentsWsAction {
   private final UserSession userSession;
@@ -90,12 +88,12 @@ public class ShowAction implements ComponentsWsAction {
 
     action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Component id")
-      .setDeprecatedKey(PARAM_DEPRECATED_ID, "6.4")
+      .setDeprecatedKey("id", "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
-      .setDeprecatedKey(PARAM_DEPRECATED_KEY, "6.4")
+      .setDeprecatedKey("key", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
