@@ -461,12 +461,7 @@ public class WebServiceTest {
         .setDescription("Show metric")
         .setSince("4.2")
         .setResponseExample(getClass().getResource("WebServiceTest/response-example.txt"))
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            show(request, response);
-          }
-        });
+        .setHandler(this::show);
 
       newController.createAction("create")
         .setDescription("Create metric")
@@ -479,12 +474,7 @@ public class WebServiceTest {
           new Changelog("6.4", "Last event"),
           new Changelog("6.0", "Old event"),
           new Changelog("4.5.6", "Very old event"))
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            create(request, response);
-          }
-        });
+        .setHandler(this::create);
 
       newController.done();
     }
