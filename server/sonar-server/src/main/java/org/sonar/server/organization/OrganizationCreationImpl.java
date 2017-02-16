@@ -168,6 +168,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ADMIN, group);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ISSUE_ADMIN, group);
+    insertGroupPermission(dbSession, permissionTemplateDto, GlobalPermissions.SCAN_EXECUTION, group);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.USER, null);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.CODEVIEWER, null);
 

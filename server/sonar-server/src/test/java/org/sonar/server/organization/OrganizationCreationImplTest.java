@@ -61,12 +61,12 @@ public class OrganizationCreationImplTest {
   private static final long ANYONE_GROUP_ID = 0L;
 
   private OrganizationCreation.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
-      .setName("a-name")
-      .setKey("a-key")
-      .setDescription("a-description")
-      .setUrl("a-url")
-      .setAvatarUrl("a-avatar")
-      .build();
+    .setName("a-name")
+    .setKey("a-key")
+    .setDescription("a-description")
+    .setUrl("a-url")
+    .setAvatarUrl("a-avatar")
+    .build();
 
   private System2 system2 = mock(System2.class);
 
@@ -96,7 +96,7 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_throws_exception_thrown_by_checkValidKey() throws OrganizationCreation.KeyConflictException {
     when(organizationValidation.checkKey(FULL_POPULATED_NEW_ORGANIZATION.getKey()))
-        .thenThrow(exceptionThrownByOrganizationValidation);
+      .thenThrow(exceptionThrownByOrganizationValidation);
 
     createThrowsExceptionThrownByOrganizationValidation();
   }
@@ -176,9 +176,9 @@ public class OrganizationCreationImplTest {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
 
     underTest.create(dbSession, SOME_USER_ID, newOrganizationBuilder()
-        .setKey("key")
-        .setName("name")
-        .build());
+      .setKey("key")
+      .setName("name")
+      .build());
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "key").get();
     assertThat(organization.getKey()).isEqualTo("key");
@@ -205,10 +205,10 @@ public class OrganizationCreationImplTest {
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
     assertThat(defaultTemplates.getViewUuid()).isNull();
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
-        .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-        .containsOnly(
-            tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN),
-            tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(
+        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
   }
 
   @Test
@@ -272,7 +272,7 @@ public class OrganizationCreationImplTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can't create organization with key '" + SLUG_OF_A_LOGIN + "' for new user '" + A_LOGIN
-        + "' because an organization with this key already exists");
+      + "' because an organization with this key already exists");
 
     underTest.createForUser(dbSession, user);
   }
@@ -288,7 +288,7 @@ public class OrganizationCreationImplTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()))
-        .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
+      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
   }
 
   @Test
@@ -308,18 +308,18 @@ public class OrganizationCreationImplTest {
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
     List<GroupDto> groups = dbClient.groupDao().selectByOrganizationUuid(dbSession, organization.getUuid());
     assertThat(groups)
-        .extracting(GroupDto::getName)
-        .containsOnly("Owners");
+      .extracting(GroupDto::getName)
+      .containsOnly("Owners");
     GroupDto groupDto = groups.iterator().next();
     assertThat(groupDto.getDescription()).isEqualTo("Owners of organization " + organizationName);
     assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
-        .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
+      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
     List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
-        dbSession,
-        UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
+      dbSession,
+      UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
     assertThat(members)
-        .extracting(UserMembershipDto::getLogin)
-        .containsOnly(user.getLogin());
+      .extracting(UserMembershipDto::getLogin)
+      .containsOnly(user.getLogin());
   }
 
   @Test
@@ -339,12 +339,12 @@ public class OrganizationCreationImplTest {
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
     assertThat(defaultTemplates.getViewUuid()).isNull();
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
-        .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-        .containsOnly(tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
     assertThat(dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, Collections.singletonList(defaultTemplate.getId())))
-        .extracting(PermissionTemplateCharacteristicDto::getWithProjectCreator, PermissionTemplateCharacteristicDto::getPermission)
-        .containsOnly(
-            tuple(true, UserRole.ADMIN), tuple(true, UserRole.ISSUE_ADMIN), tuple(true, GlobalPermissions.SCAN_EXECUTION));
+      .extracting(PermissionTemplateCharacteristicDto::getWithProjectCreator, PermissionTemplateCharacteristicDto::getPermission)
+      .containsOnly(
+        tuple(true, UserRole.ADMIN), tuple(true, UserRole.ISSUE_ADMIN), tuple(true, GlobalPermissions.SCAN_EXECUTION));
   }
 
   @Test

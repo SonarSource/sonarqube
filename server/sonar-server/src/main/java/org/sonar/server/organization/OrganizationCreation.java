@@ -44,16 +44,21 @@ public interface OrganizationCreation {
    * This method does several operations at once:
    * <ol>
    *   <li>create an ungarded organization with the specified details</li>
-   *   <li>create a group called {@link #OWNERS_GROUP_NAME Owners} with Administer Organization permission</li>
+   *   <li>create a group called {@link #OWNERS_GROUP_NAME Owners} with all organization wide permissions</li>
    *   <li>make the specified user a member of this group</li>
-   *   <li>create a default template for the organization (which name and description will follow patterns
-   *       {@link #OWNERS_GROUP_NAME} and {@link #OWNERS_GROUP_DESCRIPTION_PATTERN} based on the organization name)</li>
-   *   <li>this group defines the specified permissions (which effectively makes projects public):
+   *   <li>create a default template for the organization
+   *       <ul>
+   *         <li>name is {@link #PERM_TEMPLATE_NAME Default template}</li>
+   *         <li>description follows pattern {@link #PERM_TEMPLATE_DESCRIPTION_PATTERN} based on the organization name</li>
+   *       </ul>
+   *   </li>
+   *   <li>this permission template defines the specified permissions (which effectively makes projects public):
    *     <ul>
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link UserRole#ADMIN ADMIN}</li>
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link UserRole#ISSUE_ADMIN ISSUE_ADMIN}</li>
-   *       <li>any one : {@link UserRole#USER USER}</li>
-   *       <li>any one : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
+   *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link GlobalPermissions#SCAN_EXECUTION SCAN_EXECUTION}</li>
+   *       <li>anyone : {@link UserRole#USER USER}</li>
+   *       <li>anyone : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
    *     </ul>
    *   </li>
    * </ol>
