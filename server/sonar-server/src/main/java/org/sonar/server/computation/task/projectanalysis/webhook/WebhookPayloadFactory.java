@@ -19,15 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
-import org.sonar.core.platform.Module;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 
-public class WebhookModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      WebhookCallerImpl.class,
-      WebhookDeliveryStorage.class,
-      WebhookPayloadFactoryImpl.class,
-      WebhookPostTask.class);
-  }
+public interface WebhookPayloadFactory {
+
+  WebhookPayload create(PostProjectAnalysisTask.ProjectAnalysis analysis);
+
 }

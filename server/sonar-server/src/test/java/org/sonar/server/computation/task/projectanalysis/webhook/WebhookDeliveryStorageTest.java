@@ -68,7 +68,7 @@ public class WebhookDeliveryStorageTest {
     assertThat(dto.getCreatedAt()).isEqualTo(delivery.getAt());
     assertThat(dto.getHttpStatus()).isEqualTo(delivery.getHttpStatus().get());
     assertThat(dto.getDurationMs()).isEqualTo(delivery.getDurationInMs().get());
-    assertThat(dto.getPayload()).isEqualTo(delivery.getPayload().toJson());
+    assertThat(dto.getPayload()).isEqualTo(delivery.getPayload().getJson());
     assertThat(dto.getErrorStacktrace()).isNull();
   }
 

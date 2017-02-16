@@ -68,7 +68,7 @@ public class WebhookCallerImplTest {
     RecordedRequest recordedRequest = server.takeRequest();
     assertThat(recordedRequest.getMethod()).isEqualTo("POST");
     assertThat(recordedRequest.getPath()).isEqualTo("/ping");
-    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(payload.toJson());
+    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(payload.getJson());
     assertThat(recordedRequest.getHeader("User-Agent")).isEqualTo("SonarQube/6.2");
     assertThat(recordedRequest.getHeader("Content-Type")).isEqualTo("application/json; charset=utf-8");
     assertThat(recordedRequest.getHeader("X-SonarQube-Project")).isEqualTo(payload.getProjectKey());

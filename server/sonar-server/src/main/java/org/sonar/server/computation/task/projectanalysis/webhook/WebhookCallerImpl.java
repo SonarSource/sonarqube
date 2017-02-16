@@ -66,7 +66,7 @@ public class WebhookCallerImpl implements WebhookCaller {
     Request.Builder request = new Request.Builder();
     request.url(webhook.getUrl());
     request.header(PROJECT_KEY_HEADER, payload.getProjectKey());
-    RequestBody body = RequestBody.create(JSON, payload.toJson());
+    RequestBody body = RequestBody.create(JSON, payload.getJson());
     request.post(body);
     return request.build();
   }
