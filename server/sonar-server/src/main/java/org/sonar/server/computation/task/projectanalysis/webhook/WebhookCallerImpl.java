@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
+import java.io.IOException;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -26,6 +28,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
+
+import static java.lang.String.format;
+import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
+import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 
 @ComputeEngineSide
 public class WebhookCallerImpl implements WebhookCaller {
@@ -38,7 +46,7 @@ public class WebhookCallerImpl implements WebhookCaller {
 
   public WebhookCallerImpl(System2 system, OkHttpClient okHttpClient) {
     this.system = system;
-    this.okHttpClient = okHttpClient;
+    this.okHttpClient = newClientWithoutRedirect(okHttpClient);
   }
 
   @Override
@@ -52,7 +60,7 @@ public class WebhookCallerImpl implements WebhookCaller {
 
     try {
       Request request = buildHttpRequest(webhook, payload);
-      try (Response response = okHttpClient.newCall(request).execute()) {
+      try (Response response = execute(request)) {
         builder.setHttpStatus(response.code());
         builder.setDurationInMs((int) (system.now() - startedAt));
       }
@@ -71,4 +79,50 @@ public class WebhookCallerImpl implements WebhookCaller {
     return request.build();
   }
 
+  private Response execute(Request request) throws IOException {
+    Response response = okHttpClient.newCall(request).execute();
+    switch (response.code()) {
+      case HTTP_MOVED_PERM:
+      case HTTP_MOVED_TEMP:
+      case HTTP_TEMP_REDIRECT:
+      case HTTP_PERM_REDIRECT:
+        // OkHttpClient does not follow the redirect with the same HTTP method. A POST is
+        // redirected to a GET. Because of that the redirect must be manually
+        // implemented.
+        // See:
+        // https://github.com/square/okhttp/blob/07309c1c7d9e296014268ebd155ebf7ef8679f6c/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L316
+        // https://github.com/square/okhttp/issues/936#issuecomment-266430151
+        return followPostRedirect(response);
+      default:
+        return response;
+    }
+  }
+
+  /**
+   * Inspired by https://github.com/square/okhttp/blob/parent-3.6.0/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L286
+   */
+  private Response followPostRedirect(Response response) throws IOException {
+    String location = response.header("Location");
+    if (location == null) {
+      throw new IllegalStateException(format("Missing HTTP header 'Location' in redirect of %s", response.request().url()));
+    }
+    HttpUrl url = response.request().url().resolve(location);
+
+    // Don't follow redirects to unsupported protocols.
+    if (url == null) {
+      throw new IllegalStateException(format("Unsupported protocol in redirect of %s to %s", response.request().url(), location));
+    }
+
+    Request.Builder redirectRequest = response.request().newBuilder();
+    redirectRequest.post(response.request().body());
+    response.body().close();
+    return okHttpClient.newCall(redirectRequest.url(url).build()).execute();
+  }
+
+  private static OkHttpClient newClientWithoutRedirect(OkHttpClient client) {
+    return client.newBuilder()
+      .followRedirects(false)
+      .followSslRedirects(false)
+      .build();
+  }
 }

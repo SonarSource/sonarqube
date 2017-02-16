@@ -19,11 +19,14 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
+import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -42,45 +45,46 @@ public class WebhookCallerImplTest {
   private static final long NOW = 1_500_000_000_000L;
   private static final String PROJECT_UUID = "P_UUID1";
   private static final String CE_TASK_UUID = "CE_UUID1";
+  private static final String SOME_JSON = "{the payload}";
+  private static final WebhookPayload PAYLOAD = new WebhookPayload("P1", SOME_JSON);
 
   @Rule
   public MockWebServer server = new MockWebServer();
+
   @Rule
-  public Timeout timeout = Timeout.seconds(60);
+  public TestRule timeoutSafeguard = new DisableOnDebug(Timeout.seconds(60));
 
   private System2 system = new TestSystem2().setNow(NOW);
 
   @Test
   public void send_posts_payload_to_http_server() throws Exception {
     Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/ping").toString());
-    WebhookPayload payload = new WebhookPayload("P1", "{the payload}");
 
     server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
-    WebhookDelivery delivery = newSender().call(webhook, payload);
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus().get()).isEqualTo(201);
     assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
     assertThat(delivery.getError()).isEmpty();
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
-    assertThat(delivery.getPayload()).isSameAs(payload);
+    assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
 
     RecordedRequest recordedRequest = server.takeRequest();
     assertThat(recordedRequest.getMethod()).isEqualTo("POST");
     assertThat(recordedRequest.getPath()).isEqualTo("/ping");
-    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(payload.getJson());
+    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(PAYLOAD.getJson());
     assertThat(recordedRequest.getHeader("User-Agent")).isEqualTo("SonarQube/6.2");
     assertThat(recordedRequest.getHeader("Content-Type")).isEqualTo("application/json; charset=utf-8");
-    assertThat(recordedRequest.getHeader("X-SonarQube-Project")).isEqualTo(payload.getProjectKey());
+    assertThat(recordedRequest.getHeader("X-SonarQube-Project")).isEqualTo(PAYLOAD.getProjectKey());
   }
 
   @Test
   public void silently_catch_error_when_external_server_does_not_answer() throws Exception {
     Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/ping").toString());
-    WebhookPayload payload = new WebhookPayload("P1", "{the payload}");
 
     server.shutdown();
-    WebhookDelivery delivery = newSender().call(webhook, payload);
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs()).isEmpty();
@@ -88,15 +92,14 @@ public class WebhookCallerImplTest {
     assertThat(delivery.getErrorMessage().get()).contains("connect");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
-    assertThat(delivery.getPayload()).isSameAs(payload);
+    assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
   }
 
   @Test
   public void silently_catch_error_when_url_is_incorrect() throws Exception {
     Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", "this_is_not_an_url");
-    WebhookPayload payload = new WebhookPayload("P1", "{the payload}");
 
-    WebhookDelivery delivery = newSender().call(webhook, payload);
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs()).isEmpty();
@@ -104,7 +107,66 @@ public class WebhookCallerImplTest {
     assertThat(delivery.getErrorMessage().get()).isEqualTo("unexpected url: this_is_not_an_url");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
-    assertThat(delivery.getPayload()).isSameAs(payload);
+    assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
+  }
+
+  /**
+   * SONAR-8799
+   */
+  @Test
+  public void redirects_should_be_followed_with_POST_method() throws Exception {
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/redirect").toString());
+
+    // /redirect redirects to /target
+    server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", server.url("target")));
+    server.enqueue(new MockResponse().setResponseCode(200));
+
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+
+    assertThat(delivery.getHttpStatus().get()).isEqualTo(200);
+    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
+    assertThat(delivery.getError()).isEmpty();
+    assertThat(delivery.getAt()).isEqualTo(NOW);
+    assertThat(delivery.getWebhook()).isSameAs(webhook);
+    assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
+
+    takeAndVerifyPostRequest("/redirect");
+    takeAndVerifyPostRequest("/target");
+  }
+
+  @Test
+  public void redirects_throws_ISE_if_header_Location_is_missing() throws Exception {
+    HttpUrl url = server.url("/redirect");
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", url.toString());
+
+    server.enqueue(new MockResponse().setResponseCode(307));
+
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+
+    Throwable error = delivery.getError().get();
+    assertThat(error).isInstanceOf(IllegalStateException.class);
+    assertThat(error).hasMessage("Missing HTTP header 'Location' in redirect of " + url);
+  }
+
+  @Test
+  public void redirects_throws_ISE_if_header_Location_does_not_relate_to_a_supported_protocol() throws Exception {
+    HttpUrl url = server.url("/redirect");
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", url.toString());
+
+    server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "ftp://foo"));
+
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+
+    Throwable error = delivery.getError().get();
+    assertThat(error).isInstanceOf(IllegalStateException.class);
+    assertThat(error).hasMessage("Unsupported protocol in redirect of " + url + " to ftp://foo");
+  }
+
+  private void takeAndVerifyPostRequest(String expectedPath) throws Exception {
+    RecordedRequest redirectedRequest = server.takeRequest();
+
+    assertThat(redirectedRequest.getMethod()).isEqualTo("POST");
+    assertThat(redirectedRequest.getPath()).isEqualTo(expectedPath);
   }
 
   private WebhookCaller newSender() {
