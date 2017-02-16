@@ -44,6 +44,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
 import static org.sonarqube.ws.WsProjects.SearchWsResponse.newBuilder;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
@@ -68,7 +69,7 @@ public class SearchAction implements ProjectsWsAction {
       .setDescription("Search for projects or views.<br>" +
         "Requires 'System Administrator' permission")
       .setInternal(true)
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_PAGE_SIZE)
       .addSearchQuery("sona", "component names", "component keys")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);

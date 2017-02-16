@@ -24,9 +24,12 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
 
 public class SearchWsRequest {
+
   private final String organization;
   private final String query;
   private final List<String> qualifiers;
@@ -102,6 +105,7 @@ public class SearchWsRequest {
     }
 
     public SearchWsRequest build() {
+      checkArgument(pageSize == null || pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
       return new SearchWsRequest(this);
     }
   }

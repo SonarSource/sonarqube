@@ -24,7 +24,6 @@ import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
@@ -64,7 +63,6 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchActionTest {
 
@@ -253,7 +251,7 @@ public class SearchActionTest {
     WebService.Param psParam = action.param("ps");
     assertThat(psParam.isRequired()).isFalse();
     assertThat(psParam.defaultValue()).isEqualTo("100");
-    assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0.");
+    assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
   }
 
   @Test

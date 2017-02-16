@@ -21,6 +21,8 @@ package org.sonarqube.ws.client.project;
 
 public class ProjectsWsParameters {
 
+  public static final int MAX_PAGE_SIZE = 500;
+
   public static final String CONTROLLER = "api/projects";
 
   public static final String ACTION_CREATE = "create";
