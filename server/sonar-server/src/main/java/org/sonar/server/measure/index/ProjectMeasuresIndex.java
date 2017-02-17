@@ -21,6 +21,7 @@ package org.sonar.server.measure.index;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +57,6 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
@@ -69,6 +69,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -79,13 +80,25 @@ public class ProjectMeasuresIndex extends BaseIndex {
     SQALE_RATING_KEY,
     RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
-    ALERT_STATUS_KEY);
+    ALERT_STATUS_KEY,
+    FILTER_LANGUAGE);
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 
   private static final String FIELD_LANGUAGES_KEY = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_KEY;
   private static final String FIELD_LANGUAGES_VALUE = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_VALUE;
+
+  private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
+    .put(NCLOC_KEY, (esSearch, filters) -> addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters))
+    .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, filters) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters))
+    .put(COVERAGE_KEY, (esSearch, filters) -> addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters))
+    .put(SQALE_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, SQALE_RATING_KEY, filters))
+    .put(RELIABILITY_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters))
+    .put(SECURITY_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, filters))
+    .put(ALERT_STATUS_KEY, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet())))
+    .put(FILTER_LANGUAGE, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(FILTER_LANGUAGE, filters, createLanguagesFacet())))
+    .build();
 
   private final AuthorizationTypeSupport authorizationTypeSupport;
 
@@ -133,33 +146,10 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters) {
-    if (options.getFacets().isEmpty()) {
-      return;
-    }
-    if (options.getFacets().contains(NCLOC_KEY)) {
-      addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
-    }
-    if (options.getFacets().contains(DUPLICATED_LINES_DENSITY_KEY)) {
-      addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
-    }
-    if (options.getFacets().contains(COVERAGE_KEY)) {
-      addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
-    }
-    if (options.getFacets().contains(SQALE_RATING_KEY)) {
-      addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
-    }
-    if (options.getFacets().contains(RELIABILITY_RATING_KEY)) {
-      addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
-    }
-    if (options.getFacets().contains(SECURITY_RATING_KEY)) {
-      addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
-    }
-    if (options.getFacets().contains(ALERT_STATUS_KEY)) {
-      esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
-    }
-    if (options.getFacets().contains(NCLOC_LANGUAGE_DISTRIBUTION_KEY)) {
-      esSearch.addAggregation(createStickyFacet(NCLOC_LANGUAGE_DISTRIBUTION_KEY, filters, createLanguagesFacet()));
-    }
+    options.getFacets().stream()
+      .filter(FACET_FACTORIES::containsKey)
+      .map(FACET_FACTORIES::get)
+      .forEach(factory -> factory.addFacet(esSearch, filters));
   }
 
   private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, List<Double> thresholds, Map<String, QueryBuilder> filters) {
@@ -226,12 +216,12 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static AbstractAggregationBuilder createLanguagesFacet() {
-    return AggregationBuilders.nested("nested_" + NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+    return AggregationBuilders.nested("nested_" + FILTER_LANGUAGE)
       .path(FIELD_LANGUAGES)
       .subAggregation(
-        AggregationBuilders.terms(NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+        AggregationBuilders.terms(FILTER_LANGUAGE)
           .field(FIELD_LANGUAGES_KEY)
-          .subAggregation(AggregationBuilders.sum("size_" + NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+          .subAggregation(AggregationBuilders.sum("size_" + FILTER_LANGUAGE)
             .field(FIELD_LANGUAGES_VALUE)));
   }
 
@@ -280,6 +270,11 @@ public class ProjectMeasuresIndex extends BaseIndex {
       default:
         throw new IllegalStateException("Metric criteria non supported: " + criterion.getOperator().name());
     }
+  }
+
+  @FunctionalInterface
+  private interface FacetSetter {
+    void addFacet(SearchRequestBuilder esSearch, Map<String, QueryBuilder> filters);
   }
 
 }
