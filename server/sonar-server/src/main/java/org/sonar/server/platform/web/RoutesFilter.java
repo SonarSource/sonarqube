@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.core.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 
 public class RoutesFilter implements Filter {
@@ -52,15 +51,21 @@ public class RoutesFilter implements Filter {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
     String path = extractPath(request);
+    Predicate<Route> match = route -> route.test(path);
     List<Route> routes = ROUTES.stream()
-      .filter(route -> route.test(path))
+      .filter(match)
       .collect(Collectors.toList());
-    checkState(routes.isEmpty() || routes.size() == 1, "Multiple routes have been found for '%s'", path);
-    if (routes.isEmpty()) {
-      chain.doFilter(request, response);
-      return;
+
+    switch (routes.size()) {
+      case 0:
+        chain.doFilter(request, response);
+        break;
+      case 1:
+        response.sendRedirect(routes.get(0).apply(request));
+        break;
+      default:
+        throw new IllegalStateException(format("Multiple routes have been found for '%s'", path));
     }
-    response.sendRedirect(routes.get(0).apply(request));
   }
 
   @Override
