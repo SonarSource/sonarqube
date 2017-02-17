@@ -34,7 +34,7 @@ import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.purge.ComponentDisabledListener;
+import org.sonar.server.computation.dbcleaner.ComponentDisabledListener;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.ProjectIndexer;
