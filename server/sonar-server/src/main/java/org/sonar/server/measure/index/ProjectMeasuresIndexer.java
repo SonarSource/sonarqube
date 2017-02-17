@@ -130,7 +130,7 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
       .setOrganizationUuid(project.getOrganizationUuid())
       .setKey(project.getKey())
       .setName(project.getName())
-      .setQualityGate(projectMeasures.getMeasures().getQualityGateStatus())
+      .setQualityGateStatus(projectMeasures.getMeasures().getQualityGateStatus())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
       .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
       .setLanguages(projectMeasures.getMeasures().getLanguageDistribution());

@@ -540,7 +540,7 @@ public class SearchProjectsActionTest {
           .setKey(project.key())
           .setName(project.name())
           .setMeasures(measures)
-          .setQualityGate(qualityGateStatus)
+          .setQualityGateStatus(qualityGateStatus)
           .setLanguages(languagesDistribution));
       authorizationIndexerTester.allowOnlyAnyone(project);
     } catch (Exception e) {

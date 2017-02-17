@@ -65,7 +65,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
@@ -210,9 +210,9 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
   private static AbstractAggregationBuilder createQualityGateFacet() {
     return AggregationBuilders.filters(ALERT_STATUS_KEY)
-      .filter(Metric.Level.ERROR.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.ERROR.name()))
-      .filter(Metric.Level.WARN.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.WARN.name()))
-      .filter(Metric.Level.OK.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.OK.name()));
+      .filter(Metric.Level.ERROR.name(), termQuery(FIELD_QUALITY_GATE_STATUS, Metric.Level.ERROR.name()))
+      .filter(Metric.Level.WARN.name(), termQuery(FIELD_QUALITY_GATE_STATUS, Metric.Level.WARN.name()))
+      .filter(Metric.Level.OK.name(), termQuery(FIELD_QUALITY_GATE_STATUS, Metric.Level.OK.name()));
   }
 
   private static AbstractAggregationBuilder createLanguagesFacet() {
@@ -243,7 +243,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     });
 
     query.getQualityGateStatus()
-      .ifPresent(qualityGateStatus -> filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE, qualityGateStatus.name())));
+      .ifPresent(qualityGateStatus -> filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE_STATUS, qualityGateStatus.name())));
 
     query.getProjectUuids()
       .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));

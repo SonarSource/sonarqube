@@ -39,7 +39,6 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
@@ -134,12 +133,12 @@ public class ProjectMeasuresDoc extends BaseDoc {
   }
 
   @CheckForNull
-  public String getQualityGate() {
-    return getField(FIELD_QUALITY_GATE);
+  public String getQualityGateStatus() {
+    return getField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS);
   }
 
-  public ProjectMeasuresDoc setQualityGate(@Nullable String s) {
-    setField(FIELD_QUALITY_GATE, s);
+  public ProjectMeasuresDoc setQualityGateStatus(@Nullable String s) {
+    setField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS, s);
     return this;
   }
 }

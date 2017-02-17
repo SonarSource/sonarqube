@@ -239,9 +239,9 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void filter_on_quality_gate_status() {
     index(
-      newDoc(PROJECT1).setQualityGate("OK"),
-      newDoc(PROJECT2).setQualityGate("OK"),
-      newDoc(PROJECT3).setQualityGate("WARN"));
+      newDoc(PROJECT1).setQualityGateStatus("OK"),
+      newDoc(PROJECT2).setQualityGateStatus("OK"),
+      newDoc(PROJECT3).setQualityGateStatus("WARN"));
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery().setQualityGateStatus(OK);
     assertResults(query, PROJECT1, PROJECT2);
@@ -339,7 +339,7 @@ public class ProjectMeasuresIndexTest {
   public void does_not_return_facet_when_no_facets_in_options() throws Exception {
     index(
       newDoc(PROJECT1, NCLOC, 10d, COVERAGE_KEY, 30d, MAINTAINABILITY_RATING, 3d)
-        .setQualityGate(OK.name()));
+        .setQualityGateStatus(OK.name()));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
 
@@ -846,17 +846,17 @@ public class ProjectMeasuresIndexTest {
   public void facet_quality_gate() {
     index(
       // 2 docs with QG OK
-      newDoc().setQualityGate(OK.name()),
-      newDoc().setQualityGate(OK.name()),
+      newDoc().setQualityGateStatus(OK.name()),
+      newDoc().setQualityGateStatus(OK.name()),
       // 3 docs with QG WARN
-      newDoc().setQualityGate(WARN.name()),
-      newDoc().setQualityGate(WARN.name()),
-      newDoc().setQualityGate(WARN.name()),
+      newDoc().setQualityGateStatus(WARN.name()),
+      newDoc().setQualityGateStatus(WARN.name()),
+      newDoc().setQualityGateStatus(WARN.name()),
       // 4 docs with QG ERROR
-      newDoc().setQualityGate(ERROR.name()),
-      newDoc().setQualityGate(ERROR.name()),
-      newDoc().setQualityGate(ERROR.name()),
-      newDoc().setQualityGate(ERROR.name()));
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()));
 
     LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);
 
@@ -870,17 +870,17 @@ public class ProjectMeasuresIndexTest {
   public void facet_quality_gate_is_sticky() {
     index(
       // 2 docs with QG OK
-      newDoc(NCLOC, 10d, COVERAGE, 0d).setQualityGate(OK.name()),
-      newDoc(NCLOC, 10d, COVERAGE, 0d).setQualityGate(OK.name()),
+      newDoc(NCLOC, 10d, COVERAGE, 0d).setQualityGateStatus(OK.name()),
+      newDoc(NCLOC, 10d, COVERAGE, 0d).setQualityGateStatus(OK.name()),
       // 3 docs with QG WARN
-      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGate(WARN.name()),
-      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGate(WARN.name()),
-      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGate(WARN.name()),
+      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGateStatus(WARN.name()),
+      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGateStatus(WARN.name()),
+      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGateStatus(WARN.name()),
       // 4 docs with QG ERROR
-      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGate(ERROR.name()),
-      newDoc(NCLOC, 5000d, COVERAGE, 40d).setQualityGate(ERROR.name()),
-      newDoc(NCLOC, 12000d, COVERAGE, 50d).setQualityGate(ERROR.name()),
-      newDoc(NCLOC, 13000d, COVERAGE, 60d).setQualityGate(ERROR.name()));
+      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualityGateStatus(ERROR.name()),
+      newDoc(NCLOC, 5000d, COVERAGE, 40d).setQualityGateStatus(ERROR.name()),
+      newDoc(NCLOC, 12000d, COVERAGE, 50d).setQualityGateStatus(ERROR.name()),
+      newDoc(NCLOC, 13000d, COVERAGE, 60d).setQualityGateStatus(ERROR.name()));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
       .setQualityGateStatus(ERROR)
@@ -906,20 +906,20 @@ public class ProjectMeasuresIndexTest {
     // User can see these projects
     indexForUser(USER1,
       // 2 docs with QG OK
-      newDoc().setQualityGate(OK.name()),
-      newDoc().setQualityGate(OK.name()),
+      newDoc().setQualityGateStatus(OK.name()),
+      newDoc().setQualityGateStatus(OK.name()),
       // 3 docs with QG WARN
-      newDoc().setQualityGate(WARN.name()),
-      newDoc().setQualityGate(WARN.name()),
-      newDoc().setQualityGate(WARN.name()));
+      newDoc().setQualityGateStatus(WARN.name()),
+      newDoc().setQualityGateStatus(WARN.name()),
+      newDoc().setQualityGateStatus(WARN.name()));
 
     // User cannot see these projects
     indexForUser(USER2,
       // 4 docs with QG ERROR
-      newDoc().setQualityGate(ERROR.name()),
-      newDoc().setQualityGate(ERROR.name()),
-      newDoc().setQualityGate(ERROR.name()),
-      newDoc().setQualityGate(ERROR.name()));
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()));
 
     userSession.logIn(USER1);
     LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);

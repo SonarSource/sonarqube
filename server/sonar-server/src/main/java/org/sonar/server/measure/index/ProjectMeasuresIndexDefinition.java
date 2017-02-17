@@ -34,7 +34,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
-  public static final String FIELD_QUALITY_GATE = "qualityGate";
+  public static final String FIELD_QUALITY_GATE_STATUS = "qualityGateStatus";
   public static final String FIELD_MEASURES = "measures";
   public static final String FIELD_MEASURES_KEY = "key";
   public static final String FIELD_MEASURES_VALUE = "value";
@@ -60,7 +60,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUID).build();
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_QUALITY_GATE).build();
+    mapping.stringFieldBuilder(FIELD_QUALITY_GATE_STATUS).build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
     mapping.nestedFieldBuilder(FIELD_MEASURES)
       .addStringField(FIELD_MEASURES_KEY)
