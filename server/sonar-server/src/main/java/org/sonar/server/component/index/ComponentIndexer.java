@@ -88,7 +88,6 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       case PROJECT_CREATION:
       case PROJECT_KEY_UPDATE:
       case NEW_ANALYSIS:
-        deleteProject(projectUuid);
         doIndexByProjectUuid(projectUuid);
         break;
       default:
@@ -129,6 +128,10 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       .setQuery(boolQuery()
         .filter(
           termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid))));
+  }
+
+  public void delete(String uuid) {
+    esClient.prepareDelete(INDEX_COMPONENTS, TYPE_COMPONENT, uuid).execute();
   }
 
   void index(ComponentDto... docs) {

@@ -20,6 +20,7 @@
 package org.sonar.server.computation.dbcleaner;
 
 import org.junit.Test;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
@@ -31,14 +32,17 @@ public class IndexPurgeListenerTest {
 
   TestIndexer testIndexer = mock(TestIndexer.class);
   IssueIndexer issueIndexer = mock(IssueIndexer.class);
+  ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
 
-  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer);
+  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer, componentIndexer);
 
   @Test
   public void test_onComponentDisabling() {
-    underTest.onComponentDisabling("123456");
+    String uuid = "123456";
+    underTest.onComponentDisabling(uuid);
 
-    verify(testIndexer).deleteByFile("123456");
+    verify(testIndexer).deleteByFile(uuid);
+    verify(componentIndexer).delete(uuid);
   }
 
   @Test
