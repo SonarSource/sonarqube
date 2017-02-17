@@ -32,9 +32,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.sonar.api.measures.Metric;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
@@ -60,6 +60,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresDoc.QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
@@ -209,10 +210,9 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static AbstractAggregationBuilder createQualityGateFacet() {
-    return AggregationBuilders.filters(ALERT_STATUS_KEY)
-      .filter(Metric.Level.ERROR.name(), termQuery(FIELD_QUALITY_GATE_STATUS, Metric.Level.ERROR.name()))
-      .filter(Metric.Level.WARN.name(), termQuery(FIELD_QUALITY_GATE_STATUS, Metric.Level.WARN.name()))
-      .filter(Metric.Level.OK.name(), termQuery(FIELD_QUALITY_GATE_STATUS, Metric.Level.OK.name()));
+    FiltersAggregationBuilder qualityGateStatusFilter = AggregationBuilders.filters(ALERT_STATUS_KEY);
+    QUALITY_GATE_STATUS.entrySet().forEach(entry -> qualityGateStatusFilter.filter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())));
+    return qualityGateStatusFilter;
   }
 
   private static AbstractAggregationBuilder createLanguagesFacet() {
@@ -243,7 +243,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     });
 
     query.getQualityGateStatus()
-      .ifPresent(qualityGateStatus -> filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE_STATUS, qualityGateStatus.name())));
+      .ifPresent(qualityGateStatus -> filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE_STATUS, QUALITY_GATE_STATUS.get(qualityGateStatus.name()))));
 
     query.getProjectUuids()
       .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));

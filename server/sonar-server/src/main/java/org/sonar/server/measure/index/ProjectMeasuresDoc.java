@@ -29,6 +29,9 @@ import javax.annotation.Nullable;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseDoc;
 
+import static org.sonar.api.measures.Metric.Level.ERROR;
+import static org.sonar.api.measures.Metric.Level.OK;
+import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
@@ -39,8 +42,11 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 
 public class ProjectMeasuresDoc extends BaseDoc {
+
+  public static final Map<String, Integer> QUALITY_GATE_STATUS = ImmutableMap.of(OK.name(), 1, WARN.name(), 2, ERROR.name(), 3);
 
   public ProjectMeasuresDoc() {
     super(new HashMap<>(7));
@@ -132,13 +138,9 @@ public class ProjectMeasuresDoc extends BaseDoc {
     return this;
   }
 
-  @CheckForNull
-  public String getQualityGateStatus() {
-    return getField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS);
-  }
-
   public ProjectMeasuresDoc setQualityGateStatus(@Nullable String s) {
-    setField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS, s);
+    setField(FIELD_QUALITY_GATE_STATUS, s != null ? QUALITY_GATE_STATUS.get(s) : null);
     return this;
   }
+
 }

@@ -239,9 +239,9 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void filter_on_quality_gate_status() {
     index(
-      newDoc(PROJECT1).setQualityGateStatus("OK"),
-      newDoc(PROJECT2).setQualityGateStatus("OK"),
-      newDoc(PROJECT3).setQualityGateStatus("WARN"));
+      newDoc(PROJECT1).setQualityGateStatus(OK.name()),
+      newDoc(PROJECT2).setQualityGateStatus(OK.name()),
+      newDoc(PROJECT3).setQualityGateStatus(WARN.name()));
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery().setQualityGateStatus(OK);
     assertResults(query, PROJECT1, PROJECT2);
@@ -860,7 +860,7 @@ public class ProjectMeasuresIndexTest {
 
     LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);
 
-    assertThat(result).containsExactly(
+    assertThat(result).containsOnly(
       entry(ERROR.name(), 4L),
       entry(WARN.name(), 3L),
       entry(OK.name(), 2L));
@@ -924,7 +924,7 @@ public class ProjectMeasuresIndexTest {
     userSession.logIn(USER1);
     LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);
 
-    assertThat(result).containsExactly(
+    assertThat(result).containsOnly(
       entry(ERROR.name(), 0L),
       entry(WARN.name(), 3L),
       entry(OK.name(), 2L));

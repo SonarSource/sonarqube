@@ -39,6 +39,8 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.sonar.api.measures.Metric.Level.ERROR;
+import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
@@ -96,25 +98,25 @@ public class ProjectMeasuresIndexerIteratorTest {
   @Test
   public void return_quality_gate_status_measure() throws Exception {
     MetricDto metric = insertMetric("alert_status", LEVEL);
-    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, metric, WARN.name());
+    insertProjectAndMeasure("project1", metric, WARN.name());
+    insertProjectAndMeasure("project2", metric, OK.name());
+    insertProjectAndMeasure("project3", metric, ERROR.name());
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById.get(project.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("WARN");
+    assertThat(docsById.get("project1").getMeasures().getQualityGateStatus()).isEqualTo("WARN");
+    assertThat(docsById.get("project2").getMeasures().getQualityGateStatus()).isEqualTo("OK");
+    assertThat(docsById.get("project3").getMeasures().getQualityGateStatus()).isEqualTo("ERROR");
   }
 
   @Test
   public void does_not_fail_when_quality_gate_has_no_value() throws Exception {
     MetricDto metric = insertMetric("alert_status", LEVEL);
-    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, metric, null);
+    insertProjectAndMeasure("project", metric, null);
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById.get(project.uuid()).getMeasures().getNumericMeasures()).isEmpty();
+    assertThat(docsById.get("project").getMeasures().getNumericMeasures()).isEmpty();
   }
 
   @Test
@@ -286,6 +288,12 @@ public class ProjectMeasuresIndexerIteratorTest {
         .setValueType(type.name()));
     dbSession.commit();
     return metric;
+  }
+
+  private MeasureDto insertProjectAndMeasure(String projectUuid, MetricDto metric, String value){
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), projectUuid);
+    SnapshotDto analysis1 = dbTester.components().insertProjectAndSnapshot(project);
+    return insertMeasure(project, analysis1, metric, value);
   }
 
   private MeasureDto insertMeasure(ComponentDto project, SnapshotDto analysis, MetricDto metric, double value) {
