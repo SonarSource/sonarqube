@@ -13,7 +13,7 @@
           "internal": false,
           "post": true,
           "hasResponseExample": true,
-          "history": [
+          "changelog": [
             {
               "description": "Requires 'Administer System' permission instead of 'Administer Quality Profiles'",
               "version": "6.6"

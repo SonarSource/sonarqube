@@ -28,11 +28,11 @@ import javax.annotation.concurrent.Immutable;
  * @since 6.4
  */
 @Immutable
-public class Changelog {
+public class Change {
   private final String version;
   private final String description;
 
-  public Changelog(String version, String description) {
+  public Change(String version, String description) {
     this.version = version;
     this.description = description;
   }

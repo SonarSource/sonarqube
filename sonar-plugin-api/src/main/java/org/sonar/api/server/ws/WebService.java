@@ -256,7 +256,7 @@ public interface WebService extends Definable<WebService.Context> {
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
     private URL responseExample = null;
-    private List<Changelog> history = new ArrayList<>();
+    private List<Change> changelog = new ArrayList<>();
 
     private NewAction(String key) {
       this.key = key;
@@ -336,8 +336,8 @@ public interface WebService extends Definable<WebService.Context> {
      *
      * @since 6.4
      */
-    public NewAction setHistory(Changelog... changelogs) {
-      this.history = Arrays.stream(requireNonNull(changelogs))
+    public NewAction setChangelog(Change... changes) {
+      this.changelog = Arrays.stream(requireNonNull(changes))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
 
@@ -489,7 +489,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final RequestHandler handler;
     private final Map<String, Param> params;
     private final URL responseExample;
-    private final List<Changelog> history;
+    private final List<Change> changelog;
 
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
@@ -502,7 +502,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.isInternal = newAction.isInternal;
       this.responseExample = newAction.responseExample;
       this.handler = newAction.handler;
-      this.history = newAction.history;
+      this.changelog = newAction.changelog;
 
       checkState(this.handler != null, "RequestHandler is not set on action %s", path);
       logWarningIf(isNullOrEmpty(this.description), "Description is not set on action " + path);
@@ -557,11 +557,11 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
-     * @see NewAction#setHistory(Changelog...)  
+     * @see NewAction#setChangelog(Change...)
      * @since 6.4
      */
-    public List<Changelog> history() {
-      return history;
+    public List<Change> changelog() {
+      return changelog;
     }
 
     /**

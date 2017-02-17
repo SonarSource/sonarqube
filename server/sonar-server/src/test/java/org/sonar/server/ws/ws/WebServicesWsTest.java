@@ -21,7 +21,7 @@ package org.sonar.server.ws.ws;
 
 import com.google.common.io.Resources;
 import org.junit.Test;
-import org.sonar.api.server.ws.Changelog;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
 
@@ -105,10 +105,10 @@ public class WebServicesWsTest {
         .setDeprecatedSince("5.3")
         .setPost(true)
         .setResponseExample(Resources.getResource(getClass(), "WebServicesWsTest/metrics_example.json"))
-        .setHistory(
-          new Changelog("4.5", "Deprecate database ID in response"),
-          new Changelog("6.0", "Remove database ID from response"),
-          new Changelog("6.6", "Requires 'Administer System' permission instead of 'Administer Quality Profiles'"))
+        .setChangelog(
+          new Change("4.5", "Deprecate database ID in response"),
+          new Change("6.0", "Remove database ID from response"),
+          new Change("6.6", "Requires 'Administer System' permission instead of 'Administer Quality Profiles'"))
         .setHandler((request, response) -> {
         });
 

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.sonar.api.server.ws.Changelog;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -71,8 +71,8 @@ public class IndexAction implements ProjectsWsAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "index-example.json"));
 
-    action.setHistory(
-      new Changelog("6.3", "The parameters 'desc', 'views', 'libs' and 'versions' have no effect."));
+    action.setChangelog(
+      new Change("6.3", "The parameters 'desc', 'views', 'libs' and 'versions' have no effect."));
 
     action.createParam(PARAM_PROJECT)
       .setDescription("key or ID of the project")

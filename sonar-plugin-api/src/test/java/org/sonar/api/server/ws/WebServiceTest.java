@@ -75,7 +75,7 @@ public class WebServiceTest {
     assertThat(showAction.responseExampleFormat()).isNotEmpty();
     assertThat(showAction.responseExampleAsString()).isNotEmpty();
     assertThat(showAction.deprecatedSince()).isNull();
-    assertThat(showAction.history()).isEmpty();
+    assertThat(showAction.changelog()).isEmpty();
     // same as controller
     assertThat(showAction.since()).isEqualTo("4.2");
     assertThat(showAction.isPost()).isFalse();
@@ -90,7 +90,7 @@ public class WebServiceTest {
     assertThat(createAction.since()).isEqualTo("4.1");
     assertThat(createAction.isPost()).isTrue();
     assertThat(createAction.isInternal()).isTrue();
-    assertThat(createAction.history()).extracting(Changelog::getVersion, Changelog::getDescription).containsOnly(
+    assertThat(createAction.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
       tuple("6.4", "Last event"), tuple("6.0", "Old event"), tuple("4.5.6", "Very old event"));
   }
 
@@ -470,10 +470,10 @@ public class WebServiceTest {
         .setPost(true)
         .setInternal(true)
         .setResponseExample(getClass().getResource("WebServiceTest/response-example.txt"))
-        .setHistory(
-          new Changelog("6.4", "Last event"),
-          new Changelog("6.0", "Old event"),
-          new Changelog("4.5.6", "Very old event"))
+        .setChangelog(
+          new Change("6.4", "Last event"),
+          new Change("6.0", "Old event"),
+          new Change("4.5.6", "Very old event"))
         .setHandler(this::create);
 
       newController.done();

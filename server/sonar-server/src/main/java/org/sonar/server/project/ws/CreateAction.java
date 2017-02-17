@@ -19,7 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
-import org.sonar.api.server.ws.Changelog;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -76,9 +76,9 @@ public class CreateAction implements ProjectsWsAction {
       .setResponseExample(getClass().getResource("create-example.json"))
       .setHandler(this);
 
-    action.setHistory(
-      new Changelog("6.3", "The response format has been updated and does not contain the database ID anymore"),
-      new Changelog("6.3", "The 'key' parameter has been renamed 'project'")
+    action.setChangelog(
+      new Change("6.3", "The response format has been updated and does not contain the database ID anymore"),
+      new Change("6.3", "The 'key' parameter has been renamed 'project'")
     );
 
     action.createParam(PARAM_PROJECT)

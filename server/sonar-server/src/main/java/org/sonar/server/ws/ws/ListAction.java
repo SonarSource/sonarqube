@@ -23,7 +23,7 @@ import com.google.common.collect.Ordering;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.server.ws.Changelog;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -102,7 +102,7 @@ public class ListAction implements WebServicesWsAction {
       writer.prop("internal", action.isInternal());
       writer.prop("post", action.isPost());
       writer.prop("hasResponseExample", action.responseExample() != null);
-      writeHistory(writer, action);
+      writeChangelog(writer, action);
       writeParameters(writer, action, includeInternals);
       writer.endObject();
     }
@@ -140,10 +140,10 @@ public class ListAction implements WebServicesWsAction {
     writer.endObject();
   }
 
-  private static void writeHistory(JsonWriter writer, WebService.Action action) {
-    writer.name("history").beginArray();
-    action.history().stream()
-      .sorted(Comparator.comparing(Changelog::getVersion).reversed())
+  private static void writeChangelog(JsonWriter writer, WebService.Action action) {
+    writer.name("changelog").beginArray();
+    action.changelog().stream()
+      .sorted(Comparator.comparing(Change::getVersion).reversed())
       .forEach(changelog -> {
         writer.beginObject();
         writer.prop("description", changelog.getDescription());
