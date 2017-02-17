@@ -19,6 +19,8 @@
  */
 package org.sonar.api.utils;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * @since 3.6
  */
@@ -29,16 +31,9 @@ public class Paging {
   private final int total;
 
   private Paging(int pageSize, int pageIndex, int total) {
-    if (pageSize < 1) {
-      throw new IllegalArgumentException("Page size must be strictly positive. Got " + pageSize);
-    }
-    if (pageIndex < 1) {
-      throw new IllegalArgumentException("Page index must be strictly positive. Got " + pageIndex);
-    }
-    if (total < 0) {
-      throw new IllegalArgumentException("Total items must be positive. Got " + total);
-    }
-
+    checkArgument(pageSize >= 1, "Page size must be strictly positive. Got %s", pageSize);
+    checkArgument(pageIndex >= 1, "Page index must be strictly positive. Got %s", pageIndex);
+    checkArgument(total >= 0, "Total items must be positive. Got %s", total);
     this.pageSize = pageSize;
     this.pageIndex = pageIndex;
     this.total = total;

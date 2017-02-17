@@ -34,6 +34,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -99,9 +101,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     OrganizationDto organization = insertOrganization(dbSession, newOrganization,
       dto -> dto.setGuarded(true).setUserId(newUser.getId()));
-    GroupDto group = insertOwnersGroup(dbSession, organization);
-    insertDefaultTemplate(dbSession, organization, group);
-    addCurrentUserToGroup(dbSession, group, newUser.getId());
+    GlobalPermissions.ALL.forEach(permission -> insertUserPermissions(dbSession, newUser, organization, permission));
+    insertPersonalOrgDefaultTemplate(dbSession, organization);
 
     dbSession.commit();
 
@@ -160,13 +161,14 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       new PermissionTemplateDto()
         .setOrganizationUuid(organizationDto.getUuid())
         .setUuid(uuidFactory.create())
-        .setName("Default template")
+        .setName(PERM_TEMPLATE_NAME)
         .setDescription(format(PERM_TEMPLATE_DESCRIPTION_PATTERN, organizationDto.getName()))
         .setCreatedAt(now)
         .setUpdatedAt(now));
 
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ADMIN, group);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ISSUE_ADMIN, group);
+    insertGroupPermission(dbSession, permissionTemplateDto, GlobalPermissions.SCAN_EXECUTION, group);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.USER, null);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.CODEVIEWER, null);
 
@@ -174,6 +176,42 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       dbSession,
       organizationDto.getUuid(),
       new DefaultTemplates().setProjectUuid(permissionTemplateDto.getUuid()));
+  }
+
+  private void insertPersonalOrgDefaultTemplate(DbSession dbSession, OrganizationDto organizationDto) {
+    long now = system2.now();
+    Date dateNow = new Date(now);
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(
+      dbSession,
+      new PermissionTemplateDto()
+        .setOrganizationUuid(organizationDto.getUuid())
+        .setUuid(uuidFactory.create())
+        .setName("Default template")
+        .setDescription(format(PERM_TEMPLATE_DESCRIPTION_PATTERN, organizationDto.getName()))
+        .setCreatedAt(dateNow)
+        .setUpdatedAt(dateNow));
+
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, UserRole.ADMIN, now);
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, UserRole.ISSUE_ADMIN, now);
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, GlobalPermissions.SCAN_EXECUTION, now);
+    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.USER, null);
+    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.CODEVIEWER, null);
+
+    dbClient.organizationDao().setDefaultTemplates(
+      dbSession,
+      organizationDto.getUuid(),
+      new DefaultTemplates().setProjectUuid(permissionTemplateDto.getUuid()));
+  }
+
+  private void insertProjectCreatorPermission(DbSession dbSession, PermissionTemplateDto permissionTemplateDto, String permission, long now) {
+    dbClient.permissionTemplateCharacteristicDao().insert(
+      dbSession,
+      new PermissionTemplateCharacteristicDto()
+        .setTemplateId(permissionTemplateDto.getId())
+        .setWithProjectCreator(true)
+        .setPermission(permission)
+        .setCreatedAt(now)
+        .setUpdatedAt(now));
   }
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, @Nullable GroupDto group) {
@@ -199,6 +237,12 @@ public class OrganizationCreationImpl implements OrganizationCreation {
         .setOrganizationUuid(group.getOrganizationUuid())
         .setGroupId(group.getId())
         .setRole(permission));
+  }
+
+  private void insertUserPermissions(DbSession dbSession, UserDto userDto, OrganizationDto organization, String permission) {
+    dbClient.userPermissionDao().insert(
+      dbSession,
+      new UserPermissionDto(organization.getUuid(), permission, userDto.getId(), null));
   }
 
   private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, int createUserId) {

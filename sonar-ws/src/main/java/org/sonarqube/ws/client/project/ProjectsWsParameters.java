@@ -21,15 +21,20 @@ package org.sonarqube.ws.client.project;
 
 public class ProjectsWsParameters {
 
+  public static final int MAX_PAGE_SIZE = 500;
+
   public static final String CONTROLLER = "api/projects";
 
   public static final String ACTION_CREATE = "create";
   public static final String ACTION_INDEX = "index";
+  public static final String ACTION_SEARCH = "search";
 
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_ORGANIZATION = "organization";
+  public static final String PARAM_QUALIFIERS = "qualifiers";
 
   private ProjectsWsParameters() {
     // static utils only

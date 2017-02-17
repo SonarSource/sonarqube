@@ -238,6 +238,10 @@ public class ProjectScanContainer extends ComponentContainer {
     if (StringUtils.isNotEmpty(organization)) {
       LOG.info("Organization key: {}", organization);
     }
+    String branch = tree.root().definition().getBranch();
+    if (branch != null) {
+      LOG.info("Branch key: {}", branch);
+    }
 
     LOG.debug("Start recursive analysis of project modules");
     scanRecursively(tree, tree.root());

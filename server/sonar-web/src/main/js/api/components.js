@@ -21,7 +21,7 @@
 import { getJSON, postJSON, post } from '../helpers/request';
 
 export function getComponents (data?: Object) {
-  const url = '/api/components/search';
+  const url = '/api/projects/search';
   return getJSON(url, data);
 }
 

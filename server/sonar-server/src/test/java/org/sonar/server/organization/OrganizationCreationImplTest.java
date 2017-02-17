@@ -19,8 +19,8 @@
  */
 package org.sonar.server.organization;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
@@ -57,6 +58,7 @@ public class OrganizationCreationImplTest {
   private static final String SLUG_OF_A_LOGIN = "slug-of-a-login";
   private static final String STRING_64_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   private static final String A_NAME = "a name";
+  private static final int ANYONE_GROUP_ID = 0;
 
   private OrganizationCreation.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
     .setName("a-name")
@@ -194,7 +196,19 @@ public class OrganizationCreationImplTest {
 
     underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
 
-    verifyDefaultTemplate(FULL_POPULATED_NEW_ORGANIZATION.getKey(), FULL_POPULATED_NEW_ORGANIZATION.getName());
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
+    GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
+    PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
+    assertThat(defaultTemplate.getName()).isEqualTo("Default template");
+    assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + FULL_POPULATED_NEW_ORGANIZATION.getName());
+    DefaultTemplates defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, organization.getUuid()).get();
+    assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
+    assertThat(defaultTemplates.getViewUuid()).isNull();
+    assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(
+        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
   }
 
   @Test
@@ -264,7 +278,7 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
-  public void createForUser_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
+  public void createForUser_gives_all_permissions_for_new_organization_to_current_user() throws OrganizationCreation.KeyConflictException {
     UserDto user = dbTester.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
@@ -272,14 +286,31 @@ public class OrganizationCreationImplTest {
 
     underTest.createForUser(dbSession, user);
 
-    verifyGroupOwners(user, SLUG_OF_A_LOGIN, A_NAME);
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()))
+      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
+  }
+
+  @Test
+  public void createForUser_does_not_create_any_group() throws OrganizationCreation.KeyConflictException {
+    UserDto user = dbTester.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(dbClient.groupDao().selectByOrganizationUuid(dbSession, organization.getUuid())).isEmpty();
   }
 
   private void verifyGroupOwners(UserDto user, String organizationKey, String organizationName) {
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
-    Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
-    assertThat(groupDtoOptional).isNotEmpty();
-    GroupDto groupDto = groupDtoOptional.get();
+    List<GroupDto> groups = dbClient.groupDao().selectByOrganizationUuid(dbSession, organization.getUuid());
+    assertThat(groups)
+      .extracting(GroupDto::getName)
+      .containsOnly("Owners");
+    GroupDto groupDto = groups.iterator().next();
     assertThat(groupDto.getDescription()).isEqualTo("Owners of organization " + organizationName);
     assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
       .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
@@ -300,23 +331,20 @@ public class OrganizationCreationImplTest {
 
     underTest.createForUser(dbSession, user);
 
-    verifyDefaultTemplate(SLUG_OF_A_LOGIN, A_NAME);
-  }
-
-  private void verifyDefaultTemplate(String organizationKey, String organizationName) {
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
-    GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
-    assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + organizationName);
+    assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + A_NAME);
     DefaultTemplates defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, organization.getUuid()).get();
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
     assertThat(defaultTemplates.getViewUuid()).isNull();
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
+    assertThat(dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, Collections.singletonList(defaultTemplate.getId())))
+      .extracting(PermissionTemplateCharacteristicDto::getWithProjectCreator, PermissionTemplateCharacteristicDto::getPermission)
       .containsOnly(
-        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN),
-        tuple(0, UserRole.USER), tuple(0, UserRole.CODEVIEWER));
+        tuple(true, UserRole.ADMIN), tuple(true, UserRole.ISSUE_ADMIN), tuple(true, GlobalPermissions.SCAN_EXECUTION));
   }
 
   @Test
