@@ -35,13 +35,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class RoutesFilterTest {
+public class RedirectFilterTest {
 
   HttpServletRequest request = mock(HttpServletRequest.class);
   HttpServletResponse response = mock(HttpServletResponse.class);
   FilterChain chain = mock(FilterChain.class);
 
-  RoutesFilter underTest = new RoutesFilter();
+  RedirectFilter underTest = new RedirectFilter();
 
   @Before
   public void setUp() throws Exception {

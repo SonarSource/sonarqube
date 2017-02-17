@@ -36,35 +36,35 @@ import org.sonar.core.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class RoutesFilter implements Filter {
+public class RedirectFilter implements Filter {
 
   private static final String EMPTY = "";
 
-  private static final List<Route> ROUTES = ImmutableList.of(
-    new WebServiceListRoute(),
-    new BatchRoute(),
-    new BatchBootstrapRoute(),
-    new ProfilesExportRoute());
+  private static final List<Redirect> REDIRECTS = ImmutableList.of(
+    new WebServiceListRedirect(),
+    new BatchRedirect(),
+    new BatchBootstrapRedirect(),
+    new ProfilesExportRedirect());
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
     String path = extractPath(request);
-    Predicate<Route> match = route -> route.test(path);
-    List<Route> routes = ROUTES.stream()
+    Predicate<Redirect> match = redirect -> redirect.test(path);
+    List<Redirect> redirects = REDIRECTS.stream()
       .filter(match)
       .collect(Collectors.toList());
 
-    switch (routes.size()) {
+    switch (redirects.size()) {
       case 0:
         chain.doFilter(request, response);
         break;
       case 1:
-        response.sendRedirect(routes.get(0).apply(request));
+        response.sendRedirect(redirects.get(0).apply(request));
         break;
       default:
-        throw new IllegalStateException(format("Multiple routes have been found for '%s'", path));
+        throw new IllegalStateException(format("Multiple redirects have been found for '%s'", path));
     }
   }
 
@@ -78,7 +78,7 @@ public class RoutesFilter implements Filter {
     // Nothing
   }
 
-  private interface Route extends Predicate<String>, Function<HttpServletRequest, String> {
+  private interface Redirect extends Predicate<String>, Function<HttpServletRequest, String> {
     @Override
     boolean test(String path);
 
@@ -86,7 +86,7 @@ public class RoutesFilter implements Filter {
     String apply(HttpServletRequest request);
   }
 
-  private static class WebServiceListRoute implements Route {
+  private static class WebServiceListRedirect implements Redirect {
 
     @Override
     public boolean test(String path) {
@@ -102,7 +102,7 @@ public class RoutesFilter implements Filter {
   /**
    * Old scanners were using /batch/file.jar url (see SCANNERAPI-167)
    */
-  private static class BatchRoute implements Route {
+  private static class BatchRedirect implements Redirect {
 
     private static final String BATCH_WS = "/batch";
 
@@ -121,7 +121,7 @@ public class RoutesFilter implements Filter {
   /**
    * Old scanners were using /batch_bootstrap url (see SCANNERAPI-167)
    */
-  private static class BatchBootstrapRoute implements Route {
+  private static class BatchBootstrapRedirect implements Redirect {
 
     @Override
     public boolean test(String path) {
@@ -137,7 +137,7 @@ public class RoutesFilter implements Filter {
   /**
    * Old scanners were using /profiles/export url (see SVS-130)
    */
-  private static class ProfilesExportRoute implements Route {
+  private static class ProfilesExportRedirect implements Redirect {
 
     private static final String PROFILES_EXPORT = "/profiles/export";
     private static final String API_QUALITY_PROFILE_EXPORT = "/api/qualityprofiles/export";
