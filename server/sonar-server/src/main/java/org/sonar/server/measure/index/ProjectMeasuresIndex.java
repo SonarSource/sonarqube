@@ -56,7 +56,6 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
@@ -69,6 +68,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -79,7 +79,8 @@ public class ProjectMeasuresIndex extends BaseIndex {
     SQALE_RATING_KEY,
     RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
-    ALERT_STATUS_KEY);
+    ALERT_STATUS_KEY,
+    FILTER_LANGUAGE);
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
@@ -157,8 +158,8 @@ public class ProjectMeasuresIndex extends BaseIndex {
     if (options.getFacets().contains(ALERT_STATUS_KEY)) {
       esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
     }
-    if (options.getFacets().contains(NCLOC_LANGUAGE_DISTRIBUTION_KEY)) {
-      esSearch.addAggregation(createStickyFacet(NCLOC_LANGUAGE_DISTRIBUTION_KEY, filters, createLanguagesFacet()));
+    if (options.getFacets().contains(FILTER_LANGUAGE)) {
+      esSearch.addAggregation(createStickyFacet(FILTER_LANGUAGE, filters, createLanguagesFacet()));
     }
   }
 
@@ -226,12 +227,12 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static AbstractAggregationBuilder createLanguagesFacet() {
-    return AggregationBuilders.nested("nested_" + NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+    return AggregationBuilders.nested("nested_" + FILTER_LANGUAGE)
       .path(FIELD_LANGUAGES)
       .subAggregation(
-        AggregationBuilders.terms(NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+        AggregationBuilders.terms(FILTER_LANGUAGE)
           .field(FIELD_LANGUAGES_KEY)
-          .subAggregation(AggregationBuilders.sum("size_" + NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+          .subAggregation(AggregationBuilders.sum("size_" + FILTER_LANGUAGE)
             .field(FIELD_LANGUAGES_VALUE)));
   }
 

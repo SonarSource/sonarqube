@@ -69,7 +69,7 @@ public class ProjectMeasuresIndexTest {
   private static final String COVERAGE = "coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
   private static final String NCLOC = "ncloc";
-  private static final String LANGUAGES = "ncloc_language_distribution";
+  private static final String LANGUAGES = "languages";
 
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
   private static final ComponentDto PROJECT1 = newProjectDto(ORG).setUuid("Project-1").setName("Project 1").setKey("key-1");

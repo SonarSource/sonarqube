@@ -61,10 +61,12 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
@@ -84,6 +86,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 public class SearchProjectsActionTest {
 
@@ -385,6 +388,29 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void return_languages_facet() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), ImmutableMap.of("<null>", 2, "java", 6, "xoo", 18));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), ImmutableMap.of("java", 4, "xoo", 5));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), ImmutableMap.of("xoo", 3));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), ImmutableMap.of("<null>", 5, "java", 16, "xoo", 9));
+    insertMetrics(COVERAGE, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_LANGUAGE)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> FILTER_LANGUAGE.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getProperty()).isEqualTo(FILTER_LANGUAGE);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("xoo", 35L),
+        tuple("java", 26L),
+        tuple("<null>", 7L));
+  }
+
+  @Test
   public void default_sort_is_by_ascending_name() throws Exception {
     OrganizationDto organization = db.getDefaultOrganization();
     insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
@@ -466,6 +492,10 @@ public class SearchProjectsActionTest {
   }
 
   private ComponentDto insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
+    return insertProjectInDbAndEs(project, measures, emptyMap());
+  }
+
+  private ComponentDto insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures, Map<String, Integer> languagesDistribution) {
     ComponentDto res = componentDb.insertComponent(project);
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE,
@@ -474,7 +504,8 @@ public class SearchProjectsActionTest {
           .setId(project.uuid())
           .setKey(project.key())
           .setName(project.name())
-          .setMeasures(measures));
+          .setMeasures(measures)
+          .setLanguages(languagesDistribution));
       authorizationIndexerTester.allowOnlyAnyone(project);
     } catch (Exception e) {
       Throwables.propagate(e);
@@ -490,7 +521,7 @@ public class SearchProjectsActionTest {
     dbSession.commit();
   }
 
-  private static Map<String, Object> newMeasure(String key, double value) {
+  private static Map<String, Object> newMeasure(String key, Object value) {
     return ImmutableMap.of("key", key, "value", value);
   }
 
