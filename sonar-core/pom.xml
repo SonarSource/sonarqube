@@ -107,11 +107,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.code.bean-matchers</groupId>
-      <artifactId>bean-matchers</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.simpleframework</groupId>
       <artifactId>simple</artifactId>
       <version>4.1.21</version>
