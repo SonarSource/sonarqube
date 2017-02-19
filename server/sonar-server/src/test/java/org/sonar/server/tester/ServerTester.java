@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,6 @@ import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.ServerTesterPlatform;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.TestUtils;
 
 import static org.sonar.server.platform.Platform.Startup.ALL;
 import static org.sonar.server.platform.Platform.Startup.NO_STARTUP_TASKS;
@@ -66,8 +66,8 @@ public class ServerTester extends ExternalResource {
 
   private ServerTesterPlatform platform;
   private EsServerHolder esServerHolder;
-  private final File homeDir = TestUtils.newTempDir("tmp-sq-");
-  private final List<Object> components = Lists.<Object>newArrayList(WsTester.class);
+  private final File homeDir = newTempDir("tmp-sq-");
+  private final List<Object> components = Lists.newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
   private final ServletContext servletContext = new AttributeHolderServletContext();
   private URL updateCenterUrl;
@@ -285,6 +285,14 @@ public class ServerTester extends ExternalResource {
     @Override
     public String[] getFileSuffixes() {
       return XOO_SUFFIXES;
+    }
+  }
+
+  private static File newTempDir(String prefix) {
+    try {
+      return Files.createTempDirectory(prefix).toFile();
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to create temp dir", e);
     }
   }
 }

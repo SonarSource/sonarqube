@@ -21,31 +21,10 @@ package org.sonar.test;
 
 import org.junit.Test;
 
-import java.io.File;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.test.TestUtils.getResource;
 
 public class TestUtilsTest {
-
-  @Test
-  public void testResource() {
-    File file = getResource("org/sonar/test/TestUtilsTest/getResource/foo.txt");
-    assertThat(file).exists();
-
-    file = getResource("/org/sonar/test/TestUtilsTest/getResource/foo.txt");
-    assertThat(file).exists();
-
-    file = getResource(getClass(), "getResource/foo.txt");
-    assertThat(file).exists();
-  }
-
-  @Test
-  public void testResourceNotFound() {
-    File file = getResource("org/sonar/test/TestUtilsTest/unknown.txt");
-    assertThat(file).isNull();
-  }
 
   @Test
   public void hasOnlyPrivateConstructors() {
@@ -58,18 +37,6 @@ public class TestUtilsTest {
     } catch (IllegalStateException e) {
       // ok
     }
-  }
-
-  @Test
-  public void newTempDir() throws Exception {
-    File dir1 = TestUtils.newTempDir("foo");
-    assertThat(dir1).exists().isDirectory();
-    assertThat(dir1.listFiles()).isEmpty();
-
-    File dir2 = TestUtils.newTempDir("foo");
-    assertThat(dir2).exists().isDirectory();
-    assertThat(dir2.listFiles()).isEmpty();
-    assertThat(dir2.getCanonicalPath()).isNotEqualTo(dir1.getCanonicalPath());
   }
 
   public static class OnlyPrivateConstructors {

@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -40,8 +40,8 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
-import org.sonar.test.TestUtils;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
@@ -54,7 +54,6 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
 import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
-
 
 public class TestIndexerTest {
 
@@ -173,7 +172,7 @@ public class TestIndexerTest {
     es.client().prepareIndex(INDEX, TYPE)
       .setId(uuid)
       .setRouting(projectUuid)
-      .setSource(FileUtils.readFileToString(TestUtils.getResource(this.getClass(), projectUuid + "_" + fileUuid + "_" + testName + ".json")))
+      .setSource(IOUtils.toString(getClass().getResource(format("%s/%s_%s_%s.json", getClass().getSimpleName(), projectUuid, fileUuid, testName))))
       .setRefresh(true)
       .get();
   }

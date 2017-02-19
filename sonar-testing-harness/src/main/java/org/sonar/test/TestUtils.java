@@ -19,13 +19,8 @@
  */
 package org.sonar.test;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.nio.file.Files;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Utilities for unit tests
@@ -35,39 +30,6 @@ import org.apache.commons.lang.StringUtils;
 public final class TestUtils {
 
   private TestUtils() {
-  }
-
-  /**
-   * Search for a test resource in the classpath. For example getResource("org/sonar/MyClass/foo.txt");
-   *
-   * @param path the starting slash is optional
-   * @return the resource. Null if resource not found
-   */
-  public static File getResource(String path) {
-    String resourcePath = path;
-    if (!resourcePath.startsWith("/")) {
-      resourcePath = "/" + resourcePath;
-    }
-    URL url = TestUtils.class.getResource(resourcePath);
-    if (url != null) {
-      return FileUtils.toFile(url);
-    }
-    return null;
-  }
-
-  /**
-   * Search for a resource in the classpath. For example calling the method getResource(getClass(), "myTestName/foo.txt") from
-   * the class org.sonar.Foo loads the file $basedir/src/test/resources/org/sonar/Foo/myTestName/foo.txt
-   *
-   * @return the resource. Null if resource not found
-   */
-  public static File getResource(Class baseClass, String path) {
-    String resourcePath = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
-    if (!path.startsWith("/")) {
-      resourcePath += "/";
-    }
-    resourcePath += path;
-    return getResource(resourcePath);
   }
 
   /**
@@ -89,13 +51,5 @@ public final class TestUtils {
       }
     }
     return ok;
-  }
-
-  public static File newTempDir(String prefix) {
-    try {
-      return Files.createTempDirectory(prefix).toFile();
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to create temp dir", e);
-    }
   }
 }

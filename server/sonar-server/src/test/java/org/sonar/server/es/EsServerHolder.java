@@ -20,6 +20,8 @@
 package org.sonar.server.es;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Properties;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -31,7 +33,6 @@ import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.search.SearchServer;
-import org.sonar.test.TestUtils;
 
 public class EsServerHolder {
 
@@ -90,9 +91,9 @@ public class EsServerHolder {
     client.close();
   }
 
-  public static synchronized EsServerHolder get() {
+  public static synchronized EsServerHolder get() throws IOException {
     if (HOLDER == null) {
-      File homeDir = TestUtils.newTempDir("tmp-es-");
+      File homeDir = Files.createTempDirectory("tmp-es-").toFile();
       homeDir.delete();
       homeDir.mkdir();
 
