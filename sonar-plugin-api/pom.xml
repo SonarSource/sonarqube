@@ -78,12 +78,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <!-- to be kept for backward-compatibility of org.sonar.api.design.Dependency -->
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-graph</artifactId>
-    </dependency>
-
 
     <!--
       Transitive dependencies available at runtime. They are not shaded with API

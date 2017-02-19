@@ -447,11 +447,6 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-graph</artifactId>
-        <version>5.1</version>
-      </dependency>
-      <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-plugin-api</artifactId>
         <version>${project.version}</version>
