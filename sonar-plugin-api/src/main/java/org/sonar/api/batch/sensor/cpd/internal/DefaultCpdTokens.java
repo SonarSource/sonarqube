@@ -32,6 +32,8 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.duplications.internal.pmd.TokensLine;
 
+import static java.util.Objects.requireNonNull;
+
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   private final Settings settings;
@@ -51,8 +53,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   @Override
   public DefaultCpdTokens onFile(InputFile inputFile) {
-    Preconditions.checkNotNull(inputFile, "file can't be null");
-    this.inputFile = inputFile;
+    this.inputFile = requireNonNull(inputFile, "file can't be null");
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     for (PathPattern cpdExclusion : PathPattern.create(cpdExclusions)) {
       if (cpdExclusion.match(inputFile)) {
@@ -80,8 +81,8 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   @Override
   public DefaultCpdTokens addToken(TextRange range, String image) {
-    Preconditions.checkNotNull(range, "Range should not be null");
-    Preconditions.checkNotNull(image, "Image should not be null");
+    requireNonNull(range, "Range should not be null");
+    requireNonNull(image, "Image should not be null");
     checkInputFileNotNull();
     if (excluded) {
       return this;

@@ -19,9 +19,9 @@
  */
 package org.sonar.api.batch.sensor.coverage.internal;
 
-import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
@@ -29,8 +29,8 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
@@ -39,9 +39,9 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   private int totalCoveredLines = 0;
   private int totalConditions = 0;
   private int totalCoveredConditions = 0;
-  private SortedMap<Integer, Integer> hitsByLine = Maps.newTreeMap();
-  private SortedMap<Integer, Integer> conditionsByLine = Maps.newTreeMap();
-  private SortedMap<Integer, Integer> coveredConditionsByLine = Maps.newTreeMap();
+  private SortedMap<Integer, Integer> hitsByLine = new TreeMap<>();
+  private SortedMap<Integer, Integer> conditionsByLine = new TreeMap<>();
+  private SortedMap<Integer, Integer> coveredConditionsByLine = new TreeMap<>();
 
   public DefaultCoverage() {
     super();
@@ -63,8 +63,7 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public NewCoverage ofType(CoverageType type) {
-    checkNotNull(type, "type can't be null");
-    this.type = type;
+    this.type = requireNonNull(type, "type can't be null");
     return this;
   }
 
@@ -92,7 +91,7 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   }
 
   private void validateFile() {
-    checkNotNull(inputFile, "Call onFile() first");
+    requireNonNull(inputFile, "Call onFile() first");
   }
 
   @Override

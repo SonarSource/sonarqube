@@ -34,7 +34,9 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
@@ -85,7 +87,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   @Override
   public DefaultIssue at(NewIssueLocation primaryLocation) {
     Preconditions.checkArgument(primaryLocation != null, "Cannot use a location that is null");
-    Preconditions.checkState(this.primaryLocation == null, "at() already called");
+    checkState(this.primaryLocation == null, "at() already called");
     this.primaryLocation = (DefaultIssueLocation) primaryLocation;
     Preconditions.checkArgument(this.primaryLocation.inputComponent() != null, "Cannot use a location with no input component");
     return this;
@@ -141,8 +143,8 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   @Override
   public void doSave() {
-    Preconditions.checkNotNull(this.ruleKey, "ruleKey is mandatory on issue");
-    Preconditions.checkState(primaryLocation != null, "Primary location is mandatory on every issue");
+    requireNonNull(this.ruleKey, "ruleKey is mandatory on issue");
+    checkState(primaryLocation != null, "Primary location is mandatory on every issue");
     storage.store(this);
   }
 

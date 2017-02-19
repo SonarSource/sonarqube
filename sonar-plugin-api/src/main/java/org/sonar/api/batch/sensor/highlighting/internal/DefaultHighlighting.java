@@ -32,6 +32,8 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
+import static java.util.Objects.requireNonNull;
+
 public class DefaultHighlighting extends DefaultStorable implements NewHighlighting {
 
   private final List<SyntaxHighlightingRule> syntaxHighlightingRules;
@@ -64,7 +66,7 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
 
   @Override
   public DefaultHighlighting onFile(InputFile inputFile) {
-    Preconditions.checkNotNull(inputFile, "file can't be null");
+    requireNonNull(inputFile, "file can't be null");
     this.inputFile = (DefaultInputFile) inputFile;
     return this;
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.rule;
 
-import com.google.common.collect.Maps;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -122,7 +121,7 @@ public class Checks<C> {
   }
 
   public Checks<C> addAnnotatedChecks(Iterable checkClassesOrObjects) {
-    Map<String, Object> checksByEngineKey = Maps.newHashMap();
+    Map<String, Object> checksByEngineKey = new HashMap<>();
     for (Object checkClassesOrObject : checkClassesOrObjects) {
       String engineKey = annotatedEngineKey(checkClassesOrObject);
       if (engineKey != null) {

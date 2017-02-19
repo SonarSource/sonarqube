@@ -27,6 +27,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
+import static java.util.Objects.requireNonNull;
+
 public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
 
   private InputComponent component;
@@ -53,7 +55,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
 
   @Override
   public DefaultIssueLocation message(String message) {
-    Preconditions.checkNotNull(message, "Message can't be null");
+    requireNonNull(message, "Message can't be null");
     this.message = StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_MAX_SIZE);
     return this;
   }

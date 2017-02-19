@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.error.internal;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.sensor.error.AnalysisError;
@@ -26,7 +27,7 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultAnalysisError extends DefaultStorable implements NewAnalysisError, AnalysisError {
   private InputFile inputFile;
@@ -79,7 +80,7 @@ public class DefaultAnalysisError extends DefaultStorable implements NewAnalysis
 
   @Override
   protected void doSave() {
-    Preconditions.checkNotNull(this.inputFile, "inputFile is mandatory on AnalysisError");
+    requireNonNull(this.inputFile, "inputFile is mandatory on AnalysisError");
     storage.store(this);
   }
 
