@@ -24,8 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
@@ -58,7 +56,6 @@ public class PermissionTemplateServiceTest {
   private UserSessionRule userSession = UserSessionRule.standalone();
   private PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
   private DbSession session = dbTester.getSession();
-  private Settings settings = new MapSettings();
   private PermissionIndexer permissionIndexer = mock(PermissionIndexer.class);
   private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), permissionIndexer, userSession, defaultTemplatesResolver);
 
@@ -107,7 +104,7 @@ public class PermissionTemplateServiceTest {
   }
 
   @Test
-  public void would_user_have_permission_with_default_permission_template() {
+  public void would_user_have_scan_permission_with_default_permission_template() {
     OrganizationDto organization = dbTester.organizations().insert();
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup(organization);
@@ -120,37 +117,29 @@ public class PermissionTemplateServiceTest {
     templateDb.addGroupToTemplate(template.getId(), null, UserRole.ISSUE_ADMIN);
 
     // authenticated user
-    checkWouldUserHavePermission(organization, user.getId(), UserRole.ADMIN, false);
-    checkWouldUserHavePermission(organization, user.getId(), SCAN_EXECUTION, true);
-    checkWouldUserHavePermission(organization, user.getId(), UserRole.USER, true);
-    checkWouldUserHavePermission(organization, user.getId(), UserRole.CODEVIEWER, true);
-    checkWouldUserHavePermission(organization, user.getId(), UserRole.ISSUE_ADMIN, true);
+    checkWouldUserHaveScanPermission(organization, user.getId(), true);
 
     // anonymous user
-    checkWouldUserHavePermission(organization, null, UserRole.ADMIN, false);
-    checkWouldUserHavePermission(organization, null, SCAN_EXECUTION, false);
-    checkWouldUserHavePermission(organization, null, UserRole.USER, false);
-    checkWouldUserHavePermission(organization, null, UserRole.CODEVIEWER, false);
-    checkWouldUserHavePermission(organization, null, UserRole.ISSUE_ADMIN, true);
+    checkWouldUserHaveScanPermission(organization, null, false);
   }
 
   @Test
-  public void would_user_have_permission_with_unknown_default_permission_template() {
+  public void would_user_have_scan_permission_with_unknown_default_permission_template() {
     dbTester.organizations().setDefaultTemplates(dbTester.getDefaultOrganization(), "UNKNOWN_TEMPLATE_UUID", null);
 
-    checkWouldUserHavePermission(dbTester.getDefaultOrganization(), null, UserRole.ADMIN, false);
+    checkWouldUserHaveScanPermission(dbTester.getDefaultOrganization(), null, false);
   }
 
   @Test
-  public void would_user_have_permission_with_empty_template() {
+  public void would_user_have_scann_permission_with_empty_template() {
     PermissionTemplateDto template = templateDb.insertTemplate(dbTester.getDefaultOrganization());
     dbTester.organizations().setDefaultTemplates(template, null);
 
-    checkWouldUserHavePermission(dbTester.getDefaultOrganization(), null, UserRole.ADMIN, false);
+    checkWouldUserHaveScanPermission(dbTester.getDefaultOrganization(), null, false);
   }
 
-  private void checkWouldUserHavePermission(OrganizationDto organization, @Nullable Integer userId, String permission, boolean expectedResult) {
-    assertThat(underTest.wouldUserHavePermissionWithDefaultTemplate(session, organization.getUuid(), userId, permission, null, "PROJECT_KEY", Qualifiers.PROJECT))
+  private void checkWouldUserHaveScanPermission(OrganizationDto organization, @Nullable Integer userId, boolean expectedResult) {
+    assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, organization.getUuid(), userId, null, "PROJECT_KEY", Qualifiers.PROJECT))
       .isEqualTo(expectedResult);
   }
 

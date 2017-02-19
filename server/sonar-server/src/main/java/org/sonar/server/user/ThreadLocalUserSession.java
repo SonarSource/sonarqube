@@ -22,8 +22,10 @@ package org.sonar.server.user;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.permission.OrganizationPermission;
 
 /**
  * Part of the current HTTP session
@@ -92,6 +94,17 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
+    return get().hasPermission(permission, organizationUuid);
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, String organizationUuid) {
+    get().checkPermission(permission, organizationUuid);
+    return this;
+  }
+
+  @Override
   public UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
     get().checkComponentPermission(projectPermission, component);
     return this;
@@ -131,7 +144,18 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
+    get().checkPermission(permission, organization);
+    return this;
+  }
+
+  @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
     return get().hasOrganizationPermission(organizationUuid, permission);
+  }
+
+  @Override
+  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
+    return get().hasPermission(permission, organization);
   }
 }

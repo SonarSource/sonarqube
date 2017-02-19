@@ -21,7 +21,9 @@ package org.sonar.ce.user;
 
 import java.util.Collection;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -68,13 +70,34 @@ public class CeUserSession implements UserSession {
   public UserSession checkLoggedIn() {
     throw notImplemented();
   }
+
+  @Override
+  public boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
+    throw notImplemented();
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, String organizationUuid) {
+    throw notImplemented();
+  }
+
   @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
     throw notImplemented();
   }
 
   @Override
+  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
+    throw notImplemented();
+  }
+
+  @Override
   public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
+    throw notImplemented();
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
     throw notImplemented();
   }
 

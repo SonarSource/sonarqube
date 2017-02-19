@@ -69,10 +69,11 @@ public class PermissionTemplateService {
     this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
   
-  public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession,
-    String organizationUuid, @Nullable Integer userId, String globalPermission, @Nullable String branch, String projectKey,
-    String qualifier) {
-    if (userSession.hasOrganizationPermission(organizationUuid, globalPermission)) {
+  public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession,
+                                                                String organizationUuid, @Nullable Integer userId,
+                                                                @Nullable String branch, String projectKey,
+                                                                String qualifier) {
+    if (userSession.hasPermission(OrganizationPermission.SCAN, organizationUuid)) {
       return true;
     }
 
@@ -84,7 +85,7 @@ public class PermissionTemplateService {
     }
 
     List<String> potentialPermissions = dbClient.permissionTemplateDao().selectPotentialPermissionsByUserIdAndTemplateId(dbSession, userId, template.getId());
-    return potentialPermissions.contains(globalPermission);
+    return potentialPermissions.contains(OrganizationPermission.SCAN.getKey());
   }
 
   /**
