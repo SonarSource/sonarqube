@@ -30,6 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -292,8 +293,24 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
+    return currentUserSession.hasPermission(permission, organizationUuid);
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, String organizationUuid) {
+    currentUserSession.checkPermission(permission, organizationUuid);
+    return this;
+  }
+
+  @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
     return currentUserSession.hasOrganizationPermission(organizationUuid, permission);
+  }
+
+  @Override
+  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
+    return currentUserSession.hasPermission(permission, organization);
   }
 
   @Override
@@ -322,6 +339,12 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
     currentUserSession.checkOrganizationPermission(organizationUuid, permission);
+    return this;
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
+    currentUserSession.checkPermission(permission, organization);
     return this;
   }
 }

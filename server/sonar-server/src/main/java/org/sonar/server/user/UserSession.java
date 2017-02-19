@@ -22,7 +22,9 @@ package org.sonar.server.user;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.permission.OrganizationPermission;
 
 public interface UserSession {
 
@@ -76,16 +78,29 @@ public interface UserSession {
    *
    * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
    * organization does not exist.
-   *
-   * @param organizationUuid non-null UUID of organization.
-   * @param permission global permission as defined by {@link org.sonar.core.permission.GlobalPermissions}
    */
+  boolean hasPermission(OrganizationPermission permission, OrganizationDto organization);
+
+  boolean hasPermission(OrganizationPermission permission, String organizationUuid);
+
+  /**
+   * Ensures that {@link #hasPermission(OrganizationPermission, OrganizationDto)} is {@code true},
+   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization);
+
+  UserSession checkPermission(OrganizationPermission permission, String organizationUuid);
+
+  /**
+   * @deprecated use #hasPermission(OrganizationPermission, String)
+   */
+  @Deprecated
   boolean hasOrganizationPermission(String organizationUuid, String permission);
 
   /**
-   * Ensures that {@link #hasOrganizationPermission(String,String)} is {@code true},
-   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * @deprecated #checkPermission(OrganizationPermission, String)
    */
+  @Deprecated
   UserSession checkOrganizationPermission(String organizationUuid, String permission);
 
   /**

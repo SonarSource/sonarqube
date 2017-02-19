@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Optional;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.permission.OrganizationPermission;
 
 /**
  * Allow code to be executed with the highest privileges possible, as if executed by a {@link GlobalPermissions#SYSTEM_ADMIN} account.
@@ -97,7 +98,7 @@ public final class DoPrivileged {
       }
 
       @Override
-      protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
+      protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
         return true;
       }
 

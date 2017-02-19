@@ -24,6 +24,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.permission.OrganizationPermission;
 
 import static java.util.Objects.requireNonNull;
 
@@ -91,7 +92,7 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
+    protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
       throw notImplemented();
     }
 

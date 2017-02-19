@@ -23,6 +23,7 @@ import com.google.common.collect.HashMultimap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -31,7 +32,7 @@ import static com.google.common.collect.Maps.newHashMap;
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
   private final Class<T> clazz;
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
-  private HashMultimap<String, String> permissionsByOrganizationUuid = HashMultimap.create();
+  private final HashMultimap<String, OrganizationPermission> permissionsByOrganizationUuid = HashMultimap.create();
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
   private List<String> projectPermissionsCheckedByUuid = newArrayList();
   private boolean systemAdministrator = false;
@@ -56,7 +57,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   @Override
-  protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
+  protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
     return permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
   }
 
@@ -71,7 +72,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   public T addOrganizationPermission(String organizationUuid, String permission) {
-    permissionsByOrganizationUuid.put(organizationUuid, permission);
+    permissionsByOrganizationUuid.put(organizationUuid, OrganizationPermission.fromKey(permission));
     return clazz.cast(this);
   }
 

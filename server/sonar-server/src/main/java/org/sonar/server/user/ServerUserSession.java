@@ -23,10 +23,12 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
@@ -37,6 +39,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.permission.OrganizationPermission;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -52,7 +55,7 @@ public class ServerUserSession extends AbstractUserSession {
   private final Supplier<Collection<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
   private final Supplier<Boolean> isSystemAdministratorSupplier = Suppliers.memoize(this::loadIsSystemAdministrator);
   private final Map<String, String> projectUuidByComponentUuid = newHashMap();
-  private Map<String, Set<String>> permissionsByOrganizationUuid;
+  private Map<String, EnumSet<OrganizationPermission>> permissionsByOrganizationUuid;
   private Map<String, Set<String>> permissionsByProjectUuid;
 
   ServerUserSession(DbClient dbClient, OrganizationFlags organizationFlags,
@@ -106,21 +109,26 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
+  protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
     if (permissionsByOrganizationUuid == null) {
       permissionsByOrganizationUuid = new HashMap<>();
     }
-    Set<String> permissions = permissionsByOrganizationUuid.computeIfAbsent(organizationUuid, this::loadOrganizationPermissions);
+    Set<OrganizationPermission> permissions = permissionsByOrganizationUuid.computeIfAbsent(organizationUuid, this::loadOrganizationPermissions);
     return permissions.contains(permission);
   }
 
-  private Set<String> loadOrganizationPermissions(String organizationUuid) {
+  private EnumSet<OrganizationPermission> loadOrganizationPermissions(String organizationUuid) {
+    Set<String> permissionKeys;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (userDto != null && userDto.getId() != null) {
-        return dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getId());
+        permissionKeys = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getId());
+      } else {
+        permissionKeys = dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
       }
-      return dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
     }
+    return permissionKeys.stream()
+      .map(OrganizationPermission::fromKey)
+      .collect(Collectors.toCollection(() -> EnumSet.noneOf(OrganizationPermission.class)));
   }
 
   @Override
