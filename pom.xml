@@ -79,8 +79,6 @@
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
     <license.title>SonarQube</license.title>
 
-    <skipBatchTests>false</skipBatchTests>
-    <skipServerTests>false</skipServerTests>
     <skipSanityChecks>false</skipSanityChecks>
 
     <argLine>-Xmx512m -Djava.awt.headless=true</argLine>
@@ -379,7 +377,6 @@
             -->
             <user.timezone>${testTimezone}</user.timezone>
           </systemPropertyVariables>
-          <groups>${junitGroups}</groups>
           <threadCount>1</threadCount>
         </configuration>
       </plugin>
@@ -1358,48 +1355,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <!--
-    The following profiles optimize the build for each team, according to their
-     stack layers (scanner, server and web teams)
-    -->
-    <profile>
-      <!-- disable all tests -->
-      <id>skipTests</id>
-      <activation>
-        <property>
-          <name>skipTests</name>
-        </property>
-      </activation>
-      <properties>
-        <skipBatchTests>true</skipBatchTests>
-        <skipServerTests>true</skipServerTests>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>scanner</id>
-      <properties>
-        <skipServerTests>true</skipServerTests>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>server</id>
-      <properties>
-        <skipBatchTests>true</skipBatchTests>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>web</id>
-      <properties>
-        <!-- the web team does not care about java tests -->
-        <skipBatchTests>true</skipBatchTests>
-        <skipServerTests>true</skipServerTests>
-        <skipTests>true</skipTests>
-      </properties>
     </profile>
 
     <profile>

@@ -190,6 +190,7 @@
                 <relocation>
                   <pattern>com.google</pattern>
                   <shadedPattern>org.sonar.api.internal.google</shadedPattern>
+
                 </relocation>
                 <relocation>
                   <pattern>org.apache.commons</pattern>
