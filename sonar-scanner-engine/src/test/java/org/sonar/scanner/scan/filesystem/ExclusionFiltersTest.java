@@ -19,12 +19,9 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +33,8 @@ import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileExclusions;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExclusionFiltersTest {
 
@@ -114,7 +113,7 @@ public class ExclusionFiltersTest {
 
     Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
-    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "file:" + excludedFile.getCanonicalPath());
+    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "file:" + excludedFile.getAbsolutePath());
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
     filter.prepare();

@@ -140,7 +140,6 @@ public class DefaultFilePredicatesTest {
     // absolute file
     assertThat(predicates.is(javaFile.file()).apply(javaFile)).isTrue();
     assertThat(predicates.is(javaFile.file().getAbsoluteFile()).apply(javaFile)).isTrue();
-    assertThat(predicates.is(javaFile.file().getCanonicalFile()).apply(javaFile)).isTrue();
     assertThat(predicates.is(new File(javaFile.file().toURI())).apply(javaFile)).isTrue();
     assertThat(predicates.is(temp.newFile()).apply(javaFile)).isFalse();
   }

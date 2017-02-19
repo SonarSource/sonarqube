@@ -374,7 +374,6 @@
         <configuration>
           <runOrder>random</runOrder>
           <systemPropertyVariables>
-            <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
             <!--
             See profile 'randomize-environment'
             -->
