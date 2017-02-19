@@ -28,12 +28,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.AppWsResponse.Metric;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsQualityGates.AppWsResponse;
@@ -63,7 +63,7 @@ public class AppAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     writeProtobuf(AppWsResponse.newBuilder()
-      .setEdit(userSession.hasOrganizationPermission(defaultOrganizationProvider.get().getUuid(), QUALITY_GATE_ADMIN))
+      .setEdit(userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid()))
       .addAllMetrics(loadMetrics()
         .stream()
         .map(AppAction::toMetric)

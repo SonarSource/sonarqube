@@ -36,8 +36,8 @@ import org.sonar.server.ws.WsTester;
 
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 
 public class SearchActionTest {
 
@@ -159,7 +159,7 @@ public class SearchActionTest {
     // the group in default org is not returned
     db.users().insertGroup(db.getDefaultOrganization(), "users");
     loginAsDefaultOrgAdmin();
-    userSession.addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, org);
 
     newRequest()
       .setParam("organization", org.getKey())
@@ -191,7 +191,7 @@ public class SearchActionTest {
   }
 
   private void loginAsDefaultOrgAdmin() {
-    userSession.logIn("user").addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
+    userSession.logIn("user").addPermission(ADMINISTER, db.getDefaultOrganization());
   }
 
   private GroupWsSupport newGroupWsSupport() {

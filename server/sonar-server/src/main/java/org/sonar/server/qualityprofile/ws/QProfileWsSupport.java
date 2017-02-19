@@ -20,9 +20,10 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 @ServerSide
 public class QProfileWsSupport {
@@ -38,6 +39,6 @@ public class QProfileWsSupport {
   public void checkQProfileAdminPermission() {
     userSession
       .checkLoggedIn()
-      .checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 }

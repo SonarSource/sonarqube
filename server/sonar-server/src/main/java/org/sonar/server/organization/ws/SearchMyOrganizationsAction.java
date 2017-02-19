@@ -25,9 +25,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
-
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class SearchMyOrganizationsAction implements OrganizationsAction {
   private static final String ACTION = "search_my_organizations";
@@ -62,7 +61,7 @@ public class SearchMyOrganizationsAction implements OrganizationsAction {
       JsonWriter jsonWriter = response.newJsonWriter()) {
       jsonWriter.beginObject();
       jsonWriter.name("organizations").beginArray();
-      dbClient.organizationDao().selectByPermission(dbSession, userSession.getUserId(), SYSTEM_ADMIN)
+      dbClient.organizationDao().selectByPermission(dbSession, userSession.getUserId(), OrganizationPermission.ADMINISTER.getKey())
         .forEach(dto -> jsonWriter.value(dto.getKey()));
       jsonWriter.endArray();
       jsonWriter.endObject();

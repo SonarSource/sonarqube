@@ -42,6 +42,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 
 public class ProjectDataLoaderTest {
   @Rule
@@ -171,7 +172,7 @@ public class ProjectDataLoaderTest {
   @Test
   public void scan_permission_on_organization_is_enough_even_without_scan_permission_on_project() {
     ComponentDto project = dbTester.components().insertProject();
-    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
     userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));

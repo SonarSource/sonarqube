@@ -38,6 +38,7 @@ import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -68,7 +69,7 @@ public class ProjectDataLoader {
       }
 
       boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, module) ||
-        userSession.hasOrganizationPermission(module.getOrganizationUuid(), SCAN_EXECUTION);
+        userSession.hasPermission(OrganizationPermission.SCAN, module.getOrganizationUuid());
       boolean hasBrowsePerm = userSession.hasComponentPermission(USER, module);
       checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
 

@@ -23,14 +23,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class OrganizationAction implements NavigationWsAction {
@@ -80,13 +79,13 @@ public class OrganizationAction implements NavigationWsAction {
   }
 
   private void writeOrganization(JsonWriter json, OrganizationDto organization) {
-    String organizationUuid = organization.getUuid();
     json.name("organization")
       .beginObject()
-      .prop("canAdmin", userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN))
-      .prop("canProvisionProjects", userSession.hasOrganizationPermission(organizationUuid, GlobalPermissions.PROVISIONING))
-      .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN))
+      .prop("canAdmin", userSession.hasPermission(OrganizationPermission.ADMINISTER, organization))
+      .prop("canProvisionProjects", userSession.hasPermission(OrganizationPermission.PROVISION_PROJECTS, organization))
+      .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasPermission(OrganizationPermission.ADMINISTER, organization))
       .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
       .endObject();
+
   }
 }

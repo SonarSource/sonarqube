@@ -35,7 +35,6 @@ import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.component.DefaultResourceTypes;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -52,6 +51,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -65,8 +65,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -74,6 +72,8 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentActionTest {
@@ -312,7 +312,7 @@ public class ComponentActionTest {
     componentDbTester.insertComponent(project);
     userSessionRule.logIn()
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
-      .addOrganizationPermission(project.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
+      .addPermission(ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid());
 
     executeAndVerify(project.key(), "return_configuration_for_quality_profile_admin.json");
   }
@@ -323,7 +323,7 @@ public class ComponentActionTest {
     componentDbTester.insertComponent(project);
     userSessionRule.logIn()
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
-      .addOrganizationPermission(project.getOrganizationUuid(), QUALITY_GATE_ADMIN);
+      .addPermission(ADMINISTER_QUALITY_GATES, project.getOrganizationUuid());
 
     executeAndVerify(project.key(), "return_configuration_for_quality_gate_admin.json");
   }
@@ -389,7 +389,7 @@ public class ComponentActionTest {
 
     userSessionRule.logIn()
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid())
-      .addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+      .addPermission(OrganizationPermission.ADMINISTER, org);
     assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
 
     userSessionRule.logIn()

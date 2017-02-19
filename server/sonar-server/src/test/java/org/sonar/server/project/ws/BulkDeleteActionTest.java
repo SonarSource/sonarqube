@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -43,6 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 
 public class BulkDeleteActionTest {
 
@@ -117,7 +117,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() throws Exception {
-    userSession.logIn().addOrganizationPermission(org1.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, org1);
     ComponentDto project = db.components().insertProject(org1);
 
     expectedException.expect(ForbiddenException.class);
@@ -132,7 +132,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void organization_administrator_deletes_projects_by_keys_in_his_organization() throws Exception {
-    userSession.logIn().addOrganizationPermission(org1.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, org1);
     ComponentDto toDelete = db.components().insertProject(org1);
     ComponentDto cantBeDeleted = db.components().insertProject(org2);
 

@@ -35,8 +35,8 @@ import org.sonarqube.ws.client.project.CreateRequest;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -109,7 +109,7 @@ public class CreateAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, ofNullable(request.getOrganization())
         .orElseGet(defaultOrganizationProvider.get()::getKey));
-      userSession.checkOrganizationPermission(organization.getUuid(), PROVISIONING);
+      userSession.checkPermission(PROVISION_PROJECTS, organization);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
         .setOrganizationUuid(organization.getUuid())

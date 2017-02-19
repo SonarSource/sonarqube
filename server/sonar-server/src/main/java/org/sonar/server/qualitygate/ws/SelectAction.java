@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,6 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
 
@@ -115,7 +115,7 @@ public class SelectAction implements QualityGatesWsAction {
     ComponentDto project = selectProjectById(dbSession, projectId)
       .or(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY));
 
-    if (!userSession.hasOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.QUALITY_GATE_ADMIN) &&
+    if (!userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, project.getOrganizationUuid()) &&
       !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw insufficientPrivilegesException();
     }

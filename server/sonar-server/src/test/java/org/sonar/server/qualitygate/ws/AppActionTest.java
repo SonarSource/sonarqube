@@ -43,8 +43,8 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.JSON;
 
@@ -173,7 +173,7 @@ public class AppActionTest {
 
   @Test
   public void return_edit_to_true_when_quality_gate_permission() throws Exception {
-    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization(), QUALITY_GATE_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
 
     AppWsResponse response = executeRequest();
 

@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
@@ -53,6 +52,7 @@ import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class ShowActionMediumTest {
 
@@ -61,7 +61,7 @@ public class ShowActionMediumTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn()
-    .addOrganizationPermission(tester.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    .addPermission(ADMINISTER_QUALITY_PROFILES, tester.get(DefaultOrganizationProvider.class).get().getUuid());
 
   WsTester wsTester;
 

@@ -37,12 +37,12 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -75,7 +75,7 @@ public class ReportSubmitter {
       OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
       Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
       ensureOrganizationIsConsistent(opt, organizationDto);
-      ComponentDto project = opt.or(() -> createProject(dbSession, organizationDto.getUuid(), projectKey, projectBranch, projectName));
+      ComponentDto project = opt.or(() -> createProject(dbSession, organizationDto, projectKey, projectBranch, projectName));
       checkScanPermission(project);
       return submitReport(dbSession, reportInput, project);
     }
@@ -88,7 +88,7 @@ public class ReportSubmitter {
     // That means that dropping the permission on the project does not have any effects
     // if user has still the permission on the organization
     if (!userSession.hasComponentPermission(SCAN_EXECUTION, project) &&
-      !userSession.hasOrganizationPermission(project.getOrganizationUuid(), SCAN_EXECUTION)) {
+      !userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }
   }
@@ -106,18 +106,18 @@ public class ReportSubmitter {
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, String organizationUuid, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
-    userSession.checkOrganizationPermission(organizationUuid, PROVISIONING);
+  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
+    userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
     Integer userId = userSession.getUserId();
 
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(
-      dbSession, organizationUuid, userId, projectBranch, projectKey, Qualifiers.PROJECT);
+      dbSession, organization.getUuid(), userId, projectBranch, projectKey, Qualifiers.PROJECT);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
 
     NewComponent newProject = newComponentBuilder()
-      .setOrganizationUuid(organizationUuid)
+      .setOrganizationUuid(organization.getUuid())
       .setKey(projectKey)
       .setName(StringUtils.defaultIfBlank(projectName, projectKey))
       .setBranch(projectBranch)

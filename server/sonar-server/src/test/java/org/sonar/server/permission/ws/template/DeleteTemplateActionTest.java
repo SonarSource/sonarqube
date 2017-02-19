@@ -53,7 +53,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -383,7 +383,7 @@ public class DeleteTemplateActionTest {
   // }
 
   private UserSessionRule loginAsAdmin(OrganizationDto organization) {
-    return userSession.logIn().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+    return userSession.logIn().addPermission(ADMINISTER, organization);
   }
 
   private void runOnAllUnderTests(ConsumerWithException<WsActionTester> consumer) throws Exception {

@@ -36,6 +36,7 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
@@ -268,7 +269,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     // user is administrator of another organization
-    userSession.logIn().addOrganizationPermission("anotherOrg", SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, "anotherOrg");
 
     expectedException.expect(ForbiddenException.class);
 

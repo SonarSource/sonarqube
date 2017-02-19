@@ -36,7 +36,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -60,6 +59,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 // TODO remaining tests should be moved to RegisterRulesTest
 public class RegisterRulesMediumTest {
@@ -459,6 +459,6 @@ public class RegisterRulesMediumTest {
   }
 
   private void logInAsQProfileAdministrator() {
-    userSessionRule.logIn().addOrganizationPermission(TESTER.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, TESTER.get(DefaultOrganizationProvider.class).get().getUuid());
   }
 }

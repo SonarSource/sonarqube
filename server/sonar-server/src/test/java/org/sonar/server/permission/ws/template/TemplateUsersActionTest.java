@@ -40,9 +40,9 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateUserDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -275,7 +275,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
+    userSession.logIn().addPermission(SCAN, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
 

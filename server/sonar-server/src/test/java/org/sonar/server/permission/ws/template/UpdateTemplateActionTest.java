@@ -35,8 +35,8 @@ import org.sonar.server.ws.TestRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
@@ -190,7 +190,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_not_admin() throws Exception {
-    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
+    userSession.logIn().addPermission(SCAN, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
 

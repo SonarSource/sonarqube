@@ -27,10 +27,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
@@ -71,7 +71,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupId group = support.findGroup(dbSession, request);
-      userSession.checkOrganizationPermission(group.getOrganizationUuid(), SYSTEM_ADMIN);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = getUser(dbSession, login);
@@ -90,7 +90,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
    */
   private void ensureLastAdminIsNotRemoved(DbSession dbSession, GroupId group, UserDto user) {
     int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
-      group.getOrganizationUuid(), SYSTEM_ADMIN, group.getId(), user.getId());
+      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getId(), user.getId());
     if (remainingAdmins == 0) {
       throw new BadRequestException("The last administrator user cannot be removed");
     }

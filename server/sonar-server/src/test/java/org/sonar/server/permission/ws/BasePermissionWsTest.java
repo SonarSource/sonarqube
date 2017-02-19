@@ -41,8 +41,8 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 
 public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
@@ -87,9 +87,9 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   }
 
   protected void loginAsAdmin(OrganizationDto org, OrganizationDto... otherOrgs) {
-    userSession.logIn().addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, org);
     for (OrganizationDto otherOrg : otherOrgs) {
-      userSession.addOrganizationPermission(otherOrg.getUuid(), SYSTEM_ADMIN);
+      userSession.addPermission(ADMINISTER, otherOrg);
     }
   }
 

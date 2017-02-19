@@ -41,7 +41,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class DeselectActionTest {
@@ -173,7 +173,7 @@ public class DeselectActionTest {
   public void fail_when_not_quality_gates_admin() throws Exception {
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid());
 
     expectedException.expect(ForbiddenException.class);
 

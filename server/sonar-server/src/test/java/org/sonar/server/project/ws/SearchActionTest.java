@@ -52,14 +52,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
@@ -85,7 +85,7 @@ public class SearchActionTest {
 
   @Test
   public void search_by_key_query() throws IOException {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       newProjectDto(db.getDefaultOrganization()).setKey("project-_%-key"),
       newProjectDto(db.getDefaultOrganization()).setKey("project-key-without-escaped-characters"));
@@ -97,7 +97,7 @@ public class SearchActionTest {
 
   @Test
   public void search_projects_when_no_qualifier_set() throws IOException {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()));
@@ -109,7 +109,7 @@ public class SearchActionTest {
 
   @Test
   public void search_projects() throws IOException {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     ComponentDto project = newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1);
     ComponentDto module = newModuleDto(project);
     ComponentDto directory = newDirectory(module, "dir");
@@ -126,7 +126,7 @@ public class SearchActionTest {
 
   @Test
   public void search_views() throws IOException {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()).setKey("view1"));
@@ -138,7 +138,7 @@ public class SearchActionTest {
 
   @Test
   public void search_projects_and_views() throws IOException {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()).setKey("view1"));
@@ -150,7 +150,7 @@ public class SearchActionTest {
 
   @Test
   public void search_on_default_organization_when_no_organization_set() throws IOException {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     OrganizationDto otherOrganization = db.organizations().insert();
     db.components().insertComponents(
       newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
@@ -166,7 +166,7 @@ public class SearchActionTest {
   public void search_for_projects_on_given_organization() throws IOException {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
-    userSession.addOrganizationPermission(organization1, SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, organization1);
     ComponentDto project1 = newProjectDto(organization1);
     ComponentDto project2 = newProjectDto(organization1);
     ComponentDto project3 = newProjectDto(organization2);
@@ -179,7 +179,7 @@ public class SearchActionTest {
 
   @Test
   public void result_is_paginated() throws IOException {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
       componentDtoList.add(newProjectDto(db.getDefaultOrganization(), "project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
@@ -193,7 +193,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_not_system_admin() throws Exception {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), QUALITY_PROFILE_ADMIN);
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
     expectedException.expect(ForbiddenException.class);
 
     call(SearchWsRequest.builder().build());
@@ -208,7 +208,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_on_invalid_qualifier() throws Exception {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), QUALITY_PROFILE_ADMIN);
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'qualifiers' (BRC) must be one of: [TRK, VW]");
 
@@ -256,15 +256,15 @@ public class SearchActionTest {
 
   @Test
   public void verify_response_example() throws URISyntaxException, IOException {
-    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    userSession.addOrganizationPermission(organizationDto, SYSTEM_ADMIN);
+    OrganizationDto organization = db.organizations().insertForKey("my-org-1");
+    userSession.addPermission(ADMINISTER, organization);
     db.components().insertComponents(
-      newProjectDto(organizationDto, "project-uuid-1").setName("Project Name 1").setKey("project-key-1"),
-      newProjectDto(organizationDto, "project-uuid-2").setName("Project Name 1").setKey("project-key-2"));
+      newProjectDto(organization, "project-uuid-1").setName("Project Name 1").setKey("project-key-1"),
+      newProjectDto(organization, "project-uuid-2").setName("Project Name 1").setKey("project-key-2"));
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
-      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
     assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
   }

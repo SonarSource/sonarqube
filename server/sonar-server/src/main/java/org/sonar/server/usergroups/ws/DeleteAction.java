@@ -30,11 +30,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
@@ -74,7 +74,7 @@ public class DeleteAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupId groupId = support.findGroup(dbSession, request);
-      userSession.checkOrganizationPermission(groupId.getOrganizationUuid(), SYSTEM_ADMIN);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, groupId.getOrganizationUuid());
 
       checkNotTryingToDeleteDefaultGroup(dbSession, groupId);
       checkNotTryingToDeleteLastAdminGroup(dbSession, groupId);
@@ -105,7 +105,7 @@ public class DeleteAction implements UserGroupsWsAction {
 
   private void checkNotTryingToDeleteLastAdminGroup(DbSession dbSession, GroupId group) {
     int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
-      group.getOrganizationUuid(), SYSTEM_ADMIN, group.getId());
+      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getId());
 
     checkArgument(remaining > 0, "The last system admin group cannot be deleted");
   }

@@ -52,8 +52,8 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
@@ -85,7 +85,7 @@ public class CreateActionTest {
 
   @Test
   public void create_project() throws Exception {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
     expectSuccessfulCallToComponentUpdater();
 
     CreateWsResponse response = call(CreateRequest.builder()
@@ -100,7 +100,7 @@ public class CreateActionTest {
 
   @Test
   public void create_project_with_branch() throws Exception {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     call(CreateRequest.builder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -116,7 +116,7 @@ public class CreateActionTest {
   @Test
   public void create_project_with_deprecated_parameter() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addOrganizationPermission(organization, PROVISIONING);
+    userSession.addPermission(PROVISION_PROJECTS, organization);
 
     ws.newRequest()
       .setMethod(POST.name())
@@ -134,7 +134,7 @@ public class CreateActionTest {
   public void fail_when_project_already_exists() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyInt())).thenThrow(new BadRequestException("already exists"));
-    userSession.addOrganizationPermission(organization, PROVISIONING);
+    userSession.addPermission(PROVISION_PROJECTS, organization);
 
     expectedException.expect(BadRequestException.class);
 
@@ -170,7 +170,7 @@ public class CreateActionTest {
 
   @Test
   public void test_example() {
-    userSession.addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
     expectSuccessfulCallToComponentUpdater();
 
     String result = ws.newRequest()

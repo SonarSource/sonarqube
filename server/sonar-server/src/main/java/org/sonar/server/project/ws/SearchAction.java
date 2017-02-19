@@ -31,6 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.SearchWsResponse;
 import org.sonarqube.ws.client.project.SearchWsRequest;
@@ -39,7 +40,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
 import static org.sonarqube.ws.WsProjects.SearchWsResponse.newBuilder;
@@ -98,7 +98,7 @@ public class SearchAction implements ProjectsWsAction {
   private SearchWsResponse doHandle(SearchWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, ofNullable(request.getOrganization()).orElseGet(defaultOrganizationProvider.get()::getKey));
-      userSession.checkOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
       ComponentQuery query = buildQuery(request);
       Paging paging = buildPaging(dbSession, request, organization, query);

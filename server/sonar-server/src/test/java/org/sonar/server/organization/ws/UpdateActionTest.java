@@ -41,10 +41,10 @@ import org.sonarqube.ws.Organizations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.setParam;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 
 public class UpdateActionTest {
   private static final String SOME_KEY = "key";
@@ -375,7 +375,7 @@ public class UpdateActionTest {
     assertThat(newDto.getUpdatedAt()).isEqualTo(updateAt);
   }
 
-  private void logInAsAdministrator(OrganizationDto organizationDto) {
-    userSession.logIn().addOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
+  private void logInAsAdministrator(OrganizationDto organization) {
+    userSession.logIn().addPermission(ADMINISTER, organization);
   }
 }

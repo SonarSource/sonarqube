@@ -26,6 +26,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.PropertyType.LICENSE;
@@ -57,11 +58,11 @@ public class SettingsWsSupport {
   }
 
   boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return hasPermission(SCAN_EXECUTION, component) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
+    return hasPermission(OrganizationPermission.SCAN, SCAN_EXECUTION, component) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
   }
 
   private boolean verifySecuredSetting(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return isLicense(key, definition) || (!key.endsWith(DOT_SECURED) || hasPermission(ADMIN, component));
+    return isLicense(key, definition) || (!key.endsWith(DOT_SECURED) || hasPermission(OrganizationPermission.ADMINISTER, ADMIN, component));
   }
 
   private boolean verifyLicenseSetting(String key, @Nullable PropertyDefinition definition) {
@@ -72,12 +73,12 @@ public class SettingsWsSupport {
     return key.endsWith(LICENSE_SUFFIX) || key.endsWith(LICENSE_HASH_SUFFIX) || (definition != null && definition.type() == LICENSE);
   }
 
-  private boolean hasPermission(String projectOrOrgPermission, Optional<ComponentDto> component) {
-    if (userSession.hasOrganizationPermission(defaultOrganizationProvider.get().getUuid(), projectOrOrgPermission)) {
+  private boolean hasPermission(OrganizationPermission orgPermission, String projectPermission, Optional<ComponentDto> component) {
+    if (userSession.hasPermission(orgPermission, defaultOrganizationProvider.get().getUuid())) {
       return true;
     }
     return component
-      .map(c -> userSession.hasComponentPermission(projectOrOrgPermission, c))
+      .map(c -> userSession.hasComponentPermission(projectPermission, c))
       .orElse(false);
   }
 }

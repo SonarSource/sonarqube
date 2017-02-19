@@ -56,9 +56,9 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Definition.CategoryOneOfCase.CATEGORYONEOF_NOT_SET;
 import static org.sonarqube.ws.Settings.Definition.DefaultValueOneOfCase.DEFAULTVALUEONEOF_NOT_SET;
@@ -345,7 +345,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_secured_settings_when_not_authenticated_but_with_scan_permission() throws Exception {
-    userSession.anonymous().addOrganizationPermission(db.getDefaultOrganization(), SCAN_EXECUTION);
+    userSession.anonymous().addPermission(SCAN, db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -480,7 +480,7 @@ public class ListDefinitionsActionTest {
   }
 
   private void logInAsAdmin(OrganizationDto org) {
-    userSession.logIn().addOrganizationPermission(org, SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, org);
   }
 
   private void logInAsProjectAdmin() {

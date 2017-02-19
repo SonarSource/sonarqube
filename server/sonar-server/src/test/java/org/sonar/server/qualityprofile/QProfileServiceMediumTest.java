@@ -36,7 +36,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -54,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleTesting.newXooX1;
 import static org.sonar.db.rule.RuleTesting.newXooX2;
 import static org.sonar.db.rule.RuleTesting.newXooX3;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 
@@ -226,6 +226,6 @@ public class QProfileServiceMediumTest {
   }
 
   private void logInAsQProfileAdministrator() {
-    userSessionRule.logIn().addOrganizationPermission(tester.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, tester.get(DefaultOrganizationProvider.class).get().getUuid());
   }
 }

@@ -53,7 +53,7 @@ import static com.google.common.base.Preconditions.checkState;
  * In both cases, one can define user session behavior which should apply on all tests directly on the property, eg.:
  * <pre>
  * {@literal @}Rule
- * public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+ * public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setOrganizationPermissions(OrganizationPermissions.SYSTEM_ADMIN);
  * </pre>
  * </p>
  * <p>
@@ -192,13 +192,13 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule addOrganizationPermission(String organizationUuid, String permission) {
-    ensureAbstractMockUserSession().addOrganizationPermission(organizationUuid, permission);
+  public UserSessionRule addPermission(OrganizationPermission permission, String organizationUuid) {
+    ensureAbstractMockUserSession().addPermission(permission, organizationUuid);
     return this;
   }
 
-  public UserSessionRule addOrganizationPermission(OrganizationDto organizationDto, String permission) {
-    ensureAbstractMockUserSession().addOrganizationPermission(organizationDto.getUuid(), permission);
+  public UserSessionRule addPermission(OrganizationPermission permission, OrganizationDto organization) {
+    ensureAbstractMockUserSession().addPermission(permission, organization.getUuid());
     return this;
   }
 
@@ -293,8 +293,19 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
+    return currentUserSession.hasPermission(permission, organization);
+  }
+
+  @Override
   public boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
     return currentUserSession.hasPermission(permission, organizationUuid);
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
+    currentUserSession.checkPermission(permission, organization);
+    return this;
   }
 
   @Override
@@ -305,12 +316,13 @@ public class UserSessionRule implements TestRule, UserSession {
 
   @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
-    return currentUserSession.hasOrganizationPermission(organizationUuid, permission);
+    return currentUserSession.hasPermission(OrganizationPermission.fromKey(permission), organizationUuid);
   }
 
   @Override
-  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
-    return currentUserSession.hasPermission(permission, organization);
+  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
+    currentUserSession.checkPermission(OrganizationPermission.fromKey(permission), organizationUuid);
+    return this;
   }
 
   @Override
@@ -333,18 +345,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkIsSystemAdministrator() {
     currentUserSession.checkIsSystemAdministrator();
-    return this;
-  }
-
-  @Override
-  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
-    currentUserSession.checkOrganizationPermission(organizationUuid, permission);
-    return this;
-  }
-
-  @Override
-  public UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
-    currentUserSession.checkPermission(permission, organization);
     return this;
   }
 }

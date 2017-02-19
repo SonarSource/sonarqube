@@ -113,7 +113,6 @@ public interface UserSession {
    * component does not exist.
    *
    * If the permission is not granted, then the organization permission is _not_ checked.
-   * There's _no_ automatic fallback on {@link #hasOrganizationPermission(String, String)}.
    *
    * @param component non-null component.
    * @param permission project permission as defined by {@link org.sonar.core.permission.ProjectPermissions}

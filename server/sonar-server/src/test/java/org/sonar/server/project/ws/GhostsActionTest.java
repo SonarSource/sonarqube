@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -46,9 +45,9 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class GhostsActionTest {
@@ -86,7 +85,7 @@ public class GhostsActionTest {
     ComponentDto ghost1 = insertGhostProject(organization);
     ComponentDto ghost2 = insertGhostProject(organization);
     ComponentDto activeProject = insertActiveProject(organization);
-    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -117,7 +116,7 @@ public class GhostsActionTest {
       int count = i;
       insertGhostProject(organization, dto -> dto.setKey("ghost-key-" + count));
     }
-    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -138,7 +137,7 @@ public class GhostsActionTest {
   public void ghost_projects_with_chosen_fields() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     insertGhostProject(organization);
-    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -158,7 +157,7 @@ public class GhostsActionTest {
     insertGhostProject(organization, dto -> dto.setName("ghost-name-11"));
     insertGhostProject(organization, dto -> dto.setName("ghost-name-20"));
 
-    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -175,7 +174,7 @@ public class GhostsActionTest {
     OrganizationDto organization = db.organizations().insert();
     insertGhostProject(organization, dto -> dto.setKey("ghost-key-1"));
 
-    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -188,15 +187,15 @@ public class GhostsActionTest {
 
   @Test
   public void ghost_projects_base_on_json_example() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto hBaseProject = ComponentTesting.newProjectDto(organizationDto, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto hBaseProject = ComponentTesting.newProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
       .setStatus(STATUS_UNPROCESSED));
-    ComponentDto roslynProject = ComponentTesting.newProjectDto(organizationDto, "c526ef20-131b-4486-9357-063fa64b5079")
+    ComponentDto roslynProject = ComponentTesting.newProjectDto(organization, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
@@ -204,22 +203,22 @@ public class GhostsActionTest {
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(roslynProject)
       .setStatus(STATUS_UNPROCESSED));
     db.getSession().commit();
-    userSessionRule.logIn().addOrganizationPermission(organizationDto, SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
     TestResponse result = underTest.newRequest()
-      .setParam("organization", organizationDto.getKey())
+      .setParam("organization", organization.getKey())
       .execute();
 
     assertJson(result.getInput())
       .isSimilarTo(Resources.getResource(getClass(), "projects-example-ghosts.json"));
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_if_does_not_have_sufficient_rights() throws Exception {
-    userSessionRule.logIn()
-      .addOrganizationPermission(db.getDefaultOrganization(), UserRole.USER)
-      .addOrganizationPermission(db.getDefaultOrganization(), UserRole.ISSUE_ADMIN)
-      .addOrganizationPermission(db.getDefaultOrganization(), UserRole.CODEVIEWER);
+  @Test
+  public void throws_ForbiddenException_if_not_administrator_of_organization() throws Exception {
+    userSessionRule.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     underTest.newRequest().execute();
   }

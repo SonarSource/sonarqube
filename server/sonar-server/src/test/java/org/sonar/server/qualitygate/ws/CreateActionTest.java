@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -41,7 +40,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 
 public class CreateActionTest {
 
@@ -88,7 +87,7 @@ public class CreateActionTest {
     // as long as organizations don't support Quality gates, the global permission
     // is defined on the default organization
     OrganizationDto org = db.organizations().insert();
-    userSession.logIn().addOrganizationPermission(org, GlobalPermissions.QUALITY_GATE_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, org);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -118,7 +117,7 @@ public class CreateActionTest {
   }
 
   private void logInAsQualityGateAdmin() {
-    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_GATE_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
   }
 
 }

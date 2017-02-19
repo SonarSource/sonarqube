@@ -31,7 +31,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
@@ -122,7 +122,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_not_admin() throws Exception {
-    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_PROFILE_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
 

@@ -38,12 +38,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -118,8 +118,8 @@ public class TaskAction implements CeWsAction {
   private void checkPermission(Optional<ComponentDto> component) {
     if (component.isPresent()) {
       String orgUuid = component.get().getOrganizationUuid();
-      if (!userSession.hasOrganizationPermission(orgUuid, SYSTEM_ADMIN) &&
-        !userSession.hasOrganizationPermission(orgUuid, SCAN_EXECUTION) &&
+      if (!userSession.hasPermission(OrganizationPermission.ADMINISTER, orgUuid) &&
+        !userSession.hasPermission(OrganizationPermission.SCAN, orgUuid) &&
         !userSession.hasComponentPermission(SCAN_EXECUTION, component.get())) {
         throw insufficientPrivilegesException();
       }

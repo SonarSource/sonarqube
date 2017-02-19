@@ -40,11 +40,6 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final boolean hasOrganizationPermission(String organizationUuid, String permission) {
-    return hasPermission(OrganizationPermission.fromKey(permission), organizationUuid);
-  }
-
-  @Override
   public final boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
     return hasPermission(permission, organization.getUuid());
   }
@@ -67,12 +62,18 @@ public abstract class AbstractUserSession implements UserSession {
     return this;
   }
 
+  protected abstract boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid);
+
   @Override
-  public final UserSession checkOrganizationPermission(String organizationUuid, String permission) {
-    return checkPermission(OrganizationPermission.fromKey(permission), organizationUuid);
+  public final boolean hasOrganizationPermission(String organizationUuid, String permission) {
+    return hasPermission(OrganizationPermission.fromKey(permission), organizationUuid);
   }
 
-  protected abstract boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid);
+  @Override
+  public final UserSession checkOrganizationPermission(String organizationUuid, String permission) {
+    checkPermission(OrganizationPermission.fromKey(permission), organizationUuid);
+    return this;
+  }
 
   @Override
   public final boolean hasComponentPermission(String permission, ComponentDto component) {

@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -41,6 +40,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 
 public class ProvisionedAction implements ProjectsWsAction {
@@ -90,7 +90,7 @@ public class ProvisionedAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession,
         request.getParam(PARAM_ORGANIZATION).or(defaultOrganizationProvider.get()::getKey));
-      userSession.checkOrganizationPermission(organization.getUuid(), GlobalPermissions.PROVISIONING);
+      userSession.checkPermission(PROVISION_PROJECTS, organization);
 
       RowBounds rowBounds = new RowBounds(options.getOffset(), options.getLimit());
       List<ComponentDto> projects = dbClient.componentDao().selectProvisioned(dbSession, organization.getUuid(), query, QUALIFIERS_FILTER, rowBounds);

@@ -55,9 +55,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 
 public class ReportSubmitterTest {
 
@@ -137,7 +138,7 @@ public class ReportSubmitterTest {
     OrganizationDto organization = db.organizations().insert();
     userSession
       .addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID)
-      .addOrganizationPermission(organization, PROVISIONING);
+      .addPermission(PROVISION_PROJECTS, organization);
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newProjectDto(organization, PROJECT_UUID).setKey(PROJECT_KEY);
@@ -168,7 +169,7 @@ public class ReportSubmitterTest {
   public void no_favorite_when_no_project_creator_permission_on_permission_template() {
     userSession
       .addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID)
-      .addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
+      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
@@ -187,7 +188,7 @@ public class ReportSubmitterTest {
   public void submit_a_report_on_new_project_with_scan_permission_on_organization() {
     userSession
       .addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID)
-      .addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
+      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
@@ -205,7 +206,7 @@ public class ReportSubmitterTest {
   public void user_with_scan_permission_on_organization_is_allowed_to_submit_a_report_on_existing_project() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertProject(org);
-    userSession.addOrganizationPermission(org, SCAN_EXECUTION);
+    userSession.addPermission(SCAN, org);
 
     mockSuccessfulPrepareSubmitCall();
 
