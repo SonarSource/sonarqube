@@ -3,14 +3,12 @@
   <name>P1</name>
   <language>xoo</language>
   <rules>
-    <!-- blah comes first (sorted by repository) -->
     <rule>
       <repositoryKey>blah</repositoryKey>
       <key>my-rule</key>
       <priority>INFO</priority>
       <parameters/>
     </rule>
-    <!-- x1 before x2 (sorted by key) -->
     <rule>
       <repositoryKey>xoo</repositoryKey>
       <key>x1</key>

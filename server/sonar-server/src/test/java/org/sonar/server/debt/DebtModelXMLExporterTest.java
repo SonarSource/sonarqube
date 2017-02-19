@@ -23,17 +23,13 @@ import com.google.common.io.Resources;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 public class DebtModelXMLExporterTest {
@@ -42,7 +38,7 @@ public class DebtModelXMLExporterTest {
 
   @Test
   public void export_empty() {
-    assertThat(underTest.export(Collections.<RuleDebt>emptyList())).isEqualTo("<sqale/>" + SystemUtils.LINE_SEPARATOR);
+    assertThat(underTest.export(Collections.emptyList())).isEqualTo("<sqale/>" + SystemUtils.LINE_SEPARATOR);
   }
 
   @Test
@@ -52,7 +48,7 @@ public class DebtModelXMLExporterTest {
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name()).setCoefficient("3d").setOffset("15min")
       );
 
-    assertSimilarXml(getFileContent("export_xml.xml"), underTest.export(rules));
+    assertThat(underTest.export(rules)).isXmlEqualTo(getFileContent("export_xml.xml"));
   }
 
   @Test
@@ -78,13 +74,6 @@ public class DebtModelXMLExporterTest {
         "  </chc>" + SystemUtils.LINE_SEPARATOR +
         "</sqale>" + SystemUtils.LINE_SEPARATOR
       );
-  }
-
-  public static void assertSimilarXml(String expectedXml, String xml) throws Exception {
-    XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(xml, expectedXml);
-    String message = "Diff: " + diff.toString() + CharUtils.LF + "XML: " + xml;
-    assertTrue(message, diff.similar());
   }
 
   private static String getFileContent(String file) throws Exception {

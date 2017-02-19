@@ -976,11 +976,6 @@
         <version>1.9.2</version>
       </dependency>
       <dependency>
-        <groupId>xmlunit</groupId>
-        <artifactId>xmlunit</artifactId>
-        <version>1.4</version>
-      </dependency>
-      <dependency>
         <groupId>org.dbunit</groupId>
         <artifactId>dbunit</artifactId>
         <version>2.4.5</version>

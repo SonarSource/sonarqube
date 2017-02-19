@@ -19,22 +19,17 @@
  */
 package org.sonar.api.profiles;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.CharUtils;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XMLProfileSerializerTest {
 
@@ -75,22 +70,8 @@ public class XMLProfileSerializerTest {
     assertSimilarXml("exportRuleParameters.xml", writer.toString());
   }
 
-  public static void assertSimilarXml(String fileWithExpectedXml, String xml) throws IOException, SAXException {
-    String pathToExpectedXml = "/org/sonar/api/profiles/XMLProfileSerializerTest/" + fileWithExpectedXml;
-    InputStream stream = XMLProfileSerializerTest.class.getResourceAsStream(pathToExpectedXml);
-    try {
-      Diff diff = isSimilarXml(IOUtils.toString(stream), xml);
-      String message = "Diff: " + diff.toString() + CharUtils.LF + "XML: " + xml;
-      assertTrue(message, diff.similar());
-
-    } finally {
-      IOUtils.closeQuietly(stream);
-    }
-  }
-
-  static Diff isSimilarXml(String expectedXml, String xml) throws IOException, SAXException {
-    XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(xml, expectedXml);
-    return diff;
+  private void assertSimilarXml(String fileWithExpectedXml, String xml) throws IOException, SAXException {
+    String pathToExpectedXml = "XMLProfileSerializerTest/" + fileWithExpectedXml;
+    assertThat(xml).isXmlEqualTo(IOUtils.toString(getClass().getResource(pathToExpectedXml)));
   }
 }

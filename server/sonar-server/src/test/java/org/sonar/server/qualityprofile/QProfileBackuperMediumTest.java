@@ -25,8 +25,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -134,12 +132,8 @@ public class QProfileBackuperMediumTest {
     StringWriter output = new StringWriter();
     tester.get(QProfileBackuper.class).backup(XOO_P1_KEY, output);
 
-    XMLUnit.setIgnoreWhitespace(true);
-    XMLUnit.setIgnoreComments(true);
-    Diff diff = XMLUnit.compareXML(output.toString(),
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/expected-backup.xml"), StandardCharsets.UTF_8));
-
-    assertThat(diff.identical()).as(diff.toString()).isTrue();
+    String expectedXml = Resources.toString(getClass().getResource("QProfileBackuperMediumTest/expected-backup.xml"), StandardCharsets.UTF_8);
+    assertThat(output.toString()).isXmlEqualTo(expectedXml);
   }
 
   @Test
