@@ -41,10 +41,10 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 /**
@@ -248,7 +248,7 @@ public class QualityGates {
   }
 
   private void checkProjectAdmin(ComponentDto project) {
-    if (!userSession.hasOrganizationPermission(project.getOrganizationUuid(), QUALITY_GATE_ADMIN)
+    if (!userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, project.getOrganizationUuid())
       && !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw insufficientPrivilegesException();
     }

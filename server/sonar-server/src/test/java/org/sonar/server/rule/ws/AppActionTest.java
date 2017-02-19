@@ -26,7 +26,6 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleRepositoryDto;
@@ -41,6 +40,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class AppActionTest {
 
@@ -59,7 +59,7 @@ public class AppActionTest {
     AppAction app = new AppAction(languages, db.getDbClient(), i18n, userSessionRule, defaultOrganizationProvider);
     WsTester tester = new WsTester(new RulesWs(app));
 
-    userSessionRule.addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
 
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);

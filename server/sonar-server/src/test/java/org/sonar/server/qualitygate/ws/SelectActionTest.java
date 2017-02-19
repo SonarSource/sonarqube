@@ -37,7 +37,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class SelectActionTest {
@@ -109,7 +109,7 @@ public class SelectActionTest {
 
   @Test
   public void gate_administrator_can_associate_a_gate_to_a_project() throws Exception {
-    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), QUALITY_GATE_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, project.getOrganizationUuid());
     String gateId = String.valueOf(gate.getId());
 
     callByKey(gateId, project.getKey());

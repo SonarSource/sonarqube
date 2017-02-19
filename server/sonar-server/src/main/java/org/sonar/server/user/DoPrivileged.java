@@ -22,12 +22,11 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.OrganizationPermission;
 
 /**
- * Allow code to be executed with the highest privileges possible, as if executed by a {@link GlobalPermissions#SYSTEM_ADMIN} account.
+ * Allow code to be executed with the highest privileges possible, as if executed by a {@link OrganizationPermission#ADMINISTER} account.
  * @since 4.3
  */
 public final class DoPrivileged {

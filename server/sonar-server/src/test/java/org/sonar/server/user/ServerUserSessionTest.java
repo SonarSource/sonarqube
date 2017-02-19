@@ -36,6 +36,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
+import org.sonar.server.permission.OrganizationPermission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
@@ -87,7 +88,6 @@ public class ServerUserSessionTest {
     assertThat(session.getLogin()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
   }
-
 
   @Test
   public void getGroups_is_empty_on_anonymous() {
@@ -174,7 +174,7 @@ public class ServerUserSessionTest {
 
     expectInsufficientPrivilegesForbiddenException();
 
-    newUserSession(NON_ROOT_USER_DTO).checkOrganizationPermission(org.getUuid(), PROVISIONING);
+    newUserSession(NON_ROOT_USER_DTO).checkPermission(OrganizationPermission.PROVISION_PROJECTS, org);
   }
 
   @Test
@@ -183,72 +183,72 @@ public class ServerUserSessionTest {
     db.users().insertUser(NON_ROOT_USER_DTO);
     db.users().insertPermissionOnUser(org, NON_ROOT_USER_DTO, PROVISIONING);
 
-    newUserSession(NON_ROOT_USER_DTO).checkOrganizationPermission(org.getUuid(), PROVISIONING);
+    newUserSession(NON_ROOT_USER_DTO).checkPermission(OrganizationPermission.PROVISION_PROJECTS, org);
   }
 
   @Test
   public void checkOrganizationPermission_succeeds_when_user_is_root() {
     OrganizationDto org = db.organizations().insert();
 
-    newUserSession(ROOT_USER_DTO).checkOrganizationPermission(org.getUuid(), PROVISIONING);
+    newUserSession(ROOT_USER_DTO).checkPermission(OrganizationPermission.PROVISION_PROJECTS, org);
   }
 
   @Test
-  public void test_hasOrganizationPermission_for_logged_in_user() {
+  public void test_hasPermission_on_organization_for_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertProject(org);
     db.users().insertPermissionOnUser(org, userDto, PROVISIONING);
     db.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, project);
 
     UserSession session = newUserSession(userDto);
-    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), SYSTEM_ADMIN)).isFalse();
-    assertThat(session.hasOrganizationPermission("another-org", PROVISIONING)).isFalse();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, org.getUuid())).isTrue();
+    assertThat(session.hasPermission(OrganizationPermission.ADMINISTER, org.getUuid())).isFalse();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, "another-org")).isFalse();
   }
 
   @Test
-  public void test_hasOrganizationPermission_for_anonymous_user() {
+  public void test_hasPermission_on_organization_for_anonymous_user() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertPermissionOnAnyone(org, PROVISIONING);
 
     UserSession session = newAnonymousSession();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), SYSTEM_ADMIN)).isFalse();
-    assertThat(session.hasOrganizationPermission("another-org", PROVISIONING)).isFalse();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, org.getUuid())).isTrue();
+    assertThat(session.hasPermission(OrganizationPermission.ADMINISTER, org.getUuid())).isFalse();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, "another-org")).isFalse();
   }
 
   @Test
-  public void hasOrganizationPermission_keeps_cache_of_permissions_of_logged_in_user() {
+  public void hasPermission_on_organization_keeps_cache_of_permissions_of_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertPermissionOnUser(org, userDto, PROVISIONING);
 
     UserSession session = newUserSession(userDto);
 
     // feed the cache
-    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, org.getUuid())).isTrue();
 
     // change permissions without updating the cache
     db.users().deletePermissionFromUser(org, userDto, PROVISIONING);
     db.users().insertPermissionOnUser(org, userDto, SCAN_EXECUTION);
-    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), SYSTEM_ADMIN)).isFalse();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), SCAN_EXECUTION)).isFalse();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, org.getUuid())).isTrue();
+    assertThat(session.hasPermission(OrganizationPermission.ADMINISTER, org.getUuid())).isFalse();
+    assertThat(session.hasPermission(OrganizationPermission.SCAN, org.getUuid())).isFalse();
   }
 
   @Test
-  public void hasOrganizationPermission_keeps_cache_of_permissions_of_anonymous_user() {
+  public void hasPermission_on_organization_keeps_cache_of_permissions_of_anonymous_user() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertPermissionOnAnyone(org, PROVISIONING);
 
     UserSession session = newAnonymousSession();
 
     // feed the cache
-    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, org.getUuid())).isTrue();
 
     // change permissions without updating the cache
     db.users().insertPermissionOnAnyone(org, SCAN_EXECUTION);
-    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), SCAN_EXECUTION)).isFalse();
+    assertThat(session.hasPermission(OrganizationPermission.PROVISION_PROJECTS, org.getUuid())).isTrue();
+    assertThat(session.hasPermission(OrganizationPermission.SCAN, org.getUuid())).isFalse();
   }
 
   @Test
@@ -317,7 +317,6 @@ public class ServerUserSessionTest {
     assertThat(session.hasComponentPermission(UserRole.USER, project)).isTrue();
     assertThat(session.hasComponentPermission(UserRole.ADMIN, project)).isFalse();
   }
-
 
   @Test
   public void isSystemAdministrator_returns_true_if_org_feature_is_enabled_and_user_is_root() {

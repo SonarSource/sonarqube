@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -42,6 +41,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class SetDefaultActionTest {
 
@@ -147,7 +147,7 @@ public class SetDefaultActionTest {
   private void logInAsQProfileAdministrator() {
     userSessionRule
       .logIn()
-      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 
   private void createProfiles() {

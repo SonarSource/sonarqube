@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -51,6 +50,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class ChangeParentActionMediumTest {
 
@@ -76,7 +76,7 @@ public class ChangeParentActionMediumTest {
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     ruleIndex = tester.get(RuleIndex.class);
-    userSessionRule.logIn().addOrganizationPermission(tester.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, tester.get(DefaultOrganizationProvider.class).get().getUuid());
   }
 
   @After

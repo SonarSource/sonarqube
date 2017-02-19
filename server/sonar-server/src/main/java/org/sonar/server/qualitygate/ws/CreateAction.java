@@ -22,11 +22,11 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
@@ -66,7 +66,7 @@ public class CreateAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_GATE_ADMIN);
+    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, request.mandatoryParam(PARAM_NAME));

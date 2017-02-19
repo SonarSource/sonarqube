@@ -39,7 +39,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
@@ -230,7 +230,7 @@ public class AddUserActionTest {
   }
 
   private void loginAsAdmin(OrganizationDto org) {
-    userSession.logIn().addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, org);
   }
 
   private GroupWsSupport newGroupWsSupport() {

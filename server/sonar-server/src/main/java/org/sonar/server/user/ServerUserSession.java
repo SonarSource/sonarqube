@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -178,7 +177,7 @@ public class ServerUserSession extends AbstractUserSession {
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (!organizationFlags.isEnabled(dbSession)) {
         String uuidOfDefaultOrg = defaultOrganizationProvider.get().getUuid();
-        return hasOrganizationPermission(uuidOfDefaultOrg, GlobalPermissions.SYSTEM_ADMIN);
+        return hasPermission(OrganizationPermission.ADMINISTER, uuidOfDefaultOrg);
       }
       // organization feature is enabled -> requires to be root
       return false;

@@ -23,7 +23,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -31,6 +30,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
@@ -69,7 +69,7 @@ public class AddUserAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupId groupId = support.findGroup(dbSession, request);
-      userSession.checkLoggedIn().checkOrganizationPermission(groupId.getOrganizationUuid(), GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkLoggedIn().checkPermission(ADMINISTER, groupId.getOrganizationUuid());
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);

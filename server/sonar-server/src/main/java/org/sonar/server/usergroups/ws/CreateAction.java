@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.user.UserGroupValidation;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -33,6 +32,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsUserGroups;
 
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
@@ -84,7 +84,7 @@ public class CreateAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
-      userSession.checkOrganizationPermission(organization.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkPermission(ADMINISTER, organization);
       GroupDto group = new GroupDto()
         .setOrganizationUuid(organization.getUuid())
         .setName(request.mandatoryParam(PARAM_GROUP_NAME))

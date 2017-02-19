@@ -33,7 +33,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -63,6 +62,7 @@ import org.sonarqube.ws.MediaTypes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.parseFrom;
@@ -246,6 +246,6 @@ public class CreateActionTest {
   private void logInAsQProfileAdministrator() {
     userSession
       .logIn()
-      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 }

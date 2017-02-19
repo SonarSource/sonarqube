@@ -31,8 +31,8 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.UpdateConditionWsResponse;
 import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
 
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_UPDATE_CONDITION;
@@ -77,7 +77,7 @@ public class UpdateConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), QUALITY_GATE_ADMIN);
+    userSession.checkPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       writeProtobuf(doHandle(toWsRequest(request), dbSession), request, response);

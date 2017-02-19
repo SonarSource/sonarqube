@@ -19,17 +19,18 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -140,9 +141,9 @@ public class CurrentAction implements UsersWsAction {
     json.name("global").beginArray();
 
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    GlobalPermissions.ALL.stream()
-      .filter(permission -> userSession.hasOrganizationPermission(defaultOrganizationUuid, permission))
-      .forEach(json::value);
+    Arrays.stream(OrganizationPermission.values())
+      .filter(permission -> userSession.hasPermission(permission, defaultOrganizationUuid))
+      .forEach(permission -> json.value(permission.getKey()));
 
     json.endArray();
   }

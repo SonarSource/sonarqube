@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -44,6 +43,8 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ProvisionedActionTest {
@@ -80,14 +81,14 @@ public class ProvisionedActionTest {
 
   @Test
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto analyzedProject = ComponentTesting.newProjectDto(organizationDto, "analyzed-uuid-1");
-    db.components().insertComponents(newProvisionedProject(organizationDto, "1"), newProvisionedProject(organizationDto, "2"), analyzedProject);
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto analyzedProject = ComponentTesting.newProjectDto(org, "analyzed-uuid-1");
+    db.components().insertComponents(newProvisionedProject(org, "1"), newProvisionedProject(org, "2"), analyzedProject);
     db.components().insertSnapshot(SnapshotTesting.newAnalysis(analyzedProject));
-    userSessionRule.logIn().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
     TestResponse result = underTest.newRequest()
-      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .execute();
 
     String json = result.getInput();
@@ -111,14 +112,14 @@ public class ProvisionedActionTest {
 
   @Test
   public void provisioned_projects_with_correct_pagination() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
+    OrganizationDto org = db.organizations().insert();
     for (int i = 1; i <= 10; i++) {
-      db.components().insertComponent(newProvisionedProject(organizationDto, String.valueOf(i)));
+      db.components().insertComponent(newProvisionedProject(org, String.valueOf(i)));
     }
-    userSessionRule.logIn().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
     TestRequest request = underTest.newRequest()
-      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4");
 
@@ -131,7 +132,7 @@ public class ProvisionedActionTest {
   public void provisioned_projects_with_desired_fields() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertComponent(newProvisionedProject(organization, "1"));
-    userSessionRule.logIn().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addPermission(PROVISION_PROJECTS, organization);
 
     String jsonOutput = underTest.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -145,12 +146,12 @@ public class ProvisionedActionTest {
 
   @Test
   public void provisioned_projects_with_query() throws Exception {
-    OrganizationDto organization = db.organizations().insert();
-    db.components().insertComponents(newProvisionedProject(organization, "1"), newProvisionedProject(organization, "2"));
-    userSessionRule.logIn().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
+    OrganizationDto org = db.organizations().insert();
+    db.components().insertComponents(newProvisionedProject(org, "1"), newProvisionedProject(org, "2"));
+    userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
     String jsonOutput = underTest.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(Param.TEXT_QUERY, "PROVISIONED-name-2")
       .execute().getInput();
 
@@ -161,20 +162,20 @@ public class ProvisionedActionTest {
 
   @Test
   public void provisioned_projects_as_defined_in_the_example() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto hBaseProject = ComponentTesting.newProjectDto(organizationDto, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto hBaseProject = ComponentTesting.newProjectDto(org, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
-    ComponentDto roslynProject = ComponentTesting.newProjectDto(organizationDto, "c526ef20-131b-4486-9357-063fa64b5079")
+    ComponentDto roslynProject = ComponentTesting.newProjectDto(org, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
     db.components().insertComponents(hBaseProject, roslynProject);
-    userSessionRule.logIn().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
     TestResponse result = underTest.newRequest()
-      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .execute();
 
     assertJson(result.getInput())
@@ -183,9 +184,9 @@ public class ProvisionedActionTest {
 
   @Test
   public void fail_when_not_enough_privileges() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertComponent(newProvisionedProject(organizationDto, "1"));
-    userSessionRule.logIn().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.SCAN_EXECUTION);
+    OrganizationDto organization = db.organizations().insert();
+    db.components().insertComponent(newProvisionedProject(organization, "1"));
+    userSessionRule.logIn().addPermission(SCAN, organization);
 
     expectedException.expect(ForbiddenException.class);
 

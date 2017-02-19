@@ -87,12 +87,12 @@ public class CeUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
+  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
     throw notImplemented();
   }
 
   @Override
-  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
+  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
     throw notImplemented();
   }
 

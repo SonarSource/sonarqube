@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
@@ -80,7 +80,7 @@ public class DeleteActionTest {
   @Test
   public void organization_administrator_deletes_project_by_id() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
-    userSessionRule.logIn().addOrganizationPermission(project.getOrganizationUuid(), SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
 
     WsTester.TestRequest request = newRequest().setParam(PARAM_PROJECT_ID, project.uuid());
     call(request);
@@ -91,7 +91,7 @@ public class DeleteActionTest {
   @Test
   public void organization_administrator_deletes_project_by_key() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
-    userSessionRule.logIn().addOrganizationPermission(project.getOrganizationUuid(), SYSTEM_ADMIN);
+    userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
 
     call(newRequest().setParam(PARAM_PROJECT, project.key()));
 

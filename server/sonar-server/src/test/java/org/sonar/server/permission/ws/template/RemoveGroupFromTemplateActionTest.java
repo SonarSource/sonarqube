@@ -37,7 +37,7 @@ import org.sonar.server.ws.TestRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -120,7 +120,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
-    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
+    userSession.logIn().addPermission(SCAN, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
 

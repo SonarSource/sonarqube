@@ -21,12 +21,12 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
@@ -78,7 +78,7 @@ public class QProfileProjectOperations {
   }
 
   private void checkAdminOnProject(ComponentDto project) {
-    if (!userSession.hasOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN) &&
+    if (!userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid()) &&
       !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw new ForbiddenException("Insufficient privileges");
     }

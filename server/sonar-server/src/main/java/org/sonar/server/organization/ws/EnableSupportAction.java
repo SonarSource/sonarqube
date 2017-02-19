@@ -26,10 +26,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class EnableSupportAction implements OrganizationsAction {
   private static final String ACTION = "enable_support";
@@ -73,7 +73,7 @@ public class EnableSupportAction implements OrganizationsAction {
   }
 
   private void verifySystemAdministrator() {
-    userSession.checkLoggedIn().checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER, defaultOrganizationProvider.get().getUuid());
   }
 
   private boolean isSupportDisabled(DbSession dbSession) {

@@ -49,8 +49,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 
 public class DeleteActionTest {
 
@@ -295,6 +295,6 @@ public class DeleteActionTest {
   }
 
   private void logInAsAdministrator(OrganizationDto organization) {
-    userSession.logIn().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, organization);
   }
 }

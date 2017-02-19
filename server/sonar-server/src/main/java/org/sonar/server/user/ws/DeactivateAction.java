@@ -35,12 +35,12 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -135,10 +135,11 @@ public class DeactivateAction implements UsersWsAction {
 
   private List<String> selectOrganizationsWithNoMoreAdministrators(DbSession dbSession, UserDto user) {
     Set<String> organizationUuids = dbClient.authorizationDao().selectOrganizationUuidsOfUserWithGlobalPermission(
-      dbSession, user.getId(), SYSTEM_ADMIN);
+      dbSession, user.getId(), OrganizationPermission.ADMINISTER.getKey());
     List<String> problematicOrganizations = new ArrayList<>();
     for (String organizationUuid : organizationUuids) {
-      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, organizationUuid, SYSTEM_ADMIN, user.getId());
+      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession,
+        organizationUuid, OrganizationPermission.ADMINISTER.getKey(), user.getId());
       if (remaining == 0) {
         problematicOrganizations.add(organizationUuid);
       }

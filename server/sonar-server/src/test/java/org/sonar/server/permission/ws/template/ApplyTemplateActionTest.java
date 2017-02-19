@@ -41,7 +41,7 @@ import org.sonar.server.ws.TestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -175,7 +175,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_not_admin_of_organization() throws Exception {
-    userSession.logIn().addOrganizationPermission("otherOrg", SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, "otherOrg");
 
     expectedException.expect(ForbiddenException.class);
 

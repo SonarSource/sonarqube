@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -40,6 +39,7 @@ import org.sonar.server.ws.WsTester.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 
 public class UsersActionTest {
@@ -273,6 +273,6 @@ public class UsersActionTest {
   }
 
   private void loginAsAdmin(OrganizationDto org) {
-    userSession.logIn().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, org);
   }
 }

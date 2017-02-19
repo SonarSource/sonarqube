@@ -37,6 +37,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
@@ -225,7 +226,7 @@ public class RemoveUserActionTest {
   }
 
   private void loginAsAdmin(OrganizationDto org) {
-    userSession.logIn("admin").addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn("admin").addPermission(ADMINISTER, org);
   }
 
   private UserDto insertAnAdministratorInDefaultOrganization() {

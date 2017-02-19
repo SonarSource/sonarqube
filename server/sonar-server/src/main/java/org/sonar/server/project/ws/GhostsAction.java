@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -40,6 +39,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class GhostsAction implements ProjectsWsAction {
@@ -89,7 +89,7 @@ public class GhostsAction implements ProjectsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = getOrganization(dbSession, request);
-      userSession.checkOrganizationPermission(organization.getUuid(), UserRole.ADMIN);
+      userSession.checkPermission(ADMINISTER, organization);
 
       long nbOfProjects = dbClient.componentDao().countGhostProjects(dbSession, organization.getUuid(), query);
       List<ComponentDto> projects = dbClient.componentDao().selectGhostProjects(dbSession, organization.getUuid(), query,

@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
@@ -37,6 +36,9 @@ import org.sonar.server.ws.WsActionTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CurrentActionTest {
@@ -60,11 +62,11 @@ public class CurrentActionTest {
 
     // permissions on default organization
     userSessionRule
-      .addOrganizationPermission(db.getDefaultOrganization(), GlobalPermissions.SCAN_EXECUTION)
-      .addOrganizationPermission(db.getDefaultOrganization(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      .addPermission(SCAN, db.getDefaultOrganization())
+      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
     // permissions on other organizations are ignored
-    userSessionRule.addOrganizationPermission(db.organizations().insert(), GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.addPermission(ADMINISTER, db.organizations().insert());
 
     UserDto obiwan = db.users().insertUser(
       newUserDto("obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com")

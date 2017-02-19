@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.sonar.api.web.UserRole;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class PermissionPrivilegeChecker {
@@ -34,7 +33,7 @@ public class PermissionPrivilegeChecker {
   public static void checkGlobalAdmin(UserSession userSession, String organizationUuid) {
     userSession
       .checkLoggedIn()
-      .checkOrganizationPermission(organizationUuid, SYSTEM_ADMIN);
+      .checkPermission(OrganizationPermission.ADMINISTER, organizationUuid);
   }
 
   /**
@@ -45,7 +44,7 @@ public class PermissionPrivilegeChecker {
   public static void checkProjectAdmin(UserSession userSession, String organizationUuid, Optional<ProjectId> projectId) {
     userSession.checkLoggedIn();
 
-    if (userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN)) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organizationUuid)) {
       return;
     }
 

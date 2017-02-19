@@ -34,12 +34,12 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_AVATAR_URL;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_DESCRIPTION;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_URL;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements OrganizationsAction {
@@ -93,7 +93,7 @@ public class UpdateAction implements OrganizationsAction {
 
       OrganizationDto dto = getDto(dbSession, key);
 
-      userSession.checkOrganizationPermission(dto.getUuid(), SYSTEM_ADMIN);
+      userSession.checkPermission(ADMINISTER, dto);
 
       dto.setName(updateRequest.getName().or(dto::getName))
         .setDescription(updateRequest.getDescription().or(dto::getDescription))

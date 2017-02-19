@@ -43,10 +43,10 @@ import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTemplatesAction> {
@@ -73,7 +73,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     SearchTemplatesDataLoader dataLoaderWithViews = new SearchTemplatesDataLoader(dbClient, defaultTemplatesResolverWithViews);
     underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoaderWithViews));
     i18n.setProjectPermissions();
-    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
   }
 
   @Test
@@ -178,7 +178,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
     insertProjectTemplate(db.getDefaultOrganization());
     db.commit();
-    userSession.addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
+    userSession.addPermission(ADMINISTER, org);
 
     WsPermissions.SearchTemplatesWsResponse result = WsPermissions.SearchTemplatesWsResponse.parseFrom(
       newRequest(underTestWithoutViews)

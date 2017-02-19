@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.user.UserGroupValidation;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -40,6 +39,7 @@ import org.sonarqube.ws.WsUserGroups;
 
 import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
@@ -100,7 +100,7 @@ public class UpdateAction implements UserGroupsWsAction {
       checkFound(group, "Could not find a user group with id '%s'.", groupId);
       Optional<OrganizationDto> org = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
       checkFoundWithOptional(org, "Could not find organization with id '%s'.", group.getOrganizationUuid());
-      userSession.checkOrganizationPermission(org.get().getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkPermission(ADMINISTER, org.get());
 
       boolean changed = false;
       String newName = request.param(PARAM_GROUP_NAME);

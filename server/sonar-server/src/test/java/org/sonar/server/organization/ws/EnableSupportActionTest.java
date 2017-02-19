@@ -29,7 +29,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -38,7 +37,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 
 public class EnableSupportActionTest {
 
@@ -114,7 +113,7 @@ public class EnableSupportActionTest {
   }
 
   private void logInAsSystemAdministrator(String login) {
-    userSession.logIn(login).addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
+    userSession.logIn(login).addPermission(ADMINISTER, db.getDefaultOrganization());
   }
 
   private void call() {

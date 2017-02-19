@@ -23,7 +23,6 @@ import java.io.Writer;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -31,6 +30,8 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 @ServerSide
 public class QProfileService {
@@ -96,6 +97,6 @@ public class QProfileService {
   private void verifyAdminPermission() {
     userSession
       .checkLoggedIn()
-      .checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 }

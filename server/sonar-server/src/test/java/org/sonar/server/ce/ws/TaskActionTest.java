@@ -43,6 +43,7 @@ import org.sonarqube.ws.WsCe;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TaskActionTest {
@@ -249,7 +250,7 @@ public class TaskActionTest {
 
   @Test
   public void get_project_queue_task_with_scan_permission_on_organization_but_not_on_project() {
-    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
     CeQueueDto task = createAndPersistQueueTask(project);
 
     call(task.getUuid());
@@ -293,7 +294,7 @@ public class TaskActionTest {
 
   @Test
   public void get_project_archived_task_with_scan_permission_on_organization_but_not_on_project() {
-    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
     CeActivityDto task = createAndPersistArchivedTask(project);
 
     call(task.getUuid());

@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -33,6 +32,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class BulkDeleteAction implements ProjectsWsAction {
@@ -104,7 +104,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       return Optional.empty();
     }
     OrganizationDto org = support.getOrganization(dbSession, orgKey);
-    userSession.checkOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(ADMINISTER, org);
     return Optional.of(org);
   }
 
