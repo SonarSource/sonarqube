@@ -30,9 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LocalizedMessagesTest {
   private static final Locale DEFAULT_LOCALE = Locale.getDefault();
@@ -51,26 +49,26 @@ public class LocalizedMessagesTest {
   public void mergeBundles() {
     LocalizedMessages messages = new LocalizedMessages(Locale.ENGLISH, "Test", "PluginFoo");
 
-    assertThat(messages.getString("test.one"), is("One"));
-    assertThat(messages.getString("test.two"), is("Two"));
-    assertThat(messages.getString("foo.hello"), is("Hello"));
+    assertThat(messages.getString("test.one")).isEqualTo("One");
+    assertThat(messages.getString("test.two")).isEqualTo("Two");
+    assertThat(messages.getString("foo.hello")).isEqualTo("Hello");
   }
 
   @Test
   public void mergeBundlesByLocale() {
     LocalizedMessages messages = new LocalizedMessages(Locale.FRENCH, "Test", "PluginFoo");
 
-    assertThat(messages.getString("test.one"), is("Un"));
-    assertThat(messages.getString("test.two"), is("Deux"));
-    assertThat(messages.getString("foo.hello"), is("Hello"));// not in french, use the default locale
+    assertThat(messages.getString("test.one")).isEqualTo("Un");
+    assertThat(messages.getString("test.two")).isEqualTo("Deux");
+    assertThat(messages.getString("foo.hello")).isEqualTo("Hello");// not in french, use the default locale
   }
 
   @Test
   public void useDefaultWhenMissingLocale() {
     LocalizedMessages messages = new LocalizedMessages(Locale.JAPANESE, "Test", "PluginFoo");
 
-    assertThat(messages.getString("test.one"), is("One"));
-    assertThat(messages.getString("foo.hello"), is("Hello"));
+    assertThat(messages.getString("test.one")).isEqualTo("One");
+    assertThat(messages.getString("foo.hello")).isEqualTo("Hello");
   }
 
   @Test(expected = MissingResourceException.class)
@@ -82,29 +80,29 @@ public class LocalizedMessagesTest {
   @Test
   public void format() {
     LocalizedMessages messages = new LocalizedMessages(Locale.ENGLISH, "Test", "PluginFoo");
-    assertThat(messages.format("test.one"), is("One"));
+    assertThat(messages.format("test.one")).isEqualTo("One");
   }
 
   @Test
   public void formatNeverFails() {
     LocalizedMessages messages = new LocalizedMessages(Locale.ENGLISH, "Test", "PluginFoo");
-    assertThat(messages.format("unknown"), is("unknown"));
+    assertThat(messages.format("unknown")).isEqualTo("unknown");
   }
 
   @Test
   public void formatParameters() {
     LocalizedMessages messages = new LocalizedMessages(Locale.ENGLISH, "Test", "PluginFoo");
-    assertThat(messages.format("with.string.params", "inspection", "rock"), is("Continuous inspection will rock !"));
-    assertThat(messages.format("with.string.params", "rock", "inspection"), is("Continuous rock will inspection !"));
+    assertThat(messages.format("with.string.params", "inspection", "rock")).isEqualTo("Continuous inspection will rock !");
+    assertThat(messages.format("with.string.params", "rock", "inspection")).isEqualTo("Continuous rock will inspection !");
   }
 
   @Test
   public void getKeys() {
     LocalizedMessages messages = new LocalizedMessages(Locale.ENGLISH, "Test", "PluginFoo");
-    assertThat(toList(messages.getKeys()), hasItems("test.one", "test.two", "foo.hello"));
+    assertThat(toList(messages.getKeys())).contains("test.one", "test.two", "foo.hello");
 
     LocalizedMessages spanishMessages = new LocalizedMessages(new Locale("es"), "Test", "PluginFoo");
-    assertThat(toList(spanishMessages.getKeys()), hasItems("test.one", "only.in.spanish"));
+    assertThat(toList(spanishMessages.getKeys())).contains("test.one", "only.in.spanish");
   }
 
   private List<String> toList(Enumeration<String> enumeration) {

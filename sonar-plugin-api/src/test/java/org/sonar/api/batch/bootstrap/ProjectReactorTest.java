@@ -21,8 +21,7 @@ package org.sonar.api.batch.bootstrap;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectReactorTest {
 
@@ -33,8 +32,8 @@ public class ProjectReactorTest {
     root.addSubProject(child);
 
     ProjectReactor reactor = new ProjectReactor(root);
-    assertThat(reactor.getProjects().size(), is(2));
-    assertThat(reactor.getRoot(), is(root));
+    assertThat(reactor.getProjects()).hasSize(2);
+    assertThat(reactor.getRoot()).isSameAs(root);
   }
 
   @Test(expected = IllegalArgumentException.class)

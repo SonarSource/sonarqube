@@ -26,49 +26,47 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnnotationUtilsTest {
 
   @Test
   public void getClassAnnotation() {
     FakeAnnotation annotation = AnnotationUtils.getAnnotation(new SuperClass(), FakeAnnotation.class);
-    assertThat(annotation.value(), is("foo"));
+    assertThat(annotation.value()).isEqualTo("foo");
   }
 
   @Test
   public void getClassAnnotationWithDeprecatedMethod() {
     FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new SuperClass(), FakeAnnotation.class);
-    assertThat(annotation.value(), is("foo"));
+    assertThat(annotation.value()).isEqualTo("foo");
   }
 
   @Test
   public void searchClassAnnotationInSuperClass() {
     FakeAnnotation annotation = AnnotationUtils.getAnnotation(new ChildClass(), FakeAnnotation.class);
-    assertThat(annotation.value(), is("foo"));
+    assertThat(annotation.value()).isEqualTo("foo");
   }
 
   @Test
   public void searchClassAnnotationInInterface() {
     FakeAnnotation annotation = AnnotationUtils.getAnnotation(new ImplementedClass(), FakeAnnotation.class);
-    assertThat(annotation.value(), is("foo"));
+    assertThat(annotation.value()).isEqualTo("foo");
   }
 
   @Test
   public void noClassAnnotation() {
     FakeAnnotation annotation = AnnotationUtils.getAnnotation("a string", FakeAnnotation.class);
-    assertThat(annotation, nullValue());
+    assertThat(annotation).isNull();
   }
 
   @Test
   public void shouldAcceptClasses() {
     FakeAnnotation annotation = AnnotationUtils.getAnnotation(SuperClass.class, FakeAnnotation.class);
-    assertThat(annotation.value(), is("foo"));
+    assertThat(annotation.value()).isEqualTo("foo");
 
     annotation = AnnotationUtils.getAnnotation(ChildClass.class, FakeAnnotation.class);
-    assertThat(annotation.value(), is("foo"));
+    assertThat(annotation.value()).isEqualTo("foo");
   }
 
 }

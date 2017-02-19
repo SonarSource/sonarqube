@@ -19,12 +19,9 @@
  */
 package org.sonar.api.utils;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WildcardPatternTest {
 
@@ -38,88 +35,88 @@ public class WildcardPatternTest {
 
   @Test
   public void examples() {
-    assertTrue(match("org/T?st.java", "org/Test.java"));
-    assertTrue(match("org/T?st.java", "org/Tost.java"));
+    assertThat(match("org/T?st.java", "org/Test.java")).isTrue();
+    assertThat(match("org/T?st.java", "org/Tost.java")).isTrue();
 
-    assertTrue(match("org/*.java", "org/Foo.java"));
-    assertTrue(match("org/*.java", "org/Bar.java"));
+    assertThat(match("org/*.java", "org/Foo.java")).isTrue();
+    assertThat(match("org/*.java", "org/Bar.java")).isTrue();
 
-    assertTrue(match("org/**", "org/Foo.java"));
-    assertTrue(match("org/**", "org/foo/bar.jsp"));
+    assertThat(match("org/**", "org/Foo.java")).isTrue();
+    assertThat(match("org/**", "org/foo/bar.jsp")).isTrue();
 
-    assertTrue(match("org/**/Test.java", "org/Test.java"));
-    assertTrue(match("org/**/Test.java", "org/foo/Test.java"));
-    assertTrue(match("org/**/Test.java", "org/foo/bar/Test.java"));
+    assertThat(match("org/**/Test.java", "org/Test.java")).isTrue();
+    assertThat(match("org/**/Test.java", "org/foo/Test.java")).isTrue();
+    assertThat(match("org/**/Test.java", "org/foo/bar/Test.java")).isTrue();
 
-    assertTrue(match("org/**/*.java", "org/Foo.java"));
-    assertTrue(match("org/**/*.java", "org/foo/Bar.java"));
-    assertTrue(match("org/**/*.java", "org/foo/bar/Baz.java"));
+    assertThat(match("org/**/*.java", "org/Foo.java")).isTrue();
+    assertThat(match("org/**/*.java", "org/foo/Bar.java")).isTrue();
+    assertThat(match("org/**/*.java", "org/foo/bar/Baz.java")).isTrue();
   }
 
   @Test
   public void javaResourcesShouldMatchWildcards() {
-    assertTrue(match("Foo", "Foo", "."));
-    assertFalse(match("Foo", "Bar", "."));
+    assertThat(match("Foo", "Foo", ".")).isTrue();
+    assertThat(match("Foo", "Bar", ".")).isFalse();
 
-    assertTrue(match("org/sonar/**", "org.sonar.commons.Foo", "."));
-    assertTrue(match("org/sonar/**", "org.sonar.Foo", "."));
-    assertFalse(match("xxx/org/sonar/**", "org.sonar.Foo", "."));
+    assertThat(match("org/sonar/**", "org.sonar.commons.Foo", ".")).isTrue();
+    assertThat(match("org/sonar/**", "org.sonar.Foo", ".")).isTrue();
+    assertThat(match("xxx/org/sonar/**", "org.sonar.Foo", ".")).isFalse();
 
-    assertTrue(match("org/sonar/**/**", "org.sonar.commons.Foo", "."));
-    assertTrue(match("org/sonar/**/**", "org.sonar.commons.sub.Foo", "."));
-    assertTrue(match("org/sonar/**/Foo", "org.sonar.commons.sub.Foo", "."));
-    assertTrue(match("org/sonar/**/Foo", "org.sonar.Foo", "."));
+    assertThat(match("org/sonar/**/**", "org.sonar.commons.Foo", ".")).isTrue();
+    assertThat(match("org/sonar/**/**", "org.sonar.commons.sub.Foo", ".")).isTrue();
+    assertThat(match("org/sonar/**/Foo", "org.sonar.commons.sub.Foo", ".")).isTrue();
+    assertThat(match("org/sonar/**/Foo", "org.sonar.Foo", ".")).isTrue();
 
-    assertTrue(match("*/foo/*", "org.foo.Bar", "."));
-    assertFalse(match("*/foo/*", "foo.Bar", "."));
-    assertFalse(match("*/foo/*", "foo", "."));
-    assertFalse(match("*/foo/*", "org.foo.bar.Hello", "."));
+    assertThat(match("*/foo/*", "org.foo.Bar", ".")).isTrue();
+    assertThat(match("*/foo/*", "foo.Bar", ".")).isFalse();
+    assertThat(match("*/foo/*", "foo", ".")).isFalse();
+    assertThat(match("*/foo/*", "org.foo.bar.Hello", ".")).isFalse();
 
-    assertTrue(match("hell?", "hello", "."));
-    assertFalse(match("hell?", "helloworld", "."));
-    assertFalse(match("hell?", "hell", "."));
+    assertThat(match("hell?", "hello", ".")).isTrue();
+    assertThat(match("hell?", "helloworld", ".")).isFalse();
+    assertThat(match("hell?", "hell", ".")).isFalse();
 
-    assertTrue(match("a.b.c", "a.b.c", "."));
-    assertTrue(match("*/a.b.c", "foo.a.b.c", "."));
-    assertFalse(match("*/a.b.c", "foo/aabbc", "."));
+    assertThat(match("a.b.c", "a.b.c", ".")).isTrue();
+    assertThat(match("*/a.b.c", "foo.a.b.c", ".")).isTrue();
+    assertThat(match("*/a.b.c", "foo/aabbc", ".")).isFalse();
 
-    assertTrue(match("**/Reader", "java.io.Reader", "."));
-    assertFalse(match("**/Reader", "org.sonar.channel.CodeReader", "."));
+    assertThat(match("**/Reader", "java.io.Reader", ".")).isTrue();
+    assertThat(match("**/Reader", "org.sonar.channel.CodeReader", ".")).isFalse();
 
-    assertTrue(match("**", "java.io.Reader", "."));
+    assertThat(match("**", "java.io.Reader", ".")).isTrue();
   }
 
   @Test
   public void directoriesShouldMatchWildcards() {
-    assertTrue(match("Foo", "Foo"));
-    assertFalse(match("Foo", "Bar"));
+    assertThat(match("Foo", "Foo")).isTrue();
+    assertThat(match("Foo", "Bar")).isFalse();
 
-    assertTrue(match("org/sonar/**", "org/sonar/commons/Foo"));
-    assertTrue(match("org/sonar/**", "org/sonar/Foo.java"));
-    assertFalse(match("xxx/org/sonar/**", "org/sonar/Foo"));
+    assertThat(match("org/sonar/**", "org/sonar/commons/Foo")).isTrue();
+    assertThat(match("org/sonar/**", "org/sonar/Foo.java")).isTrue();
+    assertThat(match("xxx/org/sonar/**", "org/sonar/Foo")).isFalse();
 
-    assertTrue(match("org/sonar/**/**", "org/sonar/commons/Foo"));
-    assertTrue(match("org/sonar/**/**", "org/sonar/commons/sub/Foo.java"));
-    assertTrue(match("org/sonar/**/Foo", "org/sonar/commons/sub/Foo"));
-    assertTrue(match("org/sonar/**/Foo", "org/sonar/Foo"));
+    assertThat(match("org/sonar/**/**", "org/sonar/commons/Foo")).isTrue();
+    assertThat(match("org/sonar/**/**", "org/sonar/commons/sub/Foo.java")).isTrue();
+    assertThat(match("org/sonar/**/Foo", "org/sonar/commons/sub/Foo")).isTrue();
+    assertThat(match("org/sonar/**/Foo", "org/sonar/Foo")).isTrue();
 
-    assertTrue(match("*/foo/*", "org/foo/Bar"));
-    assertFalse(match("*/foo/*", "foo/Bar"));
-    assertFalse(match("*/foo/*", "foo"));
-    assertFalse(match("*/foo/*", "org/foo/bar/Hello"));
+    assertThat(match("*/foo/*", "org/foo/Bar")).isTrue();
+    assertThat(match("*/foo/*", "foo/Bar")).isFalse();
+    assertThat(match("*/foo/*", "foo")).isFalse();
+    assertThat(match("*/foo/*", "org/foo/bar/Hello")).isFalse();
 
-    assertTrue(match("hell?", "hello"));
-    assertFalse(match("hell?", "helloworld"));
-    assertFalse(match("hell?", "hell"));
+    assertThat(match("hell?", "hello")).isTrue();
+    assertThat(match("hell?", "helloworld")).isFalse();
+    assertThat(match("hell?", "hell")).isFalse();
 
-    assertTrue(match("a.b.c", "a.b.c"));
-    assertTrue(match("*/a.b.c", "foo/a.b.c"));
-    assertFalse(match("*/a.b.c", "foo/aabbc"));
+    assertThat(match("a.b.c", "a.b.c")).isTrue();
+    assertThat(match("*/a.b.c", "foo/a.b.c")).isTrue();
+    assertThat(match("*/a.b.c", "foo/aabbc")).isFalse();
 
-    assertTrue(match("**/Reader", "java/io/Reader"));
-    assertFalse(match("**/Reader", "org/sonar/channel/CodeReader"));
+    assertThat(match("**/Reader", "java/io/Reader")).isTrue();
+    assertThat(match("**/Reader", "org/sonar/channel/CodeReader")).isFalse();
 
-    assertTrue(match("**", "java/io/Reader"));
+    assertThat(match("**", "java/io/Reader")).isTrue();
   }
 
   /**
@@ -127,11 +124,11 @@ public class WildcardPatternTest {
    */
   @Test
   public void issue2193() {
-    assertTrue(match("**/app/**", "com.app.Utils", "."));
-    assertFalse(match("**/app/**", "com.application.MyService", "."));
+    assertThat(match("**/app/**", "com.app.Utils", ".")).isTrue();
+    assertThat(match("**/app/**", "com.application.MyService", ".")).isFalse();
 
-    assertTrue(match("**/app/**", "com/app/Utils"));
-    assertFalse(match("**/app/**", "com/application/MyService"));
+    assertThat(match("**/app/**", "com/app/Utils")).isTrue();
+    assertThat(match("**/app/**", "com/application/MyService")).isFalse();
   }
 
   /**
@@ -139,28 +136,28 @@ public class WildcardPatternTest {
    */
   @Test
   public void shouldEscapeRegexpSpecificCharacters() {
-    assertFalse(match("**/*$*", "foo/bar"));
-    assertTrue(match("**/*$*", "foo/bar$baz"));
+    assertThat(match("**/*$*", "foo/bar")).isFalse();
+    assertThat(match("**/*$*", "foo/bar$baz")).isTrue();
 
-    assertFalse(match("a+", "aa"));
-    assertTrue(match("a+", "a+"));
+    assertThat(match("a+", "aa")).isFalse();
+    assertThat(match("a+", "a+")).isTrue();
 
-    assertFalse(match("[ab]", "a"));
-    assertTrue(match("[ab]", "[ab]"));
+    assertThat(match("[ab]", "a")).isFalse();
+    assertThat(match("[ab]", "[ab]")).isTrue();
 
-    assertTrue("all regexp-specific characters", match("()[]^$.{}+|", "()[]^$.{}+|"));
+    assertThat(match("()[]^$.{}+|", "()[]^$.{}+|")).as("all regexp-specific characters").isTrue();
   }
 
   @Test
   public void backslash() {
-    assertFalse("backslash is not an escape character", match("\\n", "\n"));
-    assertTrue("backslash is the same as forward slash", match("foo\\bar", "foo/bar"));
+    assertThat(match("\\n", "\n")).as("backslash is not an escape character").isFalse();
+    assertThat(match("foo\\bar", "foo/bar")).as("backslash is the same as forward slash").isTrue();
   }
 
   @Test
   public void shouldIgnoreStartingSlash() {
-    assertTrue(match("/foo", "foo"));
-    assertTrue(match("\\foo", "foo"));
+    assertThat(match("/foo", "foo")).isTrue();
+    assertThat(match("\\foo", "foo")).isTrue();
   }
 
   /**
@@ -169,21 +166,21 @@ public class WildcardPatternTest {
    */
   @Test
   public void cornerCase() {
-    assertTrue(match("org/**.*", "org.sonar.commons.Foo.java", "."));
+    assertThat(match("org/**.*", "org.sonar.commons.Foo.java", ".")).isTrue();
   }
 
   @Test
   public void multiplePatterns() {
-    WildcardPattern[] patterns = WildcardPattern.create(new String[] { "Foo", "Bar" });
-    assertTrue(WildcardPattern.match(patterns, "Foo"));
-    assertTrue(WildcardPattern.match(patterns, "Bar"));
-    assertFalse(WildcardPattern.match(patterns, "Other"));
+    WildcardPattern[] patterns = WildcardPattern.create(new String[] {"Foo", "Bar"});
+    assertThat(WildcardPattern.match(patterns, "Foo")).isTrue();
+    assertThat(WildcardPattern.match(patterns, "Bar")).isTrue();
+    assertThat(WildcardPattern.match(patterns, "Other")).isFalse();
 
-    assertThat(WildcardPattern.create((String[]) null).length, is(0));
+    assertThat(WildcardPattern.create((String[]) null)).isEmpty();
   }
 
   @Test
   public void testToString() {
-    assertThat(WildcardPattern.create("foo*").toString(), is("foo*"));
+    assertThat(WildcardPattern.create("foo*").toString()).isEqualTo("foo*");
   }
 }

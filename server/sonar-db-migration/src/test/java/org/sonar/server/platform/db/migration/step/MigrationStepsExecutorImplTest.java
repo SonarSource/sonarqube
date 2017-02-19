@@ -25,10 +25,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
-import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
@@ -43,8 +41,6 @@ import static org.mockito.Mockito.mock;
 public class MigrationStepsExecutorImplTest {
   @Rule
   public LogTester logTester = new LogTester();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MigrationContainer migrationContainer = new SimpleMigrationContainer();
   private MigrationHistory migrationHistor = mock(MigrationHistory.class);
@@ -149,11 +145,14 @@ public class MigrationStepsExecutorImplTest {
       registeredStepOf(1, MigrationStep2.class),
       registeredStepOf(2, RuntimeExceptionFailingMigrationStep.class),
       registeredStepOf(3, MigrationStep3.class));
-    expectedException.expect(MigrationStepExecutionException.class);
-    expectedException.expectMessage("Execution of migration step #2 '2-RuntimeExceptionFailingMigrationStep' failed");
-    expectedException.expectCause(Matchers.sameInstance(RuntimeExceptionFailingMigrationStep.THROWN_EXCEPTION));
 
-    underTest.execute(steps);
+    try {
+      underTest.execute(steps);
+      fail("should throw MigrationStepExecutionException");
+    } catch (MigrationStepExecutionException e) {
+      assertThat(e).hasMessage("Execution of migration step #2 '2-RuntimeExceptionFailingMigrationStep' failed");
+      assertThat(e.getCause()).isSameAs(RuntimeExceptionFailingMigrationStep.THROWN_EXCEPTION);
+    }
   }
 
   private static RegisteredMigrationStep registeredStepOf(int migrationNumber, Class<? extends MigrationStep> migrationStep1Class) {

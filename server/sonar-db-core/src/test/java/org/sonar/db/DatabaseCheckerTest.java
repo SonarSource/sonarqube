@@ -31,7 +31,6 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -120,14 +119,16 @@ public class DatabaseCheckerTest {
   @Test
   public void fail_if_cant_get_db_version() throws Exception {
     SQLException sqlException = new SQLException();
-    expectedException.expect(RuntimeException.class);
-    expectedException.expectCause(is(sqlException));
-
     Database db = mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
     when(db.getDialect()).thenReturn(new MySql());
     when(db.getDataSource().getConnection().getMetaData()).thenThrow(sqlException);
 
-    new DatabaseChecker(db).start();
+    try {
+      new DatabaseChecker(db).start();
+      fail();
+    } catch (RuntimeException e) {
+      assertThat(e.getCause()).isSameAs(sqlException);
+    }
   }
 
   private Database mockDb(Dialect dialect, int dbMajorVersion, int dbMinorVersion, String driverVersion) throws SQLException {

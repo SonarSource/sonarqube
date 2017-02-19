@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -39,7 +40,6 @@ import org.junit.rules.ExpectedException;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.core.util.stream.Collectors.index;
 import static org.sonar.core.util.stream.Collectors.join;
 import static org.sonar.core.util.stream.Collectors.toArrayList;
@@ -343,8 +343,8 @@ public class CollectorsTest {
 
   @Test
   public void index_empty_stream_returns_empty_map() {
-    assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId))).isEmpty();
-    assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId, MyObj::getText))).isEmpty();
+    assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId)).size()).isEqualTo(0);
+    assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId, MyObj::getText)).size()).isEqualTo(0);
   }
 
   @Test
@@ -414,16 +414,22 @@ public class CollectorsTest {
   public void index_returns_multimap() {
     Multimap<Integer, MyObj> multimap = LIST.stream().collect(index(MyObj::getId));
 
-    assertThat(multimap).hasSize(3);
-    assertThat(multimap).contains(entry(1, MY_OBJ_1_A), entry(2, MY_OBJ_2_B), entry(3, MY_OBJ_3_C));
+    assertThat(multimap.size()).isEqualTo(3);
+    Map<Integer, Collection<MyObj>> map = multimap.asMap();
+    assertThat(map.get(1)).containsOnly(MY_OBJ_1_A);
+    assertThat(map.get(2)).containsOnly(MY_OBJ_2_B);
+    assertThat(map.get(3)).containsOnly(MY_OBJ_3_C);
   }
 
   @Test
   public void index_with_valueFunction_returns_multimap() {
     Multimap<Integer, String> multimap = LIST.stream().collect(index(MyObj::getId, MyObj::getText));
 
-    assertThat(multimap).hasSize(3);
-    assertThat(multimap).contains(entry(1, "A"), entry(2, "B"), entry(3, "C"));
+    assertThat(multimap.size()).isEqualTo(3);
+    Map<Integer, Collection<String>> map = multimap.asMap();
+    assertThat(map.get(1)).containsOnly("A");
+    assertThat(map.get(2)).containsOnly("B");
+    assertThat(map.get(3)).containsOnly("C");
   }
 
   @Test

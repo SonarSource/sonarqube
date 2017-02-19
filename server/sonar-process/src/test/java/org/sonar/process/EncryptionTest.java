@@ -21,38 +21,38 @@ package org.sonar.process;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class EncryptionTest {
 
   @Test
   public void isEncrypted() {
     Encryption encryption = new Encryption(null);
-    assertThat(encryption.isEncrypted("{aes}ADASDASAD"), is(true));
-    assertThat(encryption.isEncrypted("{b64}ADASDASAD"), is(true));
-    assertThat(encryption.isEncrypted("{abc}ADASDASAD"), is(true));
+    assertThat(encryption.isEncrypted("{aes}ADASDASAD")).isTrue();
+    assertThat(encryption.isEncrypted("{b64}ADASDASAD")).isTrue();
+    assertThat(encryption.isEncrypted("{abc}ADASDASAD")).isTrue();
 
-    assertThat(encryption.isEncrypted("{}"), is(false));
-    assertThat(encryption.isEncrypted("{foo"), is(false));
-    assertThat(encryption.isEncrypted("foo{aes}"), is(false));
+    assertThat(encryption.isEncrypted("{}")).isFalse();
+    assertThat(encryption.isEncrypted("{foo")).isFalse();
+    assertThat(encryption.isEncrypted("foo{aes}")).isFalse();
   }
 
   @Test
   public void decrypt() {
     Encryption encryption = new Encryption(null);
-    assertThat(encryption.decrypt("{b64}Zm9v"), is("foo"));
+    assertThat(encryption.decrypt("{b64}Zm9v")).isEqualTo("foo");
   }
 
   @Test
   public void decrypt_unknown_algorithm() {
     Encryption encryption = new Encryption(null);
-    assertThat(encryption.decrypt("{xxx}Zm9v"), is("{xxx}Zm9v"));
+    assertThat(encryption.decrypt("{xxx}Zm9v")).isEqualTo("{xxx}Zm9v");
   }
 
   @Test
   public void decrypt_uncrypted_text() {
     Encryption encryption = new Encryption(null);
-    assertThat(encryption.decrypt("foo"), is("foo"));
+    assertThat(encryption.decrypt("foo")).isEqualTo("foo");
   }
 }

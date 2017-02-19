@@ -19,15 +19,13 @@
  */
 package org.sonar.test.i18n;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.test.TestUtils;
-
 import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
+import org.sonar.test.TestUtils;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -55,7 +53,7 @@ public final class I18nMatchers {
       fail("No bundle found in: " + BundleSynchronizedMatcher.L10N_PATH);
     }
 
-    Collection<File> bundles = FileUtils.listFiles(bundleFolder, new String[]{"properties"}, false);
+    Collection<File> bundles = FileUtils.listFiles(bundleFolder, new String[] {"properties"}, false);
     Map<String, String> failedAssertionMessages = new HashMap<>();
     for (File bundle : bundles) {
       String bundleName = bundle.getName();
@@ -72,9 +70,9 @@ public final class I18nMatchers {
       StringBuilder message = new StringBuilder();
       message.append(failedAssertionMessages.size());
       message.append(" bundles are not up-to-date: ");
-      message.append(StringUtils.join(failedAssertionMessages.keySet(), ", "));
+      message.append(String.join(", ", failedAssertionMessages.keySet()));
       message.append("\n\n");
-      message.append(StringUtils.join(failedAssertionMessages.values(), "\n\n"));
+      message.append(String.join("\n\n", failedAssertionMessages.values()));
       fail(message.toString());
     }
   }

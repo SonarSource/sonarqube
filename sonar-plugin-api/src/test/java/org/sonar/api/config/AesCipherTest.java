@@ -21,7 +21,6 @@ package org.sonar.api.config;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,10 +32,7 @@ import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.Key;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class AesCipherTest {
@@ -50,8 +46,8 @@ public class AesCipherTest {
 
     String key = cipher.generateRandomSecretKey();
 
-    assertThat(StringUtils.isNotBlank(key), is(true));
-    assertThat(Base64.isArrayByteBase64(key.getBytes()), is(true));
+    assertThat(StringUtils.isNotBlank(key)).isTrue();
+    assertThat(Base64.isArrayByteBase64(key.getBytes())).isTrue();
   }
 
   @Test
@@ -60,8 +56,8 @@ public class AesCipherTest {
 
     String encryptedText = cipher.encrypt("this is a secret");
 
-    assertThat(StringUtils.isNotBlank(encryptedText), is(true));
-    assertThat(Base64.isArrayByteBase64(encryptedText.getBytes()), is(true));
+    assertThat(StringUtils.isNotBlank(encryptedText)).isTrue();
+    assertThat(Base64.isArrayByteBase64(encryptedText.getBytes())).isTrue();
   }
 
   @Test
@@ -82,7 +78,7 @@ public class AesCipherTest {
     // the following value has been encrypted with the key /org/sonar/api/config/AesCipherTest/aes_secret_key.txt
     String clearText = cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
 
-    assertThat(clearText, is("this is a secret"));
+    assertThat(clearText).isEqualTo("this is a secret");
   }
 
   @Test
@@ -95,7 +91,7 @@ public class AesCipherTest {
       fail();
 
     } catch (RuntimeException e) {
-      assertThat(e.getCause(), instanceOf(InvalidKeyException.class));
+      assertThat(e.getCause()).isInstanceOf(InvalidKeyException.class);
     }
   }
 
@@ -110,7 +106,7 @@ public class AesCipherTest {
       fail();
 
     } catch (RuntimeException e) {
-      assertThat(e.getCause(), instanceOf(BadPaddingException.class));
+      assertThat(e.getCause()).isInstanceOf(BadPaddingException.class);
     }
   }
 
@@ -118,7 +114,7 @@ public class AesCipherTest {
   public void encryptThenDecrypt() throws Exception {
     AesCipher cipher = new AesCipher(pathToSecretKey());
 
-    assertThat(cipher.decrypt(cipher.encrypt("foo")), is("foo"));
+    assertThat(cipher.decrypt(cipher.encrypt("foo"))).isEqualTo("foo");
   }
 
   @Test
@@ -127,16 +123,16 @@ public class AesCipherTest {
 
     String path = cipher.getPathToSecretKey();
 
-    assertThat(StringUtils.isNotBlank(path), is(true));
-    assertThat(new File(path).getName(), is("sonar-secret.txt"));
+    assertThat(StringUtils.isNotBlank(path)).isTrue();
+    assertThat(new File(path).getName()).isEqualTo("sonar-secret.txt");
   }
 
   @Test
   public void loadSecretKeyFromFile() throws Exception {
     AesCipher cipher = new AesCipher(null);
     Key secretKey = cipher.loadSecretFileFromFile(pathToSecretKey());
-    assertThat(secretKey.getAlgorithm(), is("AES"));
-    assertThat(secretKey.getEncoded().length, greaterThan(10));
+    assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
+    assertThat(secretKey.getEncoded().length).isGreaterThan(10);
   }
 
   @Test
@@ -147,8 +143,8 @@ public class AesCipherTest {
 
     Key secretKey = cipher.loadSecretFileFromFile(path);
 
-    assertThat(secretKey.getAlgorithm(), is("AES"));
-    assertThat(secretKey.getEncoded().length, greaterThan(10));
+    assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
+    assertThat(secretKey.getEncoded().length).isGreaterThan(10);
   }
 
   @Test
@@ -171,14 +167,14 @@ public class AesCipherTest {
   public void hasSecretKey() throws Exception {
     AesCipher cipher = new AesCipher(pathToSecretKey());
 
-    assertThat(cipher.hasSecretKey(), Matchers.is(true));
+    assertThat(cipher.hasSecretKey()).isTrue();
   }
 
   @Test
   public void doesNotHaveSecretKey() {
     AesCipher cipher = new AesCipher("/my/twitter/id/is/SimonBrandhof");
 
-    assertThat(cipher.hasSecretKey(), Matchers.is(false));
+    assertThat(cipher.hasSecretKey()).isFalse();
   }
 
   private String pathToSecretKey() throws Exception {

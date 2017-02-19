@@ -19,28 +19,27 @@
  */
 package org.sonar.api.utils;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
-
 import java.text.ParseException;
 import java.util.Locale;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ParsingUtilsTest {
 
   @Test
   public void scaleValue() {
-    assertThat(ParsingUtils.scaleValue(23.3333333), is(23.33));
-    assertThat(ParsingUtils.scaleValue(23.777777), is(23.78));
+    assertThat(ParsingUtils.scaleValue(23.3333333)).isEqualTo(23.33);
+    assertThat(ParsingUtils.scaleValue(23.777777)).isEqualTo(23.78);
 
-    assertThat(ParsingUtils.scaleValue(23.3333333, 0), is(23.0));
-    assertThat(ParsingUtils.scaleValue(23.777777, 0), is(24.0));
+    assertThat(ParsingUtils.scaleValue(23.3333333, 0)).isEqualTo(23.0);
+    assertThat(ParsingUtils.scaleValue(23.777777, 0)).isEqualTo(24.0);
   }
 
   @Test
   public void parseString() throws ParseException {
-    assertThat(ParsingUtils.parseNumber("23.12", Locale.ENGLISH), is(23.12));
-    assertThat(ParsingUtils.parseNumber("12345.67", Locale.ENGLISH), is(12345.67));
-    assertThat(ParsingUtils.parseNumber("12345,67", Locale.FRENCH), is(12345.67));
+    assertThat(ParsingUtils.parseNumber("23.12", Locale.ENGLISH)).isEqualTo(23.12);
+    assertThat(ParsingUtils.parseNumber("12345.67", Locale.ENGLISH)).isEqualTo(12345.67);
+    assertThat(ParsingUtils.parseNumber("12345,67", Locale.FRENCH)).isEqualTo(12345.67);
   }
 }

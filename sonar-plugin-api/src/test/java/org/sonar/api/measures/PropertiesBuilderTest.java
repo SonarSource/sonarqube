@@ -19,64 +19,59 @@
  */
 package org.sonar.api.measures;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PropertiesBuilderTest {
   @Test
   public void buildMeasure() {
     PropertiesBuilder<Integer, Integer> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
-        .add(1, 30)
-        .add(2, 27)
-        .add(4, 50)
-        .build();
-    assertNotNull(measure);
-    assertThat(measure.getData(), is("1=30;2=27;4=50"));
+      .add(1, 30)
+      .add(2, 27)
+      .add(4, 50)
+      .build();
+    assertThat(measure.getData()).isEqualTo("1=30;2=27;4=50");
   }
 
   @Test
   public void sortKeys() {
     PropertiesBuilder<String, String> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
-        .add("foo", "fooooo")
-        .add("bar", "baaaaar")
-        .add("hello", "world")
-        .build();
-    assertNotNull(measure);
-    assertThat(measure.getData(), is("bar=baaaaar;foo=fooooo;hello=world"));
+      .add("foo", "fooooo")
+      .add("bar", "baaaaar")
+      .add("hello", "world")
+      .build();
+    assertThat(measure.getData()).isEqualTo("bar=baaaaar;foo=fooooo;hello=world");
   }
 
   @Test
   public void valueIsOptional() {
     PropertiesBuilder<String, String> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
-        .add("foo", null)
-        .add("bar", "bar")
-        .add("hello", "world")
-        .build();
-    assertNotNull(measure);
-    assertThat(measure.getData(), is("bar=bar;foo=;hello=world"));
+      .add("foo", null)
+      .add("bar", "bar")
+      .add("hello", "world")
+      .build();
+    assertThat(measure.getData()).isEqualTo("bar=bar;foo=;hello=world");
   }
 
   @Test
   public void clearBeforeBuildingOtherMeasure() {
     PropertiesBuilder<String, String> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     builder
-        .add("foo", "foo")
-        .add("bar", "bar")
-        .add("hello", "world")
-        .build();
+      .add("foo", "foo")
+      .add("bar", "bar")
+      .add("hello", "world")
+      .build();
 
     builder.clear();
     Measure measure = builder
-        .add("1", "1")
-        .add("2", "2")
-        .add("foo", "other")
-        .build();
-    assertNotNull(measure);
-    assertThat(measure.getData(), is("1=1;2=2;foo=other"));
+      .add("1", "1")
+      .add("2", "2")
+      .add("foo", "other")
+      .build();
+    assertThat(measure.getData()).isEqualTo("1=1;2=2;foo=other");
   }
 }

@@ -22,60 +22,59 @@ package org.sonar.api.resources;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScopesTest {
 
   @Test
   public void testProject() {
     Project resource = new Project(ProjectDefinition.create());
-    assertThat(Scopes.isProject(resource), is(true));
-    assertThat(Scopes.isDirectory(resource), is(false));
-    assertThat(Scopes.isFile(resource), is(false));
-    assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isProgramUnit(resource), is(false));
+    assertThat(Scopes.isProject(resource)).isTrue();
+    assertThat(Scopes.isDirectory(resource)).isFalse();
+    assertThat(Scopes.isFile(resource)).isFalse();
+    assertThat(Scopes.isBlockUnit(resource)).isFalse();
+    assertThat(Scopes.isProgramUnit(resource)).isFalse();
   }
 
   @Test
   public void testDirectory() {
     Resource resource = Directory.create("org/foo");
-    assertThat(Scopes.isProject(resource), is(false));
-    assertThat(Scopes.isDirectory(resource), is(true));
-    assertThat(Scopes.isFile(resource), is(false));
-    assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isProgramUnit(resource), is(false));
+    assertThat(Scopes.isProject(resource)).isFalse();
+    assertThat(Scopes.isDirectory(resource)).isTrue();
+    assertThat(Scopes.isFile(resource)).isFalse();
+    assertThat(Scopes.isBlockUnit(resource)).isFalse();
+    assertThat(Scopes.isProgramUnit(resource)).isFalse();
   }
 
   @Test
   public void testFile() {
     Resource resource = File.create("org/foo/Bar.java");
-    assertThat(Scopes.isProject(resource), is(false));
-    assertThat(Scopes.isDirectory(resource), is(false));
-    assertThat(Scopes.isFile(resource), is(true));
-    assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isProgramUnit(resource), is(false));
+    assertThat(Scopes.isProject(resource)).isFalse();
+    assertThat(Scopes.isDirectory(resource)).isFalse();
+    assertThat(Scopes.isFile(resource)).isTrue();
+    assertThat(Scopes.isBlockUnit(resource)).isFalse();
+    assertThat(Scopes.isProgramUnit(resource)).isFalse();
   }
 
   @Test
   public void shouldBeHigherThan() {
-    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.PROJECT), is(false));
-    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.DIRECTORY), is(true));
-    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.BLOCK_UNIT), is(true));
+    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.PROJECT)).isFalse();
+    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.DIRECTORY)).isTrue();
+    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.BLOCK_UNIT)).isTrue();
 
-    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.FILE), is(false));
-    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.DIRECTORY), is(false));
-    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.BLOCK_UNIT), is(true));
+    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.FILE)).isFalse();
+    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.DIRECTORY)).isFalse();
+    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.BLOCK_UNIT)).isTrue();
   }
 
   @Test
   public void shouldBeHigherThanOrEquals() {
-    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.PROJECT), is(true));
-    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.DIRECTORY), is(true));
-    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.BLOCK_UNIT), is(true));
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.PROJECT)).isTrue();
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.DIRECTORY)).isTrue();
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.BLOCK_UNIT)).isTrue();
 
-    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.FILE), is(true));
-    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.DIRECTORY), is(false));
-    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.BLOCK_UNIT), is(true));
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.FILE)).isTrue();
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.DIRECTORY)).isFalse();
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.BLOCK_UNIT)).isTrue();
   }
 }

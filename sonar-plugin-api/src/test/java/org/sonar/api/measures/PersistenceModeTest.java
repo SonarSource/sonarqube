@@ -19,23 +19,23 @@
  */
 package org.sonar.api.measures;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PersistenceModeTest {
 
   @Test
   public void useMemory() {
-    assertThat(PersistenceMode.MEMORY.useMemory(), is(true));
-    assertThat(PersistenceMode.DATABASE.useMemory(), is(false));
-    assertThat(PersistenceMode.FULL.useMemory(), is(true));
+    assertThat(PersistenceMode.MEMORY.useMemory()).isTrue();
+    assertThat(PersistenceMode.DATABASE.useMemory()).isFalse();
+    assertThat(PersistenceMode.FULL.useMemory()).isTrue();
   }
 
   @Test
   public void useDatabase() {
-    assertThat(PersistenceMode.MEMORY.useDatabase(), is(false));
-    assertThat(PersistenceMode.DATABASE.useDatabase(), is(true));
-    assertThat(PersistenceMode.FULL.useDatabase(), is(true));
+    assertThat(PersistenceMode.MEMORY.useDatabase()).isFalse();
+    assertThat(PersistenceMode.DATABASE.useDatabase()).isTrue();
+    assertThat(PersistenceMode.FULL.useDatabase()).isTrue();
   }
 }

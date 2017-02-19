@@ -21,8 +21,7 @@ package org.sonar.api.measures;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,26 +30,26 @@ public class CountDistributionBuilderTest {
   public void buildDistribution() {
     CountDistributionBuilder builder = new CountDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
-        .add("foo")
-        .add("bar")
-        .add("foo")
-        .add("hello")
-        .build();
+      .add("foo")
+      .add("bar")
+      .add("foo")
+      .add("hello")
+      .build();
 
-    assertThat(measure.getData(), is("bar=1;foo=2;hello=1"));
+    assertThat(measure.getData()).isEqualTo("bar=1;foo=2;hello=1");
   }
 
   @Test
   public void addZeroValues() {
     CountDistributionBuilder builder = new CountDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
-        .addZero("foo")
-        .add("bar")
-        .add("foo")
-        .addZero("hello")
-        .build();
+      .addZero("foo")
+      .add("bar")
+      .add("foo")
+      .addZero("hello")
+      .build();
 
-    assertThat(measure.getData(), is("bar=1;foo=1;hello=0"));
+    assertThat(measure.getData()).isEqualTo("bar=1;foo=1;hello=0");
   }
 
   @Test
@@ -60,12 +59,12 @@ public class CountDistributionBuilderTest {
 
     CountDistributionBuilder builder = new CountDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
-        .add("bar")
-        .add("foo")
-        .add(measureToAdd)
-        .build();
+      .add("bar")
+      .add("foo")
+      .add(measureToAdd)
+      .build();
 
-    assertThat(measure.getData(), is("bar=1;foo=4;hello=5;none=0"));
+    assertThat(measure.getData()).isEqualTo("bar=1;foo=4;hello=5;none=0");
   }
 
   @Test
@@ -75,12 +74,12 @@ public class CountDistributionBuilderTest {
 
     CountDistributionBuilder builder = new CountDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
-        .add(10)
-        .add(measureToAdd)
-        .add(1)
-        .build();
+      .add(10)
+      .add(measureToAdd)
+      .add(1)
+      .build();
 
-    assertThat(measure.getData(), is("1=4;3=2;10=6"));
+    assertThat(measure.getData()).isEqualTo("1=4;3=2;10=6");
   }
 
 }

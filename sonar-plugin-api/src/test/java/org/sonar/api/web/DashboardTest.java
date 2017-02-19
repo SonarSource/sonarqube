@@ -21,34 +21,32 @@ package org.sonar.api.web;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DashboardTest {
 
   @Test
   public void shouldCreateDashboard() {
     Dashboard dashboard = Dashboard.create();
-    assertThat(dashboard.getLayout(), is(DashboardLayout.TWO_COLUMNS));
-    assertThat(dashboard.getDescription(), nullValue());
-    assertThat(dashboard.getWidgets().size(), is(0));
+    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
+    assertThat(dashboard.getDescription()).isNull();
+    assertThat(dashboard.getWidgets()).hasSize(0);
   }
 
   @Test
   public void shouldAddWidgets() {
     Dashboard dashboard = Dashboard.create();
     Dashboard.Widget mostViolatedRules = dashboard.addWidget("most_violated_rules", 1);
-    assertThat(mostViolatedRules.getId(), is("most_violated_rules"));
-    assertThat(dashboard.getWidgets().size(), is(1));
-    assertThat(dashboard.getWidgetsOfColumn(1).size(), is(1));
+    assertThat(mostViolatedRules.getId()).isEqualTo("most_violated_rules");
+    assertThat(dashboard.getWidgets()).hasSize(1);
+    assertThat(dashboard.getWidgetsOfColumn(1)).hasSize(1);
 
     dashboard.addWidget("hotspots", 1);
-    assertThat(dashboard.getWidgets().size(), is(2));
-    assertThat(dashboard.getWidgetsOfColumn(1).size(), is(2));
+    assertThat(dashboard.getWidgets()).hasSize(2);
+    assertThat(dashboard.getWidgetsOfColumn(1)).hasSize(2);
 
     // widgets are sorted by order of insertion
-    assertThat(dashboard.getWidgetsOfColumn(1).get(1).getId(), is("hotspots"));
+    assertThat(dashboard.getWidgetsOfColumn(1).get(1).getId()).isEqualTo("hotspots");
   }
 
   @Test
@@ -56,12 +54,12 @@ public class DashboardTest {
     Dashboard dashboard = Dashboard.create();
 
     dashboard.addWidget("most_violated_rules", 1);
-    assertThat(dashboard.getWidgets().size(), is(1));
-    assertThat(dashboard.getWidgetsOfColumn(1).size(), is(1));
+    assertThat(dashboard.getWidgets().size()).isEqualTo(1);
+    assertThat(dashboard.getWidgetsOfColumn(1).size()).isEqualTo(1);
 
     dashboard.addWidget("hotspots", 2);
-    assertThat(dashboard.getWidgets().size(), is(2));
-    assertThat(dashboard.getWidgetsOfColumn(2).size(), is(1));
+    assertThat(dashboard.getWidgets().size()).isEqualTo(2);
+    assertThat(dashboard.getWidgetsOfColumn(2).size()).isEqualTo(1);
   }
 
   @Test
@@ -70,9 +68,9 @@ public class DashboardTest {
     dashboard.addWidget("most_violated_rules", 1);
     dashboard.addWidget("most_violated_rules", 1).setProperty("foo", "bar");
 
-    assertThat(dashboard.getWidgets().size(), is(2));
-    assertThat(dashboard.getWidgetsOfColumn(1).get(0).getProperties().size(), is(0));
-    assertThat(dashboard.getWidgetsOfColumn(1).get(1).getProperty("foo"), is("bar"));
+    assertThat(dashboard.getWidgets().size()).isEqualTo(2);
+    assertThat(dashboard.getWidgetsOfColumn(1).get(0).getProperties().size()).isEqualTo(0);
+    assertThat(dashboard.getWidgetsOfColumn(1).get(1).getProperty("foo")).isEqualTo("bar");
   }
 
   @Test
@@ -81,6 +79,6 @@ public class DashboardTest {
     Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
     widget.setProperty("foo", "bar");
 
-    assertThat(widget.getProperties().get("foo"), is("bar"));
+    assertThat(widget.getProperties().get("foo")).isEqualTo("bar");
   }
 }

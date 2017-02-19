@@ -19,23 +19,22 @@
  */
 package org.sonar.server.notification;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotificationChannelTest {
 
   @Test
   public void defaultMethods() {
     NotificationChannel channel = new FakeNotificationChannel();
-    assertThat(channel.getKey(), is("FakeNotificationChannel"));
-    assertThat(channel.toString(), is("FakeNotificationChannel"));
+    assertThat(channel.getKey()).isEqualTo("FakeNotificationChannel");
+    assertThat(channel.toString()).isEqualTo("FakeNotificationChannel");
   }
 
-  class FakeNotificationChannel extends NotificationChannel {
+  private class FakeNotificationChannel extends NotificationChannel {
     @Override
     public void deliver(Notification notification, String username) {
     }

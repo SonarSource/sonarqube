@@ -20,12 +20,9 @@
 package org.sonar.core.i18n;
 
 import java.util.Locale;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -67,7 +64,7 @@ public class RuleI18nManagerTest {
 
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
     String description = ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH);
-    assertThat(description, is("Description"));
+    assertThat(description).isEqualTo("Description");
 
     verify(i18n).messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName);
     verifyNoMoreInteractions(i18n);
@@ -84,7 +81,7 @@ public class RuleI18nManagerTest {
 
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
     String description = ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH);
-    assertThat(description, is("Description"));
+    assertThat(description).isEqualTo("Description");
 
     verify(i18n).messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName);
     verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName);
@@ -96,21 +93,21 @@ public class RuleI18nManagerTest {
     DefaultI18n i18n = mock(DefaultI18n.class);
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
 
-    assertThat(ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH), nullValue());
+    assertThat(ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH)).isNull();
   }
 
   @Test
   public void shouldBeRuleKey() {
-    assertThat(RuleI18nManager.isRuleProperty("rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name"), Is.is(true));
-    assertThat(RuleI18nManager.isRuleProperty("rule.pmd.Header.name"), Is.is(true));
+    assertThat(RuleI18nManager.isRuleProperty("rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name")).isTrue();
+    assertThat(RuleI18nManager.isRuleProperty("rule.pmd.Header.name")).isTrue();
   }
 
   @Test
   public void shouldNotBeRuleKey() {
     // this is the parameter "name"
-    assertThat(RuleI18nManager.isRuleProperty("rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.param.name"), Is.is(false));
-    assertThat(RuleI18nManager.isRuleProperty("by"), Is.is(false));
-    assertThat(RuleI18nManager.isRuleProperty("something.else"), Is.is(false));
-    assertThat(RuleI18nManager.isRuleProperty("checkstyle.page.name"), Is.is(false));
+    assertThat(RuleI18nManager.isRuleProperty("rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.param.name")).isFalse();
+    assertThat(RuleI18nManager.isRuleProperty("by")).isFalse();
+    assertThat(RuleI18nManager.isRuleProperty("something.else")).isFalse();
+    assertThat(RuleI18nManager.isRuleProperty("checkstyle.page.name")).isFalse();
   }
 }

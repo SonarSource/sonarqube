@@ -22,8 +22,7 @@ package org.sonar.server.user;
 import org.junit.Test;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -35,8 +34,8 @@ public class CompatibilityRealmTest {
     CompatibilityRealm realm = new CompatibilityRealm(authenticator);
     realm.init();
     verify(authenticator).init();
-    assertThat(realm.getLoginPasswordAuthenticator(), is(authenticator));
-    assertThat(realm.getName(), is("CompatibilityRealm[" + authenticator.getClass().getName() + "]"));
+    assertThat(realm.getLoginPasswordAuthenticator()).isSameAs(authenticator);
+    assertThat(realm.getName()).isEqualTo("CompatibilityRealm[" + authenticator.getClass().getName() + "]");
   }
 
 }

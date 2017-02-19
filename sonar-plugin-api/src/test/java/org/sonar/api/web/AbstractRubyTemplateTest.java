@@ -19,13 +19,12 @@
  */
 package org.sonar.api.web;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 
 import java.net.URL;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AbstractRubyTemplateTest {
 
@@ -38,9 +37,9 @@ public class AbstractRubyTemplateTest {
       }
     };
 
-    assertThat(template.loadTemplateFromCache(), nullValue());
-    assertThat(template.getTemplate(), is("ok"));
-    assertThat(template.loadTemplateFromCache(), is("ok"));
+    assertThat(template.loadTemplateFromCache()).isNull();
+    assertThat(template.getTemplate()).isEqualTo("ok");
+    assertThat(template.loadTemplateFromCache()).isEqualTo("ok");
   }
 
   @Test
@@ -53,9 +52,9 @@ public class AbstractRubyTemplateTest {
       }
     };
 
-    assertThat(template.loadTemplateFromCache(), nullValue());
-    assertThat(template.getTemplate(), is("ok"));
-    assertThat(template.loadTemplateFromCache(), nullValue());
+    assertThat(template.loadTemplateFromCache()).isNull();
+    assertThat(template.getTemplate()).isEqualTo("ok");
+    assertThat(template.loadTemplateFromCache()).isNull();
   }
 
   @Test(expected = SonarException.class)

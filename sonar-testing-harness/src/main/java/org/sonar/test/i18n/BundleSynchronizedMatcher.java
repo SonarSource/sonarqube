@@ -19,10 +19,6 @@
  */
 package org.sonar.test.i18n;
 
-import org.apache.commons.io.IOUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,10 +30,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import org.apache.commons.io.IOUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class BundleSynchronizedMatcher extends BaseMatcher<String> {
@@ -152,21 +150,20 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
 
   protected static InputStream getBundleFileInputStream(String bundleName) {
     InputStream bundle = BundleSynchronizedMatcher.class.getResourceAsStream(L10N_PATH + bundleName);
-    assertThat("File '" + bundleName + "' does not exist in '/org/sonar/l10n/'.", bundle, notNullValue());
+    assertNotNull("File '" + bundleName + "' does not exist in '/org/sonar/l10n/'.", bundle);
     return bundle;
   }
 
   protected static InputStream getDefaultBundleFileInputStream(String bundleName) {
     String defaultBundleName = extractDefaultBundleName(bundleName);
     InputStream bundle = BundleSynchronizedMatcher.class.getResourceAsStream(L10N_PATH + defaultBundleName);
-    assertThat("Default bundle '" + defaultBundleName + "' could not be found: add a dependency to the corresponding plugin in your POM.", bundle, notNullValue());
+    assertNotNull("Default bundle '" + defaultBundleName + "' could not be found: add a dependency to the corresponding plugin in your POM.", bundle);
     return bundle;
   }
 
   protected static String extractDefaultBundleName(String bundleName) {
     int firstUnderScoreIndex = bundleName.indexOf('_');
-    assertThat("The bundle '" + bundleName + "' is a default bundle (without locale), so it can't be compared.", firstUnderScoreIndex > 0,
-      is(true));
+    assertTrue("The bundle '" + bundleName + "' is a default bundle (without locale), so it can't be compared.", firstUnderScoreIndex > 0);
     return bundleName.substring(0, firstUnderScoreIndex) + ".properties";
   }
 
