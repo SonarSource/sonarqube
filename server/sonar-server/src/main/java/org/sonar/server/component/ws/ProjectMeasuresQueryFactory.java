@@ -31,10 +31,13 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Collections.singleton;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
+import static org.sonar.server.component.ws.FilterParser.Operator.IN;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 class ProjectMeasuresQueryFactory {
 
@@ -57,14 +60,32 @@ class ProjectMeasuresQueryFactory {
       return;
     }
 
-    String value = criterion.getValue();
-    checkArgument(value != null, "Value cannot be null for '%s'", key);
     Operator operator = criterion.getOperator();
     checkArgument(operator != null, "Operator cannot be null for '%s'", key);
+    if (FILTER_LANGUAGE.equalsIgnoreCase(key)) {
+      processLanguages(criterion, query);
+      return;
+    }
+
+    String value = criterion.getValue();
+    checkArgument(value != null, "Value cannot be null for '%s'", key);
     if (ALERT_STATUS_KEY.equals(key)) {
       processQualityGateStatus(criterion, query);
     } else {
       query.addMetricCriterion(new MetricCriterion(key, operator, parseValue(value)));
+    }
+  }
+
+  private static void processLanguages(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+    Operator operator = criterion.getOperator();
+    String value = criterion.getValue();
+    List<String> values = criterion.getValues();
+    if (value != null && EQ.equals(operator)) {
+      query.setLanguages(singleton(value));
+    } else if (!values.isEmpty() && IN.equals(operator)) {
+      query.setLanguages(new HashSet<>(values));
+    } else {
+      throw new IllegalArgumentException("Language should be set either by using 'language = java' or 'language IN (java, js)'");
     }
   }
 
