@@ -68,10 +68,10 @@ class TomcatAccessLog {
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
       if ("after_start".equals(event.getType())) {
-        logger.info("Web server is started");
+        logger.debug("Tomcat is started");
 
       } else if ("after_destroy".equals(event.getType())) {
-        logger.info("Web server is stopped");
+        logger.debug("Tomcat is stopped");
       }
     }
   }

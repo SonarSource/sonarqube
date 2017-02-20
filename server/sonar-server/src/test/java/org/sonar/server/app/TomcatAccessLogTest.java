@@ -71,10 +71,10 @@ public class TomcatAccessLogTest {
 
     event = new LifecycleEvent(mock(Lifecycle.class), "after_start", null);
     listener.lifecycleEvent(event);
-    verify(logger).info("Web server is started");
+    verify(logger).debug("Tomcat is started");
 
     event = new LifecycleEvent(mock(Lifecycle.class), "after_destroy", null);
     listener.lifecycleEvent(event);
-    verify(logger).info("Web server is stopped");
+    verify(logger).debug("Tomcat is stopped");
   }
 }
