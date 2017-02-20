@@ -115,7 +115,7 @@
   right: 0;
   height: 30px;
   display: block;
-  background: linear-gradient(to bottom, transparent, #fff);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgb(255, 255, 255));
   content: "";
 }
 
