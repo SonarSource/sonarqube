@@ -69,7 +69,7 @@ public class ProjectMeasuresIndexTest {
   private static final String COVERAGE = "coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
   private static final String NCLOC = "ncloc";
-  private static final String LANGUAGES = "languages";
+  private static final String LANGUAGE = "language";
 
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
   private static final ComponentDto PROJECT1 = newProjectDto(ORG).setUuid("Project-1").setName("Project 1").setKey("key-1");
@@ -245,6 +245,20 @@ public class ProjectMeasuresIndexTest {
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery().setQualityGateStatus(OK);
     assertResults(query, PROJECT1, PROJECT2);
+  }
+
+  @Test
+  public void filter_on_languages() {
+    ComponentDto project4 = newProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
+    index(
+      newDoc(PROJECT1).setLanguages(ImmutableMap.of("java", 6)),
+      newDoc(PROJECT2).setLanguages(ImmutableMap.of("xoo", 8)),
+      newDoc(PROJECT3).setLanguages(ImmutableMap.of("xoo", 18)),
+      newDoc(project4).setLanguages(ImmutableMap.of("<null>", 10, "java", 2, "xoo", 12)));
+
+    assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java", "xoo")), PROJECT1, PROJECT2, PROJECT3, project4);
+    assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java")), PROJECT1,project4);
+    assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("unknown")));
   }
 
   @Test
@@ -926,13 +940,19 @@ public class ProjectMeasuresIndexTest {
       newDoc().setLanguages(ImmutableMap.of("<null>", 2, "java", 5)),
       newDoc().setLanguages(ImmutableMap.of("<null>", 10, "java", 2, "xoo", 12)));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets();
 
-    assertThat(facets.get(LANGUAGES)).containsOnly(
+    assertThat(facets.get(LANGUAGE)).containsOnly(
       entry("<null>", 12L),
       entry("java", 21L),
       entry("xoo", 30L),
       entry("xml", 4L));
+  }
+
+  // TODO
+  @Test
+  public void facet_languages_is_sticky() {
+
   }
 
   @Test
@@ -948,7 +968,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setLanguages(ImmutableMap.of("java", 2, "xoo", 12)));
 
     userSession.logIn(USER1);
-    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets().get(LANGUAGES);
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets().get(LANGUAGE);
 
     assertThat(result).containsOnly(
       entry("java", 7L),
