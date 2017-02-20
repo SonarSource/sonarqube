@@ -1,0 +1,145 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.component.ws;
+
+import com.google.common.base.Splitter;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.core.util.stream.Collectors;
+
+public class FilterParser {
+
+  private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
+  private static final Pattern TERNARY_PATTERN = Pattern.compile("(\\w+)\\s+(\\S+)\\s+(\\w+)");
+  private static final Pattern SINGLE_KEY_PATTERN = Pattern.compile("(\\w+)");
+
+  public static List<Criterion> parse(String filter) {
+    return StreamSupport.stream(CRITERIA_SPLITTER.split(filter.trim()).spliterator(), false)
+      .filter(Objects::nonNull)
+      .filter(criterion -> !criterion.isEmpty())
+      .map(String::trim)
+      .map(FilterParser::parseCriterion)
+      .collect(Collectors.toList());
+  }
+
+  private static Criterion parseCriterion(String rawCriterion) {
+    try {
+      Criterion criterion = tryParsingTernaryCriterion(rawCriterion);
+      if (criterion != null) {
+        return criterion;
+      }
+      criterion = tryParsingSingleKey(rawCriterion);
+      if (criterion != null) {
+        return criterion;
+      }
+      throw new IllegalArgumentException("Criterion is invalid");
+    } catch (Exception e) {
+      throw new IllegalArgumentException(String.format("Cannot parse '%s' : %s", rawCriterion, e.getMessage()), e);
+    }
+  }
+
+  @CheckForNull
+  private static Criterion tryParsingTernaryCriterion(String criterion) {
+    Matcher matcher = TERNARY_PATTERN.matcher(criterion);
+    if (!matcher.find()) {
+      return null;
+    }
+    Criterion.Builder builder = new Criterion.Builder();
+    builder.setKey(matcher.group(1));
+    String operatorValue = matcher.group(2);
+    builder.setOperator(operatorValue);
+    builder.setValue(matcher.group(3));
+    return builder.build();
+  }
+
+  @CheckForNull
+  private static Criterion tryParsingSingleKey(String criterion) {
+    Matcher matcher = SINGLE_KEY_PATTERN.matcher(criterion);
+    if (!matcher.find()) {
+      return null;
+    }
+    String key = matcher.group(1);
+    if (key.length() != criterion.length()) {
+      return null;
+    }
+    return new Criterion.Builder().setKey(key).build();
+  }
+
+  public static class Criterion {
+    private final String key;
+    private final String operator;
+    private final String value;
+
+    private Criterion(Builder builder) {
+      this.key = builder.key;
+      this.operator = builder.operator;
+      this.value = builder.value;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    @CheckForNull
+    public String getOperator() {
+      return operator;
+    }
+
+    @CheckForNull
+    public String getValue() {
+      return value;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    public static class Builder {
+      private String key;
+      private String operator;
+      private String value;
+
+      public Builder setKey(String key) {
+        this.key = key;
+        return this;
+      }
+
+      public Builder setOperator(@Nullable String operator) {
+        this.operator = operator;
+        return this;
+      }
+
+      public Builder setValue(@Nullable String value) {
+        this.value = value;
+        return this;
+      }
+
+      public Criterion build() {
+        return new Criterion(this);
+      }
+    }
+  }
+
+}

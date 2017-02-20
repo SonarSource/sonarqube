@@ -45,6 +45,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -61,9 +62,8 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.core.util.stream.Collectors.toSet;
-import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.hasIsFavoriteCriterion;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
-import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.toCriteria;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -184,7 +184,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
     Set<String> favoriteProjectUuids = loadFavoriteProjectUuids(dbSession);
 
-    List<String> criteria = toCriteria(firstNonNull(request.getFilter(), ""));
+    List<Criterion> criteria = FilterParser.parse(firstNonNull(request.getFilter(), ""));
     Set<String> projectUuids = buildFilterOnFavoriteProjectUuids(criteria, favoriteProjectUuids);
 
     ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, projectUuids)
@@ -207,8 +207,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   @CheckForNull
-  private Set<String> buildFilterOnFavoriteProjectUuids(List<String> criteria, Set<String> favoriteProjectUuids) {
-    if (hasIsFavoriteCriterion(criteria)) {
+  private Set<String> buildFilterOnFavoriteProjectUuids(List<Criterion> criteria, Set<String> favoriteProjectUuids) {
+    if (criteria.stream()
+      .map(Criterion::getKey)
+      .anyMatch(IS_FAVORITE_CRITERION::equalsIgnoreCase)) {
       return favoriteProjectUuids;
     }
     return null;
