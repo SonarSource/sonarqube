@@ -6,6 +6,7 @@ function installPhantomJs {
   mkdir -p ~/phantomjs
   pushd ~/phantomjs > /dev/null
   if [ ! -d "phantomjs-2.1.1-linux-x86_64" ]; then
+    echo "Download PhantomJS"
     wget https://repox.sonarsource.com/public-3rd-parties/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O phantomjs-2.1.1-linux-x86_64.tar.bz2
     tar -xf phantomjs-2.1.1-linux-x86_64.tar.bz2
     rm phantomjs-2.1.1-linux-x86_64.tar.bz2
@@ -23,6 +24,7 @@ function installJdk8 {
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
   if [ ! -d "jdk1.8.0_92" ]; then
+    echo "Download JDK8"
     wget -c --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-8u92-linux-x64.tar.gz
     tar xzf jdk-8u92-linux-x64.tar.gz
     rm jdk-8u92-linux-x64.tar.gz
