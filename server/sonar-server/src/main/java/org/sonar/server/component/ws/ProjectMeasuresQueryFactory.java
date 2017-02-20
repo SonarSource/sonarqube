@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,14 +28,18 @@ import org.sonar.api.measures.Metric.Level;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.singleton;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 class ProjectMeasuresQueryFactory {
 
   public static final String IS_FAVORITE_CRITERION = "isFavorite";
+  public static final String IN_OPERATOR = "IN";
 
   private ProjectMeasuresQueryFactory() {
     // prevent instantiation
@@ -55,14 +60,32 @@ class ProjectMeasuresQueryFactory {
 
     String operatorValue = criterion.getOperator();
     checkArgument(operatorValue != null, "Operator cannot be null for '%s'", key);
+    if (FILTER_LANGUAGE.equalsIgnoreCase(key)) {
+      processLanguages(criterion, query);
+      return;
+    }
+
     String value = criterion.getValue();
     checkArgument(value != null, "Value cannot be null for '%s'", key);
     Operator operator = Operator.getByValue(criterion.getOperator());
     if (ALERT_STATUS_KEY.equals(key)) {
-      checkArgument(operator.equals(Operator.EQ), "Only equals operator is available for quality gate criteria");
+      checkArgument(operator.equals(EQ), "Only equals operator is available for quality gate criteria");
       query.setQualityGateStatus(Level.valueOf(value));
     } else {
       query.addMetricCriterion(new MetricCriterion(key, operator, parseValue(value)));
+    }
+  }
+
+  private static void processLanguages(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+    String operatorValue = criterion.getOperator();
+    String value = criterion.getValue();
+    List<String> values = criterion.getValues();
+    if (value != null && EQ.getValue().equalsIgnoreCase(operatorValue)) {
+      query.setLanguages(singleton(value));
+    } else if (!values.isEmpty() && IN_OPERATOR.equalsIgnoreCase(operatorValue)) {
+      query.setLanguages(new HashSet<>(values));
+    } else {
+      throw new IllegalArgumentException("Language should be set either by using 'language = java' or 'language IN (java, js)'");
     }
   }
 

@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -56,6 +57,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
@@ -94,6 +96,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setResponseExample(getClass().getResource("search_projects-example.json"))
+      .setChangelog(
+        new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", ProjectsWsParameters.FILTER_LANGUAGE, PARAM_FILTER)))
       .setHandler(this);
 
     action.createParam(PARAM_ORGANIZATION)
@@ -105,7 +109,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(SUPPORTED_FACETS);
     action
       .createParam(PARAM_FILTER)
-      .setDescription("Filter of projects on measure value, quality gate or whether a project is a favorite or not.<br>" +
+      .setDescription("Filter of projects on measure value, quality gate, language or whether a project is a favorite or not.<br>" +
         "The filter must be encoded to form a valid URL (for example '=' must be replaced by '%3D').<br>" +
         "Examples of use:" +
         "<ul>" +
@@ -132,13 +136,20 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>'OK' for Passed</li>" +
         " <li>'WARN' for Warning</li>" +
         " <li>'ERROR' for Failed</li>" +
-        "</ul>");
+        "</ul>" +
+        "To filter on language keys use language key' : " +
+        "<ul>" +
+        " <li>To filter on a single language you can use 'language = java'<li>" +
+        " <li>To filter on a many language you must use 'language IN (java, js)'" +
+        "<ul/>" +
+        "Use the WS api/languages/list to find the key of a language.<br>");
 
     action.createParam(Param.SORT)
       .setDescription("Sort projects by numeric metric key or by name.<br/>" +
         "See '%s' parameter description for the possible metric values", PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
-      .setExampleValue(NCLOC_KEY);
+      .setExampleValue(NCLOC_KEY)
+      .setSince("6.4");
     action.createParam(Param.ASCENDING)
       .setDescription("Ascending sort")
       .setBooleanPossibleValues()

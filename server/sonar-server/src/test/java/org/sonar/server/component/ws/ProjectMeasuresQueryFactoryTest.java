@@ -112,11 +112,80 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
+  public void fail_when_not_double() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value 'ten' is not a number");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue("ten").build()),
+      emptySet());
+  }
+
+  @Test
+  public void fail_when_no_operator() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Operator cannot be null for 'ncloc'");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(null).setValue("ten").build()),
+      emptySet());
+  }
+
+  @Test
+  public void fail_when_no_value() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value cannot be null for 'ncloc'");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue(null).build()),
+      emptySet());
+  }
+
+  @Test
   public void create_query_on_quality_gate() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator("=").setValue("OK").build()),
       emptySet());
 
     assertThat(query.getQualityGateStatus().get().name()).isEqualTo(OK.name());
+  }
+
+  @Test
+  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(">").setValue("OK").build()), emptySet());
+  }
+
+  @Test
+  public void create_query_on_language_using_in_operator() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(
+      singletonList(Criterion.builder().setKey("language").setOperator("IN").setValues(asList("java", "js")).build()),
+      emptySet());
+
+    assertThat(query.getLanguages().get()).containsOnly("java", "js");
+  }
+
+  @Test
+  public void create_query_on_language_using_equals_operator() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(
+      singletonList(Criterion.builder().setKey("language").setOperator("=").setValue("java").build()),
+      emptySet());
+
+    assertThat(query.getLanguages().get()).containsOnly("java");
+  }
+
+  @Test
+  public void fail_to_create_query_on_language_using_in_operator_and_value() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Language should be set either by using 'language = java' or 'language IN (java, js)");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator("in").setValue("java").build()),
+      emptySet());
+  }
+
+  @Test
+  public void fail_to_create_query_on_language_using_eq_operator_and_values() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Language should be set either by using 'language = java' or 'language IN (java, js)");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator("=").setValues(asList("java")).build()),
+      emptySet());
   }
 
   @Test
@@ -158,12 +227,6 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(">").setValue("OK").build()), emptySet());
-  }
-
-  @Test
   public void convert_metric_to_lower_case() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(asList(
       Criterion.builder().setKey("NCLOC").setOperator(">").setValue("10").build(),
@@ -184,30 +247,4 @@ public class ProjectMeasuresQueryFactoryTest {
     assertThat(result.getMetricCriteria()).isEmpty();
   }
 
-  @Test
-  public void fail_when_not_double() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value 'ten' is not a number");
-
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue("ten").build()),
-      emptySet());
-  }
-
-  @Test
-  public void fail_when_no_operator() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Operator cannot be null for 'ncloc'");
-
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(null).setValue("ten").build()),
-      emptySet());
-  }
-
-  @Test
-  public void fail_when_no_value() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value cannot be null for 'ncloc'");
-
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue(null).build()),
-      emptySet());
-  }
 }

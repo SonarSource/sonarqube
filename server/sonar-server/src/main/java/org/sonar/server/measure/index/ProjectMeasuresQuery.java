@@ -140,7 +140,7 @@ public class ProjectMeasuresQuery {
       this.value = value;
     }
 
-    String getValue() {
+    public String getValue() {
       return value;
     }
 
