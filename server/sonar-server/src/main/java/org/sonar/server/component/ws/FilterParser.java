@@ -20,6 +20,7 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Splitter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -29,11 +30,16 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNull;
+
 public class FilterParser {
 
   private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
-  private static final Pattern TERNARY_PATTERN = Pattern.compile("(\\w+)\\s+(\\S+)\\s+(\\w+)");
-  private static final Pattern SINGLE_KEY_PATTERN = Pattern.compile("(\\w+)");
+  private static final Splitter IN_VALUES_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
+
+  private static final Pattern PATTERN_HAVING_VALUE = Pattern.compile("(\\w+)\\s+(\\S+)\\s+(\\w+)");
+  private static final Pattern PATTERN_HAVING_VALUES = Pattern.compile("(\\w+)\\s+(\\S+)\\s+\\((.*)\\)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern PATTERN_HAVING_ONLY_KEY = Pattern.compile("(\\w+)");
 
   public static List<Criterion> parse(String filter) {
     return StreamSupport.stream(CRITERIA_SPLITTER.split(filter.trim()).spliterator(), false)
@@ -46,11 +52,15 @@ public class FilterParser {
 
   private static Criterion parseCriterion(String rawCriterion) {
     try {
-      Criterion criterion = tryParsingTernaryCriterion(rawCriterion);
+      Criterion criterion = tryParsingCriterionHavingValues(rawCriterion);
       if (criterion != null) {
         return criterion;
       }
-      criterion = tryParsingSingleKey(rawCriterion);
+      criterion = tryParsingCriterionHavingValue(rawCriterion);
+      if (criterion != null) {
+        return criterion;
+      }
+      criterion = tryParsingCriterionHavingOnlyKey(rawCriterion);
       if (criterion != null) {
         return criterion;
       }
@@ -61,22 +71,34 @@ public class FilterParser {
   }
 
   @CheckForNull
-  private static Criterion tryParsingTernaryCriterion(String criterion) {
-    Matcher matcher = TERNARY_PATTERN.matcher(criterion);
+  private static Criterion tryParsingCriterionHavingValue(String criterion) {
+    Matcher matcher = PATTERN_HAVING_VALUE.matcher(criterion);
     if (!matcher.find()) {
       return null;
     }
     Criterion.Builder builder = new Criterion.Builder();
     builder.setKey(matcher.group(1));
-    String operatorValue = matcher.group(2);
-    builder.setOperator(operatorValue);
+    builder.setOperator(matcher.group(2));
     builder.setValue(matcher.group(3));
     return builder.build();
   }
 
   @CheckForNull
-  private static Criterion tryParsingSingleKey(String criterion) {
-    Matcher matcher = SINGLE_KEY_PATTERN.matcher(criterion);
+  private static Criterion tryParsingCriterionHavingValues(String criterion) {
+    Matcher matcher = PATTERN_HAVING_VALUES.matcher(criterion);
+    if (!matcher.find()) {
+      return null;
+    }
+    Criterion.Builder builder = new Criterion.Builder();
+    builder.setKey(matcher.group(1));
+    builder.setOperator(matcher.group(2));
+    builder.setValues(IN_VALUES_SPLITTER.splitToList(matcher.group(3)));
+    return builder.build();
+  }
+
+  @CheckForNull
+  private static Criterion tryParsingCriterionHavingOnlyKey(String criterion) {
+    Matcher matcher = PATTERN_HAVING_ONLY_KEY.matcher(criterion);
     if (!matcher.find()) {
       return null;
     }
@@ -91,11 +113,13 @@ public class FilterParser {
     private final String key;
     private final String operator;
     private final String value;
+    private final List<String> values;
 
     private Criterion(Builder builder) {
       this.key = builder.key;
       this.operator = builder.operator;
       this.value = builder.value;
+      this.values = builder.values;
     }
 
     public String getKey() {
@@ -112,6 +136,10 @@ public class FilterParser {
       return value;
     }
 
+    public List<String> getValues() {
+      return values;
+    }
+
     public static Builder builder() {
       return new Builder();
     }
@@ -120,6 +148,7 @@ public class FilterParser {
       private String key;
       private String operator;
       private String value;
+      private List<String> values = new ArrayList<>();
 
       public Builder setKey(String key) {
         this.key = key;
@@ -133,6 +162,11 @@ public class FilterParser {
 
       public Builder setValue(@Nullable String value) {
         this.value = value;
+        return this;
+      }
+
+      public Builder setValues(List<String> values) {
+        this.values = requireNonNull(values, "Values cannot be null");
         return this;
       }
 

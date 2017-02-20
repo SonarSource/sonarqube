@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -52,6 +53,26 @@ public class FilterParserTest {
       .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
       .containsOnly(
         tuple("ncloc", ">", "10"));
+  }
+
+  @Test
+  public void parse_filter_having_in_operator() throws Exception {
+    List<Criterion> criterion = FilterParser.parse("ncloc in (80,90)");
+
+    assertThat(criterion)
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValues, Criterion::getValue)
+      .containsOnly(
+        tuple("ncloc", "in", asList("80", "90"), null));
+  }
+
+  @Test
+  public void parse_filter_having_in_operator_ignores_white_spaces() throws Exception {
+    List<Criterion> criterion = FilterParser.parse("  ncloc  in (  80 ,  90  )  ");
+
+    assertThat(criterion)
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValues, Criterion::getValue)
+      .containsOnly(
+        tuple("ncloc", "in", asList("80", "90"), null));
   }
 
   @Test
