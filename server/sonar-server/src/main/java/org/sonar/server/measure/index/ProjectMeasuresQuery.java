@@ -39,6 +39,7 @@ public class ProjectMeasuresQuery {
   private Metric.Level qualityGateStatus;
   private String organizationUuid;
   private Set<String> projectUuids;
+  private Set<String> languages;
   private String sort;
   private boolean asc = true;
 
@@ -76,6 +77,15 @@ public class ProjectMeasuresQuery {
 
   public Optional<Set<String>> getProjectUuids() {
     return Optional.ofNullable(projectUuids);
+  }
+
+  public ProjectMeasuresQuery setLanguages(@Nullable Set<String> languages) {
+    this.languages = languages;
+    return this;
+  }
+
+  public Optional<Set<String>> getLanguages() {
+    return Optional.ofNullable(languages);
   }
 
   @CheckForNull

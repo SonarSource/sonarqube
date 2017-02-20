@@ -259,6 +259,10 @@ public class ProjectMeasuresIndex extends BaseIndex {
     query.getProjectUuids()
       .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));
 
+    query.getLanguages()
+      .ifPresent(languages -> filters.put(FILTER_LANGUAGE,
+        nestedQuery(FIELD_LANGUAGES, boolQuery().filter(termsQuery(FIELD_LANGUAGES_KEY, languages)))));
+
     query.getOrganizationUuid()
       .ifPresent(organizationUuid -> filters.put(FIELD_ORGANIZATION_UUID, termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
     return filters;
