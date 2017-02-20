@@ -113,27 +113,27 @@ export function searchProjects (data?: Object) {
 
 /**
  * Change component's key
- * @param {string} key
- * @param {string} newKey
+ * @param {string} from
+ * @param {string} to
  * @returns {Promise}
  */
-export function changeKey (key: string, newKey: string) {
-  const url = '/api/components/update_key';
-  const data = { key, newKey };
+export function changeKey (from: string, to: string) {
+  const url = '/api/projects/update_key';
+  const data = { from, to };
   return post(url, data);
 }
 
 /**
  * Bulk change component's key
- * @param {string} key
+ * @param {string} project
  * @param {string} from
  * @param {string} to
  * @param {boolean} dryRun
  * @returns {Promise}
  */
-export function bulkChangeKey (key: string, from: string, to: string, dryRun?: boolean = false) {
-  const url = '/api/components/bulk_update_key';
-  const data = { key, from, to, dryRun };
+export function bulkChangeKey (project: string, from: string, to: string, dryRun?: boolean = false) {
+  const url = '/api/projects/bulk_update_key';
+  const data = { project, from, to, dryRun };
   return postJSON(url, data);
 }
 
