@@ -44,7 +44,8 @@ class PageHeader extends React.Component {
     e.preventDefault();
     e.target.blur();
     const { project, loadHolders } = this.props;
-    new ApplyTemplateView({ project })
+    const organization = project.organization ? { key: project.organization } : null;
+    new ApplyTemplateView({ project, organization })
         .on('done', () => loadHolders(project.key))
         .render();
   }
