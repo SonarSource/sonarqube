@@ -25,10 +25,10 @@ import java.util.Properties;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.platform.Platform;
 
 public final class PlatformServletContextListener implements ServletContextListener {
-
   static final String STARTED_ATTRIBUTE = "sonarqube.started";
 
   @Override
@@ -44,9 +44,10 @@ public final class PlatformServletContextListener implements ServletContextListe
       Platform.getInstance().init(props, servletContext);
       Platform.getInstance().doStart();
       event.getServletContext().setAttribute(STARTED_ATTRIBUTE, Boolean.TRUE);
-
+    } catch (org.sonar.api.utils.MessageException | org.sonar.process.MessageException e) {
+      Loggers.get(Platform.class).error("Web server startup failed: " + e.getMessage());
+      stopQuietly();
     } catch (Throwable t) {
-      // Tomcat 7 "limitations": server does not stop if webapp fails at startup
       stopQuietly();
       throw Throwables.propagate(t);
     }
