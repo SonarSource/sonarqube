@@ -69,6 +69,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -93,6 +94,7 @@ public class SearchProjectsActionTest {
 
   private static final String NCLOC = "ncloc";
   private static final String COVERAGE = "coverage";
+  private static final String QUALITY_GATE_STATUS = "alert_status";
   private static final String IS_FAVOURITE_CRITERION = "isFavorite";
 
   @Rule
@@ -480,6 +482,22 @@ public class SearchProjectsActionTest {
       .containsExactly("Sonar Markdown", "Sonar Qube", "Sonar Groovy", "Sonar Java");
     assertThat(call(request.setSort(COVERAGE).setAsc(false)).getComponentsList()).extracting(Component::getName)
       .containsExactly("Sonar Groovy", "Sonar Java", "Sonar Markdown", "Sonar Qube");
+  }
+
+  @Test
+  public void sort_by_quality_gate() throws Exception {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), "ERROR");
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), "WARN");
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), "OK");
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), "OK");
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(QUALITY_GATE_STATUS).setValueType(LEVEL.name()).setEnabled(true).setHidden(false));
+    db.commit();
+
+    assertThat(call(request.setSort(QUALITY_GATE_STATUS).setAsc(true)).getComponentsList()).extracting(Component::getName)
+      .containsExactly("Sonar Markdown", "Sonar Qube", "Sonar Groovy", "Sonar Java");
+    assertThat(call(request.setSort(QUALITY_GATE_STATUS).setAsc(false)).getComponentsList()).extracting(Component::getName)
+      .containsExactly("Sonar Java", "Sonar Groovy", "Sonar Markdown", "Sonar Qube");
   }
 
   @Test

@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
@@ -58,10 +57,10 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
-import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.core.util.stream.Collectors.toSet;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
@@ -74,6 +73,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FIL
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_SIZE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 public class SearchProjectsAction implements ComponentsWsAction {
 
@@ -98,7 +98,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setInternal(true)
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setChangelog(
-        new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", ProjectsWsParameters.FILTER_LANGUAGE, PARAM_FILTER)))
+        new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGE, PARAM_FILTER)))
       .setHandler(this);
 
     action.createParam(PARAM_ORGANIZATION)
@@ -146,8 +146,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         "Use the WS api/languages/list to find the key of a language.");
 
     action.createParam(Param.SORT)
-      .setDescription("Sort projects by numeric metric key or by name.<br/>" +
-        "See '%s' parameter description for the possible metric values", PARAM_FILTER)
+      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), or by project name.<br/>" +
+        "See '%s' parameter description for the possible metric values", ALERT_STATUS_KEY, PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
       .setExampleValue(NCLOC_KEY)
       .setSince("6.4");
@@ -194,11 +194,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
     Set<String> favoriteProjectUuids = loadFavoriteProjectUuids(dbSession);
-
     List<Criterion> criteria = FilterParser.parse(firstNonNull(request.getFilter(), ""));
-    Set<String> projectUuids = buildFilterOnFavoriteProjectUuids(criteria, favoriteProjectUuids);
-
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, projectUuids)
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, hasFavoriteFilter(criteria) ? favoriteProjectUuids : null)
       .setSort(request.getSort())
       .setAsc(request.getAsc());
     Optional.ofNullable(organization)
@@ -217,14 +214,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return new SearchResults(projects, favoriteProjectUuids, esResults);
   }
 
-  @CheckForNull
-  private Set<String> buildFilterOnFavoriteProjectUuids(List<Criterion> criteria, Set<String> favoriteProjectUuids) {
-    if (criteria.stream()
+  private static boolean hasFavoriteFilter(List<Criterion> criteria) {
+    return criteria.stream()
       .map(Criterion::getKey)
-      .anyMatch(IS_FAVORITE_CRITERION::equalsIgnoreCase)) {
-      return favoriteProjectUuids;
-    }
-    return null;
+      .anyMatch(IS_FAVORITE_CRITERION::equalsIgnoreCase);
   }
 
   private Set<String> loadFavoriteProjectUuids(DbSession dbSession) {

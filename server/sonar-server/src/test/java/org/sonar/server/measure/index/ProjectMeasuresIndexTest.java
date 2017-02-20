@@ -145,6 +145,35 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void sort_by_quality_gate_status() {
+    ComponentDto project4 = newProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
+    index(
+      newDoc(PROJECT1).setQualityGateStatus(OK.name()),
+      newDoc(PROJECT2).setQualityGateStatus(ERROR.name()),
+      newDoc(PROJECT3).setQualityGateStatus(WARN.name()),
+      newDoc(project4).setQualityGateStatus(OK.name()));
+
+    assertResults(new ProjectMeasuresQuery().setSort("alert_status").setAsc(true), PROJECT1, project4, PROJECT3, PROJECT2);
+    assertResults(new ProjectMeasuresQuery().setSort("alert_status").setAsc(false), PROJECT2, PROJECT3, PROJECT1, project4);
+  }
+
+  @Test
+  public void sort_by_quality_gate_status_then_by_name_then_by_key() {
+    ComponentDto windows = newProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
+    ComponentDto apachee = newProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
+    ComponentDto apache1 = newProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
+    ComponentDto apache2 = newProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
+    index(
+      newDoc(windows).setQualityGateStatus(WARN.name()),
+      newDoc(apachee).setQualityGateStatus(OK.name()),
+      newDoc(apache1).setQualityGateStatus(OK.name()),
+      newDoc(apache2).setQualityGateStatus(OK.name()));
+
+    assertResults(new ProjectMeasuresQuery().setSort("alert_status").setAsc(true), apache1, apache2, apachee, windows);
+    assertResults(new ProjectMeasuresQuery().setSort("alert_status").setAsc(false), windows, apache1, apache2, apachee);
+  }
+
+  @Test
   public void paginate_results() {
     IntStream.rangeClosed(1, 9)
       .forEach(i -> index(newDoc(newProjectDto(ORG, "P" + i))));

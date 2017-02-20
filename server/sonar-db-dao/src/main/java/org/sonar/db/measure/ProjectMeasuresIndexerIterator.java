@@ -20,6 +20,7 @@
 package org.sonar.db.measure;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -323,7 +324,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
 
     Measures setLanguageDistribution(String languageDistributionValue) {
-      this.languageDistribution = parseStringInt(languageDistributionValue);
+      this.languageDistribution = ImmutableMap.copyOf(parseStringInt(languageDistributionValue));
       return this;
     }
 

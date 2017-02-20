@@ -128,17 +128,20 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
   private static void addSort(ProjectMeasuresQuery query, SearchRequestBuilder requestBuilder) {
     String sort = query.getSort();
-    if (sort == null || SORT_BY_NAME.equals(sort)) {
+    if (SORT_BY_NAME.equals(sort)) {
       requestBuilder.addSort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), query.isAsc() ? ASC : DESC);
+    } else if (ALERT_STATUS_KEY.equals(sort)) {
+      requestBuilder.addSort(FIELD_QUALITY_GATE_STATUS, query.isAsc() ? ASC : DESC);
+      requestBuilder.addSort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), ASC);
     } else {
-      addNameSort(query, requestBuilder, sort);
+      addMetricSort(query, requestBuilder, sort);
       requestBuilder.addSort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), ASC);
     }
     // last sort is by key in order to be deterministic when same value
     requestBuilder.addSort(FIELD_KEY, ASC);
   }
 
-  private static void addNameSort(ProjectMeasuresQuery query, SearchRequestBuilder requestBuilder, String sort) {
+  private static void addMetricSort(ProjectMeasuresQuery query, SearchRequestBuilder requestBuilder, String sort) {
     requestBuilder.addSort(
       new FieldSortBuilder(FIELD_MEASURES_VALUE)
         .setNestedPath(FIELD_MEASURES)

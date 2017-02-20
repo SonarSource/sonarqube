@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 
@@ -39,7 +38,7 @@ public class ProjectMeasuresQuery {
   private String organizationUuid;
   private Set<String> projectUuids;
   private Set<String> languages;
-  private String sort;
+  private String sort = SORT_BY_NAME;
   private boolean asc = true;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
@@ -87,13 +86,12 @@ public class ProjectMeasuresQuery {
     return Optional.ofNullable(languages);
   }
 
-  @CheckForNull
   public String getSort() {
     return sort;
   }
 
-  public ProjectMeasuresQuery setSort(@Nullable String sort) {
-    this.sort = sort;
+  public ProjectMeasuresQuery setSort(String sort) {
+    this.sort = requireNonNull(sort, "Sort cannot be null");
     return this;
   }
 

@@ -28,7 +28,6 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.server.component.ws.FilterParser.Operator;
 import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
 
 public class ProjectMeasuresQueryTest {
@@ -59,13 +58,6 @@ public class ProjectMeasuresQueryTest {
     underTest.setQualityGateStatus(OK);
 
     assertThat(underTest.getQualityGateStatus().get()).isEqualTo(Level.OK);
-  }
-
-  @Test
-  public void fail_to_create_operator_from_unknown_value() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-
-    Operator.valueOf("UNKNOWN");
   }
 
   @Test
