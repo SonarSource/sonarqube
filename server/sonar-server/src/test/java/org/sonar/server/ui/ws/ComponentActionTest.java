@@ -35,6 +35,7 @@ import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -378,6 +379,23 @@ public class ComponentActionTest {
 
     String result = execute(project.key());
     assertJson(result).ignoreFields("snapshotDate", "key", "qualityGate.key").isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void canApplyPermissionTemplate_is_true_if_logged_in_as_organization_administrator() {
+    init(createPages());
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(org);
+
+    userSessionRule.logIn()
+      .addProjectUuidPermissions(UserRole.ADMIN, project.uuid())
+      .addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
+
+    userSessionRule.logIn()
+      .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": false}}");
   }
 
   private void init(Page... pages) {
