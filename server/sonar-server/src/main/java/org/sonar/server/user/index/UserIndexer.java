@@ -22,19 +22,30 @@ package org.sonar.server.user.index;
 import java.util.Iterator;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.StartupIndexer;
 
-public class UserIndexer extends BaseIndexer {
+public class UserIndexer extends BaseIndexer implements StartupIndexer {
+
+  private static final Logger LOG = Loggers.get(UserIndexer.class);
 
   private final DbClient dbClient;
 
   public UserIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
     super(system2, esClient, 300, UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, UserIndexDefinition.FIELD_UPDATED_AT);
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public void indexOnStartup() {
+    LOG.info("Index users");
+    index();
   }
 
   @Override

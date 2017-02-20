@@ -37,6 +37,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -61,6 +63,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
   @VisibleForTesting
   static final int MAX_BATCH_SIZE = 1000;
 
+  private static final Logger LOG = Loggers.get(PermissionIndexer.class);
   private static final String BULK_ERROR_MESSAGE = "Fail to index authorization";
 
   private final ThreadPoolExecutor executor;
@@ -80,6 +83,11 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
     this.dbClient = dbClient;
     this.esClient = esClient;
     this.authorizationScopes = authorizationScopes;
+  }
+
+  public void initializeOnStartup() {
+    LOG.info("Index authorization");
+    indexAllIfEmpty();
   }
 
   public void indexAllIfEmpty() {

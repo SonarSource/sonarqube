@@ -24,11 +24,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class UserIndexerTest {
 
@@ -39,6 +41,14 @@ public class UserIndexerTest {
 
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
+
+  @Test
+  public void index_on_startup() {
+    UserIndexer indexer = spy(createIndexer());
+    doNothing().when(indexer).index();
+    indexer.indexOnStartup();
+    verify(indexer).indexOnStartup();
+  }
 
   @Test
   public void index_nothing() {
@@ -67,6 +77,6 @@ public class UserIndexerTest {
   }
 
   private UserIndexer createIndexer() {
-    return new UserIndexer(system2, new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    return new UserIndexer(system2, dbTester.getDbClient(), esTester.client());
   }
 }

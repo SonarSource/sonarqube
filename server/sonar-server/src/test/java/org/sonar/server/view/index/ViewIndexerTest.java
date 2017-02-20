@@ -52,6 +52,9 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class ViewIndexerTest {
 
@@ -70,7 +73,15 @@ public class ViewIndexerTest {
   private DbSession dbSession = dbTester.getSession();
   private IssueIndexer issueIndexer = new IssueIndexer(system2, dbClient, esTester.client());
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, esTester.client(), issueIndexer);
-  private ViewIndexer underTest = (ViewIndexer) new ViewIndexer(system2, dbClient, esTester.client());
+  private ViewIndexer underTest = new ViewIndexer(system2, dbClient, esTester.client());
+
+  @Test
+  public void index_on_startup() {
+    ViewIndexer indexer = spy(underTest);
+    doNothing().when(indexer).index();
+    indexer.indexOnStartup();
+    verify(indexer).indexOnStartup();
+  }
 
   @Test
   public void index_nothing() {

@@ -38,6 +38,7 @@ import org.sonar.server.es.ProjectIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -64,6 +65,14 @@ public class ComponentIndexerTest {
   @Before
   public void setUp() {
     organization = OrganizationTesting.newOrganizationDto();
+  }
+
+  @Test
+  public void index_on_startup() {
+    ComponentIndexer indexer = spy(createIndexer());
+    doNothing().when(indexer).index();
+    indexer.indexOnStartup();
+    verify(indexer).indexOnStartup();
   }
 
   @Test

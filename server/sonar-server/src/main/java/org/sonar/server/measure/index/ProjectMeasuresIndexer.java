@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
@@ -33,6 +35,7 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
@@ -40,8 +43,9 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
-public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
+public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
+  private static final Logger LOG = Loggers.get(ProjectMeasuresIndexer.class);
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
@@ -49,6 +53,12 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
   public ProjectMeasuresIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
     super(system2, esClient, 300, INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, FIELD_ANALYSED_AT);
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public void indexOnStartup() {
+    LOG.info("Index project measures");
+    index();
   }
 
   @Override

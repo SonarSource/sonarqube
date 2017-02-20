@@ -24,12 +24,15 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
@@ -41,8 +44,9 @@ import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
  * db table FILE_SOURCES of type TEST that are not indexed yet
  */
-public class TestIndexer extends BaseIndexer implements ProjectIndexer {
+public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupIndexer {
 
+  private static final Logger LOG = Loggers.get(TestIndexer.class);
   private final DbClient dbClient;
 
   public TestIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
@@ -66,6 +70,12 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer {
         // defensive case
         throw new IllegalStateException("Unsupported cause: " + cause);
     }
+  }
+
+  @Override
+  public void indexOnStartup() {
+    LOG.info("Index tests");
+    index();
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {

@@ -38,6 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
@@ -46,7 +47,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
-public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable {
+public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable, StartupIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_COMPONENTS, project -> true);
 
@@ -60,27 +61,16 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     this.esClient = esClient;
   }
 
-  /**
-   * Make sure, that the component index is filled.
-   */
-  public void index() {
+  @Override
+  public void indexOnStartup() {
     if (isEmpty()) {
-      reindex();
+      doIndexByProjectUuid(null);
     }
   }
 
   @VisibleForTesting
   boolean isEmpty() {
     return esClient.prepareSearch(INDEX_COMPONENTS).setTypes(TYPE_COMPONENT).setSize(0).get().getHits().getTotalHits() <= 0;
-  }
-
-  /**
-   * Copy all components of all projects to the elastic search index.
-   * <p>
-   * <b>Warning</b>: This should only be called on an empty index and it should only be called during startup.
-   */
-  private void reindex() {
-    doIndexByProjectUuid(null);
   }
 
   @Override

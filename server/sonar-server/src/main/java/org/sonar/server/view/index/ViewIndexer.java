@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -30,16 +32,25 @@ import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.StartupIndexer;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class ViewIndexer extends BaseIndexer {
+public class ViewIndexer extends BaseIndexer implements StartupIndexer {
+
+  private static final Logger LOG = Loggers.get(ViewIndexer.class);
 
   private final DbClient dbClient;
 
   public ViewIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
     super(system2, esClient, 300, ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, "updatedAt");
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public void indexOnStartup() {
+    LOG.info("Index views");
+    index();
   }
 
   /**
