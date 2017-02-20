@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import com.google.common.base.Throwables;
 import java.util.Enumeration;
 import java.util.Properties;
 import javax.servlet.ServletContext;
@@ -48,8 +47,9 @@ public final class PlatformServletContextListener implements ServletContextListe
       Loggers.get(Platform.class).error("Web server startup failed: " + e.getMessage());
       stopQuietly();
     } catch (Throwable t) {
+      Loggers.get(Platform.class).error("Web server startup failed", t);
       stopQuietly();
-      throw Throwables.propagate(t);
+      throw new AbortTomcatStartException();
     }
   }
 
