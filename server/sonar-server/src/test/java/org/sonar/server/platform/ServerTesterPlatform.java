@@ -19,7 +19,13 @@
  */
 package org.sonar.server.platform;
 
+import java.util.function.Supplier;
+
 public class ServerTesterPlatform extends Platform {
+  public ServerTesterPlatform(Supplier<PlatformAutoStarter> autoStarterFactory) {
+    super(autoStarterFactory);
+  }
+
   /**
    * Override to make public
    */

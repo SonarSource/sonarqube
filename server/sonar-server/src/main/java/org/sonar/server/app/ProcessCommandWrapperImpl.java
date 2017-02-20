@@ -41,6 +41,11 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
   }
 
   @Override
+  public void requestStop() {
+    call(VoidMethod.ASK_FOR_STOP, selfProcessNumber());
+  }
+
+  @Override
   public void notifyOperational() {
     call(VoidMethod.SET_OPERATIONAL, selfProcessNumber());
   }
@@ -68,6 +73,13 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
       @Override
       <T> T callOn(ProcessCommands processCommands) {
         processCommands.askForRestart();
+        return null;
+      }
+    },
+    ASK_FOR_STOP() {
+      @Override
+      <T> T callOn(ProcessCommands processCommands) {
+        processCommands.askForStop();
         return null;
       }
     };

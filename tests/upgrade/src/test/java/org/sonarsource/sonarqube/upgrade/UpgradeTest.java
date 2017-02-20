@@ -54,6 +54,12 @@ public class UpgradeTest {
 
   private static final String PROJECT_KEY = "org.apache.struts:struts-parent";
   private static final String LATEST_JAVA_RELEASE = "LATEST_RELEASE";
+  private static final Version VERSION_5_2 = Version.create("5.2");
+  private static final Version VERSION_5_6_1 = Version.create("5.6.1");
+  private static final Version VERSION_5_6 = Version.create("5.6");
+  private static final Version VERSION_6_0 = Version.create("6.0");
+  private static final Version VERSION_6_1 = Version.create("6.1");
+  private static final Version VERSION_CURRENT = Version.create("DEV");
 
   private Orchestrator orchestrator;
 
@@ -67,22 +73,22 @@ public class UpgradeTest {
 
   @Test
   public void test_upgrade_from_5_6_1() {
-    testDatabaseUpgrade(Version.create("5.6.1"));
+    testDatabaseUpgrade(VERSION_5_6_1);
   }
 
   @Test
   public void test_upgrade_from_5_2_via_5_6() {
-    testDatabaseUpgrade(Version.create("5.2"), Version.create("5.6"));
+    testDatabaseUpgrade(VERSION_5_2, VERSION_5_6);
   }
 
   @Test
   public void test_upgrade_from_6_0() {
-    testDatabaseUpgrade(Version.create("6.0"));
+    testDatabaseUpgrade(VERSION_6_0);
   }
 
   @Test
   public void test_upgrade_from_6_1() {
-    testDatabaseUpgrade(Version.create("6.1"));
+    testDatabaseUpgrade(VERSION_6_1);
   }
 
   private void testDatabaseUpgrade(Version fromVersion, Version... intermediaryVersions) {
@@ -94,13 +100,13 @@ public class UpgradeTest {
 
     Arrays.stream(intermediaryVersions).forEach((sqVersion) -> {
       startOldVersionServer(sqVersion, true);
-      upgrade();
+      upgrade(sqVersion);
       verifyAnalysis(files);
       stopServer();
     });
 
     startDevServer();
-    upgrade();
+    upgrade(VERSION_CURRENT);
     verifyAnalysis(files);
     stopServer();
   }
@@ -112,19 +118,23 @@ public class UpgradeTest {
     browseWebapp();
   }
 
-  private void upgrade() {
-    checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
+  private void upgrade(Version sqVersion) {
+    checkSystemStatus(sqVersion, ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
     checkUrlsBeforeUpgrade();
     ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
-    assertThat(serverMigrationResponse.getStatus()).isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
-    checkSystemStatus(ServerStatusResponse.Status.UP);
+    assertThat(serverMigrationResponse.getStatus())
+      .describedAs("Migration status of version " + sqVersion + " should be MIGRATION_SUCCEEDED")
+      .isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
+    checkSystemStatus(sqVersion, ServerStatusResponse.Status.UP);
     checkUrlsAfterUpgrade();
   }
 
-  private void checkSystemStatus(ServerStatusResponse.Status serverStatus) {
-    ServerStatusResponse serverStatusResponse = new ServerStatusCall(orchestrator).call();
+  private void checkSystemStatus(Version sqVersion, ServerStatusResponse.Status serverStatus) {
+    ServerStatusResponse serverStatusResponse = new ServerStatusCall(orchestrator).callAndWait();
 
-    assertThat(serverStatusResponse.getStatus()).isEqualTo(serverStatus);
+    assertThat(serverStatusResponse.getStatus())
+      .describedAs("Server status of version " + sqVersion + " should be " + serverStatus)
+      .isEqualTo(serverStatus);
   }
 
   private void checkUrlsBeforeUpgrade() {

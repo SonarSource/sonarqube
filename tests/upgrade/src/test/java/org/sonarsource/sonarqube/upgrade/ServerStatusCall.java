@@ -40,6 +40,7 @@ public class ServerStatusCall extends WsCallAndWait<ServerStatusResponse> {
 
   @Override
   protected boolean shouldWait(ServerStatusResponse serverStatusResponse) {
-    return false;
+    ServerStatusResponse.Status status = serverStatusResponse.getStatus();
+    return status == ServerStatusResponse.Status.STARTING || status == ServerStatusResponse.Status.DB_MIGRATION_RUNNING;
   }
 }

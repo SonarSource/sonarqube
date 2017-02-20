@@ -23,11 +23,14 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
 import org.sonar.server.platform.platformlevel.PlatformLevel1;
@@ -46,6 +49,8 @@ public class Platform {
 
   private static final Platform INSTANCE = new Platform();
 
+  private final Supplier<PlatformAutoStarter> autoStarterSupplier;
+  private PlatformAutoStarter autoStarter = null;
   private Properties properties;
   private ServletContext servletContext;
   private PlatformLevel level1;
@@ -58,6 +63,17 @@ public class Platform {
   private boolean started = false;
   private final List<Object> level4AddedComponents = Lists.newArrayList();
   private final Profiler profiler = Profiler.createIfTrace(Loggers.get(Platform.class));
+
+  private Platform() {
+    this.autoStarterSupplier = () -> {
+      ProcessCommandWrapper processCommandWrapper = getContainer().getComponentByType(ProcessCommandWrapper.class);
+      return new AsynchronousAutoStarter(processCommandWrapper);
+    };
+  }
+
+  protected Platform(Supplier<PlatformAutoStarter> autoStarterSupplier) {
+    this.autoStarterSupplier = autoStarterSupplier;
+  }
 
   public static Platform getInstance() {
     return INSTANCE;
@@ -84,28 +100,40 @@ public class Platform {
       return;
     }
 
-    boolean wentToSafemode = false;
-    if (requireSafeMode()) {
-      LOGGER.info("DB needs migration, entering safe mode");
-      wentToSafemode = true;
-      startSafeModeContainer();
-      currentLevel = levelSafeMode;
-      started = true;
-    }
-    // if AutoDbMigration kicked in, safe mode is not required anymore
-    if (!requireSafeMode()) {
-      if (wentToSafemode) {
-        LOGGER.info("DB has been updated, exiting safe mode");
-      }
-      startLevel34Containers();
-      executeStartupTasks(startup);
-      // switch current container last to avoid giving access to a partially initialized container
-      currentLevel = level4;
-      started = true;
+    boolean dbRequiredMigration = dbRequiresMigration();
+    startSafeModeContainer();
+    currentLevel = levelSafeMode;
+    started = true;
 
-      // stop safemode container if it existed
-      stopSafeModeContainer();
+    // if AutoDbMigration kicked in or no DB migration was required, startup can be resumed in another thread
+    if (dbRequiresMigration()) {
+      LOGGER.info("Database needs migration");
+    } else {
+      this.autoStarter = autoStarterSupplier.get();
+      this.autoStarter.execute(() ->  {
+        try {
+          if (dbRequiredMigration) {
+            LOGGER.info("Database has been automatically updated");
+          }
+          startLevel34Containers();
+
+          executeStartupTasks(startup);
+          // switch current container last to avoid giving access to a partially initialized container
+          currentLevel = level4;
+
+          // stop safemode container if it existed
+          stopSafeModeContainer();
+        } catch (Throwable t) {
+          autoStarter.failure(t);
+        } finally {
+          autoStarter.success();
+        }
+      });
     }
+  }
+
+  private boolean dbRequiresMigration() {
+    return getDatabaseStatus() != DatabaseVersion.Status.UP_TO_DATE;
   }
 
   public void restart() {
@@ -113,9 +141,9 @@ public class Platform {
   }
 
   protected void restart(Startup startup) {
-
     // switch currentLevel on level1 now to avoid exposing a container in the process of stopping
     currentLevel = level1;
+    autoStarter = null;
 
     // stop containers
     stopSafeModeContainer();
@@ -126,10 +154,6 @@ public class Platform {
     startLevel34Containers();
     currentLevel = level4;
     executeStartupTasks(startup);
-  }
-
-  private boolean requireSafeMode() {
-    return getDatabaseStatus() != DatabaseVersion.Status.UP_TO_DATE;
   }
 
   public boolean isStarted() {
@@ -147,12 +171,16 @@ public class Platform {
     PlatformLevel current = this.currentLevel;
     PlatformLevel levelSafe = this.levelSafeMode;
     if (levelSafe != null && current == levelSafe) {
-      return Status.SAFEMODE;
+      return isRunning(this.autoStarter) ? Status.STARTING : Status.SAFEMODE;
     }
     if (current == level4) {
       return Status.UP;
     }
     return Status.BOOTING;
+  }
+
+  private static boolean isRunning(@Nullable PlatformAutoStarter autoStarter) {
+    return autoStarter != null && autoStarter.isRunning();
   }
 
   /**
@@ -255,6 +283,7 @@ public class Platform {
       stopSafeModeContainer();
       stopLevel234Containers();
       stopLevel1Container();
+      autoStarter = null;
       currentLevel = null;
       dbConnected = false;
       started = false;
@@ -276,10 +305,63 @@ public class Platform {
   }
 
   public enum Status {
-    BOOTING, SAFEMODE, UP
+    BOOTING, SAFEMODE, STARTING, UP
   }
 
   public enum Startup {
     NO_STARTUP_TASKS, ALL
+  }
+
+  public interface PlatformAutoStarter {
+    /**
+     * Let the autostarted execute the provided code.
+     */
+    void execute(Runnable startCode);
+
+    /**
+     * This method is called by executed start code (see {@link #execute(Runnable)} has finished with a failure.
+     */
+    void failure(Throwable t);
+
+    /**
+     * This method is called by executed start code (see {@link #execute(Runnable)} has finished successfully.
+     */
+    void success();
+
+    /**
+     * Indicates whether the AutoStarter is running.
+     */
+    boolean isRunning();
+  }
+
+  private static final class AsynchronousAutoStarter implements PlatformAutoStarter {
+    private final ProcessCommandWrapper processCommandWrapper;
+    private boolean running = true;
+
+    private AsynchronousAutoStarter(ProcessCommandWrapper processCommandWrapper) {
+      this.processCommandWrapper = processCommandWrapper;
+    }
+
+    @Override
+    public void execute(Runnable startCode) {
+      new Thread(startCode, "SQ starter").start();
+    }
+
+    @Override
+    public void failure(Throwable t) {
+      LOGGER.error("Background initialization failed. Stopping SonarQube", t);
+      processCommandWrapper.requestStop();
+      this.running = false;
+    }
+
+    @Override
+    public void success() {
+      this.running = false;
+    }
+
+    @Override
+    public boolean isRunning() {
+      return running;
+    }
   }
 }

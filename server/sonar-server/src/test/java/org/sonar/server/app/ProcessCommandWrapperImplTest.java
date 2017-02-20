@@ -79,6 +79,31 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
+  public void requestSQStop_throws_IAE_if_process_shared_path_property_not_set() throws Exception {
+    settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
+    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property process.sharedDir is not set");
+
+    processCommandWrapper.requestStop();
+  }
+
+  @Test
+  public void requestSQStop_updates_shareMemory_file() throws IOException {
+    File tmpDir = temp.newFolder().getAbsoluteFile();
+    settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
+    settings.setProperty(PROPERTY_PROCESS_INDEX, PROCESS_NUMBER);
+
+    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings);
+    underTest.requestStop();
+
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, PROCESS_NUMBER)) {
+      assertThat(processCommands.askedForStop()).isTrue();
+    }
+  }
+
+  @Test
   public void notifyOperational_throws_IAE_if_process_sharedDir_property_not_set() throws Exception {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);

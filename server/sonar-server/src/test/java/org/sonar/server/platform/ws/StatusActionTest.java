@@ -53,13 +53,14 @@ public class StatusActionTest {
   private static final String SERVER_ID = "20150504120436";
   private static final String SERVER_VERSION = "5.1";
   private static final String STATUS_UP = "UP";
+  private static final String STATUS_STARTING = "STARTING";
   private static final String STATUS_DOWN = "DOWN";
   private static final String STATUS_MIGRATION_NEEDED = "DB_MIGRATION_NEEDED";
   private static final String STATUS_MIGRATION_RUNNING = "DB_MIGRATION_RUNNING";
   private static final String STATUS_RESTARTING = "RESTARTING";
   private static final Set<DatabaseMigrationState.Status> SUPPORTED_DATABASE_MIGRATION_STATUSES = of(DatabaseMigrationState.Status.FAILED, DatabaseMigrationState.Status.NONE,
     DatabaseMigrationState.Status.SUCCEEDED, DatabaseMigrationState.Status.RUNNING);
-  private static final Set<Platform.Status> SUPPORTED_PLATFORM_STATUSES = of(Platform.Status.BOOTING, Platform.Status.SAFEMODE, Platform.Status.UP);
+  private static final Set<Platform.Status> SUPPORTED_PLATFORM_STATUSES = of(Platform.Status.BOOTING, Platform.Status.SAFEMODE, Platform.Status.STARTING, Platform.Status.UP);
 
   private static Server server = new Dummy51Server();
   private DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
@@ -143,13 +144,33 @@ public class StatusActionTest {
   }
 
   @Test
-  public void status_is_UP_if_platform_is_SAFEMODE_and_databaseMigration_is_SUCCEEDED() throws Exception {
-    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.SUCCEEDED, STATUS_UP);
+  public void status_is_MIGRATION_RUNNING_if_platform_is_SAFEMODE_and_databaseMigration_is_SUCCEEDED() throws Exception {
+    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.SUCCEEDED, STATUS_MIGRATION_RUNNING);
   }
 
   @Test
   public void status_is_DOWN_if_platform_is_SAFEMODE_and_databaseMigration_is_FAILED() throws Exception {
     verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.FAILED, STATUS_DOWN);
+  }
+
+  @Test
+  public void status_is_STARTING_if_platform_is_STARTING_and_databaseMigration_is_NONE() throws Exception {
+    verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.NONE, STATUS_STARTING);
+  }
+
+  @Test
+  public void status_is_DB_MIGRATION_RUNNING_if_platform_is_STARTING_and_databaseMigration_is_RUNNING() throws Exception {
+    verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.RUNNING, STATUS_MIGRATION_RUNNING);
+  }
+
+  @Test
+  public void status_is_MIGRATION_RUNNING_if_platform_is_STARTING_and_databaseMigration_is_SUCCEEDED() throws Exception {
+    verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.SUCCEEDED, STATUS_MIGRATION_RUNNING);
+  }
+
+  @Test
+  public void status_is_DOWN_if_platform_is_STARTING_and_databaseMigration_is_FAILED() throws Exception {
+    verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.FAILED, STATUS_DOWN);
   }
 
   @Test

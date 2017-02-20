@@ -44,6 +44,7 @@ import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsServerHolder;
 import org.sonar.server.platform.BackendCleanup;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerTesterPlatform;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.ws.WsTester;
@@ -124,7 +125,32 @@ public class ServerTester extends ExternalResource {
       if (!esIndexes) {
         properties.put("sonar.internal.es.disableIndexes", true);
       }
-      platform = new ServerTesterPlatform();
+      platform = new ServerTesterPlatform(() -> new Platform.PlatformAutoStarter() {
+        private boolean running = false;
+
+        @Override
+        public void execute(Runnable startCode) {
+          running = true;
+          startCode.run();
+        }
+
+        @Override
+        public void failure(Throwable t) {
+          stop();
+          Throwables.propagate(t);
+          this.running = false;
+        }
+
+        @Override
+        public void success() {
+          this.running = false;
+        }
+
+        @Override
+        public boolean isRunning() {
+          return this.running;
+        }
+      });
       platform.init(properties, servletContext);
       platform.addComponents(components);
       platform.doStart(startupTasks ? ALL : NO_STARTUP_TASKS);

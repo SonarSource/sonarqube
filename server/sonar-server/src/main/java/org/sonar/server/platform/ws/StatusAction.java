@@ -61,6 +61,8 @@ public class StatusAction implements SystemWsAction {
     controller.createAction("status")
       .setDescription("Get the server status:" +
         "<ul>" +
+        "<li>STARTING: SonarQube Web Server is up and serving some Web Services (eg. api/system/status) " +
+        "but initialization is still ongoing</li>" +
         "<li>UP: SonarQube instance is up and running</li>" +
         "<li>DOWN: SonarQube instance is up but not running because SQ can not connect to database or " +
         "migration has failed (refer to WS /api/system/migrate_db for details) or some other reason (check logs).</li>" +
@@ -100,12 +102,14 @@ public class StatusAction implements SystemWsAction {
     switch (platformStatus) {
       case BOOTING:
         // can not happen since there can not even exist an instance of the current class
-        // unless the Platform's status is UP or SAFEMODE
+        // unless the Platform's status is UP/SAFEMODE/STARTING
         return Status.DOWN;
       case UP:
         return restartFlagHolder.isRestarting() ? Status.RESTARTING : Status.UP;
+      case STARTING:
+        return computeStatusInStarting();
       case SAFEMODE:
-        return computeFromDbMigrationStatus();
+        return computeStatusInSafemode();
       default:
         throw new IllegalArgumentException("Unsupported Platform.Status " + platformStatus);
     }
@@ -120,7 +124,24 @@ public class StatusAction implements SystemWsAction {
     }
   }
 
-  private Status computeFromDbMigrationStatus() {
+  private Status computeStatusInStarting() {
+    DatabaseMigrationState.Status databaseMigrationStatus = migrationState.getStatus();
+    switch (databaseMigrationStatus) {
+      case NONE:
+        return Status.STARTING;
+      case RUNNING:
+        return Status.DB_MIGRATION_RUNNING;
+      case FAILED:
+        return Status.DOWN;
+      case SUCCEEDED:
+        // DB migration can be finished while we haven't yet finished SQ's initialization
+        return Status.DB_MIGRATION_RUNNING;
+      default:
+        throw new IllegalArgumentException("Unsupported DatabaseMigration.Status " + databaseMigrationStatus);
+    }
+  }
+
+  private Status computeStatusInSafemode() {
     DatabaseMigrationState.Status databaseMigrationStatus = migrationState.getStatus();
     switch (databaseMigrationStatus) {
       case NONE:
@@ -130,16 +151,17 @@ public class StatusAction implements SystemWsAction {
       case FAILED:
         return Status.DOWN;
       case SUCCEEDED:
-        // status of Platform is supposed to be UP _before_ DatabaseMigration status becomes UP too
+        // status of Platform will change to STARTING _before_ DatabaseMigration status becomes SUCCEEDED
+        // (see DatabaseMigrationImpl#doDatabaseMigration, platform's restart is requested _before_ DatabaseMigration status is updated)
         // so, in theory, this case can not happen
-        return Status.UP;
+        return Status.DB_MIGRATION_RUNNING;
       default:
         throw new IllegalArgumentException("Unsupported DatabaseMigration.Status " + databaseMigrationStatus);
     }
   }
 
   private enum Status {
-    UP, DOWN, DB_MIGRATION_NEEDED, DB_MIGRATION_RUNNING, RESTARTING
+    UP, DOWN, DB_MIGRATION_NEEDED, DB_MIGRATION_RUNNING, STARTING, RESTARTING
   }
 
 }

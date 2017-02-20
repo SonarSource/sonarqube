@@ -26,6 +26,11 @@ public interface ProcessCommandWrapper {
   void requestSQRestart();
 
   /**
+   * Requests to the main process that the WebServer is stopped.
+   */
+  void requestStop();
+
+  /**
    * Notifies any listening process that the WebServer is operational.
    */
   void notifyOperational();

@@ -42,7 +42,7 @@ public class ServerStatusResponse {
     return status;
   }
 
-  public static enum Status {
-    UP, DOWN, DB_MIGRATION_NEEDED, DB_MIGRATION_RUNNING
+  public enum Status {
+    UP, DOWN, STARTING, DB_MIGRATION_NEEDED, DB_MIGRATION_RUNNING
   }
 }
