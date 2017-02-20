@@ -21,7 +21,6 @@ package org.sonar.db.purge;
 
 import com.google.common.collect.Lists;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +61,7 @@ public class PurgeDao implements Dao {
     deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.scopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
-    purgeDisabledComponents(session, conf.getDisabledComponentUuids(), listener);
+    purgeDisabledComponents(session, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
   }
 
@@ -123,18 +122,16 @@ public class PurgeDao implements Dao {
     purgeCommands.deleteComponentMeasures(analysisUuids, componentWithoutHistoricalDataUuids);
   }
 
-  private void purgeDisabledComponents(DbSession session, Collection<String> uuids, PurgeListener listener) {
+  private void purgeDisabledComponents(DbSession session, PurgeConfiguration conf, PurgeListener listener) {
     PurgeMapper mapper = mapper(session);
-    executeLargeInputs(uuids,
+    executeLargeInputs(conf.getDisabledComponentUuids(),
       input -> {
         mapper.deleteFileSourcesByUuid(input);
         mapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
         return emptyList();
       });
 
-    for (String componentUuid : uuids) {
-      listener.onComponentDisabling(componentUuid);
-    }
+    listener.onComponentsDisabling(conf.rootProjectIdUuid().getUuid(), conf.getDisabledComponentUuids());
 
     session.commit();
   }

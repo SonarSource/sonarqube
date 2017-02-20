@@ -19,14 +19,10 @@
  */
 package org.sonar.server.computation.dbcleaner;
 
-import org.junit.Before;
-import org.junit.Rule;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Type;
-import org.sonar.server.computation.task.projectanalysis.component.ComponentImpl;
-import org.sonar.server.computation.task.projectanalysis.component.MutableTreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.ReportAttributes;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
@@ -40,29 +36,17 @@ public class IndexPurgeListenerTest {
   IssueIndexer issueIndexer = mock(IssueIndexer.class);
   ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
 
-  @Rule
-  public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
-
-  IndexPurgeListener underTest = new IndexPurgeListener(treeRootHolder, testIndexer, issueIndexer, componentIndexer);
-
-  @Before
-  public void before() {
-    treeRootHolder.setRoot(ComponentImpl
-      .builder(Type.PROJECT)
-      .setName("project")
-      .setKey("project")
-      .setUuid("project")
-      .setReportAttributes(ReportAttributes.newBuilder(0).build())
-      .build());
-  }
+  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer, componentIndexer);
 
   @Test
   public void test_onComponentDisabling() {
     String uuid = "123456";
-    underTest.onComponentDisabling(uuid);
+    String projectUuid = "P789";
+    List<String> uuids = Arrays.asList(uuid);
+    underTest.onComponentsDisabling(projectUuid, uuids);
 
     verify(testIndexer).deleteByFile(uuid);
-    verify(componentIndexer).delete(treeRootHolder.getRoot().getUuid(), uuid);
+    verify(componentIndexer).delete(projectUuid, uuids);
   }
 
   @Test

@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -130,8 +131,11 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
           termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid))));
   }
 
-  public void delete(String projectUuid, String uuid) {
-    esClient.prepareDelete(INDEX_COMPONENTS, TYPE_COMPONENT, uuid).setRouting(projectUuid).execute();
+  public void delete(String projectUuid, Collection<String> disabledComponentUuids) {
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
+    bulk.start();
+    disabledComponentUuids.stream().forEach(uuid -> bulk.addDeletion(INDEX_COMPONENTS, TYPE_COMPONENT, uuid, projectUuid));
+    bulk.stop();
   }
 
   void index(ComponentDto... docs) {
