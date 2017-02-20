@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
@@ -36,6 +35,11 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.server.component.ws.FilterParser.Operator;
+import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
+import static org.sonar.server.component.ws.FilterParser.Operator.GT;
+import static org.sonar.server.component.ws.FilterParser.Operator.IN;
+import static org.sonar.server.component.ws.FilterParser.Operator.LTE;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
 
@@ -49,139 +53,16 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void create_query() throws Exception {
     List<Criterion> criteria = asList(
-      Criterion.builder().setKey("ncloc").setOperator(">").setValue("10").build(),
-      Criterion.builder().setKey("coverage").setOperator("<=").setValue("80").build());
+      Criterion.builder().setKey("ncloc").setOperator(GT).setValue("10").build(),
+      Criterion.builder().setKey("coverage").setOperator(LTE).setValue("80").build());
 
     ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
 
     assertThat(underTest.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(
-        tuple("ncloc", Operator.GT, 10d),
+        tuple("ncloc", GT, 10d),
         tuple("coverage", Operator.LTE, 80d));
-  }
-
-  @Test
-  public void create_query_having_lesser_than_operation() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator("<").setValue("10").build()),
-      emptySet());
-
-    assertThat(query.getMetricCriteria())
-      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
-      .containsOnly(tuple("ncloc", Operator.LT, 10d));
-  }
-
-  @Test
-  public void create_query_having_lesser_than_or_equals_operation() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator("<=").setValue("10").build()),
-      emptySet());
-
-    assertThat(query.getMetricCriteria())
-      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
-      .containsOnly(tuple("ncloc", Operator.LTE, 10d));
-  }
-
-  @Test
-  public void create_query_having_greater_than_operation() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue("10").build()),
-      emptySet());
-
-    assertThat(query.getMetricCriteria())
-      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
-      .containsOnly(tuple("ncloc", Operator.GT, 10d));
-  }
-
-  @Test
-  public void create_query_having_greater_than_or_equals_operation() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">=").setValue("10").build()),
-      emptySet());
-
-    assertThat(query.getMetricCriteria())
-      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
-      .containsOnly(tuple("ncloc", Operator.GTE, 10d));
-  }
-
-  @Test
-  public void create_query_having_equal_operation() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator("=").setValue("10").build()),
-      emptySet());
-
-    assertThat(query.getMetricCriteria())
-      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
-      .containsOnly(tuple("ncloc", Operator.EQ, 10d));
-  }
-
-  @Test
-  public void create_query_on_quality_gate() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator("=").setValue("OK").build()),
-      emptySet());
-
-    assertThat(query.getQualityGateStatus().get().name()).isEqualTo(OK.name());
-  }
-
-  @Test
-  public void do_not_filter_on_projectUuids_if_criteria_non_empty_and_projectUuid_is_null() {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator("=").setValue("10").build()),
-      null);
-
-    assertThat(query.getProjectUuids()).isEmpty();
-  }
-
-  @Test
-  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_non_empty() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue("10").build()),
-      emptySet());
-
-    assertThat(query.getProjectUuids()).isPresent();
-  }
-
-  @Test
-  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_non_empty() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue("10").build()),
-      Collections.singleton("foo"));
-
-    assertThat(query.getProjectUuids()).isPresent();
-  }
-
-  @Test
-  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_is_empty() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), emptySet());
-
-    assertThat(query.getProjectUuids()).isPresent();
-  }
-
-  @Test
-  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_empty() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), Collections.singleton("foo"));
-
-    assertThat(query.getProjectUuids()).isPresent();
-  }
-
-  @Test
-  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(">").setValue("OK").build()), emptySet());
-  }
-
-  @Test
-  public void convert_metric_to_lower_case() throws Exception {
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(asList(
-      Criterion.builder().setKey("NCLOC").setOperator(">").setValue("10").build(),
-      Criterion.builder().setKey("coVERage").setOperator("<=").setValue("80").build()),
-      emptySet());
-
-    assertThat(query.getMetricCriteria())
-      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
-      .containsOnly(
-        tuple("ncloc", Operator.GT, 10d),
-        tuple("coverage", Operator.LTE, 80d));
-  }
-
-  @Test
-  public void accept_empty_query() throws Exception {
-    ProjectMeasuresQuery result = newProjectMeasuresQuery(emptyList(), emptySet());
-
-    assertThat(result.getMetricCriteria()).isEmpty();
   }
 
   @Test
@@ -210,4 +91,94 @@ public class ProjectMeasuresQueryFactoryTest {
     newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(">").setValue(null).build()),
       emptySet());
   }
+
+  @Test
+  public void create_query_on_quality_gate() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(EQ).setValue("OK").build()),
+      emptySet());
+
+    assertThat(query.getQualityGateStatus().get().name()).isEqualTo(OK.name());
+  }
+
+  @Test
+  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only equals operator is available for quality gate criteria");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(GT).setValue("OK").build()), emptySet());
+  }
+
+  @Test
+  public void fail_to_create_query_on_quality_gate_when_value_is_incorrect() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unknown quality gate status : 'unknown'");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(EQ).setValue("unknown").build()), emptySet());
+  }
+
+  @Test
+  public void do_not_filter_on_projectUuids_if_criteria_non_empty_and_projectUuid_is_null() {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(EQ).setValue("10").build()),
+      null);
+
+    assertThat(query.getProjectUuids()).isEmpty();
+  }
+
+  @Test
+  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_non_empty() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(GT).setValue("10").build()),
+      emptySet());
+
+    assertThat(query.getProjectUuids()).isPresent();
+  }
+
+  @Test
+  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_non_empty() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(GT).setValue("10").build()),
+      Collections.singleton("foo"));
+
+    assertThat(query.getProjectUuids()).isPresent();
+  }
+
+  @Test
+  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_is_empty() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), emptySet());
+
+    assertThat(query.getProjectUuids()).isPresent();
+  }
+
+  @Test
+  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_empty() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), Collections.singleton("foo"));
+
+    assertThat(query.getProjectUuids()).isPresent();
+  }
+
+  @Test
+  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(">").setValue("OK").build()), emptySet());
+  }
+
+  @Test
+  public void convert_metric_to_lower_case() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(asList(
+      Criterion.builder().setKey("NCLOC").setOperator(GT).setValue("10").build(),
+      Criterion.builder().setKey("coVERage").setOperator(LTE).setValue("80").build()),
+      emptySet());
+
+    assertThat(query.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
+      .containsOnly(
+        tuple("ncloc", GT, 10d),
+        tuple("coverage", Operator.LTE, 80d));
+  }
+
+  @Test
+  public void accept_empty_query() throws Exception {
+    ProjectMeasuresQuery result = newProjectMeasuresQuery(emptyList(), emptySet());
+
+    assertThat(result.getMetricCriteria()).isEmpty();
+  }
+
 }

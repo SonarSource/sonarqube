@@ -19,18 +19,22 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
+import org.sonar.server.component.ws.FilterParser.Operator;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 
 class ProjectMeasuresQueryFactory {
 
@@ -53,25 +57,33 @@ class ProjectMeasuresQueryFactory {
       return;
     }
 
-    String operatorValue = criterion.getOperator();
-    checkArgument(operatorValue != null, "Operator cannot be null for '%s'", key);
     String value = criterion.getValue();
     checkArgument(value != null, "Value cannot be null for '%s'", key);
-    Operator operator = Operator.getByValue(criterion.getOperator());
+    Operator operator = criterion.getOperator();
+    checkArgument(operator != null, "Operator cannot be null for '%s'", key);
     if (ALERT_STATUS_KEY.equals(key)) {
-      checkArgument(operator.equals(Operator.EQ), "Only equals operator is available for quality gate criteria");
-      query.setQualityGateStatus(Level.valueOf(value));
+      processQualityGateStatus(criterion, query);
     } else {
       query.addMetricCriterion(new MetricCriterion(key, operator, parseValue(value)));
     }
+  }
+
+  private static void processQualityGateStatus(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+    Operator operator = criterion.getOperator();
+    String value = criterion.getValue();
+    checkArgument(EQ.equals(operator), "Only equals operator is available for quality gate criteria");
+    Arrays.stream(Level.values()).filter(level -> level.name().equalsIgnoreCase(value)).findFirst()
+      .orElseThrow(() -> new IllegalArgumentException(format("Unknown quality gate status : '%s'", value)));
+    query.setQualityGateStatus(Level.valueOf(value));
   }
 
   private static double parseValue(String value) {
     try {
       return Double.parseDouble(value);
     } catch (NumberFormatException e) {
-      throw new IllegalArgumentException(String.format("Value '%s' is not a number", value));
+      throw new IllegalArgumentException(format("Value '%s' is not a number", value));
     }
   }
+
 
 }

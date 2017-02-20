@@ -35,11 +35,11 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
+import static org.sonar.server.component.ws.FilterParser.Operator.GT;
+import static org.sonar.server.component.ws.FilterParser.Operator.LT;
+import static org.sonar.server.component.ws.FilterParser.Operator.LTE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.GT;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LT;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LTE;
 
 public class ProjectMeasuresQueryValidatorTest {
 

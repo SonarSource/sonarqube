@@ -28,7 +28,8 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
+import static org.sonar.server.component.ws.FilterParser.Operator;
+import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
 
 public class ProjectMeasuresQueryTest {
 
@@ -63,6 +64,20 @@ public class ProjectMeasuresQueryTest {
   @Test
   public void fail_to_create_operator_from_unknown_value() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    ProjectMeasuresQuery.Operator.valueOf("UNKNOWN");
+
+    Operator.valueOf("UNKNOWN");
+  }
+
+  @Test
+  public void default_sort_is_by_name() throws Exception {
+    assertThat(underTest.getSort()).isEqualTo("name");
+  }
+
+  @Test
+  public void fail_to_set_null_sort() throws Exception {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Sort cannot be null");
+
+    underTest.setSort(null);
   }
 }

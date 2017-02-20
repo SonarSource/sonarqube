@@ -27,9 +27,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.component.ws.FilterParser.Operator;
 
 public class ProjectMeasuresQuery {
 
@@ -121,24 +120,4 @@ public class ProjectMeasuresQuery {
     }
   }
 
-  public enum Operator {
-    LT("<"), LTE("<="), GT(">"), GTE(">="), EQ("=");
-
-    String value;
-
-    Operator(String value) {
-      this.value = value;
-    }
-
-    String getValue() {
-      return value;
-    }
-
-    public static Operator getByValue(String value) {
-      return stream(Operator.values())
-        .filter(operator -> operator.getValue().equals(value))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(format("Unknown operator '%s'", value)));
-    }
-  }
 }
