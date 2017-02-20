@@ -50,7 +50,7 @@ public class EmbeddedDatabaseTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule
-  public Timeout timeout = Timeout.seconds(10);
+  public Timeout timeout = Timeout.seconds(30);
 
   private EmbeddedDatabase underTest;
 
