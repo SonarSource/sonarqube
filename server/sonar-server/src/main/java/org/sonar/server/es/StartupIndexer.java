@@ -19,27 +19,12 @@
  */
 package org.sonar.server.es;
 
-import org.sonar.api.config.Settings;
+/**
+ * This kind of indexers get initialized during web server startup.
+ */
+@FunctionalInterface
+public interface StartupIndexer {
 
-import static java.util.Arrays.stream;
+  void indexOnStartup();
 
-public class IndexerStartupTask {
-
-  private final StartupIndexer[] indexers;
-  private final Settings settings;
-
-  public IndexerStartupTask(Settings settings, StartupIndexer... indexers) {
-    this.indexers = indexers;
-    this.settings = settings;
-  }
-
-  public void execute() {
-    if (indexesAreEnabled()) {
-      stream(indexers).forEach(StartupIndexer::indexOnStartup);
-    }
-  }
-
-  private boolean indexesAreEnabled() {
-    return !settings.getBoolean("sonar.internal.es.disableIndexes");
-  }
 }

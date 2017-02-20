@@ -67,7 +67,7 @@ public class SuggestionsActionTest {
   public void exact_match_in_one_qualifier() {
     ComponentDto project = db.components().insertComponent(newProjectDto(organization));
 
-    componentIndexer.index();
+    componentIndexer.indexOnStartup();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = action.doHandle(project.getKey());

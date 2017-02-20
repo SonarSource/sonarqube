@@ -27,6 +27,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
@@ -34,6 +36,7 @@ import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
@@ -44,8 +47,9 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECH
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
-public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
+public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
+  private static final Logger LOG = Loggers.get(IssueIndexer.class);
   private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
   private static final int MAX_BATCH_SIZE = 1000;
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
@@ -65,6 +69,12 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
   @Override
   protected long doIndex(long lastUpdatedAt) {
     return doIndex(createBulkIndexer(false), lastUpdatedAt, null);
+  }
+
+  @Override
+  public void indexOnStartup() {
+    LOG.info("Index issues");
+    index();
   }
 
   public void indexAll() {
@@ -104,7 +114,7 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
     }
   }
 
-  private long doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
+  private static long doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
     bulk.start();
     long maxDate = 0L;
     while (issues.hasNext()) {

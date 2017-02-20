@@ -20,7 +20,9 @@
 package org.sonar.server.issue.index;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +35,9 @@ import org.sonar.server.es.ProjectIndexer;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
 public class IssueIndexerTest {
@@ -48,6 +53,14 @@ public class IssueIndexerTest {
   public DbTester dbTester = DbTester.create(system2);
 
   private IssueIndexer underTest = new IssueIndexer(system2, dbTester.getDbClient(), esTester.client());
+
+  @Test
+  public void index_on_startup() {
+    IssueIndexer indexer = spy(underTest);
+    doNothing().when(indexer).index();
+    indexer.indexOnStartup();
+    verify(indexer).indexOnStartup();
+  }
 
   @Test
   public void index_nothing() {
@@ -163,6 +176,21 @@ public class IssueIndexerTest {
     underTest.deleteByKeys("P1", Collections.emptyList());
 
     verifyIssueKeys("Issue1", "Issue2", "Issue3");
+  }
+
+  /**
+   * This is a technical constraint, to ensure, that the indexers can be called in any order, during startup.
+   */
+  @Test
+  public void index_issue_without_parent_should_work() {
+    IssueDoc issueDoc = new IssueDoc();
+    issueDoc.setKey("key");
+    issueDoc.setTechnicalUpdateDate(new Date());
+    issueDoc.setProjectUuid("non-exitsing-parent");
+    new IssueIndexer(system2, dbTester.getDbClient(), esTester.client())
+      .index(Arrays.asList(issueDoc).iterator());
+
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(1L);
   }
 
   private void addIssue(String projectUuid, String issueKey) throws Exception {

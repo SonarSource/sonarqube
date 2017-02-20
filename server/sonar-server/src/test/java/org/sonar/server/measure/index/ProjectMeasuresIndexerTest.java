@@ -37,6 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
@@ -53,6 +56,14 @@ public class ProjectMeasuresIndexerTest {
 
   private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(system2, dbTester.getDbClient(), esTester.client());
+
+  @Test
+  public void index_on_startup() {
+    ProjectMeasuresIndexer indexer = spy(underTest);
+    doNothing().when(indexer).index();
+    indexer.indexOnStartup();
+    verify(indexer).indexOnStartup();
+  }
 
   @Test
   public void index_nothing() {

@@ -225,7 +225,7 @@ public class IssueIndex extends BaseIndex {
    * Note that sticky facets may involve all projects, so this optimization must be
    * disabled when facets are enabled.
    */
-  private void configureRouting(IssueQuery query, SearchOptions options, SearchRequestBuilder requestBuilder) {
+  private static void configureRouting(IssueQuery query, SearchOptions options, SearchRequestBuilder requestBuilder) {
     Collection<String> uuids = query.projectUuids();
     if (!uuids.isEmpty() && options.getFacets().isEmpty()) {
       requestBuilder.setRouting(uuids.toArray(new String[uuids.size()]));
@@ -285,7 +285,7 @@ public class IssueIndex extends BaseIndex {
     return filters;
   }
 
-  private void addComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
+  private static void addComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
     QueryBuilder viewFilter = createViewFilter(query.viewUuids());
     QueryBuilder componentFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
     QueryBuilder projectFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());

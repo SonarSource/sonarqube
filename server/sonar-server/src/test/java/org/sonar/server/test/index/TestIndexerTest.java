@@ -44,6 +44,9 @@ import org.sonar.server.test.db.TestTesting;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_MESSAGE;
@@ -66,6 +69,14 @@ public class TestIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   private TestIndexer underTest = new TestIndexer(system2, db.getDbClient(), es.client());
+
+  @Test
+  public void index_on_startup() {
+    TestIndexer indexer = spy(underTest);
+    doNothing().when(indexer).index();
+    indexer.indexOnStartup();
+    verify(indexer).indexOnStartup();
+  }
 
   @Test
   public void index_tests() throws Exception {
