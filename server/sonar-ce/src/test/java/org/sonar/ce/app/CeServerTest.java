@@ -32,6 +32,7 @@ import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.sonar.ce.ComputeEngine;
 import org.sonar.process.MinimumViableSystem;
+import org.sonar.process.Monitored;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -97,7 +98,7 @@ public class CeServerTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("isUp() can not be called before start()");
 
-    ceServer.isUp();
+    ceServer.getStatus();
   }
 
   @Test
@@ -107,15 +108,15 @@ public class CeServerTest {
 
     ceServer.start();
 
-    assertThat(ceServer.isUp()).isFalse();
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.DOWN);
 
     // release ComputeEngine startup method
     computeEngine.releaseStartup();
 
-    while (!ceServer.isUp()) {
+    while (ceServer.getStatus() == Monitored.Status.DOWN) {
       // wait for isReady to change to true, otherwise test will fail with timeout
     }
-    assertThat(ceServer.isUp()).isTrue();
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.UP);
   }
 
   @Test
@@ -127,15 +128,15 @@ public class CeServerTest {
 
     ceServer.start();
 
-    assertThat(ceServer.isUp()).isFalse();
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.DOWN);
 
     // release ComputeEngine startup method which will throw startupException
     computeEngine.releaseStartup();
 
-    while (!ceServer.isUp()) {
+    while (ceServer.getStatus() == Monitored.Status.DOWN) {
       // wait for isReady to change to true, otherwise test will fail with timeout
     }
-    assertThat(ceServer.isUp()).isTrue();
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.UP);
   }
 
   @Test
@@ -148,7 +149,7 @@ public class CeServerTest {
 
     ceServer.start();
     ceServer.awaitStop();
-    assertThat(ceServer.isUp()).isTrue();
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.UP);
   }
 
   @Test
@@ -186,7 +187,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_keeps_blocking_calling_thread_even_if_calling_thread_is_interrupted_but_until_stop_is_called() throws InterruptedException, IOException {
+  public void awaitStop_keeps_blocking_calling_thread_even_if_calling_thread_is_interrupted_but_until_stop_is_called() throws Exception {
     final CeServer ceServer = newCeServer();
     Thread waitingThread = newWaitingThread(ceServer::awaitStop);
 

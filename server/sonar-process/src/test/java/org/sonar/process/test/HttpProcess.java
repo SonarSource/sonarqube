@@ -88,15 +88,15 @@ public class HttpProcess implements Monitored {
   }
 
   @Override
-  public boolean isUp() {
+  public Status getStatus() {
     if (ready) {
-      return true;
+      return Status.UP;
     }
     if (server.isStarted()) {
       ready = true;
       writeTimeToFile("readyAt");
     }
-    return ready;
+    return ready ? Status.UP : Status.DOWN;
   }
 
   @Override

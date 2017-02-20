@@ -19,18 +19,17 @@
  */
 package org.sonar.server.app;
 
+import java.io.File;
+import java.net.ConnectException;
+import java.net.Inet4Address;
+import java.net.URL;
+import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
-
-import java.io.File;
-import java.net.ConnectException;
-import java.net.Inet4Address;
-import java.net.URL;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -60,9 +59,9 @@ public class EmbeddedTomcatTest {
     props.set("sonar.web.port", String.valueOf(httpPort));
     props.set("sonar.ajp.port", String.valueOf(ajpPort));
     EmbeddedTomcat tomcat = new EmbeddedTomcat(props);
-    assertThat(tomcat.isUp()).isFalse();
+    assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.DOWN);
     tomcat.start();
-    assertThat(tomcat.isUp()).isTrue();
+    assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.UP);
 
     // check that http connector accepts requests
     URL url = new URL("http://" + Inet4Address.getLocalHost().getHostAddress() + ":" + httpPort);

@@ -34,6 +34,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonar.process.Monitored;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessProperties;
@@ -82,7 +83,7 @@ public class SearchServerTest {
 
     underTest = new SearchServer(props);
     underTest.start();
-    assertThat(underTest.isUp()).isTrue();
+    assertThat(underTest.getStatus()).isEqualTo(Monitored.Status.UP);
 
     Settings settings = Settings.builder().put("cluster.name", A_CLUSTER_NAME).build();
     client = TransportClient.builder().settings(settings).build()

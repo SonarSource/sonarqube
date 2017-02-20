@@ -100,24 +100,31 @@ public class ProcessEntryPoint implements Stoppable {
       stopWatcher.start();
 
       monitored.start();
-      boolean up = false;
-      while (!up) {
-        up = monitored.isUp();
-        Thread.sleep(20L);
-      }
+      Monitored.Status status = waitForNotDownStatus();
+      if (status == Monitored.Status.UP) {
+        // notify monitor that process is ready
+        commands.setUp();
 
-      // notify monitor that process is ready
-      commands.setUp();
-
-      if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
-        monitored.awaitStop();
+        if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
+          monitored.awaitStop();
+        }
+      } else {
+        stop();
       }
     } catch (Exception e) {
       logger.warn("Fail to start " + getKey(), e);
-
     } finally {
       stop();
     }
+  }
+
+  private Monitored.Status waitForNotDownStatus() throws InterruptedException {
+    Monitored.Status status = Monitored.Status.DOWN;
+    while (status == Monitored.Status.DOWN) {
+      status = monitored.getStatus();
+      Thread.sleep(20L);
+    }
+    return status;
   }
 
   boolean isStarted() {

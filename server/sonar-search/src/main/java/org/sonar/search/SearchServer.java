@@ -56,12 +56,13 @@ public class SearchServer implements Monitored {
   }
 
   @Override
-  public boolean isUp() {
-    return node != null && node.client().admin().cluster().prepareHealth()
-      .setWaitForYellowStatus()
-      .setTimeout(TimeValue.timeValueSeconds(30L))
-      .get()
-      .getStatus() != ClusterHealthStatus.RED;
+  public Status getStatus() {
+    boolean esStatus = node != null && node.client().admin().cluster().prepareHealth()
+        .setWaitForYellowStatus()
+        .setTimeout(TimeValue.timeValueSeconds(30L))
+        .get()
+        .getStatus() != ClusterHealthStatus.RED;
+    return esStatus ? Status.UP : Status.DOWN;
   }
 
   @Override

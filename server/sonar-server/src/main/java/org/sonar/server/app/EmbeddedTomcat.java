@@ -65,9 +65,9 @@ class EmbeddedTomcat {
     }
   }
 
-  boolean isUp() {
+  Status getStatus() {
     if (webappContext == null) {
-      return false;
+      return Status.DOWN;
     }
     switch (webappContext.getState()) {
       case NEW:
@@ -75,13 +75,17 @@ class EmbeddedTomcat {
       case INITIALIZED:
       case STARTING_PREP:
       case STARTING:
-        return false;
+        return Status.DOWN;
       case STARTED:
-        return true;
+        return Status.UP;
       default:
         // problem, stopped or failed
-        throw new IllegalStateException("Webapp did not start");
+        return Status.FAILED;
     }
+  }
+
+  public enum Status {
+    DOWN, UP, FAILED
   }
 
   private File tomcatBasedir() {

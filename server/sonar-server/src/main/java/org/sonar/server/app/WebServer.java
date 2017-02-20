@@ -42,8 +42,16 @@ public class WebServer implements Monitored {
   }
 
   @Override
-  public boolean isUp() {
-    return tomcat.isUp();
+  public Status getStatus() {
+    switch (tomcat.getStatus()) {
+      case DOWN:
+        return Status.DOWN;
+      case UP:
+        return Status.UP;
+      case FAILED:
+      default:
+        return Status.FAILED;
+    }
   }
 
   @Override

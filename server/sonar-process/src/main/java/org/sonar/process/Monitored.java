@@ -27,10 +27,14 @@ public interface Monitored {
   void start();
 
   /**
-   * True if the process is done starting, false otherwise.
-   * An exception may be thrown if process fails to start.
+   * {@link Status#UP} if the process is done starting, {@link Status#FAILED} if the process failed to start,
+   * {@link Status#DOWN} otherwise.
    */
-  boolean isUp();
+  Status getStatus();
+
+  enum Status {
+    UP, DOWN, FAILED
+  }
 
   /**
    * Blocks until the process is terminated

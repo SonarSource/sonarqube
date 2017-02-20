@@ -173,8 +173,8 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public boolean isUp() {
-      return true;
+    public Status getStatus() {
+      return Status.UP;
     }
 
     @Override
@@ -196,8 +196,8 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public boolean isUp() {
-      return false;
+    public Status getStatus() {
+      return Status.DOWN;
     }
 
     @Override

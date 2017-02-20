@@ -78,10 +78,13 @@ public class CeServer implements Monitored {
   }
 
   @Override
-  public boolean isUp() {
+  public Status getStatus() {
     checkState(ceMainThread != null, "isUp() can not be called before start()");
 
-    return ceMainThread.isStarted();
+    if (ceMainThread.isStarted()) {
+      return Status.UP;
+    }
+    return Status.DOWN;
   }
 
   @Override

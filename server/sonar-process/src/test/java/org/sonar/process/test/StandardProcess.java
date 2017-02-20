@@ -51,8 +51,8 @@ public class StandardProcess implements Monitored {
   }
 
   @Override
-  public boolean isUp() {
-    return state == State.STARTED;
+  public Status getStatus() {
+    return state == State.STARTED ? Status.UP : Status.DOWN;
   }
 
   @Override
