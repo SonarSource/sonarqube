@@ -136,6 +136,7 @@ class CreateOrganizationForm extends React.Component {
                        name="name"
                        required={true}
                        type="text"
+                       minLength="2"
                        maxLength="64"
                        value={this.state.name}
                        disabled={this.state.loading}
@@ -151,6 +152,7 @@ class CreateOrganizationForm extends React.Component {
                 <input id="organization-key"
                        name="key"
                        type="text"
+                       minLength="2"
                        maxLength="64"
                        value={this.state.key}
                        disabled={this.state.loading}
