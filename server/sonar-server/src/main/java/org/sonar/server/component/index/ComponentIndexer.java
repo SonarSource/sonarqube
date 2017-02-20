@@ -130,8 +130,8 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
           termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid))));
   }
 
-  public void delete(String uuid) {
-    esClient.prepareDelete(INDEX_COMPONENTS, TYPE_COMPONENT, uuid).execute();
+  public void delete(String projectUuid, String uuid) {
+    esClient.prepareDelete(INDEX_COMPONENTS, TYPE_COMPONENT, uuid).setRouting(projectUuid).execute();
   }
 
   void index(ComponentDto... docs) {

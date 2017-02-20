@@ -23,6 +23,7 @@ import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
@@ -31,17 +32,19 @@ public class IndexPurgeListener implements PurgeListener {
   private final TestIndexer testIndexer;
   private final IssueIndexer issueIndexer;
   private final ComponentIndexer componentIndexer;
+  private final TreeRootHolder treeRootHolder;
 
-  public IndexPurgeListener(TestIndexer testIndexer, IssueIndexer issueIndexer, ComponentIndexer componentIndexer) {
+  public IndexPurgeListener(TreeRootHolder treeRootHolder, TestIndexer testIndexer, IssueIndexer issueIndexer, ComponentIndexer componentIndexer) {
     this.testIndexer = testIndexer;
     this.issueIndexer = issueIndexer;
     this.componentIndexer = componentIndexer;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void onComponentDisabling(String uuid) {
     testIndexer.deleteByFile(uuid);
-    componentIndexer.delete(uuid);
+    componentIndexer.delete(treeRootHolder.getRoot().getUuid(), uuid);
   }
 
   @Override

@@ -19,8 +19,14 @@
  */
 package org.sonar.server.computation.dbcleaner;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Type;
+import org.sonar.server.computation.task.projectanalysis.component.ComponentImpl;
+import org.sonar.server.computation.task.projectanalysis.component.MutableTreeRootHolderRule;
+import org.sonar.server.computation.task.projectanalysis.component.ReportAttributes;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
@@ -34,7 +40,21 @@ public class IndexPurgeListenerTest {
   IssueIndexer issueIndexer = mock(IssueIndexer.class);
   ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
 
-  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer, componentIndexer);
+  @Rule
+  public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
+
+  IndexPurgeListener underTest = new IndexPurgeListener(treeRootHolder, testIndexer, issueIndexer, componentIndexer);
+
+  @Before
+  public void before() {
+    treeRootHolder.setRoot(ComponentImpl
+      .builder(Type.PROJECT)
+      .setName("project")
+      .setKey("project")
+      .setUuid("project")
+      .setReportAttributes(ReportAttributes.newBuilder(0).build())
+      .build());
+  }
 
   @Test
   public void test_onComponentDisabling() {
@@ -42,7 +62,7 @@ public class IndexPurgeListenerTest {
     underTest.onComponentDisabling(uuid);
 
     verify(testIndexer).deleteByFile(uuid);
-    verify(componentIndexer).delete(uuid);
+    verify(componentIndexer).delete(treeRootHolder.getRoot().getUuid(), uuid);
   }
 
   @Test
