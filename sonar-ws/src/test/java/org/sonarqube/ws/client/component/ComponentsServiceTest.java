@@ -28,6 +28,7 @@ import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
@@ -49,6 +50,7 @@ public class ComponentsServiceTest {
       .setAsc(true)
       .setPage(3)
       .setPageSize(10)
+      .setAdditionalFields(singletonList("analysisDate"))
       .build());
 
     serviceTester.assertThat(serviceTester.getGetRequest())
@@ -59,6 +61,7 @@ public class ComponentsServiceTest {
       .hasParam(ASCENDING, true)
       .hasParam(PAGE, 3)
       .hasParam(PAGE_SIZE, 10)
+      .hasParam(FIELDS, "analysisDate")
       .andNoOtherParam();
   }
 

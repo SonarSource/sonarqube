@@ -38,10 +38,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -59,9 +61,12 @@ import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.core.util.stream.Collectors.toSet;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
@@ -76,6 +81,9 @@ import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_S
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 public class SearchProjectsAction implements ComponentsWsAction {
+
+  private static final String ANALYSIS_DATE = "analysisDate";
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ANALYSIS_DATE);
 
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
@@ -97,10 +105,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setResponseExample(getClass().getResource("search_projects-example.json"))
-      .setChangelog(
-        new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGE, PARAM_FILTER)))
+      .setChangelog(new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGE, PARAM_FILTER)))
       .setHandler(this);
 
+    action.createFieldsParam(POSSIBLE_FIELDS)
+      .setSince("6.4");
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("the organization to search projects in")
       .setRequired(false)
@@ -144,7 +153,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>To filter on a many language you must use 'language IN (java, js)'</li>" +
         "<ul/>" +
         "Use the WS api/languages/list to find the key of a language.");
-
     action.createParam(Param.SORT)
       .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), or by project name.<br/>" +
         "See '%s' parameter description for the possible metric values", ALERT_STATUS_KEY, PARAM_FILTER)
@@ -208,10 +216,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addFacets(request.getFacets())
       .setPage(request.getPage(), request.getPageSize()));
 
-    Ordering<ComponentDto> ordering = Ordering.explicit(esResults.getIds()).onResultOf(ComponentDto::uuid);
-    List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, esResults.getIds()));
-
-    return new SearchResults(projects, favoriteProjectUuids, esResults);
+    List<String> projectUuids = esResults.getIds();
+    Ordering<ComponentDto> ordering = Ordering.explicit(projectUuids).onResultOf(ComponentDto::uuid);
+    List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, projectUuids));
+    Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);
+    return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid);
   }
 
   private static boolean hasFavoriteFilter(List<Criterion> criteria) {
@@ -243,6 +252,15 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .collect(Collectors.toSet());
   }
 
+  private Map<String, SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, List<String> projectUuids) {
+    if (request.getAdditionalFields().contains(ANALYSIS_DATE)) {
+      return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
+        .stream()
+        .collect(Collectors.uniqueIndex(SnapshotDto::getComponentUuid));
+    }
+    return emptyMap();
+  }
+
   private static SearchProjectsRequest toRequest(Request httpRequest) {
     SearchProjectsRequest.Builder request = SearchProjectsRequest.builder()
       .setOrganization(httpRequest.param(PARAM_ORGANIZATION))
@@ -254,12 +272,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
     if (httpRequest.hasParam(Param.FACETS)) {
       request.setFacets(httpRequest.paramAsStrings(Param.FACETS));
     }
+    if (httpRequest.hasParam(Param.FIELDS)) {
+      request.setAdditionalFields(httpRequest.paramAsStrings(FIELDS));
+    }
     return request.build();
   }
 
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults,
     Map<String, OrganizationDto> organizationsByUuid) {
-    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(organizationsByUuid, searchResults.favoriteProjectUuids, userSession.isLoggedIn());
+    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
+      userSession.isLoggedIn());
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -341,8 +363,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final Map<String, OrganizationDto> organizationsByUuid;
     private final Set<String> favoriteProjectUuids;
     private final boolean isUserLoggedIn;
+    private final Map<String, SnapshotDto> analysisByProjectUuid;
 
-    private DbToWsComponent(Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids, boolean isUserLoggedIn) {
+    private DbToWsComponent(Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids, Map<String, SnapshotDto> analysisByProjectUuid,
+      boolean isUserLoggedIn) {
+      this.analysisByProjectUuid = analysisByProjectUuid;
       this.wsComponent = Component.newBuilder();
       this.organizationsByUuid = organizationsByUuid;
       this.favoriteProjectUuids = favoriteProjectUuids;
@@ -362,6 +387,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setKey(dbComponent.key())
         .setName(dbComponent.name());
 
+      SnapshotDto snapshotDto = analysisByProjectUuid.get(dbComponent.uuid());
+      if (snapshotDto != null) {
+        wsComponent.setAnalysisDate(DateUtils.formatDateTime(snapshotDto.getCreatedAt()));
+      }
+
       if (isUserLoggedIn) {
         wsComponent.setIsFavorite(favoriteProjectUuids.contains(dbComponent.uuid()));
       }
@@ -374,13 +404,15 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final List<ComponentDto> projects;
     private final Set<String> favoriteProjectUuids;
     private final Facets facets;
+    private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final int total;
 
-    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults) {
+    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;
       this.total = (int) searchResults.getTotal();
       this.facets = searchResults.getFacets();
+      this.analysisByProjectUuid = analysisByProjectUuid;
     }
   }
 }

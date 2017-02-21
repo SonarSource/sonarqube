@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client.component;
 
 import com.google.common.base.Joiner;
+import java.util.List;
 import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
@@ -106,6 +107,7 @@ public class ComponentsService extends BaseService {
   }
 
   public SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) {
+    List<String> additionalFields = request.getAdditionalFields();
     GetRequest get = new GetRequest(path(ACTION_SEARCH_PROJECTS))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_FILTER, request.getFilter())
@@ -113,7 +115,8 @@ public class ComponentsService extends BaseService {
       .setParam(Param.SORT, request.getSort())
       .setParam(Param.ASCENDING, request.getAsc())
       .setParam(Param.PAGE, request.getPage())
-      .setParam(Param.PAGE_SIZE, request.getPageSize());
+      .setParam(Param.PAGE_SIZE, request.getPageSize())
+      .setParam(Param.FIELDS, !additionalFields.isEmpty() ? inlineMultipleParamValue(additionalFields) : null);
     return call(get, SearchProjectsWsResponse.parser());
   }
 }

@@ -39,6 +39,7 @@ public class SearchProjectsRequest {
   private final List<String> facets;
   private final String sort;
   private final Boolean asc;
+  private final List<String> additionalFields;
 
   private SearchProjectsRequest(Builder builder) {
     this.page = builder.page;
@@ -48,6 +49,7 @@ public class SearchProjectsRequest {
     this.facets = builder.facets;
     this.sort = builder.sort;
     this.asc = builder.asc;
+    this.additionalFields = builder.additionalFields;
   }
 
   @CheckForNull
@@ -82,6 +84,10 @@ public class SearchProjectsRequest {
     return asc;
   }
 
+  public List<String> getAdditionalFields() {
+    return additionalFields;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -94,6 +100,7 @@ public class SearchProjectsRequest {
     private List<String> facets = new ArrayList<>();
     private String sort;
     private Boolean asc;
+    private List<String> additionalFields = new ArrayList<>();
 
     private Builder() {
       // enforce static factory method
@@ -131,6 +138,11 @@ public class SearchProjectsRequest {
 
     public Builder setAsc(boolean asc) {
       this.asc = asc;
+      return this;
+    }
+
+    public Builder setAdditionalFields(List<String> additionalFields) {
+      this.additionalFields = requireNonNull(additionalFields, "additional fields cannot be null");
       return this;
     }
 

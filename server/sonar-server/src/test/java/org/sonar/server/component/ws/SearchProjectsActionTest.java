@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -72,9 +73,11 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.Collectors.toList;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -82,6 +85,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
@@ -128,7 +132,7 @@ public class SearchProjectsActionTest {
     assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
-    assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p");
+    assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p", "f");
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -143,6 +147,10 @@ public class SearchProjectsActionTest {
     Param asc = def.param("asc");
     assertThat(asc.defaultValue()).isEqualTo("true");
     assertThat(asc.possibleValues()).containsOnly("true", "false", "yes", "no");
+
+    Param additionalFields = def.param("f");
+    assertThat(additionalFields.defaultValue()).isNull();
+    assertThat(additionalFields.possibleValues()).containsOnly("analysisDate");
   }
 
   @Test
@@ -501,6 +509,23 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void return_last_analysis_date() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project1 = insertProjectInDbAndEs(newProjectDto(organizationDto));
+    db.components().insertSnapshot(newAnalysis(project1).setCreatedAt(10_000_000_000L).setLast(false));
+    db.components().insertSnapshot(newAnalysis(project1).setCreatedAt(20_000_000_000L).setLast(true));
+    ComponentDto project2 = insertProjectInDbAndEs(newProjectDto(organizationDto));
+    db.components().insertSnapshot(newAnalysis(project2).setCreatedAt(30_000_000_000L).setLast(true));
+    // No snapshot on project 3
+    insertProjectInDbAndEs(newProjectDto(organizationDto));
+
+    SearchProjectsWsResponse result = call(request.setAdditionalFields(singletonList("analysisDate")));
+
+    assertThat(result.getComponentsList()).extracting(Component::getAnalysisDate)
+      .containsOnly(formatDateTime(new Date(20_000_000_000L)), formatDateTime(new Date(30_000_000_000L)), "");
+  }
+
+  @Test
   public void fail_when_metrics_are_unknown() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unknown metric(s) [coverage, debt]");
@@ -528,6 +553,7 @@ public class SearchProjectsActionTest {
     httpRequest.setParam(PAGE, String.valueOf(wsRequest.getPage()));
     httpRequest.setParam(PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
     httpRequest.setParam(FACETS, Joiner.on(",").join(wsRequest.getFacets()));
+    httpRequest.setParam(FIELDS, Joiner.on(",").join(wsRequest.getAdditionalFields()));
     try {
       return SearchProjectsWsResponse.parseFrom(httpRequest.execute().getInputStream());
     } catch (IOException e) {
