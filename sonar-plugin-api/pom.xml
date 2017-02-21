@@ -14,7 +14,18 @@
   <name>SonarQube :: Plugin API</name>
 
   <properties>
-    <project.version.3digits>${project.version}</project.version.3digits>
+    <!--
+     version as stored in JAR and displayed in webapp. It is
+     overridden on Travis when replacing SNAPSHOT version by
+     build unique version, for instance "6.3.0.12345".
+     -->
+    <buildVersion>${project.version}</buildVersion>
+
+    <!--
+    a truncated version on three fields is kept for backward-compatibility
+    with scanners
+    -->
+    <buildVersionOnThreeFields>${buildVersion}</buildVersionOnThreeFields>
   </properties>
 
   <dependencies>
@@ -217,23 +228,22 @@
          <artifactId>groovy-maven-plugin</artifactId>
          <executions>
            <execution>
-             <id>compute-3digits-version</id>
+             <id>compute-version-on-three-fields</id>
              <phase>generate-resources</phase>
              <goals>
                <goal>execute</goal>
              </goals>
              <configuration>
                <source><![CDATA[
-                 if (! "${project.version}".endsWith("-SNAPSHOT")) {
+                 if (! "${buildVersion}".endsWith("-SNAPSHOT")) {
                    String apiVersion
-                   // example: "6.3.0.1234". To be backward-compatible with scanners, only "6.3.0" must be kept
-                   String[] fields = "${project.version}".tokenize('.')
+                   String[] fields = "${buildVersion}".tokenize('.')
                    if (fields.length > 3) {
                      apiVersion = fields[0..2].join('.')
                    } else {
                      apiVersion = fields.join('.')
                    }
-                   project.properties['project.version.3digits'] = apiVersion
+                   project.properties['buildVersionOnThreeFields'] = apiVersion
                  }
                  ]]>
                </source>

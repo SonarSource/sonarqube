@@ -5,8 +5,8 @@ jdk: oraclejdk8
 script: ./travis.sh
 
 env:
-  - TARGET=CI
-  - TARGET=WEB
+  - TARGET=BUILD
+  - TARGET=WEB_TESTS
 
 matrix:
   fast_finish: true
