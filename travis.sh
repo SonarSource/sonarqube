@@ -47,8 +47,6 @@ function installMaven {
   if [ ! -d "apache-maven-3.3.9" ]; then
     echo "Download Maven 3.3.9"
     curl -sSL http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz | tar zx -C ~/maven
-    tar xzf apache-maven-3.3.9-bin.tar.gz
-    rm apache-maven-3.3.9-bin.tar.gz
   fi
   popd > /dev/null
   export M2_HOME=~/maven/apache-maven-3.3.9
