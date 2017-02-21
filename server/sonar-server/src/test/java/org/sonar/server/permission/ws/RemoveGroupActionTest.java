@@ -37,6 +37,8 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
@@ -60,8 +62,8 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Test
   public void remove_permission_using_group_name() throws Exception {
-    db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
-    db.users().insertPermissionOnGroup(aGroup, PROVISIONING);
+    db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
+    db.users().insertPermissionOnGroup(aGroup, PROVISION_PROJECTS);
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -69,27 +71,27 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .setParam(PARAM_PERMISSION, PROVISIONING)
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(ADMINISTER.getKey());
   }
 
   @Test
   public void remove_permission_using_group_id() throws Exception {
-    db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
-    db.users().insertPermissionOnGroup(aGroup, PROVISIONING);
+    db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
+    db.users().insertPermissionOnGroup(aGroup, PROVISION_PROJECTS);
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_GROUP_ID, aGroup.getId().toString())
-      .setParam(PARAM_PERMISSION, PROVISIONING)
+      .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(ADMINISTER.getKey());
   }
 
   @Test
   public void remove_project_permission() throws Exception {
     ComponentDto project = db.components().insertProject();
-    db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, ADMIN, project);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, project);
     loginAsAdmin(db.getDefaultOrganization());
@@ -100,14 +102,14 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .setParam(PARAM_PERMISSION, ADMIN)
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(ADMINISTER.getKey());
     assertThat(db.users().selectGroupPermissions(aGroup, project)).containsOnly(ISSUE_ADMIN);
   }
 
   @Test
   public void remove_with_view_uuid() throws Exception {
     ComponentDto view = db.components().insertView();
-    db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, ADMIN, view);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, view);
     loginAsAdmin(db.getDefaultOrganization());
@@ -118,14 +120,14 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .setParam(PARAM_PERMISSION, ADMIN)
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(ADMINISTER.getKey());
     assertThat(db.users().selectGroupPermissions(aGroup, view)).containsOnly(ISSUE_ADMIN);
   }
 
   @Test
   public void remove_with_project_key() throws Exception {
     ComponentDto project = db.components().insertProject();
-    db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, ADMIN, project);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, project);
     loginAsAdmin(db.getDefaultOrganization());
@@ -136,14 +138,14 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .setParam(PARAM_PERMISSION, ADMIN)
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(ADMINISTER.getKey());
     assertThat(db.users().selectGroupPermissions(aGroup, project)).containsOnly(ISSUE_ADMIN);
   }
 
   @Test
   public void fail_to_remove_last_admin_permission() throws Exception {
-    db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
-    db.users().insertPermissionOnGroup(aGroup, PROVISIONING);
+    db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
+    db.users().insertPermissionOnGroup(aGroup, PROVISION_PROJECTS);
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -162,7 +164,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
       .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, ADMINISTER.getKey())
       .execute();
   }
 

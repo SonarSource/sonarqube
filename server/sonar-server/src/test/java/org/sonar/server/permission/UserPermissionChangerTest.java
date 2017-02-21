@@ -30,8 +30,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -39,6 +37,9 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 
@@ -71,10 +72,10 @@ public class UserPermissionChangerTest {
     UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), SCAN_EXECUTION, null, UserId.from(user1));
     apply(change);
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org1)).containsOnly(SCAN_EXECUTION);
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org2)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1, org1)).containsOnly(SCAN);
+    assertThat(db.users().selectPermissionsOfUser(user1, org2)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user1, project)).isEmpty();
-    assertThat(db.users().selectGlobalPermissionsOfUser(user2, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user2, org1)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user2, project)).isEmpty();
   }
 
@@ -83,20 +84,20 @@ public class UserPermissionChangerTest {
     UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), ISSUE_ADMIN, new ProjectId(project), UserId.from(user1));
     apply(change);
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1, org1)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user1, project)).contains(ISSUE_ADMIN);
-    assertThat(db.users().selectGlobalPermissionsOfUser(user2, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user2, org1)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user2, project)).isEmpty();
   }
 
   @Test
   public void do_nothing_when_adding_global_permission_that_already_exists() {
-    db.users().insertPermissionOnUser(org1, user1, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(org1, user1, ADMINISTER_QUALITY_GATES);
 
     UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), QUALITY_GATE_ADMIN, null, UserId.from(user1));
     apply(change);
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org1)).hasSize(1).containsOnly(QUALITY_GATE_ADMIN);
+    assertThat(db.users().selectPermissionsOfUser(user1, org1)).containsOnly(ADMINISTER_QUALITY_GATES);
   }
 
   @Test
@@ -128,16 +129,16 @@ public class UserPermissionChangerTest {
     UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), QUALITY_GATE_ADMIN, null, UserId.from(user1));
     apply(change);
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org1)).containsOnly(SCAN_EXECUTION);
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org2)).containsOnly(QUALITY_GATE_ADMIN);
-    assertThat(db.users().selectGlobalPermissionsOfUser(user2, org1)).containsOnly(QUALITY_GATE_ADMIN);
+    assertThat(db.users().selectPermissionsOfUser(user1, org1)).containsOnly(SCAN);
+    assertThat(db.users().selectPermissionsOfUser(user1, org2)).containsOnly(ADMINISTER_QUALITY_GATES);
+    assertThat(db.users().selectPermissionsOfUser(user2, org1)).containsOnly(ADMINISTER_QUALITY_GATES);
     assertThat(db.users().selectProjectPermissionsOfUser(user1, project)).containsOnly(ISSUE_ADMIN);
   }
 
   @Test
   public void remove_project_permission_from_user() {
     ComponentDto project2 = db.components().insertProject(org1);
-    db.users().insertPermissionOnUser(user1, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
     db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, project);
     db.users().insertProjectPermissionOnUser(user1, USER, project);
     db.users().insertProjectPermissionOnUser(user2, ISSUE_ADMIN, project);
@@ -156,7 +157,7 @@ public class UserPermissionChangerTest {
     UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), QUALITY_GATE_ADMIN, null, UserId.from(user1));
     apply(change);
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1, org1)).isEmpty();
   }
 
   @Test
@@ -180,15 +181,15 @@ public class UserPermissionChangerTest {
 
   @Test
   public void remove_admin_user_if_still_other_admins() {
-    db.users().insertPermissionOnUser(org1, user1, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(org1, user1, ADMINISTER);
     GroupDto admins = db.users().insertGroup(org1, "admins");
     db.users().insertMember(admins, user2);
-    db.users().insertPermissionOnGroup(admins, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(admins, ADMINISTER);
 
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), SYSTEM_ADMIN, null, UserId.from(user1));
+    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), ADMINISTER.getKey(), null, UserId.from(user1));
     underTest.apply(db.getSession(), change);
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user1, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1, org1)).isEmpty();
   }
 
   private void apply(UserPermissionChange change) {

@@ -36,9 +36,10 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -64,10 +65,10 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     group1 = db.users().insertGroup(defOrg, "group-1-name");
     group2 = db.users().insertGroup(defOrg, "group-2-name");
     group3 = db.users().insertGroup(defOrg, "group-3-name");
-    db.users().insertPermissionOnGroup(group1, SCAN_EXECUTION);
-    db.users().insertPermissionOnGroup(group2, SCAN_EXECUTION);
-    db.users().insertPermissionOnGroup(group3, SYSTEM_ADMIN);
-    db.users().insertPermissionOnAnyone(defOrg, SCAN_EXECUTION);
+    db.users().insertPermissionOnGroup(group1, SCAN);
+    db.users().insertPermissionOnGroup(group2, SCAN);
+    db.users().insertPermissionOnGroup(group3, ADMINISTER);
+    db.users().insertPermissionOnAnyone(defOrg, SCAN);
     db.commit();
   }
 
@@ -76,7 +77,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     loginAsAdmin(db.getDefaultOrganization());
 
     String json = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PERMISSION, SCAN.getKey())
       .execute()
       .getInput();
       assertJson(json).isSimilarTo("{\n" +
@@ -114,7 +115,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_with_selection() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PERMISSION, SCAN.getKey())
       .execute()
       .getInput();
 
@@ -125,7 +126,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_groups_with_pagination() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PERMISSION, SCAN.getKey())
       .setParam(PAGE_SIZE, "1")
       .setParam(PAGE, "3")
       .execute()
@@ -140,7 +141,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_groups_with_query() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PERMISSION, SCAN.getKey())
       .setParam(TEXT_QUERY, "group-")
       .execute()
       .getInput();
@@ -259,7 +260,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     userSession.anonymous();
 
     newRequest()
-      .setParam(PARAM_PERMISSION, "scan")
+      .setParam(PARAM_PERMISSION, SCAN.getKey())
       .execute();
   }
 
@@ -269,7 +270,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
     userSession.logIn("login");
     newRequest()
-      .setParam(PARAM_PERMISSION, "scan")
+      .setParam(PARAM_PERMISSION, SCAN.getKey())
       .execute();
   }
 

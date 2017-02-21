@@ -32,11 +32,12 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -54,10 +55,10 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void search_for_users_with_response_example() throws Exception {
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
-    db.users().insertPermissionOnUser(user1, SYSTEM_ADMIN);
-    db.users().insertPermissionOnUser(user1, QUALITY_GATE_ADMIN);
-    db.users().insertPermissionOnUser(user1, QUALITY_PROFILE_ADMIN);
-    db.users().insertPermissionOnUser(user2, SCAN_EXECUTION);
+    db.users().insertPermissionOnUser(user1, ADMINISTER);
+    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
+    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertPermissionOnUser(user2, SCAN);
 
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest().execute().getInput();
@@ -269,9 +270,9 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     UserDto user1 = db.users().insertUser(newUserDto("login-1", "name-1", "email-1"));
     UserDto user2 = db.users().insertUser(newUserDto("login-2", "name-2", "email-2"));
     UserDto user3 = db.users().insertUser(newUserDto("login-3", "name-3", "email-3"));
-    db.users().insertPermissionOnUser(user1, SCAN_EXECUTION);
-    db.users().insertPermissionOnUser(user2, SCAN_EXECUTION);
-    db.users().insertPermissionOnUser(user3, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(user1, SCAN);
+    db.users().insertPermissionOnUser(user2, SCAN);
+    db.users().insertPermissionOnUser(user3, ADMINISTER);
   }
 
 }

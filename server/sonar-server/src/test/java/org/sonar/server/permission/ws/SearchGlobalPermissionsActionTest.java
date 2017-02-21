@@ -36,10 +36,12 @@ import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<SearchGlobalPermissionsAction> {
@@ -62,20 +64,20 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     loginAsAdmin(org);
     GroupDto adminGroup = db.users().insertGroup(newGroup(org, "sonar-admins", "Administrators"));
     GroupDto userGroup = db.users().insertGroup(newGroup(org, "sonar-users", "Users"));
-    db.users().insertPermissionOnAnyone(org, SCAN_EXECUTION);
-    db.users().insertPermissionOnGroup(userGroup, SCAN_EXECUTION);
+    db.users().insertPermissionOnAnyone(org, SCAN);
+    db.users().insertPermissionOnGroup(userGroup, SCAN);
     db.users().insertPermissionOnGroup(userGroup, PROVISIONING);
-    db.users().insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(adminGroup, ADMINISTER);
     UserDto user = db.users().insertUser(newUserDto("user", "user-name"));
     UserDto adminUser = db.users().insertUser(newUserDto("admin", "admin-name"));
-    db.users().insertPermissionOnUser(org, user, PROVISIONING);
-    db.users().insertPermissionOnUser(org, user, QUALITY_PROFILE_ADMIN);
-    db.users().insertPermissionOnUser(org, adminUser, QUALITY_PROFILE_ADMIN);
-    db.users().insertPermissionOnUser(org, user, QUALITY_GATE_ADMIN);
-    db.users().insertPermissionOnUser(org, adminUser, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(org, user, PROVISION_PROJECTS);
+    db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertPermissionOnUser(org, adminUser, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_GATES);
+    db.users().insertPermissionOnUser(org, adminUser, ADMINISTER_QUALITY_GATES);
 
     // to be excluded, permission on another organization (the default one)
-    db.users().insertPermissionOnUser(db.getDefaultOrganization(), adminUser, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), adminUser, ADMINISTER_QUALITY_GATES);
 
     String result = newRequest()
       .setParam("organization", org.getKey())
@@ -91,10 +93,10 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     loginAsAdmin(org, db.getDefaultOrganization());
 
     UserDto user = db.users().insertUser();
-    db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SCAN_EXECUTION);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SCAN);
 
     // to be ignored, by default organization is used when searching for permissions
-    db.users().insertPermissionOnUser(org, user, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_GATES);
 
     WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
       newRequest()

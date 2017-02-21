@@ -25,12 +25,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class RoleDaoTest {
 
@@ -58,7 +58,7 @@ public class RoleDaoTest {
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project1);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project2);
     // global permission - not returned
-    db.users().insertPermissionOnUser(user1, UserRole.ADMIN);
+    db.users().insertPermissionOnUser(user1, ADMINISTER);
     // project permission on another user id - not returned
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project1);
     // project permission on another permission - not returned
@@ -77,10 +77,10 @@ public class RoleDaoTest {
     db.users().insertMember(group1, user1);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project2);
     // global permission - not returned
-    db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);
-    db.users().insertPermissionOnGroup(group1, GlobalPermissions.SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(user1, ADMINISTER);
+    db.users().insertPermissionOnGroup(group1, ADMINISTER);
     // project permission on another user id - not returned
-    db.users().insertPermissionOnGroup(group2, GlobalPermissions.SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(group2, ADMINISTER);
     db.users().insertMember(group2, user2);
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ISSUE_ADMIN, project1);

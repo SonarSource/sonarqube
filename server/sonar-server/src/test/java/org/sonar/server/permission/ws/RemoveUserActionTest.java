@@ -39,6 +39,9 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -64,8 +67,8 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void remove_permission_from_user() throws Exception {
-    db.users().insertPermissionOnUser(user, PROVISIONING);
-    db.users().insertPermissionOnUser(user, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(user, PROVISION_PROJECTS);
+    db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_GATES);
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -73,13 +76,12 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, QUALITY_GATE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user, db.getDefaultOrganization())).containsOnly(PROVISIONING);
+    assertThat(db.users().selectPermissionsOfUser(user, db.getDefaultOrganization())).containsOnly(PROVISION_PROJECTS);
   }
 
   @Test
   public void fail_to_remove_admin_permission_if_last_admin() throws Exception {
-    db.users().insertPermissionOnUser(user, CODEVIEWER);
-    db.users().insertPermissionOnUser(user, ADMIN);
+    db.users().insertPermissionOnUser(user, ADMINISTER);
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
