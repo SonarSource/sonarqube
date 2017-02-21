@@ -36,6 +36,8 @@ public class ProjectsWsParameters {
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_QUALIFIERS = "qualifiers";
 
+  public static final String FILTER_LANGUAGE = "language";
+
   private ProjectsWsParameters() {
     // static utils only
   }

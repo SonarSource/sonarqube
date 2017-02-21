@@ -29,7 +29,17 @@ import javax.annotation.Nullable;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseDoc;
 
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
@@ -58,39 +68,39 @@ public class ProjectMeasuresDoc extends BaseDoc {
   }
 
   public String getOrganizationUuid() {
-    return getField(ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID);
+    return getField(FIELD_ORGANIZATION_UUID);
   }
 
   public ProjectMeasuresDoc setOrganizationUuid(String s) {
-    setField(ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID, s);
+    setField(FIELD_ORGANIZATION_UUID, s);
     return this;
   }
 
   public String getKey() {
-    return getField(ProjectMeasuresIndexDefinition.FIELD_KEY);
+    return getField(FIELD_KEY);
   }
 
   public ProjectMeasuresDoc setKey(String s) {
-    setField(ProjectMeasuresIndexDefinition.FIELD_KEY, s);
+    setField(FIELD_KEY, s);
     return this;
   }
 
   public String getName() {
-    return getField(ProjectMeasuresIndexDefinition.FIELD_NAME);
+    return getField(FIELD_NAME);
   }
 
   public ProjectMeasuresDoc setName(String s) {
-    setField(ProjectMeasuresIndexDefinition.FIELD_NAME, s);
+    setField(FIELD_NAME, s);
     return this;
   }
 
   @CheckForNull
   public Date getAnalysedAt() {
-    return getNullableField(ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT);
+    return getNullableField(FIELD_ANALYSED_AT);
   }
 
   public ProjectMeasuresDoc setAnalysedAt(@Nullable Date d) {
-    setField(ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT, d);
+    setField(FIELD_ANALYSED_AT, d);
     return this;
   }
 
@@ -107,19 +117,29 @@ public class ProjectMeasuresDoc extends BaseDoc {
     setMeasures(
       measures.entrySet().stream()
         .map(entry -> ImmutableMap.<String, Object>of(
-          ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY, entry.getKey(),
-          ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE, entry.getValue()))
+          FIELD_MEASURES_KEY, entry.getKey(),
+          FIELD_MEASURES_VALUE, entry.getValue()))
+        .collect(Collectors.toList()));
+    return this;
+  }
+
+  public ProjectMeasuresDoc setLanguages(Map<String, Integer> languageDistribution) {
+    setField(FIELD_LANGUAGES,
+      languageDistribution.entrySet().stream()
+        .map(entry -> ImmutableMap.<String, Object>of(
+          FIELD_LANGUAGES_KEY, entry.getKey(),
+          FIELD_LANGUAGES_VALUE, entry.getValue()))
         .collect(Collectors.toList()));
     return this;
   }
 
   @CheckForNull
   public String getQualityGate() {
-    return getField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE);
+    return getField(FIELD_QUALITY_GATE);
   }
 
   public ProjectMeasuresDoc setQualityGate(@Nullable String s) {
-    setField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE, s);
+    setField(FIELD_QUALITY_GATE, s);
     return this;
   }
 }

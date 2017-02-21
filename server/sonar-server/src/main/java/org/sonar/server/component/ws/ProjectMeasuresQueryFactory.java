@@ -19,75 +19,81 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.base.Splitter;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
-import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.singleton;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 class ProjectMeasuresQueryFactory {
-  private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
-  private static final Pattern CRITERIA_PATTERN = Pattern.compile("(\\w+)\\s*([<>]?[=]?)\\s*(\\w+)");
-  private static final String IS_FAVORITE_CRITERION = "isFavorite";
+
+  public static final String IS_FAVORITE_CRITERION = "isFavorite";
+  public static final String IN_OPERATOR = "IN";
 
   private ProjectMeasuresQueryFactory() {
     // prevent instantiation
   }
 
-  static List<String> toCriteria(String filter) {
-    return StreamSupport.stream(CRITERIA_SPLITTER.split(filter).spliterator(), false)
-      .filter(Objects::nonNull)
-      .filter(criterion -> !criterion.isEmpty())
-      .map(String::trim)
-      .collect(Collectors.toList());
-  }
-
-  static boolean hasIsFavoriteCriterion(List<String> criteria) {
-    return criteria.stream().anyMatch(IS_FAVORITE_CRITERION::equalsIgnoreCase);
-  }
-
-  static ProjectMeasuresQuery newProjectMeasuresQuery(List<String> criteria, @Nullable Set<String> projectUuids) {
+  static ProjectMeasuresQuery newProjectMeasuresQuery(List<FilterParser.Criterion> criteria, @Nullable Set<String> projectUuids) {
     ProjectMeasuresQuery query = new ProjectMeasuresQuery();
     Optional.ofNullable(projectUuids).ifPresent(query::setProjectUuids);
     criteria.forEach(criterion -> processCriterion(criterion, query));
     return query;
   }
 
-  private static void processCriterion(String rawCriterion, ProjectMeasuresQuery query) {
-    String criterion = rawCriterion.trim();
-
-    if (IS_FAVORITE_CRITERION.equalsIgnoreCase(criterion)) {
+  private static void processCriterion(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+    String key = criterion.getKey().toLowerCase(ENGLISH);
+    if (IS_FAVORITE_CRITERION.equalsIgnoreCase(key)) {
       return;
     }
 
+    String operatorValue = criterion.getOperator();
+    checkArgument(operatorValue != null, "Operator cannot be null for '%s'", key);
+    if (FILTER_LANGUAGE.equalsIgnoreCase(key)) {
+      processLanguages(criterion, query);
+      return;
+    }
+
+    String value = criterion.getValue();
+    checkArgument(value != null, "Value cannot be null for '%s'", key);
+    Operator operator = Operator.getByValue(criterion.getOperator());
+    if (ALERT_STATUS_KEY.equals(key)) {
+      checkArgument(operator.equals(EQ), "Only equals operator is available for quality gate criteria");
+      query.setQualityGateStatus(Level.valueOf(value));
+    } else {
+      query.addMetricCriterion(new MetricCriterion(key, operator, parseValue(value)));
+    }
+  }
+
+  private static void processLanguages(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+    String operatorValue = criterion.getOperator();
+    String value = criterion.getValue();
+    List<String> values = criterion.getValues();
+    if (value != null && EQ.getValue().equalsIgnoreCase(operatorValue)) {
+      query.setLanguages(singleton(value));
+    } else if (!values.isEmpty() && IN_OPERATOR.equalsIgnoreCase(operatorValue)) {
+      query.setLanguages(new HashSet<>(values));
+    } else {
+      throw new IllegalArgumentException("Language should be set either by using 'language = java' or 'language IN (java, js)'");
+    }
+  }
+
+  private static double parseValue(String value) {
     try {
-      Matcher matcher = CRITERIA_PATTERN.matcher(criterion);
-      checkArgument(matcher.find() && matcher.groupCount() == 3, "Criterion should be 'isFavourite' or criterion should have a metric, an operator and a value");
-      String metric = matcher.group(1).toLowerCase(ENGLISH);
-      Operator operator = Operator.getByValue(matcher.group(2));
-      String value = matcher.group(3);
-      if (ALERT_STATUS_KEY.equals(metric)) {
-        checkArgument(operator.equals(Operator.EQ), "Only equals operator is available for quality gate criteria");
-        query.setQualityGateStatus(Level.valueOf(value));
-      } else {
-        double doubleValue = Double.parseDouble(matcher.group(3));
-        query.addMetricCriterion(new MetricCriterion(metric, operator, doubleValue));
-      }
-    } catch (Exception e) {
-      throw new IllegalArgumentException(String.format("Invalid criterion '%s'", criterion), e);
+      return Double.parseDouble(value);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(String.format("Value '%s' is not a number", value));
     }
   }
 

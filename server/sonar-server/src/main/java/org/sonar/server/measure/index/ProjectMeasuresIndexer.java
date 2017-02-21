@@ -132,6 +132,7 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
       .setName(project.getName())
       .setQualityGate(projectMeasures.getMeasures().getQualityGateStatus())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
-      .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures());
+      .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
+      .setLanguages(projectMeasures.getMeasures().getLanguageDistribution());
   }
 }

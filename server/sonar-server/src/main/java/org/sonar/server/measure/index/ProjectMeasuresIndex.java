@@ -60,6 +60,7 @@ import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
@@ -67,6 +68,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -77,10 +79,14 @@ public class ProjectMeasuresIndex extends BaseIndex {
     SQALE_RATING_KEY,
     RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
-    ALERT_STATUS_KEY);
+    ALERT_STATUS_KEY,
+    FILTER_LANGUAGE);
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
+
+  private static final String FIELD_LANGUAGES_KEY = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_KEY;
+  private static final String FIELD_LANGUAGES_VALUE = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_VALUE;
 
   private final AuthorizationTypeSupport authorizationTypeSupport;
 
@@ -128,28 +134,32 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters) {
-    if (!options.getFacets().isEmpty()) {
-      if (options.getFacets().contains(NCLOC_KEY)) {
-        addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
-      }
-      if (options.getFacets().contains(DUPLICATED_LINES_DENSITY_KEY)) {
-        addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
-      }
-      if (options.getFacets().contains(COVERAGE_KEY)) {
-        addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
-      }
-      if (options.getFacets().contains(SQALE_RATING_KEY)) {
-        addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
-      }
-      if (options.getFacets().contains(RELIABILITY_RATING_KEY)) {
-        addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
-      }
-      if (options.getFacets().contains(SECURITY_RATING_KEY)) {
-        addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
-      }
-      if (options.getFacets().contains(ALERT_STATUS_KEY)) {
-        esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
-      }
+    if (options.getFacets().isEmpty()) {
+      return;
+    }
+    if (options.getFacets().contains(NCLOC_KEY)) {
+      addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
+    }
+    if (options.getFacets().contains(DUPLICATED_LINES_DENSITY_KEY)) {
+      addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
+    }
+    if (options.getFacets().contains(COVERAGE_KEY)) {
+      addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
+    }
+    if (options.getFacets().contains(SQALE_RATING_KEY)) {
+      addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
+    }
+    if (options.getFacets().contains(RELIABILITY_RATING_KEY)) {
+      addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
+    }
+    if (options.getFacets().contains(SECURITY_RATING_KEY)) {
+      addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
+    }
+    if (options.getFacets().contains(ALERT_STATUS_KEY)) {
+      esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
+    }
+    if (options.getFacets().contains(FILTER_LANGUAGE)) {
+      esSearch.addAggregation(createStickyFacet(FILTER_LANGUAGE, filters, createLanguagesFacet()));
     }
   }
 
@@ -216,6 +226,16 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .filter(Metric.Level.OK.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.OK.name()));
   }
 
+  private static AbstractAggregationBuilder createLanguagesFacet() {
+    return AggregationBuilders.nested("nested_" + FILTER_LANGUAGE)
+      .path(FIELD_LANGUAGES)
+      .subAggregation(
+        AggregationBuilders.terms(FILTER_LANGUAGE)
+          .field(FIELD_LANGUAGES_KEY)
+          .subAggregation(AggregationBuilders.sum("size_" + FILTER_LANGUAGE)
+            .field(FIELD_LANGUAGES_VALUE)));
+  }
+
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
     filters.put("__authorization", authorizationTypeSupport.createQueryFilter());
@@ -238,6 +258,10 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
     query.getProjectUuids()
       .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));
+
+    query.getLanguages()
+      .ifPresent(languages -> filters.put(FILTER_LANGUAGE,
+        nestedQuery(FIELD_LANGUAGES, boolQuery().filter(termsQuery(FIELD_LANGUAGES_KEY, languages)))));
 
     query.getOrganizationUuid()
       .ifPresent(organizationUuid -> filters.put(FIELD_ORGANIZATION_UUID, termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));

@@ -118,6 +118,18 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
+  public void return_language_distribution_measure() throws Exception {
+    MetricDto metric = insertMetric("ncloc_language_distribution", DATA);
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization());
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
+    insertMeasure(project, analysis, metric, "<null>=2;java=6;xoo=18");
+
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById.get(project.uuid()).getMeasures().getLanguageDistribution()).containsOnly(entry("<null>", 2), entry("java", 6), entry("xoo", 18));
+  }
+
+  @Test
   public void does_not_return_none_numeric_metrics() throws Exception {
     MetricDto dataMetric = insertMetric("data", DATA);
     MetricDto distribMetric = insertMetric("distrib", DISTRIB);

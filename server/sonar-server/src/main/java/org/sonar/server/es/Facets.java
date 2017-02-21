@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -97,8 +98,9 @@ public class Facets {
     facetName = facetName.replace("_selected", "");
     LinkedHashMap<String, Long> facet = getOrCreateFacet(facetName);
     for (Terms.Bucket value : aggregation.getBuckets()) {
-      if (value.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
-        facet.put(value.getKeyAsString(), Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
+      List<Aggregation> aggregationList = value.getAggregations().asList();
+      if (aggregationList.size() == 1) {
+        facet.put(value.getKeyAsString(), Math.round(((Sum) aggregationList.get(0)).getValue()));
       } else {
         facet.put(value.getKeyAsString(), value.getDocCount());
       }
