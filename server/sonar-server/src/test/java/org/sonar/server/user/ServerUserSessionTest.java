@@ -168,7 +168,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkOrganizationPermission_throws_ForbiddenException_when_user_doesnt_have_the_specified_permission_on_organization() {
+  public void checkPermission_throws_ForbiddenException_when_user_doesnt_have_the_specified_permission_on_organization() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertUser(NON_ROOT_USER_DTO);
 
@@ -178,7 +178,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkOrganizationPermission_succeeds_when_user_has_the_specified_permission_on_organization() {
+  public void checkPermission_succeeds_when_user_has_the_specified_permission_on_organization() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertUser(NON_ROOT_USER_DTO);
     db.users().insertPermissionOnUser(org, NON_ROOT_USER_DTO, PROVISIONING);
@@ -187,7 +187,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkOrganizationPermission_succeeds_when_user_is_root() {
+  public void checkPermission_succeeds_when_user_is_root() {
     OrganizationDto org = db.organizations().insert();
 
     newUserSession(ROOT_USER_DTO).checkPermission(OrganizationPermission.PROVISION_PROJECTS, org);
