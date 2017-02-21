@@ -135,16 +135,36 @@ public abstract class PlatformLevel {
    *
    * @throws IllegalStateException if called from PlatformLevel1, when cluster settings are not loaded
    */
-  protected void addIfStartupLeader(Object... objects) {
-    Optional<Cluster> cluster = getOptional(Cluster.class);
-    checkState(cluster.isPresent(), "Cluster settings not loaded yet");
-    if (cluster.get().isStartupLeader()) {
-      for (Object object : objects) {
-        if (object != null) {
-          container.addComponent(object, true);
-        }
+  protected AddIfStartupLeader addIfStartupLeader(Object... objects) {
+    AddIfStartupLeader res = new AddIfStartupLeader(isStartupLeader());
+    res.ifAdd(objects);
+    return res;
+  }
+
+  public final class AddIfStartupLeader {
+    private final boolean startupLeader;
+
+    private AddIfStartupLeader(boolean startupLeader) {
+      this.startupLeader = startupLeader;
+    }
+
+    private void ifAdd(Object... objects) {
+      if (startupLeader) {
+        PlatformLevel.this.add(objects);
       }
     }
+
+    public void otherwiseAdd(Object... objects) {
+      if (!startupLeader) {
+        PlatformLevel.this.add(objects);
+      }
+    }
+  }
+
+  private boolean isStartupLeader() {
+    Optional<Cluster> cluster = getOptional(Cluster.class);
+    checkState(cluster.isPresent(), "Cluster settings not loaded yet");
+    return cluster.get().isStartupLeader();
   }
 
   protected void addAll(Collection<?> objects) {

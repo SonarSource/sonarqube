@@ -24,6 +24,7 @@ import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.db.migration.AutoDbMigration;
 import org.sonar.server.platform.db.migration.DatabaseMigrationImpl;
 import org.sonar.server.platform.db.migration.MigrationEngineModule;
+import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
 import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.IndexAction;
@@ -64,9 +65,10 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       WebServiceFilter.class,
 
       NoopDefaultOrganizationCache.class);
-    add(DatabaseMigrationImpl.class);
     addIfStartupLeader(
+      DatabaseMigrationImpl.class,
       MigrationEngineModule.class,
-      AutoDbMigration.class);
+      AutoDbMigration.class)
+        .otherwiseAdd(NoopDatabaseMigrationImpl.class);
   }
 }
