@@ -26,8 +26,6 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
@@ -48,7 +46,6 @@ import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
  */
 public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupIndexer {
 
-  private static final Logger LOG = Loggers.get(TestIndexer.class);
   private final DbClient dbClient;
 
   public TestIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
@@ -81,7 +78,6 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
 
   @Override
   public void indexOnStartup() {
-    LOG.info("Index tests");
     index();
   }
 

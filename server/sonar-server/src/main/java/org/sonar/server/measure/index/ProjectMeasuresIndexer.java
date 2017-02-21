@@ -27,8 +27,6 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
@@ -47,7 +45,6 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDE
 
 public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
-  private static final Logger LOG = Loggers.get(ProjectMeasuresIndexer.class);
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
@@ -64,7 +61,6 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
 
   @Override
   public void indexOnStartup() {
-    LOG.info("Index project measures");
     index();
   }
 

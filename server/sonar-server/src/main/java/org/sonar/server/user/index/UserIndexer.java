@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
@@ -37,8 +35,6 @@ import org.sonar.server.es.StartupIndexer;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
 public class UserIndexer extends BaseIndexer implements StartupIndexer {
-
-  private static final Logger LOG = Loggers.get(UserIndexer.class);
 
   private final DbClient dbClient;
 
@@ -54,7 +50,6 @@ public class UserIndexer extends BaseIndexer implements StartupIndexer {
 
   @Override
   public void indexOnStartup() {
-    LOG.info("Index users");
     index();
   }
 

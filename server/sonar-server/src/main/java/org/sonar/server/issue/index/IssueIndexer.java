@@ -29,8 +29,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
@@ -51,7 +49,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE
 
 public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
-  private static final Logger LOG = Loggers.get(IssueIndexer.class);
   private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
   private static final int MAX_BATCH_SIZE = 1000;
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
@@ -80,7 +77,6 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
 
   @Override
   public void indexOnStartup() {
-    LOG.info("Index issues");
     index();
   }
 

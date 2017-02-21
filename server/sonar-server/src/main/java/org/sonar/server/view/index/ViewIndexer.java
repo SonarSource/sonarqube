@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -42,8 +40,6 @@ import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 
 public class ViewIndexer extends BaseIndexer implements StartupIndexer {
 
-  private static final Logger LOG = Loggers.get(ViewIndexer.class);
-
   private final DbClient dbClient;
 
   public ViewIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
@@ -58,7 +54,6 @@ public class ViewIndexer extends BaseIndexer implements StartupIndexer {
 
   @Override
   public void indexOnStartup() {
-    LOG.info("Index views");
     index();
   }
 
