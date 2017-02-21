@@ -25,6 +25,7 @@ public class FakeIndexDefinition implements IndexDefinition {
 
   public static final String INDEX = "fakes";
   public static final String TYPE = "fake";
+  public static final IndexTypeId INDEX_TYPE_FAKE = new IndexTypeId("fakes", "fake");
   public static final String INT_FIELD = "intField";
 
   private int replicas = 0;
@@ -39,7 +40,7 @@ public class FakeIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX);
     index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
     index.getSettings().put("index.refresh_interval", "-1");
-    NewIndex.NewIndexType type = index.createType(TYPE);
+    NewIndex.NewIndexType type = index.createType(INDEX_TYPE_FAKE.getType());
     type.createIntegerField(INT_FIELD);
   }
 

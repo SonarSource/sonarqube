@@ -32,8 +32,7 @@ import org.sonar.server.es.SearchOptions;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.user.index.UserIndexDefinition.INDEX;
-import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
+import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
 public class UserIndexTest {
 
@@ -55,8 +54,8 @@ public class UserIndexTest {
   @Test
   public void get_nullable_by_login() throws Exception {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
-    esTester.putDocuments(INDEX, TYPE_USER, user1);
-    esTester.putDocuments(INDEX, TYPE_USER, newUser(USER2_LOGIN, Collections.<String>emptyList()));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.<String>emptyList()));
 
     UserDoc userDoc = underTest.getNullableByLogin(USER1_LOGIN);
     assertThat(userDoc).isNotNull();
@@ -75,7 +74,7 @@ public class UserIndexTest {
   @Test
   public void get_nullable_by_login_should_be_case_sensitive() throws Exception {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
-    esTester.putDocuments(INDEX, TYPE_USER, user1);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
 
     assertThat(underTest.getNullableByLogin(USER1_LOGIN)).isNotNull();
     assertThat(underTest.getNullableByLogin("UsEr1")).isNull();
@@ -86,9 +85,9 @@ public class UserIndexTest {
     UserDoc user1 = newUser("user1", asList("user_1", "u1"));
     UserDoc user2 = newUser("user_with_same_email_as_user1", asList("user_2")).setEmail(user1.email());
     UserDoc user3 = newUser("inactive_user_with_same_scm_as_user1", user1.scmAccounts()).setActive(false);
-    esTester.putDocuments(INDEX, TYPE_USER, user1);
-    esTester.putDocuments(INDEX, TYPE_USER, user2);
-    esTester.putDocuments(INDEX, TYPE_USER, user3);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user2);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user3);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.scmAccounts().get(0))).extractingResultOf("login").containsOnly(user1.login());
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.login())).extractingResultOf("login").containsOnly(user1.login());
@@ -104,7 +103,7 @@ public class UserIndexTest {
   public void getAtMostThreeActiveUsersForScmAccount_ignore_inactive_user() throws Exception {
     String scmAccount = "scmA";
     UserDoc user = newUser(USER1_LOGIN, asList(scmAccount)).setActive(false);
-    esTester.putDocuments(INDEX, TYPE_USER, user);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user.login())).isEmpty();
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(scmAccount)).isEmpty();
@@ -117,10 +116,10 @@ public class UserIndexTest {
     UserDoc user2 = newUser("user2", Collections.<String>emptyList()).setEmail(email);
     UserDoc user3 = newUser("user3", Collections.<String>emptyList()).setEmail(email);
     UserDoc user4 = newUser("user4", Collections.<String>emptyList()).setEmail(email);
-    esTester.putDocuments(INDEX, TYPE_USER, user1);
-    esTester.putDocuments(INDEX, TYPE_USER, user2);
-    esTester.putDocuments(INDEX, TYPE_USER, user3);
-    esTester.putDocuments(INDEX, TYPE_USER, user4);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user2);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user3);
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user4);
 
     // restrict results to 3 users
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(email)).hasSize(3);
@@ -128,8 +127,8 @@ public class UserIndexTest {
 
   @Test
   public void searchUsers() throws Exception {
-    esTester.putDocuments(INDEX, TYPE_USER, newUser(USER1_LOGIN, Arrays.asList("user_1", "u1")).setEmail("email1"));
-    esTester.putDocuments(INDEX, TYPE_USER, newUser(USER2_LOGIN, Collections.<String>emptyList()).setEmail("email2"));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, Arrays.asList("user_1", "u1")).setEmail("email1"));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.<String>emptyList()).setEmail("email2"));
 
     assertThat(underTest.search(null, new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search("user", new SearchOptions()).getDocs()).hasSize(2);

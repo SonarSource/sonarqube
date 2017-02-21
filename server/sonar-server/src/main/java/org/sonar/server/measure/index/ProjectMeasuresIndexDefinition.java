@@ -21,6 +21,7 @@ package org.sonar.server.measure.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
@@ -28,9 +29,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
-  public static final String INDEX_PROJECT_MEASURES = "projectmeasures";
-
-  public static final String TYPE_PROJECT_MEASURE = "projectmeasure";
+  public static final IndexTypeId INDEX_TYPE_PROJECT_MEASURES = new IndexTypeId("projectmeasures", "projectmeasure");
   public static final String FIELD_ORGANIZATION_UUID = "organizationUuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
@@ -51,11 +50,11 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_PROJECT_MEASURES);
+    NewIndex index = context.create(INDEX_TYPE_PROJECT_MEASURES.getIndex());
     index.refreshHandledByIndexer();
     index.configureShards(settings, 5);
 
-    NewIndex.NewIndexType mapping = index.createType(TYPE_PROJECT_MEASURE)
+    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_PROJECT_MEASURES.getType())
       .requireProjectAuthorization();
 
     mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUID).build();

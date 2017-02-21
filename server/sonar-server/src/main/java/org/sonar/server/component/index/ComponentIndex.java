@@ -48,8 +48,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
+import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
 
 public class ComponentIndex {
 
@@ -76,8 +75,7 @@ public class ComponentIndex {
     }
 
     SearchRequestBuilder request = client
-      .prepareSearch(INDEX_COMPONENTS)
-      .setTypes(TYPE_COMPONENT)
+      .prepareSearch(INDEX_TYPE_COMPONENT)
       .setQuery(createQuery(query, features))
       .addAggregation(createAggregation(query))
 

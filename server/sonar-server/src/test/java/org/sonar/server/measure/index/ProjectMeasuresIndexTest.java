@@ -58,8 +58,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.component.ws.FilterParser.Operator;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexTest {
 
@@ -1018,7 +1017,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   private void index(ProjectMeasuresDoc... docs) {
-    es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, docs);
+    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     for (ProjectMeasuresDoc doc : docs) {
       PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
       access.allowAnyone();
@@ -1027,7 +1026,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   private void indexForUser(UserDto user, ProjectMeasuresDoc... docs) {
-    es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, docs);
+    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     for (ProjectMeasuresDoc doc : docs) {
       PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
       access.addUserId(user.getId());
@@ -1036,7 +1035,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   private void indexForGroup(GroupDto group, ProjectMeasuresDoc... docs) {
-    es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, docs);
+    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     for (ProjectMeasuresDoc doc : docs) {
       PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
       access.addGroupId(group.getId());

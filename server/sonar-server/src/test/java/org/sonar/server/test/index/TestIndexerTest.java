@@ -55,8 +55,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_PROJECT_UUID
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
-import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
-import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 public class TestIndexerTest {
 
@@ -180,7 +179,7 @@ public class TestIndexerTest {
   }
 
   private void indexTest(String projectUuid, String fileUuid, String testName, String uuid) throws IOException {
-    es.client().prepareIndex(INDEX, TYPE)
+    es.client().prepareIndex(INDEX_TYPE_TEST)
       .setId(uuid)
       .setRouting(projectUuid)
       .setSource(IOUtils.toString(getClass().getResource(format("%s/%s_%s_%s.json", getClass().getSimpleName(), projectUuid, fileUuid, testName))))
@@ -189,15 +188,14 @@ public class TestIndexerTest {
   }
 
   private SearchRequestBuilder prepareSearch() {
-    return es.client().prepareSearch(INDEX)
-      .setTypes(TYPE);
+    return es.client().prepareSearch(INDEX_TYPE_TEST);
   }
 
   private List<SearchHit> getDocuments() {
-    return es.getDocuments(INDEX, TYPE);
+    return es.getDocuments(INDEX_TYPE_TEST);
   }
 
   private long countDocuments() {
-    return es.countDocuments(INDEX, TYPE);
+    return es.countDocuments(INDEX_TYPE_TEST);
   }
 }

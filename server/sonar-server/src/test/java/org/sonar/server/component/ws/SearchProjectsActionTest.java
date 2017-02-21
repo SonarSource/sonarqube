@@ -87,8 +87,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -590,7 +589,7 @@ public class SearchProjectsActionTest {
     Map<String, Integer> languagesDistribution) {
     ComponentDto res = componentDb.insertComponent(project);
     try {
-      es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE,
+      es.putDocuments(INDEX_TYPE_PROJECT_MEASURES,
         new ProjectMeasuresDoc()
           .setOrganizationUuid(project.getOrganizationUuid())
           .setId(project.uuid())

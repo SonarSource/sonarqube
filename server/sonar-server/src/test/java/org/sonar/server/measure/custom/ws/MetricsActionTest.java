@@ -69,7 +69,7 @@ public class MetricsActionTest {
 
   @Before
   public void setUp() throws Exception {
-    es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, new UserDoc()
+    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), new UserDoc()
       .setLogin("login")
       .setName("Login")
       .setEmail("login@login.com")

@@ -41,15 +41,14 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
   public ActiveRuleIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX, TYPE_ACTIVE_RULE, FIELD_ACTIVE_RULE_UPDATED_AT);
+    super(system2, esClient, 300, INDEX_TYPE_ACTIVE_RULE, FIELD_ACTIVE_RULE_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
@@ -98,33 +97,31 @@ public class ActiveRuleIndexer extends BaseIndexer {
   }
 
   public void deleteProfile(String qualityProfileKey) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
     bulk.start();
-    SearchRequestBuilder search = esClient.prepareSearch(INDEX)
-      .setTypes(TYPE_ACTIVE_RULE)
+    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
       .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, qualityProfileKey)));
     bulk.addDeletion(search);
     bulk.stop();
   }
 
   private void deleteKeys(List<ActiveRuleKey> keys) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
     bulk.start();
-    SearchRequestBuilder search = esClient.prepareSearch(INDEX)
-      .setTypes(TYPE_ACTIVE_RULE)
+    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
       .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_KEY, keys)));
     bulk.addDeletion(search);
     bulk.stop();
   }
 
   private BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
     bulk.setLarge(large);
     return bulk;
   }
 
   private static IndexRequest newIndexRequest(ActiveRuleDoc doc) {
-    return new IndexRequest(INDEX, TYPE_ACTIVE_RULE, doc.key().toString())
+    return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType(), doc.key().toString())
       .parent(doc.key().ruleKey().toString())
       .source(doc.getFields());
   }

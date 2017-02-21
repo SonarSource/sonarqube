@@ -45,9 +45,8 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_STATUS;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 
 /**
  * The unique entry-point to interact with Elasticsearch index "active rules".
@@ -63,14 +62,14 @@ public class ActiveRuleIndex extends BaseIndex {
 
   public Map<String, Long> countAllByQualityProfileKey() {
     return countByField(FIELD_ACTIVE_RULE_PROFILE_KEY,
-      QueryBuilders.hasParentQuery(TYPE_RULE,
+      QueryBuilders.hasParentQuery(INDEX_TYPE_RULE.getType(),
         QueryBuilders.boolQuery().mustNot(
           QueryBuilders.termQuery(FIELD_RULE_STATUS, RuleStatus.REMOVED.name()))));
   }
 
   public Map<String, Long> countAllDeprecatedByQualityProfileKey() {
     return countByField(FIELD_ACTIVE_RULE_PROFILE_KEY,
-      QueryBuilders.hasParentQuery(TYPE_RULE,
+      QueryBuilders.hasParentQuery(INDEX_TYPE_RULE.getType(),
         QueryBuilders.boolQuery().must(
           QueryBuilders.termQuery(FIELD_RULE_STATUS, RuleStatus.DEPRECATED.name()))));
   }
@@ -78,8 +77,7 @@ public class ActiveRuleIndex extends BaseIndex {
   private Map<String, Long> countByField(String indexField, QueryBuilder filter) {
     Map<String, Long> counts = new HashMap<>();
 
-    SearchRequestBuilder request = getClient().prepareSearch(INDEX)
-      .setTypes(TYPE_ACTIVE_RULE)
+    SearchRequestBuilder request = getClient().prepareSearch(INDEX_TYPE_ACTIVE_RULE)
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
         filter))
@@ -102,10 +100,10 @@ public class ActiveRuleIndex extends BaseIndex {
   }
 
   public Map<String, Multimap<String, FacetValue>> getStatsByProfileKeys(List<String> keys) {
-    SearchRequestBuilder request = getClient().prepareSearch(INDEX)
+    SearchRequestBuilder request = getClient().prepareSearch(INDEX_TYPE_RULE.getIndex())
       .setQuery(QueryBuilders.boolQuery().must(QueryBuilders.termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, keys)).filter(
         QueryBuilders.boolQuery()
-          .mustNot(QueryBuilders.hasParentQuery(TYPE_RULE,
+          .mustNot(QueryBuilders.hasParentQuery(INDEX_TYPE_RULE.getType(),
             QueryBuilders.termQuery(FIELD_RULE_STATUS, RuleStatus.REMOVED.name())))))
       .addAggregation(AggregationBuilders.terms(FIELD_ACTIVE_RULE_PROFILE_KEY)
         .field(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).size(0)
@@ -114,8 +112,7 @@ public class ActiveRuleIndex extends BaseIndex {
         .subAggregation(AggregationBuilders.terms(FIELD_ACTIVE_RULE_SEVERITY)
           .field(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY))
         .subAggregation(AggregationBuilders.count(COUNT_ACTIVE_RULES)))
-      .setSize(0)
-      .setTypes(TYPE_ACTIVE_RULE);
+      .setSize(0);
     SearchResponse response = request.get();
     Map<String, Multimap<String, FacetValue>> stats = new HashMap<>();
     Aggregation aggregation = response.getAggregations().get(FIELD_ACTIVE_RULE_PROFILE_KEY);

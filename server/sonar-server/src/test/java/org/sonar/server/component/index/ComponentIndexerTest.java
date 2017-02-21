@@ -45,8 +45,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
+import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
 
 public class ComponentIndexerTest {
 
@@ -222,14 +221,13 @@ public class ComponentIndexerTest {
   }
 
   private long count() {
-    return esTester.countDocuments(INDEX_COMPONENTS, TYPE_COMPONENT);
+    return esTester.countDocuments(INDEX_TYPE_COMPONENT);
   }
 
   private void assertMatches(String nameQuery, int numberOfMatches) {
     assertThat(
       esTester.client()
-        .prepareSearch(INDEX_COMPONENTS)
-        .setTypes(TYPE_COMPONENT)
+        .prepareSearch(INDEX_TYPE_COMPONENT)
         .setQuery(termQuery(FIELD_NAME, nameQuery))
         .get()
         .getHits()

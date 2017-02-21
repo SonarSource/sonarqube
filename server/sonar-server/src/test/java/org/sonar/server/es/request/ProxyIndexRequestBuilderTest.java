@@ -28,6 +28,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -42,7 +43,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void index_with_index_type_and_id() {
-    IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE)
+    IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE)
       .setSource(FakeIndexDefinition.newDoc(42).getFields())
       .get();
     assertThat(response.isCreated()).isTrue();
@@ -51,7 +52,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
-    IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE)
+    IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE)
       .setSource(FakeIndexDefinition.newDoc(42).getFields())
       .get();
     assertThat(response.isCreated()).isTrue();
@@ -60,7 +61,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query() {
-    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
+    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexTypeId("unknownIndex", "unknownType"));
     try {
       requestBuilder.get();
       fail();
@@ -72,7 +73,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query_with_basic_profiling() {
-    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
+    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexTypeId("unknownIndex", "unknownType"));
     try {
       requestBuilder.get();
       fail();
@@ -85,7 +86,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get("1");
+      esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -95,7 +96,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -105,7 +106,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void do_not_support_execute_method() {
     try {
-      esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).execute();
+      esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -66,7 +66,7 @@ public class IssueIndexerTest {
   public void index_nothing() {
     underTest.index(Collections.emptyIterator());
 
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0L);
   }
 
   @Test
@@ -75,7 +75,7 @@ public class IssueIndexerTest {
 
     underTest.index();
 
-    List<IssueDoc> docs = esTester.getDocuments("issues", "issue", IssueDoc.class);
+    List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
     assertThat(docs).hasSize(1);
     IssueDoc doc = docs.get(0);
     assertThat(doc.key()).isEqualTo("ABCDE");
@@ -158,7 +158,7 @@ public class IssueIndexerTest {
       issueDocs[i] = newDoc().setKey(key).setProjectUuid(A_PROJECT_UUID);
       keys.add(key);
     }
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issueDocs);
+    esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, issueDocs);
 
     assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(numberOfIssues);
     underTest.deleteByKeys(A_PROJECT_UUID, keys);
@@ -190,16 +190,16 @@ public class IssueIndexerTest {
     new IssueIndexer(system2, dbTester.getDbClient(), esTester.client())
       .index(Arrays.asList(issueDoc).iterator());
 
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(1L);
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(1L);
   }
 
   private void addIssue(String projectUuid, String issueKey) throws Exception {
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE,
+    esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE,
       newDoc().setKey(issueKey).setProjectUuid(projectUuid));
   }
 
   private void verifyIssueKeys(String... expectedKeys) {
-    List<IssueDoc> issues = esTester.getDocuments("issues", "issue", IssueDoc.class);
+    List<IssueDoc> issues = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
     assertThat(issues).extracting(IssueDoc::key).containsOnly(expectedKeys);
   }
 }

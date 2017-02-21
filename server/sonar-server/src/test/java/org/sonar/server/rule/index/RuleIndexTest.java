@@ -62,8 +62,8 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 
 public class RuleIndexTest {
 
@@ -191,7 +191,7 @@ public class RuleIndexTest {
       newDoc(RuleKey.of("findbugs", "S001")),
       newDoc(RuleKey.of("pmd", "S002")));
 
-    List<SearchHit> docs = tester.getDocuments("rules", "rule");
+    List<SearchHit> docs = tester.getDocuments(INDEX_TYPE_RULE);
     for (SearchHit doc : docs) {
       System.out.println(doc.getSourceAsString());
     }
@@ -465,7 +465,7 @@ public class RuleIndexTest {
       ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)),
       ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)));
 
-    assertThat(tester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isEqualTo(3);
+    assertThat(tester.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(3);
 
     // 1. get all active rules.
     assertThat(index.search(new RuleQuery().setActivation(true), new SearchOptions()).getIds())
@@ -814,7 +814,7 @@ public class RuleIndexTest {
       ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)),
       ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)));
 
-    assertThat(tester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isEqualTo(3);
+    assertThat(tester.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(3);
 
     // 1. get all active rules.
     assertThat(index.searchAll(new RuleQuery().setActivation(true))).containsOnly(RULE_KEY_1, RULE_KEY_2);

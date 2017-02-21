@@ -29,15 +29,14 @@ import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UPDATED_AT;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 
 public class RuleIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
   public RuleIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX, TYPE_RULE, FIELD_RULE_UPDATED_AT);
+    super(system2, esClient, 300, INDEX_TYPE_RULE, FIELD_RULE_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
@@ -78,12 +77,12 @@ public class RuleIndexer extends BaseIndexer {
   }
 
   private BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_RULE.getIndex());
     bulk.setLarge(large);
     return bulk;
   }
 
   private static IndexRequest newIndexRequest(RuleDoc rule) {
-    return new IndexRequest(INDEX, TYPE_RULE, rule.key().toString()).source(rule.getFields());
+    return new IndexRequest(INDEX_TYPE_RULE.getIndex(), INDEX_TYPE_RULE.getType(), rule.key().toString()).source(rule.getFields());
   }
 }

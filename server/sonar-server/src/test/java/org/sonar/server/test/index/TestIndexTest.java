@@ -30,6 +30,7 @@ import org.sonar.server.es.SearchOptions;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 public class TestIndexTest {
   @Rule
@@ -39,7 +40,7 @@ public class TestIndexTest {
 
   @Test
   public void coveredFiles() throws Exception {
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+    es.putDocuments(INDEX_TYPE_TEST,
       newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
       newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
@@ -52,7 +53,7 @@ public class TestIndexTest {
 
   @Test
   public void searchByTestFileUuid() throws Exception {
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+    es.putDocuments(INDEX_TYPE_TEST,
       newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
       newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")),
       newTestDoc("3", "TESTFILE2", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
@@ -65,7 +66,7 @@ public class TestIndexTest {
 
   @Test
   public void searchBySourceFileUuidAndLineNumber() throws Exception {
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+    es.putDocuments(INDEX_TYPE_TEST,
       newTestDoc("1", "TESTFILE1", newCoveredFileDoc("10"), newCoveredFileDoc("11"), newCoveredFileDoc("12")),
       newTestDoc("2", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
       newTestDoc("3", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
@@ -78,7 +79,7 @@ public class TestIndexTest {
 
   @Test
   public void searchByTestUuid() throws Exception {
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+    es.putDocuments(INDEX_TYPE_TEST,
       newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
       newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
@@ -96,7 +97,7 @@ public class TestIndexTest {
 
   @Test
   public void getNullableByTestUuid() throws Exception {
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+    es.putDocuments(INDEX_TYPE_TEST,
       newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
       newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
@@ -123,7 +124,7 @@ public class TestIndexTest {
 
   @Test
   public void searchByTestUuid_with_SearchOptions() throws Exception {
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+    es.putDocuments(INDEX_TYPE_TEST,
       newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
       newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 

@@ -193,8 +193,7 @@ public class IssueIndex extends BaseIndex {
 
   public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
     SearchRequestBuilder requestBuilder = getClient()
-      .prepareSearch(IssueIndexDefinition.INDEX)
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE);
+      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE);
 
     configureSorting(query, requestBuilder);
     configurePagination(options, requestBuilder);
@@ -319,8 +318,8 @@ public class IssueIndex extends BaseIndex {
     BoolQueryBuilder viewsFilter = boolQuery();
     for (String viewUuid : viewUuids) {
       viewsFilter.should(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID)
-        .lookupIndex(ViewIndexDefinition.INDEX)
-        .lookupType(ViewIndexDefinition.TYPE_VIEW)
+        .lookupIndex(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex())
+        .lookupType(ViewIndexDefinition.INDEX_TYPE_VIEW.getType())
         .lookupId(viewUuid)
         .lookupPath(ViewIndexDefinition.FIELD_PROJECTS));
     }
@@ -479,8 +478,7 @@ public class IssueIndex extends BaseIndex {
   private Optional<Long> getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String facetNameAndField = IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
     SearchRequestBuilder esRequest = getClient()
-      .prepareSearch(IssueIndexDefinition.INDEX)
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE)
+      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
       .setSize(0);
     BoolQueryBuilder esFilter = boolQuery();
     filters.values().stream().filter(Objects::nonNull).forEach(esFilter::must);
@@ -591,8 +589,7 @@ public class IssueIndex extends BaseIndex {
 
   public List<String> listTags(IssueQuery query, @Nullable String textQuery, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = getClient()
-      .prepareSearch(IssueIndexDefinition.INDEX, RuleIndexDefinition.INDEX)
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE, RuleIndexDefinition.TYPE_RULE);
+      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE, RuleIndexDefinition.INDEX_TYPE_RULE);
 
     requestBuilder.setQuery(boolQuery().must(matchAllQuery()).filter(createBoolFilter(query)));
 
@@ -639,10 +636,9 @@ public class IssueIndex extends BaseIndex {
 
   private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = getClient()
-      .prepareSearch(IssueIndexDefinition.INDEX)
+      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
       // Avoids returning search hits
-      .setSize(0)
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE);
+      .setSize(0);
 
     requestBuilder.setQuery(boolQuery().must(QueryBuilders.matchAllQuery()).filter(createBoolFilter(query)));
 
@@ -690,8 +686,7 @@ public class IssueIndex extends BaseIndex {
     }
 
     SearchRequestBuilder requestBuilder = getClient()
-      .prepareSearch(IssueIndexDefinition.INDEX)
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE)
+      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
       .setSize(10_000)

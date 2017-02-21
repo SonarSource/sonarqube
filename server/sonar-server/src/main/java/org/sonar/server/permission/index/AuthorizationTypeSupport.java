@@ -27,9 +27,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
@@ -37,7 +40,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 @ComputeEngineSide
 public class AuthorizationTypeSupport {
 
-  public static final String TYPE_AUTHORIZATION = "authorization";
+  private static final String TYPE_AUTHORIZATION = "authorization";
   public static final String FIELD_GROUP_IDS = "groupIds";
   public static final String FIELD_USER_IDS = "userIds";
   public static final String FIELD_UPDATED_AT = "updatedAt";
@@ -53,6 +56,16 @@ public class AuthorizationTypeSupport {
 
   public AuthorizationTypeSupport(UserSession userSession) {
     this.userSession = userSession;
+  }
+
+  /**
+   * @return the identifier of the ElasticSearch type (including it's index name), that corresponds to a certain document type
+   */
+  public static IndexTypeId getAuthorizationIndexType(IndexTypeId indexType) {
+    requireNonNull(indexType);
+    requireNonNull(indexType.getIndex());
+    checkArgument(!AuthorizationTypeSupport.TYPE_AUTHORIZATION.equals(indexType.getType()), "Authorization types do not have authorization on their own.");
+    return new IndexTypeId(indexType.getIndex(), AuthorizationTypeSupport.TYPE_AUTHORIZATION);
   }
 
   /**

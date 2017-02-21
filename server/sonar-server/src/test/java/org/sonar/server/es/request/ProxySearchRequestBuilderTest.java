@@ -26,6 +26,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -48,7 +49,7 @@ public class ProxySearchRequestBuilderTest {
     assertThat(esTester.client().prepareSearch(FakeIndexDefinition.INDEX).setTypes(FakeIndexDefinition.TYPE).toString()).contains("ES search request '").contains(
       "' on indices '[fakes]' on types '[fake]'");
     assertThat(esTester.client().prepareSearch(FakeIndexDefinition.INDEX).toString()).contains("ES search request '").contains("' on indices '[fakes]'");
-    assertThat(esTester.client().prepareSearch().toString()).contains("ES search request");
+    assertThat(esTester.client().prepareSearch(new IndexTypeId[0]).toString()).contains("ES search request");
   }
 
   @Test

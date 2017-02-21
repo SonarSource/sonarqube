@@ -21,6 +21,7 @@ package org.sonar.server.user.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
@@ -31,10 +32,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_
  */
 public class UserIndexDefinition implements IndexDefinition {
 
-  public static final String INDEX = "users";
-
-  public static final String TYPE_USER = "user";
-
+  public static final IndexTypeId INDEX_TYPE_USER = new IndexTypeId("users", "user");
   public static final String FIELD_LOGIN = "login";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_EMAIL = "email";
@@ -51,12 +49,12 @@ public class UserIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX);
+    NewIndex index = context.create(INDEX_TYPE_USER.getIndex());
 
     index.configureShards(settings, 1);
 
     // type "user"
-    NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
+    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_USER.getType());
     mapping.stringFieldBuilder(FIELD_LOGIN).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_NAME).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_EMAIL).addSubFields(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();

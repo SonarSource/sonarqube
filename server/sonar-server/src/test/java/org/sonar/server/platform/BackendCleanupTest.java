@@ -80,28 +80,28 @@ public class BackendCleanupTest {
 
   @Test
   public void clear_indexes() throws Exception {
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
-    esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
-    esTester.putDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT, newComponentDoc());
+    esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDocTesting.newDoc());
+    esTester.putDocuments(RuleIndexDefinition.INDEX_TYPE_RULE, newRuleDoc());
+    esTester.putDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, newComponentDoc());
 
     backendCleanup.clearIndexes();
 
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0);
-    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).isEqualTo(0);
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
+    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT)).isEqualTo(0);
   }
 
   @Test
   public void clear_all() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
-    esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
-    esTester.putDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT, newComponentDoc());
+    esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDocTesting.newDoc());
+    esTester.putDocuments(RuleIndexDefinition.INDEX_TYPE_RULE, newRuleDoc());
+    esTester.putDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, newComponentDoc());
 
     backendCleanup.clearAll();
 
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0);
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(0);
-    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).isEqualTo(0);
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0);
+    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT)).isEqualTo(0);
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(0);
@@ -112,28 +112,28 @@ public class BackendCleanupTest {
   @Test
   public void reset_data() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
-    esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
-    esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
-    esTester.putDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE, new ProjectMeasuresDoc()
+    esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDocTesting.newDoc());
+    esTester.putDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
+    esTester.putDocuments(RuleIndexDefinition.INDEX_TYPE_RULE, newRuleDoc());
+    esTester.putDocuments(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES, new ProjectMeasuresDoc()
       .setId("PROJECT")
       .setKey("Key")
       .setName("Name"));
-    esTester.putDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT, newComponentDoc());
+    esTester.putDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, newComponentDoc());
 
     backendCleanup.resetData();
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
     assertThat(dbTester.countRowsOfTable("properties")).isZero();
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isZero();
-    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isZero();
-    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE)).isZero();
-    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).isZero();
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isZero();
+    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isZero();
+    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES)).isZero();
+    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT)).isZero();
 
     // Rules should not be removed
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(1);
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
 
   private static RuleDoc newRuleDoc() {

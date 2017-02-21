@@ -44,20 +44,19 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT;
-import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
-import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 
 public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
   private static final Logger LOG = Loggers.get(IssueIndexer.class);
   private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
   private static final int MAX_BATCH_SIZE = 1000;
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
 
   public IssueIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX, TYPE_ISSUE, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+    super(system2, esClient, 300, INDEX_TYPE_ISSUE, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
@@ -130,10 +129,9 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
 
   @Override
   public void deleteProject(String uuid) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ISSUE.getIndex());
     bulk.start();
-    SearchRequestBuilder search = esClient.prepareSearch(INDEX)
-      .setTypes(TYPE_ISSUE)
+    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ISSUE)
       .setRouting(uuid)
       .setQuery(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, uuid)));
     bulk.addDeletion(search);
@@ -148,7 +146,7 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
     int count = 0;
     BulkRequestBuilder builder = esClient.prepareBulk();
     for (String issueKey : issueKeys) {
-      builder.add(esClient.prepareDelete(INDEX, TYPE_ISSUE, issueKey)
+      builder.add(esClient.prepareDelete(INDEX_TYPE_ISSUE, issueKey)
         .setRefresh(false)
         .setRouting(projectUuid));
       count++;
@@ -159,11 +157,11 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
       }
     }
     EsUtils.executeBulkRequest(builder, DELETE_ERROR_MESSAGE, projectUuid);
-    esClient.prepareRefresh(INDEX).get();
+    esClient.prepareRefresh(INDEX_TYPE_ISSUE.getIndex()).get();
   }
 
   private BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ISSUE.getIndex());
     bulk.setLarge(large);
     return bulk;
   }
@@ -171,7 +169,7 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
   private static IndexRequest newIndexRequest(IssueDoc issue) {
     String projectUuid = issue.projectUuid();
 
-    return new IndexRequest(INDEX, TYPE_ISSUE, issue.key())
+    return new IndexRequest(INDEX_TYPE_ISSUE.getIndex(), INDEX_TYPE_ISSUE.getType(), issue.key())
       .routing(projectUuid)
       .parent(projectUuid)
       .source(issue.getFields());

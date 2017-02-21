@@ -26,6 +26,7 @@ import java.util.Set;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
@@ -37,9 +38,9 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
  */
 public class RuleIndexDefinition implements IndexDefinition {
 
-  public static final String INDEX = "rules";
-  public static final String TYPE_RULE = "rule";
+  private static final String INDEX = "rules";
 
+  public static final IndexTypeId INDEX_TYPE_RULE = new IndexTypeId(INDEX, "rule");
   public static final String FIELD_RULE_KEY = "key";
   public static final String FIELD_RULE_REPOSITORY = "repo";
   public static final String FIELD_RULE_RULE_KEY = "ruleKey";
@@ -63,8 +64,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     RuleIndexDefinition.FIELD_RULE_KEY);
 
   // Active rule fields
-
-  public static final String TYPE_ACTIVE_RULE = "activeRule";
+  public static final IndexTypeId INDEX_TYPE_ACTIVE_RULE = new IndexTypeId(INDEX, "activeRule");
   public static final String FIELD_ACTIVE_RULE_KEY = "key";
   public static final String FIELD_ACTIVE_RULE_REPOSITORY = "repo";
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";
@@ -82,15 +82,15 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX);
+    NewIndex index = context.create(INDEX_TYPE_RULE.getIndex());
 
     index.refreshHandledByIndexer();
     index.configureShards(settings, 1);
 
     // Active rule type
-    NewIndex.NewIndexType activeRuleMapping = index.createType(RuleIndexDefinition.TYPE_ACTIVE_RULE);
+    NewIndex.NewIndexType activeRuleMapping = index.createType(RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE.getType());
     activeRuleMapping.setEnableSource(false);
-    activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.TYPE_RULE));
+    activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.INDEX_TYPE_RULE.getType()));
 
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
@@ -103,7 +103,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT);
 
     // Rule type
-    NewIndex.NewIndexType ruleMapping = index.createType(TYPE_RULE);
+    NewIndex.NewIndexType ruleMapping = index.createType(RuleIndexDefinition.INDEX_TYPE_RULE.getType());
     ruleMapping.setEnableSource(false);
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();

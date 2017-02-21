@@ -48,8 +48,7 @@ import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.OVERRIDES;
 import static org.sonar.server.rule.index.RuleDocTesting.newDoc;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexTest {
 
@@ -83,7 +82,7 @@ public class ActiveRuleIndexTest {
       ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)));
 
     // 0. Test base case
-    assertThat(tester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isEqualTo(2);
+    assertThat(tester.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(2);
 
     // 1. Assert by term aggregation;
     assertThat(index.countAllByQualityProfileKey()).containsOnly(entry(QUALITY_PROFILE_KEY1, 1L), entry(QUALITY_PROFILE_KEY2, 1L));
@@ -106,7 +105,7 @@ public class ActiveRuleIndexTest {
       ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)).setSeverity(BLOCKER).setInheritance(OVERRIDES.name()));
 
     // 0. Test base case
-    assertThat(tester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isEqualTo(4);
+    assertThat(tester.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(4);
 
     // 1. Assert by term aggregation;
     Map<String, Multimap<String, FacetValue>> stats = index.getStatsByProfileKeys(ImmutableList.of(QUALITY_PROFILE_KEY1, QUALITY_PROFILE_KEY2));

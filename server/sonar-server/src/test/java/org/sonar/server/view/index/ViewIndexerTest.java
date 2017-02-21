@@ -86,7 +86,7 @@ public class ViewIndexerTest {
   @Test
   public void index_nothing() {
     underTest.index();
-    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEqualTo(0L);
+    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(0L);
   }
 
   @Test
@@ -95,7 +95,7 @@ public class ViewIndexerTest {
 
     underTest.index();
 
-    List<ViewDoc> docs = esTester.getDocuments("views", "view", ViewDoc.class);
+    List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(4);
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
@@ -110,13 +110,13 @@ public class ViewIndexerTest {
   public void index_only_if_empty_do_nothing_when_index_already_exists() throws Exception {
     // Some views are not in the db
     dbTester.prepareDbUnit(getClass(), "index.xml");
-    esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW,
+    esTester.putDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW,
       new ViewDoc().setUuid("ABCD").setProjects(newArrayList("BCDE")));
 
     underTest.index();
 
     // ... But they shouldn't be indexed
-    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEqualTo(1L);
+    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(1L);
   }
 
   @Test
@@ -125,7 +125,7 @@ public class ViewIndexerTest {
 
     underTest.index("EFGH");
 
-    List<ViewDoc> docs = esTester.getDocuments("views", "view", ViewDoc.class);
+    List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(2);
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
@@ -138,7 +138,7 @@ public class ViewIndexerTest {
   public void index_view_doc() {
     underTest.index(new ViewDoc().setUuid("EFGH").setProjects(newArrayList("KLMN", "JKLM")));
 
-    List<ViewDoc> docs = esTester.getDocuments("views", "view", ViewDoc.class);
+    List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(1);
 
     ViewDoc view = docs.get(0);
