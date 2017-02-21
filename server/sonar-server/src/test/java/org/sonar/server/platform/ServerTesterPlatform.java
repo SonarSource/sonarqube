@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import java.util.function.Supplier;
 
 public class ServerTesterPlatform extends Platform {
-  public ServerTesterPlatform(Supplier<PlatformAutoStarter> autoStarterFactory) {
+  public ServerTesterPlatform(Supplier<AutoStarter> autoStarterFactory) {
     super(autoStarterFactory);
   }
 

@@ -125,7 +125,7 @@ public class ServerTester extends ExternalResource {
       if (!esIndexes) {
         properties.put("sonar.internal.es.disableIndexes", true);
       }
-      platform = new ServerTesterPlatform(() -> new Platform.PlatformAutoStarter() {
+      platform = new ServerTesterPlatform(() -> new Platform.AutoStarter() {
         private boolean running = false;
 
         @Override
@@ -149,6 +149,21 @@ public class ServerTester extends ExternalResource {
         @Override
         public boolean isRunning() {
           return this.running;
+        }
+
+        @Override
+        public void abort() {
+          // do nothing specific
+        }
+
+        @Override
+        public boolean isAborting() {
+          return false;
+        }
+
+        @Override
+        public void aborted() {
+          // do nothing specific
         }
       });
       platform.init(properties, servletContext);

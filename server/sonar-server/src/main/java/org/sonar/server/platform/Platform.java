@@ -49,8 +49,8 @@ public class Platform {
 
   private static final Platform INSTANCE = new Platform();
 
-  private final Supplier<PlatformAutoStarter> autoStarterSupplier;
-  private PlatformAutoStarter autoStarter = null;
+  private final Supplier<AutoStarter> autoStarterSupplier;
+  private AutoStarter autoStarter = null;
   private Properties properties;
   private ServletContext servletContext;
   private PlatformLevel level1;
@@ -71,7 +71,7 @@ public class Platform {
     };
   }
 
-  protected Platform(Supplier<PlatformAutoStarter> autoStarterSupplier) {
+  protected Platform(Supplier<AutoStarter> autoStarterSupplier) {
     this.autoStarterSupplier = autoStarterSupplier;
   }
 
@@ -110,23 +110,20 @@ public class Platform {
       LOGGER.info("Database needs migration");
     } else {
       this.autoStarter = autoStarterSupplier.get();
-      this.autoStarter.execute(() ->  {
-        try {
+      this.autoStarter.execute(new AutoStarterRunnable(autoStarter) {
+        @Override
+        public void doRun() {
           if (dbRequiredMigration) {
             LOGGER.info("Database has been automatically updated");
           }
-          startLevel34Containers();
+          runIfNotAborted(Platform.this::startLevel34Containers);
 
-          executeStartupTasks(startup);
+          runIfNotAborted(() -> executeStartupTasks(startup));
           // switch current container last to avoid giving access to a partially initialized container
-          currentLevel = level4;
+          runIfNotAborted(() -> currentLevel = level4);
 
           // stop safemode container if it existed
-          stopSafeModeContainer();
-        } catch (Throwable t) {
-          autoStarter.failure(t);
-        } finally {
-          autoStarter.success();
+          runIfNotAborted(Platform.this::stopSafeModeContainer);
         }
       });
     }
@@ -179,7 +176,7 @@ public class Platform {
     return Status.BOOTING;
   }
 
-  private static boolean isRunning(@Nullable PlatformAutoStarter autoStarter) {
+  private static boolean isRunning(@Nullable AutoStarter autoStarter) {
     return autoStarter != null && autoStarter.isRunning();
   }
 
@@ -280,15 +277,22 @@ public class Platform {
   // Do not rename "stop"
   public void doStop() {
     try {
+      stopAutoStarter();
       stopSafeModeContainer();
       stopLevel234Containers();
       stopLevel1Container();
-      autoStarter = null;
       currentLevel = null;
       dbConnected = false;
       started = false;
     } catch (Exception e) {
       LOGGER.error("Fail to stop server - ignored", e);
+    }
+  }
+
+  private void stopAutoStarter() {
+    if (autoStarter != null) {
+      autoStarter.abort();
+      autoStarter = null;
     }
   }
 
@@ -312,7 +316,7 @@ public class Platform {
     NO_STARTUP_TASKS, ALL
   }
 
-  public interface PlatformAutoStarter {
+  public interface AutoStarter {
     /**
      * Let the autostarted execute the provided code.
      */
@@ -332,11 +336,64 @@ public class Platform {
      * Indicates whether the AutoStarter is running.
      */
     boolean isRunning();
+
+    /**
+     * Requests the startcode (ie. the argument of {@link #execute(Runnable)}) aborts its processing (if it supports it).
+     */
+    void abort();
+
+    /**
+     * Indicates whether {@link #abort()} was invoked.
+     * <p>
+     * This method can be used by the start code to check whether it should proceed running or stop.
+     * </p>
+     */
+    boolean isAborting();
+
+    /**
+     * Called when abortion is complete.
+     * <p>
+     * Start code support abortion should call this method once is done processing and if it stopped on abortion.
+     * </p>
+     */
+    void aborted();
   }
 
-  private static final class AsynchronousAutoStarter implements PlatformAutoStarter {
+  private abstract static class AutoStarterRunnable implements Runnable {
+    private final AutoStarter autoStarter;
+
+    AutoStarterRunnable(AutoStarter autoStarter) {
+      this.autoStarter = autoStarter;
+    }
+
+    @Override
+    public void run() {
+      try {
+        doRun();
+      } catch (Throwable t) {
+        autoStarter.failure(t);
+      } finally {
+        if (autoStarter.isAborting()) {
+          autoStarter.aborted();
+        } else {
+          autoStarter.success();
+        }
+      }
+    }
+
+    abstract void doRun();
+
+    void runIfNotAborted(Runnable r) {
+      if (!autoStarter.isAborting()) {
+        r.run();
+      }
+    }
+  }
+
+  private static final class AsynchronousAutoStarter implements AutoStarter {
     private final ProcessCommandWrapper processCommandWrapper;
     private boolean running = true;
+    private boolean abort = false;
 
     private AsynchronousAutoStarter(ProcessCommandWrapper processCommandWrapper) {
       this.processCommandWrapper = processCommandWrapper;
@@ -356,12 +413,29 @@ public class Platform {
 
     @Override
     public void success() {
+      LOGGER.debug("Background initialization of SonarQube done");
+      this.running = false;
+    }
+
+    @Override
+    public void aborted() {
+      LOGGER.debug("Background initialization of SonarQube aborted");
       this.running = false;
     }
 
     @Override
     public boolean isRunning() {
       return running;
+    }
+
+    @Override
+    public void abort() {
+      this.abort = true;
+    }
+
+    @Override
+    public boolean isAborting() {
+      return this.abort;
     }
   }
 }
