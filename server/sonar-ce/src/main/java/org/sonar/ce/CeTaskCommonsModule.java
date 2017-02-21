@@ -21,7 +21,6 @@ package org.sonar.ce;
 
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 
 /**
@@ -32,7 +31,6 @@ public class CeTaskCommonsModule extends Module {
   protected void configureModule() {
     add(
       DefaultPeriodCleaner.class,
-      ProjectCleaner.class,
-      IndexPurgeListener.class);
+      ProjectCleaner.class);
   }
 }
