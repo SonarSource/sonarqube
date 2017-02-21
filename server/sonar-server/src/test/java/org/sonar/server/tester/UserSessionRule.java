@@ -315,17 +315,6 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
-    return currentUserSession.hasPermission(OrganizationPermission.fromKey(permission), organizationUuid);
-  }
-
-  @Override
-  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
-    currentUserSession.checkPermission(OrganizationPermission.fromKey(permission), organizationUuid);
-    return this;
-  }
-
-  @Override
   public UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
     currentUserSession.checkComponentPermission(projectPermission, component);
     return this;

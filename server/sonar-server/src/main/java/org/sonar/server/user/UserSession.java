@@ -92,18 +92,6 @@ public interface UserSession {
   UserSession checkPermission(OrganizationPermission permission, String organizationUuid);
 
   /**
-   * @deprecated use #hasPermission(OrganizationPermission, String)
-   */
-  @Deprecated
-  boolean hasOrganizationPermission(String organizationUuid, String permission);
-
-  /**
-   * @deprecated #checkPermission(OrganizationPermission, String)
-   */
-  @Deprecated
-  UserSession checkOrganizationPermission(String organizationUuid, String permission);
-
-  /**
    * Returns {@code true} if the permission is granted to user on the component,
    * otherwise {@code false}.
    *
