@@ -95,9 +95,10 @@ public class NewIndexTest {
     mapping.stringFieldBuilder("basic_field").build();
     mapping.stringFieldBuilder("not_searchable_field").disableSearch().build();
     mapping.stringFieldBuilder("all_capabilities_field")
-      .enableGramSearch()
-      .enableWordSearch()
-      .enableSorting()
+      .addSubFields(
+        DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER,
+        DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER,
+        DefaultIndexSettingsElement.SORTABLE_ANALYZER)
       .build();
 
     Map<String, Object> props = (Map) mapping.getProperty("basic_field");
