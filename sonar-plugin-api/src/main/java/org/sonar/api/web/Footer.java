@@ -24,9 +24,11 @@ import org.sonar.api.server.ServerSide;
 
 /**
  * @since 1.10
+ * @deprecated since 6.3. This extension is ignored.
  */
 @ServerSide
 @ExtensionPoint
+@Deprecated
 public interface Footer {
 
   /**
