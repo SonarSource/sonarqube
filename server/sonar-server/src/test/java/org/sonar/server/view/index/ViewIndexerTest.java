@@ -71,21 +71,21 @@ public class ViewIndexerTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private IssueIndexer issueIndexer = new IssueIndexer(system2, dbClient, esTester.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(dbClient, esTester.client());
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, esTester.client(), issueIndexer);
-  private ViewIndexer underTest = new ViewIndexer(system2, dbClient, esTester.client());
+  private ViewIndexer underTest = new ViewIndexer(dbClient, esTester.client());
 
   @Test
   public void index_on_startup() {
     ViewIndexer indexer = spy(underTest);
-    doNothing().when(indexer).index();
+    doNothing().when(indexer).indexOnStartup();
     indexer.indexOnStartup();
     verify(indexer).indexOnStartup();
   }
 
   @Test
   public void index_nothing() {
-    underTest.index();
+    underTest.indexOnStartup();
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(0L);
   }
 
@@ -93,7 +93,7 @@ public class ViewIndexerTest {
   public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    underTest.index();
+    underTest.indexOnStartup();
 
     List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(4);
@@ -113,7 +113,7 @@ public class ViewIndexerTest {
     esTester.putDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW,
       new ViewDoc().setUuid("ABCD").setProjects(newArrayList("BCDE")));
 
-    underTest.index();
+    underTest.indexOnStartup();
 
     // ... But they shouldn't be indexed
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(1L);
@@ -149,7 +149,7 @@ public class ViewIndexerTest {
   @Test
   public void clear_views_lookup_cache_on_index_view_uuid() {
     IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-    IssueIndexer issueIndexer = new IssueIndexer(system2, dbClient, esTester.client());
+    IssueIndexer issueIndexer = new IssueIndexer(dbClient, esTester.client());
 
     String viewUuid = "ABCD";
 

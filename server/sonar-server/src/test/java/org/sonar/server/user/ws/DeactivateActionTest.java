@@ -81,9 +81,9 @@ public class DeactivateActionTest {
 
   @Before
   public void setUp() {
-    userIndexer = new UserIndexer(system2, dbClient, esTester.client());
+    userIndexer = new UserIndexer(dbClient, esTester.client());
     index = new UserIndex(esTester.client());
-    userIndexer = new UserIndexer(system2, dbClient, esTester.client());
+    userIndexer = new UserIndexer(dbClient, esTester.client());
     ws = new WsActionTester(new DeactivateAction(
       dbClient, userIndexer, userSession, new UserJsonWriter(userSession), defaultOrganizationProvider));
   }

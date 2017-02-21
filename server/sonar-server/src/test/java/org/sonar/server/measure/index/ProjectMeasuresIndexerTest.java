@@ -54,19 +54,19 @@ public class ProjectMeasuresIndexerTest {
   public DbTester dbTester = DbTester.create(system2);
 
   private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-  private ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(system2, dbTester.getDbClient(), esTester.client());
+  private ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_on_startup() {
     ProjectMeasuresIndexer indexer = spy(underTest);
-    doNothing().when(indexer).index();
+    doNothing().when(indexer).indexOnStartup();
     indexer.indexOnStartup();
     verify(indexer).indexOnStartup();
   }
 
   @Test
   public void index_nothing() {
-    underTest.index();
+    underTest.indexOnStartup();
 
     assertThat(esTester.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isZero();
   }
@@ -78,7 +78,7 @@ public class ProjectMeasuresIndexerTest {
     componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
     componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
 
-    underTest.index();
+    underTest.indexOnStartup();
 
     assertThat(esTester.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isEqualTo(3);
   }
@@ -90,7 +90,7 @@ public class ProjectMeasuresIndexerTest {
   public void index_provisioned_projects() {
     ComponentDto project = componentDbTester.insertProject();
 
-    underTest.index();
+    underTest.indexOnStartup();
 
     assertThat(esTester.getIds(INDEX_TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
   }
@@ -159,7 +159,7 @@ public class ProjectMeasuresIndexerTest {
     componentDbTester.insertProjectAndSnapshot(project2);
     ComponentDto project3 = newProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project3);
-    underTest.index();
+    underTest.indexOnStartup();
 
     underTest.deleteProject(project1.uuid());
 
@@ -170,7 +170,7 @@ public class ProjectMeasuresIndexerTest {
   public void does_nothing_when_deleting_unknown_project() throws Exception {
     ComponentDto project = newProjectDto(dbTester.organizations().insert());
     componentDbTester.insertProjectAndSnapshot(project);
-    underTest.index();
+    underTest.indexOnStartup();
 
     underTest.deleteProject("UNKNOWN");
 

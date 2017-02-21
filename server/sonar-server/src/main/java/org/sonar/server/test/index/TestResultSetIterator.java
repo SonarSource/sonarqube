@@ -66,9 +66,9 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
     super(stmt);
   }
 
-  public static TestResultSetIterator create(DbClient dbClient, DbSession session, long afterDate, @Nullable String projectUuid) {
+  public static TestResultSetIterator create(DbClient dbClient, DbSession session, @Nullable String projectUuid) {
     try {
-      return new TestResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, session, FileSourceDto.Type.TEST, afterDate, projectUuid));
+      return new TestResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, session, FileSourceDto.Type.TEST, projectUuid));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all tests", e);
     }

@@ -77,6 +77,6 @@ public class UserIndexerTest {
   }
 
   private UserIndexer createIndexer() {
-    return new UserIndexer(system2, dbTester.getDbClient(), esTester.client());
+    return new UserIndexer(dbTester.getDbClient(), esTester.client());
   }
 }

@@ -90,7 +90,7 @@ public class SetSeverityActionTest {
 
   private WsActionTester tester = new WsActionTester(new SetSeverityAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(system2, dbClient, esTester.client())), mock(NotificationManager.class)),
+      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(dbClient, esTester.client())), mock(NotificationManager.class)),
     responseWriter));
 
   @Test

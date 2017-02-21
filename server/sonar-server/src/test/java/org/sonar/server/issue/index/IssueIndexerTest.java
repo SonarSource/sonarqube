@@ -52,12 +52,12 @@ public class IssueIndexerTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
-  private IssueIndexer underTest = new IssueIndexer(system2, dbTester.getDbClient(), esTester.client());
+  private IssueIndexer underTest = new IssueIndexer(dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_on_startup() {
     IssueIndexer indexer = spy(underTest);
-    doNothing().when(indexer).index();
+    doNothing().when(indexer).indexOnStartup();
     indexer.indexOnStartup();
     verify(indexer).indexOnStartup();
   }
@@ -73,7 +73,7 @@ public class IssueIndexerTest {
   public void index_all_issues() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    underTest.index();
+    underTest.indexOnStartup();
 
     List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
     assertThat(docs).hasSize(1);
@@ -125,7 +125,7 @@ public class IssueIndexerTest {
   public void deleteProject_deletes_issues_of_a_specific_project() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    underTest.index();
+    underTest.indexOnStartup();
 
     assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(1);
 
@@ -187,7 +187,7 @@ public class IssueIndexerTest {
     issueDoc.setKey("key");
     issueDoc.setTechnicalUpdateDate(new Date());
     issueDoc.setProjectUuid("non-exitsing-parent");
-    new IssueIndexer(system2, dbTester.getDbClient(), esTester.client())
+    new IssueIndexer(dbTester.getDbClient(), esTester.client())
       .index(Arrays.asList(issueDoc).iterator());
 
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(1L);

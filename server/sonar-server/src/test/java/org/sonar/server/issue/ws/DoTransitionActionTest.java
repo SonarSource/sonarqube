@@ -97,7 +97,7 @@ public class DoTransitionActionTest {
   private TransitionService transitionService = new TransitionService(userSession, workflow);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(system2, dbClient, esTester.client())), mock(NotificationManager.class));
+    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(dbClient, esTester.client())), mock(NotificationManager.class));
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter);
   private WsActionTester tester = new WsActionTester(underTest);

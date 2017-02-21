@@ -66,7 +66,7 @@ public class IssueIndexDebtTest {
 
   private System2 system2 = System2.INSTANCE;
   private IssueIndex index;
-  private IssueIndexer issueIndexer = new IssueIndexer(system2, null, tester.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(null, tester.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
   @Before

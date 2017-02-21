@@ -113,7 +113,7 @@ public class SearchProjectsActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(System2.INSTANCE, dbClient, es.client()));
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(dbClient, es.client()));
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new AuthorizationTypeSupport(userSession));
   private ProjectMeasuresQueryValidator queryValidator = new ProjectMeasuresQueryValidator(dbClient);
 

@@ -20,7 +20,6 @@
 package org.sonar.server.source.index;
 
 import com.google.common.base.Joiner;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import org.sonar.db.DbSession;
 public class FileSourcesUpdaterHelper {
 
   private static final String SQL_ALL = "SELECT %s FROM file_sources WHERE data_type='%s' ";
-  private static final String AFTER_DATE_FILTER = " AND updated_at>?";
   private static final String PROJECT_FILTER = " AND project_uuid=?";
 
   private static final String[] FIELDS = {
@@ -48,31 +46,21 @@ public class FileSourcesUpdaterHelper {
     // only static stuff
   }
 
-  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, DbSession session, String dataType, long afterDate, @Nullable String projectUuid)
+  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, DbSession session, String dataType, @Nullable String projectUuid)
     throws SQLException {
-    String sql = createSQL(dataType, afterDate, projectUuid);
+    String sql = createSQL(dataType, projectUuid);
     // rows are big, so they are scrolled once at a time (one row in memory at a time)
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSingleRowSelectStatement(session, sql);
-    int index = 1;
-    if (afterDate > 0L) {
-      stmt.setLong(index, afterDate);
-      index++;
-    }
     if (projectUuid != null) {
-      stmt.setString(index, projectUuid);
+      stmt.setString(1, projectUuid);
     }
     return stmt;
   }
 
-  private static String createSQL(String dataType, long afterDate, @Nullable String projectUuid) {
+  private static String createSQL(String dataType, @Nullable String projectUuid) {
     StringBuilder sql = new StringBuilder(String.format(SQL_ALL, FIELDS_ONE_LINE, dataType));
-    if (afterDate > 0L || projectUuid != null) {
-      if (afterDate > 0L) {
-        sql.append(AFTER_DATE_FILTER);
-      }
-      if (projectUuid != null) {
-        sql.append(PROJECT_FILTER);
-      }
+    if (projectUuid != null) {
+      sql.append(PROJECT_FILTER);
     }
     return sql.toString();
   }

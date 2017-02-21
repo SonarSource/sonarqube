@@ -86,7 +86,7 @@ public class UserUpdaterTest {
   private ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
   private Settings settings = new MapSettings();
   private DbSession session = db.getSession();
-  private UserIndexer userIndexer = new UserIndexer(system2, dbClient, es.client());
+  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation);
 

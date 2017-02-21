@@ -105,7 +105,7 @@ public class BulkChangeActionTest {
 
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private IssueStorage issueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(system2, dbClient, es.client()));
+  private IssueStorage issueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(dbClient, es.client()));
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private List<Action> actions = new ArrayList<>();
 

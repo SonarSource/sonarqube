@@ -75,7 +75,7 @@ public class CreateActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private UserIndex index = new UserIndex(esTester.client());
-  private UserIndexer userIndexer = new UserIndexer(system2, db.getDbClient(), esTester.client());
+  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), esTester.client());
   private GroupDto defaultGroupInDefaultOrg;
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
 

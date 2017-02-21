@@ -25,10 +25,8 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexTypeId;
@@ -37,20 +35,20 @@ import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
-import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
 import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
  * db table FILE_SOURCES of type TEST that are not indexed yet
  */
-public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupIndexer {
+public class TestIndexer implements ProjectIndexer, StartupIndexer {
 
   private final DbClient dbClient;
+  private final EsClient esClient;
 
-  public TestIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 0L, INDEX_TYPE_TEST, FIELD_UPDATED_AT);
+  public TestIndexer(DbClient dbClient, EsClient esClient) {
     this.dbClient = dbClient;
+    this.esClient = esClient;
   }
 
   @Override
@@ -63,7 +61,7 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
         break;
       case NEW_ANALYSIS:
         deleteProject(projectUuid);
-        super.index(lastUpdatedAt -> doIndex(lastUpdatedAt, projectUuid));
+        doIndex(projectUuid, cause);
         break;
       default:
         // defensive case
@@ -78,7 +76,7 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
 
   @Override
   public void indexOnStartup() {
-    index();
+    doIndex(null, Cause.NEW_ANALYSIS);
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
@@ -86,18 +84,13 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
     return doIndex(bulk, dbRows);
   }
 
-  @Override
-  protected long doIndex(long lastUpdatedAt) {
-    return doIndex(lastUpdatedAt, null);
-  }
-
-  private long doIndex(long lastUpdatedAt, @Nullable String projectUuid) {
+  private long doIndex(@Nullable String projectUuid, Cause cause) {
     final BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex());
-    bulk.setLarge(lastUpdatedAt == 0L);
+    bulk.setLarge(cause == Cause.NEW_ANALYSIS);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
+      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid);
       long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
       return maxUpdatedAt;

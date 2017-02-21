@@ -85,10 +85,10 @@ public abstract class IssueStorage {
     long now = system2.now();
     List<DefaultIssue> toBeUpdated = batchInsertAndReturnIssuesToUpdate(session, issues, now);
     update(toBeUpdated, now);
-    doAfterSave();
+    doAfterSave(issues);
   }
 
-  protected void doAfterSave() {
+  protected void doAfterSave(Iterable<DefaultIssue> issues) {
     // overridden on server-side to index ES
   }
 

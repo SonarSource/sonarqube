@@ -90,7 +90,7 @@ public class TestResultSetIteratorTest {
   public void traverse_db() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(3));
-    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
 
     FileSourcesUpdaterHelper.Row row = underTest.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -123,7 +123,7 @@ public class TestResultSetIteratorTest {
         .setName("N1")
         .build());
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", tests);
-    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
 
     FileSourcesUpdaterHelper.Row row = underTest.next();
 
@@ -149,19 +149,11 @@ public class TestResultSetIteratorTest {
   }
 
   @Test
-  public void filter_by_date() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 2000000000000L, null);
-
-    assertThat(underTest.hasNext()).isFalse();
-  }
-
-  @Test
   public void filter_by_project() throws Exception {
     dbTester.prepareDbUnit(getClass(), "filter_by_project.xml");
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(1));
 
-    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, "P1");
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), "P1");
 
     FileSourcesUpdaterHelper.Row row = underTest.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -172,27 +164,12 @@ public class TestResultSetIteratorTest {
   }
 
   @Test
-  public void filter_by_project_and_date() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
-    TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(1));
-
-    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1400000000000L, "P1");
-
-    FileSourcesUpdaterHelper.Row row = underTest.next();
-    assertThat(row.getProjectUuid()).isEqualTo("P1");
-    assertThat(row.getFileUuid()).isEqualTo("F1");
-
-    // File F2 is not returned
-    assertThat(underTest.hasNext()).isFalse();
-  }
-
-  @Test
   public void read_does_not_fail_if_corrupted_data() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
 
-    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
     FileSourcesUpdaterHelper.Row row = underTest.next();
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdateRequests()).isEmpty();
@@ -206,7 +183,7 @@ public class TestResultSetIteratorTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", (byte[])null);
 
-    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
 
     FileSourcesUpdaterHelper.Row row = underTest.next();
     assertThat(row.getFileUuid()).isEqualTo("F1");
