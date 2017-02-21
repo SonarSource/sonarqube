@@ -32,7 +32,6 @@ import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
@@ -128,7 +127,7 @@ public class BulkIndexer implements Startable {
     progress.start();
   }
 
-  public void add(ActionRequest request) {
+  public void add(ActionRequest<?> request) {
     bulkRequest.request().add(request);
     if (bulkRequest.request().estimatedSizeInBytes() >= flushByteSize) {
       executeBulk();
@@ -152,12 +151,12 @@ public class BulkIndexer implements Startable {
     while (true) {
       SearchHit[] hits = searchResponse.getHits().getHits();
       for (SearchHit hit : hits) {
-        DeleteRequestBuilder deleteRequestBuilder = client.prepareDelete(hit.index(), hit.type(), hit.getId());
         SearchHitField routing = hit.field("_routing");
-        if (routing != null) {
-          deleteRequestBuilder.setRouting(routing.getValue());
+        if (routing == null) {
+          addDeletion(hit.index(), hit.type(), hit.getId());
+        } else {
+          addDeletion(hit.index(), hit.type(), hit.getId(), routing.getValue());
         }
-        add(deleteRequestBuilder.request());
       }
 
       String scrollId = searchResponse.getScrollId();
@@ -167,6 +166,14 @@ public class BulkIndexer implements Startable {
         break;
       }
     }
+  }
+
+  public void addDeletion(String index, String type, String id) {
+    add(client.prepareDelete(index, type, id).request());
+  }
+
+  public void addDeletion(String index, String type, String id, String routing) {
+    add(client.prepareDelete(index, type, id).setRouting(routing).request());
   }
 
   /**

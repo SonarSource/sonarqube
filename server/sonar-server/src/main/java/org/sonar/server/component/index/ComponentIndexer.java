@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -88,7 +89,6 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       case PROJECT_CREATION:
       case PROJECT_KEY_UPDATE:
       case NEW_ANALYSIS:
-        deleteProject(projectUuid);
         doIndexByProjectUuid(projectUuid);
         break;
       default:
@@ -129,6 +129,13 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       .setQuery(boolQuery()
         .filter(
           termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid))));
+  }
+
+  public void delete(String projectUuid, Collection<String> disabledComponentUuids) {
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
+    bulk.start();
+    disabledComponentUuids.stream().forEach(uuid -> bulk.addDeletion(INDEX_COMPONENTS, TYPE_COMPONENT, uuid, projectUuid));
+    bulk.stop();
   }
 
   void index(ComponentDto... docs) {

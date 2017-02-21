@@ -19,7 +19,10 @@
  */
 package org.sonar.server.computation.dbcleaner;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
@@ -31,14 +34,19 @@ public class IndexPurgeListenerTest {
 
   TestIndexer testIndexer = mock(TestIndexer.class);
   IssueIndexer issueIndexer = mock(IssueIndexer.class);
+  ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
 
-  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer);
+  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer, componentIndexer);
 
   @Test
   public void test_onComponentDisabling() {
-    underTest.onComponentDisabling("123456");
+    String uuid = "123456";
+    String projectUuid = "P789";
+    List<String> uuids = Arrays.asList(uuid);
+    underTest.onComponentsDisabling(projectUuid, uuids);
 
-    verify(testIndexer).deleteByFile("123456");
+    verify(testIndexer).deleteByFile(uuid);
+    verify(componentIndexer).delete(projectUuid, uuids);
   }
 
   @Test
