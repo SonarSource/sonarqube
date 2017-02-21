@@ -169,6 +169,28 @@ public class IndexActionTest {
   }
 
   @Test
+  public void do_not_verify_permissions_if_user_is_root() throws Exception {
+    ComponentDto project = db.components().insertProject(p -> p.setKey("P1").setName("POne"));
+
+    String result = call(null, null, null);
+
+    userSession.setNonRoot();
+    assertThat(result).isEqualTo("[]");
+
+    userSession.setRoot();
+    result = call(null, null, null);
+    assertJson(result).isSimilarTo("[" +
+      "  {" +
+      "  \"id\":" + project.getId() + "," +
+      "  \"k\":\"P1\"," +
+      "  \"nm\":\"POne\"," +
+      "  \"sc\":\"PRJ\"," +
+      "   \"qu\":\"TRK\"" +
+      "  }" +
+      "]");
+  }
+
+  @Test
   public void test_example() {
     insertProjectsAuthorizedForUser(
       newProjectDto(db.getDefaultOrganization()).setKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
@@ -199,7 +221,6 @@ public class IndexActionTest {
   private void insertProjectsAuthorizedForUser(ComponentDto... projects) {
     db.components().insertComponents(projects);
     setBrowsePermissionOnUser(projects);
-    db.commit();
   }
 
   private void setBrowsePermissionOnUser(ComponentDto... projects) {

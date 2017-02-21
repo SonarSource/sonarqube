@@ -187,6 +187,24 @@ public class SearchActionTest {
   }
 
   @Test
+  public void do_not_verify_permissions_if_user_is_root() throws IOException {
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project1 = newProjectDto(org);
+    ComponentDto file1 = newFileDto(project1);
+    ComponentDto project2 = newProjectDto(org);
+    ComponentDto file2 = newFileDto(project2);
+    db.components().insertComponents(project1, file1, project2, file2);
+
+    SearchWsRequest request = new SearchWsRequest().setQualifiers(singletonList(FILE)).setOrganization(org.getKey());
+
+    userSession.logIn().setNonRoot();
+    assertThat(call(request).getComponentsCount()).isZero();
+
+    userSession.logIn().setRoot();
+    assertThat(call(request).getComponentsList()).extracting(Component::getKey).containsOnly(file1.getKey(), file2.getKey());
+  }
+
+  @Test
   public void fail_if_unknown_qualifier_provided() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [BRC, DIR, FIL, TRK]");
