@@ -134,7 +134,7 @@ export default class MeasureTreemap extends React.Component {
     const isFile = node.qualifier === 'FIL' || node.qualifier === 'UTS';
 
     if (isFile) {
-      Workspace.openComponent({ uuid: node.id });
+      Workspace.openComponent({ key: node.key });
       return;
     }
 

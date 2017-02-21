@@ -83,6 +83,6 @@ public class ComponentsWsTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 }

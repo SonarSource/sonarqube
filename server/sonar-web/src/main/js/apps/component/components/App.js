@@ -19,32 +19,43 @@
  */
 // @flow
 import React from 'react';
-import SourceViewer from '../../../components/source-viewer/SourceViewer';
-import { getComponentNavigation } from '../../../api/nav';
+import SourceViewer from '../../../components/SourceViewer/StandaloneSourceViewer';
 
 export default class App extends React.Component {
-  static propTypes = {
-    location: React.PropTypes.object.isRequired
-  };
-
-  state = {};
-
-  componentDidMount () {
-    getComponentNavigation(this.props.location.query.id).then(component => (
-        this.setState({ component })
-    ));
+  props: {
+    location: {
+      query: {
+        id: string,
+        line?: string
+      }
+    }
   }
 
-  render () {
-    if (!this.state.component) {
-      return null;
-    }
-
+  scrollToLine = () => {
     const { line } = this.props.location.query;
+    if (line) {
+      const row = document.querySelector(`.source-line[data-line-number="${line}"]`);
+      if (row) {
+        const rect = row.getBoundingClientRect();
+        const topOffset = window.innerHeight / 2 - 60;
+        const goal = rect.top - topOffset;
+        window.scrollTo(0, goal);
+      }
+    }
+  };
+
+  render () {
+    const { id, line } = this.props.location.query;
+
+    const finalLine = line != null ? Number(line) : null;
 
     return (
         <div className="page">
-          <SourceViewer component={{ id: this.state.component.id }} line={line}/>
+        <SourceViewer
+          aroundLine={finalLine}
+          component={id}
+          highlightedLine={finalLine}
+          onLoaded={this.scrollToLine}/>
         </div>
     );
   }

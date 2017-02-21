@@ -1,13 +1,13 @@
 <div class="bubble-popup-container">
   <div class="bubble-popup-section">
-    {{scmAuthor}}
+    {{line.scmAuthor}}
   </div>
   <div class="bubble-popup-section">
-    {{dt scmDate}}
+    {{dt line.scmDate}}
   </div>
-  {{#if scmRevision}}
+  {{#if line.scmRevision}}
     <div class="bubble-popup-section">
-      {{scmRevision}}
+      {{line.scmRevision}}
     </div>
   {{/if}}
 </div>

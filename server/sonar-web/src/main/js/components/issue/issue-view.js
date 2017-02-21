@@ -38,12 +38,13 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render',
+    'change': 'notifyAndRender',
     'transition': 'onTransition'
   },
 
   events () {
     return {
+      'click': 'handleClick',
       'click .js-issue-comment': 'onComment',
       'click .js-issue-comment-edit': 'editComment',
       'click .js-issue-comment-delete': 'deleteComment',
@@ -58,6 +59,18 @@ export default Marionette.ItemView.extend({
       'click .js-issue-edit-tags': 'editTags',
       'click .js-issue-locations': 'showLocations'
     };
+  },
+
+  notifyAndRender () {
+    const { onIssueChange } = this.options;
+    if (onIssueChange) {
+      onIssueChange(this.model.toJSON());
+    }
+
+    // if ConnectedIssue is used, this view can be destroyed just after onIssueChange()
+    if (!this.isDestroyed) {
+      this.render();
+    }
   },
 
   onRender () {
@@ -243,9 +256,25 @@ export default Marionette.ItemView.extend({
     this.model.trigger('locations', this.model);
   },
 
+  select () {
+    this.$el.addClass('selected');
+  },
+
+  unselect () {
+    this.$el.removeClass('selected');
+  },
+
   onTransition (transition) {
     if (transition === 'falsepositive' || transition === 'wontfix') {
       this.comment({ fromTransition: true });
+    }
+  },
+
+  handleClick (e) {
+    e.preventDefault();
+    const { onClick } = this.options;
+    if (onClick) {
+      onClick(this.model.get('key'));
     }
   },
 
@@ -258,4 +287,3 @@ export default Marionette.ItemView.extend({
     };
   }
 });
-

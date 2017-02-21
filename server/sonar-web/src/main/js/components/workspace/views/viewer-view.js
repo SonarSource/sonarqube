@@ -17,9 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import $ from 'jquery';
+import React from 'react';
+import { render } from 'react-dom';
 import BaseView from './base-viewer-view';
-import SourceViewer from '../../source-viewer/main';
+import SourceViewer from '../../SourceViewer/StandaloneSourceViewer';
 import Template from '../templates/workspace-viewer.hbs';
+import WithStore from '../../shared/WithStore';
 
 export default BaseView.extend({
   template: Template,
@@ -29,22 +33,39 @@ export default BaseView.extend({
     this.showViewer();
   },
 
-  showViewer () {
-    const that = this;
-    const viewer = new SourceViewer();
-    const options = this.model.toJSON();
-    viewer.open(this.model.get('uuid'), { workspace: true });
-    viewer.on('loaded', () => {
-      that.model.set({
-        name: viewer.model.get('name'),
-        q: viewer.model.get('q')
-      });
-      if (options.line != null) {
-        viewer.highlightLine(options.line);
-        viewer.scrollToLine(options.line);
+  scrollToLine (line) {
+    const row = this.$el.find(`.source-line[data-line-number="${line}"]`);
+    if (row.length > 0) {
+      const sourceViewer = this.$el.find('.source-viewer');
+      let p = sourceViewer.scrollParent();
+      if (p.is(document) || p.is('body')) {
+        p = $(window);
       }
-    });
-    this.viewerRegion.show(viewer);
+      const pTopOffset = p.offset() != null ? p.offset().top : 0;
+      const pHeight = p.height();
+      const goal = row.offset().top - pHeight / 3 - pTopOffset;
+      p.scrollTop(goal);
+    }
+  },
+
+  showViewer () {
+    const { key, line } = this.model.toJSON();
+
+    const el = document.querySelector(this.viewerRegion.el);
+
+    render((
+      <WithStore>
+        <SourceViewer
+          component={key}
+          fromWorkspace={true}
+          highlightedLine={line}
+          onLoaded={component => {
+            this.model.set({ name: component.name, q: component.q });
+            if (line) {
+              this.scrollToLine(line);
+            }
+          }}/>
+      </WithStore>
+    ), el);
   }
 });
-

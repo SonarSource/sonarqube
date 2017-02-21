@@ -34,6 +34,12 @@ export default Popup.extend({
 
   onClick (e) {
     e.stopPropagation();
+  },
+
+  serializeData () {
+    return {
+      ...Popup.prototype.serializeData.apply(this, arguments),
+      line: this.options.line
+    };
   }
 });
-
