@@ -28,10 +28,8 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -44,30 +42,25 @@ import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 
-public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
+public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
   private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
   private static final int MAX_BATCH_SIZE = 1000;
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
+  private final EsClient esClient;
 
-  public IssueIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX_TYPE_ISSUE, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+  public IssueIndexer(DbClient dbClient, EsClient esClient) {
     this.dbClient = dbClient;
+    this.esClient = esClient;
   }
 
   @Override
   public AuthorizationScope getAuthorizationScope() {
     return AUTHORIZATION_SCOPE;
-  }
-
-  @Override
-  protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(false), lastUpdatedAt, null);
   }
 
   @Override
@@ -77,11 +70,11 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
 
   @Override
   public void indexOnStartup() {
-    index();
+    doIndex(createBulkIndexer(true), (String) null);
   }
 
   public void indexAll() {
-    doIndex(createBulkIndexer(true), 0L, null);
+    doIndex(createBulkIndexer(false), (String) null);
   }
 
   @Override
@@ -93,7 +86,7 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
         // nothing to do, project key is not used in this index
         break;
       case NEW_ANALYSIS:
-        super.index(lastUpdatedAt -> doIndex(createBulkIndexer(false), lastUpdatedAt, projectUuid));
+        doIndex(createBulkIndexer(false), projectUuid);
         break;
       default:
         // defensive case
@@ -108,27 +101,21 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
     doIndex(createBulkIndexer(false), issues);
   }
 
-  private long doIndex(BulkIndexer bulk, long lastUpdatedAt, @Nullable String projectUuid) {
+  private void doIndex(BulkIndexer bulk, @Nullable String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
-      long maxDate = doIndex(bulk, rowIt);
+      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbSession, projectUuid);
+      doIndex(bulk, rowIt);
       rowIt.close();
-      return maxDate;
     }
   }
 
-  private static long doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
+  private static void doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
     bulk.start();
-    long maxDate = 0L;
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
       bulk.add(newIndexRequest(issue));
-
-      // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      maxDate = Math.max(maxDate, issue.getTechnicalUpdateDate().getTime());
     }
     bulk.stop();
-    return maxDate;
   }
 
   @Override

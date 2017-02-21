@@ -37,7 +37,7 @@ public class UserResultSetIteratorTest {
   @Test
   public void iterator_over_users() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    UserResultSetIterator it = UserResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    UserResultSetIterator it = UserResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession());
     Map<String, UserDoc> usersByLogin = Maps.uniqueIndex(it, new Function<UserDoc, String>() {
       @Override
       public String apply(UserDoc user) {
@@ -71,18 +71,5 @@ public class UserResultSetIteratorTest {
     assertThat(user3.scmAccounts()).isEmpty();
     assertThat(user3.createdAt()).isEqualTo(1500000000000L);
     assertThat(user3.updatedAt()).isEqualTo(1550000000000L);
-  }
-
-  @Test
-  public void select_after_date() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    UserResultSetIterator it = UserResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1520000000000L);
-
-    assertThat(it.hasNext()).isTrue();
-    UserDoc user = it.next();
-    assertThat(user.login()).isEqualTo("user3");
-
-    assertThat(it.hasNext()).isFalse();
-    it.close();
   }
 }

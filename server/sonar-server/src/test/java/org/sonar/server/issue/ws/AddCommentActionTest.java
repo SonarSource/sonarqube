@@ -86,7 +86,7 @@ public class AddCommentActionTest {
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
 
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(system2, dbClient, esTester.client())), mock(NotificationManager.class));
+    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(dbClient, esTester.client())), mock(NotificationManager.class));
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
 
   private WsActionTester tester = new WsActionTester(

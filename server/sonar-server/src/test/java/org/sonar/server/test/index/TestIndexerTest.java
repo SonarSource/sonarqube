@@ -67,12 +67,12 @@ public class TestIndexerTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private TestIndexer underTest = new TestIndexer(system2, db.getDbClient(), es.client());
+  private TestIndexer underTest = new TestIndexer(db.getDbClient(), es.client());
 
   @Test
   public void index_on_startup() {
     TestIndexer indexer = spy(underTest);
-    doNothing().when(indexer).index();
+    doNothing().when(indexer).indexOnStartup();
     indexer.indexOnStartup();
     verify(indexer).indexOnStartup();
   }
@@ -82,7 +82,7 @@ public class TestIndexerTest {
     db.prepareDbUnit(getClass(), "db.xml");
     TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
-    underTest.index();
+    underTest.indexOnStartup();
 
     assertThat(countDocuments()).isEqualTo(3);
   }

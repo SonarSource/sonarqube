@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -76,7 +75,7 @@ public class ListActionTest {
   private DbClient dbClient = db.getDbClient();
 
   private TestIndex testIndex = new TestIndex(es.client());
-  private TestIndexer testIndexer = new TestIndexer(System2.INSTANCE, db.getDbClient(), es.client());
+  private TestIndexer testIndexer = new TestIndexer(db.getDbClient(), es.client());
 
   private ComponentDto project;
   private ComponentDto mainFile;
@@ -286,7 +285,7 @@ public class ListActionTest {
       .setFileUuid(testFile.uuid())
       .setTestData(asList(tests)));
     db.commit();
-    testIndexer.index();
+    testIndexer.indexOnStartup();
   }
 
   private static ListResponse call(TestRequest request) {

@@ -74,7 +74,7 @@ public class UpdateActionTest {
     dbClient.groupDao().insert(session, newGroupDto().setName("sonar-users"));
     session.commit();
 
-    userIndexer = new UserIndexer(system2, dbClient, esTester.client());
+    userIndexer = new UserIndexer(dbClient, esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE),
       userSessionRule,

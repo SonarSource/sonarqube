@@ -26,12 +26,10 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
-import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexTypeId;
@@ -40,18 +38,18 @@ import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
-public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
+public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
+  private final EsClient esClient;
 
-  public ProjectMeasuresIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX_TYPE_PROJECT_MEASURES, FIELD_ANALYSED_AT);
+  public ProjectMeasuresIndexer(DbClient dbClient, EsClient esClient) {
     this.dbClient = dbClient;
+    this.esClient = esClient;
   }
 
   @Override
@@ -61,17 +59,12 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
 
   @Override
   public void indexOnStartup() {
-    index();
+    doIndex(createBulkIndexer(false), (String) null);
   }
 
   @Override
   public AuthorizationScope getAuthorizationScope() {
     return AUTHORIZATION_SCOPE;
-  }
-
-  @Override
-  protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(false), lastUpdatedAt, null);
   }
 
   @Override

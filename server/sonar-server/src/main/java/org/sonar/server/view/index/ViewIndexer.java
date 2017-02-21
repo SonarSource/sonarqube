@@ -24,12 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.UuidWithProjectUuidDto;
-import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexTypeId;
@@ -38,13 +36,14 @@ import org.sonar.server.es.StartupIndexer;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 
-public class ViewIndexer extends BaseIndexer implements StartupIndexer {
+public class ViewIndexer implements StartupIndexer {
 
   private final DbClient dbClient;
+  private final EsClient esClient;
 
-  public ViewIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, ViewIndexDefinition.INDEX_TYPE_VIEW, "updatedAt");
+  public ViewIndexer(DbClient dbClient, EsClient esClient) {
     this.dbClient = dbClient;
+    this.esClient = esClient;
   }
 
   @Override
@@ -53,34 +52,14 @@ public class ViewIndexer extends BaseIndexer implements StartupIndexer {
   }
 
   @Override
-  public void indexOnStartup() {
-    index();
-  }
-
-  /**
-   * Index all views if the index is empty (Only used on startup).
-   * It's currently not possible to index only data from db that are not existing in the index because we have no way to last when the structure of a view is changed :
-   * - Either the definition has changed -> No updated at column in the projects table,
-   * - Either the view is defined by a regex -> A new analysed project automatically steps into the view.
-   * <p/>
-   * The views lookup cache will not be cleared
-   */
-  @Override
-  protected long doIndex(long lastUpdatedAt) {
-    long count = esClient.prepareCount(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex()).setTypes(ViewIndexDefinition.INDEX_TYPE_VIEW.getType()).get().getCount();
-    if (count == 0) {
-      DbSession dbSession = dbClient.openSession(false);
-      try {
-        Map<String, String> viewAndProjectViewUuidMap = newHashMap();
-        for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
-          viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
-        }
-        index(dbSession, viewAndProjectViewUuidMap, false);
-      } finally {
-        dbSession.close();
+  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<String, String> viewAndProjectViewUuidMap = newHashMap();
+      for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
+        viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
       }
+      index(dbSession, viewAndProjectViewUuidMap, false);
     }
-    return 0L;
   }
 
   /**

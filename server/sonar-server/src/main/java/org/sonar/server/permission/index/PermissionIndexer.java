@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,7 +35,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.Collectors;
@@ -45,9 +45,11 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.StartupIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.sonar.core.util.stream.Collectors.toSet;
 
 /**
  * Manages the synchronization of indexes with authorization settings defined in database:
@@ -56,7 +58,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
  *   <li>delete project orphans from index</li>
  * </ul>
  */
-public class PermissionIndexer implements ProjectIndexer, Startable {
+public class PermissionIndexer implements ProjectIndexer, Startable, StartupIndexer {
 
   @VisibleForTesting
   static final int MAX_BATCH_SIZE = 1000;
@@ -82,32 +84,28 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
     this.authorizationScopes = authorizationScopes;
   }
 
-  public void initializeOnStartup() {
-    LOG.info("Index authorization");
-    indexAllIfEmpty();
+  @Override
+  public Set<IndexTypeId> getIndexTypes() {
+    return authorizationScopes.stream()
+      .map(AuthorizationScope::getIndexType)
+      .collect(toSet(authorizationScopes.size()));
   }
 
-  public void indexAllIfEmpty() {
-    boolean isEmpty = false;
-    for (AuthorizationScope scope : authorizationScopes) {
-      isEmpty |= isAuthorizationTypeEmpty(scope.getIndexType());
-    }
+  @Override
+  public void indexOnStartup() {
+    Future<?> submit = executor.submit(() -> {
+      authorizationScopes.stream()
+        .map(AuthorizationScope::getIndexType)
+        .forEach(this::truncateAuthorizationType);
 
-    if (isEmpty) {
-      Future<?> submit = executor.submit(() -> {
-        authorizationScopes.stream()
-          .map(AuthorizationScope::getIndexType)
-          .forEach(this::truncateAuthorizationType);
-
-        try (DbSession dbSession = dbClient.openSession(false)) {
-          index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
-        }
-      });
-      try {
-        Uninterruptibles.getUninterruptibly(submit);
-      } catch (ExecutionException e) {
-        Throwables.propagate(e);
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
       }
+    });
+    try {
+      Uninterruptibles.getUninterruptibly(submit);
+    } catch (ExecutionException e) {
+      Throwables.propagate(e);
     }
   }
 
@@ -141,11 +139,6 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
       .setRouting(projectUuid)
       .setRefresh(true)
       .get());
-  }
-
-  private boolean isAuthorizationTypeEmpty(IndexTypeId indexType) {
-    SearchResponse response = esClient.prepareSearch(indexType).setSize(0).get();
-    return response.getHits().getTotalHits() == 0;
   }
 
   private void truncateAuthorizationType(IndexTypeId indexType) {

@@ -60,8 +60,8 @@ public class ServerIssueStorage extends IssueStorage {
   }
 
   @Override
-  protected void doAfterSave() {
-    indexer.index();
+  protected void doAfterSave(Iterable<DefaultIssue> issues) {
+    indexer.index(issues);
   }
 
   protected ComponentDto component(DbSession session, DefaultIssue issue) {

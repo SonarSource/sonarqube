@@ -106,22 +106,6 @@ public class RuleResultSetIteratorTest {
   }
 
   @Test
-  public void select_after_date() {
-    dbClient.ruleDao().insert(dbSession, templateRule);
-    dbClient.ruleDao().insert(dbSession, customRule);
-    dbSession.commit();
-
-    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_900_000_000_000L);
-
-    assertThat(it.hasNext()).isTrue();
-    RuleDoc issue = it.next();
-    assertThat(issue.key()).isEqualTo(RuleKey.of("xoo", "S002"));
-
-    assertThat(it.hasNext()).isFalse();
-    it.close();
-  }
-
-  @Test
   public void iterator_over_rules() {
     dbClient.ruleDao().insert(dbSession, templateRule);
     dbClient.ruleDao().insert(dbSession, customRule);

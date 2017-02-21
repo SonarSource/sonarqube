@@ -76,7 +76,7 @@ public class IssuesActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private IssueIndexer issueIndexer = new IssueIndexer(system2, db.getDbClient(), es.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(db.getDbClient(), es.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
   private ServerFileSystem fs = mock(ServerFileSystem.class);
   private WsTester tester;

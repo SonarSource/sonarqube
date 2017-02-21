@@ -205,11 +205,11 @@ public class EsClient implements Closeable {
   /**
    * Checks whether there is any document in any mentioned type.
    */
-  public boolean isEmpty(IndexTypeId... indexType) {
+  public boolean isEmpty(IndexTypeId indexType) {
     return count(indexType) <= 0;
   }
 
-  private long count(IndexTypeId... indexType) {
+  private long count(IndexTypeId indexType) {
     return prepareSearch(indexType).setSize(0).get().getHits().getTotalHits();
   }
 

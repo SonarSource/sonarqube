@@ -23,10 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
 import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexTypeId;
@@ -34,13 +32,14 @@ import org.sonar.server.es.StartupIndexer;
 
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
-public class UserIndexer extends BaseIndexer implements StartupIndexer {
+public class UserIndexer implements StartupIndexer {
 
   private final DbClient dbClient;
+  private final EsClient esClient;
 
-  public UserIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, UserIndexDefinition.INDEX_TYPE_USER, UserIndexDefinition.FIELD_UPDATED_AT);
+  public UserIndexer(DbClient dbClient, EsClient esClient) {
     this.dbClient = dbClient;
+    this.esClient = esClient;
   }
 
   @Override
@@ -53,17 +52,15 @@ public class UserIndexer extends BaseIndexer implements StartupIndexer {
     index();
   }
 
-  @Override
-  protected long doIndex(long lastUpdatedAt) {
+  public void index() {
     final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
-    bulk.setLarge(lastUpdatedAt == 0L);
+    bulk.setLarge(true);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
-      long maxUpdatedAt = doIndex(bulk, rowIt);
+      UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession);
+      doIndex(bulk, rowIt);
       rowIt.close();
-      return maxUpdatedAt;
     } finally {
       dbSession.close();
     }

@@ -57,7 +57,7 @@ public class ChangePasswordActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
   private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), new MapSettings(), db.getDbClient(),
-    new UserIndexer(System2.INSTANCE, db.getDbClient(), esTester.client()),
+    new UserIndexer(db.getDbClient(), esTester.client()),
     System2.INSTANCE,
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationCreation.class));

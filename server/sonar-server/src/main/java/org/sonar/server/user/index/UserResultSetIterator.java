@@ -47,19 +47,13 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from users u ";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " where u.updated_at>?";
-
   private UserResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
   }
 
-  static UserResultSetIterator create(DbClient dbClient, DbSession session, long afterDate) {
+  static UserResultSetIterator create(DbClient dbClient, DbSession session) {
     try {
-      String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
-      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
-      if (afterDate > 0L) {
-        stmt.setLong(1, afterDate);
-      }
+      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, SQL_ALL);
       return new UserResultSetIterator(stmt);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all users", e);

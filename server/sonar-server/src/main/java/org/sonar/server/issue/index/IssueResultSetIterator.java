@@ -88,8 +88,6 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "inner join projects p on p.uuid=i.component_uuid " +
     "inner join projects root on root.uuid=i.project_uuid";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " where i.updated_at>?";
-
   private static final String PROJECT_FILTER = " AND root.uuid=?";
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
@@ -100,18 +98,13 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     super(stmt);
   }
 
-  static IssueResultSetIterator create(DbClient dbClient, DbSession session, long afterDate, @Nullable String projectUuid) {
+  static IssueResultSetIterator create(DbClient dbClient, DbSession session, @Nullable String projectUuid) {
     try {
-      String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
+      String sql = SQL_ALL;
       sql += projectUuid == null ? "" : PROJECT_FILTER;
       PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
-      int index = 1;
-      if (afterDate > 0L) {
-        stmt.setLong(index, afterDate);
-        index++;
-      }
       if (projectUuid != null) {
-        stmt.setString(index, projectUuid);
+        stmt.setString(1, projectUuid);
       }
       return new IssueResultSetIterator(stmt);
     } catch (SQLException e) {

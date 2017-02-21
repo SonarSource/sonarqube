@@ -85,8 +85,8 @@ public class IssueIndexTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndex underTest;
-  private IssueIndexer issueIndexer = new IssueIndexer(system2, null, tester.client());
-  private ViewIndexer viewIndexer = new ViewIndexer(system2, null, tester.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(tester.client(), new IssueIteratorFactory(null));
+  private ViewIndexer viewIndexer = new ViewIndexer(null, tester.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
   @Before

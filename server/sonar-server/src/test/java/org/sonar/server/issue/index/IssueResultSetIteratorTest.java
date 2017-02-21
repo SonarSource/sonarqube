@@ -39,7 +39,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void iterator_over_one_issue() {
     dbTester.prepareDbUnit(getClass(), "one_issue.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -72,7 +72,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void iterator_over_issues() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -134,7 +134,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void iterator_over_issue_from_project() {
     dbTester.prepareDbUnit(getClass(), "many_projects.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, "THE_PROJECT_1");
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), "THE_PROJECT_1");
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -142,19 +142,9 @@ public class IssueResultSetIteratorTest {
   }
 
   @Test
-  public void iterator_over_issue_from_project_and_date() {
-    dbTester.prepareDbUnit(getClass(), "many_projects.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_600_000_000_000L, "THE_PROJECT_1");
-    Map<String, IssueDoc> issuesByKey = issuesByKey(it);
-    it.close();
-
-    assertThat(issuesByKey).hasSize(1);
-  }
-
-  @Test
   public void extract_directory_path() {
     dbTester.prepareDbUnit(getClass(), "extract_directory_path.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -176,7 +166,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void extract_file_path() {
     dbTester.prepareDbUnit(getClass(), "extract_file_path.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -193,19 +183,6 @@ public class IssueResultSetIteratorTest {
 
     // Project
     assertThat(issuesByKey.get("FGH").filePath()).isNull();
-  }
-
-  @Test
-  public void select_after_date() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_420_000_000_000L, null);
-
-    assertThat(it.hasNext()).isTrue();
-    IssueDoc issue = it.next();
-    assertThat(issue.key()).isEqualTo("DEF");
-
-    assertThat(it.hasNext()).isFalse();
-    it.close();
   }
 
   private static Map<String, IssueDoc> issuesByKey(IssueResultSetIterator it) {
