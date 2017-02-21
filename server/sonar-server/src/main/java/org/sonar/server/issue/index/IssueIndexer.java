@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.purge.IssueRemovedListener;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
@@ -44,7 +45,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECH
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
-public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
+public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, IssueRemovedListener {
 
   private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
   private static final int MAX_BATCH_SIZE = 1000;
@@ -165,5 +166,10 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
       .routing(projectUuid)
       .parent(projectUuid)
       .source(issue.getFields());
+  }
+
+  @Override
+  public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
+    deleteByKeys(projectUuid, issueKeys);
   }
 }

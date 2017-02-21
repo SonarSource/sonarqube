@@ -64,7 +64,7 @@ public class PurgeDaoTest {
   public void shouldDeleteAbortedBuilds() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteAbortedBuilds.xml");
 
-    underTest.purge(dbSession, newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(), IGNORE_PURGE.LISTENER, IGNORE_PURGE.LISTENER, new PurgeProfiler());
     dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "shouldDeleteAbortedBuilds-result.xml", "snapshots");
@@ -73,7 +73,7 @@ public class PurgeDaoTest {
   @Test
   public void should_purge_project() {
     dbTester.prepareDbUnit(getClass(), "shouldPurgeProject.xml");
-    underTest.purge(dbSession, newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(), IGNORE_PURGE.LISTENER, IGNORE_PURGE.LISTENER, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "shouldPurgeProject-result.xml", "projects", "snapshots");
   }
@@ -84,7 +84,7 @@ public class PurgeDaoTest {
     PurgeConfiguration conf = new PurgeConfiguration(
       new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[]{Scopes.DIRECTORY, Scopes.FILE}, 30, System2.INSTANCE, Collections.emptyList());
 
-    underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, conf, IGNORE_PURGE.LISTENER, IGNORE_PURGE.LISTENER, new PurgeProfiler());
     dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles-result.xml", "projects", "snapshots");
@@ -94,7 +94,7 @@ public class PurgeDaoTest {
   public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
     dbTester.prepareDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components.xml");
     when(system2.now()).thenReturn(1450000000000L);
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, "P1", "EFGH", "GHIJ"), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, "P1", "EFGH", "GHIJ"), IGNORE_PURGE.LISTENER, IGNORE_PURGE.LISTENER, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components-result.xml",
       new String[] {"issue_close_date", "issue_update_date"},
@@ -186,15 +186,15 @@ public class PurgeDaoTest {
 
   @Test
   public void should_delete_old_closed_issues() {
-    PurgeListener purgeListener = mock(PurgeListener.class);
+    IssueRemovedListener purgeListener = mock(IssueRemovedListener.class);
     dbTester.prepareDbUnit(getClass(), "should_delete_old_closed_issues.xml");
 
-    underTest.purge(dbSession, newConfigurationWith30Days(), purgeListener, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(), IGNORE_PURGE.LISTENER, purgeListener, new PurgeProfiler());
     dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "should_delete_old_closed_issues-result.xml", "issues", "issue_changes");
 
-    Class<ArrayList<String>> listClass = (Class<ArrayList<String>>) (Class) ArrayList.class;
+    Class<ArrayList<String>> listClass = (Class) ArrayList.class;
     ArgumentCaptor<ArrayList<String>> issueKeys = ArgumentCaptor.forClass(listClass);
     ArgumentCaptor<String> projectUuid = ArgumentCaptor.forClass(String.class);
 
@@ -207,7 +207,7 @@ public class PurgeDaoTest {
   public void should_delete_all_closed_issues() {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
     PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0], 0, System2.INSTANCE, Collections.emptyList());
-    underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, conf, IGNORE_PURGE.LISTENER, IGNORE_PURGE.LISTENER, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
   }
@@ -254,4 +254,15 @@ public class PurgeDaoTest {
     return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, system2, Arrays.asList(disabledComponentUuids));
   }
 
+  private enum IGNORE_PURGE implements ComponentDisabledListener, IssueRemovedListener {
+    LISTENER;
+
+    @Override
+    public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
+    }
+
+    @Override
+    public void onComponentDisabling(String uuid) {
+    }
+  };
 }

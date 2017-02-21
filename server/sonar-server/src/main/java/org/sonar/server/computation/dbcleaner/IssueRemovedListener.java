@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,32 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.dbcleaner;
 
-import java.util.List;
 import org.sonar.api.server.ServerSide;
-import org.sonar.db.purge.PurgeListener;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
-public class IndexPurgeListener implements PurgeListener {
-  private final TestIndexer testIndexer;
-  private final IssueIndexer issueIndexer;
-
-  public IndexPurgeListener(TestIndexer testIndexer, IssueIndexer issueIndexer) {
-    this.testIndexer = testIndexer;
-    this.issueIndexer = issueIndexer;
-  }
-
-  @Override
-  public void onComponentDisabling(String uuid) {
-    testIndexer.deleteByFile(uuid);
-  }
-
-  @Override
-  public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
-    issueIndexer.deleteByKeys(projectUuid, issueKeys);
-  }
+public interface IssueRemovedListener {
 
 }
