@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
@@ -45,6 +44,7 @@ import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -89,7 +89,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, dev);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, view);
     // global permission
-    db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(user1, ADMINISTER);
 
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();

@@ -51,6 +51,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -168,7 +169,7 @@ public class DeactivateActionTest {
   @Test
   public void fail_to_deactivate_last_administrator_of_default_organization() throws Exception {
     UserDto admin = createUser();
-    db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(admin, ADMINISTER);
     logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
@@ -202,8 +203,8 @@ public class DeactivateActionTest {
   public void administrators_can_be_deactivated_if_there_are_still_other_administrators() throws Exception {
     UserDto admin = createUser();
     UserDto anotherAdmin = createUser();
-    db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
-    db.users().insertPermissionOnUser(anotherAdmin, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(admin, ADMINISTER);
+    db.users().insertPermissionOnUser(anotherAdmin, ADMINISTER);
     db.commit();
     logInAsSystemAdministrator();
 

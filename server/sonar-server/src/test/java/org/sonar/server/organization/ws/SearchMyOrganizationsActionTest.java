@@ -19,14 +19,15 @@
  */
 package org.sonar.server.organization.ws;
 
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.tester.UserSessionRule;
@@ -35,6 +36,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchMyOrganizationsActionTest {
@@ -125,16 +127,16 @@ public class SearchMyOrganizationsActionTest {
   public void returns_organizations_of_authenticated_user_when_user_has_ADMIN_group_permission_on_some_organization() {
     UserDto user = dbTester.users().insertUser();
     GroupDto defaultGroup = dbTester.users().insertGroup(dbTester.getDefaultOrganization());
-    dbTester.users().insertPermissionOnGroup(defaultGroup, SYSTEM_ADMIN);
+    dbTester.users().insertPermissionOnGroup(defaultGroup, ADMINISTER);
     dbTester.users().insertMember(defaultGroup, user);
     OrganizationDto organization1 = dbTester.organizations().insert();
     GroupDto group1 = dbTester.users().insertGroup(organization1);
-    dbTester.users().insertPermissionOnGroup(group1, SYSTEM_ADMIN);
+    dbTester.users().insertPermissionOnGroup(group1, ADMINISTER);
     dbTester.users().insertMember(group1, user);
     UserDto otherUser = dbTester.users().insertUser();
     OrganizationDto organization2 = dbTester.organizations().insert();
     GroupDto group2 = dbTester.users().insertGroup(organization2);
-    dbTester.users().insertPermissionOnGroup(group2, SYSTEM_ADMIN);
+    dbTester.users().insertPermissionOnGroup(group2, ADMINISTER);
     dbTester.users().insertMember(group2, otherUser);
 
     userSessionRule.logIn(user);
@@ -159,8 +161,8 @@ public class SearchMyOrganizationsActionTest {
     OrganizationDto organization2 = dbTester.organizations().insert();
     GroupDto group = dbTester.users().insertGroup(organization2);
     dbTester.users().insertMember(group, user);
-    GlobalPermissions.ALL.stream()
-      .filter(s -> !s.equals(SYSTEM_ADMIN))
+    Arrays.stream(OrganizationPermission.values())
+      .filter(s -> s != ADMINISTER)
       .forEach(s -> {
         dbTester.users().insertPermissionOnUser(organization1, user, s);
         dbTester.users().insertPermissionOnGroup(group, s);
@@ -175,7 +177,7 @@ public class SearchMyOrganizationsActionTest {
     UserDto user = dbTester.users().insertUser();
     OrganizationDto organization = dbTester.organizations().insert();
     GroupDto group1 = dbTester.users().insertGroup(organization);
-    dbTester.users().insertPermissionOnGroup(group1, SYSTEM_ADMIN);
+    dbTester.users().insertPermissionOnGroup(group1, ADMINISTER);
     dbTester.users().insertPermissionOnUser(organization, user, SYSTEM_ADMIN);
 
     userSessionRule.logIn(user);

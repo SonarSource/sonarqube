@@ -39,6 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class AuthorizationDaoTest {
 
@@ -432,7 +434,7 @@ public class AuthorizationDaoTest {
   @Test
   public void selectOrganizationUuidsOfUserWithGlobalPermission_returns_empty_set_if_user_does_not_exist() {
     // another user
-    db.users().insertPermissionOnUser(user, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_GATES);
 
     Set<String> orgUuids = underTest.selectOrganizationUuidsOfUserWithGlobalPermission(dbSession, MISSING_ID, SYSTEM_ADMIN);
 
@@ -441,7 +443,7 @@ public class AuthorizationDaoTest {
 
   @Test
   public void selectOrganizationUuidsOfUserWithGlobalPermission_returns_empty_set_if_user_does_not_have_permission_at_all() {
-    db.users().insertPermissionOnUser(user, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_GATES);
     // user is not part of this group
     db.users().insertPermissionOnGroup(group1, SCAN_EXECUTION);
 
@@ -486,10 +488,10 @@ public class AuthorizationDaoTest {
 
   @Test
   public void selectOrganizationUuidsOfUserWithGlobalPermission_ignores_anonymous_permissions() {
-    db.users().insertPermissionOnAnyone(org, SCAN_EXECUTION);
-    db.users().insertPermissionOnUser(org, user, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnAnyone(org, SCAN);
+    db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_GATES);
 
-    Set<String> orgUuids = underTest.selectOrganizationUuidsOfUserWithGlobalPermission(dbSession, user.getId(), SCAN_EXECUTION);
+    Set<String> orgUuids = underTest.selectOrganizationUuidsOfUserWithGlobalPermission(dbSession, user.getId(), SCAN.getKey());
 
     assertThat(orgUuids).isEmpty();
   }

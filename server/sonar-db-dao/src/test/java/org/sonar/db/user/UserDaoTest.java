@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -390,7 +391,7 @@ public class UserDaoTest {
   public void deactivate_user() throws Exception {
     UserDto user = newActiveUser();
     PropertyDto property = insertProperty(user);
-    db.users().insertPermissionOnUser(user, "perm");
+    db.users().insertPermissionOnUser(user, ADMINISTER);
     insertUserGroup(user);
 
     UserDto otherUser = newActiveUser();
