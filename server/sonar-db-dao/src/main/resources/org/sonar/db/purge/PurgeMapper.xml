@@ -298,7 +298,11 @@
   </delete>
 
   <delete id="deleteCeActivityByProjectUuid">
-      delete from ce_activity where component_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
+      delete from ce_activity where component_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteCeQueueByProjectUuid">
+    delete from ce_queue where component_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteWebhookDeliveriesByProjectUuid">

@@ -144,14 +144,31 @@ public class PurgeDaoTest {
     dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
 
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and on on another project
-    insertCeActivity(projectToBeDeleted.uuid());
-    insertCeActivity(anotherLivingProject.uuid());
+    insertCeActivity(projectToBeDeleted);
+    insertCeActivity(anotherLivingProject);
     dbSession.commit();
 
     underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("ce_activity")).isEqualTo(1);
+  }
+
+  @Test
+  public void delete_tasks_in_ce_queue_when_deleting_project() {
+    ComponentDto projectToBeDeleted = dbTester.components().insertProject();
+    ComponentDto anotherLivingProject = dbTester.components().insertProject();
+
+    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and on on another project
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject));
+    dbSession.commit();
+
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    dbSession.commit();
+
+    assertThat(dbTester.countRowsOfTable("ce_queue")).isEqualTo(1);
+    assertThat(dbTester.countSql("select count(*) from ce_queue where component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
   }
 
   @Test
@@ -222,13 +239,19 @@ public class PurgeDaoTest {
     assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2");
   }
 
-  private CeActivityDto insertCeActivity(String componentUuid) {
+  private CeQueueDto createCeQueue(ComponentDto component) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(Uuids.create());
     queueDto.setTaskType(REPORT);
-    queueDto.setComponentUuid(componentUuid);
+    queueDto.setComponentUuid(component.uuid());
     queueDto.setSubmitterLogin("henri");
     queueDto.setCreatedAt(1_300_000_000_000L);
+    queueDto.setStatus(CeQueueDto.Status.PENDING);
+    return queueDto;
+  }
+
+  private CeActivityDto insertCeActivity(ComponentDto component) {
+    CeQueueDto queueDto = createCeQueue(component);
 
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);
