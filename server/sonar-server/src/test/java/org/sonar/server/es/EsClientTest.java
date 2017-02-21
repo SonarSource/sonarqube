@@ -40,11 +40,12 @@ import org.sonar.server.es.request.ProxySearchRequestBuilder;
 import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 
 public class EsClientTest {
 
   @Rule
-  public EsTester es = new EsTester();
+  public EsTester es = new EsTester(new FakeIndexDefinition());
 
   @Test
   public void proxify_requests() {
@@ -70,5 +71,16 @@ public class EsClientTest {
     assertThat(underTest.prepareStats()).isInstanceOf(ProxyIndicesStatsRequestBuilder.class);
 
     underTest.close();
+  }
+
+  @Test
+  public void isEmpty_should_return_true_if_index_is_empty() {
+    assertThat(es.client().isEmpty(INDEX_TYPE_FAKE)).isTrue();
+  }
+
+  @Test
+  public void isEmpty_should_return_false_if_index_is_not_empty() {
+    es.putDocuments(INDEX_TYPE_FAKE, new FakeDoc());
+    assertThat(es.client().isEmpty(INDEX_TYPE_FAKE)).isFalse();
   }
 }

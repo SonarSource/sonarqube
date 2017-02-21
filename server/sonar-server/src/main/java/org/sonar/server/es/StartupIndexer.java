@@ -19,12 +19,19 @@
  */
 package org.sonar.server.es;
 
+import java.util.Set;
+
 /**
  * This kind of indexers get initialized during web server startup.
  */
-@FunctionalInterface
 public interface StartupIndexer {
 
+  /**
+   * This reindexing method will only be called on startup, and only,
+   * if at least one of the types returned by {@link #getIndexTypes()} is empty.
+   */
   void indexOnStartup();
+
+  Set<IndexTypeId> getIndexTypes();
 
 }

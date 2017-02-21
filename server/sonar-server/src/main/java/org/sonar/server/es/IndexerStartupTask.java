@@ -25,21 +25,29 @@ import static java.util.Arrays.stream;
 
 public class IndexerStartupTask {
 
-  private final StartupIndexer[] indexers;
+  private final EsClient esClient;
   private final Settings settings;
+  private final StartupIndexer[] indexers;
 
-  public IndexerStartupTask(Settings settings, StartupIndexer... indexers) {
-    this.indexers = indexers;
+  public IndexerStartupTask(EsClient esClient, Settings settings, StartupIndexer... indexers) {
+    this.esClient = esClient;
     this.settings = settings;
+    this.indexers = indexers;
   }
 
   public void execute() {
     if (indexesAreEnabled()) {
-      stream(indexers).forEach(StartupIndexer::indexOnStartup);
+      stream(indexers)
+        .filter(this::doesIndexContainAtLeastOneEmptyType)
+        .forEach(StartupIndexer::indexOnStartup);
     }
   }
 
   private boolean indexesAreEnabled() {
     return !settings.getBoolean("sonar.internal.es.disableIndexes");
+  }
+
+  private boolean doesIndexContainAtLeastOneEmptyType(StartupIndexer indexer) {
+    return indexer.getIndexTypes().stream().filter(esClient::isEmpty).findAny().isPresent();
   }
 }

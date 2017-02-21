@@ -19,7 +19,9 @@
  */
 package org.sonar.server.test.index;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -31,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
@@ -69,6 +72,11 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
         // defensive case
         throw new IllegalStateException("Unsupported cause: " + cause);
     }
+  }
+
+  @Override
+  public Set<IndexTypeId> getIndexTypes() {
+    return ImmutableSet.of(INDEX_TYPE_TEST);
   }
 
   @Override
