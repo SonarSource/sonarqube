@@ -35,7 +35,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class DeleteAction implements OrganizationsAction {

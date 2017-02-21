@@ -42,7 +42,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.server.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class ProjectDataLoaderTest {
   @Rule

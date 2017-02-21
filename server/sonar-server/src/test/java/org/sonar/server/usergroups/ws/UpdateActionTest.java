@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class UpdateActionTest {
 

@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 public class AppAction implements RulesWsAction {

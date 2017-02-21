@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleTesting.newXooX1;
 import static org.sonar.db.rule.RuleTesting.newXooX2;
 import static org.sonar.db.rule.RuleTesting.newXooX3;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 

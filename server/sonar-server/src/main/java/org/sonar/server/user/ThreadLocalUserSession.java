@@ -25,7 +25,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 
 /**
  * Part of the current HTTP session

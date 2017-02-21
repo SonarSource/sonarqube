@@ -26,7 +26,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.PropertyType.LICENSE;

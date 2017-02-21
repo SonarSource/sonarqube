@@ -39,7 +39,7 @@ import org.sonarqube.ws.WsUserGroups;
 
 import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;

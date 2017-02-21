@@ -23,7 +23,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 @ServerSide
 public class RuleWsSupport {

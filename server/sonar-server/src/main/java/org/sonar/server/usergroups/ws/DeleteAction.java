@@ -30,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;

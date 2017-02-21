@@ -32,7 +32,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class BulkDeleteAction implements ProjectsWsAction {

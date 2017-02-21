@@ -40,7 +40,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 
 public class SearchAction implements UserGroupsWsAction {

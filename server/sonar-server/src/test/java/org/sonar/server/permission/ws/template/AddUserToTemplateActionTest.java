@@ -36,7 +36,7 @@ import org.sonar.server.ws.TestRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;

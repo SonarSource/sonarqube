@@ -21,6 +21,7 @@ package org.sonar.server.permission;
 
 import java.util.Optional;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;

@@ -44,7 +44,7 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.JSON;
 

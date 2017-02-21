@@ -46,7 +46,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTemplatesAction> {

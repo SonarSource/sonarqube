@@ -38,7 +38,7 @@ import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;

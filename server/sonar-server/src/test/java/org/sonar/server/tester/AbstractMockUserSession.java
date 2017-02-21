@@ -23,7 +23,7 @@ import com.google.common.collect.HashMultimap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;

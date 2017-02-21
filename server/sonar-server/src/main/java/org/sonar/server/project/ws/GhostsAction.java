@@ -39,7 +39,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class GhostsAction implements ProjectsWsAction {

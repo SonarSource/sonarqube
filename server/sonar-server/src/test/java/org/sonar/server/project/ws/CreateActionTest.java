@@ -53,7 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;

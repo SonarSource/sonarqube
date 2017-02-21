@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 
 /**
  * Allow code to be executed with the highest privileges possible, as if executed by a {@link OrganizationPermission#ADMINISTER} account.

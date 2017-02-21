@@ -43,7 +43,7 @@ import org.sonarqube.ws.WsCe;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TaskActionTest {

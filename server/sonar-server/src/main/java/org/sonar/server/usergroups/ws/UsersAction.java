@@ -33,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.utils.Paging.forPageIndex;

@@ -31,7 +31,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 @ServerSide
 public class QProfileService {

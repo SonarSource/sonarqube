@@ -36,7 +36,7 @@ import org.sonarqube.ws.client.project.CreateRequest;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
-import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;

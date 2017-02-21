@@ -57,8 +57,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
-import static org.sonar.server.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class ReportSubmitterTest {
 
