@@ -84,7 +84,9 @@ public interface PurgeMapper {
 
   void deleteFileSourcesByUuid(@Param("fileUuids") List<String> fileUuids);
 
-  void deleteCeActivityByProjectUuid(String projectUuid);
+  void deleteCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteWebhookDeliveriesByProjectUuid(@Param("projectUuid") String projectUuid);
 }

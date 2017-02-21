@@ -206,6 +206,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteCeQueue(String rootUuid) {
+    profiler.start("deleteCeQueue (ce_queue)");
+    purgeMapper.deleteCeQueueByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   public void deleteWebhookDeliveries(String rootUuid) {
     profiler.start("deleteWebhookDeliveries (webhook_deliveries)");
     purgeMapper.deleteWebhookDeliveriesByProjectUuid(rootUuid);

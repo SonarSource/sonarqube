@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
@@ -82,7 +84,7 @@ public class PurgeDaoTest {
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
     PurgeConfiguration conf = new PurgeConfiguration(
-      new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[]{Scopes.DIRECTORY, Scopes.FILE}, 30, System2.INSTANCE, Collections.emptyList());
+      new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30, System2.INSTANCE, Collections.emptyList());
 
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -144,14 +146,33 @@ public class PurgeDaoTest {
     dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
 
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and on on another project
-    insertCeActivity(projectToBeDeleted.uuid());
-    insertCeActivity(anotherLivingProject.uuid());
+    insertCeActivity(projectToBeDeleted);
+    insertCeActivity(anotherLivingProject);
     dbSession.commit();
 
     underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("ce_activity")).isEqualTo(1);
+  }
+
+  @Test
+  public void delete_tasks_in_ce_queue_when_deleting_project() {
+    ComponentDto projectToBeDeleted = dbTester.components().insertProject();
+    ComponentDto anotherLivingProject = dbTester.components().insertProject();
+
+    // Insert 3 rows in CE_QUEUE: two for the project that will be deleted (in order to check that status
+    // is not involved in deletion), and one on another project
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, Status.PENDING));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, Status.IN_PROGRESS));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject, Status.PENDING));
+    dbSession.commit();
+
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    dbSession.commit();
+
+    assertThat(dbTester.countRowsOfTable("ce_queue")).isEqualTo(1);
+    assertThat(dbTester.countSql("select count(*) from ce_queue where component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
   }
 
   @Test
@@ -222,13 +243,20 @@ public class PurgeDaoTest {
     assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2");
   }
 
-  private CeActivityDto insertCeActivity(String componentUuid) {
+  private CeQueueDto createCeQueue(ComponentDto component, Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(Uuids.create());
     queueDto.setTaskType(REPORT);
-    queueDto.setComponentUuid(componentUuid);
+    queueDto.setComponentUuid(component.uuid());
     queueDto.setSubmitterLogin("henri");
     queueDto.setCreatedAt(1_300_000_000_000L);
+    queueDto.setStatus(status);
+    return queueDto;
+  }
+
+  private CeActivityDto insertCeActivity(ComponentDto component) {
+    Status unusedStatus = Status.values()[RandomUtils.nextInt(Status.values().length)];
+    CeQueueDto queueDto = createCeQueue(component, unusedStatus);
 
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);
