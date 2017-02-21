@@ -33,6 +33,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -42,6 +43,8 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.permission.index.FooIndexDefinition.FOO_INDEX;
 
 public class PermissionIndexerTest {
+
+  private static final IndexTypeId INDEX_TYPE_FOO_AUTH = AuthorizationTypeSupport.getAuthorizationIndexType(FooIndexDefinition.INDEX_TYPE_FOO);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -202,10 +205,10 @@ public class PermissionIndexerTest {
     userDbTester.insertProjectPermissionOnAnyone(USER, project1);
     userDbTester.insertProjectPermissionOnAnyone(USER, project2);
     underTest.indexAllIfEmpty();
-    assertThat(esTester.countDocuments(FooIndexDefinition.FOO_INDEX, AuthorizationTypeSupport.TYPE_AUTHORIZATION)).isEqualTo(2);
+    assertThat(esTester.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
 
     underTest.deleteProject(project1.uuid());
-    assertThat(esTester.countDocuments(FooIndexDefinition.FOO_INDEX, AuthorizationTypeSupport.TYPE_AUTHORIZATION)).isEqualTo(1);
+    assertThat(esTester.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(1);
   }
 
   @Test
@@ -217,7 +220,7 @@ public class PermissionIndexerTest {
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
 
-    assertThat(esTester.countDocuments(FooIndexDefinition.FOO_INDEX, AuthorizationTypeSupport.TYPE_AUTHORIZATION)).isEqualTo(0);
+    assertThat(esTester.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(0);
   }
 
   @Test

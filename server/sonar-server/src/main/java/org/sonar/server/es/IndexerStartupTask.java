@@ -20,10 +20,14 @@
 package org.sonar.server.es;
 
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Arrays.stream;
 
 public class IndexerStartupTask {
+
+  private static final Logger LOG = Loggers.get(IndexerStartupTask.class);
 
   private final EsClient esClient;
   private final Settings settings;
@@ -39,6 +43,7 @@ public class IndexerStartupTask {
     if (indexesAreEnabled()) {
       stream(indexers)
         .filter(this::doesIndexContainAtLeastOneEmptyType)
+        .peek(indexer -> LOG.info("Full reindexing using " + indexer.getClass().getSimpleName()))
         .forEach(StartupIndexer::indexOnStartup);
     }
   }
