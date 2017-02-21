@@ -42,7 +42,7 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateUserDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;

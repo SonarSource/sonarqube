@@ -37,6 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;

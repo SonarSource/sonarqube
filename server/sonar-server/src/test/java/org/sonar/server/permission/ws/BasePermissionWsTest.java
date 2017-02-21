@@ -42,7 +42,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 

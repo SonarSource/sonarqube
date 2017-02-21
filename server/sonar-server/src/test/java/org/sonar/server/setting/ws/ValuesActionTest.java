@@ -71,8 +71,8 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.server.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Setting.ParentValueOneOfCase.PARENTVALUEONEOF_NOT_SET;
 

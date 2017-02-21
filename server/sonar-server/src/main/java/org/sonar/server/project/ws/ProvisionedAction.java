@@ -40,7 +40,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
-import static org.sonar.server.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 
 public class ProvisionedAction implements ProjectsWsAction {

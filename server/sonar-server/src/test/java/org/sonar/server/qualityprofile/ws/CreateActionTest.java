@@ -62,7 +62,7 @@ import org.sonarqube.ws.MediaTypes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.parseFrom;

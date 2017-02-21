@@ -37,7 +37,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 

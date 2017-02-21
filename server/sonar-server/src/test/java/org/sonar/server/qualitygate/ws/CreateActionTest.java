@@ -40,7 +40,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 
 public class CreateActionTest {
 

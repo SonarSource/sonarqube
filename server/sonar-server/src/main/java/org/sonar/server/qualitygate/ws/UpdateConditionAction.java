@@ -32,7 +32,7 @@ import org.sonarqube.ws.WsQualityGates.UpdateConditionWsResponse;
 import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
 
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_UPDATE_CONDITION;

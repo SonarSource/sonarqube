@@ -31,7 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.SearchWsResponse;
 import org.sonarqube.ws.client.project.SearchWsRequest;

@@ -52,7 +52,7 @@ import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.api.rule.Severity.MINOR;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class ShowActionMediumTest {
 

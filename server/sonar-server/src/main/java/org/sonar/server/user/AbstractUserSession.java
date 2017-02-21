@@ -24,7 +24,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 
 public abstract class AbstractUserSession implements UserSession {
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";

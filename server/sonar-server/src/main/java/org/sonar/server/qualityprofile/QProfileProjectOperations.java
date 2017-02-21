@@ -26,7 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 

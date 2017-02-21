@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.setParam;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class UpdateActionTest {
   private static final String SOME_KEY = "key";

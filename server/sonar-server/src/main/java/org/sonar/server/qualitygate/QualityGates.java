@@ -41,7 +41,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 

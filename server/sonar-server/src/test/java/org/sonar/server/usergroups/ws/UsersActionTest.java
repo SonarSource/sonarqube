@@ -39,7 +39,7 @@ import org.sonar.server.ws.WsTester.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 
 public class UsersActionTest {

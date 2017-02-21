@@ -24,7 +24,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.permission.OrganizationPermission;
+import org.sonar.db.permission.OrganizationPermission;
 
 import static java.util.Objects.requireNonNull;
 

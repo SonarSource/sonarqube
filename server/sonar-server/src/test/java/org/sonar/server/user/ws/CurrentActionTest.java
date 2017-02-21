@@ -36,9 +36,9 @@ import org.sonar.server.ws.WsActionTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CurrentActionTest {

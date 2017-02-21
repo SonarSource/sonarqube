@@ -59,7 +59,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 // TODO remaining tests should be moved to RegisterRulesTest
 public class RegisterRulesMediumTest {

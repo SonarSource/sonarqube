@@ -37,7 +37,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class SelectActionTest {
