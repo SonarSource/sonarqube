@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,7 +44,7 @@ public class ComponentDtoToWsComponentTest {
     expectedException.expectMessage("OrganizationUuid (" + organizationDto1.getUuid() + ") of ComponentDto to convert " +
       "to Ws Component is not the same as the one (" + organizationDto2.getUuid() + ") of the specified OrganizationDto");
 
-    componentDtoToWsComponent(componentDto, organizationDto2);
+    componentDtoToWsComponent(componentDto, organizationDto2, Optional.empty());
   }
 
 }

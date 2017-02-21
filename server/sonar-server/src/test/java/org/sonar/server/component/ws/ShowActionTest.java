@@ -22,6 +22,7 @@ package org.sonar.server.component.ws;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,12 +41,16 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
@@ -93,6 +98,62 @@ public class ShowActionTest {
     ShowWsResponse response = newRequest("project-uuid", null);
 
     assertThat(response.getComponent().getId()).isEqualTo("project-uuid");
+    assertThat(response.getComponent().hasAnalysisDate()).isFalse();
+  }
+
+  @Test
+  public void show_with_ancestors_when_not_project() throws Exception {
+    ComponentDto project = componentDb.insertProject();
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+    ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = componentDb.insertComponent(newFileDto(directory));
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    ShowWsResponse response = newRequest(null, file.key());
+
+    assertThat(response.getComponent().getKey()).isEqualTo(file.key());
+    assertThat(response.getAncestorsList()).extracting(WsComponents.Component::getKey).containsOnly(directory.key(), module.key(), project.key());
+  }
+
+  @Test
+  public void show_without_ancestors_when_project() throws Exception {
+    ComponentDto project = componentDb.insertProject();
+    componentDb.insertComponent(newModuleDto(project));
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    ShowWsResponse response = newRequest(null, project.key());
+
+    assertThat(response.getComponent().getKey()).isEqualTo(project.key());
+    assertThat(response.getAncestorsList()).isEmpty();
+  }
+
+  @Test
+  public void show_with_last_analysis_date() throws Exception {
+    ComponentDto project = componentDb.insertProject();
+    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(1_000_000_000L).setLast(false));
+    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(2_000_000_000L).setLast(false));
+    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    ShowWsResponse response = newRequest(null, project.key());
+
+    assertThat(response.getComponent().getAnalysisDate()).isNotEmpty().isEqualTo(formatDateTime(new Date(3_000_000_000L)));
+  }
+
+  @Test
+  public void show_with_ancestors_and_analysis_date() throws Exception {
+    ComponentDto project = componentDb.insertProject();
+    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+    ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = componentDb.insertComponent(newFileDto(directory));
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    ShowWsResponse response = newRequest(null, file.key());
+
+    String expectedDate = formatDateTime(new Date(3_000_000_000L));
+    assertThat(response.getAncestorsList()).extracting(WsComponents.Component::getAnalysisDate)
+      .containsOnly(expectedDate, expectedDate, expectedDate);
   }
 
   @Test

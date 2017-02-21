@@ -20,6 +20,9 @@
 package org.sonar.server.component.ws;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -27,6 +30,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
@@ -54,26 +58,6 @@ public class ShowAction implements ComponentsWsAction {
     this.componentFinder = componentFinder;
   }
 
-  private static ShowWsResponse buildResponse(ComponentDto component, OrganizationDto organizationDto, List<ComponentDto> orderedAncestors) {
-    ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
-    response.setComponent(componentDtoToWsComponent(component, organizationDto));
-
-    // ancestors are ordered from root to leaf, whereas it's the opposite
-    // in WS response
-    for (int i = orderedAncestors.size() - 1; i >= 0; i--) {
-      ComponentDto ancestor = orderedAncestors.get(i);
-      response.addAncestors(componentDtoToWsComponent(ancestor, organizationDto));
-    }
-
-    return response.build();
-  }
-
-  private static ShowWsRequest toShowWsRequest(Request request) {
-    return new ShowWsRequest()
-      .setId(request.param(PARAM_COMPONENT_ID))
-      .setKey(request.param(PARAM_COMPONENT));
-  }
-
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SHOW)
@@ -84,6 +68,7 @@ public class ShowAction implements ComponentsWsAction {
         PARAM_COMPONENT_ID, PARAM_COMPONENT))
       .setResponseExample(getClass().getResource("show-example.json"))
       .setSince("5.4")
+      .setChangelog(new Change("6.4", "Analysis date has been added to the response"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
@@ -109,9 +94,10 @@ public class ShowAction implements ComponentsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto component = getComponentByUuidOrKey(dbSession, request);
+      Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
-      return buildResponse(component, organizationDto, ancestors);
+      return buildResponse(component, organizationDto, ancestors, lastAnalysis);
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -121,5 +107,22 @@ public class ShowAction implements ComponentsWsAction {
     ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.COMPONENT_ID_AND_COMPONENT);
     userSession.checkComponentPermission(UserRole.USER, component);
     return component;
+  }
+
+  private static ShowWsResponse buildResponse(ComponentDto component, OrganizationDto organizationDto, List<ComponentDto> orderedAncestors, Optional<SnapshotDto> lastAnalysis) {
+    ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
+    response.setComponent(componentDtoToWsComponent(component, organizationDto, lastAnalysis));
+
+    // ancestors are ordered from root to leaf, whereas it's the opposite in WS response
+    int size = orderedAncestors.size() - 1;
+    IntStream.rangeClosed(0, size).forEach(
+      index -> response.addAncestors(componentDtoToWsComponent(orderedAncestors.get(size - index), organizationDto, lastAnalysis)));
+    return response.build();
+  }
+
+  private static ShowWsRequest toShowWsRequest(Request request) {
+    return new ShowWsRequest()
+      .setId(request.param(PARAM_COMPONENT_ID))
+      .setKey(request.param(PARAM_COMPONENT));
   }
 }

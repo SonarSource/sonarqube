@@ -20,12 +20,15 @@
 package org.sonar.server.component.ws;
 
 import java.util.Objects;
+import java.util.Optional;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.WsComponents;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 
 class ComponentDtoToWsComponent {
@@ -33,15 +36,15 @@ class ComponentDtoToWsComponent {
     // prevent instantiation
   }
 
-  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto) {
+  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto, Optional<SnapshotDto> lastAnalysis) {
     checkArgument(
       Objects.equals(dto.getOrganizationUuid(), organizationDto.getUuid()),
       "OrganizationUuid (%s) of ComponentDto to convert to Ws Component is not the same as the one (%s) of the specified OrganizationDto",
       dto.getOrganizationUuid(), organizationDto.getUuid());
-    return componentDtoToWsComponent(dto, organizationDto.getKey());
+    return componentDtoToWsComponent(dto, organizationDto.getKey(), lastAnalysis);
   }
 
-  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, String organizationDtoKey) {
+  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, String organizationDtoKey, Optional<SnapshotDto> lastAnalysis) {
     WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
       .setOrganization(organizationDtoKey)
       .setId(dto.uuid())
@@ -51,6 +54,7 @@ class ComponentDtoToWsComponent {
     setNullable(emptyToNull(dto.path()), wsComponent::setPath);
     setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
+    lastAnalysis.ifPresent(analysis -> wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt())));
     return wsComponent;
   }
 }

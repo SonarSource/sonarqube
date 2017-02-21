@@ -87,4 +87,5 @@ message Component {
   optional string path = 9;
   optional string language = 10;
   optional bool isFavorite = 11;
+  optional string analysisDate = 13;
 }
