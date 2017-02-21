@@ -22,7 +22,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
-import SourceViewer from './../../../components/source-viewer/SourceViewer';
+import SourceViewer from './../../../components/SourceViewer/StandaloneSourceViewer';
 import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren, parseError } from '../utils';
@@ -203,7 +203,7 @@ class App extends React.Component {
 
             {shouldShowSourceViewer && (
                 <div className="spacer-top">
-                  <SourceViewer component={sourceViewer}/>
+                  <SourceViewer component={sourceViewer.key}/>
                 </div>
             )}
           </div>

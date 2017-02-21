@@ -21,7 +21,7 @@
 
           {{#notEq file.key ../component.key}}
             <div class="component-name-path">
-              <a class="link-action" data-uuid="{{file.uuid}}" title="{{file.name}}">
+              <a class="link-action" data-key="{{file.key}}" title="{{file.name}}">
                 <span>{{collapsedDirFromPath file.name}}</span><span
                   class="component-name-file">{{fileFromPath file.name}}</span>
               </a>
@@ -31,7 +31,7 @@
           <div class="component-name-path">
             Lines:
             {{#joinEach blocks ','}}
-              <a class="link-action" data-uuid="{{../file.uuid}}" data-line="{{this.from}}">
+              <a class="link-action" data-key="{{../file.key}}" data-line="{{this.from}}">
                 {{this.from}} – {{sum from size -1}}
               </a>
             {{/joinEach}}

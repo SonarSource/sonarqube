@@ -70,5 +70,11 @@
   cursor: pointer;
 }
 .highlighted {
-  background-color: #B3D4FF;
+  background-color: #b3d4ff;
+  animation: highlightedFadeIn 0.3s forwards;
+}
+
+@keyframes highlightedFadeIn {
+  from { background-color: transparent; }
+  to { background-color: #b3d4ff; }
 }

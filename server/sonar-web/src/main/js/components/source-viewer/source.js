@@ -96,4 +96,3 @@ export default Backbone.Model.extend({
     return source.some(line => line.coverageStatus != null);
   }
 });
-

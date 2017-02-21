@@ -21,7 +21,6 @@ import $ from 'jquery';
 import moment from 'moment';
 import sortBy from 'lodash/sortBy';
 import toPairs from 'lodash/toPairs';
-import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import Source from './source';
 import Issues from '../issue/collections/issues';
@@ -403,7 +402,7 @@ export default Marionette.LayoutView.extend({
     const row = this.model.get('source').find(row => row.line === line);
     const popup = new SCMPopupView({
       triggerEl: $(e.currentTarget),
-      model: new Backbone.Model(row)
+      line: row
     });
     popup.render();
   },
@@ -422,8 +421,8 @@ export default Marionette.LayoutView.extend({
     };
     return $.get(url, options).done(data => {
       const popup = new CoveragePopupView({
-        row,
-        collection: new Backbone.Collection(data.tests),
+        line: row,
+        tests: data.tests,
         triggerEl: $(e.currentTarget)
       });
       popup.render();
@@ -468,10 +467,11 @@ export default Marionette.LayoutView.extend({
       return isOk;
     });
     const popup = new DuplicationPopupView({
+      blocks,
       inRemovedComponent,
-      triggerEl: $(e.currentTarget),
-      model: this.model,
-      collection: new Backbone.Collection(blocks)
+      component: this.model.toJSON(),
+      files: this.model.get('duplicationFiles'),
+      triggerEl: $(e.currentTarget)
     });
     popup.render();
   },
@@ -498,8 +498,7 @@ export default Marionette.LayoutView.extend({
     const popup = new LineActionsPopupView({
       line,
       triggerEl: $(e.currentTarget),
-      model: this.model,
-      row: $(e.currentTarget).closest('.source-line')
+      component: this.model.toJSON()
     });
     popup.render();
   },

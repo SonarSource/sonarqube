@@ -17,8 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
+
+type Favorite = { key: string };
+
+type ReceiveFavoritesAction = {
+  type: 'RECEIVE_FAVORITES',
+  favorites: Array<Favorite>,
+  notFavorites: Array<Favorite>
+};
+
+type AddFavoriteAction = {
+  type: 'ADD_FAVORITE',
+  componentKey: string
+};
+
+type RemoveFavoriteAction = {
+  type: 'REMOVE_FAVORITE',
+  componentKey: string
+};
+
+type Action = ReceiveFavoritesAction | AddFavoriteAction | RemoveFavoriteAction;
+
+type State = Array<string>;
 
 export const actions = {
   RECEIVE_FAVORITES: 'RECEIVE_FAVORITES',
@@ -26,23 +49,26 @@ export const actions = {
   REMOVE_FAVORITE: 'REMOVE_FAVORITE'
 };
 
-export const receiveFavorites = (favorites, notFavorites = []) => ({
+export const receiveFavorites = (
+  favorites: Array<Favorite>,
+  notFavorites: Array<Favorite> = []
+): ReceiveFavoritesAction => ({
   type: actions.RECEIVE_FAVORITES,
   favorites,
   notFavorites
 });
 
-export const addFavorite = componentKey => ({
+export const addFavorite = (componentKey: string): AddFavoriteAction => ({
   type: actions.ADD_FAVORITE,
   componentKey
 });
 
-export const removeFavorite = componentKey => ({
+export const removeFavorite = (componentKey: string): RemoveFavoriteAction => ({
   type: actions.REMOVE_FAVORITE,
   componentKey
 });
 
-export default (state = [], action = {}) => {
+export default (state: State = [], action: Action): State => {
   if (action.type === actions.RECEIVE_FAVORITES) {
     const toAdd = action.favorites.map(f => f.key);
     const toRemove = action.notFavorites.map(f => f.key);
@@ -60,7 +86,6 @@ export default (state = [], action = {}) => {
   return state;
 };
 
-export const isFavorite = (state, componentKey) => (
+export const isFavorite = (state: State, componentKey: string) => (
     state.includes(componentKey)
 );
-
