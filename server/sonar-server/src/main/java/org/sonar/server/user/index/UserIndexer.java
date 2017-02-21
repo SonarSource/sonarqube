@@ -19,7 +19,9 @@
  */
 package org.sonar.server.user.index;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
+import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -29,7 +31,10 @@ import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.StartupIndexer;
+
+import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
 public class UserIndexer extends BaseIndexer implements StartupIndexer {
 
@@ -40,6 +45,11 @@ public class UserIndexer extends BaseIndexer implements StartupIndexer {
   public UserIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
     super(system2, esClient, 300, UserIndexDefinition.INDEX_TYPE_USER, UserIndexDefinition.FIELD_UPDATED_AT);
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public Set<IndexTypeId> getIndexTypes() {
+    return ImmutableSet.of(INDEX_TYPE_USER);
   }
 
   @Override

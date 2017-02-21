@@ -155,7 +155,7 @@ public class EsClient implements Closeable {
   }
 
   /**
-   * @deprecated use {@link #prepareSearch(String...)} with size 0
+   * @deprecated use {@link #prepareSearch(String...)} with size 0, or {@link #count(IndexTypeId)}
    */
   @Deprecated
   public CountRequestBuilder prepareCount(String... indices) {
@@ -200,6 +200,17 @@ public class EsClient implements Closeable {
 
   public Client nativeClient() {
     return nativeClient;
+  }
+
+  /**
+   * Checks whether there is any document in any mentioned type.
+   */
+  public boolean isEmpty(IndexTypeId... indexType) {
+    return count(indexType) <= 0;
+  }
+
+  private long count(IndexTypeId... indexType) {
+    return prepareSearch(indexType).setSize(0).get().getHits().getTotalHits();
   }
 
   @Override

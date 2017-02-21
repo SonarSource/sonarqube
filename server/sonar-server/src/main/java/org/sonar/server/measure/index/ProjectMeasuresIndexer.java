@@ -19,8 +19,10 @@
  */
 package org.sonar.server.measure.index;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.resources.Qualifiers;
@@ -34,6 +36,7 @@ import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
@@ -52,6 +55,11 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
   public ProjectMeasuresIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
     super(system2, esClient, 300, INDEX_TYPE_PROJECT_MEASURES, FIELD_ANALYSED_AT);
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public Set<IndexTypeId> getIndexTypes() {
+    return ImmutableSet.of(INDEX_TYPE_PROJECT_MEASURES);
   }
 
   @Override

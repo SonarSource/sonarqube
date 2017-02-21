@@ -19,11 +19,12 @@
  */
 package org.sonar.server.component.index;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -37,6 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
@@ -61,15 +63,13 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   @Override
-  public void indexOnStartup() {
-    if (isEmpty()) {
-      doIndexByProjectUuid(null);
-    }
+  public Set<IndexTypeId> getIndexTypes() {
+    return ImmutableSet.of(ComponentIndexDefinition.INDEX_TYPE_COMPONENT);
   }
 
-  @VisibleForTesting
-  boolean isEmpty() {
-    return esClient.prepareSearch(INDEX_COMPONENTS).setTypes(TYPE_COMPONENT).setSize(0).get().getHits().getTotalHits() <= 0;
+  @Override
+  public void indexOnStartup() {
+    doIndexByProjectUuid(null);
   }
 
   @Override

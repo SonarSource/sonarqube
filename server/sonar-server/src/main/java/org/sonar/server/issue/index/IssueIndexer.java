@@ -19,8 +19,10 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
@@ -35,6 +37,7 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
@@ -68,6 +71,11 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
   @Override
   protected long doIndex(long lastUpdatedAt) {
     return doIndex(createBulkIndexer(false), lastUpdatedAt, null);
+  }
+
+  @Override
+  public Set<IndexTypeId> getIndexTypes() {
+    return ImmutableSet.of(INDEX_TYPE_ISSUE);
   }
 
   @Override

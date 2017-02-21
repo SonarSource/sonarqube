@@ -50,7 +50,6 @@ import org.sonar.server.es.ProjectIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AUTHORIZATION;
 
 /**
  * Manages the synchronization of indexes with authorization settings defined in database:

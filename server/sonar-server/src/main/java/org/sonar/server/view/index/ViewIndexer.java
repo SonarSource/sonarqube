@@ -19,8 +19,10 @@
  */
 package org.sonar.server.view.index;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -32,9 +34,11 @@ import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.StartupIndexer;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 
 public class ViewIndexer extends BaseIndexer implements StartupIndexer {
 
@@ -45,6 +49,11 @@ public class ViewIndexer extends BaseIndexer implements StartupIndexer {
   public ViewIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
     super(system2, esClient, 300, ViewIndexDefinition.INDEX_TYPE_VIEW, "updatedAt");
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public Set<IndexTypeId> getIndexTypes() {
+    return ImmutableSet.of(INDEX_TYPE_VIEW);
   }
 
   @Override
