@@ -26,7 +26,9 @@ import java.util.List;
 /**
  * Holds the constants representing the various global permissions that can be assigned to users & groups
  *
+ * @deprecated replaced by enum {@link org.sonar.db.permission.OrganizationPermission}
  */
+@Deprecated
 public final class GlobalPermissions {
 
   public static final String SYSTEM_ADMIN = "admin";
