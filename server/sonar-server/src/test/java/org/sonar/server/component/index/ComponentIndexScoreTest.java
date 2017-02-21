@@ -22,6 +22,7 @@ package org.sonar.server.component.index;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 
 public class ComponentIndexScoreTest extends ComponentIndexTest {
 
@@ -103,7 +104,7 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
   @Test
   public void scoring_test_DbTester() {
-    features.set(ComponentIndexSearchFeature.PARTIAL);
+    features.set(ComponentTextSearchFeature.PARTIAL);
 
     ComponentDto project = indexProject("key-1", "Quality Product");
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.index;
+package org.sonar.server.es.textsearch;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -28,59 +28,58 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.DefaultIndexSettings;
+import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
-public enum ComponentIndexSearchFeature {
+public enum ComponentTextSearchFeature {
 
   EXACT_IGNORE_CASE {
     @Override
-    public QueryBuilder getQuery(String queryText) {
-      return matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), queryText)
+    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
+      return matchQuery(SORTABLE_ANALYZER.subField(query.getFieldName()), query.getQueryText())
         .boost(2.5f);
     }
   },
   PREFIX {
     @Override
-    public QueryBuilder getQuery(String queryText) {
-      return prefixAndPartialQuery(queryText, FIELD_NAME)
+    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
+      return prefixAndPartialQuery(query.getQueryText(), query.getFieldName(), query.getFieldName())
         .boost(2f);
     }
   },
   PREFIX_IGNORE_CASE {
     @Override
-    public QueryBuilder getQuery(String queryText) {
-      String lowerCaseQueryText = queryText.toLowerCase(Locale.getDefault());
-      return prefixAndPartialQuery(lowerCaseQueryText, SORTABLE_ANALYZER.subField(FIELD_NAME))
+    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
+      String lowerCaseQueryText = query.getQueryText().toLowerCase(Locale.getDefault());
+      return prefixAndPartialQuery(lowerCaseQueryText, SORTABLE_ANALYZER.subField(query.getFieldName()), query.getFieldName())
         .boost(3f);
     }
   },
   PARTIAL {
     @Override
-    public QueryBuilder getQuery(String queryText) {
-      BoolQueryBuilder query = boolQuery();
-      split(queryText)
-        .map(this::partialTermQuery)
-        .forEach(query::must);
-      return query
+    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
+      BoolQueryBuilder queryBuilder = boolQuery();
+      split(query.getQueryText())
+        .map(text -> partialTermQuery(text, query.getFieldName()))
+        .forEach(queryBuilder::must);
+      return queryBuilder
         .boost(0.5f);
     }
   },
   KEY {
     @Override
-    public QueryBuilder getQuery(String queryText) {
-      return matchQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), queryText)
+    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
+      return matchQuery(SORTABLE_ANALYZER.subField(query.getFieldKey()), query.getQueryText())
         .boost(50f);
     }
   };
 
-  public abstract QueryBuilder getQuery(String queryText);
+  public abstract QueryBuilder getQuery(ComponentTextSearchQuery query);
 
   protected Stream<String> split(String queryText) {
     return Arrays.stream(
@@ -88,8 +87,8 @@ public enum ComponentIndexSearchFeature {
       .filter(StringUtils::isNotEmpty);
   }
 
-  protected BoolQueryBuilder prefixAndPartialQuery(String queryText, String fieldName) {
-    BoolQueryBuilder query = boolQuery();
+  protected BoolQueryBuilder prefixAndPartialQuery(String queryText, String fieldName, String originalFieldName) {
+    BoolQueryBuilder queryBuilder = boolQuery();
 
     AtomicBoolean first = new AtomicBoolean(true);
     split(queryText)
@@ -99,17 +98,16 @@ public enum ComponentIndexSearchFeature {
           return prefixQuery(fieldName, queryTerm);
         }
 
-        return partialTermQuery(queryTerm);
+        return partialTermQuery(queryTerm, originalFieldName);
       })
-      .forEach(query::must);
-    return query;
+      .forEach(queryBuilder::must);
+    return queryBuilder;
   }
 
-  protected MatchQueryBuilder partialTermQuery(String queryTerm) {
+  protected MatchQueryBuilder partialTermQuery(String queryTerm, String fieldName) {
     // We will truncate the search to the maximum length of nGrams in the index.
     // Otherwise the search would for sure not find any results.
     String truncatedQuery = StringUtils.left(queryTerm, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
-
-    return matchQuery(SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME), truncatedQuery);
+    return matchQuery(SEARCH_GRAMS_ANALYZER.subField(fieldName), truncatedQuery);
   }
 }

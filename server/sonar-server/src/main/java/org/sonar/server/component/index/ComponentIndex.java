@@ -38,10 +38,15 @@ import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
+import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
@@ -60,11 +65,11 @@ public class ComponentIndex {
   }
 
   public List<ComponentsPerQualifier> search(ComponentIndexQuery query) {
-    return search(query, ComponentIndexSearchFeature.values());
+    return search(query, ComponentTextSearchFeature.values());
   }
 
   @VisibleForTesting
-  List<ComponentsPerQualifier> search(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
+  List<ComponentsPerQualifier> search(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
     Collection<String> qualifiers = query.getQualifiers();
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
@@ -87,10 +92,7 @@ public class ComponentIndex {
   private static FiltersAggregationBuilder createAggregation(ComponentIndexQuery query) {
     FiltersAggregationBuilder filtersAggregation = AggregationBuilders.filters(FILTERS_AGGREGATION_NAME)
       .subAggregation(createSubAggregation(query));
-
-    query.getQualifiers().stream()
-      .forEach(q -> filtersAggregation.filter(q, termQuery(FIELD_QUALIFIER, q)));
-
+    query.getQualifiers().forEach(q -> filtersAggregation.filter(q, termQuery(FIELD_QUALIFIER, q)));
     return filtersAggregation;
   }
 
@@ -100,17 +102,15 @@ public class ComponentIndex {
     return sub.setFetchSource(false);
   }
 
-  private QueryBuilder createQuery(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
+  private QueryBuilder createQuery(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
     esQuery.filter(authorizationTypeSupport.createQueryFilter());
-
-    BoolQueryBuilder featureQuery = boolQuery();
-
-    Arrays.stream(features)
-      .map(f -> f.getQuery(query.getQuery()))
-      .forEach(featureQuery::should);
-
-    return esQuery.must(featureQuery);
+    ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
+      .setQueryText(query.getQuery())
+      .setFieldKey(FIELD_KEY)
+      .setFieldName(FIELD_NAME)
+      .build();
+    return esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, features));
   }
 
   private static List<ComponentsPerQualifier> aggregationsToQualifiers(SearchResponse response) {

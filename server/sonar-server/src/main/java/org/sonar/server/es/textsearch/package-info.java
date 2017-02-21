@@ -17,24 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.index;
+@ParametersAreNonnullByDefault
+package org.sonar.server.es.textsearch;
 
-import org.junit.rules.ExternalResource;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class ComponentIndexSearchFeatureRule extends ExternalResource {
-
-  private ComponentIndexSearchFeature[] features;
-
-  @Override
-  protected void before() throws Throwable {
-    features = ComponentIndexSearchFeature.values();
-  }
-
-  public ComponentIndexSearchFeature[] get() {
-    return features;
-  }
-
-  public void set(ComponentIndexSearchFeature... features) {
-    this.features = features;
-  }
-}

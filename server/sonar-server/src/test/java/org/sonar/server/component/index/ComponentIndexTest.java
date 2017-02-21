@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRule;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -56,7 +57,7 @@ public abstract class ComponentIndexTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public ComponentIndexSearchFeatureRule features = new ComponentIndexSearchFeatureRule();
+  public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
   protected ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
 
