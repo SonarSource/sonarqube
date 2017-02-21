@@ -28,6 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -46,8 +48,9 @@ public class OrganizationActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
-  private WsActionTester underTest = new WsActionTester(new OrganizationAction(dbClient, userSession));
+  private WsActionTester underTest = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession));
 
   @Test
   public void verify_definition() {

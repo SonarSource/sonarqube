@@ -27,6 +27,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -38,10 +39,12 @@ public class OrganizationAction implements NavigationWsAction {
   private static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UserSession userSession;
 
-  public OrganizationAction(DbClient dbClient, UserSession userSession) {
+  public OrganizationAction(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.userSession = userSession;
   }
 
@@ -83,6 +86,7 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("canAdmin", userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN))
       .prop("canProvisionProjects", userSession.hasOrganizationPermission(organizationUuid, GlobalPermissions.PROVISIONING))
       .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN))
+      .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
       .endObject();
   }
 }

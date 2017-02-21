@@ -61,6 +61,7 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -211,12 +212,12 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeConfiguration(JsonWriter json, ComponentDto component) {
-    boolean isAdmin = userSession.hasComponentPermission(ADMIN, component);
+    boolean isProjectAdmin = userSession.hasComponentPermission(ADMIN, component);
 
     json.name("configuration").beginObject();
-    writeConfigPageAccess(json, isAdmin, component);
+    writeConfigPageAccess(json, isProjectAdmin, component);
 
-    if (isAdmin) {
+    if (isProjectAdmin) {
       json.name("extensions").beginArray();
       List<Page> configPages = pageRepository.getComponentPages(true, component.qualifier());
       configPages.forEach(page -> writePage(json, page));
@@ -225,21 +226,23 @@ public class ComponentAction implements NavigationWsAction {
     json.endObject();
   }
 
-  private void writeConfigPageAccess(JsonWriter json, boolean isAdmin, ComponentDto component) {
+  private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
-    boolean showManualMeasures = isAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
+    boolean showManualMeasures = isProjectAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
     boolean isQualityProfileAdmin = userSession.hasOrganizationPermission(component.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
     boolean isQualityGateAdmin = userSession.hasOrganizationPermission(component.getOrganizationUuid(), QUALITY_GATE_ADMIN);
+    boolean isOrganizationAdmin = userSession.hasOrganizationPermission(component.getOrganizationUuid(), SYSTEM_ADMIN);
 
-    json.prop("showSettings", isAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
-    json.prop("showQualityProfiles", isProject && (isAdmin || isQualityProfileAdmin));
-    json.prop("showQualityGates", isProject && (isAdmin || isQualityGateAdmin));
+    json.prop("showSettings", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
+    json.prop("showQualityProfiles", isProject && (isProjectAdmin || isQualityProfileAdmin));
+    json.prop("showQualityGates", isProject && (isProjectAdmin || isQualityGateAdmin));
     json.prop("showManualMeasures", showManualMeasures);
-    json.prop("showLinks", isAdmin && isProject);
-    json.prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
-    json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
-    json.prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
-    json.prop("showBackgroundTasks", isAdmin);
+    json.prop("showLinks", isProjectAdmin && isProject);
+    json.prop("showPermissions", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
+    json.prop("showHistory", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
+    json.prop("showUpdateKey", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
+    json.prop("showBackgroundTasks", isProjectAdmin);
+    json.prop("canApplyPermissionTemplate", isOrganizationAdmin);
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {

@@ -23,7 +23,6 @@ import { translate } from '../../../../helpers/l10n';
 import ApplyTemplateView from '../views/ApplyTemplateView';
 import { loadHolders } from '../store/actions';
 import { isPermissionsAppLoading } from '../../../../store/rootReducer';
-import { isUserAdmin } from '../../../../helpers/users';
 
 class PageHeader extends React.Component {
   static propTypes = {
@@ -44,12 +43,16 @@ class PageHeader extends React.Component {
     e.preventDefault();
     e.target.blur();
     const { project, loadHolders } = this.props;
-    new ApplyTemplateView({ project })
+    const organization = project.organization ? { key: project.organization } : null;
+    new ApplyTemplateView({ project, organization })
         .on('done', () => loadHolders(project.key))
         .render();
   }
 
   render () {
+    const configuration = this.props.project.configuration;
+    const canApplyPermissionTemplate = configuration != null && configuration.canApplyPermissionTemplate;
+
     return (
         <header className="page-header">
           <h1 className="page-title">
@@ -60,7 +63,7 @@ class PageHeader extends React.Component {
               <i className="spinner"/>
           )}
 
-          {isUserAdmin(this.props.currentUser) && (
+          {canApplyPermissionTemplate && (
               <div className="page-actions">
                 <button className="js-apply-template" onClick={this.handleApplyTemplate}>
                   Apply Template
