@@ -21,6 +21,7 @@ package org.sonar.server.component.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
@@ -28,9 +29,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndexDefinition implements IndexDefinition {
 
-  public static final String INDEX_COMPONENTS = "components";
-
-  public static final String TYPE_COMPONENT = "component";
+  public static final IndexTypeId INDEX_TYPE_COMPONENT = new IndexTypeId("components", "component");
   public static final String FIELD_PROJECT_UUID = "project_uuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
@@ -46,11 +45,11 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_COMPONENTS);
+    NewIndex index = context.create(INDEX_TYPE_COMPONENT.getIndex());
     index.refreshHandledByIndexer();
     index.configureShards(settings, DEFAULT_NUMBER_OF_SHARDS);
 
-    NewIndex.NewIndexType mapping = index.createType(TYPE_COMPONENT)
+    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_COMPONENT.getType())
       .requireProjectAuthorization();
 
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();

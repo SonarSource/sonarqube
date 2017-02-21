@@ -54,8 +54,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
-import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
-import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 /**
  * Scroll over table FILE_SOURCES of test type and directly parse data required to
@@ -133,7 +132,7 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       // - Map is a useless temporarily structure: read JDBC result set -> convert to map -> convert to JSON. Generating
       // directly JSON from result set is more efficient.
       byte[] jsonDoc = bytes.toByteArray();
-      UpdateRequest updateRequest = new UpdateRequest(INDEX, TYPE, test.getUuid())
+      UpdateRequest updateRequest = new UpdateRequest(INDEX_TYPE_TEST.getIndex(), INDEX_TYPE_TEST.getType(), test.getUuid())
         .routing(projectUuid)
         .doc(jsonDoc)
         .upsert(jsonDoc);

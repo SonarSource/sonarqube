@@ -28,8 +28,7 @@ import org.sonar.server.es.EsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.view.index.ViewIndexDefinition.INDEX;
-import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
+import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 
 public class ViewIndexTest {
 
@@ -42,8 +41,8 @@ public class ViewIndexTest {
   public void find_all_view_uuids() throws Exception {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2"));
-    esTester.putDocuments(INDEX, TYPE_VIEW, view1);
-    esTester.putDocuments(INDEX, TYPE_VIEW, view2);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view1);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view2);
 
     List<String> result = newArrayList(index.findAllViewUuids());
 
@@ -62,13 +61,13 @@ public class ViewIndexTest {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
     ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
-    esTester.putDocuments(INDEX, TYPE_VIEW, view1);
-    esTester.putDocuments(INDEX, TYPE_VIEW, view2);
-    esTester.putDocuments(INDEX, TYPE_VIEW, view3);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view1);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view2);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view3);
 
     index.delete(asList(view1.uuid(), view2.uuid()));
 
-    assertThat(esTester.getDocumentFieldValues(INDEX, TYPE_VIEW, ViewIndexDefinition.FIELD_UUID)).containsOnly(view3.uuid());
+    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID)).containsOnly(view3.uuid());
   }
 
 }

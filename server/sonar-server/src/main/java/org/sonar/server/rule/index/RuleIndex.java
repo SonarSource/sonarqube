@@ -90,9 +90,8 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_STATUS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TEMPLATE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TYPE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UPDATED_AT;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 
 /**
  * The unique entry-point to interact with Elasticsearch index "rules".
@@ -118,8 +117,7 @@ public class RuleIndex extends BaseIndex {
 
   public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
     SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(INDEX)
-      .setTypes(TYPE_RULE);
+      .prepareSearch(INDEX_TYPE_RULE);
 
     QueryBuilder qb = buildQuery(query);
     Map<String, QueryBuilder> filters = buildFilters(query);
@@ -147,8 +145,7 @@ public class RuleIndex extends BaseIndex {
    */
   public Iterator<RuleKey> searchAll(RuleQuery query) {
     SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(INDEX)
-      .setTypes(TYPE_RULE)
+      .prepareSearch(INDEX_TYPE_RULE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
 
@@ -304,12 +301,12 @@ public class RuleIndex extends BaseIndex {
     /** Implementation of activation query */
     if (Boolean.TRUE.equals(query.getActivation())) {
       filters.put("activation",
-        QueryBuilders.hasChildQuery(TYPE_ACTIVE_RULE,
+        QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
           childQuery));
     } else if (Boolean.FALSE.equals(query.getActivation())) {
       filters.put("activation",
         boolQuery().mustNot(
-          QueryBuilders.hasChildQuery(TYPE_ACTIVE_RULE,
+          QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
             childQuery)));
     }
 
@@ -403,7 +400,7 @@ public class RuleIndex extends BaseIndex {
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
       HasParentQueryBuilder ruleFilter = QueryBuilders.hasParentQuery(
-        TYPE_RULE,
+        INDEX_TYPE_RULE.getType(),
         stickyFacetBuilder.getStickyFacetFilter("activation"));
 
       // Rebuilding the active rule filter without severities
@@ -418,7 +415,7 @@ public class RuleIndex extends BaseIndex {
       }
 
       AbstractAggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
-        .childType(TYPE_ACTIVE_RULE)
+        .childType(INDEX_TYPE_ACTIVE_RULE.getType())
         .subAggregation(AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter")
           .filter(activeRuleFilter)
           .subAggregation(
@@ -483,7 +480,7 @@ public class RuleIndex extends BaseIndex {
       termsAggregation.include(".*" + escapeSpecialRegexChars(query) + ".*");
     }
     SearchRequestBuilder request = getClient()
-      .prepareSearch(INDEX)
+      .prepareSearch(INDEX_TYPE_RULE, INDEX_TYPE_ACTIVE_RULE)
       .setQuery(matchAllQuery())
       .setSize(0)
       .addAggregation(termsAggregation);

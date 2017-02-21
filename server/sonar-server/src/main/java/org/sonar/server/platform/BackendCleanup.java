@@ -117,10 +117,10 @@ public class BackendCleanup {
       throw new IllegalStateException("Fail to reset data", e);
     }
 
-    clearIndex(IssueIndexDefinition.INDEX);
-    clearIndex(ViewIndexDefinition.INDEX);
-    clearIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES);
-    clearIndex(ComponentIndexDefinition.INDEX_COMPONENTS);
+    clearIndex(IssueIndexDefinition.INDEX_TYPE_ISSUE.getIndex());
+    clearIndex(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex());
+    clearIndex(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES.getIndex());
+    clearIndex(ComponentIndexDefinition.INDEX_TYPE_COMPONENT.getIndex());
   }
 
   private static void truncateAnalysisTables(Connection connection) throws SQLException {

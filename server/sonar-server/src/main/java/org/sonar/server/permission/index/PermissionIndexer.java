@@ -45,6 +45,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.ProjectIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -93,13 +94,13 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
   public void indexAllIfEmpty() {
     boolean isEmpty = false;
     for (AuthorizationScope scope : authorizationScopes) {
-      isEmpty |= isAuthorizationTypeEmpty(scope.getIndexName());
+      isEmpty |= isAuthorizationTypeEmpty(scope.getIndexType());
     }
 
     if (isEmpty) {
-      Future submit = executor.submit(() -> {
+      Future<?> submit = executor.submit(() -> {
         authorizationScopes.stream()
-          .map(AuthorizationScope::getIndexName)
+          .map(AuthorizationScope::getIndexType)
           .forEach(this::truncateAuthorizationType);
 
         try (DbSession dbSession = dbClient.openSession(false)) {
@@ -140,19 +141,19 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
   @Override
   public void deleteProject(String projectUuid) {
     authorizationScopes.forEach(scope -> esClient
-      .prepareDelete(scope.getIndexName(), TYPE_AUTHORIZATION, projectUuid)
+      .prepareDelete(scope.getIndexType(), projectUuid)
       .setRouting(projectUuid)
       .setRefresh(true)
       .get());
   }
 
-  private boolean isAuthorizationTypeEmpty(String index) {
-    SearchResponse response = esClient.prepareSearch(index).setTypes(TYPE_AUTHORIZATION).setSize(0).get();
+  private boolean isAuthorizationTypeEmpty(IndexTypeId indexType) {
+    SearchResponse response = esClient.prepareSearch(indexType).setSize(0).get();
     return response.getHits().getTotalHits() == 0;
   }
 
-  private void truncateAuthorizationType(String index) {
-    BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setTypes(TYPE_AUTHORIZATION).setQuery(matchAllQuery()));
+  private void truncateAuthorizationType(IndexTypeId indexType) {
+    BulkIndexer.delete(esClient, indexType.getIndex(), esClient.prepareSearch(indexType).setQuery(matchAllQuery()));
   }
 
   @VisibleForTesting
@@ -165,7 +166,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
     for (PermissionIndexerDao.Dto dto : authorizations) {
       for (AuthorizationScope scope : authorizationScopes) {
         if (scope.getProjectPredicate().test(dto)) {
-          bulkRequest.add(newIndexRequest(dto, scope.getIndexName()));
+          bulkRequest.add(newIndexRequest(dto, scope.getIndexType()));
           count++;
         }
       }
@@ -178,10 +179,10 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
     if (count > 0) {
       EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
     }
-    authorizationScopes.forEach(type -> esClient.prepareRefresh(type.getIndexName()).get());
+    authorizationScopes.forEach(type -> esClient.prepareRefresh(type.getIndexType().getIndex()).get());
   }
 
-  private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, String indexName) {
+  private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, IndexTypeId indexTypeId) {
     Map<String, Object> doc = new HashMap<>();
     doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, DateUtils.longToDate(dto.getUpdatedAt()));
     if (dto.isAllowAnyone()) {
@@ -192,7 +193,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
       doc.put(AuthorizationTypeSupport.FIELD_GROUP_IDS, dto.getGroupIds());
       doc.put(AuthorizationTypeSupport.FIELD_USER_IDS, dto.getUserIds());
     }
-    return new IndexRequest(indexName, TYPE_AUTHORIZATION, dto.getProjectUuid())
+    return new IndexRequest(indexTypeId.getIndex(), indexTypeId.getType(), dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .source(doc);
   }

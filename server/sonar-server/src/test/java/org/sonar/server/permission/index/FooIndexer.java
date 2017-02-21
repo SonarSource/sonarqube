@@ -29,10 +29,11 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.permission.index.FooIndexDefinition.FOO_INDEX;
 import static org.sonar.server.permission.index.FooIndexDefinition.FOO_TYPE;
+import static org.sonar.server.permission.index.FooIndexDefinition.INDEX_TYPE_FOO;
 
 public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(FOO_INDEX, p -> true);
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_FOO, p -> true);
 
   private final EsClient esClient;
 
@@ -52,7 +53,7 @@ public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   }
 
   private void addToIndex(String projectUuid, String name) {
-    esClient.prepareIndex(FOO_INDEX, FOO_TYPE)
+    esClient.prepareIndex(INDEX_TYPE_FOO)
       .setRouting(projectUuid)
       .setParent(projectUuid)
       .setSource(ImmutableMap.of(

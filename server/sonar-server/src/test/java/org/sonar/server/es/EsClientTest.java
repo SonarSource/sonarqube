@@ -58,13 +58,13 @@ public class EsClientTest {
     assertThat(underTest.prepareIndicesExist()).isInstanceOf(ProxyIndicesExistsRequestBuilder.class);
     assertThat(underTest.prepareFlush()).isInstanceOf(ProxyFlushRequestBuilder.class);
     assertThat(underTest.prepareGet()).isInstanceOf(ProxyGetRequestBuilder.class);
-    assertThat(underTest.prepareGet("fakes", "fake", "1")).isInstanceOf(ProxyGetRequestBuilder.class);
+    assertThat(underTest.prepareGet(new IndexTypeId("fakes", "fake"), "1")).isInstanceOf(ProxyGetRequestBuilder.class);
     assertThat(underTest.prepareHealth()).isInstanceOf(ProxyClusterHealthRequestBuilder.class);
     assertThat(underTest.prepareMultiGet()).isInstanceOf(ProxyMultiGetRequestBuilder.class);
     assertThat(underTest.prepareNodesStats()).isInstanceOf(ProxyNodesStatsRequestBuilder.class);
     assertThat(underTest.preparePutMapping()).isInstanceOf(ProxyPutMappingRequestBuilder.class);
     assertThat(underTest.prepareRefresh()).isInstanceOf(ProxyRefreshRequestBuilder.class);
-    assertThat(underTest.prepareSearch()).isInstanceOf(ProxySearchRequestBuilder.class);
+    assertThat(underTest.prepareSearch(new IndexTypeId[0])).isInstanceOf(ProxySearchRequestBuilder.class);
     assertThat(underTest.prepareSearchScroll("1234")).isInstanceOf(ProxySearchScrollRequestBuilder.class);
     assertThat(underTest.prepareState()).isInstanceOf(ProxyClusterStateRequestBuilder.class);
     assertThat(underTest.prepareStats()).isInstanceOf(ProxyIndicesStatsRequestBuilder.class);

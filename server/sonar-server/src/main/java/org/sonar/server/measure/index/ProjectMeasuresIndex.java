@@ -70,8 +70,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
 
@@ -113,8 +112,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
     SearchRequestBuilder requestBuilder = getClient()
-      .prepareSearch(INDEX_PROJECT_MEASURES)
-      .setTypes(TYPE_PROJECT_MEASURE)
+      .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
       .setFetchSource(false)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit());

@@ -121,7 +121,7 @@ public class UserUpdaterTest {
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735482L);
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getId()).isEqualTo(dto.getId());
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSource())
       .contains(
@@ -634,7 +634,7 @@ public class UserUpdaterTest {
     assertThat(updatedUser.getCreatedAt()).isEqualTo(PAST);
     assertThat(updatedUser.getUpdatedAt()).isEqualTo(NOW);
 
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSource())
       .contains(
@@ -714,7 +714,7 @@ public class UserUpdaterTest {
     assertThat(dto.getCreatedAt()).isEqualTo(PAST);
     assertThat(dto.getUpdatedAt()).isEqualTo(NOW);
 
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSource())
       .contains(

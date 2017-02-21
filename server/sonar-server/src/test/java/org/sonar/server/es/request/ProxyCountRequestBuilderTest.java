@@ -45,7 +45,8 @@ public class ProxyCountRequestBuilderTest {
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareCount(FakeIndexDefinition.INDEX).setTypes(FakeIndexDefinition.TYPE).toString()).isEqualTo("ES count request on indices 'fakes' on types 'fake'");
+    assertThat(esTester.client().prepareCount(FakeIndexDefinition.INDEX).setTypes(FakeIndexDefinition.INDEX_TYPE_FAKE.getType()).toString())
+      .isEqualTo("ES count request on indices 'fakes' on types 'fake'");
     assertThat(esTester.client().prepareCount(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES count request on indices 'fakes'");
     assertThat(esTester.client().prepareCount().toString()).isEqualTo("ES count request");
   }

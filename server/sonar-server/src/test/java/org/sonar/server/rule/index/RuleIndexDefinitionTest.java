@@ -25,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexDefinition;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;;
 
 public class RuleIndexDefinitionTest {
 
@@ -75,11 +75,11 @@ public class RuleIndexDefinitionTest {
   public void support_long_html_description() throws Exception {
     String longText = StringUtils.repeat("hello  ", 10_000);
     // the following method fails if PUT fails
-    tester.putDocuments(INDEX, RuleIndexDefinition.TYPE_RULE, new RuleDoc(ImmutableMap.of(
+    tester.putDocuments(INDEX_TYPE_RULE, new RuleDoc(ImmutableMap.of(
       FIELD_RULE_HTML_DESCRIPTION, longText,
       FIELD_RULE_REPOSITORY, "squid",
       FIELD_RULE_KEY, "squid:S001")));
-    assertThat(tester.countDocuments(INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
+    assertThat(tester.countDocuments(INDEX_TYPE_RULE)).isEqualTo(1);
 
     List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);
     for (AnalyzeResponse.AnalyzeToken token : tokens) {
@@ -105,7 +105,7 @@ public class RuleIndexDefinitionTest {
   }
 
   private List<AnalyzeResponse.AnalyzeToken> analyzeIndexedTokens(String text) {
-    return tester.client().nativeClient().admin().indices().prepareAnalyze(INDEX,
+    return tester.client().nativeClient().admin().indices().prepareAnalyze(INDEX_TYPE_RULE.getIndex(),
       text)
       .setField(FIELD_RULE_HTML_DESCRIPTION)
       .execute().actionGet().getTokens();

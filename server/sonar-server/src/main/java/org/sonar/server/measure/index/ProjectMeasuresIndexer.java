@@ -40,18 +40,17 @@ import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
   private static final Logger LOG = Loggers.get(ProjectMeasuresIndexer.class);
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
 
   public ProjectMeasuresIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, FIELD_ANALYSED_AT);
+    super(system2, esClient, 300, INDEX_TYPE_PROJECT_MEASURES, FIELD_ANALYSED_AT);
     this.dbClient = dbClient;
   }
 
@@ -90,7 +89,7 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
   @Override
   public void deleteProject(String uuid) {
     esClient
-      .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, uuid)
+      .prepareDelete(INDEX_TYPE_PROJECT_MEASURES, uuid)
       .setRouting(uuid)
       .setRefresh(true)
       .get();
@@ -119,14 +118,14 @@ public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexe
   }
 
   private BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_PROJECT_MEASURES);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_PROJECT_MEASURES.getIndex());
     bulk.setLarge(large);
     return bulk;
   }
 
   private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {
     String projectUuid = doc.getId();
-    return new IndexRequest(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, projectUuid)
+    return new IndexRequest(INDEX_TYPE_PROJECT_MEASURES.getIndex(), INDEX_TYPE_PROJECT_MEASURES.getType(), projectUuid)
       .routing(projectUuid)
       .parent(projectUuid)
       .source(doc.getFields());

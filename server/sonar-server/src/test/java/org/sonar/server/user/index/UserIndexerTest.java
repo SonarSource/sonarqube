@@ -54,7 +54,7 @@ public class UserIndexerTest {
   public void index_nothing() {
     UserIndexer indexer = createIndexer();
     indexer.index();
-    assertThat(esTester.countDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER)).isEqualTo(0L);
+    assertThat(esTester.countDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType())).isEqualTo(0L);
   }
 
   @Test
@@ -64,7 +64,7 @@ public class UserIndexerTest {
     UserIndexer indexer = createIndexer();
     indexer.index();
 
-    List<UserDoc> docs = esTester.getDocuments("users", "user", UserDoc.class);
+    List<UserDoc> docs = esTester.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
     UserDoc doc = docs.get(0);
     assertThat(doc.login()).isEqualTo("user1");

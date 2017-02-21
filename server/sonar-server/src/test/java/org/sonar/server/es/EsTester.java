@@ -92,10 +92,14 @@ public class EsTester extends ExternalResource {
   }
 
   public void putDocuments(String index, String type, BaseDoc... docs) {
+    putDocuments(new IndexTypeId(index, type), docs);
+  }
+
+  public void putDocuments(IndexTypeId indexType, BaseDoc... docs) {
     try {
       BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
       for (BaseDoc doc : docs) {
-        bulk.add(new IndexRequest(index, type, doc.getId())
+        bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
           .parent(doc.getParent())
           .routing(doc.getRouting())
           .source(doc.getFields()));
@@ -106,16 +110,20 @@ public class EsTester extends ExternalResource {
     }
   }
 
-  public long countDocuments(String indexName, String typeName) {
-    return client().prepareSearch(indexName).setTypes(typeName).setSize(0).get().getHits().totalHits();
+  public long countDocuments(String index, String type) {
+    return countDocuments(new IndexTypeId(index, type));
+  }
+
+  public long countDocuments(IndexTypeId indexType) {
+    return client().prepareSearch(indexType).setSize(0).get().getHits().totalHits();
   }
 
   /**
    * Get all the indexed documents (no paginated results). Results are converted to BaseDoc objects.
    * Results are not sorted.
    */
-  public <E extends BaseDoc> List<E> getDocuments(String indexName, String typeName, final Class<E> docClass) {
-    List<SearchHit> hits = getDocuments(indexName, typeName);
+  public <E extends BaseDoc> List<E> getDocuments(IndexTypeId indexType, final Class<E> docClass) {
+    List<SearchHit> hits = getDocuments(indexType);
     return newArrayList(Collections2.transform(hits, new Function<SearchHit, E>() {
       @Override
       public E apply(SearchHit input) {
@@ -131,8 +139,8 @@ public class EsTester extends ExternalResource {
   /**
    * Get all the indexed documents (no paginated results). Results are not sorted.
    */
-  public List<SearchHit> getDocuments(String indexName, String typeName) {
-    SearchRequestBuilder req = client.nativeClient().prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery());
+  public List<SearchHit> getDocuments(IndexTypeId indexType) {
+    SearchRequestBuilder req = client.nativeClient().prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(QueryBuilders.matchAllQuery());
     req.setSearchType(SearchType.SCAN)
       .setScroll(new TimeValue(60000))
       .setSize(100);
@@ -153,8 +161,8 @@ public class EsTester extends ExternalResource {
   /**
    * Get a list of a specific field from all indexed documents.
    */
-  public <T> List<T> getDocumentFieldValues(String indexName, String typeName, final String fieldNameToReturn) {
-    return newArrayList(Iterables.transform(getDocuments(indexName, typeName), new Function<SearchHit, T>() {
+  public <T> List<T> getDocumentFieldValues(IndexTypeId indexType, final String fieldNameToReturn) {
+    return newArrayList(Iterables.transform(getDocuments(indexType), new Function<SearchHit, T>() {
       @Override
       public T apply(SearchHit input) {
         return (T) input.sourceAsMap().get(fieldNameToReturn);
@@ -162,8 +170,8 @@ public class EsTester extends ExternalResource {
     }));
   }
 
-  public List<String> getIds(String indexName, String typeName) {
-    return FluentIterable.from(getDocuments(indexName, typeName)).transform(SearchHitToId.INSTANCE).toList();
+  public List<String> getIds(IndexTypeId indexType) {
+    return FluentIterable.from(getDocuments(indexType)).transform(SearchHitToId.INSTANCE).toList();
   }
 
   public EsClient client() {

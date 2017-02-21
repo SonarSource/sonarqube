@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
@@ -30,10 +31,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
  */
 public class IssueIndexDefinition implements IndexDefinition {
 
-  public static final String INDEX = "issues";
-
-  public static final String TYPE_ISSUE = "issue";
-
+  public static final IndexTypeId INDEX_TYPE_ISSUE = new IndexTypeId("issues", "issue");
   public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
   public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
@@ -83,12 +81,12 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX);
+    NewIndex index = context.create(INDEX_TYPE_ISSUE.getIndex());
 
     index.refreshHandledByIndexer();
     index.configureShards(settings, 5);
 
-    NewIndex.NewIndexType type = index.createType(TYPE_ISSUE);
+    NewIndex.NewIndexType type = index.createType(INDEX_TYPE_ISSUE.getType());
     type.requireProjectAuthorization();
 
     type.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().addSubFields(SORTABLE_ANALYZER).build();

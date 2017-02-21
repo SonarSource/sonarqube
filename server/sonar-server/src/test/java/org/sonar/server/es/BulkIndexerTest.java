@@ -29,6 +29,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.es.FakeIndexDefinition.INDEX;
+import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 
 public class BulkIndexerTest {
 
@@ -37,7 +39,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_nothing() {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX);
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX);
     indexer.start();
     indexer.stop();
 
@@ -46,7 +48,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_documents() {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX);
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX);
     indexer.start();
     indexer.add(newIndexRequest(42));
     indexer.add(newIndexRequest(78));
@@ -64,7 +66,7 @@ public class BulkIndexerTest {
     // index has one replica
     assertThat(replicas()).isEqualTo(1);
 
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX)
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX)
       .setFlushByteSize(500)
       .setLarge(true);
     indexer.start();
@@ -91,13 +93,12 @@ public class BulkIndexerTest {
     for (int i = 0; i < max; i++) {
       docs[i] = FakeIndexDefinition.newDoc(i);
     }
-    esTester.putDocuments(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, docs);
+    esTester.putDocuments(INDEX_TYPE_FAKE, docs);
     assertThat(count()).isEqualTo(max);
 
-    SearchRequestBuilder req = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
-      .setTypes(FakeIndexDefinition.TYPE)
+    SearchRequestBuilder req = esTester.client().prepareSearch(INDEX_TYPE_FAKE)
       .setQuery(QueryBuilders.rangeQuery(FakeIndexDefinition.INT_FIELD).gte(removeFrom));
-    BulkIndexer.delete(esTester.client(), FakeIndexDefinition.INDEX, req);
+    BulkIndexer.delete(esTester.client(), INDEX, req);
 
     assertThat(count()).isEqualTo(removeFrom);
   }
@@ -108,12 +109,12 @@ public class BulkIndexerTest {
 
   private int replicas() {
     GetSettingsResponse settingsResp = esTester.client().nativeClient().admin().indices()
-      .prepareGetSettings(FakeIndexDefinition.INDEX).get();
-    return Integer.parseInt(settingsResp.getSetting(FakeIndexDefinition.INDEX, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
+      .prepareGetSettings(INDEX).get();
+    return Integer.parseInt(settingsResp.getSetting(INDEX, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
   }
 
   private IndexRequest newIndexRequest(int intField) {
-    return new IndexRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE)
+    return new IndexRequest(INDEX, INDEX_TYPE_FAKE.getType())
       .source(ImmutableMap.of(FakeIndexDefinition.INT_FIELD, intField));
   }
 }

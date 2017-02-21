@@ -58,8 +58,6 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_NAME;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS;
-import static org.sonar.server.user.index.UserIndexDefinition.INDEX;
-import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 @ServerSide
 @ComputeEngineSide
@@ -84,7 +82,7 @@ public class UserIndex {
 
   @CheckForNull
   public UserDoc getNullableByLogin(String login) {
-    GetRequestBuilder request = esClient.prepareGet(INDEX, TYPE_USER, login)
+    GetRequestBuilder request = esClient.prepareGet(UserIndexDefinition.INDEX_TYPE_USER, login)
       .setFetchSource(true)
       .setRouting(login);
     GetResponse response = request.get();
@@ -101,8 +99,7 @@ public class UserIndex {
   public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount) {
     List<UserDoc> result = new ArrayList<>();
     if (!StringUtils.isEmpty(scmAccount)) {
-      SearchRequestBuilder request = esClient.prepareSearch(INDEX)
-        .setTypes(TYPE_USER)
+      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
         .setQuery(boolQuery().must(matchAllQuery()).filter(
           boolQuery()
             .must(termQuery(FIELD_ACTIVE, true))
@@ -122,8 +119,7 @@ public class UserIndex {
       .filter(termsQuery(FIELD_LOGIN, logins));
 
     SearchRequestBuilder requestBuilder = esClient
-      .prepareSearch(INDEX)
-      .setTypes(TYPE_USER)
+      .prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
       .setSearchType(SearchType.SCAN)
       .addSort(SortBuilders.fieldSort(FIELD_LOGIN).order(SortOrder.ASC))
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
@@ -138,8 +134,7 @@ public class UserIndex {
   }
 
   public SearchResult<UserDoc> search(@Nullable String searchText, SearchOptions options) {
-    SearchRequestBuilder request = esClient.prepareSearch(INDEX)
-      .setTypes(TYPE_USER)
+    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
       .setSize(options.getLimit())
       .setFrom(options.getOffset())
       .addSort(FIELD_NAME, SortOrder.ASC);

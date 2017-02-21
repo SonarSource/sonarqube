@@ -58,10 +58,10 @@ public class ProxyBulkRequestBuilderTest {
 
   private void testBulk() {
     BulkRequestBuilder req = esTester.client().prepareBulk();
-    req.add(new UpdateRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "key1")
+    req.add(new UpdateRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.INDEX_TYPE_FAKE.getType(), "key1")
       .doc(FakeIndexDefinition.newDoc(1).getFields()));
-    req.add(new DeleteRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "key2"));
-    req.add(new IndexRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "key3")
+    req.add(new DeleteRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.INDEX_TYPE_FAKE.getType(), "key2"));
+    req.add(new IndexRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.INDEX_TYPE_FAKE.getType(), "key3")
       .source(FakeIndexDefinition.newDoc(3).getFields()));
 
     assertThat(req.toString()).isEqualTo(

@@ -49,8 +49,7 @@ public class ViewIndex {
   }
 
   public List<String> findAllViewUuids() {
-    SearchRequestBuilder esSearch = esClient.prepareSearch(ViewIndexDefinition.INDEX)
-      .setTypes(ViewIndexDefinition.TYPE_VIEW)
+    SearchRequestBuilder esSearch = esClient.prepareSearch(ViewIndexDefinition.INDEX_TYPE_VIEW)
       .addSort("_doc", SortOrder.ASC)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
       .setFetchSource(false)
@@ -78,9 +77,8 @@ public class ViewIndex {
   }
 
   public void delete(Collection<String> viewUuids) {
-    SearchRequestBuilder searchRequest = esClient.prepareSearch(ViewIndexDefinition.INDEX)
-      .setTypes(ViewIndexDefinition.TYPE_VIEW)
+    SearchRequestBuilder searchRequest = esClient.prepareSearch(ViewIndexDefinition.INDEX_TYPE_VIEW)
       .setQuery(boolQuery().must(matchAllQuery()).filter(termsQuery(ViewIndexDefinition.FIELD_UUID, viewUuids)));
-    BulkIndexer.delete(esClient, ViewIndexDefinition.INDEX, searchRequest);
+    BulkIndexer.delete(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(), searchRequest);
   }
 }

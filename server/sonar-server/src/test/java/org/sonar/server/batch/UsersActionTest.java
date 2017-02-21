@@ -64,7 +64,7 @@ public class UsersActionTest {
 
   @Test
   public void return_minimal_fields() throws Exception {
-    es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
+    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(),
       new UserDoc().setLogin("ada.lovelace").setName("Ada Lovelace").setActive(false),
       new UserDoc().setLogin("grace.hopper").setName("Grace Hopper").setActive(true));
     userSessionRule.logIn("sonarqtech");

@@ -43,7 +43,7 @@ public class ViewIndexer extends BaseIndexer implements StartupIndexer {
   private final DbClient dbClient;
 
   public ViewIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, "updatedAt");
+    super(system2, esClient, 300, ViewIndexDefinition.INDEX_TYPE_VIEW, "updatedAt");
     this.dbClient = dbClient;
   }
 
@@ -63,7 +63,7 @@ public class ViewIndexer extends BaseIndexer implements StartupIndexer {
    */
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    long count = esClient.prepareCount(ViewIndexDefinition.INDEX).setTypes(ViewIndexDefinition.TYPE_VIEW).get().getCount();
+    long count = esClient.prepareCount(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex()).setTypes(ViewIndexDefinition.INDEX_TYPE_VIEW.getType()).get().getCount();
     if (count == 0) {
       DbSession dbSession = dbClient.openSession(false);
       try {
@@ -104,14 +104,14 @@ public class ViewIndexer extends BaseIndexer implements StartupIndexer {
    * The views lookup cache will be cleared
    */
   public void index(ViewDoc viewDoc) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX);
+    final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex());
     bulk.start();
     doIndex(bulk, viewDoc, true);
     bulk.stop();
   }
 
   private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX);
+    final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex());
     bulk.start();
     for (Map.Entry<String, String> entry : viewAndProjectViewUuidMap.entrySet()) {
       String viewUuid = entry.getKey();
@@ -131,7 +131,7 @@ public class ViewIndexer extends BaseIndexer implements StartupIndexer {
   }
 
   private static IndexRequest newIndexRequest(ViewDoc doc) {
-    return new IndexRequest(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, doc.uuid())
+    return new IndexRequest(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(), ViewIndexDefinition.INDEX_TYPE_VIEW.getType(), doc.uuid())
       .source(doc.getFields());
   }
 

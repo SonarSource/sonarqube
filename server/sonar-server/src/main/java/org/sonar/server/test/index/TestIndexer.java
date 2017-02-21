@@ -37,8 +37,7 @@ import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
-import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
-import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
@@ -50,7 +49,7 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
   private final DbClient dbClient;
 
   public TestIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 0L, INDEX, TYPE, FIELD_UPDATED_AT);
+    super(system2, esClient, 0L, INDEX_TYPE_TEST, FIELD_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
@@ -79,7 +78,7 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex());
     return doIndex(bulk, dbRows);
   }
 
@@ -89,7 +88,7 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
   }
 
   private long doIndex(long lastUpdatedAt, @Nullable String projectUuid) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    final BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex());
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
@@ -117,18 +116,16 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer, StartupI
   }
 
   public void deleteByFile(String fileUuid) {
-    SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX)
-      .setTypes(TYPE)
+    SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX_TYPE_TEST)
       .setQuery(QueryBuilders.termsQuery(FIELD_FILE_UUID, fileUuid));
-    BulkIndexer.delete(esClient, INDEX, searchRequest);
+    BulkIndexer.delete(esClient, INDEX_TYPE_TEST.getIndex(), searchRequest);
   }
 
   @Override
   public void deleteProject(String projectUuid) {
-    SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX)
-      .setRouting(projectUuid)
-      .setTypes(TYPE)
+    SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX_TYPE_TEST)
+      .setTypes(INDEX_TYPE_TEST.getType())
       .setQuery(QueryBuilders.termQuery(TestIndexDefinition.FIELD_PROJECT_UUID, projectUuid));
-    BulkIndexer.delete(esClient, INDEX, searchRequest);
+    BulkIndexer.delete(esClient, INDEX_TYPE_TEST.getIndex(), searchRequest);
   }
 }

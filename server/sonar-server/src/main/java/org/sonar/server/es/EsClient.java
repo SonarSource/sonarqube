@@ -132,6 +132,12 @@ public class EsClient implements Closeable {
     return new ProxySearchRequestBuilder(nativeClient()).setIndices(indices);
   }
 
+  public SearchRequestBuilder prepareSearch(IndexTypeId... indexType) {
+    return new ProxySearchRequestBuilder(nativeClient())
+      .setIndices(IndexTypeId.getIndices(indexType))
+      .setTypes(IndexTypeId.getTypes(indexType));
+  }
+
   public SearchScrollRequestBuilder prepareSearchScroll(String scrollId) {
     return new ProxySearchScrollRequestBuilder(scrollId, nativeClient());
   }
@@ -140,8 +146,8 @@ public class EsClient implements Closeable {
     return new ProxyGetRequestBuilder(nativeClient());
   }
 
-  public GetRequestBuilder prepareGet(String index, String type, String id) {
-    return new ProxyGetRequestBuilder(nativeClient()).setIndex(index).setType(type).setId(id);
+  public GetRequestBuilder prepareGet(IndexTypeId indexType, String id) {
+    return new ProxyGetRequestBuilder(nativeClient()).setIndex(indexType.getIndex()).setType(indexType.getType()).setId(id);
   }
 
   public MultiGetRequestBuilder prepareMultiGet() {
@@ -160,12 +166,16 @@ public class EsClient implements Closeable {
     return new ProxyBulkRequestBuilder(nativeClient());
   }
 
+  public DeleteRequestBuilder prepareDelete(IndexTypeId indexType, String id) {
+    return new ProxyDeleteRequestBuilder(nativeClient(), indexType.getIndex()).setType(indexType.getType()).setId(id);
+  }
+
   public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
     return new ProxyDeleteRequestBuilder(nativeClient(), index).setType(type).setId(id);
   }
 
-  public IndexRequestBuilder prepareIndex(String index, String type) {
-    return new ProxyIndexRequestBuilder(nativeClient()).setIndex(index).setType(type);
+  public IndexRequestBuilder prepareIndex(IndexTypeId indexType) {
+    return new ProxyIndexRequestBuilder(nativeClient()).setIndex(indexType.getIndex()).setType(indexType.getType());
   }
 
   public ForceMergeRequestBuilder prepareForceMerge(String indexName) {
@@ -178,9 +188,8 @@ public class EsClient implements Closeable {
     return new ProxyClearCacheRequestBuilder(nativeClient()).setIndices(indices);
   }
 
-  public long getMaxFieldValue(String indexName, String typeName, String fieldName) {
-    SearchRequestBuilder request = prepareSearch(indexName)
-      .setTypes(typeName)
+  public long getMaxFieldValue(IndexTypeId indexType, String fieldName) {
+    SearchRequestBuilder request = prepareSearch(indexType)
       .setQuery(QueryBuilders.matchAllQuery())
       .setSize(0)
       .addAggregation(AggregationBuilders.max("latest").field(fieldName));

@@ -33,17 +33,15 @@ public abstract class BaseIndexer implements Startable {
 
   private final System2 system2;
   private final ThreadPoolExecutor executor;
-  private final String indexName;
-  private final String typeName;
+  private final IndexTypeId indexType;
   protected final EsClient esClient;
   private final String dateFieldName;
   private volatile long lastUpdatedAt = -1L;
 
-  protected BaseIndexer(System2 system2, EsClient client, long threadKeepAliveSeconds, String indexName, String typeName,
+  protected BaseIndexer(System2 system2, EsClient client, long threadKeepAliveSeconds, IndexTypeId indexType,
     String dateFieldName) {
     this.system2 = system2;
-    this.indexName = indexName;
-    this.typeName = typeName;
+    this.indexType = indexType;
     this.dateFieldName = dateFieldName;
     this.esClient = client;
     this.executor = new ThreadPoolExecutor(0, 1,
@@ -54,7 +52,7 @@ public abstract class BaseIndexer implements Startable {
     final long requestedAt = system2.now();
     Future submit = executor.submit(() -> {
       if (lastUpdatedAt == -1L) {
-        lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
+        lastUpdatedAt = esClient.getMaxFieldValue(indexType, dateFieldName);
       }
       if (requestedAt > lastUpdatedAt) {
         long l = task.index(lastUpdatedAt);

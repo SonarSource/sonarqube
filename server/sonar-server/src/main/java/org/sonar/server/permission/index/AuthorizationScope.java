@@ -21,24 +21,25 @@ package org.sonar.server.permission.index;
 
 import java.util.function.Predicate;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.server.es.IndexTypeId;
 
 import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class AuthorizationScope {
-  private final String indexName;
+  private final IndexTypeId indexType;
   private final Predicate<PermissionIndexerDao.Dto> projectPredicate;
 
-  public AuthorizationScope(String indexName, Predicate<PermissionIndexerDao.Dto> projectPredicate) {
-    this.indexName = requireNonNull(indexName);
+  public AuthorizationScope(IndexTypeId indexType, Predicate<PermissionIndexerDao.Dto> projectPredicate) {
+    this.indexType = AuthorizationTypeSupport.getAuthorizationIndexType(indexType);
     this.projectPredicate = requireNonNull(projectPredicate);
   }
 
   /**
-   * Name of the index containing a type named {@link AuthorizationTypeSupport#TYPE_AUTHORIZATION}.
+   * Identifier of the authorization type (in the same index than the original IndexType, passed into the constructor).
    */
-  public String getIndexName() {
-    return indexName;
+  public IndexTypeId getIndexType() {
+    return indexType;
   }
 
   /**

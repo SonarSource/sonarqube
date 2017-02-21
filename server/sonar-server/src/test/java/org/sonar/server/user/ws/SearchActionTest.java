@@ -119,7 +119,7 @@ public class SearchActionTest {
     loginAsSimpleUser();
     injectUsers(5);
     UserDto user = db.users().insertUser(newUserDto("user-%_%-login", "user-name", "user@mail.com").setScmAccounts(singletonList("user1")));
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
+    esTester.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(),
       new UserDoc()
         .setActive(true)
         .setEmail(user.getEmail())

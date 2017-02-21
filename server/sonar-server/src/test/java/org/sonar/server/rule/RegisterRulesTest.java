@@ -138,7 +138,7 @@ public class RegisterRulesTest {
   public void update_and_remove_rules_on_changes() {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
-    assertThat(esTester.getIds(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).containsOnly(RULE_KEY1.toString(), RULE_KEY2.toString());
+    assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(RULE_KEY1.toString(), RULE_KEY2.toString());
 
     // user adds tags and sets markdown note
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY1);
@@ -333,7 +333,7 @@ public class RegisterRulesTest {
   public void do_not_update_already_removed_rules() {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
-    assertThat(esTester.getIds(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).containsOnly(RULE_KEY1.toString(), RULE_KEY2.toString());
+    assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(RULE_KEY1.toString(), RULE_KEY2.toString());
 
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY2);
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.READY);
@@ -368,7 +368,7 @@ public class RegisterRulesTest {
     execute(new BigRepository());
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(BigRepository.SIZE);
     assertThat(dbTester.countRowsOfTable("rules_parameters")).isEqualTo(BigRepository.SIZE * 20);
-    assertThat(esTester.getIds(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).hasSize(BigRepository.SIZE);
+    assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).hasSize(BigRepository.SIZE);
   }
 
   @Test

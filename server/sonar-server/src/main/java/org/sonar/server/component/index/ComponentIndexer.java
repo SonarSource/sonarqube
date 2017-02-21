@@ -44,12 +44,11 @@ import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
+import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
 
 public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable, StartupIndexer {
 
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_COMPONENTS, project -> true);
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_COMPONENT, project -> true);
 
   private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
@@ -97,7 +96,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
    * <b>Warning:</b> only use <code>null</code> during startup.
    */
   private void doIndexByProjectUuid(@Nullable String projectUuid) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
 
     // setLarge must be enabled only during server startup because it disables replicas
     bulk.setLarge(projectUuid == null);
@@ -115,16 +114,16 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
 
   @Override
   public void deleteProject(String projectUuid) {
-    BulkIndexer.delete(esClient, INDEX_COMPONENTS, esClient.prepareSearch(INDEX_COMPONENTS)
+    BulkIndexer.delete(esClient, INDEX_TYPE_COMPONENT.getIndex(), esClient.prepareSearch(INDEX_TYPE_COMPONENT)
       .setQuery(boolQuery()
         .filter(
           termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid))));
   }
 
   public void delete(String projectUuid, Collection<String> disabledComponentUuids) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
     bulk.start();
-    disabledComponentUuids.stream().forEach(uuid -> bulk.addDeletion(INDEX_COMPONENTS, TYPE_COMPONENT, uuid, projectUuid));
+    disabledComponentUuids.stream().forEach(uuid -> bulk.addDeletion(INDEX_TYPE_COMPONENT, uuid, projectUuid));
     bulk.stop();
   }
 
@@ -138,7 +137,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   private void indexNow(ComponentDto... docs) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
     bulk.setLarge(false);
     bulk.start();
     Arrays.stream(docs)
@@ -149,7 +148,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   private static IndexRequest newIndexRequest(ComponentDoc doc) {
-    return new IndexRequest(INDEX_COMPONENTS, TYPE_COMPONENT, doc.getId())
+    return new IndexRequest(INDEX_TYPE_COMPONENT.getIndex(), INDEX_TYPE_COMPONENT.getType(), doc.getId())
       .routing(doc.getRouting())
       .parent(doc.getParent())
       .source(doc.getFields());

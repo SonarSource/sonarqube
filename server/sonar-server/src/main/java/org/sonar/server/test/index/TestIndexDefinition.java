@@ -22,11 +22,12 @@ package org.sonar.server.test.index;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 
 public class TestIndexDefinition implements IndexDefinition {
-  public static final String INDEX = "tests";
-  public static final String TYPE = "test";
+
+  public static final IndexTypeId INDEX_TYPE_TEST = new IndexTypeId("tests", "test");
   public static final String FIELD_PROJECT_UUID = "projectUuid";
   public static final String FIELD_FILE_UUID = "fileUuid";
   public static final String FIELD_TEST_UUID = "testUuid";
@@ -48,12 +49,12 @@ public class TestIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX);
+    NewIndex index = context.create(INDEX_TYPE_TEST.getIndex());
 
     index.refreshHandledByIndexer();
     index.configureShards(settings, 5);
 
-    NewIndex.NewIndexType mapping = index.createType(TYPE);
+    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_TEST.getType());
     mapping.setAttribute("_routing", ImmutableMap.of("required", true));
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_FILE_UUID).disableNorms().build();

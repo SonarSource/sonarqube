@@ -21,6 +21,7 @@ package org.sonar.server.view.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexTypeId;
 import org.sonar.server.es.NewIndex;
 
 /**
@@ -28,10 +29,7 @@ import org.sonar.server.es.NewIndex;
  */
 public class ViewIndexDefinition implements IndexDefinition {
 
-  public static final String INDEX = "views";
-
-  public static final String TYPE_VIEW = "view";
-
+  public static final IndexTypeId INDEX_TYPE_VIEW = new IndexTypeId("views", "view");
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_PROJECTS = "projects";
 
@@ -43,12 +41,12 @@ public class ViewIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX);
+    NewIndex index = context.create(INDEX_TYPE_VIEW.getIndex());
 
     index.configureShards(settings, 5);
 
     // type "view"
-    NewIndex.NewIndexType mapping = index.createType(TYPE_VIEW);
+    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_VIEW.getType());
     mapping.stringFieldBuilder(FIELD_UUID).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_PROJECTS).disableNorms().build();
   }

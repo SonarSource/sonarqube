@@ -38,7 +38,7 @@ public class UserIndexer extends BaseIndexer implements StartupIndexer {
   private final DbClient dbClient;
 
   public UserIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, UserIndexDefinition.FIELD_UPDATED_AT);
+    super(system2, esClient, 300, UserIndexDefinition.INDEX_TYPE_USER, UserIndexDefinition.FIELD_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
@@ -50,7 +50,7 @@ public class UserIndexer extends BaseIndexer implements StartupIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX);
+    final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
@@ -77,7 +77,7 @@ public class UserIndexer extends BaseIndexer implements StartupIndexer {
   }
 
   private static IndexRequest newIndexRequest(UserDoc user) {
-    return new IndexRequest(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user.login())
+    return new IndexRequest(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user.login())
       .source(user.getFields());
   }
 
