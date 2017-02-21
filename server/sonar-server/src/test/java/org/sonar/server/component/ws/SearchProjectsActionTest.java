@@ -295,6 +295,19 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void filter_projects_by_text_query() {
+    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonar-java").setName("Sonar Java"));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonar-groovy").setName("Sonar Groovy"));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonar-markdown").setName("Sonar Markdown"));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonarqube").setName("Sonar Qube"));
+
+    assertThat(call(request.setFilter("query = \"Groovy\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Groovy");
+    assertThat(call(request.setFilter("query = \"oNar\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java", "Sonar Groovy", "Sonar Markdown", "Sonar Qube");
+    assertThat(call(request.setFilter("query = \"sonar-java\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java");
+  }
+
+  @Test
   public void filter_favourite_projects_with_query_with_or_without_a_specified_organization() {
     userSession.logIn();
     OrganizationDto organization1 = db.organizations().insert();

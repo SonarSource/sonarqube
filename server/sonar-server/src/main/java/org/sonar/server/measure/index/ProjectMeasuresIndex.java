@@ -26,6 +26,7 @@ import com.google.common.collect.Multimap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -41,6 +42,8 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
@@ -242,7 +245,6 @@ public class ProjectMeasuresIndex extends BaseIndex {
           .filter(toValueQuery(criterion))))
         .forEach(metricFilters::must);
       filters.put(entry.getKey(), metricFilters);
-
     });
 
     query.getQualityGateStatus()
@@ -257,7 +259,22 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
     query.getOrganizationUuid()
       .ifPresent(organizationUuid -> filters.put(FIELD_ORGANIZATION_UUID, termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
+
+    createTextQueryFilter(query).ifPresent(queryBuilder -> filters.put("textQuery", queryBuilder));
     return filters;
+  }
+
+  private static Optional<QueryBuilder> createTextQueryFilter(ProjectMeasuresQuery query) {
+    Optional<String> queryText = query.getQueryText();
+    if (!queryText.isPresent()) {
+      return Optional.empty();
+    }
+    ComponentTextSearchQueryFactory.ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQueryFactory.ComponentTextSearchQuery.builder()
+      .setQueryText(queryText.get())
+      .setFieldKey(FIELD_KEY)
+      .setFieldName(FIELD_NAME)
+      .build();
+    return Optional.of(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, ComponentTextSearchFeature.values()));
   }
 
   private static QueryBuilder toValueQuery(MetricCriterion criterion) {

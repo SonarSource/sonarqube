@@ -39,6 +39,7 @@ import static org.sonar.server.component.ws.FilterParser.Operator;
 import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
 import static org.sonar.server.component.ws.FilterParser.Operator.GT;
 import static org.sonar.server.component.ws.FilterParser.Operator.IN;
+import static org.sonar.server.component.ws.FilterParser.Operator.LT;
 import static org.sonar.server.component.ws.FilterParser.Operator.LTE;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
@@ -149,6 +150,42 @@ public class ProjectMeasuresQueryFactoryTest {
     expectedException.expectMessage("Language should be set either by using 'language = java' or 'language IN (java, js)");
 
     newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator(EQ).setValues(asList("java")).build()),
+      emptySet());
+  }
+
+  @Test
+  public void create_query_having_q() throws Exception {
+    List<Criterion> criteria = singletonList(Criterion.builder().setKey("query").setOperator(EQ).setValue("Sonar Qube").build());
+
+    ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
+
+    assertThat(underTest.getQueryText().get()).isEqualTo("Sonar Qube");
+  }
+
+  @Test
+  public void create_query_having_q_ignore_case_sensitive() throws Exception {
+    List<Criterion> criteria = singletonList(Criterion.builder().setKey("query").setOperator(EQ).setValue("Sonar Qube").build());
+
+    ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
+
+    assertThat(underTest.getQueryText().get()).isEqualTo("Sonar Qube");
+  }
+
+  @Test
+  public void fail_to_create_query_having_q_with_no_value() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Query is invalid");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("query").setOperator(EQ).build()),
+      emptySet());
+  }
+
+  @Test
+  public void fail_to_create_query_having_q_with_other_operator_than_equals() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Query should only be used with equals operator");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("query").setOperator(LT).setValue("java").build()),
       emptySet());
   }
 

@@ -291,6 +291,19 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void filter_on_query_text() {
+    ComponentDto windows = newProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
+    ComponentDto apachee = newProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
+    ComponentDto apache1 = newProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
+    ComponentDto apache2 = newProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
+    index(newDoc(windows), newDoc(apachee), newDoc(apache1), newDoc(apache2));
+
+    assertResults(new ProjectMeasuresQuery().setQueryText("windows"), windows);
+    assertResults(new ProjectMeasuresQuery().setQueryText("project2"), apachee);
+    assertResults(new ProjectMeasuresQuery().setQueryText("pAch"), apache1, apache2, apachee);
+  }
+
+  @Test
   public void filter_on_ids() {
     index(
       newDoc(PROJECT1),

@@ -37,11 +37,17 @@ import static java.util.Objects.requireNonNull;
 
 public class FilterParser {
 
+  private static final String DOUBLE_QUOTES = "\"";
+
   private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
   private static final Splitter IN_VALUES_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
 
-  private static final Pattern PATTERN = Pattern.compile("(\\w+)\\s*([<>]?[=]?)\\s*(\\S*)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern PATTERN = Pattern.compile("(\\w+)\\s*([<>]?[=]?)\\s*(.*)", Pattern.CASE_INSENSITIVE);
   private static final Pattern PATTERN_HAVING_VALUES = Pattern.compile("(\\w+)\\s+(in)\\s+\\((.*)\\)", Pattern.CASE_INSENSITIVE);
+
+  private FilterParser(){
+    // Only static methods
+  }
 
   public static List<Criterion> parse(String filter) {
     return StreamSupport.stream(CRITERIA_SPLITTER.split(filter.trim()).spliterator(), false)
@@ -80,7 +86,7 @@ public class FilterParser {
     String value = matcher.group(3);
     if (!isNullOrEmpty(operatorValue) && !isNullOrEmpty(value)) {
       builder.setOperator(Operator.getByValue(operatorValue));
-      builder.setValue(value);
+      builder.setValue(sanitizeValue(value));
     }
     return builder.build();
   }
@@ -96,6 +102,17 @@ public class FilterParser {
     builder.setOperator(Operator.IN);
     builder.setValues(IN_VALUES_SPLITTER.splitToList(matcher.group(3)));
     return builder.build();
+  }
+
+  @CheckForNull
+  private static String sanitizeValue(@Nullable String value) {
+    if (value == null) {
+      return null;
+    }
+    if (value.length() > 2 && value.startsWith(DOUBLE_QUOTES) && value.endsWith(DOUBLE_QUOTES)) {
+      return value.substring(1, value.length() - 1);
+    }
+    return value;
   }
 
   public static class Criterion {

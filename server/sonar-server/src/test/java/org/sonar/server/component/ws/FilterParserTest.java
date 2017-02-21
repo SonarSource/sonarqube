@@ -133,7 +133,7 @@ public class FilterParserTest {
       .containsOnly(
         tuple("ncloc", GT, "10", emptyList()),
         tuple("coverage", LTE, "80", emptyList()),
-        tuple("language", IN, null,  asList("java", "js")));
+        tuple("language", IN, null, asList("java", "js")));
   }
 
   @Test
@@ -149,6 +149,29 @@ public class FilterParserTest {
         tuple("duplication", GTE, "56.5", emptyList()),
         tuple("security_rating", EQ, "1", emptyList()),
         tuple("language", IN, null, asList("java", "js")));
+  }
+
+  @Test
+  public void parse_filter_starting_and_ending_with_double_quotes() throws Exception {
+    assertThat(FilterParser.parse("q = \"Sonar Qube\""))
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
+      .containsOnly(
+        tuple("q", EQ, "Sonar Qube"));
+
+    assertThat(FilterParser.parse("q = \"Sonar\"Qube\""))
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
+      .containsOnly(
+        tuple("q", EQ, "Sonar\"Qube"));
+
+    assertThat(FilterParser.parse("q = Sonar\"Qube"))
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
+      .containsOnly(
+        tuple("q", EQ, "Sonar\"Qube"));
+
+    assertThat(FilterParser.parse("q=\"Sonar Qube\""))
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
+      .containsOnly(
+        tuple("q", EQ, "Sonar Qube"));
   }
 
   @Test

@@ -40,6 +40,7 @@ public class ProjectMeasuresQuery {
   private Set<String> languages;
   private String sort = SORT_BY_NAME;
   private boolean asc = true;
+  private String queryText;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);
@@ -84,6 +85,15 @@ public class ProjectMeasuresQuery {
 
   public Optional<Set<String>> getLanguages() {
     return Optional.ofNullable(languages);
+  }
+
+  public Optional<String> getQueryText() {
+    return Optional.ofNullable(queryText);
+  }
+
+  public ProjectMeasuresQuery setQueryText(@Nullable String queryText) {
+    this.queryText = queryText;
+    return this;
   }
 
   public String getSort() {

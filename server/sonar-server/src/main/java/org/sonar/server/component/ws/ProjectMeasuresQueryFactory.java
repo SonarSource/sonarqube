@@ -42,6 +42,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUA
 class ProjectMeasuresQueryFactory {
 
   public static final String IS_FAVORITE_CRITERION = "isFavorite";
+  public static final String QUERY_KEY = "query";
 
   private ProjectMeasuresQueryFactory() {
     // prevent instantiation
@@ -67,6 +68,11 @@ class ProjectMeasuresQueryFactory {
       return;
     }
 
+    if (QUERY_KEY.equalsIgnoreCase(key)) {
+      processQuery(criterion, query);
+      return;
+    }
+
     String value = criterion.getValue();
     checkArgument(value != null, "Value cannot be null for '%s'", key);
     if (ALERT_STATUS_KEY.equals(key)) {
@@ -82,11 +88,21 @@ class ProjectMeasuresQueryFactory {
     List<String> values = criterion.getValues();
     if (value != null && EQ.equals(operator)) {
       query.setLanguages(singleton(value));
-    } else if (!values.isEmpty() && IN.equals(operator)) {
-      query.setLanguages(new HashSet<>(values));
-    } else {
-      throw new IllegalArgumentException("Language should be set either by using 'language = java' or 'language IN (java, js)'");
+      return;
     }
+    if (!values.isEmpty() && IN.equals(operator)) {
+      query.setLanguages(new HashSet<>(values));
+      return;
+    }
+    throw new IllegalArgumentException("Language should be set either by using 'language = java' or 'language IN (java, js)'");
+  }
+
+  private static void processQuery(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+    Operator operatorValue = criterion.getOperator();
+    String value = criterion.getValue();
+    checkArgument(value != null, "Query is invalid");
+    checkArgument(EQ.equals(operatorValue), "Query should only be used with equals operator");
+    query.setQueryText(value);
   }
 
   private static void processQualityGateStatus(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
@@ -105,6 +121,5 @@ class ProjectMeasuresQueryFactory {
       throw new IllegalArgumentException(format("Value '%s' is not a number", value));
     }
   }
-
 
 }

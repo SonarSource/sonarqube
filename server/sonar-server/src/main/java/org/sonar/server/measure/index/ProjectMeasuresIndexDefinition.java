@@ -23,6 +23,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
@@ -58,8 +59,8 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
       .requireProjectAuthorization();
 
     mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUID).build();
-    mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
-    mapping.stringFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER).build();
+    mapping.stringFieldBuilder(FIELD_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    mapping.stringFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_QUALITY_GATE_STATUS).build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
     mapping.nestedFieldBuilder(FIELD_MEASURES)
