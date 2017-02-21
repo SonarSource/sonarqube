@@ -29,6 +29,8 @@ import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 /**
  * Definition of ES index "rules", including settings and fields.
@@ -90,8 +92,8 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.setEnableSource(false);
     activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.TYPE_RULE));
 
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).enableSorting().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).enableSorting().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY).build();
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).disableNorms().build();
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
@@ -104,12 +106,12 @@ public class RuleIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType ruleMapping = index.createType(TYPE_RULE);
     ruleMapping.setEnableSource(false);
 
-    ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).enableSorting().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).enableSorting().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
 
-    ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).enableSorting().enableWordSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_WORDS_ANALYZER).build();
     ruleMapping.setProperty(FIELD_RULE_HTML_DESCRIPTION, ImmutableSortedMap.of(
       DefaultIndexSettings.TYPE, DefaultIndexSettings.STRING,
       DefaultIndexSettings.INDEX, DefaultIndexSettings.ANALYZED,
@@ -122,7 +124,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
     ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().build();
 
-    ruleMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).enableWordSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).addSubFields(SEARCH_WORDS_ANALYZER).build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_TYPE).disableNorms().build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);

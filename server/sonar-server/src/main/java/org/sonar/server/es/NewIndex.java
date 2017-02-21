@@ -213,36 +213,15 @@ public class NewIndex {
      * Add a sub-field. A {@code SortedMap} is required for consistency of the index settings hash.
      * @see IndexDefinitionHash
      */
-    public StringFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
+    private StringFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
       subFields.put(fieldName, fieldDefinition);
       return this;
     }
 
     /**
-     * Create an inner-field named "sort" with analyzer "sortable"
+     * Add subfields, one for each analyzer.
      */
-    public StringFieldBuilder enableSorting() {
-      enable(DefaultIndexSettingsElement.SORTABLE_ANALYZER);
-      return this;
-    }
-
-    /**
-     * Create an inner-field named "words" with analyzer "words"
-     */
-    public StringFieldBuilder enableWordSearch() {
-      enable(DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER);
-      return this;
-    }
-
-    /**
-     * Create a inner-field named "grams" with analyzer "grams"
-     */
-    public StringFieldBuilder enableGramSearch() {
-      enable(DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER);
-      return this;
-    }
-
-    public StringFieldBuilder enable(DefaultIndexSettingsElement... analyzers) {
+    public StringFieldBuilder addSubFields(DefaultIndexSettingsElement... analyzers) {
       Arrays.stream(analyzers)
         .forEach(analyzer -> addSubField(analyzer.getSubFieldSuffix(), analyzer.fieldMapping()));
       return this;
