@@ -18,6 +18,7 @@ cache:
     - server/sonar-web/node
     - server/sonar-web/node_modules
     - $HOME/jvm
+    - $HOME/maven
     - $HOME/phantomjs
 
 before_cache:
