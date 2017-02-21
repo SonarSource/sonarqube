@@ -174,7 +174,7 @@ public class ProcessEntryPointTest {
 
     @Override
     public Status getStatus() {
-      return Status.UP;
+      return Status.OPERATIONAL;
     }
 
     @Override

@@ -95,22 +95,7 @@ public class ProcessEntryPoint implements Stoppable {
 
     Logger logger = LoggerFactory.getLogger(getClass());
     try {
-      logger.info("Starting " + getKey());
-      Runtime.getRuntime().addShutdownHook(shutdownHook);
-      stopWatcher.start();
-
-      monitored.start();
-      Monitored.Status status = waitForNotDownStatus();
-      if (status == Monitored.Status.UP) {
-        // notify monitor that process is ready
-        commands.setUp();
-
-        if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
-          monitored.awaitStop();
-        }
-      } else {
-        stop();
-      }
+      launch(logger);
     } catch (Exception e) {
       logger.warn("Fail to start " + getKey(), e);
     } finally {
@@ -118,9 +103,43 @@ public class ProcessEntryPoint implements Stoppable {
     }
   }
 
+  private void launch(Logger logger) throws InterruptedException {
+    logger.info("Starting " + getKey());
+    Runtime.getRuntime().addShutdownHook(shutdownHook);
+    stopWatcher.start();
+
+    monitored.start();
+    Monitored.Status status = waitForNotDownStatus();
+    if (status == Monitored.Status.UP || status == Monitored.Status.OPERATIONAL) {
+      // notify monitor that process is ready
+      commands.setUp();
+
+      if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
+        Monitored.Status newStatus = waitForOperational(status);
+        if (newStatus == Monitored.Status.OPERATIONAL && lifecycle.tryToMoveTo(Lifecycle.State.OPERATIONAL)) {
+          commands.setOperational();
+        }
+
+        monitored.awaitStop();
+      }
+    } else {
+      stop();
+    }
+  }
+
   private Monitored.Status waitForNotDownStatus() throws InterruptedException {
     Monitored.Status status = Monitored.Status.DOWN;
     while (status == Monitored.Status.DOWN) {
+      status = monitored.getStatus();
+      Thread.sleep(20L);
+    }
+    return status;
+  }
+
+  private Monitored.Status waitForOperational(Monitored.Status currentStatus) throws InterruptedException {
+    Monitored.Status status = currentStatus;
+    // wait for operation or stop waiting if going to OPERATIONAL failed
+    while (status != Monitored.Status.OPERATIONAL && status != Monitored.Status.FAILED) {
       status = monitored.getStatus();
       Thread.sleep(20L);
     }

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
@@ -36,6 +35,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessUtils;
 import org.sonar.process.SystemExit;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.process.DefaultProcessCommands.reset;
 
 public class Monitor {
@@ -51,6 +51,7 @@ public class Monitor {
   private final SystemExit systemExit;
   private final boolean watchForHardStop;
   private final Thread shutdownHook = new Thread(new MonitorShutdownHook(), "Monitor Shutdown Hook");
+  private final boolean waitForOperational;
 
   private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<>();
   private final Lifecycle lifecycle;
@@ -66,27 +67,76 @@ public class Monitor {
   @CheckForNull
   HardStopWatcherThread hardStopWatcher;
 
-  Monitor(int processNumber, FileSystem fileSystem, SystemExit exit, boolean watchForHardStop, Lifecycle.LifecycleListener... listeners) {
-    this.processNumber = processNumber;
-    this.fileSystem = fileSystem;
-    this.systemExit = exit;
-    this.watchForHardStop = watchForHardStop;
-    this.lifecycle = new Lifecycle(listeners);
+  private Monitor(Builder builder) {
+    this.processNumber = builder.processNumber;
+    this.fileSystem = requireNonNull(builder.fileSystem, "FileSystem can't be null²");
+    this.systemExit = builder.exit == null ? new SystemExit() : builder.exit;
+    this.watchForHardStop = builder.watchForHardStop;
+    this.waitForOperational = builder.waitForOperational;
+    this.lifecycle = builder.listeners == null ? new Lifecycle() : new Lifecycle(builder.listeners.stream().toArray(Lifecycle.LifecycleListener[]::new));
   }
 
-  public static Monitor create(int processNumber, FileSystem fileSystem, boolean watchForHardStop) {
-    return new Monitor(processNumber, fileSystem, new SystemExit(), watchForHardStop);
+  public static Builder newMonitorBuilder() {
+    return new Builder();
   }
 
-  public static Monitor create(int processNumber, FileSystem fileSystem, boolean watchForHardStop, Lifecycle.LifecycleListener listener) {
-    return new Monitor(processNumber, fileSystem, new SystemExit(), watchForHardStop, Objects.requireNonNull(listener));
+  public static class Builder {
+    private int processNumber;
+    private FileSystem fileSystem;
+    private SystemExit exit;
+    private boolean watchForHardStop;
+    private boolean waitForOperational = false;
+    private List<Lifecycle.LifecycleListener> listeners;
+
+    private Builder() {
+      // use static factory method
+    }
+
+    public Builder setProcessNumber(int processNumber) {
+      this.processNumber = processNumber;
+      return this;
+    }
+
+    public Builder setFileSystem(FileSystem fileSystem) {
+      this.fileSystem = fileSystem;
+      return this;
+    }
+
+    public Builder setExit(SystemExit exit) {
+      this.exit = exit;
+      return this;
+    }
+
+    public Builder setWatchForHardStop(boolean watchForHardStop) {
+      this.watchForHardStop = watchForHardStop;
+      return this;
+    }
+
+    public Builder setWaitForOperational() {
+      this.waitForOperational = true;
+      return this;
+    }
+
+    public Builder addListener(Lifecycle.LifecycleListener listener) {
+      if (this.listeners == null) {
+        this.listeners = new ArrayList<>(1);
+      }
+      this.listeners.add(requireNonNull(listener, "LifecycleListener can't be null"));
+      return this;
+    }
+
+    public Monitor build() {
+      return new Monitor(this);
+    }
   }
 
   /**
-   * Starts commands and blocks current thread until all processes are in state {@link State#STARTED}.
-   * @throws java.lang.IllegalArgumentException if commands list is empty
-   * @throws java.lang.IllegalStateException if already started or if at least one process failed to start. In this case
-   *   all processes are terminated. No need to execute {@link #stop()}
+   * Starts commands and blocks current thread until all processes are in state {@link State#STARTED} (or
+   * {@link State#OPERATIONAL} if {@link #waitForOperational} is {@code true}).
+   *
+   * @throws IllegalArgumentException if commands list is empty
+   * @throws IllegalStateException if already started or if at least one process failed to start. In this case
+   *         all processes are terminated. No need to execute {@link #stop()}
    */
   public void start(List<JavaCommand> commands) throws InterruptedException {
     if (commands.isEmpty()) {
@@ -103,7 +153,7 @@ public class Monitor {
     // start watching for restart requested by child process
     restartWatcher.start();
 
-    javaCommands = commands;
+    javaCommands = new ArrayList<>(commands);
     startProcesses();
   }
 
@@ -120,6 +170,7 @@ public class Monitor {
 
       startAndMonitorProcesses();
       stopIfAnyProcessDidNotStart();
+      waitForOperationalProcesses();
     }
   }
 
@@ -143,7 +194,7 @@ public class Monitor {
     }
   }
 
-  private void startAndMonitorProcesses() throws InterruptedException{
+  private void startAndMonitorProcesses() throws InterruptedException {
     File tempDir = fileSystem.getTempDir();
     this.launcher = new JavaProcessLauncher(TIMEOUTS, tempDir);
     for (JavaCommand command : javaCommands) {
@@ -184,6 +235,25 @@ public class Monitor {
       stop();
       throw new IllegalStateException("Stopped during startup");
     }
+  }
+
+  private void waitForOperationalProcesses() throws InterruptedException {
+    if (!waitForOperational) {
+      return;
+    }
+
+    for (WatcherThread watcherThread : watcherThreads) {
+      waitForOperationalProcess(watcherThread.getProcessRef());
+    }
+    lifecycle.tryToMoveTo(State.OPERATIONAL);
+  }
+
+  private static void waitForOperationalProcess(ProcessRef processRef) throws InterruptedException {
+    LOG.debug("Waiting for {} to be operational", processRef);
+    while (!processRef.getCommands().isOperational()) {
+      Thread.sleep(WATCH_DELAY_MS);
+    }
+    LOG.debug("{} is operational", processRef);
   }
 
   /**
@@ -332,7 +402,8 @@ public class Monitor {
     @Override
     public void run() {
       while (lifecycle.getState() != Lifecycle.State.STOPPED) {
-        if (lifecycle.getState() == Lifecycle.State.STARTED && didAnyProcessRequestRestart()) {
+        Lifecycle.State state = lifecycle.getState();
+        if ((state == Lifecycle.State.STARTED || state == Lifecycle.State.OPERATIONAL) && didAnyProcessRequestRestart()) {
           restartAsync();
         }
         try {

@@ -90,13 +90,13 @@ public class HttpProcess implements Monitored {
   @Override
   public Status getStatus() {
     if (ready) {
-      return Status.UP;
+      return Status.OPERATIONAL;
     }
     if (server.isStarted()) {
       ready = true;
       writeTimeToFile("readyAt");
     }
-    return ready ? Status.UP : Status.DOWN;
+    return ready ? Status.OPERATIONAL : Status.DOWN;
   }
 
   @Override

@@ -83,7 +83,7 @@ public class SearchServerTest {
 
     underTest = new SearchServer(props);
     underTest.start();
-    assertThat(underTest.getStatus()).isEqualTo(Monitored.Status.UP);
+    assertThat(underTest.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
 
     Settings settings = Settings.builder().put("cluster.name", A_CLUSTER_NAME).build();
     client = TransportClient.builder().settings(settings).build()

@@ -92,17 +92,17 @@ public class CeServerTest {
   }
 
   @Test
-  public void isUp_throws_ISE_when_called_before_start() throws IOException {
+  public void getStatus_throws_ISE_when_called_before_start() throws IOException {
     CeServer ceServer = newCeServer();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("isUp() can not be called before start()");
+    expectedException.expectMessage("getStatus() can not be called before start()");
 
     ceServer.getStatus();
   }
 
   @Test
-  public void isUp_does_not_return_true_until_ComputeEngine_startup_returns() throws InterruptedException, IOException {
+  public void getStatus_does_not_return_OPERATIONAL_until_ComputeEngine_startup_returns() throws InterruptedException, IOException {
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(null);
     CeServer ceServer = newCeServer(computeEngine);
 
@@ -116,11 +116,11 @@ public class CeServerTest {
     while (ceServer.getStatus() == Monitored.Status.DOWN) {
       // wait for isReady to change to true, otherwise test will fail with timeout
     }
-    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.UP);
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
   }
 
   @Test
-  public void isUp_returns_true_when_ComputeEngine_startup_throws_any_Exception_or_Error() throws InterruptedException, IOException {
+  public void getStatus_returns_OPERATIONAL_when_ComputeEngine_startup_throws_any_Exception_or_Error() throws InterruptedException, IOException {
     Throwable startupException = new Throwable("Faking failing ComputeEngine#startup()");
 
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(startupException);
@@ -134,13 +134,13 @@ public class CeServerTest {
     computeEngine.releaseStartup();
 
     while (ceServer.getStatus() == Monitored.Status.DOWN) {
-      // wait for isReady to change to true, otherwise test will fail with timeout
+      // wait for isReady to change to not DOWN, otherwise test will fail with timeout
     }
-    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.UP);
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
   }
 
   @Test
-  public void isUp_returns_true_when_waiting_for_WebServer_failed() throws InterruptedException {
+  public void getStatus_returns_OPERATIONAL_when_waiting_for_WebServer_failed() throws InterruptedException {
     final CountDownLatch webServerWatcherCalled = new CountDownLatch(1);
     CeServer ceServer = newCeServer(() -> {
       webServerWatcherCalled.countDown();
@@ -149,7 +149,7 @@ public class CeServerTest {
 
     ceServer.start();
     ceServer.awaitStop();
-    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.UP);
+    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
   }
 
   @Test

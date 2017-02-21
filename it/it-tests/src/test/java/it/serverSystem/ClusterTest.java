@@ -107,7 +107,7 @@ public class ClusterTest {
         .setServerProperty("sonar.cluster.ce.disabled", "true")
         // override the default watcher provided by Orchestrator
         // which waits for Compute Engine to be up
-        .setStartupLogWatcher(log -> log.contains("Process[web] is up"))
+        .setStartupLogWatcher(log -> log.contains("SonarQube is up"))
         .build();
       web.start();
 

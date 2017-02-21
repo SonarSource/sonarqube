@@ -28,6 +28,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.Lifecycle.State;
 import static org.sonar.process.Lifecycle.State.INIT;
+import static org.sonar.process.Lifecycle.State.OPERATIONAL;
 import static org.sonar.process.Lifecycle.State.RESTARTING;
 import static org.sonar.process.Lifecycle.State.STARTED;
 import static org.sonar.process.Lifecycle.State.STARTING;
@@ -75,13 +76,28 @@ public class LifecycleTest {
   }
 
   @Test
-  public void can_move_to_STOPPING_from_STARTING_and_STARTED_only() {
+  public void can_move_to_STOPPING_from_STARTING_STARTED_OPERATIONAL_only() {
     for (State state : values()) {
       TestLifeCycleListener listener = new TestLifeCycleListener();
       boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(STOPPING);
-      if (state == STARTING || state == STARTED) {
+      if (state == STARTING || state == STARTED  || state == OPERATIONAL) {
         assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
         assertThat(listener.getTransitions()).containsOnly(new Transition(state, STOPPING));
+      } else {
+        assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
+        assertThat(listener.getTransitions()).isEmpty();
+      }
+    }
+  }
+
+  @Test
+  public void can_move_to_OPERATIONAL_from_STARTED_only() {
+    for (State state : values()) {
+      TestLifeCycleListener listener = new TestLifeCycleListener();
+      boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(OPERATIONAL);
+      if (state == STARTED) {
+        assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
+        assertThat(listener.getTransitions()).containsOnly(new Transition(state, OPERATIONAL));
       } else {
         assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
         assertThat(listener.getTransitions()).isEmpty();
@@ -104,10 +120,12 @@ public class LifecycleTest {
         return newLifeCycle(INIT, state, listeners);
       case STARTED:
         return newLifeCycle(STARTING, state, listeners);
+      case OPERATIONAL:
+        return newLifeCycle(STARTED, state, listeners);
       case RESTARTING:
-        return newLifeCycle(STARTED, state, listeners);
+        return newLifeCycle(OPERATIONAL, state, listeners);
       case STOPPING:
-        return newLifeCycle(STARTED, state, listeners);
+        return newLifeCycle(OPERATIONAL, state, listeners);
       case HARD_STOPPING:
         return newLifeCycle(STARTING, state, listeners);
       case STOPPED:

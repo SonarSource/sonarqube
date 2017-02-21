@@ -27,13 +27,13 @@ public interface Monitored {
   void start();
 
   /**
-   * {@link Status#UP} if the process is done starting, {@link Status#FAILED} if the process failed to start,
-   * {@link Status#DOWN} otherwise.
+   * @return {@link Status#UP} if the process is done starting, {@link Status#OPERATIONAL} if the service is operation,
+   *         {@link Status#FAILED} if the process failed to start, {@link Status#DOWN} otherwise.
    */
   Status getStatus();
 
   enum Status {
-    UP, DOWN, FAILED
+    DOWN, UP, OPERATIONAL, FAILED
   }
 
   /**

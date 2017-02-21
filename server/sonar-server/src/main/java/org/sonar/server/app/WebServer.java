@@ -20,20 +20,30 @@
 package org.sonar.server.app;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
+import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 public class WebServer implements Monitored {
+  public static final String PROPERTY_SHARED_PATH = "process.sharedDir";
 
+  private final File sharedDir;
   private final EmbeddedTomcat tomcat;
 
   WebServer(Props props) {
     new MinimumViableSystem()
       .checkWritableTempDir()
       .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
+    this.sharedDir = getSharedDir(props);
     this.tomcat = new EmbeddedTomcat(props);
+  }
+
+  private static File getSharedDir(Props props) {
+    return props.nonNullValueAsFile(PROPERTY_SHARED_PATH);
   }
 
   @Override
@@ -47,10 +57,16 @@ public class WebServer implements Monitored {
       case DOWN:
         return Status.DOWN;
       case UP:
-        return Status.UP;
+        return isOperational() ? Status.OPERATIONAL : Status.UP;
       case FAILED:
       default:
         return Status.FAILED;
+    }
+  }
+
+  private boolean isOperational() {
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(sharedDir, ProcessId.WEB_SERVER.getIpcIndex())) {
+      return processCommands.isOperational();
     }
   }
 

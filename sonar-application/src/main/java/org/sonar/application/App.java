@@ -62,7 +62,13 @@ public class App implements Stoppable {
   private final Monitor monitor;
 
   public App(AppFileSystem appFileSystem, boolean watchForHardStop) {
-    this(Monitor.create(APP.getIpcIndex(), appFileSystem, watchForHardStop, new AppLifecycleListener()));
+    this(Monitor.newMonitorBuilder()
+      .setProcessNumber(APP.getIpcIndex())
+      .setFileSystem(appFileSystem)
+      .setWatchForHardStop(watchForHardStop)
+      .setWaitForOperational()
+      .addListener(new AppLifecycleListener())
+      .build());
   }
 
   App(Monitor monitor) {
@@ -192,7 +198,7 @@ public class App implements Stoppable {
 
     @Override
     public void successfulTransition(State from, State to) {
-      if (to == State.STARTED) {
+      if (to == State.OPERATIONAL) {
         LOGGER.info("SonarQube is up");
       }
     }

@@ -52,6 +52,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.monitor.Monitor.newMonitorBuilder;
 import static org.sonar.process.monitor.MonitorTest.HttpProcessClientAssert.assertThat;
 
 public class MonitorTest {
@@ -322,7 +323,12 @@ public class MonitorTest {
 
   private Monitor newDefaultMonitor(File tempDir, boolean watchForHardStop) throws IOException {
     when(fileSystem.getTempDir()).thenReturn(tempDir);
-    return new Monitor(1, fileSystem, exit, watchForHardStop);
+    return newMonitorBuilder()
+      .setProcessNumber(1)
+      .setFileSystem(fileSystem)
+      .setExit(exit)
+      .setWatchForHardStop(watchForHardStop)
+      .build();
   }
 
   /**

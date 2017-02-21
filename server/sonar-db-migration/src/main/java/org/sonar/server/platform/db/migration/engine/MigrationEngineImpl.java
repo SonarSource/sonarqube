@@ -31,7 +31,8 @@ public class MigrationEngineImpl implements MigrationEngine {
   private final MigrationContainerPopulator populator;
   private final MigrationSteps migrationSteps;
 
-  public MigrationEngineImpl(MigrationHistory migrationHistory, ComponentContainer serverContainer, MigrationContainerPopulator populator, MigrationSteps migrationSteps) {
+  public MigrationEngineImpl(MigrationHistory migrationHistory, ComponentContainer serverContainer,
+    MigrationContainerPopulator populator, MigrationSteps migrationSteps) {
     this.migrationHistory = migrationHistory;
     this.serverContainer = serverContainer;
     this.populator = populator;

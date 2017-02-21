@@ -62,7 +62,10 @@ public class SearchServer implements Monitored {
         .setTimeout(TimeValue.timeValueSeconds(30L))
         .get()
         .getStatus() != ClusterHealthStatus.RED;
-    return esStatus ? Status.UP : Status.DOWN;
+    if (esStatus) {
+      return Status.OPERATIONAL;
+    }
+    return Status.DOWN;
   }
 
   @Override

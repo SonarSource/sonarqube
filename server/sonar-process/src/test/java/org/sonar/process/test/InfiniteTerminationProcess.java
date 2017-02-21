@@ -52,7 +52,7 @@ public class InfiniteTerminationProcess implements Monitored {
 
   @Override
   public Status getStatus() {
-    return state == State.STARTED ? Status.UP : Status.DOWN;
+    return state == State.STARTED ? Status.OPERATIONAL : Status.DOWN;
   }
 
   @Override
