@@ -83,7 +83,7 @@ public class DebtModelPluginRepository implements Startable {
     findAvailableXMLFiles();
   }
 
-  protected void findAvailableXMLFiles() {
+  private void findAvailableXMLFiles() {
     if (contributingPluginKeyToClassLoader == null) {
       contributingPluginKeyToClassLoader = Maps.newTreeMap();
       // Add default model

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -100,15 +99,6 @@ public class SearchOptions {
   }
 
   /**
-   * WARNING - dangerous
-   */
-  @Deprecated
-  public SearchOptions disableLimit() {
-    this.limit = 999_999;
-    return this;
-  }
-
-  /**
    * Lists selected facets.
    */
   public Collection<String> getFacets() {
@@ -134,10 +124,6 @@ public class SearchOptions {
     return fieldsToReturn;
   }
 
-  public boolean hasField(String key) {
-    return fieldsToReturn.isEmpty() || fieldsToReturn.contains(key);
-  }
-
   public SearchOptions addFields(@Nullable Collection<String> c) {
     if (c != null) {
       for (String s : c) {
@@ -149,33 +135,10 @@ public class SearchOptions {
     return this;
   }
 
-  public SearchOptions addFields(String... array) {
-    return addFields(Arrays.asList(array));
-  }
-
   public SearchOptions writeJson(JsonWriter json, long totalHits) {
     json.prop("total", totalHits);
     json.prop(WebService.Param.PAGE, getPage());
     json.prop(WebService.Param.PAGE_SIZE, getLimit());
-    return this;
-  }
-
-  @Deprecated
-  public SearchOptions writeDeprecatedJson(JsonWriter json, long totalHits) {
-    int pages = 0;
-    if (limit > 0) {
-      pages = (int) (totalHits / limit);
-      if (totalHits % limit > 0) {
-        pages++;
-      }
-    }
-    json.name("paging").beginObject()
-      .prop("pageIndex", getPage())
-      .prop("pageSize", getLimit())
-      .prop("total", totalHits)
-      .prop("fTotal", String.valueOf(totalHits))
-      .prop("pages", pages)
-      .endObject();
     return this;
   }
 }

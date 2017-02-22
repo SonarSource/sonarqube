@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -158,25 +157,6 @@ public class QProfileServiceMediumTest {
     assertThat(stats.get(XOO_P1_KEY).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).size()).isEqualTo(1);
     assertThat(stats.get(XOO_P1_KEY).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).size()).isEqualTo(1);
     assertThat(stats.get(XOO_P1_KEY).get("countActiveRules").size()).isEqualTo(1);
-  }
-
-  @Test
-  public void count_by_deprecated() {
-    logInAsQProfileAdministrator();
-
-    // create deprecated rule
-    RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))
-      .setSeverity("MINOR").setLanguage("xoo").setStatus(RuleStatus.DEPRECATED);
-    dbClient.ruleDao().insert(dbSession, deprecatedXooRule);
-    dbSession.commit();
-    ruleIndexer.index();
-
-    // active some rules
-    service.activate(XOO_P1_KEY, new RuleActivation(deprecatedXooRule.getKey()).setSeverity("BLOCKER"));
-    service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
-    dbSession.commit();
-
-    assertThat(loader.countDeprecatedActiveRulesByProfile(XOO_P1_KEY)).isEqualTo(1);
   }
 
   public static class XooExporter extends ProfileExporter {

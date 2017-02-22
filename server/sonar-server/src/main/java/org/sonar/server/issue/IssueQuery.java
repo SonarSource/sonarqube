@@ -473,6 +473,6 @@ public class IssueQuery {
   }
 
   private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {
-    return c == null ? Collections.<T>emptyList() : Collections.unmodifiableCollection(c);
+    return c == null ? Collections.emptyList() : Collections.unmodifiableCollection(c);
   }
 }
