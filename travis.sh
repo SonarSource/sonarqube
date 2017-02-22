@@ -35,21 +35,19 @@ function installJdk8 {
 }
 
 #
-# Replaces the SNAPSHOT version by a version identifying the build.
+# Replaces the version defined in sources, usually x.y-SNAPSHOT,
+# by a version identifying the build.
+# The build version is composed of 4 fields, including the semantic version and
+# the build number provided by Travis.
 #
-# Exports the variables:
+# Exported variables:
 # - INITIAL_VERSION: version as defined in pom.xml
 # - PROJECT_VERSION: build version. The name of this variable is important because
 #   it's used by QA when extracting version from Artifactory build info.
 #
-# The build version is composed of 4 fields, including the semantic version and
-# the build number provided by Travis.
-#
 # Example
-# Before: 6.3-SNAPSHOT
-# After:  6.3.0.12345
-#
-# Exception: GA release like "6.3" is kept as-is.
+# INITIAL_VERSION=6.3-SNAPSHOT
+# PROJECT_VERSION=6.3.0.12345
 #
 function fixBuildVersion {
   export INITIAL_VERSION=`maven_expression "project.version"`
@@ -70,10 +68,7 @@ function fixBuildVersion {
   echo "Source Version: $INITIAL_VERSION"
   echo "Build Version : $PROJECT_VERSION"
 
-  if [[ "$INITIAL_VERSION" == *"-SNAPSHOT"* ]]; then
-    # SNAPSHOT or RC
-    mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
-  fi
+  mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
 }
 
 #
