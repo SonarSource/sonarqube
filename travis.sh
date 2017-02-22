@@ -70,7 +70,7 @@ function fixBuildVersion {
   echo "Source Version: $INITIAL_VERSION"
   echo "Build Version : $PROJECT_VERSION"
 
-  if [[ "$INITIAL_VERSION" == *"-"* ]]; then
+  if [[ "$INITIAL_VERSION" == *"-SNAPSHOT"* ]]; then
     # SNAPSHOT or RC
     mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
   fi
