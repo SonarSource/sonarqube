@@ -119,7 +119,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(SUPPORTED_FACETS);
     action
       .createParam(PARAM_FILTER)
-      .setDescription("Filter of projects on measure value, quality gate, language or whether a project is a favorite or not.<br>" +
+      .setDescription("Filter of projects on name, key, measure value, quality gate, language, or whether a project is a favorite or not.<br>" +
         "The filter must be encoded to form a valid URL (for example '=' must be replaced by '%3D').<br>" +
         "Examples of use:" +
         "<ul>" +
@@ -128,6 +128,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter projects with a reliability, security and maintainability rating equals or worse than B:<br>" +
         "   <code>filter=\"reliability_rating>=2 and security_rating>=2 and sqale_rating>=2\"</code></li>" +
         "</ul>" +
+        "To filter on project name or key, use the 'query' keyword, for instance : <code>filter='query = \"Sonar\"'</code>.<br>" +
+        "<br>" +
         "To filter on any numeric metric, provide the metric key.<br>" +
         "Use the WS api/metrics/search to find the key of a metric.<br>" +
         "<br>" +
