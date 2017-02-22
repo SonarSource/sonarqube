@@ -159,6 +159,16 @@ public class FilterParserTest {
   }
 
   @Test
+  public void accept_key_ending_by_in() throws Exception {
+    List<Criterion> criterion = FilterParser.parse("endingbyin > 10");
+
+    assertThat(criterion)
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
+      .containsOnly(
+        tuple("endingbyin", GT, "10"));
+  }
+
+  @Test
   public void search_is_case_insensitive() throws Exception {
     List<Criterion> criterion = FilterParser.parse("ncloc > 10 AnD coverage <= 80 AND debt = 10 AND issues = 20");
 
