@@ -19,42 +19,24 @@
  */
 package org.sonar.db.permission;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
+import org.junit.Test;
 
-public enum OrganizationPermission {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  ADMINISTER("admin"),
-  ADMINISTER_QUALITY_GATES("gateadmin"),
-  ADMINISTER_QUALITY_PROFILES("profileadmin"),
-  PROVISION_PROJECTS("provisioning"),
-  SCAN("scan");
+public class OrganizationPermissionTest {
 
-  private final String key;
-
-  OrganizationPermission(String key) {
-    this.key = key;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  @Override
-  public String toString() {
-    return key;
-  }
-
-  public static OrganizationPermission fromKey(String key) {
-    for (OrganizationPermission p : values()) {
-      if (p.getKey().equals(key)) {
-        return p;
-      }
+  @Test
+  public void fromKey_returns_enum_with_specified_key() {
+    for (OrganizationPermission p : OrganizationPermission.values()) {
+      assertThat(OrganizationPermission.fromKey(p.getKey())).isEqualTo(p);
     }
-    throw new IllegalArgumentException("Unsupported permission: " + key);
   }
 
-  public static Stream<OrganizationPermission> all() {
-    return Arrays.stream(values());
+  @Test
+  public void all_returns_stream_of_values() {
+    assertThat(OrganizationPermission.all()).hasSize(OrganizationPermission.values().length);
+    for (OrganizationPermission permission : OrganizationPermission.values()) {
+      assertThat(OrganizationPermission.all()).contains(permission);
+    }
   }
 }

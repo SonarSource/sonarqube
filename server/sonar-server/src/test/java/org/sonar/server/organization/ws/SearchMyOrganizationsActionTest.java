@@ -19,7 +19,6 @@
  */
 package org.sonar.server.organization.ws;
 
-import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -161,11 +160,11 @@ public class SearchMyOrganizationsActionTest {
     OrganizationDto organization2 = dbTester.organizations().insert();
     GroupDto group = dbTester.users().insertGroup(organization2);
     dbTester.users().insertMember(group, user);
-    Arrays.stream(OrganizationPermission.values())
-      .filter(s -> s != ADMINISTER)
-      .forEach(s -> {
-        dbTester.users().insertPermissionOnUser(organization1, user, s);
-        dbTester.users().insertPermissionOnGroup(group, s);
+    OrganizationPermission.all()
+      .filter(p -> p != ADMINISTER)
+      .forEach(p -> {
+        dbTester.users().insertPermissionOnUser(organization1, user, p);
+        dbTester.users().insertPermissionOnGroup(group, p);
       });
 
     userSessionRule.logIn(user);

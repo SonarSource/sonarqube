@@ -24,10 +24,10 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Permission;
@@ -84,18 +84,19 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     WsSearchGlobalPermissionsResponse.Builder response = WsSearchGlobalPermissionsResponse.newBuilder();
     Permission.Builder permission = newBuilder();
 
-    for (String permissionKey : GlobalPermissions.ALL) {
-      PermissionQuery permissionQuery = permissionQuery(permissionKey);
-
-      response.addPermissions(
-        permission
-          .clear()
-          .setKey(permissionKey)
-          .setName(i18nName(permissionKey))
-          .setDescription(i18nDescriptionMessage(permissionKey))
-          .setUsersCount(countUsers(dbSession, org, permissionQuery))
-          .setGroupsCount(countGroups(dbSession, org, permissionKey)));
-    }
+    OrganizationPermission.all()
+      .map(OrganizationPermission::getKey)
+      .forEach(permissionKey -> {
+        PermissionQuery query = permissionQuery(permissionKey);
+        response.addPermissions(
+          permission
+            .clear()
+            .setKey(permissionKey)
+            .setName(i18nName(permissionKey))
+            .setDescription(i18nDescriptionMessage(permissionKey))
+            .setUsersCount(countUsers(dbSession, org, query))
+            .setGroupsCount(countGroups(dbSession, org, permissionKey)));
+      });
 
     return response.build();
   }

@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -101,7 +102,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     OrganizationDto organization = insertOrganization(dbSession, newOrganization,
       dto -> dto.setGuarded(true).setUserId(newUser.getId()));
-    GlobalPermissions.ALL.forEach(permission -> insertUserPermissions(dbSession, newUser, organization, permission));
+    OrganizationPermission.all()
+      .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization);
 
     dbSession.commit();
@@ -193,7 +195,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, UserRole.ADMIN, now);
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, UserRole.ISSUE_ADMIN, now);
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, GlobalPermissions.SCAN_EXECUTION, now);
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, OrganizationPermission.SCAN.getKey(), now);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.USER, null);
     insertGroupPermission(dbSession, permissionTemplateDto, UserRole.CODEVIEWER, null);
 
@@ -226,23 +228,23 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       .setOrganizationUuid(organization.getUuid())
       .setName(OWNERS_GROUP_NAME)
       .setDescription(format(OWNERS_GROUP_DESCRIPTION_PATTERN, organization.getName())));
-    GlobalPermissions.ALL.forEach(permission -> addPermissionToGroup(dbSession, group, permission));
+    OrganizationPermission.all().forEach(p -> addPermissionToGroup(dbSession, group, p));
     return group;
   }
 
-  private void addPermissionToGroup(DbSession dbSession, GroupDto group, String permission) {
+  private void addPermissionToGroup(DbSession dbSession, GroupDto group, OrganizationPermission permission) {
     dbClient.groupPermissionDao().insert(
       dbSession,
       new GroupPermissionDto()
         .setOrganizationUuid(group.getOrganizationUuid())
         .setGroupId(group.getId())
-        .setRole(permission));
+        .setRole(permission.getKey()));
   }
 
-  private void insertUserPermissions(DbSession dbSession, UserDto userDto, OrganizationDto organization, String permission) {
+  private void insertUserPermissions(DbSession dbSession, UserDto userDto, OrganizationDto organization, OrganizationPermission permission) {
     dbClient.userPermissionDao().insert(
       dbSession,
-      new UserPermissionDto(organization.getUuid(), permission, userDto.getId(), null));
+      new UserPermissionDto(organization.getUuid(), permission.getKey(), userDto.getId(), null));
   }
 
   private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, int createUserId) {
