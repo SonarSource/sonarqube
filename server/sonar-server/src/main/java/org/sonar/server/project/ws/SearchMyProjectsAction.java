@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import java.util.function.Function;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -54,13 +55,15 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    context.createAction("search_my_projects")
+    WebService.NewAction action = context.createAction("search_my_projects")
       .setDescription("Return list of projects for which the current user has 'Administer' permission.")
       .setResponseExample(getClass().getResource("search_my_projects-example.json"))
       .addPagingParams(100, MAX_SIZE)
       .setSince("6.0")
       .setInternal(true)
       .setHandler(this);
+
+    action.setChangelog(new Change("6.4", "The 'id' field is deprecated in the response"));
   }
 
   @Override

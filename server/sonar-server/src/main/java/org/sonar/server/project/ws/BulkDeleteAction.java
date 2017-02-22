@@ -68,6 +68,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .createParam(PARAM_PROJECT_IDS)
       .setDescription("List of project IDs to delete")
       .setDeprecatedKey("ids", "6.4")
+      .setDeprecatedSince("6.4")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d,c526ef20-131b-4486-9357-063fa64b5079");
 
     action

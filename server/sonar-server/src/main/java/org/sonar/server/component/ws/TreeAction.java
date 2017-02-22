@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -114,12 +115,15 @@ public class TreeAction implements ComponentsWsAction {
         PARAM_COMPONENT_ID, PARAM_COMPONENT, Param.TEXT_QUERY))
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
+      .setChangelog(
+        new Change("6.4", "The field 'id' is deprecated in the response"))
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE);
 
     action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Base component id. The search is based on this component.")
       .setDeprecatedKey("baseComponentId", "6.4")
+      .setDeprecatedSince("6.4")
       .setExampleValue(UUID_EXAMPLE_02);
 
     action.createParam(PARAM_COMPONENT)

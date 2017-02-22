@@ -65,6 +65,7 @@ public class DeleteAction implements ProjectsWsAction {
       .createParam(PARAM_PROJECT_ID)
       .setDescription("Project ID")
       .setDeprecatedKey("id", "6.4")
+      .setDeprecatedSince("6.4")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
 
     action

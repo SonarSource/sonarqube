@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -73,6 +74,9 @@ public class SearchAction implements ProjectsWsAction {
       .addSearchQuery("sona", "component names", "component keys")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
+
+    action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
+
     action.createParam(PARAM_QUALIFIERS)
       .setDescription("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers")
       .setPossibleValues(PROJECT, VIEW)

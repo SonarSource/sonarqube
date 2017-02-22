@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -60,6 +61,8 @@ public class GhostsAction implements ProjectsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION);
+
+    action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
 
     action
       .setDescription("List ghost projects.<br /> Requires 'Administer System' permission.")

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -73,6 +74,8 @@ public class ProvisionedAction implements ProjectsWsAction {
       .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar", "names", "keys")
       .addFieldsParam(POSSIBLE_FIELDS);
+
+    action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
 
     support.addOrganizationParam(action);
   }

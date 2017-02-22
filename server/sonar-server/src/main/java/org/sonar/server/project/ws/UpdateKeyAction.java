@@ -74,6 +74,7 @@ public class UpdateKeyAction implements ProjectsWsAction {
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project or module id")
       .setDeprecatedKey("id", "6.4")
+      .setDeprecatedSince("6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_FROM)

@@ -69,11 +69,13 @@ public class ShowAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("show-example.json"))
       .setSince("5.4")
       .setChangelog(new Change("6.4", "Analysis date has been added to the response"))
+      .setChangelog(new Change("6.4", "The field 'id' is deprecated in the response"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Component id")
       .setDeprecatedKey("id", "6.4")
+      .setDeprecatedSince("6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_COMPONENT)
