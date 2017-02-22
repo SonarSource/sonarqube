@@ -32,7 +32,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.core.util.stream.Collectors;
 
+import static java.util.stream.Stream.concat;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
+import static org.sonar.server.ws.WebServiceReroutingFilter.MOVED_WEB_SERVICES;
 
 /**
  * This filter is used to execute Web Services.
@@ -51,21 +53,20 @@ public class WebServiceFilter extends ServletFilter {
 
   public WebServiceFilter(WebServiceEngine webServiceEngine) {
     this.webServiceEngine = webServiceEngine;
-    this.includeUrls = Stream.concat(
+    this.includeUrls = concat(
       Stream.of("/api/*"),
-      webServiceEngine.controllers()
-        .stream()
-        .flatMap(controller -> controller.actions().stream()
-          .map(toPath())))
-      .collect(Collectors.toSet());
-    this.excludeUrls = Stream.concat(
+      webServiceEngine.controllers().stream()
+        .flatMap(controller -> controller.actions().stream())
+        .map(toPath()))
+          .collect(Collectors.toSet());
+    this.excludeUrls = concat(concat(
       Stream.of("/" + CONTROLLER_PROPERTIES + "*"),
-      webServiceEngine.controllers()
-        .stream()
-        .flatMap(controller -> controller.actions().stream()
-          .filter(action -> action.handler() instanceof ServletFilterHandler)
-          .map(toPath())))
-      .collect(Collectors.toSet());
+      MOVED_WEB_SERVICES.stream()),
+      webServiceEngine.controllers().stream()
+        .flatMap(controller -> controller.actions().stream())
+        .filter(action -> action.handler() instanceof ServletFilterHandler)
+        .map(toPath()))
+          .collect(Collectors.toSet());
   }
 
   @Override

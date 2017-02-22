@@ -41,7 +41,7 @@ public class RedirectFilter implements Filter {
   private static final String EMPTY = "";
 
   private static final List<Redirect> REDIRECTS = ImmutableList.of(
-    new WebServiceListRedirect(),
+    newSimpleRedirect("/api", "/api/webservices/list"),
     new BatchRedirect(),
     new BatchBootstrapRedirect(),
     new ProfilesExportRedirect());
@@ -68,6 +68,20 @@ public class RedirectFilter implements Filter {
     }
   }
 
+  public static Redirect newSimpleRedirect(String from, String to) {
+    return new Redirect() {
+      @Override
+      public boolean test(String path) {
+        return from.equals(path);
+      }
+
+      @Override
+      public String apply(HttpServletRequest request) {
+        return format("%s%s", request.getContextPath(), to);
+      }
+    };
+  }
+
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     // Nothing
@@ -84,19 +98,6 @@ public class RedirectFilter implements Filter {
 
     @Override
     String apply(HttpServletRequest request);
-  }
-
-  private static class WebServiceListRedirect implements Redirect {
-
-    @Override
-    public boolean test(String path) {
-      return "/api".equals(path);
-    }
-
-    @Override
-    public String apply(HttpServletRequest request) {
-      return format("%s/api/webservices/list", request.getContextPath());
-    }
   }
 
   /**

@@ -214,6 +214,7 @@ import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.DeprecatedPropertiesWsFilter;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.WebServiceFilter;
+import org.sonar.server.ws.WebServiceReroutingFilter;
 import org.sonar.server.ws.ws.WebServicesWsModule;
 
 public class PlatformLevel4 extends PlatformLevel {
@@ -326,6 +327,7 @@ public class PlatformLevel4 extends PlatformLevel {
       WebServicesWsModule.class,
       WebServiceFilter.class,
       DeprecatedPropertiesWsFilter.class,
+      WebServiceReroutingFilter.class,
 
       // localization
       L10nWs.class,
