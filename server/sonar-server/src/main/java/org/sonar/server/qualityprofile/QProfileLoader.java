@@ -19,20 +19,15 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 
 @ServerSide
@@ -40,12 +35,10 @@ public class QProfileLoader {
 
   private final DbClient dbClient;
   private final ActiveRuleIndex activeRuleIndex;
-  private final RuleIndex ruleIndex;
 
-  public QProfileLoader(DbClient dbClient, ActiveRuleIndex activeRuleIndex, RuleIndex ruleIndex) {
+  public QProfileLoader(DbClient dbClient, ActiveRuleIndex activeRuleIndex) {
     this.dbClient = dbClient;
     this.activeRuleIndex = activeRuleIndex;
-    this.ruleIndex = ruleIndex;
   }
 
   public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {
@@ -53,15 +46,6 @@ public class QProfileLoader {
       List<String> keys = dbClient.qualityProfileDao().selectAll(dbSession).stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
       return activeRuleIndex.getStatsByProfileKeys(keys);
     }
-  }
-
-  public long countDeprecatedActiveRulesByProfile(String key) {
-    return ruleIndex.search(
-      new RuleQuery()
-        .setQProfileKey(key)
-        .setActivation(true)
-        .setStatuses(Lists.newArrayList(RuleStatus.DEPRECATED)),
-      new SearchOptions().setLimit(0)).getTotal();
   }
 
 }

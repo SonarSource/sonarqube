@@ -61,14 +61,6 @@ public class StickyFacetBuilder {
     this.order = order;
   }
 
-  public QueryBuilder query() {
-    return query;
-  }
-
-  public Map<String, QueryBuilder> filters() {
-    return filters;
-  }
-
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Object... selected) {
     return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, selected);
   }

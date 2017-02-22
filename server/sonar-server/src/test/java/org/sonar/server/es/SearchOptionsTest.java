@@ -97,33 +97,10 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void disable_limit() {
-    SearchOptions options = new SearchOptions().disableLimit();
-    assertThat(options.getLimit()).isEqualTo(999999);
-  }
-
-  @Test
   public void max_page_size() {
     SearchOptions options = new SearchOptions().setPage(3, SearchOptions.MAX_LIMIT + 10);
     assertThat(options.getOffset()).isEqualTo(SearchOptions.MAX_LIMIT * 2);
     assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
-  }
-
-  @Test
-  public void hasField() {
-    // parameter is missing -> all the fields are returned by default
-    SearchOptions options = new SearchOptions();
-    assertThat(options.hasField("repo")).isTrue();
-
-    // parameter is set to empty -> all the fields are returned by default
-    options = new SearchOptions().addFields("");
-    assertThat(options.hasField("repo")).isTrue();
-
-    // parameter is set -> return only the selected fields
-    options = new SearchOptions().addFields("name", "repo");
-    assertThat(options.hasField("name")).isTrue();
-    assertThat(options.hasField("repo")).isTrue();
-    assertThat(options.hasField("severity")).isFalse();
   }
 
   @Test
@@ -135,28 +112,6 @@ public class SearchOptionsTest {
     jsonWriter.endObject().close();
 
     JsonAssert.assertJson(json.toString()).isSimilarTo("{\"total\": 42, \"p\": 3, \"ps\": 10}");
-  }
-
-  @Test
-  public void writeDeprecatedJson() {
-    SearchOptions options = new SearchOptions().setPage(3, 10);
-    StringWriter json = new StringWriter();
-    JsonWriter jsonWriter = JsonWriter.of(json).beginObject();
-    options.writeDeprecatedJson(jsonWriter, 42L);
-    jsonWriter.endObject().close();
-
-    JsonAssert.assertJson(json.toString()).isSimilarTo("{\"paging\": {\"pageIndex\": 3, \"pageSize\": 10, \"total\": 42, \"fTotal\": \"42\", \"pages\": 5}}");
-  }
-
-  @Test
-  public void writeDeprecatedJson_exact_nb_of_pages() {
-    SearchOptions options = new SearchOptions().setPage(3, 10);
-    StringWriter json = new StringWriter();
-    JsonWriter jsonWriter = JsonWriter.of(json).beginObject();
-    options.writeDeprecatedJson(jsonWriter, 30L);
-    jsonWriter.endObject().close();
-
-    JsonAssert.assertJson(json.toString()).isSimilarTo("{\"paging\": {\"pageIndex\": 3, \"pageSize\": 10, \"total\": 30, \"fTotal\": \"30\", \"pages\": 3}}");
   }
 
   @Test
