@@ -66,8 +66,6 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
     "WHERE p.enabled=? AND p.scope=? AND p.qualifier=?";
 
-  private static final String DATE_FILTER = " AND s.created_at>?";
-
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
   private static final String SQL_METRICS = "SELECT m.id, m.name FROM metrics m " +
@@ -90,12 +88,12 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     this.projects = projects.iterator();
   }
 
-  public static ProjectMeasuresIndexerIterator create(DbSession session, long afterDate, @Nullable String projectUuid) {
+  public static ProjectMeasuresIndexerIterator create(DbSession session, @Nullable String projectUuid) {
     try {
       Map<Long, String> metrics = selectMetricKeysByIds(session);
-      List<Project> projects = selectProjects(session, afterDate, projectUuid);
-      PreparedStatement measuresStatement = createMeasuresStatement(session, metrics.keySet());
-      return new ProjectMeasuresIndexerIterator(measuresStatement, metrics, projects);
+      List<Project> projects = selectProjects(session, projectUuid);
+      PreparedStatement projectsStatement = createMeasuresStatement(session, metrics.keySet());
+      return new ProjectMeasuresIndexerIterator(projectsStatement, metrics, projects);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute request to select all project measures", e);
     }
@@ -121,9 +119,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     return stmt;
   }
 
-  private static List<Project> selectProjects(DbSession session, long afterDate, @Nullable String projectUuid) {
+  private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
     List<Project> projects = new ArrayList<>();
-    try (PreparedStatement stmt = createProjectsStatement(session, afterDate, projectUuid);
+    try (PreparedStatement stmt = createProjectsStatement(session, projectUuid);
       ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         String orgUuid = rs.getString(1);
@@ -141,23 +139,17 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private static PreparedStatement createProjectsStatement(DbSession session, long afterDate, @Nullable String projectUuid) {
+  private static PreparedStatement createProjectsStatement(DbSession session, @Nullable String projectUuid) {
     try {
       String sql = SQL_PROJECTS;
-      sql += afterDate <= 0L ? "" : DATE_FILTER;
       sql += projectUuid == null ? "" : PROJECT_FILTER;
       PreparedStatement stmt = session.getConnection().prepareStatement(sql);
       stmt.setBoolean(1, true);
       stmt.setBoolean(2, true);
       stmt.setString(3, Scopes.PROJECT);
       stmt.setString(4, Qualifiers.PROJECT);
-      int index = 5;
-      if (afterDate > 0L) {
-        stmt.setLong(index, afterDate);
-        index++;
-      }
       if (projectUuid != null) {
-        stmt.setString(index, projectUuid);
+        stmt.setString(5, projectUuid);
       }
       return stmt;
     } catch (SQLException e) {

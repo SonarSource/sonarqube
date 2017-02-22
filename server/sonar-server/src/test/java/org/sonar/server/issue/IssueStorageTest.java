@@ -259,17 +259,19 @@ public class IssueStorageTest {
     }
 
     @Override
-    protected void doInsert(DbSession session, long now, DefaultIssue issue) {
+    protected String doInsert(DbSession session, long now, DefaultIssue issue) {
       int ruleId = rule(issue).getId();
       IssueDto dto = IssueDto.toDtoForComputationInsert(issue, ruleId, now);
 
       session.getMapper(IssueMapper.class).insert(dto);
+      return dto.getKey();
     }
 
     @Override
-    protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
+    protected String doUpdate(DbSession session, long now, DefaultIssue issue) {
       IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
       session.getMapper(IssueMapper.class).update(dto);
+      return dto.getKey();
     }
   }
 
@@ -285,17 +287,19 @@ public class IssueStorageTest {
     }
 
     @Override
-    protected void doInsert(DbSession session, long now, DefaultIssue issue) {
+    protected String doInsert(DbSession session, long now, DefaultIssue issue) {
       int ruleId = rule(issue).getId();
       IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
       session.getMapper(IssueMapper.class).insert(dto);
+      return dto.getKey();
     }
 
     @Override
-    protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
+    protected String doUpdate(DbSession session, long now, DefaultIssue issue) {
       IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
       session.getMapper(IssueMapper.class).update(dto);
+      return dto.getKey();
     }
   }
 

@@ -19,7 +19,12 @@
  */
 package org.sonar.server.issue;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rules.Rule;
@@ -35,7 +40,9 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 
 /**
  * Save issues into database. It is executed :
@@ -83,45 +90,58 @@ public abstract class IssueStorage {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
     long now = system2.now();
-    List<DefaultIssue> toBeUpdated = batchInsertAndReturnIssuesToUpdate(session, issues, now);
-    update(toBeUpdated, now);
-    doAfterSave(issues);
+    
+    Map<Boolean, List<DefaultIssue>> issuesNewOrUpdated = StreamSupport.stream(issues.spliterator(), true).collect(Collectors.groupingBy(DefaultIssue::isNew));
+    List<DefaultIssue> issuesToInsert = firstNonNull(issuesNewOrUpdated.get(true), emptyList());
+    List<DefaultIssue> issuesToUpdate = firstNonNull(issuesNewOrUpdated.get(false), emptyList());
+    
+    Collection<String> inserted = insert(session, issuesToInsert, now);
+    Collection<String> updated = update(issuesToUpdate, now);
+    
+    Collection<String> issuesInsertedOrUpdated = new ArrayList<>(issuesToInsert.size() + issuesToUpdate.size());
+    issuesInsertedOrUpdated.addAll(inserted);
+    issuesInsertedOrUpdated.addAll(updated);
+    doAfterSave(issuesInsertedOrUpdated);
   }
 
-  protected void doAfterSave(Iterable<DefaultIssue> issues) {
+  protected void doAfterSave(Collection<String> issues) {
     // overridden on server-side to index ES
   }
 
-  private List<DefaultIssue> batchInsertAndReturnIssuesToUpdate(DbSession session, Iterable<DefaultIssue> issues, long now) {
-    List<DefaultIssue> toBeUpdated = newArrayList();
+  /**
+   * @return the keys of the inserted issues
+   */
+  private Collection<String> insert(DbSession session, Iterable<DefaultIssue> issuesToInsert, long now) {
+    List<String> inserted = newArrayList();
     int count = 0;
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
-    for (DefaultIssue issue : issues) {
-      if (issue.isNew()) {
-        doInsert(session, now, issue);
-        insertChanges(issueChangeMapper, issue);
-        count++;
-        if (count > BatchSession.MAX_BATCH_SIZE) {
-          session.commit();
-          count = 0;
-        }
-      } else if (issue.isChanged()) {
-        toBeUpdated.add(issue);
+    for (DefaultIssue issue : issuesToInsert) {
+      String key = doInsert(session, now, issue);
+      inserted.add(key);
+      insertChanges(issueChangeMapper, issue);
+      if (count > BatchSession.MAX_BATCH_SIZE) {
+        session.commit();
       }
+      count++;
     }
     session.commit();
-    return toBeUpdated;
+    return inserted;
   }
 
-  protected abstract void doInsert(DbSession batchSession, long now, DefaultIssue issue);
+  protected abstract String doInsert(DbSession batchSession, long now, DefaultIssue issue);
 
-  private void update(List<DefaultIssue> toBeUpdated, long now) {
-    if (!toBeUpdated.isEmpty()) {
+  /**
+   * @return the keys of the updated issues
+   */
+  private Collection<String> update(List<DefaultIssue> issuesToUpdate, long now) {
+    Collection<String> updated = new ArrayList<>();
+    if (!issuesToUpdate.isEmpty()) {
       DbSession session = dbClient.openSession(false);
       try {
         IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
-        for (DefaultIssue issue : toBeUpdated) {
-          doUpdate(session, now, issue);
+        for (DefaultIssue issue : issuesToUpdate) {
+          String key = doUpdate(session, now, issue);
+          updated.add(key);
           insertChanges(issueChangeMapper, issue);
         }
         session.commit();
@@ -129,9 +149,10 @@ public abstract class IssueStorage {
         MyBatis.closeQuietly(session);
       }
     }
+    return updated;
   }
 
-  protected abstract void doUpdate(DbSession batchSession, long now, DefaultIssue issue);
+  protected abstract String doUpdate(DbSession batchSession, long now, DefaultIssue issue);
 
   private void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
     for (IssueComment comment : issue.comments()) {

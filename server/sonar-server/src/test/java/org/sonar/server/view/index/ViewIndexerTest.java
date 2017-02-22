@@ -45,6 +45,7 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -52,9 +53,6 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class ViewIndexerTest {
 
@@ -71,17 +69,9 @@ public class ViewIndexerTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private IssueIndexer issueIndexer = new IssueIndexer(dbClient, esTester.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, esTester.client(), issueIndexer);
   private ViewIndexer underTest = new ViewIndexer(dbClient, esTester.client());
-
-  @Test
-  public void index_on_startup() {
-    ViewIndexer indexer = spy(underTest);
-    doNothing().when(indexer).indexOnStartup();
-    indexer.indexOnStartup();
-    verify(indexer).indexOnStartup();
-  }
 
   @Test
   public void index_nothing() {
@@ -104,19 +94,6 @@ public class ViewIndexerTest {
     assertThat(viewsByUuid.get("EFGH").projects()).containsOnly("KLMN", "JKLM");
     assertThat(viewsByUuid.get("FGHI").projects()).containsOnly("JKLM");
     assertThat(viewsByUuid.get("IJKL").projects()).isEmpty();
-  }
-
-  @Test
-  public void index_only_if_empty_do_nothing_when_index_already_exists() throws Exception {
-    // Some views are not in the db
-    dbTester.prepareDbUnit(getClass(), "index.xml");
-    esTester.putDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW,
-      new ViewDoc().setUuid("ABCD").setProjects(newArrayList("BCDE")));
-
-    underTest.indexOnStartup();
-
-    // ... But they shouldn't be indexed
-    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(1L);
   }
 
   @Test
@@ -149,14 +126,14 @@ public class ViewIndexerTest {
   @Test
   public void clear_views_lookup_cache_on_index_view_uuid() {
     IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-    IssueIndexer issueIndexer = new IssueIndexer(dbClient, esTester.client());
+    IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
 
     String viewUuid = "ABCD";
 
     RuleDto rule = RuleTesting.newXooX1();
     dbClient.ruleDao().insert(dbSession, rule);
     ComponentDto project1 = addProjectWithIssue(rule, dbTester.organizations().insert());
-    issueIndexer.indexAll();
+    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
     permissionIndexer.indexProjectsByUuids(dbSession, asList(project1.uuid()));
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
@@ -174,7 +151,7 @@ public class ViewIndexerTest {
 
     // Add a project to the view and index it again
     ComponentDto project2 = addProjectWithIssue(rule, organizationDto);
-    issueIndexer.indexAll();
+    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
     permissionIndexer.indexProjectsByUuids(dbSession, asList(project2.uuid()));
 
     ComponentDto techProject2 = ComponentTesting.newProjectCopy("EFGH", project2, view);

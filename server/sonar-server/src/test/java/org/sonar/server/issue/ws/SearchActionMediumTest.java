@@ -160,7 +160,8 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
     result.assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
@@ -193,7 +194,8 @@ public class SearchActionMediumTest {
         .setUserLogin("fabrice")
         .setCreatedAt(DateUtils.parseDateTime("2014-09-10T12:00:00+0000").getTime()));
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -229,7 +231,8 @@ public class SearchActionMediumTest {
         .setUserLogin("fabrice")
         .setCreatedAt(DateUtils.parseDateTime("2014-09-10T19:10:03+0000").getTime()));
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_HIDE_COMMENTS, "true").execute();
@@ -251,7 +254,8 @@ public class SearchActionMediumTest {
       .setAssignee("simon");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("additionalFields", "_all").execute();
@@ -272,7 +276,8 @@ public class SearchActionMediumTest {
       .setAssignee("simon");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("additionalFields", "_all").execute();
@@ -297,7 +302,8 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .execute();
@@ -312,7 +318,8 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project);
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
     assertThat(result.outputAsString()).contains("\"componentId\":" + file.getId() + ",");
@@ -329,7 +336,8 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_COMPONENTS, file.getKey()).execute();
     result.assertJson(this.getClass(), "apply_paging_with_one_component.json");
@@ -344,7 +352,8 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project);
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_ADDITIONAL_FIELDS, "_all").execute();
     result.assertJson(this.getClass(), "components_contains_sub_projects.json");
@@ -364,7 +373,8 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -388,7 +398,8 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -413,7 +424,8 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -471,7 +483,8 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john");
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -503,7 +516,8 @@ public class SearchActionMediumTest {
       .setKee("82fd47d4-4037-b650-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
@@ -545,7 +559,8 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john-bob.polop");
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -572,7 +587,8 @@ public class SearchActionMediumTest {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
       .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-03T00:00:00+0100")));
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
@@ -592,7 +608,8 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
     request.setParam(WebService.Param.PAGE, "2");
@@ -613,7 +630,8 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
     request.setParam(WebService.Param.PAGE, "1");
@@ -634,7 +652,8 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
     request.setParam(PARAM_PAGE_INDEX, "2");
@@ -666,7 +685,8 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
 
     userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)

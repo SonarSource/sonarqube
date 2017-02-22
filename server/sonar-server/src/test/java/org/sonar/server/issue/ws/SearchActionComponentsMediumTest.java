@@ -137,7 +137,7 @@ public class SearchActionComponentsMediumTest {
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue2);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
     result.assertJson(this.getClass(), "issues_on_different_projects.json");
@@ -154,7 +154,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issueInRootModule = IssueTesting.newDto(newRule, project, project).setKee("ISSUE_IN_ROOT_MODULE");
     db.issueDao().insert(session, issueInModule, issueInRootModule);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     WsActionTester actionTester = new WsActionTester(tester.get(SearchAction.class));
     TestResponse response = actionTester.newRequest()
@@ -181,7 +181,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_PROJECT_UUIDS, project.uuid())
@@ -223,7 +223,7 @@ public class SearchActionComponentsMediumTest {
       .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100"));
     db.issueDao().insert(session, issueAfterLeak, issueBeforeLeak);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
@@ -251,7 +251,7 @@ public class SearchActionComponentsMediumTest {
       .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100"));
     db.issueDao().insert(session, issueAfterLeak, issueBeforeLeak);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
@@ -278,7 +278,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue3 = IssueTesting.newDto(rule, file3, project3).setKee("7b1182fd-b650-4037-80bc-82fd47d4eac2");
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_PROJECT_UUIDS, project1.uuid())
@@ -295,7 +295,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, file.uuid())
@@ -329,7 +329,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issueOnTest = IssueTesting.newDto(rule, unitTest, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
     db.issueDao().insert(session, issueOnFile, issueOnTest);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENTS, file.key())
@@ -354,7 +354,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue2 = IssueTesting.newDto(newRule, file2, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
@@ -373,7 +373,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, directory.uuid())
@@ -410,8 +410,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue1 = IssueTesting.newDto(rule, file1, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue1);
     session.commit();
-
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, directory1.uuid())
@@ -461,7 +460,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue2 = IssueTesting.newDto(newRule, file2, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, module.uuid())
@@ -480,7 +479,7 @@ public class SearchActionComponentsMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -583,7 +582,7 @@ public class SearchActionComponentsMediumTest {
 
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_AUTHORS, "leia")
@@ -612,7 +611,7 @@ public class SearchActionComponentsMediumTest {
 
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, developer.uuid())
@@ -644,7 +643,7 @@ public class SearchActionComponentsMediumTest {
 
     db.issueDao().insert(session, issue1, issue2, issueX);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
 
     Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, technicalProject.uuid())
@@ -679,7 +678,7 @@ public class SearchActionComponentsMediumTest {
   private IssueDto insertIssue(IssueDto issue) {
     db.issueDao().insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    indexIssues();
     return issue;
   }
 
@@ -687,6 +686,11 @@ public class SearchActionComponentsMediumTest {
     db.componentDao().insert(session, component);
     session.commit();
     return component;
+  }
+
+  private void indexIssues() {
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
   }
 
   private void indexView(String viewUuid, List<String> projects) {

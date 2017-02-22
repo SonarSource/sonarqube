@@ -197,10 +197,12 @@ public class BulkChangeAction implements IssuesWsAction {
     return bulkChangeData -> {
       BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
       IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
-      bulkChangeData.issues.stream()
+      
+      List<DefaultIssue> items = bulkChangeData.issues.stream()
         .filter(bulkChange(issueChangeContext, bulkChangeData, result))
-        .peek(issueStorage::save)
-        .forEach(sendNotification(issueChangeContext, bulkChangeData));
+        .collect(Collectors.toList());
+      issueStorage.save(items);
+      items.stream().forEach(sendNotification(issueChangeContext, bulkChangeData));
       return result;
     };
   }
