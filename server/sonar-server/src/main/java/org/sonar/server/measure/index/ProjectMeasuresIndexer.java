@@ -75,7 +75,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       case PROJECT_CREATION:
         // provisioned projects are supported by WS api/components/search_projects
       case NEW_ANALYSIS:
-        doIndex(createBulkIndexer(false), 0L, projectUuid);
+        doIndex(createBulkIndexer(false), projectUuid);
         break;
       default:
         // defensive case
@@ -92,26 +92,20 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       .get();
   }
 
-  private long doIndex(BulkIndexer bulk, long lastUpdatedAt, @Nullable String projectUuid) {
+  private void doIndex(BulkIndexer bulk, @Nullable String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false);
-      ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, lastUpdatedAt, projectUuid)) {
-      return doIndex(bulk, rowIt);
+      ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
+      doIndex(bulk, rowIt);
     }
   }
 
-  private static long doIndex(BulkIndexer bulk, Iterator<ProjectMeasures> docs) {
+  private static void doIndex(BulkIndexer bulk, Iterator<ProjectMeasures> docs) {
     bulk.start();
-    long maxDate = 0L;
     while (docs.hasNext()) {
       ProjectMeasures doc = docs.next();
       bulk.add(newIndexRequest(toProjectMeasuresDoc(doc)));
-
-      Long analysisDate = doc.getProject().getAnalysisDate();
-      // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      maxDate = Math.max(maxDate, analysisDate == null ? 0L : analysisDate);
     }
     bulk.stop();
-    return maxDate;
   }
 
   private BulkIndexer createBulkIndexer(boolean large) {

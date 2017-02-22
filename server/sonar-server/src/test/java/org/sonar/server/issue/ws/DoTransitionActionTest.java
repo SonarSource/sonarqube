@@ -47,6 +47,7 @@ import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
@@ -96,8 +97,9 @@ public class DoTransitionActionTest {
   private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
   private TransitionService transitionService = new TransitionService(userSession, workflow);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
+  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(dbClient, esTester.client())), mock(NotificationManager.class));
+    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, issueIndexer), mock(NotificationManager.class));
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter);
   private WsActionTester tester = new WsActionTester(underTest);

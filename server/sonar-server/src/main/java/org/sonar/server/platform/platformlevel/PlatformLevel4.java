@@ -63,6 +63,7 @@ import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
 import org.sonar.server.issue.notification.DoNotFixNotificationDispatcher;
 import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
@@ -384,6 +385,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // issues
       IssueIndexDefinition.class,
       IssueIndexer.class,
+      IssueIteratorFactory.class,
       PermissionIndexer.class,
       IssueWsModule.class,
       NewIssuesEmailTemplate.class,

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import java.util.Collection;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -43,25 +44,26 @@ public class ServerIssueStorage extends IssueStorage {
   }
 
   @Override
-  protected void doInsert(DbSession session, long now, DefaultIssue issue) {
+  protected String doInsert(DbSession session, long now, DefaultIssue issue) {
     ComponentDto component = component(session, issue);
     ComponentDto project = project(session, issue);
     int ruleId = rule(issue).getId();
     IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
     getDbClient().issueDao().insert(session, dto);
+    return dto.getKey();
   }
 
   @Override
-  protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
+  protected String doUpdate(DbSession session, long now, DefaultIssue issue) {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
-
     getDbClient().issueDao().update(session, dto);
+    return dto.getKey();
   }
 
   @Override
-  protected void doAfterSave(Iterable<DefaultIssue> issues) {
-    indexer.index(issues);
+  protected void doAfterSave(Collection<String> issueKeys) {
+    indexer.index(issueKeys);
   }
 
   protected ComponentDto component(DbSession session, DefaultIssue issue) {

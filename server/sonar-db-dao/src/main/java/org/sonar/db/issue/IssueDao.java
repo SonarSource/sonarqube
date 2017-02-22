@@ -55,7 +55,7 @@ public class IssueDao implements Dao {
    * if input keys contain multiple occurrences of a key.
    * <p>Results may be in a different order as input keys (see {@link #selectByOrderedKeys(DbSession, List)}).</p>
    */
-  public List<IssueDto> selectByKeys(final DbSession session, List<String> keys) {
+  public List<IssueDto> selectByKeys(final DbSession session, Collection<String> keys) {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
@@ -63,7 +63,7 @@ public class IssueDao implements Dao {
    * Gets a list issues by their keys. The result does NOT contain {@code null} values for issues not found, so
    * the size of result may be less than the number of keys. A single issue is returned
    * if input keys contain multiple occurrences of a key.
-   * <p>Contrary to {@link #selectByKeys(DbSession, List)}, results are in the same order as input keys.</p>
+   * <p>Contrary to {@link #selectByKeys(DbSession, Collection)}, results are in the same order as input keys.</p>
    */
   public List<IssueDto> selectByOrderedKeys(DbSession session, List<String> keys) {
     List<IssueDto> unordered = selectByKeys(session, keys);

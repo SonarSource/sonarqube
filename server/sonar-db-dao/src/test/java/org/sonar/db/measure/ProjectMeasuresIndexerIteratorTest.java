@@ -219,7 +219,7 @@ public class ProjectMeasuresIndexerIteratorTest {
     dbTester.components().insertProjectAndSnapshot(newProjectDto(organizationDto));
     dbTester.components().insertProjectAndSnapshot(newProjectDto(organizationDto));
 
-    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(0L, project.uuid());
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(project.uuid());
 
     assertThat(docsById).hasSize(1);
     ProjectMeasures doc = docsById.get(project.uuid());
@@ -231,37 +231,20 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_only_docs_after_date() throws Exception {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project1 = newProjectDto(organizationDto);
-    dbClient.componentDao().insert(dbSession, project1);
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(project1).setCreatedAt(1_000_000L));
-    ComponentDto project2 = newProjectDto(organizationDto);
-    dbClient.componentDao().insert(dbSession, project2);
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(project2).setCreatedAt(2_000_000L));
-    dbSession.commit();
-
-    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(1_500_000L, null);
-
-    assertThat(docsById).hasSize(1);
-    assertThat(docsById.get(project2.uuid())).isNotNull();
-  }
-
-  @Test
   public void return_nothing_on_unknown_project() throws Exception {
     dbTester.components().insertProjectAndSnapshot(newProjectDto(dbTester.getDefaultOrganization()));
 
-    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(0L, "UNKNOWN");
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById("UNKNOWN");
 
     assertThat(docsById).isEmpty();
   }
 
   private Map<String, ProjectMeasures> createResultSetAndReturnDocsById() {
-    return createResultSetAndReturnDocsById(0L, null);
+    return createResultSetAndReturnDocsById(null);
   }
 
-  private Map<String, ProjectMeasures> createResultSetAndReturnDocsById(long date, @Nullable String projectUuid) {
-    ProjectMeasuresIndexerIterator it = ProjectMeasuresIndexerIterator.create(dbTester.getSession(), date, projectUuid);
+  private Map<String, ProjectMeasures> createResultSetAndReturnDocsById(@Nullable String projectUuid) {
+    ProjectMeasuresIndexerIterator it = ProjectMeasuresIndexerIterator.create(dbTester.getSession(), projectUuid);
     Map<String, ProjectMeasures> docsById = Maps.uniqueIndex(it, pm -> pm.getProject().getUuid());
     it.close();
     return docsById;

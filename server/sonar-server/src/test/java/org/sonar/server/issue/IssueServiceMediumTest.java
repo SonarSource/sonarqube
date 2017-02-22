@@ -92,7 +92,8 @@ public class IssueServiceMediumTest {
   }
 
   private void index() {
-    tester.get(IssueIndexer.class).indexAll();
+    IssueIndexer r = tester.get(IssueIndexer.class);
+    r.indexOnStartup(r.getIndexTypes());
   }
 
   @Test
@@ -296,7 +297,7 @@ public class IssueServiceMediumTest {
   private IssueDto saveIssue(IssueDto issue) {
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).indexAll();
+    tester.get(IssueIndexer.class).index(asList(issue.getKey()));
     return issue;
   }
 

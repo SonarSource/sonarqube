@@ -78,6 +78,7 @@ import org.sonar.server.event.NewAlerts;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
 import org.sonar.server.issue.notification.DoNotFixNotificationDispatcher;
 import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
@@ -349,6 +350,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // issues
       IssueIndexer.class,
+      IssueIteratorFactory.class,
       PermissionIndexer.class,
       IssueFieldsSetter.class, // used in Web Services and CE's DebtCalculator
       FunctionExecutor.class, // used by IssueWorkflow

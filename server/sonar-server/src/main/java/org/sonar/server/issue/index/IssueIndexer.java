@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -28,8 +29,6 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -50,12 +49,12 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
   private static final int MAX_BATCH_SIZE = 1000;
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
-  private final DbClient dbClient;
   private final EsClient esClient;
+  private final IssueIteratorFactory issueIteratorFactory;
 
-  public IssueIndexer(DbClient dbClient, EsClient esClient) {
-    this.dbClient = dbClient;
+  public IssueIndexer(EsClient esClient, IssueIteratorFactory issueIteratorFactory) {
     this.esClient = esClient;
+    this.issueIteratorFactory = issueIteratorFactory;
   }
 
   @Override
@@ -71,10 +70,6 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
   @Override
   public void indexOnStartup() {
     doIndex(createBulkIndexer(true), (String) null);
-  }
-
-  public void indexAll() {
-    doIndex(createBulkIndexer(false), (String) null);
   }
 
   @Override
@@ -101,11 +96,19 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
     doIndex(createBulkIndexer(false), issues);
   }
 
+  public void index(Collection<String> issueKeys) {
+    doIndex(createBulkIndexer(false), issueKeys);
+  }
+
+  private void doIndex(BulkIndexer bulk, Collection<String> issueKeys) {
+    try (IssueIterator issues = issueIteratorFactory.createForIssueKeys(issueKeys)) {
+      doIndex(bulk, issues);
+    }
+  }
+
   private void doIndex(BulkIndexer bulk, @Nullable String projectUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbSession, projectUuid);
-      doIndex(bulk, rowIt);
-      rowIt.close();
+    try (IssueIterator issues = issueIteratorFactory.createForProject(projectUuid)) {
+      doIndex(bulk, issues);
     }
   }
 

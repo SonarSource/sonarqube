@@ -152,7 +152,7 @@ public class DatabaseUtils {
   /**
    * Ensure values {@code inputs} are unique (which avoids useless arguments) and sorted before creating the partition.
    */
-  private static <INPUT extends Comparable<INPUT>> Iterable<List<INPUT>> toUniqueAndSortedPartitions(Collection<INPUT> inputs) {
+  public static <INPUT extends Comparable<INPUT>> Iterable<List<INPUT>> toUniqueAndSortedPartitions(Collection<INPUT> inputs) {
     return Iterables.partition(toUniqueAndSortedList(inputs), PARTITION_SIZE_FOR_ORACLE);
   }
 

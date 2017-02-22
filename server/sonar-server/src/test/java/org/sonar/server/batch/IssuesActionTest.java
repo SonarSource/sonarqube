@@ -43,6 +43,7 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -76,7 +77,7 @@ public class IssuesActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private IssueIndexer issueIndexer = new IssueIndexer(db.getDbClient(), es.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(db.getDbClient()));
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
   private ServerFileSystem fs = mock(ServerFileSystem.class);
   private WsTester tester;
