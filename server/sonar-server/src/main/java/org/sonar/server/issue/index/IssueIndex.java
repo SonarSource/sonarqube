@@ -198,6 +198,7 @@ public class IssueIndex extends BaseIndex {
 
     configureSorting(query, requestBuilder);
     configurePagination(options, requestBuilder);
+    configureRouting(query, options, requestBuilder);
 
     QueryBuilder esQuery = matchAllQuery();
     BoolQueryBuilder esFilter = boolQuery();
@@ -215,6 +216,20 @@ public class IssueIndex extends BaseIndex {
 
     configureStickyFacets(query, options, filters, esQuery, requestBuilder);
     return new SearchResult<>(requestBuilder.get(), DOC_CONVERTER);
+  }
+
+  /**
+   * Optimization - do not send ES request to all shards when scope is restricted
+   * to a set of projects. Because project UUID is used for routing, the request
+   * can be sent to only the shards containing the specified projects.
+   * Note that sticky facets may involve all projects, so this optimization must be
+   * disabled when facets are enabled.
+   */
+  private void configureRouting(IssueQuery query, SearchOptions options, SearchRequestBuilder requestBuilder) {
+    Collection<String> uuids = query.projectUuids();
+    if (!uuids.isEmpty() && options.getFacets().isEmpty()) {
+      requestBuilder.setRouting(uuids.toArray(new String[uuids.size()]));
+    }
   }
 
   private void configureSorting(IssueQuery query, SearchRequestBuilder esRequest) {
