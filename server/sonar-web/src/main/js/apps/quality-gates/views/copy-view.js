@@ -36,14 +36,14 @@ export default ModalForm.extend({
     const name = this.$('#quality-gate-form-name').val();
 
     copyQualityGate(id, name).then(
-        qualityGate => {
-          this.destroy();
-          this.options.onCopy(qualityGate);
-        },
-        error => {
-          this.enableForm();
-          parseError(error).then(msg => this.showErrors([{ msg }]));
-        }
+      qualityGate => {
+        this.destroy();
+        this.options.onCopy(qualityGate);
+      },
+      error => {
+        this.enableForm();
+        parseError(error).then(msg => this.showErrors([{ msg }]));
+      }
     );
   },
 

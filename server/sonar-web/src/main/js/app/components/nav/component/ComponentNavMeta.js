@@ -34,7 +34,7 @@ export default React.createClass({
           translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl) :
           translate('component_navigation.status.in_progress');
       metaList.push(
-          <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
+        <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
             <i className="spinner" style={{ marginTop: '-1px' }}/>
             {' '}
             <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
@@ -45,7 +45,7 @@ export default React.createClass({
           translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl) :
           translate('component_navigation.status.pending');
       metaList.push(
-          <li key="isPending" data-toggle="tooltip" title={tooltip}>
+        <li key="isPending" data-toggle="tooltip" title={tooltip}>
             <PendingIcon/> <span>{translate('background_task.status.PENDING')}</span>
           </li>
       );
@@ -54,7 +54,7 @@ export default React.createClass({
           translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl) :
           translate('component_navigation.status.failed');
       metaList.push(
-          <li key="isFailed" data-toggle="tooltip" title={tooltip}>
+        <li key="isFailed" data-toggle="tooltip" title={tooltip}>
             <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
           </li>
       );

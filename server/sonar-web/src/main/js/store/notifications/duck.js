@@ -148,12 +148,12 @@ export const getGlobal = (state: State): NotificationsState => (
 
 export const getProjects = (state: State): Array<string> => (
     uniqBy(
-        state.notifications.filter(n => n.project).map(n => ({
-          key: n.project,
-          name: n.projectName,
-          organization: n.organization
-        })),
-        project => project.key
+      state.notifications.filter(n => n.project).map(n => ({
+        key: n.project,
+        name: n.projectName,
+        organization: n.organization
+      })),
+      project => project.key
     )
 );
 

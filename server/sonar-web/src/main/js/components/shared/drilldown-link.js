@@ -112,8 +112,8 @@ export const DrilldownLink = React.createClass({
 
   renderIssuesLink () {
     const url = getComponentIssuesUrl(
-        this.props.component,
-        this.propsToIssueParams());
+      this.props.component,
+      this.propsToIssueParams());
 
     return (
         <Link to={url} className={this.props.className}>{this.props.children}</Link>

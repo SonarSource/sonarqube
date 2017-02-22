@@ -30,14 +30,14 @@ export default FormView.extend({
       description: this.$('#permission-template-description').val(),
       projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
     }).then(
-        () => {
-          this.options.refresh();
-          this.destroy();
-        },
-        e => {
-          this.enableForm();
-          parseError(e).then(message => this.showSingleError(message));
-        }
+      () => {
+        this.options.refresh();
+        this.destroy();
+      },
+      e => {
+        this.enableForm();
+        parseError(e).then(message => this.showSingleError(message));
+      }
     );
   }
 });

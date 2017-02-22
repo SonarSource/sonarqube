@@ -33,7 +33,7 @@ const checkboxId = (t, c) => `checkbox-io-${t}-${c}`;
 
 it('should match snapshot', () => {
   expect(shallow(
-      <NotificationsList
+    <NotificationsList
           onAdd={jest.fn()}
           onRemove={jest.fn()}
           channels={channels}
@@ -47,7 +47,7 @@ it('should call `onAdd` and `onRemove`', () => {
   const onAdd = jest.fn();
   const onRemove = jest.fn();
   const wrapper = shallow(
-      <NotificationsList
+    <NotificationsList
           onAdd={onAdd}
           onRemove={onRemove}
           channels={channels}

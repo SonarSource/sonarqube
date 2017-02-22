@@ -73,8 +73,8 @@ export default class ComparisonResults extends React.Component {
           <td>
             <h6>
               {translateWithParameters(
-                  'quality_profiles.x_rules_only_in',
-                  this.props.inLeft.length
+                'quality_profiles.x_rules_only_in',
+                this.props.inLeft.length
               )}
               {' '}
               {this.props.left.name}
@@ -102,8 +102,8 @@ export default class ComparisonResults extends React.Component {
           <td>
             <h6>
               {translateWithParameters(
-                  'quality_profiles.x_rules_only_in',
-                  this.props.inRight.length
+                'quality_profiles.x_rules_only_in',
+                this.props.inRight.length
               )}
               {' '}
               {this.props.right.name}
@@ -130,8 +130,8 @@ export default class ComparisonResults extends React.Component {
           <td colSpan="2" className="text-center">
             <h6>
               {translateWithParameters(
-                  'quality_profiles.x_rules_have_different_configuration',
-                  this.props.modified.length
+                'quality_profiles.x_rules_have_different_configuration',
+                this.props.modified.length
               )}
             </h6>
           </td>

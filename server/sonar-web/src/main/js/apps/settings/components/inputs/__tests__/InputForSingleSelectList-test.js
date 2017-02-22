@@ -25,7 +25,7 @@ import InputForSingleSelectList from '../InputForSingleSelectList';
 it('should render Select', () => {
   const onChange = jest.fn();
   const select = shallow(
-      <InputForSingleSelectList
+    <InputForSingleSelectList
           name="foo"
           value="bar"
           options={['foo', 'bar', 'baz']}
@@ -46,7 +46,7 @@ it('should render Select', () => {
 it('should call onChange', () => {
   const onChange = jest.fn();
   const select = shallow(
-      <InputForSingleSelectList
+    <InputForSingleSelectList
           name="foo"
           value="bar"
           options={['foo', 'bar', 'baz']}

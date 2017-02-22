@@ -25,7 +25,7 @@ import Toggle from '../../../../../components/controls/Toggle';
 it('should render Toggle', () => {
   const onChange = jest.fn();
   const toggle = shallow(
-      <InputForBoolean
+    <InputForBoolean
           name="foo"
           value={true}
           isDefault={false}
@@ -40,7 +40,7 @@ it('should render Toggle', () => {
 it('should render Toggle without value', () => {
   const onChange = jest.fn();
   const input = shallow(
-      <InputForBoolean
+    <InputForBoolean
           name="foo"
           isDefault={false}
           onChange={onChange}/>
@@ -56,7 +56,7 @@ it('should render Toggle without value', () => {
 it('should call onChange', () => {
   const onChange = jest.fn();
   const input = shallow(
-      <InputForBoolean
+    <InputForBoolean
           name="foo"
           value={true}
           isDefault={false}

@@ -30,7 +30,7 @@ const newProject = { key: 'qux', name: 'Qux' };
 
 it('should render projects', () => {
   const wrapper = shallow(
-      <UnconnectedProjects projects={projects}/>
+    <UnconnectedProjects projects={projects}/>
   );
   expect(wrapper).toMatchSnapshot();
 

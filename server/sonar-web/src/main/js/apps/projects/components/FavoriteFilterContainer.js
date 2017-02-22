@@ -26,5 +26,5 @@ const mapStateToProps = state => ({
 });
 
 export default connect(
-    mapStateToProps
+  mapStateToProps
 )(FavoriteFilter);

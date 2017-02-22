@@ -30,7 +30,7 @@ it('should render list of ProjectCards', () => {
   ];
 
   const output = shallow(
-      <Projects
+    <Projects
           projects={projects}
           total={5}
           loading={false}
@@ -49,7 +49,7 @@ it('should render ListFooter', () => {
   const loadMore = jest.fn();
 
   const footer = shallow(
-      <Projects
+    <Projects
           projects={projects}
           total={5}
           loading={false}
@@ -65,7 +65,7 @@ it('should render ListFooter', () => {
 
 it('should render when no results', () => {
   const output = shallow(
-      <Projects
+    <Projects
           projects={[]}
           total={0}
           loading={false}

@@ -42,7 +42,7 @@ export default class ProfileContainer extends React.Component {
     }
 
     const child = React.cloneElement(
-        this.props.children,
+      this.props.children,
         { profile, profiles, ...other });
 
     const title = translate('quality_profiles.page') + ' - ' + profile.name;

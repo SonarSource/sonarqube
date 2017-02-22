@@ -51,9 +51,9 @@ class Projects extends React.Component {
   componentWillReceiveProps (nextProps: Props) {
     // remove all projects from `this.state.addedProjects` that already exist in `nextProps.projects`
     const nextAddedProjects = differenceBy(
-        this.state.addedProjects,
-        nextProps.projects,
-        project => project.key
+      this.state.addedProjects,
+      nextProps.projects,
+      project => project.key
     );
 
     if (nextAddedProjects.length !== this.state.addedProjects) {

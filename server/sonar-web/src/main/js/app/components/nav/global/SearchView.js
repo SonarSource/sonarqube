@@ -110,8 +110,8 @@ export default Marionette.LayoutView.extend({
     this.favorite = [];
     if (this.model.get('currentUser').isLoggedIn) {
       this.fetchFavorite().then(
-          () => this.resetResultsToDefault(),
-          () => this.resetResultsToDefault()
+        () => this.resetResultsToDefault(),
+        () => this.resetResultsToDefault()
       );
     } else {
       this.resetResultsToDefault();

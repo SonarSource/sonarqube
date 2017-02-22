@@ -65,8 +65,8 @@ export function fetchMeasure (metricKey, periodIndex = 1) {
     dispatch(requestMeasure(metric));
 
     return getMeasuresAndMeta(
-        component.key,
-        metricsToRequest,
+      component.key,
+      metricsToRequest,
         { additionalFields: 'periods' }
     ).then(r => {
       const measures = enhanceWithLeak(r.component.measures, periodIndex);

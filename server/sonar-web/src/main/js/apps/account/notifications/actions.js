@@ -36,10 +36,10 @@ export const fetchNotifications = () => (dispatch: Function) => {
 
     dispatch(fetchOrganizations(organizations)).then(() => {
       dispatch(receiveNotifications(
-          response.notifications,
-          response.channels,
-          response.globalTypes,
-          response.perProjectTypes
+        response.notifications,
+        response.channels,
+        response.globalTypes,
+        response.perProjectTypes
       ));
     });
   };
@@ -49,14 +49,14 @@ export const fetchNotifications = () => (dispatch: Function) => {
 
 export const addNotification = (n: Notification) => (dispatch: Function) => (
     api.addNotification(n.channel, n.type, n.project).then(
-        () => dispatch(addNotificationAction(n)),
-        onFail(dispatch)
+      () => dispatch(addNotificationAction(n)),
+      onFail(dispatch)
     )
 );
 
 export const removeNotification = (n: Notification) => (dispatch: Function) => (
     api.removeNotification(n.channel, n.type, n.project).then(
-        () => dispatch(removeNotificationAction(n)),
-        onFail(dispatch)
+      () => dispatch(removeNotificationAction(n)),
+      onFail(dispatch)
     )
 );

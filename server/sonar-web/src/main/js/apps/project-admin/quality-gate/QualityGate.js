@@ -64,6 +64,6 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(
-    mapStateToProps,
+  mapStateToProps,
     { fetchProjectGate, setProjectGate }
 )(QualityGate);

@@ -34,14 +34,14 @@ export default ModalForm.extend({
 
   sendRequest () {
     return deleteCondition(this.options.condition.id).then(
-        () => {
-          this.destroy();
-          this.options.onDelete();
-        },
-        error => {
-          this.enableForm();
-          parseError(error).then(msg => this.showErrors([{ msg }]));
-        }
+      () => {
+        this.destroy();
+        this.options.onDelete();
+      },
+      error => {
+        this.enableForm();
+        parseError(error).then(msg => this.showErrors([{ msg }]));
+      }
     );
   },
 

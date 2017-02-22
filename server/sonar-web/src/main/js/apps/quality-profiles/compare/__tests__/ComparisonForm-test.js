@@ -32,7 +32,7 @@ it('should render Select with right options', () => {
   ];
 
   const output = shallow(
-      <ComparisonForm
+    <ComparisonForm
           withKey="another"
           profile={profile}
           profiles={profiles}

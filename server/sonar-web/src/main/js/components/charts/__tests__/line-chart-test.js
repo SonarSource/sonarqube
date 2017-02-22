@@ -39,7 +39,7 @@ it('should display ticks', () => {
   ];
   const ticks = ['A', 'B', 'C'];
   const chart = shallow(
-      <LineChart
+    <LineChart
           data={data}
           xTicks={ticks}
           width={100}
@@ -55,7 +55,7 @@ it('should display values', () => {
   ];
   const values = ['A', 'B', 'C'];
   const chart = shallow(
-      <LineChart
+    <LineChart
           data={data}
           xValues={values}
           width={100}

@@ -33,11 +33,11 @@ export default class Events extends React.Component {
 
   render () {
     const sortedEvents: Array<EventType> = sortBy(
-        this.props.events,
+      this.props.events,
         // versions first
-        (event: EventType) => event.category === 'VERSION' ? 0 : 1,
+      (event: EventType) => event.category === 'VERSION' ? 0 : 1,
         // then the rest sorted by category
-        'category'
+      'category'
     );
 
     return (

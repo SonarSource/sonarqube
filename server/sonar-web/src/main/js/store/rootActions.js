@@ -34,22 +34,22 @@ export const onFail = dispatch => error => (
 
 export const fetchAppState = () => dispatch => (
     getGlobalNavigation().then(
-        appState => dispatch(setAppState(appState)),
-        onFail(dispatch)
+      appState => dispatch(setAppState(appState)),
+      onFail(dispatch)
     )
 );
 
 export const fetchLanguages = () => dispatch => {
   return getLanguages().then(
-      languages => dispatch(receiveLanguages(languages)),
-      onFail(dispatch)
+    languages => dispatch(receiveLanguages(languages)),
+    onFail(dispatch)
   );
 };
 
 export const fetchOrganizations = (organizations?: Array<string>) => dispatch => (
     getOrganizations(organizations).then(
-        r => dispatch(receiveOrganizations(r.organizations)),
-        onFail(dispatch)
+      r => dispatch(receiveOrganizations(r.organizations)),
+      onFail(dispatch)
     )
 );
 
@@ -60,30 +60,30 @@ const addQualifier = project => ({
 
 export const fetchProject = key => dispatch => (
     getComponentNavigation(key).then(
-        component => {
-          dispatch(receiveComponents([addQualifier(component)]));
-          if (component.organization != null) {
-            dispatch(fetchOrganizations([component.organization]));
-          }
-        })
+      component => {
+        dispatch(receiveComponents([addQualifier(component)]));
+        if (component.organization != null) {
+          dispatch(fetchOrganizations([component.organization]));
+        }
+      })
 );
 
 export const doLogin = (login, password) => dispatch => (
     auth.login(login, password).then(
-        () => { /* everything is fine */ },
-        () => {
-          dispatch(addGlobalErrorMessage('Authentication failed'));
-          return Promise.reject();
-        }
+      () => { /* everything is fine */ },
+      () => {
+        dispatch(addGlobalErrorMessage('Authentication failed'));
+        return Promise.reject();
+      }
     )
 );
 
 export const doLogout = () => dispatch => (
     auth.logout().then(
-        () => { /* everything is fine */ },
-        () => {
-          dispatch(addGlobalErrorMessage('Logout failed'));
-          return Promise.reject();
-        }
+      () => { /* everything is fine */ },
+      () => {
+        dispatch(addGlobalErrorMessage('Logout failed'));
+        return Promise.reject();
+      }
     )
 );

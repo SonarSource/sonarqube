@@ -69,8 +69,8 @@ export default class ActionsCell extends React.Component {
   setDefault (qualifier, e) {
     e.preventDefault();
     setDefaultPermissionTemplate(
-        this.props.permissionTemplate.id,
-        qualifier
+      this.props.permissionTemplate.id,
+      qualifier
     ).then(this.props.refresh);
   }
 
@@ -122,7 +122,7 @@ export default class ActionsCell extends React.Component {
   renderIfSingleTopQualifier (availableQualifiers) {
     return availableQualifiers.map(qualifier => (
         this.renderSetDefaultLink(qualifier, (
-            <span>{translate('permission_templates.set_default')}</span>
+          <span>{translate('permission_templates.set_default')}</span>
         )))
     );
   }
@@ -130,7 +130,7 @@ export default class ActionsCell extends React.Component {
   renderIfMultipleTopQualifiers (availableQualifiers) {
     return availableQualifiers.map(qualifier => (
         this.renderSetDefaultLink(qualifier, (
-            <span>
+          <span>
               {translate('permission_templates.set_default_for')}
               {' '}
               <QualifierIcon qualifier={qualifier}/>

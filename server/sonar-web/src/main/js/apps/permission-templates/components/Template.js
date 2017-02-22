@@ -67,14 +67,14 @@ class Template extends React.Component {
 
     if (filter !== 'groups') {
       requests.push(api.getPermissionTemplateUsers(
-          template.id, finalQuery, selectedPermission));
+        template.id, finalQuery, selectedPermission));
     } else {
       requests.push(Promise.resolve([]));
     }
 
     if (filter !== 'users') {
       requests.push(api.getPermissionTemplateGroups(
-          template.id, finalQuery, selectedPermission));
+        template.id, finalQuery, selectedPermission));
     } else {
       requests.push(Promise.resolve([]));
     }
@@ -97,9 +97,9 @@ class Template extends React.Component {
     const hasPermission = user.permissions.includes(permission);
     const request = hasPermission ?
         api.revokeTemplatePermissionFromUser(
-            template.id, user.login, permission) :
+          template.id, user.login, permission) :
         api.grantTemplatePermissionToUser(
-            template.id, user.login, permission);
+          template.id, user.login, permission);
     request.then(() => this.requestHolders()).then(this.props.refresh);
   }
 

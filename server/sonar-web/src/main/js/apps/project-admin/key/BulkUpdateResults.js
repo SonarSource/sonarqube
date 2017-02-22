@@ -44,8 +44,8 @@ export default class BulkUpdateResults extends React.Component {
           {isEmpty && (
               <div id="bulk-update-nothing" className="spacer-bottom">
                 {translateWithParameters(
-                    'update_key.no_key_to_update',
-                    replace
+                  'update_key.no_key_to_update',
+                  replace
                 )}
               </div>
           )}
@@ -53,9 +53,9 @@ export default class BulkUpdateResults extends React.Component {
           {hasDuplications && (
               <div id="bulk-update-duplicate" className="spacer-bottom">
                 {translateWithParameters(
-                    'update_key.cant_update_because_duplicate_keys',
-                    replace,
-                    by
+                  'update_key.cant_update_because_duplicate_keys',
+                  replace,
+                  by
                 )}
               </div>
           )}

@@ -56,8 +56,8 @@ export default class ProfileInheritanceBox extends React.Component {
 
           <td>
             {translateWithParameters(
-                'quality_profile.x_active_rules',
-                profile.activeRuleCount
+              'quality_profile.x_active_rules',
+              profile.activeRuleCount
             )}
           </td>
 
@@ -65,8 +65,8 @@ export default class ProfileInheritanceBox extends React.Component {
             {profile.overridingRuleCount != null && (
                 <p>
                   {translateWithParameters(
-                      'quality_profiles.x_overridden_rules',
-                      profile.overridingRuleCount
+                    'quality_profiles.x_overridden_rules',
+                    profile.overridingRuleCount
                   )}
                 </p>
             )}

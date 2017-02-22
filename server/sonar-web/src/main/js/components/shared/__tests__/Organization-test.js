@@ -25,17 +25,17 @@ const organization = { key: 'foo', name: 'foo' };
 
 it('should match snapshot', () => {
   expect(shallow(
-      <UnconnectedOrganization organization={organization} shouldBeDisplayed={true}/>
+    <UnconnectedOrganization organization={organization} shouldBeDisplayed={true}/>
   )).toMatchSnapshot();
 });
 
 it('should not be displayed', () => {
   expect(shallow(
-      <UnconnectedOrganization organization={organization} shouldBeDisplayed={false}/>
+    <UnconnectedOrganization organization={organization} shouldBeDisplayed={false}/>
   )).toMatchSnapshot();
 
   expect(shallow(
-      <UnconnectedOrganization organization={null} shouldBeDisplayed={true}/>
+    <UnconnectedOrganization organization={null} shouldBeDisplayed={true}/>
   )).toMatchSnapshot();
 });
 

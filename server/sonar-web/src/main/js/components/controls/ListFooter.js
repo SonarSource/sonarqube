@@ -63,9 +63,9 @@ export default class ListFooter extends React.Component {
     return (
         <footer className={className}>
           {translateWithParameters(
-              'x_of_y_shown',
-              formatMeasure(this.props.count, 'INT'),
-              formatMeasure(this.props.total, 'INT')
+            'x_of_y_shown',
+            formatMeasure(this.props.count, 'INT'),
+            formatMeasure(this.props.total, 'INT')
           )}
           {this.canLoadMore() && hasMore ? loadMoreLink : null}
         </footer>

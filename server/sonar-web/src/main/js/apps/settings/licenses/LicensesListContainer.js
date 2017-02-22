@@ -27,6 +27,6 @@ const mapStateToProps = state => ({
 });
 
 export default connect(
-    mapStateToProps,
+  mapStateToProps,
     { fetchLicenses }
 )(LicensesList);

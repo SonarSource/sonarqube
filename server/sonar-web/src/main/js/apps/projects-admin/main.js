@@ -130,7 +130,7 @@ export default React.createClass({
 
   loadMore () {
     this.setState({ ready: false, page: this.state.page + 1 },
-        this.requestProjects);
+      this.requestProjects);
   },
 
   onSearch (query) {

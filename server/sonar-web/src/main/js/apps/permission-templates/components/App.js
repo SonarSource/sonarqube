@@ -61,8 +61,8 @@ export default class App extends React.Component {
       if (this.mounted) {
         const permissions = sortPermissions(r.permissions);
         const permissionTemplates = mergeDefaultsToTemplates(
-            mergePermissionsToTemplates(r.permissionTemplates, permissions),
-            r.defaultTemplates
+          mergePermissionsToTemplates(r.permissionTemplates, permissions),
+          r.defaultTemplates
         );
         this.setState({
           ready: true,

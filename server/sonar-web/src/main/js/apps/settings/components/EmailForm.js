@@ -42,8 +42,8 @@ class EmailForm extends React.Component {
     this.setState({ success: false, error: null, loading: true });
     const { recipient, subject, message } = this.state;
     sendTestEmail(recipient, subject, message).then(
-        () => this.setState({ success: true, loading: false }),
-        error => parseError(error).then(message => this.setState({ error: message, loading: false }))
+      () => this.setState({ success: true, loading: false }),
+      error => parseError(error).then(message => this.setState({ error: message, loading: false }))
     );
   }
 

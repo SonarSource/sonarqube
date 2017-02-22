@@ -25,7 +25,7 @@ import SimpleInput from '../SimpleInput';
 it('should render SimpleInput', () => {
   const onChange = jest.fn();
   const simpleInput = shallow(
-      <InputForString
+    <InputForString
           name="foo"
           value="bar"
           isDefault={false}

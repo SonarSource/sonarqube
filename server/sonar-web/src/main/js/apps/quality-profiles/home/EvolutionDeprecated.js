@@ -49,8 +49,8 @@ export default class EvolutionDeprecated extends React.Component {
           </div>
           <div className="spacer-bottom">
             {translateWithParameters(
-                'quality_profiles.deprecated_rules_are_still_activated',
-                profilesWithDeprecations.length
+              'quality_profiles.deprecated_rules_are_still_activated',
+              profilesWithDeprecations.length
             )}
           </div>
           <ul>
@@ -68,8 +68,8 @@ export default class EvolutionDeprecated extends React.Component {
                     {', '}
                     <Link to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })} className="text-muted">
                       {translateWithParameters(
-                          'quality_profile.x_rules',
-                          profile.activeDeprecatedRuleCount
+                        'quality_profile.x_rules',
+                        profile.activeDeprecatedRuleCount
                       )}
                     </Link>
                   </div>

@@ -39,12 +39,12 @@ export default Modal.extend({
     const checked = this.$('#grant-to-project-creators').is(':checked');
     if (checked) {
       addProjectCreatorToTemplate(
-          this.options.permissionTemplate.name,
-          this.options.permission.key);
+        this.options.permissionTemplate.name,
+        this.options.permission.key);
     } else {
       removeProjectCreatorFromTemplate(
-          this.options.permissionTemplate.name,
-          this.options.permission.key);
+        this.options.permissionTemplate.name,
+        this.options.permission.key);
     }
   },
 

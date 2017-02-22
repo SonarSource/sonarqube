@@ -134,13 +134,13 @@ export default ModalView.extend({
   prepareMetrics (metrics) {
     metrics = metrics.filter(metric => metric.value != null);
     return sortBy(
-        toPairs(groupBy(metrics, 'domain')).map(domain => {
-          return {
-            name: domain[0],
-            metrics: domain[1]
-          };
-        }),
-        'name'
+      toPairs(groupBy(metrics, 'domain')).map(domain => {
+        return {
+          name: domain[0],
+          metrics: domain[1]
+        };
+      }),
+      'name'
     );
   },
 

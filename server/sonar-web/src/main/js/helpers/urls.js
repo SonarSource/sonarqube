@@ -119,7 +119,7 @@ export function getRulesUrl (query) {
   if (query) {
     const serializedQuery = Object.keys(query).map(criterion => (
         `${encodeURIComponent(criterion)}=${encodeURIComponent(
-            query[criterion])}`
+          query[criterion])}`
     )).join('|');
 
     // return a string (not { pathname }) to help react-router's Link handle this properly

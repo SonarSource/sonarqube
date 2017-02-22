@@ -22,8 +22,8 @@ import ProjectsList from './ProjectsList';
 import { getProjects, getProjectsAppState } from '../../../store/rootReducer';
 
 export default connect(
-    state => ({
-      projects: getProjects(state),
-      total: getProjectsAppState(state).total
-    })
+  state => ({
+    projects: getProjects(state),
+    total: getProjectsAppState(state).total
+  })
 )(ProjectsList);

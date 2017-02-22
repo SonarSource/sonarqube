@@ -32,14 +32,14 @@ export default ModalForm.extend({
 
   sendRequest () {
     deletePermissionTemplate({ templateId: this.model.id }).then(
-        () => {
-          this.trigger('done');
-          this.destroy();
-        },
-        e => {
-          this.enableForm();
-          parseError(e).then(message => this.showSingleError(message));
-        }
+      () => {
+        this.trigger('done');
+        this.destroy();
+      },
+      e => {
+        this.enableForm();
+        parseError(e).then(message => this.showSingleError(message));
+      }
     );
   }
 });

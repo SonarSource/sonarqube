@@ -24,20 +24,20 @@ import OrganizationNavigation from '../OrganizationNavigation';
 it('regular user', () => {
   const organization = { key: 'foo', name: 'Foo', canAdmin: false, canDelete: false };
   expect(shallow(
-      <OrganizationNavigation location={{ pathname: '/organizations/foo' }} organization={organization}/>
+    <OrganizationNavigation location={{ pathname: '/organizations/foo' }} organization={organization}/>
   )).toMatchSnapshot();
 });
 
 it('admin', () => {
   const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: true };
   expect(shallow(
-      <OrganizationNavigation location={{ pathname: '/organizations/foo' }} organization={organization}/>
+    <OrganizationNavigation location={{ pathname: '/organizations/foo' }} organization={organization}/>
   )).toMatchSnapshot();
 });
 
 it('undeletable org', () => {
   const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: false };
   expect(shallow(
-      <OrganizationNavigation location={{ pathname: '/organizations/foo' }} organization={organization}/>
+    <OrganizationNavigation location={{ pathname: '/organizations/foo' }} organization={organization}/>
   )).toMatchSnapshot();
 });

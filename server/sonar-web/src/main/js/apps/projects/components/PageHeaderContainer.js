@@ -22,5 +22,5 @@ import PageHeader from './PageHeader';
 import { getProjectsAppState } from '../../../store/rootReducer';
 
 export default connect(
-    state => getProjectsAppState(state)
+  state => getProjectsAppState(state)
 )(PageHeader);

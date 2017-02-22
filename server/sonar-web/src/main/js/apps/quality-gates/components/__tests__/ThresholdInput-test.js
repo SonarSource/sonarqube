@@ -26,7 +26,7 @@ import { change } from '../../../../helpers/testUtils';
 describe('on strings', () => {
   it('should render text input', () => {
     const input = shallow(
-        <ThresholdInput
+      <ThresholdInput
             name="foo"
             value="2"
             metric={{ type: 'INTEGER' }}
@@ -40,7 +40,7 @@ describe('on strings', () => {
   it('should change', () => {
     const onChange = jest.fn();
     const input = shallow(
-        <ThresholdInput
+      <ThresholdInput
             name="foo"
             value="2"
             metric={{ type: 'INTEGER' }}
@@ -54,7 +54,7 @@ describe('on strings', () => {
 describe('on ratings', () => {
   it('should render Select', () => {
     const select = shallow(
-        <ThresholdInput
+      <ThresholdInput
             name="foo"
             value="2"
             metric={{ type: 'RATING' }}
@@ -67,7 +67,7 @@ describe('on ratings', () => {
   it('should set', () => {
     const onChange = jest.fn();
     const select = shallow(
-        <ThresholdInput
+      <ThresholdInput
             name="foo"
             value="2"
             metric={{ type: 'RATING' }}
@@ -80,7 +80,7 @@ describe('on ratings', () => {
   it('should unset', () => {
     const onChange = jest.fn();
     const select = shallow(
-        <ThresholdInput
+      <ThresholdInput
             name="foo"
             value="2"
             metric={{ type: 'RATING' }}

@@ -31,7 +31,7 @@ it('should match snapshot', () => {
   };
 
   expect(shallow(
-      <MetaLink link={link}/>
+    <MetaLink link={link}/>
   )).toMatchSnapshot();
 });
 

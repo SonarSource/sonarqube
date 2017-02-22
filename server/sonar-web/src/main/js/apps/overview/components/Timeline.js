@@ -27,7 +27,7 @@ const HEIGHT = 80;
 export default class Timeline extends React.Component {
   static propTypes = {
     history: React.PropTypes.arrayOf(
-        React.PropTypes.object
+      React.PropTypes.object
     ).isRequired,
     before: React.PropTypes.object,
     after: React.PropTypes.object

@@ -28,8 +28,8 @@ import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 class Duplications extends React.Component {
   renderHeader () {
     return this.props.renderHeader(
-        'Duplications',
-        translate('overview.domain.duplications'));
+      'Duplications',
+      translate('overview.domain.duplications'));
   }
 
   renderTimeline (range) {

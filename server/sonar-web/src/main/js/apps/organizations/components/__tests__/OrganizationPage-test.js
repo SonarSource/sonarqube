@@ -23,7 +23,7 @@ import { UnconnectedOrganizationPage } from '../OrganizationPage';
 
 it('smoke test', () => {
   const wrapper = shallow(
-      <UnconnectedOrganizationPage>
+    <UnconnectedOrganizationPage>
         <div>hello</div>
       </UnconnectedOrganizationPage>
   );
@@ -36,7 +36,7 @@ it('smoke test', () => {
 
 it('not found', () => {
   const wrapper = shallow(
-      <UnconnectedOrganizationPage>
+    <UnconnectedOrganizationPage>
         <div>hello</div>
       </UnconnectedOrganizationPage>
   );

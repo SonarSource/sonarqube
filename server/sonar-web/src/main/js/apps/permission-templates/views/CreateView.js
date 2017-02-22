@@ -33,14 +33,14 @@ export default FormView.extend({
       Object.assign(data, { organization: this.options.organization.key });
     }
     createPermissionTemplate(data).then(
-        r => {
-          this.trigger('done', r);
-          this.destroy();
-        },
-        e => {
-          this.enableForm();
-          parseError(e).then(message => this.showSingleError(message));
-        }
+      r => {
+        this.trigger('done', r);
+        this.destroy();
+      },
+      e => {
+        this.enableForm();
+        parseError(e).then(message => this.showSingleError(message));
+      }
     );
   }
 });

@@ -145,6 +145,6 @@ const mapDispatchToProps = (dispatch, ownProps: OwnProps) => {
 };
 
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(AllHoldersList);

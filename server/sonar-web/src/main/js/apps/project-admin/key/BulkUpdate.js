@@ -65,7 +65,7 @@ class BulkUpdate extends React.Component {
       }
 
       this.props.addGlobalSuccessMessage(
-          translate('update_key.key_updated.reload'));
+        translate('update_key.key_updated.reload'));
       this.setState({ updating: false });
       reloadUpdateKeyPage(newComponentKey);
     }).catch(e => {
@@ -114,9 +114,9 @@ class BulkUpdate extends React.Component {
             </div>
             <div>
               {translateWithParameters(
-                  'update_key.current_key_for_project_x_is_x',
-                  component.name,
-                  component.key
+                'update_key.current_key_for_project_x_is_x',
+                component.name,
+                component.key
               )}
             </div>
           </header>
@@ -136,9 +136,9 @@ class BulkUpdate extends React.Component {
 }
 
 export default connect(
-    null, {
-      addGlobalErrorMessage,
-      addGlobalSuccessMessage,
-      closeAllGlobalMessages
-    }
+  null, {
+    addGlobalErrorMessage,
+    addGlobalSuccessMessage,
+    closeAllGlobalMessages
+  }
 )(BulkUpdate);

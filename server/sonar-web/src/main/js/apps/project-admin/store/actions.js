@@ -73,9 +73,9 @@ export const setProjectProfile = (projectKey, oldKey, newKey) =>
       request.then(() => {
         dispatch(setProjectProfileAction(projectKey, oldKey, newKey));
         dispatch(addGlobalSuccessMessage(
-            translateWithParameters(
-                'project_quality_profile.successfully_updated',
-                newProfile.languageName)));
+          translateWithParameters(
+            'project_quality_profile.successfully_updated',
+            newProfile.languageName)));
       });
     };
 
@@ -118,7 +118,7 @@ export const setProjectGate = (projectKey, oldId, newId) => dispatch => {
   request.then(() => {
     dispatch(setProjectGateAction(projectKey, newId));
     dispatch(addGlobalSuccessMessage(
-        translate('project_quality_gate.successfully_updated')));
+      translate('project_quality_gate.successfully_updated')));
   });
 };
 

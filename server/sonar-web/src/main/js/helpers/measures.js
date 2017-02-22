@@ -261,12 +261,12 @@ function formatDuration (isNegative, days, hours, minutes) {
   if (shouldDisplayHours(days, hours)) {
     formatted = addSpaceIfNeeded(formatted);
     formatted += translateWithParameters('work_duration.x_hours',
-        isNegative && formatted.length === 0 ? -1 * hours : hours);
+      isNegative && formatted.length === 0 ? -1 * hours : hours);
   }
   if (shouldDisplayMinutes(days, hours, minutes)) {
     formatted = addSpaceIfNeeded(formatted);
     formatted += translateWithParameters('work_duration.x_minutes',
-        isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+      isNegative && formatted.length === 0 ? -1 * minutes : minutes);
   }
   return formatted;
 }
@@ -370,17 +370,17 @@ function getMaintainabilityRatingTooltip (rating) {
 
   if (rating < 2) {
     return translateWithParameters(
-        'metric.sqale_rating.tooltip.A',
-        formatMeasure(maintainabilityGrid[0] * 100, 'PERCENT')
+      'metric.sqale_rating.tooltip.A',
+      formatMeasure(maintainabilityGrid[0] * 100, 'PERCENT')
     );
   }
 
   const ratingLetter = formatMeasure(rating, 'RATING');
 
   return translateWithParameters(
-      'metric.sqale_rating.tooltip',
-      ratingLetter,
-      formatMeasure(maintainabilityRatingThreshold * 100, 'PERCENT')
+    'metric.sqale_rating.tooltip',
+    ratingLetter,
+    formatMeasure(maintainabilityRatingThreshold * 100, 'PERCENT')
   );
 }
 

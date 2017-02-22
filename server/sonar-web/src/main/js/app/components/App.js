@@ -71,6 +71,6 @@ class App extends React.Component {
 }
 
 export default connect(
-    null,
+  null,
     { fetchAppState, fetchCurrentUser, fetchLanguages, fetchOrganizations }
 )(App);

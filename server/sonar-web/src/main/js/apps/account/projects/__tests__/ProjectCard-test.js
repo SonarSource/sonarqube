@@ -61,7 +61,7 @@ it('should not render analysis date', () => {
 it('should render quality gate status', () => {
   const project = { ...BASE, qualityGate: 'ERROR' };
   const output = shallow(
-      <ProjectCard project={project}/>
+    <ProjectCard project={project}/>
   );
   expect(output.find('.account-project-quality-gate').find(Level).prop('level')).toBe('ERROR');
 });

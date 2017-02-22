@@ -24,7 +24,7 @@ import { click } from '../../../helpers/testUtils';
 
 function renderFavoriteBase (props) {
   return shallow(
-      <FavoriteBase
+    <FavoriteBase
           favorite={true}
           addFavorite={jest.fn()}
           removeFavorite={jest.fn()}

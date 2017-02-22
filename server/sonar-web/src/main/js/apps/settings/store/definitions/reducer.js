@@ -49,8 +49,8 @@ export const getDefinitionsForCategory = (state: State, category: string) =>
     getAllDefinitions(state).filter(definition => definition.category.toLowerCase() === category.toLowerCase());
 
 export const getAllCategories = (state: State) => uniqBy(
-    getAllDefinitions(state).map(definition => definition.category),
-    category => category.toLowerCase());
+  getAllDefinitions(state).map(definition => definition.category),
+  category => category.toLowerCase());
 
 export const getDefaultCategory = (state: State) => {
   const categories = getAllCategories(state);

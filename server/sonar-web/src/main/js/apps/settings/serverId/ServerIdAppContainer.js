@@ -22,6 +22,6 @@ import ServerIdApp from './ServerIdApp';
 import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages/duck';
 
 export default connect(
-    () => ({}),
+  () => ({}),
     { addGlobalErrorMessage, closeAllGlobalMessages }
 )(ServerIdApp);

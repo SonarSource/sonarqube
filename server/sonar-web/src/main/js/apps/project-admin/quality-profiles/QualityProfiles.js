@@ -75,6 +75,6 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(
-    mapStateToProps,
+  mapStateToProps,
     { fetchProjectProfiles, setProjectProfile }
 )(QualityProfiles);

@@ -32,7 +32,7 @@ const notifications = [
 
 it('should match snapshot', () => {
   expect(shallow(
-      <UnconnectedProjectNotifications
+    <UnconnectedProjectNotifications
           project={{ key: 'foo', name: 'Foo' }}
           notifications={notifications}
           channels={channels}
@@ -46,7 +46,7 @@ it('should call `addNotification` and `removeNotification`', () => {
   const addNotification = jest.fn();
   const removeNotification = jest.fn();
   const wrapper = shallow(
-      <UnconnectedProjectNotifications
+    <UnconnectedProjectNotifications
           project={{ key: 'foo', name: 'Foo' }}
           notifications={notifications}
           channels={channels}

@@ -31,8 +31,8 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
+  applyMiddleware(...middlewares),
+  ...composed
 )(createStore);
 
 export default function configureStore (rootReducer, initialState) {

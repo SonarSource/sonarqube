@@ -26,7 +26,7 @@ export default class List extends React.Component {
   static propTypes = {
     organization: React.PropTypes.object,
     permissionTemplates: React.PropTypes.arrayOf(
-        PermissionTemplateType).isRequired,
+      PermissionTemplateType).isRequired,
     permissions: React.PropTypes.array.isRequired,
     topQualifiers: React.PropTypes.array.isRequired,
     refresh: CallbackType

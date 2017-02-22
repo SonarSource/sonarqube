@@ -22,8 +22,8 @@ import ProjectCard from './ProjectCard';
 import { getComponent, getComponentMeasures } from '../../../store/rootReducer';
 
 export default connect(
-    (state, ownProps) => ({
-      project: getComponent(state, ownProps.projectKey),
-      measures: getComponentMeasures(state, ownProps.projectKey)
-    })
+  (state, ownProps) => ({
+    project: getComponent(state, ownProps.projectKey),
+    measures: getComponentMeasures(state, ownProps.projectKey)
+  })
 )(ProjectCard);

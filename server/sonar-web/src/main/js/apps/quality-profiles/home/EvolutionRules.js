@@ -96,14 +96,14 @@ export default class EvolutionRules extends React.Component {
                     <div className="note">
                       {rule.activations ? (
                           translateWithParameters(
-                              'quality_profiles.latest_new_rules.activated',
-                              rule.langName,
-                              rule.activations
+                            'quality_profiles.latest_new_rules.activated',
+                            rule.langName,
+                            rule.activations
                           )
                       ) : (
                           translateWithParameters(
-                              'quality_profiles.latest_new_rules.not_activated',
-                              rule.langName
+                            'quality_profiles.latest_new_rules.not_activated',
+                            rule.langName
                           )
                       )}
                     </div>

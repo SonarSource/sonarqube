@@ -30,13 +30,13 @@ export const updateState = changes => ({
 
 export default createValue(
     // should update
-    (state, action) => action.type === actions.UPDATE_STATE,
+  (state, action) => action.type === actions.UPDATE_STATE,
 
     // should reset
-    () => false,
+  () => false,
 
     // get next value
-    (state, action) => ({ ...state, ...action.changes }),
+  (state, action) => ({ ...state, ...action.changes }),
 
     // default value
     {}

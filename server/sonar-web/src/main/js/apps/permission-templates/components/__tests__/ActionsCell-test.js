@@ -30,7 +30,7 @@ const SAMPLE = {
 
 function renderActionsCell (props) {
   return shallow(
-      <ActionsCell
+    <ActionsCell
           permissionTemplate={SAMPLE}
           topQualifiers={['TRK', 'VW']}
           refresh={() => true}

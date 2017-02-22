@@ -23,6 +23,6 @@ import { UnconnectedNotifications } from '../Notifications';
 
 it('should match snapshot', () => {
   expect(shallow(
-      <UnconnectedNotifications fetchNotifications={jest.fn()}/>
+    <UnconnectedNotifications fetchNotifications={jest.fn()}/>
   )).toMatchSnapshot();
 });

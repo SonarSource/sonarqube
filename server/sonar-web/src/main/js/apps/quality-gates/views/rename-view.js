@@ -36,14 +36,14 @@ export default ModalForm.extend({
     const name = this.$('#quality-gate-form-name').val();
 
     renameQualityGate(id, name).then(
-        () => {
-          this.destroy();
-          this.options.onRename(this.options.qualityGate, name);
-        },
-        error => {
-          this.enableForm();
-          parseError(error).then(msg => this.showErrors([{ msg }]));
-        }
+      () => {
+        this.destroy();
+        this.options.onRename(this.options.qualityGate, name);
+      },
+      error => {
+        this.enableForm();
+        parseError(error).then(msg => this.showErrors([{ msg }]));
+      }
     );
   },
 

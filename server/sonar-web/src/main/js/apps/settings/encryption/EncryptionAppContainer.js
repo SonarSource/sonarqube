@@ -23,6 +23,6 @@ import { checkSecretKey, generateSecretKey, encryptValue, startGeneration } from
 import { getSettingsAppEncryptionState } from '../../../store/rootReducer';
 
 export default connect(
-    state => getSettingsAppEncryptionState(state),
+  state => getSettingsAppEncryptionState(state),
     { checkSecretKey, generateSecretKey, encryptValue, startGeneration }
 )(EncryptionApp);

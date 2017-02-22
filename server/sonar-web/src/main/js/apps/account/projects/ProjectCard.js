@@ -43,8 +43,8 @@ export default class ProjectCard extends React.Component {
                 <div className="account-project-analysis"
                      title={analysisMoment.format('LLL')}>
                   {translateWithParameters(
-                      'my_account.projects.analyzed_x',
-                      analysisMoment.fromNow()
+                    'my_account.projects.analyzed_x',
+                    analysisMoment.fromNow()
                   )}
                 </div>
             ) : (

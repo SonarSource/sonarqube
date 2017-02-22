@@ -119,8 +119,8 @@ export default class OverviewApp extends React.Component {
     this.setState({ loading: true });
 
     return getMeasuresAndMeta(
-        component.key,
-        METRICS,
+      component.key,
+      METRICS,
         { additionalFields: 'metrics,periods' }
     ).then(r => {
       if (this.mounted) {

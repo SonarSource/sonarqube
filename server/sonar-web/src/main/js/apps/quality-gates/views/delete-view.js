@@ -35,14 +35,14 @@ export default ModalForm.extend({
     const { id } = this.options.qualityGate;
 
     deleteQualityGate(id).then(
-        () => {
-          this.destroy();
-          this.options.onDelete(this.options.qualityGate);
-        },
-        error => {
-          this.enableForm();
-          parseError(error).then(msg => this.showErrors([{ msg }]));
-        }
+      () => {
+        this.destroy();
+        this.options.onDelete(this.options.qualityGate);
+      },
+      error => {
+        this.enableForm();
+        parseError(error).then(msg => this.showErrors([{ msg }]));
+      }
     );
   },
 

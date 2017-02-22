@@ -105,7 +105,7 @@ const mapStateToProps = state => ({
 });
 
 export default connect(
-    mapStateToProps,
+  mapStateToProps,
     { fetchSettings }
 )(App);
 

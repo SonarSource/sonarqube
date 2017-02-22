@@ -25,7 +25,7 @@ import { click, change, submit } from '../../../../../helpers/testUtils';
 it('should render lock icon, but no form', () => {
   const onChange = jest.fn();
   const input = shallow(
-      <InputForPassword
+    <InputForPassword
           name="foo"
           value="bar"
           isDefault={false}
@@ -38,7 +38,7 @@ it('should render lock icon, but no form', () => {
 it('should open form', () => {
   const onChange = jest.fn();
   const input = shallow(
-      <InputForPassword
+    <InputForPassword
           name="foo"
           value="bar"
           isDefault={false}
@@ -54,7 +54,7 @@ it('should open form', () => {
 it('should close form', () => {
   const onChange = jest.fn();
   const input = shallow(
-      <InputForPassword
+    <InputForPassword
           name="foo"
           value="bar"
           isDefault={false}
@@ -73,7 +73,7 @@ it('should close form', () => {
 it('should set value', () => {
   const onChange = jest.fn(() => Promise.resolve());
   const input = shallow(
-      <InputForPassword
+    <InputForPassword
           name="foo"
           value="bar"
           isDefault={false}

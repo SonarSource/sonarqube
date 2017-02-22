@@ -31,7 +31,7 @@ it('should render organization', () => {
   const breadcrumbs = [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }];
   const organization = { key: 'foo', name: 'The Foo Organization' };
   const result = shallow(
-      <Unconnected
+    <Unconnected
           breadcrumbs={breadcrumbs}
           organization={organization}
           shouldOrganizationBeDisplayed={true}/>);

@@ -70,9 +70,9 @@ const getFacetsMap = facets => {
 };
 
 const reducer = createMap(
-    (state, action) => action.type === actions.RECEIVE_PROJECTS,
-    () => false,
-    (state, action) => getFacetsMap(action.facets)
+  (state, action) => action.type === actions.RECEIVE_PROJECTS,
+  () => false,
+  (state, action) => getFacetsMap(action.facets)
 );
 
 export default reducer;

@@ -28,7 +28,7 @@ it('should display', () => {
     { size: 20, color: '#777', label: 'SonarQube :: Search' }
   ];
   const chart = shallow(
-      <Treemap
+    <Treemap
           items={items}
           width={100}
           height={100}

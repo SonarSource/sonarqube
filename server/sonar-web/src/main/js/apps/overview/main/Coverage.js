@@ -44,8 +44,8 @@ class Coverage extends React.Component {
 
   renderHeader () {
     return this.props.renderHeader(
-        'Coverage',
-        translate('metric.coverage.name'));
+      'Coverage',
+      translate('metric.coverage.name'));
   }
 
   renderTimeline (range) {

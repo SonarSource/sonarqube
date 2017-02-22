@@ -100,8 +100,8 @@ export default class QualityGateCondition extends React.Component {
     const periodDate = getPeriodDate(period);
 
     const className = classNames(
-        'overview-quality-gate-condition',
-        'overview-quality-gate-condition-' + condition.level.toLowerCase(),
+      'overview-quality-gate-condition',
+      'overview-quality-gate-condition-' + condition.level.toLowerCase(),
         { 'overview-quality-gate-condition-leak': period != null }
     );
 
@@ -155,7 +155,7 @@ export default class QualityGateCondition extends React.Component {
         translate('quality_gates.operator', condition.op);
 
     return this.wrapWithLink(
-        <div className="overview-quality-gate-condition-container">
+      <div className="overview-quality-gate-condition-container">
           <div className="overview-quality-gate-condition-value">
             <Measure measure={{ value: actual, leak: actual }} metric={metric}/>
           </div>

@@ -203,15 +203,15 @@ export default ModalForm.extend({
 
     const issueKeys = this.issues.map(issue => issue.key);
     bulkChangeIssues(issueKeys, query).then(
-        () => {
-          this.destroy();
-          this.options.onChange();
-        },
-        (e: Object) => {
-          this.enableForm();
-          this.hideSpinner();
-          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
-        }
+      () => {
+        this.destroy();
+        this.options.onChange();
+      },
+      (e: Object) => {
+        this.enableForm();
+        this.hideSpinner();
+        e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+      }
     );
   },
 

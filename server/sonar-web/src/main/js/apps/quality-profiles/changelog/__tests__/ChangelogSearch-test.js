@@ -27,7 +27,7 @@ it('should render DateInput', () => {
   const onFromDateChange = jest.fn();
   const onToDateChange = jest.fn();
   const output = shallow(
-      <ChangelogSearch
+    <ChangelogSearch
           fromDate="2016-01-01"
           toDate="2016-05-05"
           onFromDateChange={onFromDateChange}
@@ -45,7 +45,7 @@ it('should render DateInput', () => {
 it('should reset', () => {
   const onReset = jest.fn();
   const output = shallow(
-      <ChangelogSearch
+    <ChangelogSearch
           fromDate="2016-01-01"
           toDate="2016-05-05"
           onFromDateChange={jest.fn()}

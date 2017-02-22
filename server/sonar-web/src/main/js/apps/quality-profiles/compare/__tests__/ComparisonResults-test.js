@@ -26,7 +26,7 @@ import SeverityIcon from '../../../../components/shared/severity-icon';
 
 it('should render ComparisonEmpty', () => {
   const output = shallow(
-      <ComparisonResults
+    <ComparisonResults
           left={{ name: 'left' }}
           right={{ name: 'right' }}
           inLeft={[]}
@@ -60,7 +60,7 @@ it('should compare', () => {
   ];
 
   const output = shallow(
-      <ComparisonResults
+    <ComparisonResults
           left={{ name: 'left' }}
           right={{ name: 'right' }}
           inLeft={inLeft}

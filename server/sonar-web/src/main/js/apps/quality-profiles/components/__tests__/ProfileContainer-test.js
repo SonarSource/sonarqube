@@ -33,7 +33,7 @@ it('should render ProfileHeader', () => {
   ];
   const updateProfiles = jest.fn();
   const output = shallow(
-      <ProfileContainer
+    <ProfileContainer
           location={{ query: { key: 'profile1' } }}
           profiles={profiles}
           canAdmin={false}
@@ -54,7 +54,7 @@ it('should render ProfileNotFound', () => {
     createFakeProfile({ key: 'profile2' })
   ];
   const output = shallow(
-      <ProfileContainer
+    <ProfileContainer
           location={{ query: { key: 'random' } }}
           profiles={profiles}
           canAdmin={false}
@@ -71,7 +71,7 @@ it('should render Helmet', () => {
   ];
   const updateProfiles = jest.fn();
   const output = shallow(
-      <ProfileContainer
+    <ProfileContainer
           location={{ query: { key: 'profile1' } }}
           profiles={profiles}
           canAdmin={false}

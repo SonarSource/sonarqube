@@ -25,7 +25,7 @@ import { change } from '../../../../../helpers/testUtils';
 it('should render input', () => {
   const onChange = jest.fn();
   const input = shallow(
-      <SimpleInput
+    <SimpleInput
           type="text"
           className="input-large"
           name="foo"
@@ -44,7 +44,7 @@ it('should render input', () => {
 it('should call onChange', () => {
   const onChange = jest.fn();
   const input = shallow(
-      <SimpleInput
+    <SimpleInput
           type="text"
           className="input-large"
           name="foo"

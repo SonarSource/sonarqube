@@ -24,7 +24,7 @@ import { UnconnectedOrganizationAdmin } from '../OrganizationAdmin';
 it('should render children', () => {
   const organization = { canAdmin: true };
   expect(shallow(
-      <UnconnectedOrganizationAdmin organization={organization}>
+    <UnconnectedOrganizationAdmin organization={organization}>
         <div>hello</div>
       </UnconnectedOrganizationAdmin>
   )).toMatchSnapshot();
@@ -33,7 +33,7 @@ it('should render children', () => {
 it('should not render anything', () => {
   const organization = { canAdmin: false };
   expect(shallow(
-      <UnconnectedOrganizationAdmin organization={organization}>
+    <UnconnectedOrganizationAdmin organization={organization}>
         <div>hello</div>
       </UnconnectedOrganizationAdmin>
   )).toMatchSnapshot();

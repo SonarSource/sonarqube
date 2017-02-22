@@ -53,5 +53,5 @@ class Security extends React.Component {
 }
 
 export default connect(
-    state => ({ user: getCurrentUser(state) })
+  state => ({ user: getCurrentUser(state) })
 )(Security);

@@ -78,6 +78,6 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(
-    mapStateToProps,
+  mapStateToProps,
     { fetchProjectLinks, createProjectLink, deleteProjectLink }
 )(Links);

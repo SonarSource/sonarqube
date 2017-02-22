@@ -98,9 +98,9 @@ export default class ProfileRules extends React.Component {
     }
 
     return translateWithParameters(
-        'quality_profiles.x_activated_out_of_y',
-        formatMeasure(count, 'INT'),
-        formatMeasure(total, 'INT'));
+      'quality_profiles.x_activated_out_of_y',
+      formatMeasure(count, 'INT'),
+      formatMeasure(total, 'INT'));
   }
 
   renderActiveTitle () {
@@ -148,8 +148,8 @@ export default class ProfileRules extends React.Component {
         <Link to={rulesUrl} className="small text-muted">
           <strong>
             {formatMeasure(
-                this.state.total - this.state.activatedTotal,
-                'SHORT_INT'
+              this.state.total - this.state.activatedTotal,
+              'SHORT_INT'
             )}
           </strong>
         </Link>

@@ -32,10 +32,10 @@ module.exports = function (diff) {
         formatMeasure(diff.newValue, 'WORK_DUR') :
         diff.newValue;
     message = translateWithParameters('issue.changelog.changed_to',
-        translate('issue.changelog.field', diff.key), newValue);
+      translate('issue.changelog.field', diff.key), newValue);
   } else {
     message = translateWithParameters('issue.changelog.removed',
-        translate('issue.changelog.field', diff.key));
+      translate('issue.changelog.field', diff.key));
   }
 
   if (diff.oldValue != null) {

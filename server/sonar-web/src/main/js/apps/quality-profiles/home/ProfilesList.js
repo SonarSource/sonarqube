@@ -55,8 +55,8 @@ export default class ProfilesList extends React.Component {
               {language.name}
               {', '}
               {translateWithParameters(
-                  'quality_profiles.x_profiles',
-                  profilesCount
+                'quality_profiles.x_profiles',
+                profilesCount
               )}
             </th>
             <th className="text-right nowrap">
@@ -109,8 +109,8 @@ export default class ProfilesList extends React.Component {
                        className="data zebra zebra-hover">
 
                   {this.renderHeader(
-                      languageKey,
-                      profilesToShow[languageKey].length)}
+                    languageKey,
+                    profilesToShow[languageKey].length)}
 
                   <TooltipsContainer>
                     <tbody>

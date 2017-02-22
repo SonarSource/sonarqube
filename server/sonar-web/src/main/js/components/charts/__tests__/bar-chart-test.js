@@ -28,7 +28,7 @@ it('should display bars', () => {
     { x: 3, y: 20 }
   ];
   const chart = shallow(
-      <BarChart
+    <BarChart
           data={data}
           width={100}
           height={100}
@@ -44,7 +44,7 @@ it('should display ticks', () => {
   ];
   const ticks = ['A', 'B', 'C'];
   const chart = shallow(
-      <BarChart
+    <BarChart
           data={data}
           xTicks={ticks}
           width={100}
@@ -61,7 +61,7 @@ it('should display values', () => {
   ];
   const values = ['A', 'B', 'C'];
   const chart = shallow(
-      <BarChart
+    <BarChart
           data={data}
           xValues={values}
           width={100}
@@ -79,7 +79,7 @@ it('should display bars, ticks and values', () => {
   const ticks = ['A', 'B', 'C'];
   const values = ['A', 'B', 'C'];
   const chart = shallow(
-      <BarChart
+    <BarChart
           data={data}
           xTicks={ticks}
           xValues={values}

@@ -31,7 +31,7 @@ it('should match snapshot', () => {
   ];
 
   expect(shallow(
-      <UnconnectedGlobalNotifications
+    <UnconnectedGlobalNotifications
           notifications={notifications}
           channels={channels}
           types={types}

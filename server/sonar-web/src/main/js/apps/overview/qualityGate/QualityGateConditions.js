@@ -70,8 +70,8 @@ export default class QualityGateConditions extends React.Component {
     if (failedConditions.length > 0) {
       const metrics = failedConditions.map(condition => condition.metric);
       getMeasuresAndMeta(
-          component.key,
-          metrics,
+        component.key,
+        metrics,
           { additionalFields: 'metrics' }
       ).then(r => {
         if (this.mounted) {
@@ -96,9 +96,9 @@ export default class QualityGateConditions extends React.Component {
     }
 
     const sortedConditions = sortBy(
-        conditions,
-        condition => LEVEL_ORDER.indexOf(condition.level),
-        condition => condition.metric.name
+      conditions,
+      condition => LEVEL_ORDER.indexOf(condition.level),
+      condition => condition.metric.name
     );
 
     return (

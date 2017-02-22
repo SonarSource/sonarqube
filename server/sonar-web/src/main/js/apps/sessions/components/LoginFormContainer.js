@@ -53,8 +53,8 @@ class LoginFormContainer extends React.Component {
 
   handleSubmit = (login: string, password: string) => {
     this.props.doLogin(login, password).then(
-        this.handleSuccessfulLogin,
-        () => { /* do nothing */ }
+      this.handleSuccessfulLogin,
+      () => { /* do nothing */ }
     );
   };
 

@@ -38,8 +38,8 @@ class AdminContainer extends React.Component {
 
   loadData () {
     getSettingsNavigation().then(
-        r => this.props.setAdminPages(r.extensions),
-        onFail(this.props.dispatch)
+      r => this.props.setAdminPages(r.extensions),
+      onFail(this.props.dispatch)
     );
   }
 

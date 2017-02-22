@@ -25,7 +25,7 @@ import { change } from '../../../../../helpers/testUtils';
 it('should render textarea', () => {
   const onChange = jest.fn();
   const textarea = shallow(
-      <InputForText
+    <InputForText
           name="foo"
           value="bar"
           isDefault={false}
@@ -40,7 +40,7 @@ it('should render textarea', () => {
 it('should call onChange', () => {
   const onChange = jest.fn();
   const textarea = shallow(
-      <InputForText
+    <InputForText
           name="foo"
           value="bar"
           isDefault={false}

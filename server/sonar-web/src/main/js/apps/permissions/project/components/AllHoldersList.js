@@ -64,15 +64,15 @@ class AllHoldersList extends React.Component {
 
     if (hasPermission) {
       this.props.revokePermissionFromUser(
-          this.props.project.key,
-          user.login,
-          permission
+        this.props.project.key,
+        user.login,
+        permission
       );
     } else {
       this.props.grantPermissionToUser(
-          this.props.project.key,
-          user.login,
-          permission
+        this.props.project.key,
+        user.login,
+        permission
       );
     }
   }
@@ -82,15 +82,15 @@ class AllHoldersList extends React.Component {
 
     if (hasPermission) {
       this.props.revokePermissionFromGroup(
-          this.props.project.key,
-          group.name,
-          permission
+        this.props.project.key,
+        group.name,
+        permission
       );
     } else {
       this.props.grantPermissionToGroup(
-          this.props.project.key,
-          group.name,
-          permission
+        this.props.project.key,
+        group.name,
+        permission
       );
     }
   }
@@ -159,6 +159,6 @@ const mapDispatchToProps = (dispatch, ownProps: OwnProps) => ({
 });
 
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(AllHoldersList);

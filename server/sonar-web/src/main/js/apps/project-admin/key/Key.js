@@ -62,12 +62,12 @@ class Key extends React.Component {
     return this.props.changeKey(key, newKey).then(() => {
       if (key === this.props.component.key) {
         this.props.addGlobalSuccessMessage(
-            translate('update_key.key_updated.reload'));
+          translate('update_key.key_updated.reload'));
         RecentHistory.remove(key);
         reloadUpdateKeyPage(newKey);
       } else {
         this.props.addGlobalSuccessMessage(
-            translate('update_key.key_updated'));
+          translate('update_key.key_updated'));
       }
     }).catch(e => {
       parseError(e).then(this.props.addGlobalErrorMessage);
@@ -153,11 +153,11 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(
-    mapStateToProps, {
-      fetchProjectModules,
-      changeKey,
-      addGlobalErrorMessage,
-      addGlobalSuccessMessage,
-      closeAllGlobalMessages
-    }
+  mapStateToProps, {
+    fetchProjectModules,
+    changeKey,
+    addGlobalErrorMessage,
+    addGlobalSuccessMessage,
+    closeAllGlobalMessages
+  }
 )(Key);

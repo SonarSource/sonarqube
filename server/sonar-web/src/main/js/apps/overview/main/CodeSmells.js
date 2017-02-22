@@ -30,8 +30,8 @@ import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
 class CodeSmells extends React.Component {
   renderHeader () {
     return this.props.renderHeader(
-        'Maintainability',
-        translate('metric.code_smells.name'));
+      'Maintainability',
+      translate('metric.code_smells.name'));
   }
 
   renderDebt (metric, type) {
@@ -46,7 +46,7 @@ class CodeSmells extends React.Component {
 
     const formattedSnapshotDate = moment(component.snapshotDate).format('LLL');
     const tooltip = translateWithParameters('widget.as_calculated_on_x',
-        formattedSnapshotDate);
+      formattedSnapshotDate);
 
     return (
         <Link to={getComponentIssuesUrl(component.key, params)}>
@@ -69,9 +69,9 @@ class CodeSmells extends React.Component {
 
   renderTimeline (range, displayDate) {
     return this.props.renderTimeline(
-        'sqale_index',
-        range,
-        displayDate ? this.renderTimelineStartDate() : null);
+      'sqale_index',
+      range,
+      displayDate ? this.renderTimelineStartDate() : null);
   }
 
   renderLeak () {
