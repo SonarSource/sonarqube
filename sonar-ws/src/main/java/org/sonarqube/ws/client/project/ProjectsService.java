@@ -37,12 +37,13 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 /**
  * Maps web service {@code api/projects}.
@@ -80,8 +81,8 @@ public class ProjectsService extends BaseService {
   public void updateKey(UpdateKeyWsRequest request) {
     PostRequest post = new PostRequest(path(ACTION_UPDATE_KEY))
       .setParam(PARAM_PROJECT_ID, request.getId())
-      .setParam(PARAM_PROJECT, request.getKey())
-      .setParam(PARAM_NEW_PROJECT, request.getNewKey());
+      .setParam(PARAM_FROM, request.getKey())
+      .setParam(PARAM_TO, request.getNewKey());
 
     call(post);
   }

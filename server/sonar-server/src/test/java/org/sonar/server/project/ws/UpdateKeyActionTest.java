@@ -44,9 +44,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_PROJECT;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class UpdateKeyActionTest {
   private static final String ANOTHER_KEY = "another_key";
@@ -121,7 +121,7 @@ public class UpdateKeyActionTest {
     assertThat(definition.params())
       .hasSize(3)
       .extracting(Param::key)
-      .containsOnlyOnce("projectId", "project", "newProject");
+      .containsOnlyOnce("projectId", "from", "to");
   }
 
   private void assertCallComponentService(@Nullable String newKey) {
@@ -147,10 +147,10 @@ public class UpdateKeyActionTest {
       request.setParam(PARAM_PROJECT_ID, uuid);
     }
     if (key != null) {
-      request.setParam(PARAM_PROJECT, key);
+      request.setParam(PARAM_FROM, key);
     }
     if (newKey != null) {
-      request.setParam(PARAM_NEW_PROJECT, newKey);
+      request.setParam(PARAM_TO, newKey);
     }
 
     return request.execute().getInput();

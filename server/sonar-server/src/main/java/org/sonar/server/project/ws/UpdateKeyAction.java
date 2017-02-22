@@ -34,9 +34,9 @@ import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_PROJECT;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class UpdateKeyAction implements ProjectsWsAction {
   private final DbClient dbClient;
@@ -63,7 +63,7 @@ public class UpdateKeyAction implements ProjectsWsAction {
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified project</li>" +
         "</ul>",
-        PARAM_PROJECT, PARAM_PROJECT_ID)
+        PARAM_FROM, PARAM_PROJECT_ID)
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);
@@ -76,12 +76,12 @@ public class UpdateKeyAction implements ProjectsWsAction {
       .setDeprecatedKey("id", "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
 
-    action.createParam(PARAM_PROJECT)
+    action.createParam(PARAM_FROM)
       .setDescription("Project or module key")
       .setDeprecatedKey("key", "6.4")
       .setExampleValue("my_old_project");
 
-    action.createParam(PARAM_NEW_PROJECT)
+    action.createParam(PARAM_TO)
       .setDescription("New component key")
       .setRequired(true)
       .setDeprecatedKey("newKey", "6.4")
@@ -99,7 +99,7 @@ public class UpdateKeyAction implements ProjectsWsAction {
   private void doHandle(UpdateKeyWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_PROJECT);
+      ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_FROM);
       componentService.updateKey(dbSession, projectOrModule, request.getNewKey());
       dbSession.commit();
     } finally {
@@ -110,8 +110,8 @@ public class UpdateKeyAction implements ProjectsWsAction {
   private static UpdateKeyWsRequest toWsRequest(Request request) {
     return UpdateKeyWsRequest.builder()
       .setId(request.param(PARAM_PROJECT_ID))
-      .setKey(request.param(PARAM_PROJECT))
-      .setNewKey(request.mandatoryParam(PARAM_NEW_PROJECT))
+      .setKey(request.param(PARAM_FROM))
+      .setNewKey(request.mandatoryParam(PARAM_TO))
       .build();
   }
 }
