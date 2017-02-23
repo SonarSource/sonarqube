@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,8 @@ public class Monitor {
 
   private final TerminatorThread terminator = new TerminatorThread();
   private final RestartRequestWatcherThread restartWatcher = new RestartRequestWatcherThread();
+  @CheckForNull
+  private Supplier<List<JavaCommand>> javaCommandsSupplier;
   @CheckForNull
   private List<JavaCommand> javaCommands;
   @CheckForNull
@@ -138,10 +141,10 @@ public class Monitor {
    * @throws IllegalStateException if already started or if at least one process failed to start. In this case
    *         all processes are terminated. No need to execute {@link #stop()}
    */
-  public void start(List<JavaCommand> commands) throws InterruptedException {
-    if (commands.isEmpty()) {
-      throw new IllegalArgumentException("At least one command is required");
-    }
+  public void start(Supplier<List<JavaCommand>> javaCommandsSupplier) throws InterruptedException {
+    this.javaCommandsSupplier = javaCommandsSupplier;
+    // load java commands now, to fail fast if need be
+    List<JavaCommand> commands = loadJavaCommands();
 
     if (lifecycle.getState() != State.INIT) {
       throw new IllegalStateException("Can not start multiple times");
@@ -153,10 +156,28 @@ public class Monitor {
     // start watching for restart requested by child process
     restartWatcher.start();
 
-    javaCommands = new ArrayList<>(commands);
+    this.javaCommands = new ArrayList<>(commands);
     startProcesses();
   }
 
+  /**
+   * @throws IllegalArgumentException if supplied didn't provide at least one JavaCommand
+   */
+  private List<JavaCommand> loadJavaCommands() {
+    List<JavaCommand> commands = this.javaCommandsSupplier.get();
+    if (commands.isEmpty()) {
+      throw new IllegalArgumentException("At least one command is required");
+    }
+    return commands;
+  }
+
+  private void reloadJavaCommands() {
+    this.javaCommands = loadJavaCommands();
+  }
+
+  /**
+   * Starts the processes defined by the JavaCommand in {@link #javaCommands}/
+   */
   private void startProcesses() throws InterruptedException {
     // do no start any child process if not in state INIT or RESTARTING (a stop could be in progress too)
     if (lifecycle.tryToMoveTo(State.STARTING)) {
@@ -364,6 +385,7 @@ public class Monitor {
     public void run() {
       stopProcesses();
       try {
+        reloadJavaCommands();
         startProcesses();
       } catch (InterruptedException e) {
         // Startup was interrupted. Processes are being stopped asynchronously.

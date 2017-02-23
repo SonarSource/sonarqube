@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Supplier;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,9 +59,9 @@ public class AppTest {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
     app.start(props);
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
+    ArgumentCaptor<Supplier<List<JavaCommand>>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
-    assertThat(argument.getValue()).extracting("processId").containsExactly(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
+    assertThat(argument.getValue().get()).extracting("processId").containsExactly(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
 
     app.stopAsync();
     verify(monitor).stop();
@@ -176,13 +177,13 @@ public class AppTest {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
     app.start(props);
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
+    ArgumentCaptor<Supplier<List<JavaCommand>>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
-    return argument.getValue();
+    return argument.getValue().get();
   }
 
-  private ArgumentCaptor<List<JavaCommand>> newJavaCommandArgumentCaptor() {
-    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>) (Class) List.class;
+  private ArgumentCaptor<Supplier<List<JavaCommand>>> newJavaCommandArgumentCaptor() {
+    Class<Supplier<List<JavaCommand>>> listClass = (Class<Supplier<List<JavaCommand>>>) (Class) List.class;
     return ArgumentCaptor.forClass(listClass);
   }
 }

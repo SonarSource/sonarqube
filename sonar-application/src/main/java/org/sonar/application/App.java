@@ -76,7 +76,7 @@ public class App implements Stoppable {
   }
 
   public void start(Props props) throws InterruptedException {
-    monitor.start(createCommands(props));
+    monitor.start(() -> createCommands(props));
     monitor.awaitTermination();
   }
 

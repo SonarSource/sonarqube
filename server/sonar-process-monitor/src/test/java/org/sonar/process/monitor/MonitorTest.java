@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.assertj.core.api.AbstractAssert;
@@ -124,7 +125,7 @@ public class MonitorTest {
   public void fail_to_start_if_no_commands() throws Exception {
     underTest = newDefaultMonitor(tempDir);
     try {
-      underTest.start(Collections.<JavaCommand>emptyList());
+      underTest.start(Collections::emptyList);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("At least one command is required");
@@ -134,10 +135,10 @@ public class MonitorTest {
   @Test
   public void fail_to_start_multiple_times() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    underTest.start(singletonList(newStandardProcessCommand()));
+    underTest.start(() -> singletonList(newStandardProcessCommand()));
     boolean failed = false;
     try {
-      underTest.start(singletonList(newStandardProcessCommand()));
+      underTest.start(() -> singletonList(newStandardProcessCommand()));
     } catch (IllegalStateException e) {
       failed = e.getMessage().equals("Can not start multiple times");
     }
@@ -150,7 +151,7 @@ public class MonitorTest {
     underTest = newDefaultMonitor(tempDir);
     HttpProcessClient client = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
     // blocks until started
-    underTest.start(singletonList(client.newCommand()));
+    underTest.start(() -> singletonList(client.newCommand()));
 
     assertThat(client).isUp()
       .wasStartedBefore(System.currentTimeMillis());
@@ -169,7 +170,7 @@ public class MonitorTest {
     underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
     HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
-    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(() -> Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     // start p2 when p1 is fully started (ready)
     assertThat(p1)
@@ -195,7 +196,7 @@ public class MonitorTest {
     underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
     HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
-    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(() -> Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1).isUp();
     assertThat(p2).isUp();
 
@@ -214,7 +215,7 @@ public class MonitorTest {
     underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
     HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
-    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(() -> Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     assertThat(p1).isUp();
     assertThat(p2).isUp();
@@ -243,11 +244,56 @@ public class MonitorTest {
   }
 
   @Test
+  public void restart_reloads_java_commands() throws Exception {
+    underTest = newDefaultMonitor(tempDir);
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
+
+    // a supplier that will return p1 the first time it's called and then p2 all the time
+    Supplier<List<JavaCommand>> listSupplier = new Supplier<List<JavaCommand>>() {
+      private int counter = 0;
+      @Override
+      public List<JavaCommand> get() {
+        if (counter == 0) {
+          counter++;
+          return Collections.singletonList(p1.newCommand());
+        } else {
+          return Collections.singletonList(p2.newCommand());
+        }
+      }
+    };
+
+    underTest.start(listSupplier);
+
+    assertThat(p1).isUp();
+    assertThat(p2).isNotUp();
+
+    p1.restart();
+
+    assertThat(underTest.waitForOneRestart()).isTrue();
+
+    assertThat(p1)
+        .wasStarted(1)
+        .wasGracefullyTerminated(1);
+    assertThat(p2)
+        .wasStarted(1)
+        .isUp();
+
+    underTest.stop();
+    assertThat(p1)
+        .wasStarted(1)
+        .wasGracefullyTerminated(1);
+    assertThat(p2)
+        .wasStarted(1)
+        .wasGracefullyTerminated(1);
+  }
+
+  @Test
   public void stop_all_processes_if_one_shutdowns() throws Exception {
     underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
     HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
-    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(() -> Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1.isUp()).isTrue();
     assertThat(p2.isUp()).isTrue();
 
@@ -271,7 +317,7 @@ public class MonitorTest {
     HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
     HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER, -1);
     try {
-      underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+      underTest.start(() -> Arrays.asList(p1.newCommand(), p2.newCommand()));
       fail();
     } catch (Exception expected) {
       assertThat(p1)
@@ -292,7 +338,7 @@ public class MonitorTest {
       .setClassName("org.sonar.process.test.Unknown");
 
     try {
-      underTest.start(singletonList(command));
+      underTest.start(() -> singletonList(command));
       fail();
     } catch (Exception e) {
       // expected
@@ -306,7 +352,7 @@ public class MonitorTest {
     assertThat(underTest.hardStopWatcher).isNull();
 
     HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.COMPUTE_ENGINE);
-    underTest.start(singletonList(p1.newCommand()));
+    underTest.start(() -> singletonList(p1.newCommand()));
 
     assertThat(underTest.hardStopWatcher).isNotNull();
     assertThat(underTest.hardStopWatcher.isAlive()).isTrue();
@@ -575,7 +621,7 @@ public class MonitorTest {
     }
   }
 
-  private JavaCommand newStandardProcessCommand() throws IOException {
+  private JavaCommand newStandardProcessCommand() {
     return new JavaCommand(ProcessId.ELASTICSEARCH)
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.StandardProcess");
