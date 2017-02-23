@@ -21,8 +21,8 @@ package org.sonar.db.qualitygate;
 
 import java.util.Collection;
 import java.util.Date;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 /**
@@ -36,48 +36,32 @@ public class QualityGateConditionDao implements Dao {
     this.myBatis = myBatis;
   }
 
-  public void insert(QualityGateConditionDto newQualityGate) {
-    SqlSession session = myBatis.openSession(false);
-    try {
-      insert(newQualityGate, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void insert(QualityGateConditionDto newQualityGate, SqlSession session) {
+  public void insert(QualityGateConditionDto newQualityGate, DbSession session) {
     mapper(session).insert(newQualityGate.setCreatedAt(new Date()));
   }
 
   public Collection<QualityGateConditionDto> selectForQualityGate(long qGateId) {
-    SqlSession session = myBatis.openSession(false);
-    try {
-      return selectForQualityGate(qGateId, session);
-    } finally {
-      MyBatis.closeQuietly(session);
+    try (DbSession dbSession = myBatis.openSession(false)) {
+      return selectForQualityGate(qGateId, dbSession);
     }
   }
 
-  public Collection<QualityGateConditionDto> selectForQualityGate(long qGateId, SqlSession session) {
+  public Collection<QualityGateConditionDto> selectForQualityGate(long qGateId, DbSession session) {
     return mapper(session).selectForQualityGate(qGateId);
   }
 
   public QualityGateConditionDto selectById(long id) {
-    SqlSession session = myBatis.openSession(false);
-    try {
+    try (DbSession session = myBatis.openSession(false)) {
       return selectById(id, session);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
-  public QualityGateConditionDto selectById(long id, SqlSession session) {
+  public QualityGateConditionDto selectById(long id, DbSession session) {
     return mapper(session).selectById(id);
   }
 
   public void delete(QualityGateConditionDto qGate) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       delete(qGate, session);
       session.commit();
@@ -86,39 +70,26 @@ public class QualityGateConditionDao implements Dao {
     }
   }
 
-  public void delete(QualityGateConditionDto qGate, SqlSession session) {
+  public void delete(QualityGateConditionDto qGate, DbSession session) {
     mapper(session).delete(qGate.getId());
   }
 
   public void update(QualityGateConditionDto qGate) {
-    SqlSession session = myBatis.openSession(false);
-    try {
-      update(qGate, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
+    try (DbSession dbSession = myBatis.openSession(false)) {
+      update(qGate, dbSession);
+      dbSession.commit();
     }
   }
 
-  public void update(QualityGateConditionDto qGate, SqlSession session) {
+  public void update(QualityGateConditionDto qGate, DbSession session) {
     mapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
-  public void deleteConditionsWithInvalidMetrics() {
-    SqlSession session = myBatis.openSession(false);
-    try {
-      deleteConditionsWithInvalidMetrics(session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void deleteConditionsWithInvalidMetrics(SqlSession session) {
+  public void deleteConditionsWithInvalidMetrics(DbSession session) {
     mapper(session).deleteConditionsWithInvalidMetrics();
   }
 
-  private static QualityGateConditionMapper mapper(SqlSession session) {
+  private static QualityGateConditionMapper mapper(DbSession session) {
     return session.getMapper(QualityGateConditionMapper.class);
   }
 }

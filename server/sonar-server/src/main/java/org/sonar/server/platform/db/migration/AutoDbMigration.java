@@ -24,11 +24,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DdlUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -66,7 +66,7 @@ public class AutoDbMigration implements Startable {
   @VisibleForTesting
   void installH2() {
     Connection connection = null;
-    try (SqlSession session = dbClient.openSession(false)) {
+    try (DbSession session = dbClient.openSession(false)) {
       connection = session.getConnection();
       createH2Schema(connection, dbClient.getDatabase().getDialect().getId());
     } finally {

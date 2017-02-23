@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.DbSession;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
@@ -33,18 +33,18 @@ class PurgeCommands {
   private static final int MAX_SNAPSHOTS_PER_QUERY = 1000;
   private static final int MAX_RESOURCES_PER_QUERY = 1000;
 
-  private final SqlSession session;
+  private final DbSession session;
   private final PurgeMapper purgeMapper;
   private final PurgeProfiler profiler;
 
-  PurgeCommands(SqlSession session, PurgeMapper purgeMapper, PurgeProfiler profiler) {
+  PurgeCommands(DbSession session, PurgeMapper purgeMapper, PurgeProfiler profiler) {
     this.session = session;
     this.purgeMapper = purgeMapper;
     this.profiler = profiler;
   }
 
   @VisibleForTesting
-  PurgeCommands(SqlSession session, PurgeProfiler profiler) {
+  PurgeCommands(DbSession session, PurgeProfiler profiler) {
     this(session, session.getMapper(PurgeMapper.class), profiler);
   }
 
@@ -175,7 +175,7 @@ class PurgeCommands {
     profiler.start("deleteSnapshotWastedMeasures (project_measures)");
     List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
     analysisUuidsPartitions.stream()
-        .forEach(analysisUuidsPartition -> purgeMapper.deleteAnalysisWastedMeasures(analysisUuidsPartition, metricIdsWithoutHistoricalData));
+      .forEach(analysisUuidsPartition -> purgeMapper.deleteAnalysisWastedMeasures(analysisUuidsPartition, metricIdsWithoutHistoricalData));
     session.commit();
     profiler.stop();
 

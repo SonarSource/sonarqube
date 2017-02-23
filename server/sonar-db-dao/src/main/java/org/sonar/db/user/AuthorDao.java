@@ -22,7 +22,6 @@ package org.sonar.db.user;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -56,7 +55,7 @@ public class AuthorDao implements Dao {
     return executeLargeInputs(developerUuids, getMapper(session)::selectScmAccountsByDeveloperUuids);
   }
 
-  private static AuthorMapper getMapper(SqlSession session) {
+  private static AuthorMapper getMapper(DbSession session) {
     return session.getMapper(AuthorMapper.class);
   }
 }

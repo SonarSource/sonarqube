@@ -129,8 +129,7 @@ public class MyBatis {
     this.database = database;
   }
 
-  // FIXME should be visible only to DAOs -> to be moved to AbstractDao
-  public static void closeQuietly(@Nullable SqlSession session) {
+  public static void closeQuietly(@Nullable DbSession session) {
     if (session != null) {
       try {
         session.close();

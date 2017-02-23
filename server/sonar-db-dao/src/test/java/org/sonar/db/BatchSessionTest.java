@@ -19,7 +19,6 @@
  */
 package org.sonar.db;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 
 import static org.mockito.Mockito.anyBoolean;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.verify;
 public class BatchSessionTest {
   @Test
   public void shouldCommitWhenReachingBatchSize() {
-    SqlSession mybatisSession = mock(SqlSession.class);
+    DbSession mybatisSession = mock(DbSession.class);
     BatchSession session = new BatchSession(mybatisSession, 10);
 
     for (int i = 0; i < 9; i++) {
@@ -47,7 +46,7 @@ public class BatchSessionTest {
 
   @Test
   public void shouldCommitWhenReachingBatchSizeWithoutCommits() {
-    SqlSession mybatisSession = mock(SqlSession.class);
+    DbSession mybatisSession = mock(DbSession.class);
     BatchSession session = new BatchSession(mybatisSession, 10);
 
     for (int i = 0; i < 9; i++) {
@@ -62,7 +61,7 @@ public class BatchSessionTest {
 
   @Test
   public void shouldResetCounterAfterCommit() {
-    SqlSession mybatisSession = mock(SqlSession.class);
+    DbSession mybatisSession = mock(DbSession.class);
     BatchSession session = new BatchSession(mybatisSession, 10);
 
     for (int i = 0; i < 35; i++) {

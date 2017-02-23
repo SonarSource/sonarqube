@@ -19,9 +19,9 @@
  */
 package org.sonar.db.component;
 
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
 public class ResourceDao implements Dao {
 
@@ -31,7 +31,7 @@ public class ResourceDao implements Dao {
     this.system2 = system2;
   }
 
-  public void updateAuthorizationDate(Long projectId, SqlSession session) {
+  public void updateAuthorizationDate(Long projectId, DbSession session) {
     session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, system2.now());
   }
 

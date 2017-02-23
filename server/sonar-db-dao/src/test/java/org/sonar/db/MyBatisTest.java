@@ -20,7 +20,6 @@
 package org.sonar.db;
 
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -60,12 +59,9 @@ public class MyBatisTest {
     MyBatis myBatis = new MyBatis(database);
     myBatis.start();
 
-    SqlSession session = myBatis.openSession(false);
-    try {
+    try (DbSession session = myBatis.openSession(false)) {
       assertThat(session.getConnection(), notNullValue());
       assertThat(session.getMapper(RuleMapper.class), notNullValue());
-    } finally {
-      session.close();
     }
   }
 }

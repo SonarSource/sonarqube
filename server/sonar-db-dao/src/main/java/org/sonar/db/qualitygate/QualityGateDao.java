@@ -22,12 +22,11 @@ package org.sonar.db.qualitygate;
 import java.util.Collection;
 import java.util.Date;
 import javax.annotation.CheckForNull;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-public class QualityGateDao implements Dao{
+public class QualityGateDao implements Dao {
 
   private final MyBatis myBatis;
 
@@ -52,7 +51,7 @@ public class QualityGateDao implements Dao{
   }
 
   public Collection<QualityGateDto> selectAll() {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       return selectAll(session);
     } finally {
@@ -60,13 +59,13 @@ public class QualityGateDao implements Dao{
     }
   }
 
-  public Collection<QualityGateDto> selectAll(SqlSession session) {
+  public Collection<QualityGateDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
   }
 
   @CheckForNull
   public QualityGateDto selectByName(String name) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       return selectByName(session, name);
     } finally {
@@ -75,13 +74,13 @@ public class QualityGateDao implements Dao{
   }
 
   @CheckForNull
-  public QualityGateDto selectByName(SqlSession session, String name) {
+  public QualityGateDto selectByName(DbSession session, String name) {
     return mapper(session).selectByName(name);
   }
 
   @CheckForNull
   public QualityGateDto selectById(long id) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       return selectById(session, id);
     } finally {
@@ -90,12 +89,12 @@ public class QualityGateDao implements Dao{
   }
 
   @CheckForNull
-  public QualityGateDto selectById(SqlSession session, long id) {
+  public QualityGateDto selectById(DbSession session, long id) {
     return mapper(session).selectById(id);
   }
 
   public void delete(QualityGateDto qGate) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       delete(qGate, session);
       session.commit();
@@ -104,12 +103,12 @@ public class QualityGateDao implements Dao{
     }
   }
 
-  public void delete(QualityGateDto qGate, SqlSession session) {
+  public void delete(QualityGateDto qGate, DbSession session) {
     mapper(session).delete(qGate.getId());
   }
 
   public void update(QualityGateDto qGate) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       update(qGate, session);
       session.commit();
@@ -118,11 +117,11 @@ public class QualityGateDao implements Dao{
     }
   }
 
-  public void update(QualityGateDto qGate, SqlSession session) {
+  public void update(QualityGateDto qGate, DbSession session) {
     mapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
-  private static QualityGateMapper mapper(SqlSession session) {
+  private static QualityGateMapper mapper(DbSession session) {
     return session.getMapper(QualityGateMapper.class);
   }
 }

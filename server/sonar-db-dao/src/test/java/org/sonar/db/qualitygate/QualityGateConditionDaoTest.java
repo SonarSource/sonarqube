@@ -36,14 +36,17 @@ public class QualityGateConditionDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  QualityGateConditionDao underTest = dbTester.getDbClient().gateConditionDao();
+  private QualityGateConditionDao underTest = dbTester.getDbClient().gateConditionDao();
 
   @Test
   public void testInsert() throws Exception {
     dbTester.prepareDbUnit(getClass(), "insert.xml");
     QualityGateConditionDto newCondition = new QualityGateConditionDto()
       .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setWarningThreshold("10").setErrorThreshold("20").setPeriod(3);
-    underTest.insert(newCondition);
+
+    underTest.insert(newCondition, dbTester.getSession());
+    dbTester.commit();
+
     dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gate_conditions", "metric_id", "operator", "error_value", "warning_value", "period");
     assertThat(newCondition.getId()).isNotNull();
   }
@@ -87,7 +90,10 @@ public class QualityGateConditionDaoTest {
   @Test
   public void shouldCleanConditions() {
     dbTester.prepareDbUnit(getClass(), "shouldCleanConditions.xml");
-    underTest.deleteConditionsWithInvalidMetrics();
+
+    underTest.deleteConditionsWithInvalidMetrics(dbTester.getSession());
+    dbTester.commit();
+    
     dbTester.assertDbUnit(getClass(), "shouldCleanConditions-result.xml", new String[]{"created_at", "updated_at"}, "quality_gate_conditions");
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.db.loadedtemplate;
 
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -38,7 +37,7 @@ public class LoadedTemplateDao implements Dao {
     }
   }
 
-  public int countByTypeAndKey(String type, String key, SqlSession session) {
+  public int countByTypeAndKey(String type, String key, DbSession session) {
     return session.getMapper(LoadedTemplateMapper.class).countByTypeAndKey(type, key);
   }
 
@@ -49,7 +48,7 @@ public class LoadedTemplateDao implements Dao {
     }
   }
 
-  public void insert(LoadedTemplateDto loadedTemplateDto, SqlSession session) {
+  public void insert(LoadedTemplateDto loadedTemplateDto, DbSession session) {
     session.getMapper(LoadedTemplateMapper.class).insert(loadedTemplateDto);
   }
 

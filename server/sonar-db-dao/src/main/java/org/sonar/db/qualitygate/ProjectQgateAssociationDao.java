@@ -21,7 +21,6 @@ package org.sonar.db.qualitygate;
 
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -41,7 +40,7 @@ public class ProjectQgateAssociationDao implements Dao {
     return id == null ? Optional.empty() : Optional.of(Long.valueOf(id));
   }
 
-  private static ProjectQgateAssociationMapper mapper(SqlSession session) {
+  private static ProjectQgateAssociationMapper mapper(DbSession session) {
     return session.getMapper(ProjectQgateAssociationMapper.class);
   }
 
