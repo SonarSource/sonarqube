@@ -29,12 +29,14 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.AllProcessesCommands;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.FileSystem;
 
+import static java.lang.String.format;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.sonar.process.FileUtils.deleteDirectory;
@@ -118,7 +120,7 @@ public class AppFileSystem implements FileSystem {
 
   private static void ensureIsNotAFile(String propKey, File dir) {
     if (!dir.isDirectory()) {
-      throw new IllegalStateException(String.format("Property '%s' is not valid, not a directory: %s",
+      throw new IllegalStateException(format("Property '%s' is not valid, not a directory: %s",
         propKey, dir.getAbsolutePath()));
     }
   }
@@ -130,6 +132,21 @@ public class AppFileSystem implements FileSystem {
       Files.walkFileTree(dir.toPath(), FOLLOW_LINKS, CleanTempDirFileVisitor.VISIT_MAX_DEPTH, new CleanTempDirFileVisitor(dir.toPath()));
     }
     return dir;
+  }
+
+  public void ensureUnchangedConfiguration(Props newProps) {
+    verifyUnchanged(newProps, PATH_DATA, DEFAULT_DATA_DIRECTORY_NAME);
+    verifyUnchanged(newProps, PATH_WEB, DEFAULT_WEB_DIRECTORY_NAME);
+    verifyUnchanged(newProps, PATH_LOGS, DEFAULT_LOGS_DIRECTORY_NAME);
+    verifyUnchanged(newProps, PATH_TEMP, DEFAULT_TEMP_DIRECTORY_NAME);
+  }
+
+  private void verifyUnchanged(Props newProps, String propKey, String defaultRelativePath) {
+    String initialValue = props.value(propKey, defaultRelativePath);
+    String newValue = newProps.value(propKey, defaultRelativePath);
+    if (!Objects.equals(newValue, initialValue)) {
+      throw new IllegalStateException(format("Change of property '%s' is not supported ('%s'=> '%s')", propKey, initialValue, newValue));
+    }
   }
 
   private static class CleanTempDirFileVisitor extends SimpleFileVisitor<Path> {

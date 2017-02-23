@@ -19,10 +19,14 @@
  */
 package org.sonar.application;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,27 +45,46 @@ import static org.sonar.process.ProcessId.APP;
  */
 public class App implements Stoppable {
 
+  private final Properties commandLineArguments;
+  private final Function<Properties, Props> propsSupplier;
   private final JavaCommandFactory javaCommandFactory;
   private final Monitor monitor;
+  private final Supplier<List<JavaCommand>> javaCommandSupplier;
 
-  public App(AppFileSystem appFileSystem, boolean watchForHardStop) {
-    this(Monitor.newMonitorBuilder()
+  private App(Properties commandLineArguments) {
+    this.commandLineArguments = commandLineArguments;
+    this.propsSupplier = properties -> new PropsBuilder(properties, new JdbcSettings()).build();
+    this.javaCommandFactory = new JavaCommandFactoryImpl();
+    Props props = propsSupplier.apply(commandLineArguments);
+
+    AppFileSystem appFileSystem = new AppFileSystem(props);
+    appFileSystem.verifyProps();
+    AppLogging logging = new AppLogging();
+    logging.configure(props);
+
+    // used by orchestrator
+    boolean watchForHardStop = props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false);
+    this.monitor = Monitor.newMonitorBuilder()
       .setProcessNumber(APP.getIpcIndex())
       .setFileSystem(appFileSystem)
       .setWatchForHardStop(watchForHardStop)
       .setWaitForOperational()
       .addListener(new AppLifecycleListener())
-      .build(),
-      new JavaCommandFactoryImpl());
+      .build();
+    this.javaCommandSupplier = new ReloadableCommandSupplier(props, appFileSystem::ensureUnchangedConfiguration);
   }
 
-  App(Monitor monitor, JavaCommandFactory javaCommandFactory) {
+  @VisibleForTesting
+  App(Properties commandLineArguments, Function<Properties, Props> propsSupplier, Monitor monitor, CheckFSConfigOnReload checkFsConfigOnReload, JavaCommandFactory javaCommandFactory) {
+    this.commandLineArguments = commandLineArguments;
+    this.propsSupplier = propsSupplier;
     this.javaCommandFactory = javaCommandFactory;
     this.monitor = monitor;
+    this.javaCommandSupplier = new ReloadableCommandSupplier(propsSupplier.apply(commandLineArguments), checkFsConfigOnReload);
   }
 
-  public void start(Props props) throws InterruptedException {
-    monitor.start(() -> createCommands(props));
+  public void start() throws InterruptedException {
+    monitor.start(javaCommandSupplier);
     monitor.awaitTermination();
   }
 
@@ -96,21 +119,16 @@ public class App implements Stoppable {
   public static void main(String[] args) throws InterruptedException {
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
-    Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
-    AppFileSystem appFileSystem = new AppFileSystem(props);
-    appFileSystem.verifyProps();
-    AppLogging logging = new AppLogging();
-    logging.configure(props);
 
-    // used by orchestrator
-    boolean watchForHardStop = props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false);
-    App app = new App(appFileSystem, watchForHardStop);
-    app.start(props);
+    App app = new App(rawProperties);
+    app.start();
   }
 
   @Override
   public void stopAsync() {
-    monitor.stop();
+    if (monitor != null) {
+      monitor.stop();
+    }
   }
 
   private static class AppLifecycleListener implements Lifecycle.LifecycleListener {
@@ -121,6 +139,42 @@ public class App implements Stoppable {
       if (to == State.OPERATIONAL) {
         LOGGER.info("SonarQube is up");
       }
+    }
+  }
+
+  @FunctionalInterface
+  interface CheckFSConfigOnReload extends Consumer<Props> {
+
+  }
+
+  private class ReloadableCommandSupplier implements Supplier<List<JavaCommand>> {
+    private final Props initialProps;
+    private final CheckFSConfigOnReload checkFsConfigOnReload;
+    private boolean initialPropsConsumed = false;
+
+    ReloadableCommandSupplier(Props initialProps, CheckFSConfigOnReload checkFsConfigOnReload) {
+      this.initialProps = initialProps;
+      this.checkFsConfigOnReload = checkFsConfigOnReload;
+    }
+
+    @Override
+    public List<JavaCommand> get() {
+      if (!initialPropsConsumed) {
+        initialPropsConsumed = true;
+        return createCommands(this.initialProps);
+      }
+      return recreateCommands();
+    }
+
+    private List<JavaCommand> recreateCommands() {
+      Props reloadedProps = propsSupplier.apply(commandLineArguments);
+      AppFileSystem appFileSystem = new AppFileSystem(reloadedProps);
+      appFileSystem.verifyProps();
+      checkFsConfigOnReload.accept(reloadedProps);
+      AppLogging logging = new AppLogging();
+      logging.configure(reloadedProps);
+
+      return createCommands(reloadedProps);
     }
   }
 }

@@ -156,8 +156,7 @@ public class Monitor {
     // start watching for restart requested by child process
     restartWatcher.start();
 
-    this.javaCommands = new ArrayList<>(commands);
-    startProcesses();
+    startProcesses(() -> commands);
   }
 
   /**
@@ -171,14 +170,10 @@ public class Monitor {
     return commands;
   }
 
-  private void reloadJavaCommands() {
-    this.javaCommands = loadJavaCommands();
-  }
-
   /**
    * Starts the processes defined by the JavaCommand in {@link #javaCommands}/
    */
-  private void startProcesses() throws InterruptedException {
+  private void startProcesses(Supplier<List<JavaCommand>> javaCommandsSupplier) throws InterruptedException {
     // do no start any child process if not in state INIT or RESTARTING (a stop could be in progress too)
     if (lifecycle.tryToMoveTo(State.STARTING)) {
       resetFileSystem();
@@ -189,6 +184,7 @@ public class Monitor {
         hardStopWatcher.start();
       }
 
+      this.javaCommands = javaCommandsSupplier.get();
       startAndMonitorProcesses();
       stopIfAnyProcessDidNotStart();
       waitForOperationalProcesses();
@@ -385,12 +381,14 @@ public class Monitor {
     public void run() {
       stopProcesses();
       try {
-        reloadJavaCommands();
-        startProcesses();
+        startProcesses(Monitor.this::loadJavaCommands);
       } catch (InterruptedException e) {
         // Startup was interrupted. Processes are being stopped asynchronously.
         // Restoring the interruption state.
         Thread.currentThread().interrupt();
+      } catch (Throwable t) {
+        LOG.error("Restart failed", t);
+        stopAsync(Lifecycle.State.HARD_STOPPING);
       }
     }
   }
