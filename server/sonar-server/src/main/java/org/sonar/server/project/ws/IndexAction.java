@@ -22,7 +22,6 @@ package org.sonar.server.project.ws;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,8 +133,11 @@ public class IndexAction implements ProjectsWsAction {
   }
 
   private List<ComponentDto> getAuthorizedComponents(DbSession dbSession, List<ComponentDto> components) {
-    if (components.isEmpty()) {
-      return Collections.emptyList();
+    if (userSession.isRoot() || components.isEmpty()) {
+      // the method AuthorizationDao#keepAuthorizedProjectIds() should be replaced by
+      // a call to UserSession, which would transparently support roots.
+      // Meanwhile root is explicitly handled.
+      return components;
     }
     Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
     List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);

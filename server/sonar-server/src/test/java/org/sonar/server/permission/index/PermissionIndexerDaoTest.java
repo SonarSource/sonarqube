@@ -95,21 +95,21 @@ public class PermissionIndexerDaoTest {
 
     PermissionIndexerDao.Dto view1Authorization = getByProjectUuid(view1.uuid(), dtos);
     assertThat(view1Authorization.getGroupIds()).containsOnly(group.getId());
-    assertThat(view1Authorization.isAllowAnyone()).isTrue();
+    assertThat(view1Authorization.isAllowAnyone()).isFalse();
     assertThat(view1Authorization.getUserIds()).containsOnly(user1.getId());
     assertThat(view1Authorization.getUpdatedAt()).isNotNull();
     assertThat(view1Authorization.getQualifier()).isEqualTo(VIEW);
 
     PermissionIndexerDao.Dto project2Authorization = getByProjectUuid(project2.uuid(), dtos);
     assertThat(project2Authorization.getGroupIds()).isEmpty();
-    assertThat(project2Authorization.isAllowAnyone()).isTrue();
+    assertThat(project2Authorization.isAllowAnyone()).isFalse();
     assertThat(project2Authorization.getUserIds()).containsOnly(user1.getId(), user2.getId());
     assertThat(project2Authorization.getUpdatedAt()).isNotNull();
     assertThat(project2Authorization.getQualifier()).isEqualTo(PROJECT);
 
     PermissionIndexerDao.Dto view2Authorization = getByProjectUuid(view2.uuid(), dtos);
     assertThat(view2Authorization.getGroupIds()).isEmpty();
-    assertThat(view2Authorization.isAllowAnyone()).isTrue();
+    assertThat(view2Authorization.isAllowAnyone()).isFalse();
     assertThat(view2Authorization.getUserIds()).containsOnly(user1.getId(), user2.getId());
     assertThat(view2Authorization.getUpdatedAt()).isNotNull();
     assertThat(view2Authorization.getQualifier()).isEqualTo(VIEW);
@@ -133,21 +133,21 @@ public class PermissionIndexerDaoTest {
 
     PermissionIndexerDao.Dto view1Authorization = dtos.get(view1.uuid());
     assertThat(view1Authorization.getGroupIds()).containsOnly(group.getId());
-    assertThat(view1Authorization.isAllowAnyone()).isTrue();
+    assertThat(view1Authorization.isAllowAnyone()).isFalse();
     assertThat(view1Authorization.getUserIds()).containsOnly(user1.getId());
     assertThat(view1Authorization.getUpdatedAt()).isNotNull();
     assertThat(view1Authorization.getQualifier()).isEqualTo(VIEW);
 
     PermissionIndexerDao.Dto project2Authorization = dtos.get(project2.uuid());
     assertThat(project2Authorization.getGroupIds()).isEmpty();
-    assertThat(project2Authorization.isAllowAnyone()).isTrue();
+    assertThat(project2Authorization.isAllowAnyone()).isFalse();
     assertThat(project2Authorization.getUserIds()).containsOnly(user1.getId(), user2.getId());
     assertThat(project2Authorization.getUpdatedAt()).isNotNull();
     assertThat(project2Authorization.getQualifier()).isEqualTo(PROJECT);
 
     PermissionIndexerDao.Dto view2Authorization = dtos.get(view2.uuid());
     assertThat(view2Authorization.getGroupIds()).isEmpty();
-    assertThat(view2Authorization.isAllowAnyone()).isTrue();
+    assertThat(view2Authorization.isAllowAnyone()).isFalse();
     assertThat(view2Authorization.getUserIds()).containsOnly(user1.getId(), user2.getId());
     assertThat(view2Authorization.getUpdatedAt()).isNotNull();
     assertThat(view2Authorization.getQualifier()).isEqualTo(VIEW);
@@ -176,16 +176,17 @@ public class PermissionIndexerDaoTest {
   }
 
   @Test
-  public void return_zero_rows_if_no_authorization() {
-    userDbTester.insertProjectPermissionOnUser(user1, USER, project2);
-    userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
-    userDbTester.insertProjectPermissionOnUser(user1, USER, view2);
-    userDbTester.insertProjectPermissionOnGroup(group, USER, view2);
+  public void return_project_without_permission_if_no_authorization() {
+    List<PermissionIndexerDao.Dto> dtos = underTest.selectByUuids(dbClient, dbSession, asList(project1.uuid()));
 
-    Collection<PermissionIndexerDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
-
-    // project1 and view1 don't have any permission
-    assertThat(dtos).extracting(PermissionIndexerDao.Dto::getProjectUuid).containsOnly(project2.uuid(), view2.uuid());
+    // no permissions
+    assertThat(dtos).hasSize(1);
+    PermissionIndexerDao.Dto dto = dtos.get(0);
+    assertThat(dto.getGroupIds()).isEmpty();
+    assertThat(dto.getUserIds()).isEmpty();
+    assertThat(dto.isAllowAnyone()).isFalse();
+    assertThat(dto.getProjectUuid()).isEqualTo(project1.uuid());
+    assertThat(dto.getQualifier()).isEqualTo(project1.qualifier());
   }
 
   private static PermissionIndexerDao.Dto getByProjectUuid(String projectUuid, Collection<PermissionIndexerDao.Dto> dtos) {
@@ -214,9 +215,5 @@ public class PermissionIndexerDaoTest {
     // Anyone group has user access on both projects
     userDbTester.insertProjectPermissionOnAnyone(USER, project1);
     userDbTester.insertProjectPermissionOnAnyone(ADMIN, project1);
-    userDbTester.insertProjectPermissionOnAnyone(USER, project2);
-    userDbTester.insertProjectPermissionOnAnyone(USER, view1);
-    userDbTester.insertProjectPermissionOnAnyone(ADMIN, view1);
-    userDbTester.insertProjectPermissionOnAnyone(USER, view2);
   }
 }

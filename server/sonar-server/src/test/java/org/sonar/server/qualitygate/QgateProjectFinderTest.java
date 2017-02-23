@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
+import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -157,6 +158,21 @@ public class QgateProjectFinderTest {
         .build());
 
     verifyProjects(result, project1.getId());
+  }
+
+  @Test
+  public void do_not_verify_permissions_if_user_is_root() throws Exception {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = componentDbTester.insertProject(org);
+    ProjectQgateAssociationQuery query = builder()
+      .gateId(Long.toString(qGate.getId()))
+      .build();
+
+    userSession.logIn().setNonRoot();
+    verifyProjects(underTest.find(query));
+
+    userSession.logIn().setRoot();
+    verifyProjects(underTest.find(query), project.getId());
   }
 
   @Test

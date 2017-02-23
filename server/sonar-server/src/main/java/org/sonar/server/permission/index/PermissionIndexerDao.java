@@ -96,10 +96,10 @@ public class PermissionIndexerDao {
   /**
    * Number of "{projectsCondition}" in SQL template
    */
-  private static final int NB_OF_CONDITION_PLACEHOLDERS = 3;
+  private static final int NB_OF_CONDITION_PLACEHOLDERS = 4;
 
   private enum RowKind {
-    USER, GROUP, ANYONE
+    USER, GROUP, ANYONE, NONE
   }
 
   private static final String SQL_TEMPLATE = "SELECT " +
@@ -160,6 +160,21 @@ public class PermissionIndexerDao {
     "        AND projects.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "        AND group_roles.group_id IS NULL " +
+    "      UNION " +
+
+    // project is returned when no authorization
+    "      SELECT '" + RowKind.NONE + "' as kind," +
+    "      projects.uuid AS project, " +
+    "      projects.authorization_updated_at AS updated_at, " +
+    "      projects.qualifier AS qualifier, " +
+    "      NULL AS user_id, " +
+    "      NULL  AS group_id " +
+    "      FROM projects " +
+    "      WHERE " +
+    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
+    "        AND projects.copy_component_uuid is NULL " +
+    "        {projectsCondition} " +
+
     "    ) project_authorization";
 
   List<Dto> selectAll(DbClient dbClient, DbSession session) {
@@ -221,6 +236,8 @@ public class PermissionIndexerDao {
       dtosByProjectUuid.put(projectUuid, dto);
     }
     switch (rowKind) {
+      case NONE:
+        break;
       case USER:
         dto.addUserId(rs.getInt(3));
         break;

@@ -160,6 +160,12 @@ public class SearchAction implements ComponentsWsAction {
   }
 
   private List<ComponentDto> filterAuthorizedComponents(DbSession dbSession, List<ComponentDto> componentDtos) {
+    if (userSession.isRoot()) {
+      // the method AuthorizationDao#keepAuthorizedProjectIds() should be replaced by
+      // a call to UserSession, which would transparently support roots.
+      // Meanwhile root is explicitly handled.
+      return componentDtos;
+    }
     Set<String> projectUuids = componentDtos.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
     List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
     Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));

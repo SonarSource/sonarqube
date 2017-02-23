@@ -81,6 +81,12 @@ public class QgateProjectFinder {
   }
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
+    if (userSession.isRoot()) {
+      // the method AuthorizationDao#keepAuthorizedProjectIds() should be replaced by
+      // a call to UserSession, which would transparently support roots.
+      // Meanwhile root is explicitly handled.
+      return projects;
+    }
     List<Long> projectIds = projects.stream().map(ProjectQgateAssociationDto::getId).collect(Collectors.toList());
     Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
     return projects.stream().filter(project -> authorizedProjectIds.contains(project.getId())).collect(Collectors.toList());

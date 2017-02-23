@@ -137,6 +137,12 @@ public class SearchAction implements MeasuresWsAction {
     }
 
     private List<ComponentDto> getAuthorizedProjects(List<ComponentDto> projectDtos) {
+      if (userSession.isRoot()) {
+        // the method AuthorizationDao#keepAuthorizedProjectIds() should be replaced by
+        // a call to UserSession, which would transparently support roots.
+        // Meanwhile root is explicitly handled.
+        return projectDtos;
+      }
       Map<String, Long> projectIdsByUuids = projectDtos.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
       Set<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
         projectDtos.stream().map(ComponentDto::getId).collect(toList()),
