@@ -20,15 +20,19 @@
 package org.sonar.core.util;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class ProgressLoggerTest {
 
@@ -41,7 +45,7 @@ public class ProgressLoggerTest {
     ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, Loggers.get(getClass()));
     progress.setPeriodMs(1L);
     progress.start();
-    while (logTester.logs(LoggerLevel.INFO).size()<2) {
+    while (getLogs().size()<2) {
       Uninterruptibles.sleepUninterruptibly(1, TimeUnit.MILLISECONDS);
     }
     progress.stop();
@@ -51,6 +55,30 @@ public class ProgressLoggerTest {
     counter.incrementAndGet();
     progress.log();
     assertThat(hasInfoLog("43 rows processed")).isTrue();
+  }
+
+  @Test(timeout = 5_000L)
+  public void final_log_line() throws Exception {
+    AtomicLong counter = new AtomicLong(0L);
+    System2 system2 = mock(System2.class);
+    doReturn(0L).when(system2).now();
+
+    ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, Loggers.get(getClass()), system2);
+    progress.setPeriodMs(1L);
+    progress.start();
+    while (getLogs().size() < 1) {
+      Uninterruptibles.sleepUninterruptibly(1, TimeUnit.MILLISECONDS);
+    }
+
+    counter.set(300L);
+    doReturn(5_000L).when(system2).now();
+
+    progress.stop();
+    assertThat(getLogs()).contains("The task is done. 300 rows processed in 5 seconds. (60 items/sec)");
+  }
+
+  private List<String> getLogs() {
+    return logTester.logs(LoggerLevel.INFO);
   }
 
   @Test
@@ -69,6 +97,6 @@ public class ProgressLoggerTest {
   }
 
   private boolean hasInfoLog(String expectedLog) {
-    return logTester.logs(LoggerLevel.INFO).stream().filter(s -> s.startsWith(expectedLog)).findFirst().isPresent();
+    return getLogs().stream().filter(s -> s.startsWith(expectedLog)).findFirst().isPresent();
   }
 }

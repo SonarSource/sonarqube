@@ -19,9 +19,11 @@
  */
 package org.sonar.core.util;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -30,18 +32,36 @@ import org.sonar.api.utils.log.Loggers;
  */
 public class ProgressLogger {
 
-  public static final long DEFAULT_PERIOD_MS = 60_000L;
+  private static final long MILLIS_PER_SECOND = 1000L;
+  public static final long DEFAULT_PERIOD_MS = 60L * MILLIS_PER_SECOND;
+
+  /** We suppose, that the counter starts with zero. */
+  private static final long START_COUNTER = 0L;
 
   private final Timer timer;
   private final LoggerTimerTask task;
   private long periodMs = DEFAULT_PERIOD_MS;
+  private boolean hasAlreadyCausedLogging = false;
+  private final AtomicLong counter;
+  private final Logger logger;
+  private String pluralLabel = "rows";
+  private long startTime;
+  private System2 system;
 
   public ProgressLogger(String threadName, AtomicLong counter, Logger logger) {
-    this.timer = new Timer(threadName);
-    this.task = new LoggerTimerTask(counter, logger);
+    this(threadName, counter, logger, System2.INSTANCE);
   }
 
-  public static ProgressLogger create(Class clazz, AtomicLong counter) {
+  @VisibleForTesting
+  ProgressLogger(String threadName, AtomicLong counter, Logger logger, System2 system) {
+    this.counter = counter;
+    this.logger = logger;
+    this.system = system;
+    this.timer = new Timer(threadName);
+    this.task = new LoggerTimerTask();
+  }
+
+  public static ProgressLogger create(Class<?> clazz, AtomicLong counter) {
     String threadName = String.format("ProgressLogger[%s]", clazz.getSimpleName());
     Logger logger = Loggers.get(clazz);
     return new ProgressLogger(threadName, counter, logger);
@@ -51,6 +71,7 @@ public class ProgressLogger {
    * Warning, does not check if already started.
    */
   public void start() {
+    startTime = now();
     // first log after {periodMs} milliseconds
     timer.schedule(task, periodMs, periodMs);
   }
@@ -58,6 +79,26 @@ public class ProgressLogger {
   public void stop() {
     timer.cancel();
     timer.purge();
+    if (hasAlreadyCausedLogging) {
+      finalLog();
+    }
+  }
+
+  private void finalLog() {
+    long currentCounter = counter.get();
+    long currentTime = now();
+
+    long deltaCounter = currentCounter - START_COUNTER;
+    long deltaTime = currentTime - startTime;
+
+    long speed;
+    if (deltaTime == 0) {
+      speed = 0;
+    } else {
+      speed = MILLIS_PER_SECOND * deltaCounter / deltaTime;
+    }
+
+    logger.info(String.format("The task is done. %d %s processed in %d seconds. (%d items/sec)", currentCounter, pluralLabel, deltaTime / MILLIS_PER_SECOND, speed));
   }
 
   /**
@@ -76,28 +117,25 @@ public class ProgressLogger {
    * For example "issues", "measures", ... Default is "rows".
    */
   public ProgressLogger setPluralLabel(String s) {
-    task.pluralLabel = s;
+    pluralLabel = s;
     return this;
   }
 
   public String getPluralLabel() {
-    return task.pluralLabel;
+    return pluralLabel;
   }
 
   public void log() {
     task.log();
   }
 
-  private class LoggerTimerTask extends TimerTask {
-    private final AtomicLong counter;
-    private final Logger logger;
-    private String pluralLabel = "rows";
-    private long previousCounter = 0L;
+  private long now() {
+    return system.now();
+  }
 
-    private LoggerTimerTask(AtomicLong counter, Logger logger) {
-      this.counter = counter;
-      this.logger = logger;
-    }
+  private class LoggerTimerTask extends TimerTask {
+    private long previousCounter = START_COUNTER;
+    private long previousTime = startTime;
 
     @Override
     public void run() {
@@ -105,9 +143,25 @@ public class ProgressLogger {
     }
 
     private void log() {
-      long current = counter.get();
-      logger.info(String.format("%d %s processed (%d items/sec)", current, pluralLabel, 1000 * (current - previousCounter) / periodMs));
-      previousCounter = current;
+      hasAlreadyCausedLogging = true;
+      
+      long currentCounter = counter.get();
+      long currentTime = now();
+      
+      long deltaCounter = currentCounter - previousCounter;
+      long deltaTime = currentTime - previousTime;
+      
+      long speed;
+      if (deltaTime == 0) {
+        speed = 0;
+      } else {
+        speed = MILLIS_PER_SECOND * deltaCounter / deltaTime;
+      }
+      
+      logger.info(String.format("%d %s processed (%d items/sec)", currentCounter, pluralLabel, speed));
+
+      previousCounter = currentCounter;
+      previousTime = currentTime;
     }
   }
 }
