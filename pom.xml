@@ -111,11 +111,6 @@
           <version>1.3</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.gmaven</groupId>
-          <artifactId>groovy-maven-plugin</artifactId>
-          <version>2.0</version>
-        </plugin>
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>2.4</version>
@@ -264,6 +259,11 @@
           <artifactId>protobuf-maven-plugin</artifactId>
           <version>0.5.0</version>
         </plugin>
+        <plugin>
+          <groupId>com.github.genthaler</groupId>
+          <artifactId>beanshell-maven-plugin</artifactId>
+          <version>1.2</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -321,7 +321,6 @@
       <plugin>
         <groupId>com.github.genthaler</groupId>
         <artifactId>beanshell-maven-plugin</artifactId>
-        <version>1.2</version>
         <executions>
           <execution>
             <id>randomize-environment</id>
