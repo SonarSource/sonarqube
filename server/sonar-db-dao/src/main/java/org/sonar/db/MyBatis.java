@@ -129,6 +129,10 @@ public class MyBatis {
     this.database = database;
   }
 
+  /**
+   * @deprecated please use try-with-resources
+   */
+  @Deprecated
   public static void closeQuietly(@Nullable DbSession session) {
     if (session != null) {
       try {
