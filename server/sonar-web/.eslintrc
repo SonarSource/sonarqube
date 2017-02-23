@@ -48,7 +48,7 @@
     "generator-star-spacing": 2,
     "indent": [2, 2, {
       "ArrayExpression": 1,
-      "CallExpression": { "arguments": 2 },
+      "CallExpression": { "arguments": 1 },
       "MemberExpression": 2,
       "ObjectExpression": 1,
       "FunctionDeclaration": { "body": 1, "parameters": 2 },
