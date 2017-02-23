@@ -39,7 +39,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.analysis.AnalysisProperties;
-import org.sonar.scanner.scan.ProjectReactorBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -118,8 +117,17 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldDefineMultiModuleProjectWithDefinitionsAllInRootProject() throws IOException {
-    ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-all-in-root");
+    execMultiModule("multi-module-definitions-all-in-root");
+  }
 
+  @Test
+  public void shouldDefineMultiModuleProjectWithPomFileAtRootLevel() throws IOException {
+    ProjectDefinition project = execMultiModule("multi-module-pom-in-root");
+    assertThat(project.sources()).containsExactlyInAnyOrder("pom.xml", "sources");
+  }
+
+  public ProjectDefinition execMultiModule(String key) throws IOException {
+    ProjectDefinition rootProject = loadProjectDefinition(key);
     // CHECK ROOT
     assertThat(rootProject.getKey()).isEqualTo("com.foo.project");
     assertThat(rootProject.getName()).isEqualTo("Foo Project");
@@ -131,10 +139,8 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
-    assertThat(rootProject.getBaseDir().getCanonicalFile())
-      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root"));
-    assertThat(rootProject.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar"));
+    assertThat(rootProject.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), key));
+    assertThat(rootProject.getWorkDir().getCanonicalFile()).isEqualTo(new File(getResource(this.getClass(), key), ".sonar"));
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
@@ -142,7 +148,7 @@ public class ProjectReactorBuilderTest {
 
     // Module 1
     ProjectDefinition module1 = modules.get(0);
-    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
+    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), key + "/module1"));
     assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
     assertThat(module1.getName()).isEqualTo("module1");
     assertThat(module1.getVersion()).isEqualTo("1.0-SNAPSHOT");
@@ -154,14 +160,12 @@ public class ProjectReactorBuilderTest {
     assertThat(module1.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(module1.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
-    assertThat(module1.getBaseDir().getCanonicalFile())
-      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
-    assertThat(module1.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_module1"));
+    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), key + "/module1"));
+    assertThat(module1.getWorkDir().getCanonicalFile()).isEqualTo(new File(getResource(this.getClass(), key), ".sonar/com.foo.project_module1"));
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
-    assertThat(module2.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
+    assertThat(module2.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), key + "/module2"));
     assertThat(module2.getKey()).isEqualTo("com.foo.project:com.foo.project.module2");
     assertThat(module2.getName()).isEqualTo("Foo Module 2");
     assertThat(module2.getVersion()).isEqualTo("1.0-SNAPSHOT");
@@ -172,10 +176,11 @@ public class ProjectReactorBuilderTest {
     assertThat(module2.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(module2.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
-    assertThat(module2.getBaseDir().getCanonicalFile())
-      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
-    assertThat(module2.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_com.foo.project.module2"));
+    assertThat(module2.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), key + "/module2"));
+    assertThat(module2.getWorkDir().getCanonicalFile()).isEqualTo(
+      new File(getResource(this.getClass(), key), ".sonar/com.foo.project_com.foo.project.module2"));
+
+    return rootProject;
   }
 
   // SONAR-4876
