@@ -21,6 +21,7 @@ package org.sonar.db;
 
 import org.apache.ibatis.session.Configuration;
 import org.hamcrest.core.Is;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,12 +44,18 @@ public class MyBatisTest {
     database.stop();
   }
 
+  private MyBatis underTest = new MyBatis(database);
+
+  @After
+  public void tearDown() throws Exception {
+    underTest.stop();
+  }
+
   @Test
   public void shouldConfigureMyBatis() {
-    MyBatis myBatis = new MyBatis(database);
-    myBatis.start();
+    underTest.start();
 
-    Configuration conf = myBatis.getSessionFactory().getConfiguration();
+    Configuration conf = underTest.getSessionFactory().getConfiguration();
     assertThat(conf.isUseGeneratedKeys(), Is.is(true));
     assertThat(conf.hasMapper(RuleMapper.class), Is.is(true));
     assertThat(conf.isLazyLoadingEnabled(), Is.is(false));
@@ -56,10 +63,9 @@ public class MyBatisTest {
 
   @Test
   public void shouldOpenBatchSession() {
-    MyBatis myBatis = new MyBatis(database);
-    myBatis.start();
+    underTest.start();
 
-    try (DbSession session = myBatis.openSession(false)) {
+    try (DbSession session = underTest.openSession(false)) {
       assertThat(session.getConnection(), notNullValue());
       assertThat(session.getMapper(RuleMapper.class), notNullValue());
     }

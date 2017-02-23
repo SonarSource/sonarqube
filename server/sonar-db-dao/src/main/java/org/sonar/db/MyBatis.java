@@ -29,6 +29,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
@@ -120,7 +121,7 @@ import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
 
-public class MyBatis {
+public class MyBatis implements Startable {
 
   private final Database database;
   private SqlSessionFactory sessionFactory;
@@ -144,7 +145,8 @@ public class MyBatis {
     }
   }
 
-  public MyBatis start() {
+  @Override
+  public void start() {
     LogFactory.useSlf4jLogging();
 
     MyBatisConfBuilder confBuilder = new MyBatisConfBuilder(database);
@@ -249,7 +251,11 @@ public class MyBatis {
     confBuilder.loadMappers(mappers);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(confBuilder.build());
-    return this;
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   @VisibleForTesting
