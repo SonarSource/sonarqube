@@ -20,14 +20,14 @@
 package org.sonar.server.permission.index;
 
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 public class FooIndexDefinition implements IndexDefinition {
 
   public static final String FOO_INDEX = "foos";
   public static final String FOO_TYPE = "foo";
-  public static final IndexTypeId INDEX_TYPE_FOO = new IndexTypeId(FOO_INDEX, FOO_TYPE);
+  public static final IndexType INDEX_TYPE_FOO = new IndexType(FOO_INDEX, FOO_TYPE);
   public static final String FIELD_NAME = "name";
   public static final String FIELD_PROJECT_UUID = "projectUuid";
 

@@ -33,12 +33,12 @@ public abstract class BaseIndexer implements Startable {
 
   private final System2 system2;
   private final ThreadPoolExecutor executor;
-  private final IndexTypeId indexType;
+  private final IndexType indexType;
   protected final EsClient esClient;
   private final String dateFieldName;
   private volatile long lastUpdatedAt = -1L;
 
-  protected BaseIndexer(System2 system2, EsClient client, long threadKeepAliveSeconds, IndexTypeId indexType,
+  protected BaseIndexer(System2 system2, EsClient client, long threadKeepAliveSeconds, IndexType indexType,
     String dateFieldName) {
     this.system2 = system2;
     this.indexType = indexType;

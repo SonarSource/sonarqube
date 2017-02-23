@@ -21,7 +21,7 @@ package org.sonar.server.user.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
@@ -32,7 +32,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_
  */
 public class UserIndexDefinition implements IndexDefinition {
 
-  public static final IndexTypeId INDEX_TYPE_USER = new IndexTypeId("users", "user");
+  public static final IndexType INDEX_TYPE_USER = new IndexType("users", "user");
   public static final String FIELD_LOGIN = "login";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_EMAIL = "email";

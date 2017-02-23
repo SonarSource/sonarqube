@@ -22,12 +22,12 @@ package org.sonar.server.test.index;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 public class TestIndexDefinition implements IndexDefinition {
 
-  public static final IndexTypeId INDEX_TYPE_TEST = new IndexTypeId("tests", "test");
+  public static final IndexType INDEX_TYPE_TEST = new IndexType("tests", "test");
   public static final String FIELD_PROJECT_UUID = "projectUuid";
   public static final String FIELD_FILE_UUID = "fileUuid";
   public static final String FIELD_TEST_UUID = "testUuid";

@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,16 +48,32 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from users u ";
 
+  private static final String LOGIN_FILTER = " WHERE u.login=?";
+
   private UserResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
   }
 
-  static UserResultSetIterator create(DbClient dbClient, DbSession session) {
+  static UserResultSetIterator create(DbClient dbClient, DbSession session, @Nullable String login) {
     try {
-      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, SQL_ALL);
+      String sql = createSql(login);
+      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
+      setParameter(stmt, login);
       return new UserResultSetIterator(stmt);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all users", e);
+    }
+  }
+
+  private static String createSql(@Nullable String login) {
+    String sql = SQL_ALL;
+    sql += login == null ? "" : LOGIN_FILTER;
+    return sql;
+  }
+
+  private static void setParameter(PreparedStatement stmt, @Nullable String login) throws SQLException {
+    if (login != null) {
+      stmt.setString(1, login);
     }
   }
 

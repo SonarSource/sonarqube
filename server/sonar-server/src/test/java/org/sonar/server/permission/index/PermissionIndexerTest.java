@@ -33,7 +33,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -43,7 +43,7 @@ import static org.sonar.api.web.UserRole.USER;
 
 public class PermissionIndexerTest {
 
-  private static final IndexTypeId INDEX_TYPE_FOO_AUTH = AuthorizationTypeSupport.getAuthorizationIndexType(FooIndexDefinition.INDEX_TYPE_FOO);
+  private static final IndexType INDEX_TYPE_FOO_AUTH = AuthorizationTypeSupport.getAuthorizationIndexType(FooIndexDefinition.INDEX_TYPE_FOO);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

@@ -27,7 +27,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 import org.sonar.server.user.UserSession;
 
@@ -61,11 +61,11 @@ public class AuthorizationTypeSupport {
   /**
    * @return the identifier of the ElasticSearch type (including it's index name), that corresponds to a certain document type
    */
-  public static IndexTypeId getAuthorizationIndexType(IndexTypeId indexType) {
+  public static IndexType getAuthorizationIndexType(IndexType indexType) {
     requireNonNull(indexType);
     requireNonNull(indexType.getIndex());
     checkArgument(!AuthorizationTypeSupport.TYPE_AUTHORIZATION.equals(indexType.getType()), "Authorization types do not have authorization on their own.");
-    return new IndexTypeId(indexType.getIndex(), AuthorizationTypeSupport.TYPE_AUTHORIZATION);
+    return new IndexType(indexType.getIndex(), AuthorizationTypeSupport.TYPE_AUTHORIZATION);
   }
 
   /**

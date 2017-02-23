@@ -21,7 +21,7 @@ package org.sonar.server.view.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 /**
@@ -29,7 +29,7 @@ import org.sonar.server.es.NewIndex;
  */
 public class ViewIndexDefinition implements IndexDefinition {
 
-  public static final IndexTypeId INDEX_TYPE_VIEW = new IndexTypeId("views", "view");
+  public static final IndexType INDEX_TYPE_VIEW = new IndexType("views", "view");
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_PROJECTS = "projects";
 

@@ -226,7 +226,7 @@ public class DeactivateActionTest {
     dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setUserId(user.getId()).setKey("foo").setValue("bar"));
     dbSession.commit();
-    userIndexer.index();
+    userIndexer.index(user.getLogin());
     return user;
   }
 

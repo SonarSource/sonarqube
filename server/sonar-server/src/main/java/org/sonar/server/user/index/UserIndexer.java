@@ -22,14 +22,16 @@ package org.sonar.server.user.index;
 import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.StartupIndexer;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
 public class UserIndexer implements StartupIndexer {
@@ -43,26 +45,28 @@ public class UserIndexer implements StartupIndexer {
   }
 
   @Override
-  public Set<IndexTypeId> getIndexTypes() {
+  public Set<IndexType> getIndexTypes() {
     return ImmutableSet.of(INDEX_TYPE_USER);
   }
 
   @Override
   public void indexOnStartup() {
-    index();
+    doIndex(null);
   }
 
-  public void index() {
-    final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
-    bulk.setLarge(true);
+  public void index(String login) {
+    requireNonNull(login);
+    doIndex(login);
+  }
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession);
-      doIndex(bulk, rowIt);
-      rowIt.close();
-    } finally {
-      dbSession.close();
+  private void doIndex(@Nullable String login) {
+    final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
+    bulk.setLarge(login == null);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      try (UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession, login)) {
+        doIndex(bulk, rowIt);
+      }
     }
   }
 

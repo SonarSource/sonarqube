@@ -92,10 +92,10 @@ public class EsTester extends ExternalResource {
   }
 
   public void putDocuments(String index, String type, BaseDoc... docs) {
-    putDocuments(new IndexTypeId(index, type), docs);
+    putDocuments(new IndexType(index, type), docs);
   }
 
-  public void putDocuments(IndexTypeId indexType, BaseDoc... docs) {
+  public void putDocuments(IndexType indexType, BaseDoc... docs) {
     try {
       BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
       for (BaseDoc doc : docs) {
@@ -111,10 +111,10 @@ public class EsTester extends ExternalResource {
   }
 
   public long countDocuments(String index, String type) {
-    return countDocuments(new IndexTypeId(index, type));
+    return countDocuments(new IndexType(index, type));
   }
 
-  public long countDocuments(IndexTypeId indexType) {
+  public long countDocuments(IndexType indexType) {
     return client().prepareSearch(indexType).setSize(0).get().getHits().totalHits();
   }
 
@@ -122,7 +122,7 @@ public class EsTester extends ExternalResource {
    * Get all the indexed documents (no paginated results). Results are converted to BaseDoc objects.
    * Results are not sorted.
    */
-  public <E extends BaseDoc> List<E> getDocuments(IndexTypeId indexType, final Class<E> docClass) {
+  public <E extends BaseDoc> List<E> getDocuments(IndexType indexType, final Class<E> docClass) {
     List<SearchHit> hits = getDocuments(indexType);
     return newArrayList(Collections2.transform(hits, new Function<SearchHit, E>() {
       @Override
@@ -139,7 +139,7 @@ public class EsTester extends ExternalResource {
   /**
    * Get all the indexed documents (no paginated results). Results are not sorted.
    */
-  public List<SearchHit> getDocuments(IndexTypeId indexType) {
+  public List<SearchHit> getDocuments(IndexType indexType) {
     SearchRequestBuilder req = client.nativeClient().prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(QueryBuilders.matchAllQuery());
     req.setSearchType(SearchType.SCAN)
       .setScroll(new TimeValue(60000))
@@ -161,7 +161,7 @@ public class EsTester extends ExternalResource {
   /**
    * Get a list of a specific field from all indexed documents.
    */
-  public <T> List<T> getDocumentFieldValues(IndexTypeId indexType, final String fieldNameToReturn) {
+  public <T> List<T> getDocumentFieldValues(IndexType indexType, final String fieldNameToReturn) {
     return newArrayList(Iterables.transform(getDocuments(indexType), new Function<SearchHit, T>() {
       @Override
       public T apply(SearchHit input) {
@@ -170,7 +170,7 @@ public class EsTester extends ExternalResource {
     }));
   }
 
-  public List<String> getIds(IndexTypeId indexType) {
+  public List<String> getIds(IndexType indexType) {
     return FluentIterable.from(getDocuments(indexType)).transform(SearchHitToId.INSTANCE).toList();
   }
 

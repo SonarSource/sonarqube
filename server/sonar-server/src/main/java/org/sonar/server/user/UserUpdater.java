@@ -362,7 +362,7 @@ public class UserUpdater {
     addDefaultGroup(dbSession, userDto);
     organizationCreation.createForUser(dbSession, userDto);
     dbSession.commit();
-    userIndexer.index();
+    userIndexer.index(userDto.getLogin());
     return res;
   }
 
@@ -371,7 +371,7 @@ public class UserUpdater {
     userDto.setActive(true).setUpdatedAt(now);
     dbClient.userDao().update(dbSession, userDto);
     dbSession.commit();
-    userIndexer.index();
+    userIndexer.index(userDto.getLogin());
   }
 
   private static void setEncryptedPassWord(String password, UserDto userDto) {
