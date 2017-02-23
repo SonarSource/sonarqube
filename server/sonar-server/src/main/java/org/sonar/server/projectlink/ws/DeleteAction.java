@@ -72,8 +72,7 @@ public class DeleteAction implements ProjectLinksWsAction {
   }
 
   private void doHandle(DeleteWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       long id = request.getId();
       ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, id);
 
@@ -83,8 +82,6 @@ public class DeleteAction implements ProjectLinksWsAction {
 
       dbClient.componentLinkDao().delete(dbSession, link.getId());
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

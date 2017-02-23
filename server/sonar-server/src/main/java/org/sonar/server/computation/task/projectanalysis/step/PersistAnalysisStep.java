@@ -55,14 +55,11 @@ public class PersistAnalysisStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       new DepthTraversalTypeAwareCrawler(
-        new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate()))
+        new PersistSnapshotsPathAwareVisitor(dbSession, analysisMetadataHolder.getAnalysisDate()))
           .visit(treeRootHolder.getRoot());
-      session.commit();
-    } finally {
-      dbClient.closeSession(session);
+      dbSession.commit();
     }
   }
 

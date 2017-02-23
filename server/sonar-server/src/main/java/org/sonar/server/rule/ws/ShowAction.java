@@ -90,8 +90,7 @@ public class ShowAction implements RulesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, key);
       checkFoundWithOptional(optionalRule, "Rule not found: " + key);
       RuleDto rule = optionalRule.get();
@@ -110,8 +109,6 @@ public class ShowAction implements RulesWsAction {
           .setRuleParameters(ruleParameters)
           .setTotal(1L));
       writeProtobuf(showResponse, request, response);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

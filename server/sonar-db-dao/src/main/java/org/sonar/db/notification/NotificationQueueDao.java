@@ -21,7 +21,6 @@ package org.sonar.db.notification;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -35,28 +34,22 @@ public class NotificationQueueDao implements Dao {
   }
 
   public void insert(List<NotificationQueueDto> dtos) {
-    DbSession session = mybatis.openSession(true);
-    NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
-    try {
+    try (DbSession session = mybatis.openSession(true)) {
+      NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
       for (NotificationQueueDto dto : dtos) {
         mapper.insert(dto);
       }
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
   public void delete(List<NotificationQueueDto> dtos) {
-    DbSession session = mybatis.openSession(true);
-    NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
-    try {
+    try (DbSession session = mybatis.openSession(true)) {
+      NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
       for (NotificationQueueDto dto : dtos) {
         mapper.delete(dto.getId());
       }
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -64,20 +57,14 @@ public class NotificationQueueDao implements Dao {
     if (count < 1) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession(false);
-    try {
+    try (DbSession session = mybatis.openSession(false)) {
       return session.getMapper(NotificationQueueMapper.class).findOldest(count);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
   public long count() {
-    SqlSession session = mybatis.openSession(false);
-    try {
+    try (DbSession session = mybatis.openSession(false)) {
       return session.getMapper(NotificationQueueMapper.class).count();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 }

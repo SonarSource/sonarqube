@@ -21,7 +21,6 @@ package org.sonar.db;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -175,10 +174,6 @@ public class DbClient {
 
   public DbSession openSession(boolean batch) {
     return myBatis.openSession(batch);
-  }
-
-  public void closeSession(@Nullable DbSession session) {
-    MyBatis.closeQuietly(session);
   }
 
   public Database getDatabase() {

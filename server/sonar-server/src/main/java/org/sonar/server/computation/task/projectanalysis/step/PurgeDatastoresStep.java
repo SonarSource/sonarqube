@@ -73,13 +73,10 @@ public class PurgeDatastoresStep implements ComputationStep {
   }
 
   private void execute(Component root) {
-    DbSession session = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       IdUuidPair idUuidPair = new IdUuidPair(dbIdsRepository.getComponentId(root), root.getUuid());
-      projectCleaner.purge(session, idUuidPair, settingsRepository.getSettings(root), disabledComponentsHolder.getUuids());
-      session.commit();
-    } finally {
-      dbClient.closeSession(session);
+      projectCleaner.purge(dbSession, idUuidPair, settingsRepository.getSettings(root), disabledComponentsHolder.getUuids());
+      dbSession.commit();
     }
   }
 

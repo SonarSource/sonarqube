@@ -107,9 +107,8 @@ public class QProfileExporters {
   }
 
   private RulesProfile wrap(QualityProfileDto profile) {
-    DbSession dbSession = dbClient.openSession(false);
-    RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
       List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey());
       List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDto::getId));
       ListMultimap<Integer, ActiveRuleParamDto> activeRuleParamsByActiveRuleId = FluentIterable.from(activeRuleParamDtos).index(ActiveRuleParamDto::getActiveRuleId);
@@ -123,10 +122,8 @@ public class QProfileExporters {
           wrappedActiveRule.setParameter(activeRuleParamDto.getKey(), activeRuleParamDto.getValue());
         }
       }
-    } finally {
-      dbClient.closeSession(dbSession);
+      return target;
     }
-    return target;
   }
 
   private ProfileExporter findExporter(String exporterKey) {

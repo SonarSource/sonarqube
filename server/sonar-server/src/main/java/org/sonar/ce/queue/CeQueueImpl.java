@@ -70,15 +70,11 @@ public class CeQueueImpl implements CeQueue {
   public CeTask submit(CeTaskSubmit submission) {
     checkState(!submitPaused.get(), "Compute Engine does not currently accept new tasks");
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       CeQueueDto dto = new CeTaskSubmitToInsertedCeQueueDto(dbSession, dbClient).apply(submission);
       CeTask task = loadTask(dbSession, dto);
       dbSession.commit();
       return task;
-
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -89,17 +85,13 @@ public class CeQueueImpl implements CeQueue {
       return Collections.emptyList();
     }
 
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       List<CeQueueDto> ceQueueDtos = from(submissions)
         .transform(new CeTaskSubmitToInsertedCeQueueDto(dbSession, dbClient))
         .toList();
       List<CeTask> tasks = loadTasks(dbSession, ceQueueDtos);
       dbSession.commit();
       return tasks;
-
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -130,8 +122,7 @@ public class CeQueueImpl implements CeQueue {
 
   @Override
   public boolean cancel(String taskUuid) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
         checkState(CeQueueDto.Status.PENDING.equals(queueDto.get().getStatus()), "Task is in progress and can't be canceled [uuid=%s]", taskUuid);
@@ -139,8 +130,6 @@ public class CeQueueImpl implements CeQueue {
         return true;
       }
       return false;
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -157,8 +146,7 @@ public class CeQueueImpl implements CeQueue {
 
   protected int cancelAll(boolean includeInProgress) {
     int count = 0;
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       for (CeQueueDto queueDto : dbClient.ceQueueDao().selectAllInAscOrder(dbSession)) {
         if (includeInProgress || !queueDto.getStatus().equals(CeQueueDto.Status.IN_PROGRESS)) {
           cancelImpl(dbSession, queueDto);
@@ -166,8 +154,6 @@ public class CeQueueImpl implements CeQueue {
         }
       }
       return count;
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

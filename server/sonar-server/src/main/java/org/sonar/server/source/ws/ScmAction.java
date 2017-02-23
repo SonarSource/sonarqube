@@ -101,16 +101,13 @@ public class ScmAction implements SourcesWsAction {
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
     boolean commitsByLine = request.mandatoryParamAsBoolean("commits_by_line");
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
       Iterable<DbFileSources.Line> sourceLines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "File '%s' has no sources", fileKey);
       JsonWriter json = response.newJsonWriter().beginObject();
       writeSource(sourceLines, commitsByLine, json);
       json.endObject().close();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

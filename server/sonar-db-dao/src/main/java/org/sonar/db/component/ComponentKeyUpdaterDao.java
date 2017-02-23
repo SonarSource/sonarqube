@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -55,9 +54,8 @@ public class ComponentKeyUpdaterDao implements Dao {
   }
 
   public void updateKey(String projectUuid, String newKey) {
-    DbSession session = mybatis.openSession(true);
-    ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
-    try {
+    try (DbSession session = mybatis.openSession(true)) {
+      ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
       if (mapper.countResourceByKey(newKey) > 0) {
         throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
       }
@@ -72,16 +70,13 @@ public class ComponentKeyUpdaterDao implements Dao {
       runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper);
 
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
   public Map<String, String> checkModuleKeysBeforeRenaming(String projectUuid, String stringToReplace, String replacementString) {
-    SqlSession session = mybatis.openSession(false);
-    ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
-    Map<String, String> result = Maps.newHashMap();
-    try {
+    try (DbSession session = mybatis.openSession(false)) {
+      ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
+      Map<String, String> result = Maps.newHashMap();
       Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
       for (ResourceDto module : modules) {
         String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
@@ -91,10 +86,8 @@ public class ComponentKeyUpdaterDao implements Dao {
           result.put(module.getKey(), newKey);
         }
       }
-    } finally {
-      MyBatis.closeQuietly(session);
+      return result;
     }
-    return result;
   }
 
   public static void checkIsProjectOrModule(ComponentDto component) {

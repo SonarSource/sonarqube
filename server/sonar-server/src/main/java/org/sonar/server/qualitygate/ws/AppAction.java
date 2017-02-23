@@ -86,14 +86,11 @@ public class AppAction implements QualityGatesWsAction {
   }
 
   private Collection<MetricDto> loadMetrics() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.metricDao().selectEnabled(dbSession).stream()
         .filter(metric -> !metric.isDataType() && !ALERT_STATUS_KEY.equals(metric.getKey()) &&
           (!RATING.name().equals(metric.getValueType()) || isCoreRatingMetric(metric.getKey())))
         .collect(Collectors.toList());
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

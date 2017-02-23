@@ -51,10 +51,9 @@ public class ListAction implements RulesWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
     final ListResponse.Builder listResponseBuilder = ListResponse.newBuilder();
     final ListResponse.Rule.Builder ruleBuilder = ListResponse.Rule.newBuilder();
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.ruleDao().selectEnabled(dbSession, resultContext -> {
         RuleDto dto = (RuleDto) resultContext.getResultObject();
         ruleBuilder
@@ -65,8 +64,6 @@ public class ListAction implements RulesWsAction {
           .setInternalKey(nullToEmpty(dto.getConfigKey()));
         listResponseBuilder.addRules(ruleBuilder.build());
       });
-    } finally {
-      dbClient.closeSession(dbSession);
     }
 
     // JSON response is voluntarily not supported. This WS is for internal use.

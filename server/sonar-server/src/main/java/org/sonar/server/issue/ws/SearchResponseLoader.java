@@ -71,8 +71,7 @@ public class SearchResponseLoader {
    * The issue keys are given by the multi-criteria search in Elasticsearch index.
    */
   public SearchResponseData load(Collector collector, @Nullable Facets facets) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       SearchResponseData result = new SearchResponseData(dbClient.issueDao().selectByOrderedKeys(dbSession, collector.getIssueKeys()));
       collector.collect(result.getIssues());
 
@@ -86,8 +85,6 @@ public class SearchResponseLoader {
       loadActionsAndTransitions(collector, result);
       completeTotalEffortFromFacet(facets, result);
       return result;
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

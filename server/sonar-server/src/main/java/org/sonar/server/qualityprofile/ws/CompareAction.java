@@ -103,14 +103,11 @@ public class CompareAction implements QProfileWsAction {
 
     QProfileComparisonResult result = comparator.compare(leftKey, rightKey);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<RuleDto> referencedRules = dbClient.ruleDao().selectByKeys(dbSession, new ArrayList<>(result.collectRuleKeys()));
       Map<RuleKey, RuleDto> rulesByKey = Maps.uniqueIndex(referencedRules, RuleDtoToRuleKey.INSTANCE);
       Map<String, RuleRepositoryDto> repositoriesByKey = Maps.uniqueIndex(dbClient.ruleRepositoryDao().selectAll(dbSession), RuleRepositoryDto::getKey);
       writeResult(response.newJsonWriter(), result, rulesByKey, repositoriesByKey);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

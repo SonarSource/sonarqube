@@ -51,15 +51,12 @@ public class RuleIndexer extends BaseIndexer {
   }
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
-    DbSession dbSession = dbClient.openSession(false);
     long maxDate;
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       RuleResultSetIterator rowIt = RuleResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
       maxDate = doIndex(bulk, rowIt);
       rowIt.close();
       return maxDate;
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

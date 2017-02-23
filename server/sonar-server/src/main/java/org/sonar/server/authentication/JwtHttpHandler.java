@@ -171,11 +171,8 @@ public class JwtHttpHandler {
   }
 
   private Optional<UserDto> selectUserFromDb(String userLogin) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       return Optional.ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin));
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

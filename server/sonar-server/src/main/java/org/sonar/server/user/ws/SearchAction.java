@@ -80,8 +80,7 @@ public class SearchAction implements UsersWsAction {
     List<String> fields = request.paramAsStrings(Param.FIELDS);
     SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<String> logins = Lists.transform(result.getDocs(), UserDocToLogin.INSTANCE);
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
       Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByLogins(dbSession, logins);
@@ -90,8 +89,6 @@ public class SearchAction implements UsersWsAction {
       List<UserDto> userDtos = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
       writeUsers(json, userDtos, groupsByLogin, tokenCountsByLogin, fields);
       json.endObject().close();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

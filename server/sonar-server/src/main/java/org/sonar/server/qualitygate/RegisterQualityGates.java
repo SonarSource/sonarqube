@@ -56,15 +56,12 @@ public class RegisterQualityGates implements Startable {
 
   @Override
   public void start() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       if (shouldRegisterBuiltinQualityGate(dbSession)) {
         createBuiltinQualityGate(dbSession);
         registerBuiltinQualityGate(dbSession);
         dbSession.commit();
       }
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

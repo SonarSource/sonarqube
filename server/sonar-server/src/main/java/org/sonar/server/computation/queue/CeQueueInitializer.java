@@ -54,13 +54,9 @@ public class CeQueueInitializer implements ServerStartHandler {
   }
 
   private void initCe() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       cleaner.clean(dbSession);
       scheduler.startScheduling();
-
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 }

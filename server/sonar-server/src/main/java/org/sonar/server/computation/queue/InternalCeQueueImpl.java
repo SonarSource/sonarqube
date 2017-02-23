@@ -67,8 +67,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
     if (peekPaused.get()) {
       return Optional.absent();
     }
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<CeQueueDto> dto = dbClient.ceQueueDao().peek(dbSession);
       CeTask task = null;
       if (dto.isPresent()) {
@@ -77,8 +76,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       }
       return Optional.fromNullable(task);
 
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -90,8 +87,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   @Override
   public void remove(CeTask task, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
     checkArgument(error == null || status == CeActivityDto.Status.FAILED, "Error can be provided only when status is FAILED");
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid());
       checkState(queueDto.isPresent(), "Task does not exist anymore: %s", task);
       CeActivityDto activityDto = new CeActivityDto(queueDto.get());
@@ -100,8 +96,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       updateTaskResult(activityDto, taskResult);
       updateError(activityDto, error);
       remove(dbSession, queueDto.get(), activityDto);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

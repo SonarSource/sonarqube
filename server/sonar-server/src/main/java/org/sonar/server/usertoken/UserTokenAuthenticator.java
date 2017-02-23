@@ -40,15 +40,12 @@ public class UserTokenAuthenticator {
    */
   public java.util.Optional<String> authenticate(String token) {
     String tokenHash = tokenGenerator.hash(token);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<UserTokenDto> userToken = dbClient.userTokenDao().selectByTokenHash(dbSession, tokenHash);
       if (userToken.isPresent()) {
         return java.util.Optional.of(userToken.get().getLogin());
       }
       return java.util.Optional.empty();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 }

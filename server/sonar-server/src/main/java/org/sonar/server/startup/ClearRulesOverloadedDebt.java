@@ -61,19 +61,16 @@ public class ClearRulesOverloadedDebt implements Startable {
 
   @Override
   public void start() {
-    DbSession session = dbClient.openSession(false);
-    try {
-      if (hasAlreadyBeenExecuted(session)) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (hasAlreadyBeenExecuted(dbSession)) {
         return;
       }
-      if (!isSqalePluginInstalled(session)) {
-        clearDebt(session);
+      if (!isSqalePluginInstalled(dbSession)) {
+        clearDebt(dbSession);
       }
-      markAsExecuted(session);
-      session.commit();
+      markAsExecuted(dbSession);
+      dbSession.commit();
       ruleIndexer.index();
-    } finally {
-      dbClient.closeSession(session);
     }
   }
 

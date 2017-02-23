@@ -67,12 +67,9 @@ public class IsQueueEmptyWs implements WebService {
 
     @Override
     public void handle(Request request, Response response) throws Exception {
-      DbSession dbSession = dbClient.openSession(false);
-      try {
+      try (DbSession dbSession = dbClient.openSession(false)) {
         boolean isQueueEmpty = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).isEmpty();
         IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
-      } finally {
-        dbClient.closeSession(dbSession);
       }
     }
   }

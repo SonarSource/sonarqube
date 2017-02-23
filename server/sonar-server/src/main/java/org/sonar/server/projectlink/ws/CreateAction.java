@@ -102,8 +102,7 @@ public class CreateAction implements ProjectLinksWsAction {
     String name = createWsRequest.getName();
     String url = createWsRequest.getUrl();
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = getComponentByUuidOrKey(dbSession, createWsRequest);
 
       userSession.checkComponentPermission(UserRole.ADMIN, component);
@@ -117,8 +116,6 @@ public class CreateAction implements ProjectLinksWsAction {
 
       dbSession.commit();
       return buildResponse(link);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

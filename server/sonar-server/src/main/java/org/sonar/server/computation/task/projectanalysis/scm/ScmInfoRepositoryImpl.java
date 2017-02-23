@@ -98,15 +98,12 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     }
 
     LOGGER.trace("Reading SCM info from db for file '{}'", file.getKey());
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, file.getUuid());
       if (dto == null || !sourceHashRepository.getRawSourceHash(file).equals(dto.getSrcHash())) {
         return NoScmInfo.INSTANCE;
       }
       return DbScmInfo.create(file, dto.getSourceData().getLinesList()).or(NoScmInfo.INSTANCE);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

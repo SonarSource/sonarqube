@@ -123,8 +123,7 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private ComponentWsResponse doHandle(ComponentWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), COMPONENT_ID_AND_KEY);
       Long developerId = searchDeveloperId(dbSession, request);
       Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
@@ -135,8 +134,6 @@ public class ComponentAction implements MeasuresWsAction {
       List<MeasureDto> measures = searchMeasures(dbSession, component, analysis, metrics, developerId);
 
       return buildResponse(request, component, refComponent, measures, metrics, periods);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

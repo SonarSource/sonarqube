@@ -53,8 +53,7 @@ public class QgateProjectFinder {
   }
 
   public Association find(ProjectQgateAssociationQuery query) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       getQualityGateId(dbSession, query.gateId());
       List<ProjectQgateAssociationDto> projects = associationDao.selectProjects(dbSession, query);
       List<ProjectQgateAssociationDto> authorizedProjects = keepAuthorizedProjects(dbSession, projects);
@@ -63,8 +62,6 @@ public class QgateProjectFinder {
         .withPageSize(query.pageSize())
         .andTotal(authorizedProjects.size());
       return new Association(toProjectAssociations(getPaginatedProjects(authorizedProjects, paging)), paging.hasNextPage());
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

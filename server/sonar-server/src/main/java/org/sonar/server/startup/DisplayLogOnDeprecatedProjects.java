@@ -48,16 +48,13 @@ public class DisplayLogOnDeprecatedProjects implements Startable {
 
   @Override
   public void start() {
-    DbSession session = dbClient.openSession(false);
-    try {
-      if (!hasAlreadyBeenExecuted(session)) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (!hasAlreadyBeenExecuted(dbSession)) {
         return;
       }
-      displayLogOnDeprecatedProjectKeys(session);
-      registerTasks(session);
-      session.commit();
-    } finally {
-      dbClient.closeSession(session);
+      displayLogOnDeprecatedProjectKeys(dbSession);
+      registerTasks(dbSession);
+      dbSession.commit();
     }
   }
 

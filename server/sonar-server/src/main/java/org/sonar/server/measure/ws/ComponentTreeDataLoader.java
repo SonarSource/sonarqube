@@ -89,8 +89,7 @@ public class ComponentTreeDataLoader {
   }
 
   ComponentTreeData load(ComponentTreeWsRequest wsRequest) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, wsRequest.getBaseComponentId(), wsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
       Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
@@ -122,8 +121,6 @@ public class ComponentTreeDataLoader {
         .setPeriods(snapshotToWsPeriods(baseSnapshot.get()))
         .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
         .build();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

@@ -102,14 +102,11 @@ public class IndexAction implements WsAction {
   }
 
   private void doHandle(JsonWriter json, Request request) {
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       Optional<ComponentDto> component = loadComponent(dbSession, request);
       String key = request.param(PARAM_ID);
       List<PropertyDto> propertyDtos = loadProperties(dbSession, component, Optional.ofNullable(key));
       new ResponseBuilder(propertyDtos).build(json);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

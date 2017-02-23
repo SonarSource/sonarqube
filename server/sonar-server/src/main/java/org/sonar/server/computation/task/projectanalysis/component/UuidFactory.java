@@ -31,14 +31,11 @@ public class UuidFactory {
   private final Map<String, String> uuidsByKey = new HashMap<>();
 
   public UuidFactory(DbClient dbClient, String rootKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      List<ComponentDto> components = dbClient.componentDao().selectAllComponentsFromProjectKey(session, rootKey);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<ComponentDto> components = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, rootKey);
       for (ComponentDto componentDto : components) {
         uuidsByKey.put(componentDto.getKey(), componentDto.uuid());
       }
-    } finally {
-      dbClient.closeSession(session);
     }
   }
 

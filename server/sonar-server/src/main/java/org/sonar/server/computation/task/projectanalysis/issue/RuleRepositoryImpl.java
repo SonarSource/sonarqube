@@ -86,11 +86,8 @@ public class RuleRepositoryImpl implements RuleRepository {
 
   private void ensureInitialized() {
     if (rulesByKey == null) {
-      DbSession dbSession = dbClient.openSession(false);
-      try {
+      try (DbSession dbSession = dbClient.openSession(false)) {
         loadRulesFromDb(dbSession);
-      } finally {
-        dbClient.closeSession(dbSession);
       }
     }
   }

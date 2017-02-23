@@ -63,13 +63,10 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
       return;
     }
 
-    DbSession session = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       Component project = treeRootHolder.getRoot();
-      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(session, analysisMetadataHolder.getUuid())).visit(project);
-      session.commit();
-    } finally {
-      dbClient.closeSession(session);
+      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(dbSession, analysisMetadataHolder.getUuid())).visit(project);
+      dbSession.commit();
     }
   }
 

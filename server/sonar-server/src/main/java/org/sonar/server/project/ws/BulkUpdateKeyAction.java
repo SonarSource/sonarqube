@@ -132,8 +132,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
   }
 
   private BulkUpdateKeyWsResponse doHandle(BulkUpdateKeyWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
       checkIsProjectOrModule(projectOrModule);
       userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
@@ -147,8 +146,6 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
       }
 
       return buildResponse(newKeysByOldKeys, newKeysWithDuplicateMap);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

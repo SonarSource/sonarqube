@@ -89,14 +89,11 @@ public class SearchAction implements ProjectLinksWsAction {
   }
 
   private SearchWsResponse doHandle(SearchWsRequest searchWsRequest) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = getComponentByUuidOrKey(dbSession, searchWsRequest);
       List<ComponentLinkDto> links = dbClient.componentLinkDao()
         .selectByComponentUuid(dbSession, component.uuid());
       return buildResponse(links);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

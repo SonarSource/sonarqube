@@ -50,15 +50,11 @@ public class QProfileComparison {
   }
 
   public QProfileComparisonResult compare(String leftKey, String rightKey) {
-    QProfileComparisonResult result = new QProfileComparisonResult();
-
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QProfileComparisonResult result = new QProfileComparisonResult();
       compare(dbSession, leftKey, rightKey, result);
-    } finally {
-      dbClient.closeSession(dbSession);
+      return result;
     }
-    return result;
   }
 
   private void compare(DbSession session, String leftKey, String rightKey, QProfileComparisonResult result) {

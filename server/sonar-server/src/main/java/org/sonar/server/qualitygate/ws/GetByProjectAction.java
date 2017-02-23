@@ -77,14 +77,11 @@ public class GetByProjectAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = getProject(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
       Optional<QualityGateData> data = qualityGateFinder.getQualityGate(dbSession, project.getId());
 
       writeProtobuf(buildResponse(data), request, response);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

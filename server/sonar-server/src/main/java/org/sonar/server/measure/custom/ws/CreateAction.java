@@ -105,12 +105,11 @@ public class CreateAction implements CustomMeasuresWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
     String valueAsString = request.mandatoryParam(PARAM_VALUE);
     String description = request.param(PARAM_DESCRIPTION);
     long now = system.now();
 
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY), PROJECT_ID_AND_KEY);
       MetricDto metric = searchMetric(dbSession, request);
       checkPermissions(userSession, component);
@@ -131,8 +130,6 @@ public class CreateAction implements CustomMeasuresWsAction {
       JsonWriter json = response.newJsonWriter();
       customMeasureJsonWriter.write(json, measure, metric, component, user, true, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
       json.close();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

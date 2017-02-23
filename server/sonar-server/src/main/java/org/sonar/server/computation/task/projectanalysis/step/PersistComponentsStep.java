@@ -85,8 +85,7 @@ public class PersistComponentsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       String projectUuid = treeRootHolder.getRoot().getUuid();
 
       // safeguard, reset all rows to b-changed=false
@@ -101,8 +100,6 @@ public class PersistComponentsStep implements ComputationStep {
       disableRemainingComponents(dbSession, existingDtosByKeys.values());
 
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

@@ -80,13 +80,10 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<Metric> metrics = StreamSupport.stream(metricRepository.getAll().spliterator(), false).filter(isNumeric()).collect(Collectors.toList());
       new DepthTraversalTypeAwareCrawler(new VariationMeasuresVisitor(dbSession, metrics))
         .visit(treeRootHolder.getRoot());
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

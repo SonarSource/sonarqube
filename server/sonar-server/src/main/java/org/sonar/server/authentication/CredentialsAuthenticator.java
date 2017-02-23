@@ -46,11 +46,8 @@ public class CredentialsAuthenticator {
   }
 
   public UserDto authenticate(String userLogin, String userPassword, HttpServletRequest request, Method method) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       return authenticate(dbSession, userLogin, userPassword, request, method);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

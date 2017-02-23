@@ -132,8 +132,7 @@ public class CreateAction implements RulesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       try {
         NewCustomRule newRule = NewCustomRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
           .setName(request.mandatoryParam(PARAM_NAME))
@@ -149,8 +148,6 @@ public class CreateAction implements RulesWsAction {
       } catch (ReactivationException e) {
         write409(dbSession, request, response, e.ruleKey());
       }
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

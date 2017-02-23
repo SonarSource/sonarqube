@@ -76,19 +76,16 @@ public class ValidateProjectStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Component root = treeRootHolder.getRoot();
-      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(session, root.getKey());
+      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getKey());
       Map<String, ComponentDto> baseModulesByKey = from(baseModules).uniqueIndex(ComponentDto::key);
-      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(), baseModulesByKey);
+      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
       if (!visitor.validationMessages.isEmpty()) {
         throw MessageException.of("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));
       }
-    } finally {
-      dbClient.closeSession(session);
     }
   }
 

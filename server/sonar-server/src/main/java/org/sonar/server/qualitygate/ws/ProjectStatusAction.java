@@ -111,8 +111,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   }
 
   private ProjectStatusWsResponse doHandle(ProjectStatusWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, request);
       checkPermission(projectAndSnapshot.project);
       Optional<String> measureData = getQualityGateDetailsMeasureData(dbSession, projectAndSnapshot.project);
@@ -120,8 +119,6 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       return ProjectStatusWsResponse.newBuilder()
         .setProjectStatus(new QualityGateDetailsFormatter(measureData, projectAndSnapshot.snapshotDto).format())
         .build();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

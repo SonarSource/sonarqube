@@ -61,8 +61,7 @@ public class CurrentAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<UserDto> user = Optional.empty();
       Collection<String> groups = emptyList();
       if (userSession.isLoggedIn()) {
@@ -70,8 +69,6 @@ public class CurrentAction implements UsersWsAction {
         groups = selectGroups(dbSession);
       }
       writeResponse(response, user, groups);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

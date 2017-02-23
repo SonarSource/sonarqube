@@ -60,8 +60,7 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       Component root = treeRootHolder.getRoot();
       Metric metric = metricRepository.getByKey(QUALITY_PROFILES_KEY);
       Set<QualityProfile> qualityProfiles = parseQualityProfiles(measureRepository.getRawMeasure(root, metric));
@@ -78,8 +77,6 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
       });
 
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

@@ -33,11 +33,8 @@ public class LoadedTemplateDao implements Dao {
   }
 
   public int countByTypeAndKey(String type, String key) {
-    SqlSession session = mybatis.openSession(false);
-    try {
+    try (DbSession session = mybatis.openSession(false)) {
       return countByTypeAndKey(type, key, session);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -46,12 +43,9 @@ public class LoadedTemplateDao implements Dao {
   }
 
   public void insert(LoadedTemplateDto loadedTemplateDto) {
-    SqlSession session = mybatis.openSession(false);
-    try {
+    try (DbSession session = mybatis.openSession(false)) {
       insert(loadedTemplateDto, session);
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

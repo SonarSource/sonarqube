@@ -59,15 +59,12 @@ public class DefaultRuleFinder implements RuleFinder {
   @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findById(int ruleId) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<RuleDto> rule = ruleDao.selectById(ruleId, dbSession);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       }
       return null;
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -77,12 +74,9 @@ public class DefaultRuleFinder implements RuleFinder {
       return rules;
     }
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<RuleDto> ruleDtos = ruleDao.selectByIds(dbSession, new ArrayList<>(ruleIds));
       return convertToRuleApi(dbSession, ruleDtos);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -92,28 +86,22 @@ public class DefaultRuleFinder implements RuleFinder {
       return rules;
     }
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, new ArrayList<>(ruleKeys));
       return convertToRuleApi(dbSession, ruleDtos);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
   @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, key);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       } else {
         return null;
       }
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -125,30 +113,24 @@ public class DefaultRuleFinder implements RuleFinder {
 
   @Override
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
       if (!rules.isEmpty()) {
         RuleDto rule = rules.get(0);
         return toRule(rule, ruleDao.selectRuleParamsByRuleKey(dbSession, rule.getKey()));
       }
       return null;
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
   @Override
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
       if (rules.isEmpty()) {
         return Collections.emptyList();
       }
       return convertToRuleApi(dbSession, rules);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

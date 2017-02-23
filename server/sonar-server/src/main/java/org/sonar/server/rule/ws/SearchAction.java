@@ -151,16 +151,13 @@ public class SearchAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       SearchWsRequest searchWsRequest = toSearchWsRequest(request);
       SearchOptions context = buildSearchOptions(searchWsRequest);
       RuleQuery query = ruleQueryFactory.createRuleQuery(request);
       SearchResult searchResult = doSearch(dbSession, query, context);
       SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult, query);
       writeProtobuf(responseBuilder, request, response);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

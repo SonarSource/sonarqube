@@ -103,12 +103,9 @@ public class CoveredFilesAction implements TestsWsAction {
 
   private Map<String, ComponentDto> buildComponentsByUuid(List<CoveredFileDoc> coveredFiles) {
     List<String> sourceFileUuids = Lists.transform(coveredFiles, new CoveredFileToFileUuidFunction());
-    DbSession dbSession = dbClient.openSession(false);
     List<ComponentDto> components;
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       components = dbClient.componentDao().selectByUuids(dbSession, sourceFileUuids);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
     return Maps.uniqueIndex(components, ComponentDto::uuid);
   }

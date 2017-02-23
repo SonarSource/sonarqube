@@ -93,15 +93,12 @@ public class ShowAction implements ComponentsWsAction {
   }
 
   private ShowWsResponse doHandle(ShowWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = getComponentByUuidOrKey(dbSession, request);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
       return buildResponse(component, organizationDto, ancestors, lastAnalysis);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

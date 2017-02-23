@@ -137,14 +137,11 @@ public class ListAction implements TestsWsAction {
       request.mandatoryParamAsInt(WebService.Param.PAGE),
       request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
 
-    DbSession dbSession = dbClient.openSession(false);
     SearchResult<TestDoc> tests;
     Map<String, ComponentDto> componentsByTestFileUuid;
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileKey, sourceFileLineNumber, searchOptions);
       componentsByTestFileUuid = buildComponentsByTestFileUuid(dbSession, tests.getDocs());
-    } finally {
-      dbClient.closeSession(dbSession);
     }
 
     WsTests.ListResponse.Builder responseBuilder = WsTests.ListResponse.newBuilder();
