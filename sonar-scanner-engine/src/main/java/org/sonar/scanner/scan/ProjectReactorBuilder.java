@@ -333,9 +333,28 @@ public class ProjectReactorBuilder {
     if (project.getSubProjects().isEmpty()) {
       cleanAndCheckModuleProperties(project);
     } else {
+      logMissingSourcesAndTests(project);
+
       // clean modules properties as well
       for (ProjectDefinition module : project.getSubProjects()) {
         cleanAndCheckProjectDefinitions(module);
+      }
+    }
+  }
+
+  private static void logMissingSourcesAndTests(ProjectDefinition project) {
+    Map<String, String> properties = project.properties();
+
+    File baseDir = project.getBaseDir();
+    logMissingPaths("source", baseDir, getListFromProperty(properties, PROPERTY_SOURCES));
+    logMissingPaths("test", baseDir, getListFromProperty(properties, PROPERTY_TESTS));
+  }
+
+  private static void logMissingPaths(String label, File baseDir, String[] paths) {
+    for (String path : paths) {
+      File file = resolvePath(baseDir, path);
+      if (!file.exists()) {
+        LOG.debug("Path '{}' does not exist, will not be used as {}", file, label);
       }
     }
   }
