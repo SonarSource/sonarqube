@@ -98,7 +98,7 @@ public class ProgressLogger {
       speed = MILLIS_PER_SECOND * deltaCounter / deltaTime;
     }
 
-    logger.info(String.format("The task is done. %d %s processed in %d seconds. (%d items/sec)", currentCounter, pluralLabel, deltaTime / MILLIS_PER_SECOND, speed));
+    logger.info(String.format("The task is done. %d %s processed in %d seconds. (%d %s/sec)", currentCounter, pluralLabel, deltaTime / MILLIS_PER_SECOND, speed, pluralLabel));
   }
 
   /**
@@ -158,7 +158,7 @@ public class ProgressLogger {
         speed = MILLIS_PER_SECOND * deltaCounter / deltaTime;
       }
       
-      logger.info(String.format("%d %s processed (%d items/sec)", currentCounter, pluralLabel, speed));
+      logger.info(String.format("%d %s processed (%d %s/sec)", currentCounter, pluralLabel, speed, pluralLabel));
 
       previousCounter = currentCounter;
       previousTime = currentTime;

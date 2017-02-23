@@ -64,6 +64,7 @@ public class ProgressLoggerTest {
     doReturn(0L).when(system2).now();
 
     ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, Loggers.get(getClass()), system2);
+    progress.setPluralLabel("files");
     progress.setPeriodMs(1L);
     progress.start();
     while (getLogs().size() < 1) {
@@ -74,7 +75,7 @@ public class ProgressLoggerTest {
     doReturn(5_000L).when(system2).now();
 
     progress.stop();
-    assertThat(getLogs()).contains("The task is done. 300 rows processed in 5 seconds. (60 items/sec)");
+    assertThat(getLogs()).contains("The task is done. 300 files processed in 5 seconds. (60 files/sec)");
   }
 
   private List<String> getLogs() {
