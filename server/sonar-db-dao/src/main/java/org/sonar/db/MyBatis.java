@@ -19,6 +19,7 @@
  */
 package org.sonar.db;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -248,21 +249,11 @@ public class MyBatis {
     return this;
   }
 
-  public SqlSessionFactory getSessionFactory() {
+  @VisibleForTesting
+  SqlSessionFactory getSessionFactory() {
     return sessionFactory;
   }
 
-  /**
-   * @deprecated since 4.4. Replaced by <code>openSession(false)</code>.
-   */
-  @Deprecated
-  public SqlSession openSession() {
-    return openSession(false);
-  }
-
-  /**
-   * @since 4.4
-   */
   public DbSession openSession(boolean batch) {
     if (batch) {
       SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
