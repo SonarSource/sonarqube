@@ -43,7 +43,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 
@@ -85,7 +85,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
   }
 
   @Override
-  public Set<IndexTypeId> getIndexTypes() {
+  public Set<IndexType> getIndexTypes() {
     return authorizationScopes.stream()
       .map(AuthorizationScope::getIndexType)
       .collect(toSet(authorizationScopes.size()));
@@ -141,7 +141,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
       .get());
   }
 
-  private void truncateAuthorizationType(IndexTypeId indexType) {
+  private void truncateAuthorizationType(IndexType indexType) {
     BulkIndexer.delete(esClient, indexType.getIndex(), esClient.prepareSearch(indexType).setQuery(matchAllQuery()));
   }
 
@@ -171,7 +171,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
     authorizationScopes.forEach(type -> esClient.prepareRefresh(type.getIndexType().getIndex()).get());
   }
 
-  private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, IndexTypeId indexTypeId) {
+  private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, IndexType indexTypeId) {
     Map<String, Object> doc = new HashMap<>();
     doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, DateUtils.longToDate(dto.getUpdatedAt()));
     if (dto.isAllowAnyone()) {

@@ -25,12 +25,12 @@ import org.sonar.core.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
-public class IndexTypeId {
+public class IndexType {
 
   private final String index;
   private final String type;
 
-  public IndexTypeId(String index, String type) {
+  public IndexType(String index, String type) {
     this.index = requireNonNull(index);
     this.type = requireNonNull(type);
   }
@@ -43,15 +43,15 @@ public class IndexTypeId {
     return type;
   }
 
-  public static String[] getIndices(IndexTypeId... indexTypes) {
-    return getDetails(IndexTypeId::getIndex, indexTypes);
+  public static String[] getIndices(IndexType... indexTypes) {
+    return getDetails(IndexType::getIndex, indexTypes);
   }
 
-  public static String[] getTypes(IndexTypeId... indexTypes) {
-    return getDetails(IndexTypeId::getType, indexTypes);
+  public static String[] getTypes(IndexType... indexTypes) {
+    return getDetails(IndexType::getType, indexTypes);
   }
 
-  private static String[] getDetails(Function<? super IndexTypeId, ? extends String> function, IndexTypeId... indexTypes) {
+  private static String[] getDetails(Function<? super IndexType, ? extends String> function, IndexType... indexTypes) {
     return Arrays.stream(indexTypes).map(function).collect(Collectors.toSet(indexTypes.length)).toArray(new String[0]);
   }
 
@@ -63,7 +63,7 @@ public class IndexTypeId {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    IndexTypeId that = (IndexTypeId) o;
+    IndexType that = (IndexType) o;
     if (!index.equals(that.index)) {
       return false;
     }

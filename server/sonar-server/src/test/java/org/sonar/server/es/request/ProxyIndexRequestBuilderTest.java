@@ -28,7 +28,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -61,7 +61,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query() {
-    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexTypeId("unknownIndex", "unknownType"));
+    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexType("unknownIndex", "unknownType"));
     try {
       requestBuilder.get();
       fail();
@@ -73,7 +73,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query_with_basic_profiling() {
-    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexTypeId("unknownIndex", "unknownType"));
+    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexType("unknownIndex", "unknownType"));
     try {
       requestBuilder.get();
       fail();

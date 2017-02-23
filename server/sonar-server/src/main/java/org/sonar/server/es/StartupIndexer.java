@@ -32,6 +32,6 @@ public interface StartupIndexer {
    */
   void indexOnStartup();
 
-  Set<IndexTypeId> getIndexTypes();
+  Set<IndexType> getIndexTypes();
 
 }

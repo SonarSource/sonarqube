@@ -25,12 +25,10 @@ import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class UserIndexerTest {
 
@@ -43,26 +41,18 @@ public class UserIndexerTest {
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   @Test
-  public void index_on_startup() {
-    UserIndexer indexer = spy(createIndexer());
-    doNothing().when(indexer).index();
-    indexer.indexOnStartup();
-    verify(indexer).indexOnStartup();
-  }
-
-  @Test
   public void index_nothing() {
     UserIndexer indexer = createIndexer();
-    indexer.index();
-    assertThat(esTester.countDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType())).isEqualTo(0L);
+    indexer.indexOnStartup();
+    assertThat(esTester.countDocuments(UserIndexDefinition.INDEX_TYPE_USER)).isEqualTo(0L);
   }
 
   @Test
-  public void index() {
+  public void index_everything() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     UserIndexer indexer = createIndexer();
-    indexer.index();
+    indexer.indexOnStartup();
 
     List<UserDoc> docs = esTester.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
@@ -74,6 +64,18 @@ public class UserIndexerTest {
     assertThat(doc.scmAccounts()).containsOnly("user_1", "u1");
     assertThat(doc.createdAt()).isEqualTo(1500000000000L);
     assertThat(doc.updatedAt()).isEqualTo(1500000000000L);
+  }
+
+  @Test
+  public void index_single_user() {
+    UserDto user = dbTester.users().insertUser();
+
+    UserIndexer indexer = createIndexer();
+    indexer.indexOnStartup();
+
+    List<UserDoc> docs = esTester.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    assertThat(docs).hasSize(1);
+    assertThat(docs).extracting(UserDoc::login).containsExactly(user.getLogin());
   }
 
   private UserIndexer createIndexer() {

@@ -32,10 +32,10 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
 
@@ -96,7 +96,7 @@ public class DeactivateAction implements UsersWsAction {
       dbSession.commit();
     }
 
-    userIndexer.index();
+    userIndexer.index(login);
     writeResponse(response, login);
   }
 

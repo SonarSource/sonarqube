@@ -21,7 +21,7 @@ package org.sonar.server.component.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
@@ -29,7 +29,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndexDefinition implements IndexDefinition {
 
-  public static final IndexTypeId INDEX_TYPE_COMPONENT = new IndexTypeId("components", "component");
+  public static final IndexType INDEX_TYPE_COMPONENT = new IndexType("components", "component");
   public static final String FIELD_PROJECT_UUID = "project_uuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";

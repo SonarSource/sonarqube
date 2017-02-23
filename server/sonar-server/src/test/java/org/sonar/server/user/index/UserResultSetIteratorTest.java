@@ -37,7 +37,7 @@ public class UserResultSetIteratorTest {
   @Test
   public void iterator_over_users() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    UserResultSetIterator it = UserResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession());
+    UserResultSetIterator it = UserResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), null);
     Map<String, UserDoc> usersByLogin = Maps.uniqueIndex(it, new Function<UserDoc, String>() {
       @Override
       public String apply(UserDoc user) {

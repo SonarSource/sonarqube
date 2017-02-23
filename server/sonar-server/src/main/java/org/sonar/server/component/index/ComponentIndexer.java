@@ -38,7 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
@@ -63,7 +63,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   @Override
-  public Set<IndexTypeId> getIndexTypes() {
+  public Set<IndexType> getIndexTypes() {
     return ImmutableSet.of(ComponentIndexDefinition.INDEX_TYPE_COMPONENT);
   }
 

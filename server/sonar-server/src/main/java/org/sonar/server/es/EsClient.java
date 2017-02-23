@@ -132,10 +132,10 @@ public class EsClient implements Closeable {
     return new ProxySearchRequestBuilder(nativeClient()).setIndices(indices);
   }
 
-  public SearchRequestBuilder prepareSearch(IndexTypeId... indexType) {
+  public SearchRequestBuilder prepareSearch(IndexType... indexType) {
     return new ProxySearchRequestBuilder(nativeClient())
-      .setIndices(IndexTypeId.getIndices(indexType))
-      .setTypes(IndexTypeId.getTypes(indexType));
+      .setIndices(IndexType.getIndices(indexType))
+      .setTypes(IndexType.getTypes(indexType));
   }
 
   public SearchScrollRequestBuilder prepareSearchScroll(String scrollId) {
@@ -146,7 +146,7 @@ public class EsClient implements Closeable {
     return new ProxyGetRequestBuilder(nativeClient());
   }
 
-  public GetRequestBuilder prepareGet(IndexTypeId indexType, String id) {
+  public GetRequestBuilder prepareGet(IndexType indexType, String id) {
     return new ProxyGetRequestBuilder(nativeClient()).setIndex(indexType.getIndex()).setType(indexType.getType()).setId(id);
   }
 
@@ -155,7 +155,7 @@ public class EsClient implements Closeable {
   }
 
   /**
-   * @deprecated use {@link #prepareSearch(String...)} with size 0, or {@link #count(IndexTypeId)}
+   * @deprecated use {@link #prepareSearch(String...)} with size 0, or {@link #count(IndexType)}
    */
   @Deprecated
   public CountRequestBuilder prepareCount(String... indices) {
@@ -166,7 +166,7 @@ public class EsClient implements Closeable {
     return new ProxyBulkRequestBuilder(nativeClient());
   }
 
-  public DeleteRequestBuilder prepareDelete(IndexTypeId indexType, String id) {
+  public DeleteRequestBuilder prepareDelete(IndexType indexType, String id) {
     return new ProxyDeleteRequestBuilder(nativeClient(), indexType.getIndex()).setType(indexType.getType()).setId(id);
   }
 
@@ -174,7 +174,7 @@ public class EsClient implements Closeable {
     return new ProxyDeleteRequestBuilder(nativeClient(), index).setType(type).setId(id);
   }
 
-  public IndexRequestBuilder prepareIndex(IndexTypeId indexType) {
+  public IndexRequestBuilder prepareIndex(IndexType indexType) {
     return new ProxyIndexRequestBuilder(nativeClient()).setIndex(indexType.getIndex()).setType(indexType.getType());
   }
 
@@ -188,7 +188,7 @@ public class EsClient implements Closeable {
     return new ProxyClearCacheRequestBuilder(nativeClient()).setIndices(indices);
   }
 
-  public long getMaxFieldValue(IndexTypeId indexType, String fieldName) {
+  public long getMaxFieldValue(IndexType indexType, String fieldName) {
     SearchRequestBuilder request = prepareSearch(indexType)
       .setQuery(QueryBuilders.matchAllQuery())
       .setSize(0)
@@ -205,11 +205,11 @@ public class EsClient implements Closeable {
   /**
    * Checks whether there is any document in any mentioned type.
    */
-  public boolean isEmpty(IndexTypeId indexType) {
+  public boolean isEmpty(IndexType indexType) {
     return count(indexType) <= 0;
   }
 
-  private long count(IndexTypeId indexType) {
+  private long count(IndexType indexType) {
     return prepareSearch(indexType).setSize(0).get().getHits().getTotalHits();
   }
 

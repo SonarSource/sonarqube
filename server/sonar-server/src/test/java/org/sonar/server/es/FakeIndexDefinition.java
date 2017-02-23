@@ -25,7 +25,7 @@ public class FakeIndexDefinition implements IndexDefinition {
 
   public static final String INDEX = "fakes";
   public static final String TYPE = "fake";
-  public static final IndexTypeId INDEX_TYPE_FAKE = new IndexTypeId("fakes", "fake");
+  public static final IndexType INDEX_TYPE_FAKE = new IndexType("fakes", "fake");
   public static final String INT_FIELD = "intField";
 
   private int replicas = 0;

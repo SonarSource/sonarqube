@@ -216,15 +216,16 @@ public class UpdateActionTest {
   }
 
   private void createUser() {
-    dbClient.userDao().insert(session, newUserDto()
+    UserDto userDto = newUserDto()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setActive(true))
+      .setActive(true);
+    dbClient.userDao().insert(session, userDto)
       .setExternalIdentity("jo")
       .setExternalIdentityProvider("sonarqube");
     session.commit();
-    userIndexer.index();
+    userIndexer.index(userDto.getLogin());
   }
 }

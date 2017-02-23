@@ -32,7 +32,7 @@ import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
@@ -53,7 +53,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
   }
 
   @Override
-  public Set<IndexTypeId> getIndexTypes() {
+  public Set<IndexType> getIndexTypes() {
     return ImmutableSet.of(INDEX_TYPE_PROJECT_MEASURES);
   }
 

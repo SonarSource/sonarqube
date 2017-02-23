@@ -26,7 +26,7 @@ import java.util.Set;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
@@ -40,7 +40,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   private static final String INDEX = "rules";
 
-  public static final IndexTypeId INDEX_TYPE_RULE = new IndexTypeId(INDEX, "rule");
+  public static final IndexType INDEX_TYPE_RULE = new IndexType(INDEX, "rule");
   public static final String FIELD_RULE_KEY = "key";
   public static final String FIELD_RULE_REPOSITORY = "repo";
   public static final String FIELD_RULE_RULE_KEY = "ruleKey";
@@ -64,7 +64,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     RuleIndexDefinition.FIELD_RULE_KEY);
 
   // Active rule fields
-  public static final IndexTypeId INDEX_TYPE_ACTIVE_RULE = new IndexTypeId(INDEX, "activeRule");
+  public static final IndexType INDEX_TYPE_ACTIVE_RULE = new IndexType(INDEX, "activeRule");
   public static final String FIELD_ACTIVE_RULE_KEY = "key";
   public static final String FIELD_ACTIVE_RULE_REPOSITORY = "repo";
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";

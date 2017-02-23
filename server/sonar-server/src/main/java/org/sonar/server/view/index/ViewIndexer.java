@@ -30,7 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.StartupIndexer;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -47,7 +47,7 @@ public class ViewIndexer implements StartupIndexer {
   }
 
   @Override
-  public Set<IndexTypeId> getIndexTypes() {
+  public Set<IndexType> getIndexTypes() {
     return ImmutableSet.of(INDEX_TYPE_VIEW);
   }
 

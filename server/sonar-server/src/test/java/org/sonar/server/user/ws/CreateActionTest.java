@@ -197,10 +197,11 @@ public class CreateActionTest {
   public void reactivate_user() throws Exception {
     logInAsSystemAdministrator();
 
-    db.users().insertUser(newUserDto("john", "John", "john@email.com"));
+    UserDto userDto = newUserDto("john", "John", "john@email.com");
+    db.users().insertUser(userDto);
     db.getDbClient().userDao().deactivateUserByLogin(db.getSession(), "john");
     db.commit();
-    userIndexer.index();
+    userIndexer.index(userDto.getLogin());
 
     call(CreateRequest.builder()
       .setLogin("john")

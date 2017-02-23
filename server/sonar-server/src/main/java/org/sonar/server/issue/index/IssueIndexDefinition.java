@@ -21,7 +21,7 @@ package org.sonar.server.issue.index;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.IndexTypeId;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
@@ -31,7 +31,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
  */
 public class IssueIndexDefinition implements IndexDefinition {
 
-  public static final IndexTypeId INDEX_TYPE_ISSUE = new IndexTypeId("issues", "issue");
+  public static final IndexType INDEX_TYPE_ISSUE = new IndexType("issues", "issue");
   public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
   public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
