@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +38,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ProjectViewAttributes;
+import org.sonar.server.computation.task.projectanalysis.component.SubViewAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -151,7 +153,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(
       createViewBuilder()
         .addChildren(
-          createSubView1Builder().build())
+          createSubView1Builder(null).build())
         .build());
 
     underTest.execute();
@@ -166,6 +168,22 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   @Test
+  public void persist_empty_subview_having_original_view_uuid() {
+    treeRootHolder.setRoot(
+      createViewBuilder()
+        .addChildren(
+          createSubView1Builder("ORIGINAL_UUID").build())
+        .build());
+
+    underTest.execute();
+
+    assertRowsCountInTableProjects(2);
+
+    ComponentDto subView = getComponentFromDb(SUBVIEW_1_KEY);
+    assertThat(subView.getCopyResourceUuid()).isEqualTo("ORIGINAL_UUID");
+  }
+
+  @Test
   public void persist_existing_empty_subview_under_existing_view() {
     ComponentDto viewDto = newViewDto(dbTester.organizations().insert());
     persistComponents(viewDto);
@@ -174,7 +192,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(
       createViewBuilder()
         .addChildren(
-          createSubView1Builder().build())
+          createSubView1Builder(null).build())
         .build());
 
     underTest.execute();
@@ -192,7 +210,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(
       createViewBuilder()
         .addChildren(
-          createSubView1Builder().build())
+          createSubView1Builder(null).build())
         .build());
 
     underTest.execute();
@@ -211,7 +229,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(
       createViewBuilder()
         .addChildren(
-          createSubView1Builder()
+          createSubView1Builder(null)
             .addChildren(
               createProjectView1Builder(project, null).build())
             .build())
@@ -307,12 +325,42 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertDtoIsProjectView1(pv1Dto, view, view, project2);
   }
 
-  private static ViewsComponent.Builder createViewBuilder() {
-    return builder(VIEW, VIEW_KEY).setUuid(VIEW_UUID).setName(VIEW_NAME).setDescription(VIEW_DESCRIPTION);
+  @Test
+  public void update_copy_component_uuid_of_sub_view() {
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto view = newViewDto(organizationDto);
+    ComponentDto subView = newSubViewDto(view).setCopyComponentUuid("OLD_COPY");
+    persistComponents(view, subView);
+
+    treeRootHolder.setRoot(
+      createViewBuilder()
+        .addChildren(
+          createSubView1Builder("NEW_COPY").build())
+        .build());
+
+    underTest.execute();
+
+    // commit functional transaction -> copies B-fields to A-fields
+    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
+    dbTester.commit();
+
+    ComponentDto subViewReloaded = getComponentFromDb(SUBVIEW_1_KEY);
+    assertThat(subViewReloaded.getCopyResourceUuid()).isEqualTo("NEW_COPY");
   }
 
-  private ViewsComponent.Builder createSubView1Builder() {
-    return builder(SUBVIEW, SUBVIEW_1_KEY).setUuid(SUBVIEW_1_UUID).setName(SUBVIEW_1_NAME).setDescription(SUBVIEW_1_DESCRIPTION);
+  private static ViewsComponent.Builder createViewBuilder() {
+    return builder(VIEW, VIEW_KEY)
+      .setUuid(VIEW_UUID)
+      .setName(VIEW_NAME)
+      .setDescription(VIEW_DESCRIPTION);
+  }
+
+  private ViewsComponent.Builder createSubView1Builder(@Nullable String originalViewUuid) {
+    return builder(SUBVIEW, SUBVIEW_1_KEY)
+      .setUuid(SUBVIEW_1_UUID)
+      .setName(SUBVIEW_1_NAME)
+      .setDescription(SUBVIEW_1_DESCRIPTION)
+      .setSubViewAttributes(new SubViewAttributes(originalViewUuid));
   }
 
   private static ViewsComponent.Builder createProjectView1Builder(ComponentDto project, Long analysisDate) {
@@ -344,6 +392,11 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
       .setOrganizationUuid(ORGANIZATION_UUID)
       .setKey(VIEW_KEY)
       .setName(VIEW_NAME);
+  }
+
+  private ComponentDto newSubViewDto(ComponentDto rootView) {
+    return ComponentTesting.newSubView(rootView, SUBVIEW_1_UUID, SUBVIEW_1_KEY)
+      .setName(SUBVIEW_1_NAME);
   }
 
   /**

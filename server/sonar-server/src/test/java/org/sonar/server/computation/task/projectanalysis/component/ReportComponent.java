@@ -117,6 +117,11 @@ public class ReportComponent implements Component {
   }
 
   @Override
+  public SubViewAttributes getSubViewAttributes() {
+    throw new IllegalStateException("Only component of type SUBVIEW have a SubViewAttributes object");
+  }
+
+  @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;

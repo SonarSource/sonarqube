@@ -105,4 +105,11 @@ public interface Component {
    * @throws IllegalStateException if the Component's type is not {@link Type#PROJECT_VIEW}
    */
   ProjectViewAttributes getProjectViewAttributes();
+
+  /**
+   * The attributes of the Component if it's type is {@link Type#SUBVIEW}.
+   *
+   * @throws IllegalStateException if the Component's type is not {@link Type#SUBVIEW}
+   */
+  SubViewAttributes getSubViewAttributes();
 }

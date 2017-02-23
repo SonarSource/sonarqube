@@ -102,7 +102,12 @@ public class ComponentImpl implements Component {
 
   @Override
   public ProjectViewAttributes getProjectViewAttributes() {
-    throw new IllegalStateException("Only component of type PROJECT_VIEW have a FileAttributes object");
+    throw new IllegalStateException("Only component of type PROJECT_VIEW have a ProjectViewAttributes object");
+  }
+
+  @Override
+  public SubViewAttributes getSubViewAttributes() {
+    throw new IllegalStateException("Only component of type SUBVIEW have a SubViewAttributes object");
   }
 
   public static Builder builder(Type type) {
@@ -125,7 +130,7 @@ public class ComponentImpl implements Component {
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
 
-    private Builder(Type type){
+    private Builder(Type type) {
       this.type = requireNonNull(type, "type can't be null");
     }
 
@@ -159,7 +164,7 @@ public class ComponentImpl implements Component {
       return this;
     }
 
-    public Builder setFileAttributes(@Nullable  FileAttributes fileAttributes) {
+    public Builder setFileAttributes(@Nullable FileAttributes fileAttributes) {
       this.fileAttributes = fileAttributes;
       return this;
     }

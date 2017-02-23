@@ -320,6 +320,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setName(subView.getName());
     res.setDescription(subView.getDescription());
     res.setLongName(res.name());
+    res.setCopyComponentUuid(subView.getSubViewAttributes().getOriginalViewUuid());
 
     setRootAndParentModule(res, path);
 

@@ -46,10 +46,12 @@ public class ViewsComponent implements Component {
   private final List<Component> children;
   @CheckForNull
   private final ProjectViewAttributes projectViewAttributes;
+  @CheckForNull
+  private final SubViewAttributes subViewAttributes;
 
   private ViewsComponent(Type type, String key, @Nullable String uuid, @Nullable String name, @Nullable String description,
     List<Component> children,
-    @Nullable ProjectViewAttributes projectViewAttributes) {
+    @Nullable ProjectViewAttributes projectViewAttributes, @Nullable SubViewAttributes subViewAttributes) {
     checkArgument(type.isViewsType(), "Component type must be a Views type");
     this.type = type;
     this.key = requireNonNull(key);
@@ -58,6 +60,7 @@ public class ViewsComponent implements Component {
     this.description = description;
     this.children = ImmutableList.copyOf(children);
     this.projectViewAttributes = projectViewAttributes;
+    this.subViewAttributes = subViewAttributes;
   }
 
   public static Builder builder(Type type, String key) {
@@ -80,6 +83,8 @@ public class ViewsComponent implements Component {
     private List<Component> children = new ArrayList<>();
     @CheckForNull
     private ProjectViewAttributes projectViewAttributes;
+    @CheckForNull
+    private SubViewAttributes subViewAttributes;
 
     private Builder(Type type, String key) {
       this.type = type;
@@ -111,6 +116,11 @@ public class ViewsComponent implements Component {
       return this;
     }
 
+    public Builder setSubViewAttributes(@Nullable SubViewAttributes subViewAttributes) {
+      this.subViewAttributes = subViewAttributes;
+      return this;
+    }
+
     public Builder addChildren(Component... c) {
       for (Component viewsComponent : c) {
         checkArgument(viewsComponent.getType().isViewsType());
@@ -120,7 +130,7 @@ public class ViewsComponent implements Component {
     }
 
     public ViewsComponent build() {
-      return new ViewsComponent(type, key, uuid, name, description, children, projectViewAttributes);
+      return new ViewsComponent(type, key, uuid, name, description, children, projectViewAttributes, subViewAttributes);
     }
   }
 
@@ -173,6 +183,12 @@ public class ViewsComponent implements Component {
   }
 
   @Override
+  public SubViewAttributes getSubViewAttributes() {
+    checkState(this.type != Type.SUBVIEW || this.subViewAttributes != null, "A SubViewAttributes object should have been set");
+    return this.subViewAttributes;
+  }
+
+  @Override
   public String toString() {
     return "ViewsComponent{" +
       "type=" + type +
@@ -181,6 +197,7 @@ public class ViewsComponent implements Component {
       ", name='" + name + '\'' +
       ", children=" + children +
       ", projectViewAttributes=" + projectViewAttributes +
+      ", subViewAttributes=" + subViewAttributes +
       '}';
   }
 
