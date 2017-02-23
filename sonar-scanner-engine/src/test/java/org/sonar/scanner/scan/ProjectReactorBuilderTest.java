@@ -62,12 +62,17 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfUnexistingSourceDirectory() {
+  public void should_fail_if_sources_are_missing_in_leaf_module() {
     thrown.expect(MessageException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project' (base directory = "
       + getResource(this.getClass(), "simple-project-with-unexisting-source-dir") + ")");
 
     loadProjectDefinition("simple-project-with-unexisting-source-dir");
+  }
+
+  @Test
+  public void should_not_fail_if_sources_are_missing_in_intermediate_module() {
+    loadProjectDefinition("multi-module-pom-in-root");
   }
 
   @Test
@@ -568,10 +573,9 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.getName()).isEqualTo("Foo Project");
     assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
-    // root project must not contain some properties - even if they are defined in the root properties file
     assertThat(rootProject.sources().contains("sources")).isTrue();
     assertThat(rootProject.tests().contains("tests")).isTrue();
-    // and module properties must have been cleaned
+    // Module properties must have been cleaned
     assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
