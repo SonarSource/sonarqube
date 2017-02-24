@@ -120,7 +120,10 @@ public class Platform {
 
           runIfNotAborted(() -> executeStartupTasks(startup));
           // switch current container last to avoid giving access to a partially initialized container
-          runIfNotAborted(() -> currentLevel = level4);
+          runIfNotAborted(() -> {
+            currentLevel = level4;
+            LOGGER.info("WebServer is operational");
+          });
 
           // stop safemode container if it existed
           runIfNotAborted(Platform.this::stopSafeModeContainer);

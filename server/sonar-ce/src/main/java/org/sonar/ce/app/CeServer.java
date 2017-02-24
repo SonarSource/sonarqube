@@ -173,7 +173,7 @@ public class CeServer implements Monitored {
     private void startup() {
       LOG.info("Compute Engine starting up...");
       computeEngine.startup();
-      LOG.info("Compute Engine is up");
+      LOG.info("Compute Engine is operational");
     }
 
     private void waitForStopSignal() {
