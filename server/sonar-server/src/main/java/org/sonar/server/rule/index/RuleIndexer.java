@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UPDATED_AT;
@@ -42,11 +43,11 @@ public class RuleIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(false), lastUpdatedAt);
+    return doIndex(createBulkIndexer(Size.REGULAR), lastUpdatedAt);
   }
 
   public void index(Iterator<RuleDoc> rules) {
-    doIndex(createBulkIndexer(false), rules);
+    doIndex(createBulkIndexer(Size.REGULAR), rules);
   }
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
@@ -76,9 +77,9 @@ public class RuleIndexer extends BaseIndexer {
     return maxDate;
   }
 
-  private BulkIndexer createBulkIndexer(boolean large) {
+  private BulkIndexer createBulkIndexer(Size size) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_RULE.getIndex());
-    bulk.setLarge(large);
+    bulk.setSize(size);
     return bulk;
   }
 

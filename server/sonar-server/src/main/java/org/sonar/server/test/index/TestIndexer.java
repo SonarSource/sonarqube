@@ -28,6 +28,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
@@ -61,7 +62,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
         break;
       case NEW_ANALYSIS:
         deleteProject(projectUuid);
-        doIndex(projectUuid, false);
+        doIndex(projectUuid, Size.REGULAR);
         break;
       default:
         // defensive case
@@ -76,7 +77,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(null, true);
+    doIndex(null, Size.LARGE);
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
@@ -84,9 +85,9 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
     return doIndex(bulk, dbRows);
   }
 
-  private long doIndex(@Nullable String projectUuid, boolean largeBulkIndexing) {
+  private long doIndex(@Nullable String projectUuid, Size bulkSize) {
     final BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex());
-    bulk.setLarge(largeBulkIndexing);
+    bulk.setSize(bulkSize);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

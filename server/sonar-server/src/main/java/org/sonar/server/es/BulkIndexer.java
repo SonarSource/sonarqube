@@ -66,7 +66,7 @@ public class BulkIndexer implements Startable {
 
   private final EsClient client;
   private final String indexName;
-  private boolean large = false;
+  private Size size = Size.REGULAR;
   private long flushByteSize = FLUSH_BYTE_SIZE;
   private BulkRequestBuilder bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
@@ -86,13 +86,21 @@ public class BulkIndexer implements Startable {
     this.semaphore = new Semaphore(concurrentRequests);
   }
 
+  public enum Size {
+    /** Use this size for a limited number of documents. */
+    REGULAR,
+
+    /** Use this size for initial indexing and if you expect unusual huge numbers of documents. */
+    LARGE;
+  }
+
   /**
    * Large indexing is an heavy operation that populates an index generally from scratch. Replicas and
    * automatic refresh are disabled during bulk indexing and lucene segments are optimized at the end.
    */
-  public BulkIndexer setLarge(boolean b) {
+  public BulkIndexer setSize(Size size) {
     Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
-    this.large = b;
+    this.size = size;
     return this;
   }
 
@@ -104,7 +112,7 @@ public class BulkIndexer implements Startable {
   @Override
   public void start() {
     Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
-    if (large) {
+    if (size == Size.LARGE) {
       largeInitialSettings = Maps.newHashMap();
       Map<String, Object> bulkSettings = Maps.newHashMap();
       GetSettingsResponse settingsResp = client.nativeClient().admin().indices().prepareGetSettings(indexName).get();
@@ -204,7 +212,7 @@ public class BulkIndexer implements Startable {
     }
     progress.stop();
     client.prepareRefresh(indexName).get();
-    if (large) {
+    if (size == Size.LARGE) {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
       // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/

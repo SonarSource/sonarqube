@@ -27,6 +27,7 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.server.es.BulkIndexer.Size;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.es.FakeIndexDefinition.INDEX;
@@ -68,7 +69,7 @@ public class BulkIndexerTest {
 
     BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX)
       .setFlushByteSize(500)
-      .setLarge(true);
+      .setSize(Size.LARGE);
     indexer.start();
 
     // replicas are temporarily disabled

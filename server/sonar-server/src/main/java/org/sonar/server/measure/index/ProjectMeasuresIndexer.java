@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
@@ -59,7 +60,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(createBulkIndexer(true), (String) null);
+    doIndex(createBulkIndexer(Size.LARGE), (String) null);
   }
 
   @Override
@@ -75,7 +76,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       case PROJECT_CREATION:
         // provisioned projects are supported by WS api/components/search_projects
       case NEW_ANALYSIS:
-        doIndex(createBulkIndexer(false), projectUuid);
+        doIndex(createBulkIndexer(Size.REGULAR), projectUuid);
         break;
       default:
         // defensive case
@@ -108,9 +109,9 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     bulk.stop();
   }
 
-  private BulkIndexer createBulkIndexer(boolean largeBulkIndexing) {
+  private BulkIndexer createBulkIndexer(Size bulkSize) {
     return new BulkIndexer(esClient, INDEX_TYPE_PROJECT_MEASURES.getIndex())
-      .setLarge(largeBulkIndexing);
+      .setSize(bulkSize);
   }
 
   private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {

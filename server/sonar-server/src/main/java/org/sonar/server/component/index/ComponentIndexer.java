@@ -37,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
@@ -69,7 +70,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndexByProjectUuid(null, true);
+    doIndexByProjectUuid(null, Size.LARGE);
   }
 
   @Override
@@ -78,7 +79,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       case PROJECT_CREATION:
       case PROJECT_KEY_UPDATE:
       case NEW_ANALYSIS:
-        doIndexByProjectUuid(projectUuid, false);
+        doIndexByProjectUuid(projectUuid, Size.REGULAR);
         break;
       default:
         // defensive case
@@ -95,9 +96,9 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
    * @param projectUuid the uuid of the project to analyze, or <code>null</code> if all content should be indexed.<br/>
    * <b>Warning:</b> only use <code>null</code> during startup.
    */
-  private void doIndexByProjectUuid(@Nullable String projectUuid, boolean largeBulkIndexing) {
+  private void doIndexByProjectUuid(@Nullable String projectUuid, Size bulkSize) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
-    bulk.setLarge(largeBulkIndexing);
+    bulk.setSize(bulkSize);
 
     bulk.start();
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -136,7 +137,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
 
   private void indexNow(ComponentDto... docs) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
-    bulk.setLarge(false);
+    bulk.setSize(Size.REGULAR);
     bulk.start();
     Arrays.stream(docs)
       .map(ComponentIndexer::toDocument)

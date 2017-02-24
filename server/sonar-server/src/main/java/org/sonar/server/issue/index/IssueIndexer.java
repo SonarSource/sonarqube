@@ -30,6 +30,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexType;
@@ -69,7 +70,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(createBulkIndexer(true), (String) null);
+    doIndex(createBulkIndexer(Size.LARGE), (String) null);
   }
 
   @Override
@@ -81,7 +82,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
         // nothing to do, project key is not used in this index
         break;
       case NEW_ANALYSIS:
-        doIndex(createBulkIndexer(false), projectUuid);
+        doIndex(createBulkIndexer(Size.REGULAR), projectUuid);
         break;
       default:
         // defensive case
@@ -93,11 +94,11 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
    * For benchmarks
    */
   public void index(Iterator<IssueDoc> issues) {
-    doIndex(createBulkIndexer(false), issues);
+    doIndex(createBulkIndexer(Size.REGULAR), issues);
   }
 
   public void index(Collection<String> issueKeys) {
-    doIndex(createBulkIndexer(false), issueKeys);
+    doIndex(createBulkIndexer(Size.REGULAR), issueKeys);
   }
 
   private void doIndex(BulkIndexer bulk, Collection<String> issueKeys) {
@@ -154,9 +155,9 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
     esClient.prepareRefresh(INDEX_TYPE_ISSUE.getIndex()).get();
   }
 
-  private BulkIndexer createBulkIndexer(boolean largeBulkIndexing) {
+  private BulkIndexer createBulkIndexer(Size bulkSize) {
     return new BulkIndexer(esClient, INDEX_TYPE_ISSUE.getIndex())
-      .setLarge(largeBulkIndexing);
+      .setSize(bulkSize);
   }
 
   private static IndexRequest newIndexRequest(IssueDoc issue) {
