@@ -103,8 +103,22 @@ public class App implements Stoppable {
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
 
-    App app = new App(rawProperties);
-    app.start();
+    Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
+    ClusterProperties clusterProperties = new ClusterProperties(props);
+    clusterProperties.populateProps(props);
+
+    AppFileSystem appFileSystem = new AppFileSystem(props);
+    appFileSystem.verifyProps();
+    AppLogging logging = new AppLogging();
+    logging.configure(props);
+    clusterProperties.validate();
+
+    try (Cluster cluster = new Cluster(clusterProperties)) {
+      // used by orchestrator
+      boolean watchForHardStop = props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false);
+	  App app = new App(rawProperties);
+	  app.start();
+    }
   }
 
   @Override

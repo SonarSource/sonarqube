@@ -87,6 +87,7 @@ public class AppTest {
   public void start_all_processes_if_cluster_mode_is_disabled() throws Exception {
     Props props = initDefaultProps();
     Monitor monitor = mock(Monitor.class);
+    Cluster cluster = mock(Cluster.class);
     App app = new App(props.rawProperties(), properties -> props, monitor, checkFsConfigOnReload, javaCommandFactory);
     app.start();
 
@@ -213,6 +214,7 @@ public class AppTest {
 
   private List<JavaCommand> start(Props props) throws Exception {
     Monitor monitor = mock(Monitor.class);
+    Cluster cluster = mock(Cluster.class);
     App app = new App(props.rawProperties(), properties -> props, monitor, checkFsConfigOnReload, javaCommandFactory);
     app.start();
     ArgumentCaptor<Supplier<List<JavaCommand>>> argument = newJavaCommandArgumentCaptor();

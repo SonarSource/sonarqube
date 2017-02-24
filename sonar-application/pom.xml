@@ -32,6 +32,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
@@ -236,8 +240,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>111000000</minsize>
-                  <maxsize>118000000</maxsize>
+                  <minsize>126000000</minsize>
+                  <maxsize>134000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>
