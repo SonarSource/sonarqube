@@ -45,7 +45,6 @@ public class PlatformLevelStartup extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(GeneratePluginIndex.class,
-      RegisterServletFilters.class,
       ServerLifecycleNotifier.class,
       DefaultOrganizationEnforcer.class);
 
@@ -60,6 +59,10 @@ public class PlatformLevelStartup extends PlatformLevel {
       DisplayLogOnDeprecatedProjects.class,
       ClearRulesOverloadedDebt.class,
       DeleteOldAnalysisReportsFromFs.class);
+
+    // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefor it
+    // must be started after all the other startup tasks
+    add(RegisterServletFilters.class);
   }
 
   @Override
