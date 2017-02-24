@@ -41,10 +41,9 @@ public class QualityGateUpdaterTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-
-  QualityGateUpdater underTest = new QualityGateUpdater(dbClient);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private QualityGateUpdater underTest = new QualityGateUpdater(dbClient);
 
   @Test
   public void create_quality_gate() throws Exception {
@@ -61,15 +60,18 @@ public class QualityGateUpdaterTest {
   public void fail_to_create_when_name_is_empty() throws Exception {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name can't be empty");
+
     underTest.create(dbSession, "");
   }
 
   @Test
   public void fail_to_create_when_name_already_exists() throws Exception {
-    dbClient.qualityGateDao().insert(new QualityGateDto().setName(QGATE_NAME));
+    dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(QGATE_NAME));
+    dbSession.commit();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name has already been taken");
+
     underTest.create(dbSession, QGATE_NAME);
   }
 }

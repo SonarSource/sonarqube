@@ -24,7 +24,6 @@ import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,7 +32,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
-@ComputeEngineSide
 public class QProfileLookup {
 
   private final DbClient db;
@@ -42,95 +40,28 @@ public class QProfileLookup {
     this.db = db;
   }
 
-  public List<QProfile> allProfiles() {
-    return toQProfiles(db.qualityProfileDao().selectAll());
+  public List<QProfile> allProfiles(DbSession dbSession) {
+    return toQProfiles(db.qualityProfileDao().selectAll(dbSession));
   }
 
-  public List<QProfile> profiles(String language) {
-    return toQProfiles(db.qualityProfileDao().selectByLanguage(language));
-  }
-
-  @CheckForNull
-  public QProfile profile(int id) {
-    DbSession session = db.openSession(false);
-    try {
-      return profile(id, session);
-    } finally {
-      session.close();
-    }
-  }
-
-  @CheckForNull
-  public QProfile profile(int id, DbSession session) {
-    QualityProfileDto dto = findQualityProfile(id, session);
-    if (dto != null) {
-      return QProfile.from(dto);
-    }
-    return null;
-  }
-
-  public QProfile profile(String name, String language, DbSession session) {
-    QualityProfileDto dto = findQualityProfile(name, language, session);
-    if (dto != null) {
-      return QProfile.from(dto);
-    }
-    return null;
+  public List<QProfile> profiles(DbSession dbSession, String language) {
+    return toQProfiles(db.qualityProfileDao().selectByLanguage(dbSession, language));
   }
 
   @CheckForNull
   public QProfile profile(String name, String language) {
-    DbSession session = db.openSession(false);
-    try {
-      return profile(name, language, session);
-    } finally {
-      session.close();
-    }
-  }
-
-  @CheckForNull
-  public QProfile parent(QProfile profile) {
-    DbSession session = db.openSession(false);
-    try {
-      String parent = profile.parent();
-      if (parent != null) {
-        QualityProfileDto parentDto = findQualityProfile(parent, profile.language(), session);
-        if (parentDto != null) {
-          return QProfile.from(parentDto);
-        }
+    try (DbSession dbSession = db.openSession(false)) {
+      QualityProfileDto dto = findQualityProfile(name, language, dbSession);
+      if (dto != null) {
+        return QProfile.from(dto);
       }
       return null;
-    } finally {
-      session.close();
     }
-  }
-
-  public List<QProfile> children(QProfile profile) {
-    DbSession session = db.openSession(false);
-    try {
-      return children(profile, session);
-    } finally {
-      session.close();
-    }
-  }
-
-  public List<QProfile> children(QProfile profile, DbSession session) {
-    return toQProfiles(db.qualityProfileDao().selectChildren(session, profile.key()));
   }
 
   public List<QProfile> ancestors(QualityProfileDto profile, DbSession session) {
     List<QProfile> ancestors = newArrayList();
     incrementAncestors(QProfile.from(profile), ancestors, session);
-    return ancestors;
-  }
-
-  public List<QProfile> ancestors(QProfile profile) {
-    List<QProfile> ancestors = newArrayList();
-    DbSession session = db.openSession(false);
-    try {
-      incrementAncestors(profile, ancestors, session);
-    } finally {
-      session.close();
-    }
     return ancestors;
   }
 
@@ -148,11 +79,6 @@ public class QProfileLookup {
 
   private static List<QProfile> toQProfiles(List<QualityProfileDto> dtos) {
     return newArrayList(Iterables.transform(dtos, ToQProfile.INSTANCE));
-  }
-
-  @CheckForNull
-  private QualityProfileDto findQualityProfile(int id, DbSession session) {
-    return db.qualityProfileDao().selectById(session, id);
   }
 
   @CheckForNull

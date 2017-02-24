@@ -101,7 +101,7 @@ public class QualityGatesTest {
   @Test
   public void should_list_qgates() {
     List<QualityGateDto> allQgates = Lists.newArrayList(new QualityGateDto().setName("Gate One"), new QualityGateDto().setName("Gate Two"));
-    when(dao.selectAll()).thenReturn(allQgates);
+    when(dao.selectAll(dbSession)).thenReturn(allQgates);
     assertThat(underTest.list()).isEqualTo(allQgates);
   }
 
@@ -120,9 +120,9 @@ public class QualityGatesTest {
     long id = QUALITY_GATE_ID;
     final String name = "Golden";
     QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
-    when(dao.selectByName(name)).thenReturn(existing);
+    when(dao.selectByName(dbSession, name)).thenReturn(existing);
     assertThat(underTest.get(name)).isEqualTo(existing);
-    verify(dao).selectByName(name);
+    verify(dao).selectByName(dbSession, name);
   }
 
   @Test(expected = NotFoundException.class)
@@ -139,8 +139,8 @@ public class QualityGatesTest {
     QualityGateDto sg1 = underTest.rename(id, name);
     assertThat(sg1.getName()).isEqualTo(name);
     verify(dao).selectById(dbSession, id);
-    verify(dao).selectByName(name);
-    verify(dao).update(sg1);
+    verify(dao).selectByName(dbSession, name);
+    verify(dao).update(sg1, dbSession);
   }
 
   @Test
@@ -152,8 +152,8 @@ public class QualityGatesTest {
     QualityGateDto sg1 = underTest.rename(id, name);
     assertThat(sg1.getName()).isEqualTo(name);
     verify(dao).selectById(dbSession, id);
-    verify(dao).selectByName(name);
-    verify(dao).update(sg1);
+    verify(dao).selectByName(dbSession, name);
+    verify(dao).update(sg1, dbSession);
   }
 
   @Test(expected = NotFoundException.class)
@@ -167,7 +167,7 @@ public class QualityGatesTest {
     String name = "SG-1";
     QualityGateDto existing = new QualityGateDto().setId(id).setName("Golden");
     when(dao.selectById(dbSession, id)).thenReturn(existing);
-    when(dao.selectByName(name)).thenReturn(new QualityGateDto().setId(666L).setName(name));
+    when(dao.selectByName(dbSession, name)).thenReturn(new QualityGateDto().setId(666L).setName(name));
     underTest.rename(id, name);
   }
 
@@ -235,7 +235,7 @@ public class QualityGatesTest {
     long defaultId = QUALITY_GATE_ID;
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(Long.toString(defaultId)));
     QualityGateDto defaultQgate = new QualityGateDto().setId(defaultId).setName(defaultName);
-    when(dao.selectById(defaultId)).thenReturn(defaultQgate);
+    when(dao.selectById(dbSession, defaultId)).thenReturn(defaultQgate);
     assertThat(underTest.getDefault()).isEqualTo(defaultQgate);
   }
 
@@ -255,7 +255,7 @@ public class QualityGatesTest {
     QualityGateConditionDto cond1 = new QualityGateConditionDto().setMetricId(metric1Id);
     QualityGateConditionDto cond2 = new QualityGateConditionDto().setMetricId(metric2Id);
     Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
-    when(conditionDao.selectForQualityGate(qGateId)).thenReturn(conditions);
+    when(conditionDao.selectForQualityGate(dbSession, qGateId)).thenReturn(conditions);
     Metric metric1 = mock(Metric.class);
     when(metric1.getKey()).thenReturn(metric1Key);
     when(metricFinder.findById((int) metric1Id)).thenReturn(metric1);
@@ -277,7 +277,7 @@ public class QualityGatesTest {
     QualityGateConditionDto cond1 = new QualityGateConditionDto().setMetricId(metric1Id);
     QualityGateConditionDto cond2 = new QualityGateConditionDto().setMetricId(metric2Id);
     Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
-    when(conditionDao.selectForQualityGate(qGateId)).thenReturn(conditions);
+    when(conditionDao.selectForQualityGate(dbSession, qGateId)).thenReturn(conditions);
     Metric metric1 = mock(Metric.class);
     when(metric1.getKey()).thenReturn(metric1Key);
     when(metricFinder.findById((int) metric1Id)).thenReturn(metric1);
@@ -288,10 +288,10 @@ public class QualityGatesTest {
   public void should_delete_condition() {
     long idToDelete = QUALITY_GATE_ID;
     QualityGateConditionDto toDelete = new QualityGateConditionDto().setId(idToDelete);
-    when(conditionDao.selectById(idToDelete)).thenReturn(toDelete);
+    when(conditionDao.selectById(idToDelete, dbSession)).thenReturn(toDelete);
     underTest.deleteCondition(idToDelete);
-    verify(conditionDao).selectById(idToDelete);
-    verify(conditionDao).delete(toDelete);
+    verify(conditionDao).selectById(idToDelete, dbSession);
+    verify(conditionDao).delete(toDelete, dbSession);
   }
 
   @Test(expected = NotFoundException.class)
@@ -315,12 +315,12 @@ public class QualityGatesTest {
       ((QualityGateDto) invocation.getArguments()[1]).setId(destId);
       return null;
     }).when(dao).insert(eq(dbSession), any(QualityGateDto.class));
-    when(conditionDao.selectForQualityGate(anyLong(), eq(dbSession))).thenReturn(conditions);
+    when(conditionDao.selectForQualityGate(eq(dbSession), anyLong())).thenReturn(conditions);
     QualityGateDto atlantis = underTest.copy(sourceId, name);
     assertThat(atlantis.getName()).isEqualTo(name);
-    verify(dao).selectByName(name);
+    verify(dao).selectByName(dbSession, name);
     verify(dao).insert(dbSession, atlantis);
-    verify(conditionDao).selectForQualityGate(anyLong(), eq(dbSession));
+    verify(conditionDao).selectForQualityGate(eq(dbSession), anyLong());
     verify(conditionDao, times(conditions.size())).insert(any(QualityGateConditionDto.class), eq(dbSession));
   }
 

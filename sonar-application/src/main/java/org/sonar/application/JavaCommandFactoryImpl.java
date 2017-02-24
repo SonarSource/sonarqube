@@ -46,49 +46,49 @@ public class JavaCommandFactoryImpl implements JavaCommandFactory {
 
   @Override
   public JavaCommand createESCommand(Props props, File workDir) {
-      return newJavaCommand(ProcessId.ELASTICSEARCH, props, workDir)
-        .addJavaOptions("-Djava.awt.headless=true")
-        .addJavaOptions(props.nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
-        .addJavaOptions(props.nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
-        .setClassName("org.sonar.search.SearchServer")
-        .addClasspath("./lib/common/*")
-        .addClasspath("./lib/search/*");
-    }
+    return newJavaCommand(ProcessId.ELASTICSEARCH, props, workDir)
+      .addJavaOptions("-Djava.awt.headless=true")
+      .addJavaOptions(props.nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
+      .setClassName("org.sonar.search.SearchServer")
+      .addClasspath("./lib/common/*")
+      .addClasspath("./lib/search/*");
+  }
 
   @Override
   public JavaCommand createWebCommand(Props props, File workDir) {
-      JavaCommand command = newJavaCommand(ProcessId.WEB_SERVER, props, workDir)
-        .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
-        .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
-        .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
-        // required for logback tomcat valve
-        .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
-        .setClassName("org.sonar.server.app.WebServer")
-        .addClasspath("./lib/common/*")
-        .addClasspath("./lib/server/*");
-      String driverPath = props.value(ProcessProperties.JDBC_DRIVER_PATH);
-      if (driverPath != null) {
-        command.addClasspath(driverPath);
-      }
-      return command;
+    JavaCommand command = newJavaCommand(ProcessId.WEB_SERVER, props, workDir)
+      .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
+      .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
+      // required for logback tomcat valve
+      .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
+      .setClassName("org.sonar.server.app.WebServer")
+      .addClasspath("./lib/common/*")
+      .addClasspath("./lib/server/*");
+    String driverPath = props.value(ProcessProperties.JDBC_DRIVER_PATH);
+    if (driverPath != null) {
+      command.addClasspath(driverPath);
     }
+    return command;
+  }
 
   @Override
   public JavaCommand createCeCommand(Props props, File workDir) {
-      JavaCommand command = newJavaCommand(ProcessId.COMPUTE_ENGINE, props, workDir)
-        .addJavaOptions(ProcessProperties.CE_ENFORCED_JVM_ARGS)
-        .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_OPTS))
-        .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_ADDITIONAL_OPTS))
-        .setClassName("org.sonar.ce.app.CeServer")
-        .addClasspath("./lib/common/*")
-        .addClasspath("./lib/server/*")
-        .addClasspath("./lib/ce/*");
-      String driverPath = props.value(ProcessProperties.JDBC_DRIVER_PATH);
-      if (driverPath != null) {
-        command.addClasspath(driverPath);
-      }
-      return command;
+    JavaCommand command = newJavaCommand(ProcessId.COMPUTE_ENGINE, props, workDir)
+      .addJavaOptions(ProcessProperties.CE_ENFORCED_JVM_ARGS)
+      .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_ADDITIONAL_OPTS))
+      .setClassName("org.sonar.ce.app.CeServer")
+      .addClasspath("./lib/common/*")
+      .addClasspath("./lib/server/*")
+      .addClasspath("./lib/ce/*");
+    String driverPath = props.value(ProcessProperties.JDBC_DRIVER_PATH);
+    if (driverPath != null) {
+      command.addClasspath(driverPath);
     }
+    return command;
+  }
 
   private static JavaCommand newJavaCommand(ProcessId id, Props props, File workDir) {
     JavaCommand command = new JavaCommand(id)

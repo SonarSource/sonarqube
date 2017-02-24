@@ -119,11 +119,11 @@ public class QualityGateConditionsUpdater {
   }
 
   private Collection<QualityGateConditionDto> getConditions(DbSession dbSession, long qGateId, @Nullable Long conditionId) {
-    Collection<QualityGateConditionDto> conditions = dbClient.gateConditionDao().selectForQualityGate(qGateId, dbSession);
+    Collection<QualityGateConditionDto> conditions = dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateId);
     if (conditionId == null) {
       return conditions;
     }
-    return dbClient.gateConditionDao().selectForQualityGate(qGateId, dbSession).stream()
+    return dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateId).stream()
       .filter(condition -> condition.getId() != conditionId)
       .collect(Collectors.toList());
   }

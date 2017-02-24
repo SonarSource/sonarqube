@@ -93,7 +93,7 @@ public class FileSourceDaoTest {
   public void insert() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.insert(new FileSourceDto()
+    underTest.insert(session, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -104,6 +104,7 @@ public class FileSourceDaoTest {
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
       .setRevision("123456789"));
+    session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "file_sources",
       "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
@@ -113,7 +114,7 @@ public class FileSourceDaoTest {
   public void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.insert(new FileSourceDto()
+    underTest.insert(session, new FileSourceDto()
         .setProjectUuid("PRJ_UUID")
         .setFileUuid("FILE2_UUID")
         .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -123,6 +124,7 @@ public class FileSourceDaoTest {
         .setCreatedAt(1500000000000L)
         .setUpdatedAt(1500000000001L)
         .setRevision("123456789"));
+    session.commit();
 
     assertThat(underTest.selectLineHashes(dbTester.getSession(), "FILE2_UUID")).isEmpty();
   }
@@ -131,7 +133,7 @@ public class FileSourceDaoTest {
   public void readLineHashesStream_does_not_fail_when_lineshashes_is_null() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.insert(new FileSourceDto()
+    underTest.insert(session, new FileSourceDto()
         .setProjectUuid("PRJ_UUID")
         .setFileUuid("FILE2_UUID")
         .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -141,6 +143,7 @@ public class FileSourceDaoTest {
         .setCreatedAt(1500000000000L)
         .setUpdatedAt(1500000000001L)
         .setRevision("123456789"));
+    session.commit();
 
     boolean[] flag = {false};
     underTest.readLineHashesStream(dbTester.getSession(), "FILE2_UUID", new Function<Reader, Void>() {
@@ -159,7 +162,7 @@ public class FileSourceDaoTest {
   public void update() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.update(new FileSourceDto()
+    underTest.update(session, new FileSourceDto()
       .setId(101L)
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE1_UUID")
@@ -170,6 +173,7 @@ public class FileSourceDaoTest {
       .setDataType(Type.SOURCE)
       .setUpdatedAt(1500000000002L)
       .setRevision("987654321"));
+    session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources",
       "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");

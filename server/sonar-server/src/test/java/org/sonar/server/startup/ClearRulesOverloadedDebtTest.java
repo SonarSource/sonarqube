@@ -153,7 +153,7 @@ public class ClearRulesOverloadedDebtTest {
   }
 
   private void verifyTaskRegistered() {
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(ONE_SHOT_TASK_TYPE, "ClearRulesOverloadedDebt")).isEqualTo(1);
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(ONE_SHOT_TASK_TYPE, "ClearRulesOverloadedDebt", dbSession)).isEqualTo(1);
   }
 
   private void verifyLog() {

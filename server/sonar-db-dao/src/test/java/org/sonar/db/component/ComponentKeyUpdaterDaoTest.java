@@ -47,21 +47,21 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
 
   @Test
-  public void shouldUpdateKey() {
+  public void updateKey_changes_the_key_of_tree_of_components() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.updateKey("B", "struts:core");
+    underTest.updateKey(dbSession, "B", "struts:core");
 
     db.assertDbUnit(getClass(), "shouldUpdateKey-result.xml", "projects");
   }
 
   @Test
-  public void update_key_does_not_updated_inactive_components() {
+  public void updateKey_does_not_updated_inactive_components() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "A").setKey("my_project"));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "/directory").setKey("my_project:directory"));
@@ -69,7 +69,7 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
     db.components().insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
 
-    underTest.updateKey("A", "your_project");
+    underTest.updateKey(dbSession, "A", "your_project");
     db.commit();
 
     List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
@@ -78,13 +78,13 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void shouldNotUpdateKey() {
+  public void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Impossible to update key: a component with key \"org.struts:struts-ui\" already exists.");
 
-    underTest.updateKey("B", "org.struts:struts-ui");
+    underTest.updateKey(dbSession, "B", "org.struts:struts-ui");
   }
 
   @Test
@@ -142,7 +142,7 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void fail_with_functional_exception_when_sub_component_key_is_longer_than_authorized() {
+  public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = newProjectDto(organizationDto, "project-uuid").setKey("old-project-key");
     db.components().insertComponent(project);
@@ -151,7 +151,7 @@ public class ComponentKeyUpdaterDaoTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
 
-    underTest.updateKey(project.uuid(), newLongProjectKey);
+    underTest.updateKey(dbSession, project.uuid(), newLongProjectKey);
   }
 
   @Test
@@ -162,17 +162,6 @@ public class ComponentKeyUpdaterDaoTest {
     thrown.expectMessage("Malformed key for 'my?project?key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
     underTest.bulkUpdateKey(dbSession, project.uuid(), project.key(), "my?project?key");
-  }
-
-  @Test
-  public void shouldCheckModuleKeysBeforeRenaming() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    Map<String, String> checkResults = underTest.checkModuleKeysBeforeRenaming("A", "org.struts", "foo");
-    assertThat(checkResults.size()).isEqualTo(3);
-    assertThat(checkResults.get("org.struts:struts")).isEqualTo("foo:struts");
-    assertThat(checkResults.get("org.struts:struts-core")).isEqualTo("#duplicate_key#");
-    assertThat(checkResults.get("org.struts:struts-ui")).isEqualTo("foo:struts-ui");
   }
 
   @Test

@@ -54,8 +54,8 @@ import static org.assertj.guava.api.Assertions.assertThat;
 // TODO replace this MediumTest by DbTester and EsTester
 public class RegisterQualityProfilesMediumTest {
 
-  ServerTester tester;
-  DbSession dbSession;
+  private ServerTester tester;
+  private DbSession dbSession;
 
   @After
   public void tearDown() {
@@ -193,10 +193,10 @@ public class RegisterQualityProfilesMediumTest {
     tester.start();
 
     QualityProfileDao profileDao = dbClient().qualityProfileDao();
-    DbSession session = dbClient().openSession(false);
-    QualityProfileDto profileTwo = profileDao.selectByNameAndLanguage("two", "xoo", session);
-    tester.get(QProfileFactory.class).setDefault(session, profileTwo.getKee());
-    session.commit();
+    dbSession = dbClient().openSession(false);
+    QualityProfileDto profileTwo = profileDao.selectByNameAndLanguage("two", "xoo", dbSession);
+    tester.get(QProfileFactory.class).setDefault(dbSession, profileTwo.getKee());
+    dbSession.commit();
 
     verifyDefaultProfile("xoo", "two");
 
@@ -226,7 +226,8 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   private void verifyDefaultProfile(String language, String name) {
-    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(language);
+    dbSession = dbClient().openSession(false);
+    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, language);
     assertThat(defaultProfile).isNotNull();
     assertThat(defaultProfile.getName()).isEqualTo(name);
   }

@@ -158,7 +158,7 @@ public class UpdateConditionActionTest {
   }
 
   private void assertCondition(CreateConditionWsResponse response, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
-    List<QualityGateConditionDto> conditionDtoList = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(qualityGateDto.getId(), dbSession));
+    List<QualityGateConditionDto> conditionDtoList = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId()));
     assertThat(conditionDtoList).hasSize(1);
     QualityGateConditionDto qualityGateConditionDto = conditionDtoList.get(0);
     assertThat(qualityGateConditionDto.getQualityGateId()).isEqualTo(qualityGateDto.getId());

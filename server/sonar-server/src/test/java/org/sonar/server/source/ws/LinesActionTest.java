@@ -225,10 +225,11 @@ public class LinesActionTest {
 
   private void insertFileWithData(DbFileSources.Data fileData) throws IOException {
     insertFile();
-    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+    dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(fileData));
+    dbTester.commit();
   }
 
   private void setUserWithValidPermission() {

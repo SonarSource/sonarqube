@@ -58,7 +58,7 @@ public class BackendCleanupTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  BackendCleanup backendCleanup = new BackendCleanup(esTester.client(), dbTester.myBatis());
+  private BackendCleanup underTest = new BackendCleanup(esTester.client(), dbTester.getDbClient());
   private OrganizationDto organization;
 
   @Before
@@ -70,7 +70,7 @@ public class BackendCleanupTest {
   public void clear_db() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    backendCleanup.clearDb();
+    underTest.clearDb();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(0);
@@ -84,7 +84,7 @@ public class BackendCleanupTest {
     esTester.putDocuments(RuleIndexDefinition.INDEX_TYPE_RULE, newRuleDoc());
     esTester.putDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, newComponentDoc());
 
-    backendCleanup.clearIndexes();
+    underTest.clearIndexes();
 
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
     assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT)).isEqualTo(0);
@@ -97,7 +97,7 @@ public class BackendCleanupTest {
     esTester.putDocuments(RuleIndexDefinition.INDEX_TYPE_RULE, newRuleDoc());
     esTester.putDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, newComponentDoc());
 
-    backendCleanup.clearAll();
+    underTest.clearAll();
 
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0);
@@ -121,7 +121,7 @@ public class BackendCleanupTest {
       .setName("Name"));
     esTester.putDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, newComponentDoc());
 
-    backendCleanup.resetData();
+    underTest.resetData();
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();

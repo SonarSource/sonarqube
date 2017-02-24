@@ -280,7 +280,7 @@ public class ListActionTest {
   }
 
   private void insertTests(ComponentDto testFile, DbFileSources.Test... tests) {
-    db.getDbClient().fileSourceDao().insert(new FileSourceDto()
+    db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setProjectUuid(project.uuid())
       .setFileUuid(testFile.uuid())
       .setTestData(asList(tests)));

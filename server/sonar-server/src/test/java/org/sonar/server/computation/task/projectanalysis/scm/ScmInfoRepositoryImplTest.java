@@ -255,11 +255,12 @@ public class ScmInfoRepositoryImplTest {
     if (revision != null) {
       builder.setScmRevision(revision);
     }
-    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+    dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
       .setFileUuid(FILE.getUuid())
       .setProjectUuid("PROJECT_UUID")
       .setSourceData(fileDataBuilder.build())
       .setSrcHash(srcHash));
+    dbTester.commit();
   }
 
   private void addCopyFromPreviousChangesetInReport() {

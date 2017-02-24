@@ -22,25 +22,26 @@ package org.sonar.db.loadedtemplate;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LoadedTemplateDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  LoadedTemplateDao dao = dbTester.getDbClient().loadedTemplateDao();
+  private LoadedTemplateDao underTest = dbTester.getDbClient().loadedTemplateDao();
+  private DbSession dbSession = dbTester.getSession();
 
   @Test
   public void shouldCountByTypeAndKey() {
     dbTester.prepareDbUnit(getClass(), "shouldCountByTypeAndKey.xml");
 
-    assertThat(dao.countByTypeAndKey("DASHBOARD", "HOTSPOTS"), is(1));
-    assertThat(dao.countByTypeAndKey("DASHBOARD", "UNKNOWN"), is(0));
-    assertThat(dao.countByTypeAndKey("PROFILE", "HOTSPOTS"), is(0));
+    assertThat(underTest.countByTypeAndKey("DASHBOARD", "HOTSPOTS", dbSession)).isEqualTo(1);
+    assertThat(underTest.countByTypeAndKey("DASHBOARD", "UNKNOWN", dbSession)).isEqualTo(0);
+    assertThat(underTest.countByTypeAndKey("PROFILE", "HOTSPOTS", dbSession)).isEqualTo(0);
   }
 
   @Test
@@ -48,7 +49,8 @@ public class LoadedTemplateDaoTest {
     dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     LoadedTemplateDto template = new LoadedTemplateDto("SQALE", "DASHBOARD");
-    dao.insert(template);
+    underTest.insert(template, dbSession);
+    dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "shouldInsert-result.xml", "loaded_templates");
   }

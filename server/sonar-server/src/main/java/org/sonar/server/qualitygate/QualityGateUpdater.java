@@ -39,26 +39,26 @@ public class QualityGateUpdater {
   }
 
   public QualityGateDto create(DbSession dbSession, String name) {
-    validateQualityGate(null, name);
+    validateQualityGate(dbSession, null, name);
     QualityGateDto newQualityGate = new QualityGateDto().setName(name);
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
     return newQualityGate;
   }
 
-  private void validateQualityGate(@Nullable Long qGateId, @Nullable String name) {
+  private void validateQualityGate(DbSession dbSession, @Nullable Long qGateId, @Nullable String name) {
     Errors errors = new Errors();
     if (isNullOrEmpty(name)) {
       errors.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
-      checkQualityGateDoesNotAlreadyExist(qGateId, name, errors);
+      checkQualityGateDoesNotAlreadyExist(dbSession, qGateId, name, errors);
     }
     if (!errors.isEmpty()) {
       throw BadRequestException.create(errors);
     }
   }
 
-  private void checkQualityGateDoesNotAlreadyExist(@Nullable Long qGateId, String name, Errors errors) {
-    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByName(name);
+  private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, @Nullable Long qGateId, String name, Errors errors) {
+    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByName(dbSession, name);
     boolean isModifyingCurrentQgate = qGateId != null && existingQgate != null && existingQgate.getId().equals(qGateId);
     errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
   }

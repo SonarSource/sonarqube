@@ -68,7 +68,7 @@ public class CreateActionTest {
     assertThat(response.getName()).isEqualTo("Default");
     assertThat(response.getId()).isNotNull();
     dbSession.commit();
-    QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByName("Default");
+    QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByName(dbSession, "Default");
     assertThat(qualityGateDto).isNotNull();
   }
 
