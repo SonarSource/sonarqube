@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.version.SqTables;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
@@ -60,11 +60,11 @@ public class BackendCleanup {
     "schema_migrations", BackendCleanup::truncateSchemaMigrations);
 
   private final EsClient esClient;
-  private final MyBatis myBatis;
+  private final DbClient dbClient;
 
-  public BackendCleanup(EsClient esClient, MyBatis myBatis) {
+  public BackendCleanup(EsClient esClient, DbClient dbClient) {
     this.esClient = esClient;
-    this.myBatis = myBatis;
+    this.dbClient = dbClient;
   }
 
   public void clearAll() {
@@ -73,7 +73,7 @@ public class BackendCleanup {
   }
 
   public void clearDb() {
-    try (DbSession dbSession = myBatis.openSession(false);
+    try (DbSession dbSession = dbClient.openSession(false);
       Connection connection = dbSession.getConnection();
       Statement ddlStatement = connection.createStatement()) {
       for (String tableName : SqTables.TABLES) {
@@ -105,7 +105,7 @@ public class BackendCleanup {
    * Please be careful when updating this method as it's called by Orchestrator.
    */
   public void resetData() {
-    try (DbSession dbSession = myBatis.openSession(false);
+    try (DbSession dbSession = dbClient.openSession(false);
       Connection connection = dbSession.getConnection()) {
 
       truncateAnalysisTables(connection);

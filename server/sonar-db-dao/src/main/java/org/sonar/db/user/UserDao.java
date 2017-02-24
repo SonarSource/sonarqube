@@ -50,12 +50,6 @@ public class UserDao implements Dao {
     this.system2 = system2;
   }
 
-  public UserDto selectUserById(int userId) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return selectUserById(session, userId);
-    }
-  }
-
   public UserDto selectUserById(DbSession session, int userId) {
     return mapper(session).selectUser(userId);
   }
@@ -68,18 +62,6 @@ public class UserDao implements Dao {
    */
   public List<UserDto> selectByIds(DbSession session, Collection<Integer> ids) {
     return executeLargeInputs(ids, mapper(session)::selectByIds);
-  }
-
-  /**
-   * Search for user by login. Disabled users are ignored.
-   *
-   * @return the user, null if user not found
-   */
-  @CheckForNull
-  public UserDto selectActiveUserByLogin(String login) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return selectActiveUserByLogin(session, login);
-    }
   }
 
   @CheckForNull
@@ -97,16 +79,6 @@ public class UserDao implements Dao {
   }
 
   /**
-   * @deprecated since 6.0 please use {@link #selectByLogins(DbSession, Collection)} instead
-   */
-  @Deprecated
-  public List<UserDto> selectByLogins(Collection<String> logins) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return selectByLogins(session, logins);
-    }
-  }
-
-  /**
    * Gets a list users by their logins. The result does NOT contain {@code null} values for users not found, so
    * the size of result may be less than the number of keys.
    * A single user is returned if input keys contain multiple occurrences of a key.
@@ -115,12 +87,6 @@ public class UserDao implements Dao {
   public List<UserDto> selectByOrderedLogins(DbSession session, Collection<String> logins) {
     List<UserDto> unordered = selectByLogins(session, logins);
     return from(logins).transform(new LoginToUser(unordered)).filter(Predicates.notNull()).toList();
-  }
-
-  public List<UserDto> selectUsers(UserQuery query) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return selectUsers(session, query);
-    }
   }
 
   public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {
@@ -194,7 +160,7 @@ public class UserDao implements Dao {
     return mapper(dbSession).countByEmail(email.toLowerCase(Locale.ENGLISH)) > 0;
   }
 
-  protected UserMapper mapper(DbSession session) {
+  private static UserMapper mapper(DbSession session) {
     return session.getMapper(UserMapper.class);
   }
 

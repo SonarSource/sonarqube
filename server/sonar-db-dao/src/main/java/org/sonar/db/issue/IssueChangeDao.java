@@ -26,18 +26,11 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueChangeDao implements Dao {
-
-  private final MyBatis mybatis;
-
-  public IssueChangeDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
 
   public List<FieldDiffs> selectChangelogByIssue(DbSession session, String issueKey) {
     return selectByTypeAndIssueKeys(session, singletonList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)
@@ -46,11 +39,9 @@ public class IssueChangeDao implements Dao {
       .collect(Collectors.toList());
   }
 
-  public List<IssueChangeDto> selectChangelogOfNonClosedIssuesByComponent(String componentUuid) {
-    try (DbSession session = mybatis.openSession(false)) {
-      IssueChangeMapper mapper = mapper(session);
-      return mapper.selectChangelogOfNonClosedIssuesByComponent(componentUuid, IssueChangeDto.TYPE_FIELD_CHANGE);
-    }
+  public List<IssueChangeDto> selectChangelogOfNonClosedIssuesByComponent(DbSession session, String componentUuid) {
+    IssueChangeMapper mapper = mapper(session);
+    return mapper.selectChangelogOfNonClosedIssuesByComponent(componentUuid, IssueChangeDto.TYPE_FIELD_CHANGE);
   }
 
   public List<IssueChangeDto> selectByTypeAndIssueKeys(DbSession session, Collection<String> issueKeys, String changeType) {

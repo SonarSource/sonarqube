@@ -56,7 +56,8 @@ public class SourceServiceTest {
     FileSourceDto dto = new FileSourceDto();
     dto.setFileUuid(FILE_UUID).setProjectUuid("PROJECT_UUID");
     dto.setSourceData(FileSourceTesting.newFakeData(10).build());
-    dbTester.getDbClient().fileSourceDao().insert(dto);
+    dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), dto);
+    dbTester.commit();
   }
 
   @Test

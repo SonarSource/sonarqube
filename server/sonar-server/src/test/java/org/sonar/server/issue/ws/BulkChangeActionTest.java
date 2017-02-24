@@ -517,7 +517,7 @@ public class BulkChangeActionTest {
   }
 
   private void addActions() {
-    actions.add(new org.sonar.server.issue.AssignAction(new DefaultUserFinder(db.getDbClient().userDao()), issueFieldsSetter));
+    actions.add(new org.sonar.server.issue.AssignAction(new DefaultUserFinder(db.getDbClient()), issueFieldsSetter));
     actions.add(new org.sonar.server.issue.SetSeverityAction(issueFieldsSetter, userSession));
     actions.add(new org.sonar.server.issue.SetTypeAction(issueFieldsSetter, userSession));
     actions.add(new org.sonar.server.issue.TransitionAction(new TransitionService(userSession, issueWorkflow)));

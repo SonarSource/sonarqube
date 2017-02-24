@@ -25,19 +25,18 @@ import org.junit.Test;
 import org.sonar.api.database.model.User;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.UserDao;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 
 public class DeprecatedUserFinderTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  private DeprecatedUserFinder underTest = new DeprecatedUserFinder(dbTester.getDbClient());
+  
   @Before
   public void init() {
     dbTester.prepareDbUnit(DeprecatedUserFinderTest.class, "fixture.xml");
@@ -45,39 +44,38 @@ public class DeprecatedUserFinderTest {
 
   @Test
   public void shouldFindUserByLogin() {
-    DeprecatedUserFinder finder = new DeprecatedUserFinder(new UserDao(dbTester.myBatis(), mock(System2.class)));
-    User user = finder.findByLogin("simon");
+    
+    User user = underTest.findByLogin("simon");
     assertThat(user.getId(), is(1));
     assertThat(user.getLogin(), is("simon"));
     assertThat(user.getName(), is("Simon Brandhof"));
     assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
 
-    user = finder.findByLogin("godin");
+    user = underTest.findByLogin("godin");
     assertThat(user.getId(), is(2));
     assertThat(user.getLogin(), is("godin"));
     assertThat(user.getName(), is("Evgeny Mandrikov"));
     assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
 
-    user = finder.findByLogin("user");
+    user = underTest.findByLogin("user");
     assertThat(user, nullValue());
   }
 
   @Test
   public void shouldFindUserById() {
-    DeprecatedUserFinder finder = new DeprecatedUserFinder(new UserDao(dbTester.myBatis(), mock(System2.class)));
-    User user = finder.findById(1);
+    User user = underTest.findById(1);
     assertThat(user.getId(), is(1));
     assertThat(user.getLogin(), is("simon"));
     assertThat(user.getName(), is("Simon Brandhof"));
     assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
 
-    user = finder.findById(2);
+    user = underTest.findById(2);
     assertThat(user.getId(), is(2));
     assertThat(user.getLogin(), is("godin"));
     assertThat(user.getName(), is("Evgeny Mandrikov"));
     assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
 
-    user = finder.findById(3);
+    user = underTest.findById(3);
     assertThat(user, nullValue());
   }
 

@@ -24,25 +24,8 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 
 public class QualityGateDao implements Dao {
-
-  private final MyBatis myBatis;
-
-  public QualityGateDao(MyBatis myBatis) {
-    this.myBatis = myBatis;
-  }
-
-  public void insert(QualityGateDto newQualityGate) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      insert(session, newQualityGate);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
 
   public QualityGateDto insert(DbSession session, QualityGateDto newQualityGate) {
     mapper(session).insert(newQualityGate.setCreatedAt(new Date()));
@@ -50,27 +33,8 @@ public class QualityGateDao implements Dao {
     return newQualityGate;
   }
 
-  public Collection<QualityGateDto> selectAll() {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectAll(session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public Collection<QualityGateDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
-  }
-
-  @CheckForNull
-  public QualityGateDto selectByName(String name) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectByName(session, name);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   @CheckForNull
@@ -79,42 +43,12 @@ public class QualityGateDao implements Dao {
   }
 
   @CheckForNull
-  public QualityGateDto selectById(long id) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectById(session, id);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
   public QualityGateDto selectById(DbSession session, long id) {
     return mapper(session).selectById(id);
   }
 
-  public void delete(QualityGateDto qGate) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      delete(qGate, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void delete(QualityGateDto qGate, DbSession session) {
     mapper(session).delete(qGate.getId());
-  }
-
-  public void update(QualityGateDto qGate) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      update(qGate, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void update(QualityGateDto qGate, DbSession session) {

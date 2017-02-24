@@ -59,7 +59,7 @@ public class ComponentService {
     userSession.checkComponentPermission(UserRole.ADMIN, component);
     checkIsProjectOrModule(component);
     checkProjectOrModuleKeyFormat(newKey);
-    dbClient.componentKeyUpdaterDao().updateKey(component.uuid(), newKey);
+    dbClient.componentKeyUpdaterDao().updateKey(dbSession, component.uuid(), newKey);
     dbSession.commit();
     index(component.uuid());
   }

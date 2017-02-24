@@ -33,17 +33,11 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.source.FileSourceDto.Type;
 
 public class FileSourceDao implements Dao {
 
   private static final Splitter END_OF_LINE_SPLITTER = Splitter.on('\n');
-  private final MyBatis mybatis;
-
-  public FileSourceDao(MyBatis myBatis) {
-    this.mybatis = myBatis;
-  }
 
   @CheckForNull
   public FileSourceDto selectSourceByFileUuid(DbSession session, String fileUuid) {
@@ -51,13 +45,8 @@ public class FileSourceDao implements Dao {
   }
 
   @CheckForNull
-  public FileSourceDto selectTest(String fileUuid) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return mapper(session).select(fileUuid, Type.TEST);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public FileSourceDto selectTest(DbSession dbSession, String fileUuid) {
+    return mapper(dbSession).select(fileUuid, Type.TEST);
   }
 
   @CheckForNull
@@ -109,28 +98,8 @@ public class FileSourceDao implements Dao {
     }
   }
 
-  public void insert(FileSourceDto dto) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      insert(session, dto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void insert(DbSession session, FileSourceDto dto) {
     mapper(session).insert(dto);
-  }
-
-  public void update(FileSourceDto dto) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      update(session, dto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void update(DbSession session, FileSourceDto dto) {

@@ -68,74 +68,72 @@ public class SearchDataLoader {
   SearchData load(SearchWsRequest request) {
     validateRequest(request);
 
-    return new SearchData()
-      .setProfiles(findProfiles(request))
-      .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
-      .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
-      .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey());
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return new SearchData()
+        .setProfiles(findProfiles(dbSession, request))
+        .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
+        .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession));
+    }
   }
 
-  private List<QProfile> findProfiles(SearchWsRequest request) {
+  private List<QProfile> findProfiles(DbSession dbSession, SearchWsRequest request) {
     Collection<QProfile> profiles;
     if (askDefaultProfiles(request)) {
-      profiles = findDefaultProfiles(request);
+      profiles = findDefaultProfiles(dbSession, request);
     } else if (hasComponentKey(request)) {
-      profiles = findProjectProfiles(request);
+      profiles = findProjectProfiles(dbSession, request);
     } else {
-      profiles = findAllProfiles(request);
+      profiles = findAllProfiles(dbSession, request);
     }
 
     return profiles.stream().sorted(QProfileComparator.INSTANCE).collect(Collectors.toList());
   }
 
-  private Collection<QProfile> findDefaultProfiles(SearchWsRequest request) {
+  private Collection<QProfile> findDefaultProfiles(DbSession dbSession, SearchWsRequest request) {
     String profileName = request.getProfileName();
 
     Set<String> languageKeys = getLanguageKeys();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, QProfile> qualityProfiles = new HashMap<>(languageKeys.size());
+    Map<String, QProfile> qualityProfiles = new HashMap<>(languageKeys.size());
 
-      Set<String> missingLanguageKeys = lookupByProfileName(dbSession, qualityProfiles, languageKeys, profileName);
-      Set<String> noDefaultProfileLanguageKeys = lookupDefaults(dbSession, qualityProfiles, missingLanguageKeys);
+    Set<String> missingLanguageKeys = lookupByProfileName(dbSession, qualityProfiles, languageKeys, profileName);
+    Set<String> noDefaultProfileLanguageKeys = lookupDefaults(dbSession, qualityProfiles, missingLanguageKeys);
 
-      if (!noDefaultProfileLanguageKeys.isEmpty()) {
-        throw new IllegalStateException(format("No quality profile can been found on language(s) '%s'", noDefaultProfileLanguageKeys));
-      }
-
-      return qualityProfiles.values();
+    if (!noDefaultProfileLanguageKeys.isEmpty()) {
+      throw new IllegalStateException(format("No quality profile can been found on language(s) '%s'", noDefaultProfileLanguageKeys));
     }
+
+    return qualityProfiles.values();
   }
 
-  private Collection<QProfile> findProjectProfiles(SearchWsRequest request) {
+  private Collection<QProfile> findProjectProfiles(DbSession dbSession, SearchWsRequest request) {
     String componentKey = request.getProjectKey();
     String profileName = request.getProfileName();
 
     Set<String> languageKeys = getLanguageKeys();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, QProfile> qualityProfiles = new HashMap<>(languageKeys.size());
+    Map<String, QProfile> qualityProfiles = new HashMap<>(languageKeys.size());
 
-      // look up profiles by profileName (if any) for each language
-      Set<String> unresolvedLanguages = lookupByProfileName(dbSession, qualityProfiles, languageKeys, profileName);
-      // look up profile by componentKey for each language for which we don't have one yet
-      Set<String> stillUnresolvedLanguages = lookupByModuleKey(dbSession, qualityProfiles, unresolvedLanguages, componentKey);
-      // look up profile by default for each language for which we don't have one yet
-      Set<String> noDefaultProfileLanguages = lookupDefaults(dbSession, qualityProfiles, stillUnresolvedLanguages);
+    // look up profiles by profileName (if any) for each language
+    Set<String> unresolvedLanguages = lookupByProfileName(dbSession, qualityProfiles, languageKeys, profileName);
+    // look up profile by componentKey for each language for which we don't have one yet
+    Set<String> stillUnresolvedLanguages = lookupByModuleKey(dbSession, qualityProfiles, unresolvedLanguages, componentKey);
+    // look up profile by default for each language for which we don't have one yet
+    Set<String> noDefaultProfileLanguages = lookupDefaults(dbSession, qualityProfiles, stillUnresolvedLanguages);
 
-      if (!noDefaultProfileLanguages.isEmpty()) {
-        throw new IllegalStateException(format("No quality profile can been found on language(s) '%s' for project '%s'", noDefaultProfileLanguages, componentKey));
-      }
-
-      return qualityProfiles.values();
+    if (!noDefaultProfileLanguages.isEmpty()) {
+      throw new IllegalStateException(format("No quality profile can been found on language(s) '%s' for project '%s'", noDefaultProfileLanguages, componentKey));
     }
+
+    return qualityProfiles.values();
   }
 
-  private List<QProfile> findAllProfiles(SearchWsRequest request) {
+  private List<QProfile> findAllProfiles(DbSession dbSession, SearchWsRequest request) {
     String language = request.getLanguage();
 
     if (language == null) {
-      return profileLookup.allProfiles().stream().filter(qProfile -> languages.get(qProfile.language()) != null).collect(Collectors.toList());
+      return profileLookup.allProfiles(dbSession).stream().filter(qProfile -> languages.get(qProfile.language()) != null).collect(Collectors.toList());
     }
-    return profileLookup.profiles(language);
+    return profileLookup.profiles(dbSession, language);
   }
 
   private Set<String> lookupByProfileName(DbSession dbSession, Map<String, QProfile> qualityProfiles, Set<String> languageKeys, @Nullable String profileName) {

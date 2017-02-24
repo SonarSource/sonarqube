@@ -26,7 +26,8 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
-import org.sonar.db.user.UserDao;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 
 /**
@@ -34,29 +35,35 @@ import org.sonar.db.user.UserDto;
  */
 public class DefaultUserFinder implements UserFinder {
 
-  private final UserDao userDao;
+  private final DbClient dbClient;
 
-  public DefaultUserFinder(UserDao userDao) {
-    this.userDao = userDao;
+  public DefaultUserFinder(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
   @CheckForNull
   public User findByLogin(String login) {
-    UserDto dto = userDao.selectActiveUserByLogin(login);
-    return dto != null ? dto.toUser() : null;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto dto = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+      return dto != null ? dto.toUser() : null;
+    }
   }
 
   @Override
   public List<User> findByLogins(List<String> logins) {
-    List<UserDto> dtos = userDao.selectByLogins(logins);
-    return toUsers(dtos);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<UserDto> dtos = dbClient.userDao().selectByLogins(dbSession, logins);
+      return toUsers(dtos);
+    }
   }
 
   @Override
   public List<User> find(UserQuery query) {
-    List<UserDto> dtos = userDao.selectUsers(query);
-    return toUsers(dtos);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<UserDto> dtos = dbClient.userDao().selectUsers(dbSession, query);
+      return toUsers(dtos);
+    }
   }
 
   private static List<User> toUsers(Collection<UserDto> dtos) {

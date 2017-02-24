@@ -28,6 +28,7 @@ import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
@@ -63,7 +64,7 @@ public class NewEffortAggregator extends IssueVisitor {
   private NewEffortCounter counter = null;
 
   public NewEffortAggregator(NewEffortCalculator calculator, PeriodHolder periodHolder, DbClient dbClient,
-                             MetricRepository metricRepository, MeasureRepository measureRepository) {
+    MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.calculator = calculator;
     this.periodHolder = periodHolder;
     this.dbClient = dbClient;
@@ -76,9 +77,11 @@ public class NewEffortAggregator extends IssueVisitor {
 
   @Override
   public void beforeComponent(Component component) {
-    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfNonClosedIssuesByComponent(component.getUuid());
-    for (IssueChangeDto change : changes) {
-      changesByIssueUuid.put(change.getIssueKey(), change);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfNonClosedIssuesByComponent(dbSession, component.getUuid());
+      for (IssueChangeDto change : changes) {
+        changesByIssueUuid.put(change.getIssueKey(), change);
+      }
     }
 
     counter = new NewEffortCounter(calculator);

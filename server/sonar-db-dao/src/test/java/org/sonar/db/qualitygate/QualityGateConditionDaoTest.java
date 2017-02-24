@@ -22,10 +22,10 @@ package org.sonar.db.qualitygate;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class QualityGateConditionDaoTest {
 
@@ -36,6 +36,7 @@ public class QualityGateConditionDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  private DbSession dbSession = dbTester.getSession();
   private QualityGateConditionDao underTest = dbTester.getDbClient().gateConditionDao();
 
   @Test
@@ -54,14 +55,14 @@ public class QualityGateConditionDaoTest {
   @Test
   public void testSelectForQualityGate() throws Exception {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
-    assertThat(underTest.selectForQualityGate(1L)).hasSize(3);
-    assertThat(underTest.selectForQualityGate(2L)).hasSize(2);
+    assertThat(underTest.selectForQualityGate(dbSession, 1L)).hasSize(3);
+    assertThat(underTest.selectForQualityGate(dbSession, 2L)).hasSize(2);
   }
 
   @Test
   public void testSelectById() throws Exception {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
-    QualityGateConditionDto selectById = underTest.selectById(1L);
+    QualityGateConditionDto selectById = underTest.selectById(1L, dbSession);
     assertThat(selectById).isNotNull();
     assertThat(selectById.getId()).isNotNull().isNotEqualTo(0L);
     assertThat(selectById.getMetricId()).isEqualTo(2L);
@@ -70,20 +71,26 @@ public class QualityGateConditionDaoTest {
     assertThat(selectById.getQualityGateId()).isEqualTo(1L);
     assertThat(selectById.getWarningThreshold()).isEqualTo("10");
     assertThat(selectById.getErrorThreshold()).isEqualTo("20");
-    assertThat(underTest.selectById(42L)).isNull();
+    assertThat(underTest.selectById(42L, dbSession)).isNull();
   }
 
   @Test
   public void testDelete() throws Exception {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
-    underTest.delete(new QualityGateConditionDto().setId(1L));
+
+    underTest.delete(new QualityGateConditionDto().setId(1L), dbSession);
+    dbSession.commit();
+
     dbTester.assertDbUnitTable(getClass(), "delete-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
   @Test
   public void testUpdate() throws Exception {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
-    underTest.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setPeriod(1).setWarningThreshold("50").setErrorThreshold("80"));
+
+    underTest.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setPeriod(1).setWarningThreshold("50").setErrorThreshold("80"), dbSession);
+    dbSession.commit();
+
     dbTester.assertDbUnitTable(getClass(), "update-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
@@ -93,7 +100,7 @@ public class QualityGateConditionDaoTest {
 
     underTest.deleteConditionsWithInvalidMetrics(dbTester.getSession());
     dbTester.commit();
-    
-    dbTester.assertDbUnit(getClass(), "shouldCleanConditions-result.xml", new String[]{"created_at", "updated_at"}, "quality_gate_conditions");
+
+    dbTester.assertDbUnit(getClass(), "shouldCleanConditions-result.xml", new String[] {"created_at", "updated_at"}, "quality_gate_conditions");
   }
 }

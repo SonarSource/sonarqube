@@ -148,7 +148,6 @@ import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.qualityprofile.QProfileReset;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -261,7 +260,6 @@ public class PlatformLevel4 extends PlatformLevel {
       XMLProfileParser.class,
       XMLProfileSerializer.class,
       AnnotationProfileParser.class,
-      QProfiles.class,
       QProfileLookup.class,
       QProfileProjectOperations.class,
       QProfileComparison.class,

@@ -52,7 +52,7 @@ public class IssueChangeDaoTest {
   public void selectChangelogOfNonClosedIssuesByComponent() {
     db.prepareDbUnit(getClass(), "selectChangelogOfNonClosedIssuesByComponent.xml");
 
-    List<IssueChangeDto> dtos = underTest.selectChangelogOfNonClosedIssuesByComponent("FILE_1");
+    List<IssueChangeDto> dtos = underTest.selectChangelogOfNonClosedIssuesByComponent(db.getSession(), "FILE_1");
     // no need to have ordered results (see NewDebtCalculator)
     assertThat(dtos).extracting("id").containsOnly(100L, 103L);
   }

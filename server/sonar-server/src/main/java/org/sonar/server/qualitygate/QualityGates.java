@@ -81,36 +81,38 @@ public class QualityGates {
 
   public QualityGateDto rename(long idToRename, String name) {
     checkIsSystemAdministrator();
-    QualityGateDto toRename = getNonNullQgate(idToRename);
-    validateQualityGate(idToRename, name);
-    toRename.setName(name);
-    dao.update(toRename);
-    return toRename;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto toRename = getNonNullQgate(idToRename);
+      validateQualityGate(dbSession, idToRename, name);
+      toRename.setName(name);
+      dao.update(toRename, dbSession);
+      dbSession.commit();
+      return toRename;
+    }
   }
 
   public QualityGateDto copy(long sourceId, String destinationName) {
     checkIsSystemAdministrator();
     getNonNullQgate(sourceId);
-    validateQualityGate(null, destinationName);
-    QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      validateQualityGate(dbSession, null, destinationName);
+      QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
       dao.insert(dbSession, destinationGate);
-      for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, dbSession)) {
+      for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(dbSession, sourceId)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
           .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
           .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
           dbSession);
       }
       dbSession.commit();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
+      return destinationGate;
     }
-    return destinationGate;
   }
 
   public Collection<QualityGateDto> list() {
-    return dao.selectAll();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dao.selectAll(dbSession);
+    }
   }
 
   public void delete(long idToDelete) {
@@ -151,26 +153,32 @@ public class QualityGates {
     Long defaultId = getDefaultId();
     if (defaultId == null) {
       return null;
-    } else {
-      return dao.selectById(defaultId);
+    }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dao.selectById(dbSession, defaultId);
     }
   }
 
   public Collection<QualityGateConditionDto> listConditions(long qGateId) {
-    Collection<QualityGateConditionDto> conditionsForGate = conditionDao.selectForQualityGate(qGateId);
-    for (QualityGateConditionDto condition : conditionsForGate) {
-      Metric metric = metricFinder.findById((int) condition.getMetricId());
-      if (metric == null) {
-        throw new IllegalStateException("Could not find metric with id " + condition.getMetricId());
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Collection<QualityGateConditionDto> conditionsForGate = conditionDao.selectForQualityGate(dbSession, qGateId);
+      for (QualityGateConditionDto condition : conditionsForGate) {
+        Metric metric = metricFinder.findById((int) condition.getMetricId());
+        if (metric == null) {
+          throw new IllegalStateException("Could not find metric with id " + condition.getMetricId());
+        }
+        condition.setMetricKey(metric.getKey());
       }
-      condition.setMetricKey(metric.getKey());
+      return conditionsForGate;
     }
-    return conditionsForGate;
   }
 
   public void deleteCondition(Long condId) {
     checkIsSystemAdministrator();
-    conditionDao.delete(getNonNullCondition(condId));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      conditionDao.delete(getNonNullCondition(dbSession, condId), dbSession);
+      dbSession.commit();
+    }
   }
 
   public void dissociateProject(DbSession dbSession, Long qGateId, ComponentDto project) {
@@ -207,35 +215,37 @@ public class QualityGates {
   }
 
   private QualityGateDto getNonNullQgate(String name) {
-    QualityGateDto qGate = dao.selectByName(name);
-    if (qGate == null) {
-      throw new NotFoundException("There is no quality gate with name=" + name);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto qGate = dao.selectByName(dbSession, name);
+      if (qGate == null) {
+        throw new NotFoundException("There is no quality gate with name=" + name);
+      }
+      return qGate;
     }
-    return qGate;
   }
 
-  private QualityGateConditionDto getNonNullCondition(long id) {
-    QualityGateConditionDto condition = conditionDao.selectById(id);
+  private QualityGateConditionDto getNonNullCondition(DbSession dbSession, long id) {
+    QualityGateConditionDto condition = conditionDao.selectById(id, dbSession);
     if (condition == null) {
       throw new NotFoundException("There is no condition with id=" + id);
     }
     return condition;
   }
 
-  private void validateQualityGate(@Nullable Long updatingQgateId, @Nullable String name) {
+  private void validateQualityGate(DbSession dbSession, @Nullable Long updatingQgateId, @Nullable String name) {
     Errors errors = new Errors();
     if (Strings.isNullOrEmpty(name)) {
       errors.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
-      checkQgateNotAlreadyExists(updatingQgateId, name, errors);
+      checkQgateNotAlreadyExists(dbSession, updatingQgateId, name, errors);
     }
     if (!errors.isEmpty()) {
       throw BadRequestException.create(errors);
     }
   }
 
-  private void checkQgateNotAlreadyExists(@Nullable Long updatingQgateId, String name, Errors errors) {
-    QualityGateDto existingQgate = dao.selectByName(name);
+  private void checkQgateNotAlreadyExists(DbSession dbSession, @Nullable Long updatingQgateId, String name, Errors errors) {
+    QualityGateDto existingQgate = dao.selectByName(dbSession, name);
     boolean isModifyingCurrentQgate = updatingQgateId != null && existingQgate != null && existingQgate.getId().equals(updatingQgateId);
     errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
   }

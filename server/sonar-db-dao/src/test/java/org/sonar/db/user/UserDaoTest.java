@@ -82,10 +82,10 @@ public class UserDaoTest {
   public void selectUserByLogin_ignore_inactive() {
     db.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
-    UserDto user = underTest.selectUserById(50);
+    UserDto user = underTest.selectUserById(session, 50);
     assertThat(user.getLogin()).isEqualTo("inactive_user");
 
-    user = underTest.selectActiveUserByLogin("inactive_user");
+    user = underTest.selectActiveUserByLogin(session, "inactive_user");
     assertThat(user).isNull();
   }
 
@@ -93,7 +93,7 @@ public class UserDaoTest {
   public void selectUserByLogin_not_found() {
     db.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
-    UserDto user = underTest.selectActiveUserByLogin("not_found");
+    UserDto user = underTest.selectActiveUserByLogin(session, "not_found");
     assertThat(user).isNull();
   }
 
@@ -101,7 +101,7 @@ public class UserDaoTest {
   public void selectUsersByLogins() {
     db.prepareDbUnit(getClass(), "selectUsersByLogins.xml");
 
-    Collection<UserDto> users = underTest.selectByLogins(asList("marius", "inactive_user", "other"));
+    Collection<UserDto> users = underTest.selectByLogins(session, asList("marius", "inactive_user", "other"));
     assertThat(users).hasSize(2);
     assertThat(users).extracting("login").containsOnly("marius", "inactive_user");
   }
@@ -109,7 +109,7 @@ public class UserDaoTest {
   @Test
   public void selectUsersByLogins_empty_logins() {
     // no need to access db
-    Collection<UserDto> users = underTest.selectByLogins(Collections.<String>emptyList());
+    Collection<UserDto> users = underTest.selectByLogins(session, Collections.emptyList());
     assertThat(users).isEmpty();
   }
 
@@ -125,7 +125,7 @@ public class UserDaoTest {
     users = underTest.selectByOrderedLogins(session, asList("U2", "U3", "U1"));
     assertThat(users).extracting("login").containsExactly("U2", "U1");
 
-    assertThat(underTest.selectByOrderedLogins(session, Collections.<String>emptyList())).isEmpty();
+    assertThat(underTest.selectByOrderedLogins(session, Collections.emptyList())).isEmpty();
   }
 
   @Test
@@ -133,7 +133,7 @@ public class UserDaoTest {
     db.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.builder().includeDeactivated().build();
-    List<UserDto> users = underTest.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(session, query);
     assertThat(users).hasSize(2);
   }
 
@@ -142,7 +142,7 @@ public class UserDaoTest {
     db.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.ALL_ACTIVES;
-    List<UserDto> users = underTest.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(session, query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getName()).isEqualTo("Marius");
   }
@@ -152,7 +152,7 @@ public class UserDaoTest {
     db.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.builder().logins("marius", "john").build();
-    List<UserDto> users = underTest.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(session, query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getName()).isEqualTo("Marius");
   }
@@ -162,7 +162,7 @@ public class UserDaoTest {
     db.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("sbr").build();
-    List<UserDto> users = underTest.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(session, query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getLogin()).isEqualTo("sbrandhof");
   }
@@ -172,7 +172,7 @@ public class UserDaoTest {
     db.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("Simon").build();
-    List<UserDto> users = underTest.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(session, query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getLogin()).isEqualTo("sbrandhof");
   }
@@ -184,7 +184,7 @@ public class UserDaoTest {
     UserQuery query = UserQuery.builder().searchText("%s%").build();
     // we expect really a login or name containing the 3 characters "%s%"
 
-    List<UserDto> users = underTest.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(session, query);
     assertThat(users).isEmpty();
   }
 
@@ -195,13 +195,13 @@ public class UserDaoTest {
     UserDto user2 = insertUser(true);
     UserDto root2 = insertRootUser(newUserDto());
 
-    assertThat(underTest.selectUsers(UserQuery.builder().build()))
+    assertThat(underTest.selectUsers(session, UserQuery.builder().build()))
       .extracting(UserDto::getLogin)
       .containsOnly(user1.getLogin(), user2.getLogin(), root1.getLogin(), root2.getLogin());
-    assertThat(underTest.selectUsers(UserQuery.builder().mustBeRoot().build()))
+    assertThat(underTest.selectUsers(session, UserQuery.builder().mustBeRoot().build()))
       .extracting(UserDto::getLogin)
       .containsOnly(root1.getLogin(), root2.getLogin());
-    assertThat(underTest.selectUsers(UserQuery.builder().mustNotBeRoot().build()))
+    assertThat(underTest.selectUsers(session, UserQuery.builder().mustNotBeRoot().build()))
       .extracting(UserDto::getLogin)
       .containsOnly(user1.getLogin(), user2.getLogin());
   }
@@ -322,7 +322,7 @@ public class UserDaoTest {
     underTest.insert(db.getSession(), userDto);
     db.getSession().commit();
 
-    UserDto user = underTest.selectActiveUserByLogin("john");
+    UserDto user = underTest.selectActiveUserByLogin(session, "john");
     assertThat(user).isNotNull();
     assertThat(user.getId()).isNotNull();
     assertThat(user.getLogin()).isEqualTo("john");
@@ -442,7 +442,7 @@ public class UserDaoTest {
     String login = "does_not_exist";
     boolean deactivated = underTest.deactivateUserByLogin(session, login);
     assertThat(deactivated).isFalse();
-    assertThat(underTest.selectActiveUserByLogin(login)).isNull();
+    assertThat(underTest.selectActiveUserByLogin(session, login)).isNull();
   }
 
   @Test

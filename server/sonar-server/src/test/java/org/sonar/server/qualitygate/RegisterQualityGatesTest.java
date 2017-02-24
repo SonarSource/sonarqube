@@ -75,7 +75,7 @@ public class RegisterQualityGatesTest {
     assertThat(dbClient.loadedTemplateDao().countByTypeAndKey("QUALITY_GATE", "SonarQube way", dbSession)).isEqualTo(1);
     QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByName(dbSession, "SonarQube way");
     assertThat(qualityGateDto).isNotNull();
-    assertThat(dbClient.gateConditionDao().selectForQualityGate(qualityGateDto.getId()))
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId()))
       .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator, QualityGateConditionDto::getWarningThreshold,
         QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getPeriod)
       .containsOnly(

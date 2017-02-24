@@ -75,7 +75,8 @@ public class App implements Stoppable {
   }
 
   @VisibleForTesting
-  App(Properties commandLineArguments, Function<Properties, Props> propsSupplier, Monitor monitor, CheckFSConfigOnReload checkFsConfigOnReload, JavaCommandFactory javaCommandFactory) {
+  App(Properties commandLineArguments, Function<Properties, Props> propsSupplier, Monitor monitor, CheckFSConfigOnReload checkFsConfigOnReload,
+    JavaCommandFactory javaCommandFactory) {
     this.commandLineArguments = commandLineArguments;
     this.propsSupplier = propsSupplier;
     this.javaCommandFactory = javaCommandFactory;
@@ -86,24 +87,6 @@ public class App implements Stoppable {
   public void start() throws InterruptedException {
     monitor.start(javaCommandSupplier);
     monitor.awaitTermination();
-  }
-
-  private List<JavaCommand> createCommands(Props props) {
-    File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    List<JavaCommand> commands = new ArrayList<>(3);
-    if (isProcessEnabled(props, ProcessProperties.CLUSTER_SEARCH_DISABLED)) {
-      commands.add(javaCommandFactory.createESCommand(props, homeDir));
-    }
-
-    if (isProcessEnabled(props, ProcessProperties.CLUSTER_WEB_DISABLED)) {
-      commands.add(javaCommandFactory.createWebCommand(props, homeDir));
-    }
-
-    if (isProcessEnabled(props, ProcessProperties.CLUSTER_CE_DISABLED)) {
-      commands.add(javaCommandFactory.createCeCommand(props, homeDir));
-    }
-
-    return commands;
   }
 
   private static boolean isProcessEnabled(Props props, String disabledPropertyKey) {
@@ -175,6 +158,24 @@ public class App implements Stoppable {
       logging.configure(reloadedProps);
 
       return createCommands(reloadedProps);
+    }
+
+    private List<JavaCommand> createCommands(Props props) {
+      File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
+      List<JavaCommand> commands = new ArrayList<>(3);
+      if (isProcessEnabled(props, ProcessProperties.CLUSTER_SEARCH_DISABLED)) {
+        commands.add(javaCommandFactory.createESCommand(props, homeDir));
+      }
+
+      if (isProcessEnabled(props, ProcessProperties.CLUSTER_WEB_DISABLED)) {
+        commands.add(javaCommandFactory.createWebCommand(props, homeDir));
+      }
+
+      if (isProcessEnabled(props, ProcessProperties.CLUSTER_CE_DISABLED)) {
+        commands.add(javaCommandFactory.createCeCommand(props, homeDir));
+      }
+
+      return commands;
     }
   }
 }

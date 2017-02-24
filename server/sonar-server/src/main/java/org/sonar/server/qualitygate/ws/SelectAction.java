@@ -92,7 +92,7 @@ public class SelectAction implements QualityGatesWsAction {
 
   private void doHandle(SelectWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkQualityGate(dbClient, request.getGateId());
+      checkQualityGate(dbSession, request.getGateId());
       ComponentDto project = getProject(dbSession, request.getProjectId(), request.getProjectKey());
 
       dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
@@ -136,7 +136,7 @@ public class SelectAction implements QualityGatesWsAction {
     }
   }
 
-  private static void checkQualityGate(DbClient dbClient, long id) {
-    checkFound(dbClient.qualityGateDao().selectById(id), "There is no quality gate with id=" + id);
+  private void checkQualityGate(DbSession dbSession, long id) {
+    checkFound(dbClient.qualityGateDao().selectById(dbSession, id), "There is no quality gate with id=" + id);
   }
 }

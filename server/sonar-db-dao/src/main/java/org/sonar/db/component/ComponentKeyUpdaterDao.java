@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -33,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.component.ComponentKeys.checkModuleKey;
@@ -45,49 +45,25 @@ import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
  * @since 3.2
  */
 public class ComponentKeyUpdaterDao implements Dao {
+
   private static final Set<String> PROJECT_OR_MODULE_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.MODULE);
 
-  private MyBatis mybatis;
-
-  public ComponentKeyUpdaterDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
-
-  public void updateKey(String projectUuid, String newKey) {
-    try (DbSession session = mybatis.openSession(true)) {
-      ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
-      if (mapper.countResourceByKey(newKey) > 0) {
-        throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
-      }
-
-      // must SELECT first everything
-      ResourceDto project = mapper.selectProject(projectUuid);
-      String projectOldKey = project.getKey();
-      List<ResourceDto> resources = mapper.selectProjectResources(projectUuid);
-      resources.add(project);
-
-      // and then proceed with the batch UPDATE at once
-      runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper);
-
-      session.commit();
+  public void updateKey(DbSession dbSession, String projectUuid, String newKey) {
+    ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
+    if (mapper.countResourceByKey(newKey) > 0) {
+      throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
     }
-  }
 
-  public Map<String, String> checkModuleKeysBeforeRenaming(String projectUuid, String stringToReplace, String replacementString) {
-    try (DbSession session = mybatis.openSession(false)) {
-      ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
-      Map<String, String> result = Maps.newHashMap();
-      Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
-      for (ResourceDto module : modules) {
-        String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
-        if (mapper.countResourceByKey(newKey) > 0) {
-          result.put(module.getKey(), "#duplicate_key#");
-        } else {
-          result.put(module.getKey(), newKey);
-        }
-      }
-      return result;
-    }
+    // must SELECT first everything
+    ResourceDto project = mapper.selectProject(projectUuid);
+    String projectOldKey = project.getKey();
+    List<ResourceDto> resources = mapper.selectProjectResources(projectUuid);
+    resources.add(project);
+
+    // and then proceed with the batch UPDATE at once
+    runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper);
+
+    dbSession.commit();
   }
 
   public static void checkIsProjectOrModule(ComponentDto component) {
@@ -117,7 +93,8 @@ public class ComponentKeyUpdaterDao implements Dao {
     return newComponentKeys.stream().collect(Collectors.toMap(Function.identity(), key -> mapper(dbSession).countResourceByKey(key) > 0));
   }
 
-  public static String computeNewKey(String key, String stringToReplace, String replacementString) {
+  @VisibleForTesting
+  static String computeNewKey(String key, String stringToReplace, String replacementString) {
     return key.replace(stringToReplace, replacementString);
   }
 

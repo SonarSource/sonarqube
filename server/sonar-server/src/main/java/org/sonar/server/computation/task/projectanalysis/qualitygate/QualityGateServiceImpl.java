@@ -19,42 +19,46 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import org.sonar.db.qualitygate.QualityGateConditionDao;
+import java.util.Collection;
+import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 
-import static com.google.common.collect.FluentIterable.from;
-
 public class QualityGateServiceImpl implements QualityGateService {
-  private final QualityGateDao qualityGateDao;
-  private final QualityGateConditionDao conditionDao;
-  private final Function<QualityGateConditionDto, Condition> conditionDtoToBean;
 
-  public QualityGateServiceImpl(QualityGateDao qualityGateDao, QualityGateConditionDao conditionDao, final MetricRepository metricRepository) {
-    this.qualityGateDao = qualityGateDao;
-    this.conditionDao = conditionDao;
-    this.conditionDtoToBean = (QualityGateConditionDto input) -> {
-      Metric metric = metricRepository.getById(input.getMetricId());
-      return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod() != null);
-    };
+  private final DbClient dbClient;
+  private final MetricRepository metricRepository;
+
+  public QualityGateServiceImpl(DbClient dbClient, final MetricRepository metricRepository) {
+    this.dbClient = dbClient;
+    this.metricRepository = metricRepository;
   }
 
   @Override
   public Optional<QualityGate> findById(long id) {
-    QualityGateDto qualityGateDto = qualityGateDao.selectById(id);
-    if (qualityGateDto == null) {
-      return Optional.absent();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, id);
+      if (qualityGateDto == null) {
+        return Optional.absent();
+      }
+      return Optional.of(toQualityGate(dbSession, qualityGateDto));
     }
-    return Optional.of(toQualityGate(qualityGateDto));
   }
 
-  private QualityGate toQualityGate(QualityGateDto qualityGateDto) {
-    Iterable<Condition> conditions = from(conditionDao.selectForQualityGate(qualityGateDto.getId())).transform(conditionDtoToBean);
+  private QualityGate toQualityGate(DbSession dbSession, QualityGateDto qualityGateDto) {
+    Collection<QualityGateConditionDto> dtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId());
+
+    Iterable<Condition> conditions = dtos.stream()
+      .map(input -> {
+        Metric metric = metricRepository.getById(input.getMetricId());
+        return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod() != null);
+      })
+      .collect(Collectors.toList(dtos.size()));
 
     return new QualityGate(qualityGateDto.getId(), qualityGateDto.getName(), conditions);
   }

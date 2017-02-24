@@ -159,6 +159,6 @@ public class SetDefaultActionTest {
   }
 
   private void checkDefaultProfile(String language, String key) {
-    assertThat(dbClient.qualityProfileDao().selectDefaultProfile(language).getKey()).isEqualTo(key);
+    assertThat(dbClient.qualityProfileDao().selectDefaultProfile(db.getSession(), language).getKey()).isEqualTo(key);
   }
 }

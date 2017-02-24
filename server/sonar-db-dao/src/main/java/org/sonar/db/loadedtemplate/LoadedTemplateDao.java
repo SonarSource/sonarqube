@@ -21,31 +21,11 @@ package org.sonar.db.loadedtemplate;
 
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 
 public class LoadedTemplateDao implements Dao {
 
-  private MyBatis mybatis;
-
-  public LoadedTemplateDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
-
-  public int countByTypeAndKey(String type, String key) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return countByTypeAndKey(type, key, session);
-    }
-  }
-
   public int countByTypeAndKey(String type, String key, DbSession session) {
     return session.getMapper(LoadedTemplateMapper.class).countByTypeAndKey(type, key);
-  }
-
-  public void insert(LoadedTemplateDto loadedTemplateDto) {
-    try (DbSession session = mybatis.openSession(false)) {
-      insert(loadedTemplateDto, session);
-      session.commit();
-    }
   }
 
   public void insert(LoadedTemplateDto loadedTemplateDto, DbSession session) {

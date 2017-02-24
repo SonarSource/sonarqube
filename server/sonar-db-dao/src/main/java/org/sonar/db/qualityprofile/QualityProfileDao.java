@@ -21,9 +21,9 @@ package org.sonar.db.qualityprofile;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,20 +85,6 @@ public class QualityProfileDao implements Dao {
     mapper.insert(profile);
   }
 
-  /**
-   * @deprecated use {@link #insert(DbSession, QualityProfileDto, QualityProfileDto...)}
-   */
-  @Deprecated
-  public void insert(QualityProfileDto dto) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      insert(session, dto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void update(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
     QualityProfileMapper mapper = mapper(session);
     doUpdate(mapper, profile);
@@ -118,19 +104,6 @@ public class QualityProfileDao implements Dao {
     mapper.delete(profileId);
   }
 
-  /**
-   * @deprecated Replaced by {@link #selectAll(DbSession)}
-   */
-  @Deprecated
-  public List<QualityProfileDto> selectAll() {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return mapper(session).selectAll();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public List<QualityProfileDto> selectDefaultProfiles(DbSession session, Collection<String> languageKeys) {
     return executeLargeInputs(languageKeys, mapper(session)::selectDefaultProfiles);
   }
@@ -138,26 +111,6 @@ public class QualityProfileDao implements Dao {
   @CheckForNull
   public QualityProfileDto selectDefaultProfile(DbSession session, String language) {
     return mapper(session).selectDefaultProfile(language);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectDefaultProfile(String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectDefaultProfile(session, language);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectByProjectAndLanguage(long projectId, String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return mapper(session).selectByProjectIdAndLanguage(projectId, language);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   @CheckForNull
@@ -169,28 +122,13 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(projectKey, input));
   }
 
-  public List<QualityProfileDto> selectByLanguage(String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return mapper(session).selectByLanguage(language);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, String language) {
+    return mapper(dbSession).selectByLanguage(language);
   }
 
   @CheckForNull
   public QualityProfileDto selectById(DbSession session, int id) {
     return mapper(session).selectById(id);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectById(int id) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectById(session, id);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   @CheckForNull
@@ -223,30 +161,17 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(name, input));
   }
 
-  public List<ComponentDto> selectProjects(String profileName, String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectProjects(profileName, language, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {
     return mapper(session).selectProjects(profileName, language);
   }
 
-  public Map<String, Long> countProjectsByProfileKey() {
-    DbSession session = mybatis.openSession(false);
-    try {
-      Map<String, Long> countByKey = Maps.newHashMap();
-      for (QualityProfileProjectCount count : mapper(session).countProjectsByProfile()) {
-        countByKey.put(count.getProfileKey(), count.getProjectCount());
-      }
-      return countByKey;
-    } finally {
-      MyBatis.closeQuietly(session);
+  public Map<String, Long> countProjectsByProfileKey(DbSession dbSession) {
+    Map<String, Long> countByKey = new HashMap<>();
+    QualityProfileMapper mapper = mapper(dbSession);
+    for (QualityProfileProjectCount count : mapper.countProjectsByProfile()) {
+      countByKey.put(count.getProfileKey(), count.getProjectCount());
     }
+    return countByKey;
   }
 
   public void insertProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {

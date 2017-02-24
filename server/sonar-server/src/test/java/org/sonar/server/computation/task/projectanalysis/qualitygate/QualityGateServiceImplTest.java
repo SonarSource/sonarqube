@@ -22,7 +22,10 @@ package org.sonar.server.computation.task.projectanalysis.qualitygate;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -32,6 +35,8 @@ import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +55,14 @@ public class QualityGateServiceImplTest {
   private QualityGateDao qualityGateDao = mock(QualityGateDao.class);
   private QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
   private MetricRepository metricRepository = mock(MetricRepository.class);
-  private QualityGateServiceImpl underTest = new QualityGateServiceImpl(qualityGateDao, qualityGateConditionDao, metricRepository);
+  private DbClient dbClient = mock(DbClient.class);
+  private QualityGateServiceImpl underTest = new QualityGateServiceImpl(dbClient, metricRepository);
+
+  @Before
+  public void setUp() throws Exception {
+    when(dbClient.qualityGateDao()).thenReturn(qualityGateDao);
+    when(dbClient.gateConditionDao()).thenReturn(qualityGateConditionDao);
+  }
 
   @Test
   public void findById_returns_absent_when_QualityGateDto_does_not_exist() {
@@ -59,8 +71,8 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findById_returns_QualityGate_with_empty_set_of_conditions_when_there_is_none_in_DB() {
-    when(qualityGateDao.selectById(SOME_ID)).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(SOME_ID)).thenReturn(Collections.<QualityGateConditionDto>emptyList());
+    when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
+    when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(Collections.emptyList());
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
@@ -72,8 +84,8 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findById_returns_conditions_when_there_is_some_in_DB() {
-    when(qualityGateDao.selectById(SOME_ID)).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(SOME_ID)).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
+    when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
     when(metricRepository.getById(METRIC_ID_1)).thenReturn(METRIC_1);
     when(metricRepository.getById(METRIC_ID_2)).thenReturn(METRIC_2);

@@ -22,7 +22,8 @@ package org.sonar.server.user;
 import javax.annotation.Nullable;
 import org.sonar.api.database.model.User;
 import org.sonar.api.security.UserFinder;
-import org.sonar.db.user.UserDao;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 
 /**
@@ -30,20 +31,24 @@ import org.sonar.db.user.UserDto;
  */
 public class DeprecatedUserFinder implements UserFinder {
 
-  private final UserDao userDao;
+  private final DbClient dbClient;
 
-  public DeprecatedUserFinder(UserDao userDao) {
-    this.userDao = userDao;
+  public DeprecatedUserFinder(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
   public User findById(int id) {
-    return copy(userDao.selectUserById(id));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return copy(dbClient.userDao().selectUserById(dbSession, id));
+    }
   }
 
   @Override
   public User findByLogin(String login) {
-    return copy(userDao.selectActiveUserByLogin(login));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return copy(dbClient.userDao().selectActiveUserByLogin(dbSession, login));
+    }
   }
 
   private static User copy(@Nullable UserDto dto) {
