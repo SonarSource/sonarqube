@@ -61,7 +61,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
         break;
       case NEW_ANALYSIS:
         deleteProject(projectUuid);
-        doIndex(projectUuid, cause);
+        doIndex(projectUuid, false);
         break;
       default:
         // defensive case
@@ -76,7 +76,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(null, Cause.NEW_ANALYSIS);
+    doIndex(null, true);
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
@@ -84,9 +84,9 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
     return doIndex(bulk, dbRows);
   }
 
-  private long doIndex(@Nullable String projectUuid, Cause cause) {
+  private long doIndex(@Nullable String projectUuid, boolean largeBulkIndexing) {
     final BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex());
-    bulk.setLarge(cause == Cause.NEW_ANALYSIS);
+    bulk.setLarge(largeBulkIndexing);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

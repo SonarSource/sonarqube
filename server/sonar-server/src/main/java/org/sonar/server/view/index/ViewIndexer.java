@@ -58,7 +58,7 @@ public class ViewIndexer implements StartupIndexer {
       for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
         viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap, false);
+      index(dbSession, viewAndProjectViewUuidMap, false, true);
     }
   }
 
@@ -75,7 +75,7 @@ public class ViewIndexer implements StartupIndexer {
       for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledDescendantModules(dbSession, rootViewUuid)) {
         viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.projectUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap, true);
+      index(dbSession, viewAndProjectViewUuidMap, true, false);
     } finally {
       dbSession.close();
     }
@@ -93,8 +93,9 @@ public class ViewIndexer implements StartupIndexer {
     bulk.stop();
   }
 
-  private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache) {
+  private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache, boolean largeBulkIndexing) {
     final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex());
+    bulk.setLarge(largeBulkIndexing);
     bulk.start();
     for (Map.Entry<String, String> entry : viewAndProjectViewUuidMap.entrySet()) {
       String viewUuid = entry.getKey();

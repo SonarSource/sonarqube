@@ -69,7 +69,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndexByProjectUuid(null);
+    doIndexByProjectUuid(null, true);
   }
 
   @Override
@@ -78,7 +78,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       case PROJECT_CREATION:
       case PROJECT_KEY_UPDATE:
       case NEW_ANALYSIS:
-        doIndexByProjectUuid(projectUuid);
+        doIndexByProjectUuid(projectUuid, false);
         break;
       default:
         // defensive case
@@ -95,11 +95,9 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
    * @param projectUuid the uuid of the project to analyze, or <code>null</code> if all content should be indexed.<br/>
    * <b>Warning:</b> only use <code>null</code> during startup.
    */
-  private void doIndexByProjectUuid(@Nullable String projectUuid) {
+  private void doIndexByProjectUuid(@Nullable String projectUuid, boolean largeBulkIndexing) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
-
-    // setLarge must be enabled only during server startup because it disables replicas
-    bulk.setLarge(projectUuid == null);
+    bulk.setLarge(largeBulkIndexing);
 
     bulk.start();
     try (DbSession dbSession = dbClient.openSession(false)) {

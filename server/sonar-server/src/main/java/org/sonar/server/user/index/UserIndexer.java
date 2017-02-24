@@ -51,17 +51,17 @@ public class UserIndexer implements StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(null);
+    doIndex(null, false);
   }
 
   public void index(String login) {
     requireNonNull(login);
-    doIndex(login);
+    doIndex(login, true);
   }
 
-  private void doIndex(@Nullable String login) {
+  private void doIndex(@Nullable String login, boolean largeBulkIndexing) {
     final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
-    bulk.setLarge(login == null);
+    bulk.setLarge(largeBulkIndexing);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       try (UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession, login)) {

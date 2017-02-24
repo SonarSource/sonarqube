@@ -154,10 +154,9 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
     esClient.prepareRefresh(INDEX_TYPE_ISSUE.getIndex()).get();
   }
 
-  private BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ISSUE.getIndex());
-    bulk.setLarge(large);
-    return bulk;
+  private BulkIndexer createBulkIndexer(boolean largeBulkIndexing) {
+    return new BulkIndexer(esClient, INDEX_TYPE_ISSUE.getIndex())
+      .setLarge(largeBulkIndexing);
   }
 
   private static IndexRequest newIndexRequest(IssueDoc issue) {
