@@ -82,7 +82,7 @@ public class PermissionIndexerTest {
     userDbTester.insertProjectPermissionOnUser(user1, USER, project);
     userDbTester.insertProjectPermissionOnUser(user2, ADMIN, project);
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     // anonymous
     verifyAnyoneNotAuthorized(project);
@@ -105,7 +105,7 @@ public class PermissionIndexerTest {
     userDbTester.insertProjectPermissionOnGroup(group1, USER, project);
     userDbTester.insertProjectPermissionOnGroup(group2, ADMIN, project);
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     // anonymous
     verifyAnyoneNotAuthorized(project);
@@ -130,7 +130,7 @@ public class PermissionIndexerTest {
     userDbTester.insertProjectPermissionOnUser(user1, USER, project);
     userDbTester.insertProjectPermissionOnGroup(group, USER, project);
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     // anonymous
     verifyAnyoneNotAuthorized(project);
@@ -151,7 +151,7 @@ public class PermissionIndexerTest {
     UserDto user = userDbTester.insertUser();
     GroupDto group = userDbTester.insertGroup();
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     verifyAnyoneNotAuthorized(project);
     verifyNotAuthorized(project, user);
@@ -165,7 +165,7 @@ public class PermissionIndexerTest {
     GroupDto group = userDbTester.insertGroup();
     userDbTester.insertProjectPermissionOnAnyone(USER, project);
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     verifyAnyoneAuthorized(project);
     verifyAuthorized(project, user);
@@ -182,7 +182,7 @@ public class PermissionIndexerTest {
       userDbTester.insertProjectPermissionOnUser(user1, USER, project);
     }
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     verifyAnyoneNotAuthorized(project);
     verifyAuthorized(project, user1);
@@ -195,7 +195,7 @@ public class PermissionIndexerTest {
     ComponentDto project2 = createAndIndexProject();
     userDbTester.insertProjectPermissionOnAnyone(USER, project1);
     userDbTester.insertProjectPermissionOnAnyone(USER, project2);
-    underTest.indexOnStartup();
+    indexOnStartup();
     assertThat(esTester.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
 
     underTest.deleteProject(project1.uuid());
@@ -219,7 +219,7 @@ public class PermissionIndexerTest {
     ComponentDto project = createAndIndexProject();
     UserDto user1 = userDbTester.insertUser();
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     verifyAnyoneNotAuthorized(project);
     verifyNotAuthorized(project, user1);
@@ -233,12 +233,16 @@ public class PermissionIndexerTest {
     userDbTester.insertProjectPermissionOnAnyone(USER, projectOnOrg1);
     userDbTester.insertProjectPermissionOnUser(user, USER, projectOnOrg2);
 
-    underTest.indexOnStartup();
+    indexOnStartup();
 
     verifyAnyoneAuthorized(projectOnOrg1);
     verifyAnyoneNotAuthorized(projectOnOrg2);
     verifyAuthorized(projectOnOrg1, user);// because anyone
     verifyAuthorized(projectOnOrg2, user);
+  }
+
+  private void indexOnStartup() {
+    underTest.indexOnStartup(underTest.getIndexTypes());
   }
 
   private void verifyAuthorized(ComponentDto project, UserDto user) {

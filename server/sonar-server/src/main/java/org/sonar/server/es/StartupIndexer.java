@@ -28,9 +28,9 @@ public interface StartupIndexer {
 
   /**
    * This reindexing method will only be called on startup, and only,
-   * if at least one of the types returned by {@link #getIndexTypes()} is empty.
+   * if there is at least one empty types.
    */
-  void indexOnStartup();
+  void indexOnStartup(Set<IndexType> emptyIndexTypes);
 
   Set<IndexType> getIndexTypes();
 

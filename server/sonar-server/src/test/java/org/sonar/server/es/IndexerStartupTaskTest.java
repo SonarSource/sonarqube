@@ -22,6 +22,7 @@ package org.sonar.server.es;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -60,7 +61,7 @@ public class IndexerStartupTaskTest {
     emulateStartup(indexer);
 
     verify(indexer).getIndexTypes();
-    verify(indexer).indexOnStartup();
+    verify(indexer).indexOnStartup(Mockito.eq(ImmutableSet.of(INDEX_TYPE_FAKE)));
   }
 
   private void insertDocumentIntoIndex() {

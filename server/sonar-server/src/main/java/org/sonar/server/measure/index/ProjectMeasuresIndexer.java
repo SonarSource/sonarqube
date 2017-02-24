@@ -58,7 +58,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
   }
 
   @Override
-  public void indexOnStartup() {
+  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
     doIndex(createBulkIndexer(false), (String) null);
   }
 

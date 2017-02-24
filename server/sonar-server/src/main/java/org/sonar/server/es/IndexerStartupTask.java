@@ -19,11 +19,14 @@
  */
 package org.sonar.server.es;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toSet;
 
 public class IndexerStartupTask {
 
@@ -42,9 +45,7 @@ public class IndexerStartupTask {
   public void execute() {
     if (indexesAreEnabled()) {
       stream(indexers)
-        .filter(this::doesIndexContainAtLeastOneEmptyType)
-        .peek(indexer -> LOG.info("Full reindexing using " + indexer.getClass().getSimpleName()))
-        .forEach(StartupIndexer::indexOnStartup);
+      .forEach(this::indexEmptyTypes);
     }
   }
 
@@ -52,7 +53,22 @@ public class IndexerStartupTask {
     return !settings.getBoolean("sonar.internal.es.disableIndexes");
   }
 
-  private boolean doesIndexContainAtLeastOneEmptyType(StartupIndexer indexer) {
-    return indexer.getIndexTypes().stream().filter(esClient::isEmpty).findAny().isPresent();
+  private void indexEmptyTypes(StartupIndexer indexer) {
+    Set<IndexType> emptyTypes = getEmptyTypes(indexer);
+    if (!emptyTypes.isEmpty()) {
+      log(indexer, emptyTypes);
+      indexer.indexOnStartup(emptyTypes);
+    }
+  }
+
+  private Set<IndexType> getEmptyTypes(StartupIndexer indexer) {
+    return indexer.getIndexTypes().stream().filter(esClient::isEmpty).collect(toSet());
+  }
+
+  private void log(StartupIndexer indexer, Set<IndexType> emptyTypes) {
+    String s = emptyTypes.size() == 1 ? "" : "s";
+    String typeList = emptyTypes.stream().map(Object::toString).collect(Collectors.joining(","));
+    String indexerName = indexer.getClass().getSimpleName();
+    LOG.info("Full indexing of type{} {} using {}", s, typeList, indexerName);
   }
 }

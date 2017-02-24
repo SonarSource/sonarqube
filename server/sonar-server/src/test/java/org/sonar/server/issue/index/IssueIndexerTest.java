@@ -57,9 +57,9 @@ public class IssueIndexerTest {
   @Test
   public void index_on_startup() {
     IssueIndexer indexer = spy(underTest);
-    doNothing().when(indexer).indexOnStartup();
-    indexer.indexOnStartup();
-    verify(indexer).indexOnStartup();
+    doNothing().when(indexer).indexOnStartup(null);
+    indexer.indexOnStartup(null);
+    verify(indexer).indexOnStartup(null);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class IssueIndexerTest {
   public void index_all_issues() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
     assertThat(docs).hasSize(1);
@@ -125,7 +125,7 @@ public class IssueIndexerTest {
   public void deleteProject_deletes_issues_of_a_specific_project() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(1);
 

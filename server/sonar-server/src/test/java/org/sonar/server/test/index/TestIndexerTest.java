@@ -72,9 +72,9 @@ public class TestIndexerTest {
   @Test
   public void index_on_startup() {
     TestIndexer indexer = spy(underTest);
-    doNothing().when(indexer).indexOnStartup();
-    indexer.indexOnStartup();
-    verify(indexer).indexOnStartup();
+    doNothing().when(indexer).indexOnStartup(null);
+    indexer.indexOnStartup(null);
+    verify(indexer).indexOnStartup(null);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class TestIndexerTest {
     db.prepareDbUnit(getClass(), "db.xml");
     TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     assertThat(countDocuments()).isEqualTo(3);
   }

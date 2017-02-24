@@ -68,7 +68,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   @Override
-  public void indexOnStartup() {
+  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
     doIndexByProjectUuid(null);
   }
 

@@ -59,14 +59,14 @@ public class ProjectMeasuresIndexerTest {
   @Test
   public void index_on_startup() {
     ProjectMeasuresIndexer indexer = spy(underTest);
-    doNothing().when(indexer).indexOnStartup();
-    indexer.indexOnStartup();
-    verify(indexer).indexOnStartup();
+    doNothing().when(indexer).indexOnStartup(null);
+    indexer.indexOnStartup(null);
+    verify(indexer).indexOnStartup(null);
   }
 
   @Test
   public void index_nothing() {
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     assertThat(esTester.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isZero();
   }
@@ -78,7 +78,7 @@ public class ProjectMeasuresIndexerTest {
     componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
     componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
 
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     assertThat(esTester.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isEqualTo(3);
   }
@@ -90,7 +90,7 @@ public class ProjectMeasuresIndexerTest {
   public void index_provisioned_projects() {
     ComponentDto project = componentDbTester.insertProject();
 
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     assertThat(esTester.getIds(INDEX_TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
   }
@@ -159,7 +159,7 @@ public class ProjectMeasuresIndexerTest {
     componentDbTester.insertProjectAndSnapshot(project2);
     ComponentDto project3 = newProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project3);
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     underTest.deleteProject(project1.uuid());
 
@@ -170,7 +170,7 @@ public class ProjectMeasuresIndexerTest {
   public void does_nothing_when_deleting_unknown_project() throws Exception {
     ComponentDto project = newProjectDto(dbTester.organizations().insert());
     componentDbTester.insertProjectAndSnapshot(project);
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     underTest.deleteProject("UNKNOWN");
 

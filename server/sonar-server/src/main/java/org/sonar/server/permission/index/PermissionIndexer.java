@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import java.util.stream.Stream;
 import org.elasticsearch.action.index.IndexRequest;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.DateUtils;
@@ -42,13 +42,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
+import org.sonar.server.permission.index.PermissionIndexerDao.Dto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.core.util.stream.Collectors.toSet;
 
 /**
@@ -62,8 +61,6 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
 
   @VisibleForTesting
   static final int MAX_BATCH_SIZE = 1000;
-
-  private static final String BULK_ERROR_MESSAGE = "Fail to index authorization";
 
   private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
@@ -92,15 +89,11 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
   }
 
   @Override
-  public void indexOnStartup() {
+  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
     Future<?> submit = executor.submit(() -> {
-      authorizationScopes.stream()
-        .map(AuthorizationScope::getIndexType)
-        .forEach(this::truncateAuthorizationType);
-
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
-      }
+      List<Dto> authorizations = getAllAuthorizations();
+      Stream<AuthorizationScope> scopes = getScopes(emptyIndexTypes);
+      index(authorizations, scopes);
     });
     try {
       Uninterruptibles.getUninterruptibly(submit);
@@ -109,10 +102,22 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
     }
   }
 
+  private List<Dto> getAllAuthorizations() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return new PermissionIndexerDao().selectAll(dbClient, dbSession);
+    }
+  }
+
   public void indexProjectsByUuids(DbSession dbSession, List<String> viewOrProjectUuids) {
     checkArgument(!viewOrProjectUuids.isEmpty(), "viewOrProjectUuids cannot be empty");
     PermissionIndexerDao dao = new PermissionIndexerDao();
-    index(dao.selectByUuids(dbClient, dbSession, viewOrProjectUuids));
+    List<Dto> authorizations = dao.selectByUuids(dbClient, dbSession, viewOrProjectUuids);
+    index(authorizations);
+  }
+
+  @VisibleForTesting
+  void index(List<Dto> authorizations) {
+    index(authorizations, authorizationScopes.stream());
   }
 
   @Override
@@ -141,37 +146,36 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
       .get());
   }
 
-  private void truncateAuthorizationType(IndexType indexType) {
-    BulkIndexer.delete(esClient, indexType.getIndex(), esClient.prepareSearch(indexType).setQuery(matchAllQuery()));
+  private Stream<AuthorizationScope> getScopes(Set<IndexType> indexTypes) {
+    return authorizationScopes.stream()
+      .filter(scope -> indexTypes.contains(scope.getIndexType()));
   }
 
-  @VisibleForTesting
-  void index(Collection<PermissionIndexerDao.Dto> authorizations) {
+  private void index(Collection<PermissionIndexerDao.Dto> authorizations, Stream<AuthorizationScope> scopes) {
     if (authorizations.isEmpty()) {
       return;
     }
-    int count = 0;
-    BulkRequestBuilder bulkRequest = esClient.prepareBulk().setRefresh(false);
-    for (PermissionIndexerDao.Dto dto : authorizations) {
-      for (AuthorizationScope scope : authorizationScopes) {
-        if (scope.getProjectPredicate().test(dto)) {
-          bulkRequest.add(newIndexRequest(dto, scope.getIndexType()));
-          count++;
-        }
-      }
-      if (count >= MAX_BATCH_SIZE) {
-        EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
-        bulkRequest = esClient.prepareBulk().setRefresh(false);
-        count = 0;
-      }
-    }
-    if (count > 0) {
-      EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
-    }
-    authorizationScopes.forEach(type -> esClient.prepareRefresh(type.getIndexType().getIndex()).get());
+
+    // index each authorization in each scope
+    scopes.forEach(scope -> index(authorizations, scope));
   }
 
-  private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, IndexType indexTypeId) {
+  private void index(Collection<PermissionIndexerDao.Dto> authorizations, AuthorizationScope scope) {
+    IndexType indexType = scope.getIndexType();
+
+    BulkIndexer bulkIndexer = new BulkIndexer(esClient, indexType.getIndex());
+    bulkIndexer.setLarge(/* TODO */false);
+    bulkIndexer.start();
+
+    authorizations.stream()
+      .filter(scope.getProjectPredicate())
+      .map(dto -> newIndexRequest(dto, indexType))
+      .forEach(bulkIndexer::add);
+
+    bulkIndexer.stop();
+  }
+
+  private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, IndexType indexType) {
     Map<String, Object> doc = new HashMap<>();
     doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, DateUtils.longToDate(dto.getUpdatedAt()));
     if (dto.isAllowAnyone()) {
@@ -182,7 +186,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
       doc.put(AuthorizationTypeSupport.FIELD_GROUP_IDS, dto.getGroupIds());
       doc.put(AuthorizationTypeSupport.FIELD_USER_IDS, dto.getUserIds());
     }
-    return new IndexRequest(indexTypeId.getIndex(), indexTypeId.getType(), dto.getProjectUuid())
+    return new IndexRequest(indexType.getIndex(), indexType.getType(), dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .source(doc);
   }

@@ -75,7 +75,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_nothing() {
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(0L);
   }
 
@@ -83,7 +83,7 @@ public class ViewIndexerTest {
   public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    underTest.indexOnStartup();
+    underTest.indexOnStartup(null);
 
     List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(4);

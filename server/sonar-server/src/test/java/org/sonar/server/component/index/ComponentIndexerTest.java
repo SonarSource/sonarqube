@@ -66,8 +66,8 @@ public class ComponentIndexerTest {
   public void index_on_startup() {
     ComponentIndexer indexer = spy(createIndexer());
     doNothing().when(indexer).index();
-    indexer.indexOnStartup();
-    verify(indexer).indexOnStartup();
+    indexer.indexOnStartup(null);
+    verify(indexer).indexOnStartup(null);
   }
 
   @Test
@@ -178,7 +178,7 @@ public class ComponentIndexerTest {
   }
 
   private void index() {
-    createIndexer().indexOnStartup();
+    createIndexer().indexOnStartup(null);
   }
 
   private void index(ComponentDto component) {
