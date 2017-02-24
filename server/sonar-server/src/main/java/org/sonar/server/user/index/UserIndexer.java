@@ -27,6 +27,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.StartupIndexer;
@@ -51,17 +52,17 @@ public class UserIndexer implements StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(null, false);
+    doIndex(null, Size.REGULAR);
   }
 
   public void index(String login) {
     requireNonNull(login);
-    doIndex(login, true);
+    doIndex(login, Size.LARGE);
   }
 
-  private void doIndex(@Nullable String login, boolean largeBulkIndexing) {
+  private void doIndex(@Nullable String login, Size bulkSize) {
     final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
-    bulk.setLarge(largeBulkIndexing);
+    bulk.setSize(bulkSize);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       try (UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession, login)) {

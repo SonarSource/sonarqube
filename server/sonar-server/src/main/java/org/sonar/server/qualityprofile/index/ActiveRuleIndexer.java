@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
@@ -54,11 +55,11 @@ public class ActiveRuleIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(false), lastUpdatedAt);
+    return doIndex(createBulkIndexer(Size.REGULAR), lastUpdatedAt);
   }
 
   public void index(Iterator<ActiveRuleDoc> rules) {
-    doIndex(createBulkIndexer(false), rules);
+    doIndex(createBulkIndexer(Size.REGULAR), rules);
   }
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
@@ -114,9 +115,9 @@ public class ActiveRuleIndexer extends BaseIndexer {
     bulk.stop();
   }
 
-  private BulkIndexer createBulkIndexer(boolean large) {
+  private BulkIndexer createBulkIndexer(Size size) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
-    bulk.setLarge(large);
+    bulk.setSize(size);
     return bulk;
   }
 

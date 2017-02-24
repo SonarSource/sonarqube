@@ -41,6 +41,7 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.ProjectIndexer;
@@ -93,7 +94,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
     Future<?> submit = executor.submit(() -> {
       List<Dto> authorizations = getAllAuthorizations();
       Stream<AuthorizationScope> scopes = getScopes(emptyIndexTypes);
-      index(authorizations, scopes, true);
+      index(authorizations, scopes, Size.LARGE);
     });
     try {
       Uninterruptibles.getUninterruptibly(submit);
@@ -117,7 +118,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
 
   @VisibleForTesting
   void index(List<Dto> authorizations) {
-    index(authorizations, authorizationScopes.stream(), false);
+    index(authorizations, authorizationScopes.stream(), Size.REGULAR);
   }
 
   @Override
@@ -151,20 +152,20 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
       .filter(scope -> indexTypes.contains(scope.getIndexType()));
   }
 
-  private void index(Collection<PermissionIndexerDao.Dto> authorizations, Stream<AuthorizationScope> scopes, boolean largeBulkIndexing) {
+  private void index(Collection<PermissionIndexerDao.Dto> authorizations, Stream<AuthorizationScope> scopes, Size bulkSize) {
     if (authorizations.isEmpty()) {
       return;
     }
 
     // index each authorization in each scope
-    scopes.forEach(scope -> index(authorizations, scope, largeBulkIndexing));
+    scopes.forEach(scope -> index(authorizations, scope, bulkSize));
   }
 
-  private void index(Collection<PermissionIndexerDao.Dto> authorizations, AuthorizationScope scope, boolean largeBulkIndexing) {
+  private void index(Collection<PermissionIndexerDao.Dto> authorizations, AuthorizationScope scope, Size bulkSize) {
     IndexType indexType = scope.getIndexType();
 
     BulkIndexer bulkIndexer = new BulkIndexer(esClient, indexType.getIndex());
-    bulkIndexer.setLarge(largeBulkIndexing);
+    bulkIndexer.setSize(bulkSize);
     bulkIndexer.start();
 
     authorizations.stream()
