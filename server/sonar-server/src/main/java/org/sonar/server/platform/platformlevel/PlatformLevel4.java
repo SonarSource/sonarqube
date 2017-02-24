@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.platformlevel;
 
 import java.util.List;
@@ -135,6 +136,7 @@ import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectanalysis.ProjectAnalysisModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
+import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
@@ -362,6 +364,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // components
       ProjectsWsModule.class,
       ProjectsEsModule.class,
+      ProjectTagsWsModule.class,
       ComponentsWsModule.class,
       ComponentService.class,
       ComponentUpdater.class,
