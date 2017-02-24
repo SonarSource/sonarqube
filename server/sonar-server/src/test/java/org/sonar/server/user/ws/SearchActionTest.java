@@ -92,7 +92,7 @@ public class SearchActionTest {
     }
     dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(fmallet.getLogin()));
     db.commit();
-    userIndexer.indexOnStartup();
+    userIndexer.indexOnStartup(null);
     loginAsSystemAdministrator();
 
     String response = ws.newGetRequest("api/users", "search").execute().outputAsString();
@@ -213,7 +213,7 @@ public class SearchActionTest {
 
     dbClient.userDao().insert(dbSession, UserTesting.newUserDto("john", "John", "john@email.com"));
     dbSession.commit();
-    userIndexer.indexOnStartup();
+    userIndexer.indexOnStartup(null);
 
     ws.newGetRequest("api/users", "search").execute().assertJson(
       "{" +
@@ -255,7 +255,7 @@ public class SearchActionTest {
       }
     }
     dbSession.commit();
-    userIndexer.indexOnStartup();
+    userIndexer.indexOnStartup(null);
     return userDtos;
   }
 

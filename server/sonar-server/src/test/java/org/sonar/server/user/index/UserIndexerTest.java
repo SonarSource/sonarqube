@@ -43,7 +43,7 @@ public class UserIndexerTest {
   @Test
   public void index_nothing() {
     UserIndexer indexer = createIndexer();
-    indexer.indexOnStartup();
+    indexer.indexOnStartup(null);
     assertThat(esTester.countDocuments(UserIndexDefinition.INDEX_TYPE_USER)).isEqualTo(0L);
   }
 
@@ -52,7 +52,7 @@ public class UserIndexerTest {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     UserIndexer indexer = createIndexer();
-    indexer.indexOnStartup();
+    indexer.indexOnStartup(null);
 
     List<UserDoc> docs = esTester.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
@@ -71,7 +71,7 @@ public class UserIndexerTest {
     UserDto user = dbTester.users().insertUser();
 
     UserIndexer indexer = createIndexer();
-    indexer.indexOnStartup();
+    indexer.indexOnStartup(null);
 
     List<UserDoc> docs = esTester.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
