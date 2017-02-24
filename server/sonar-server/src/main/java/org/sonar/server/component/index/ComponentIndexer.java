@@ -19,20 +19,12 @@
  */
 package org.sonar.server.component.index;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
-import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -49,16 +41,14 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
 
-public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable, StartupIndexer {
+public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_COMPONENT, project -> true);
 
-  private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
   private final EsClient esClient;
 
   public ComponentIndexer(DbClient dbClient, EsClient esClient) {
-    this.executor = new ThreadPoolExecutor(0, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     this.dbClient = dbClient;
     this.esClient = esClient;
   }
@@ -127,15 +117,6 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   void index(ComponentDto... docs) {
-    Future<?> submit = executor.submit(() -> indexNow(docs));
-    try {
-      Uninterruptibles.getUninterruptibly(submit);
-    } catch (ExecutionException e) {
-      Throwables.propagate(e);
-    }
-  }
-
-  private void indexNow(ComponentDto... docs) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
     bulk.setSize(Size.REGULAR);
     bulk.start();
@@ -160,15 +141,5 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       .setKey(component.key())
       .setProjectUuid(component.projectUuid())
       .setQualifier(component.qualifier());
-  }
-
-  @Override
-  public void start() {
-    // no action required, setup is done in constructor
-  }
-
-  @Override
-  public void stop() {
-    executor.shutdown();
   }
 }

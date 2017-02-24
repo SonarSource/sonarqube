@@ -20,22 +20,14 @@
 package org.sonar.server.permission.index;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
-import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.elasticsearch.action.index.IndexRequest;
-import org.picocontainer.Startable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
@@ -58,12 +50,11 @@ import static org.sonar.core.util.stream.Collectors.toSet;
  *   <li>delete project orphans from index</li>
  * </ul>
  */
-public class PermissionIndexer implements ProjectIndexer, Startable, StartupIndexer {
+public class PermissionIndexer implements ProjectIndexer, StartupIndexer {
 
   @VisibleForTesting
   static final int MAX_BATCH_SIZE = 1000;
 
-  private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
   private final EsClient esClient;
   private final Collection<AuthorizationScope> authorizationScopes;
@@ -76,7 +67,6 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
 
   @VisibleForTesting
   public PermissionIndexer(DbClient dbClient, EsClient esClient, Collection<AuthorizationScope> authorizationScopes) {
-    this.executor = new ThreadPoolExecutor(0, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     this.dbClient = dbClient;
     this.esClient = esClient;
     this.authorizationScopes = authorizationScopes;
@@ -91,16 +81,9 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    Future<?> submit = executor.submit(() -> {
       List<Dto> authorizations = getAllAuthorizations();
       Stream<AuthorizationScope> scopes = getScopes(emptyIndexTypes);
       index(authorizations, scopes, Size.LARGE);
-    });
-    try {
-      Uninterruptibles.getUninterruptibly(submit);
-    } catch (ExecutionException e) {
-      Throwables.propagate(e);
-    }
   }
 
   private List<Dto> getAllAuthorizations() {
@@ -190,15 +173,5 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
     return new IndexRequest(indexType.getIndex(), indexType.getType(), dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .source(doc);
-  }
-
-  @Override
-  public void start() {
-    // nothing to do at startup
-  }
-
-  @Override
-  public void stop() {
-    executor.shutdown();
   }
 }

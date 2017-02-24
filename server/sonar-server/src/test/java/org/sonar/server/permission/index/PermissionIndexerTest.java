@@ -19,8 +19,6 @@
  */
 package org.sonar.server.permission.index;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -63,16 +61,6 @@ public class PermissionIndexerTest {
   private FooIndexer fooIndexer = new FooIndexer(esTester.client());
   private PermissionIndexer underTest = new PermissionIndexer(
     dbTester.getDbClient(), esTester.client(), fooIndexer);
-
-  @Before
-  public void setUp() throws Exception {
-    underTest.start();
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    underTest.stop();
-  }
 
   @Test
   public void initializeOnStartup_grants_access_to_user() {
