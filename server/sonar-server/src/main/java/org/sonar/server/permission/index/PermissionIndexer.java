@@ -93,7 +93,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
     Future<?> submit = executor.submit(() -> {
       List<Dto> authorizations = getAllAuthorizations();
       Stream<AuthorizationScope> scopes = getScopes(emptyIndexTypes);
-      index(authorizations, scopes);
+      index(authorizations, scopes, true);
     });
     try {
       Uninterruptibles.getUninterruptibly(submit);
@@ -117,7 +117,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
 
   @VisibleForTesting
   void index(List<Dto> authorizations) {
-    index(authorizations, authorizationScopes.stream());
+    index(authorizations, authorizationScopes.stream(), false);
   }
 
   @Override
@@ -151,20 +151,20 @@ public class PermissionIndexer implements ProjectIndexer, Startable, StartupInde
       .filter(scope -> indexTypes.contains(scope.getIndexType()));
   }
 
-  private void index(Collection<PermissionIndexerDao.Dto> authorizations, Stream<AuthorizationScope> scopes) {
+  private void index(Collection<PermissionIndexerDao.Dto> authorizations, Stream<AuthorizationScope> scopes, boolean largeBulkIndexing) {
     if (authorizations.isEmpty()) {
       return;
     }
 
     // index each authorization in each scope
-    scopes.forEach(scope -> index(authorizations, scope));
+    scopes.forEach(scope -> index(authorizations, scope, largeBulkIndexing));
   }
 
-  private void index(Collection<PermissionIndexerDao.Dto> authorizations, AuthorizationScope scope) {
+  private void index(Collection<PermissionIndexerDao.Dto> authorizations, AuthorizationScope scope, boolean largeBulkIndexing) {
     IndexType indexType = scope.getIndexType();
 
     BulkIndexer bulkIndexer = new BulkIndexer(esClient, indexType.getIndex());
-    bulkIndexer.setLarge(/* TODO */false);
+    bulkIndexer.setLarge(largeBulkIndexing);
     bulkIndexer.start();
 
     authorizations.stream()

@@ -59,7 +59,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(createBulkIndexer(false), (String) null);
+    doIndex(createBulkIndexer(true), (String) null);
   }
 
   @Override
@@ -108,10 +108,9 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     bulk.stop();
   }
 
-  private BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_PROJECT_MEASURES.getIndex());
-    bulk.setLarge(large);
-    return bulk;
+  private BulkIndexer createBulkIndexer(boolean largeBulkIndexing) {
+    return new BulkIndexer(esClient, INDEX_TYPE_PROJECT_MEASURES.getIndex())
+      .setLarge(largeBulkIndexing);
   }
 
   private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {
