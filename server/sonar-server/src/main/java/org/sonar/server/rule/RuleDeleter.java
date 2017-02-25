@@ -45,8 +45,7 @@ public class RuleDeleter {
   }
 
   public void delete(RuleKey ruleKey) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, ruleKey);
       if (rule.getTemplateId() == null) {
         throw new IllegalStateException("Only custom rules can be deleted");
@@ -63,9 +62,6 @@ public class RuleDeleter {
 
       dbSession.commit();
       ruleIndexer.index();
-
-    } finally {
-      dbSession.close();
     }
   }
 }

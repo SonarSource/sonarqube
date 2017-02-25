@@ -19,13 +19,10 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
+import java.util.Set;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.db.rule.RuleDto;
-
-import javax.annotation.Nullable;
-import java.util.Set;
 
 class RuleTagHelper {
 
@@ -43,12 +40,7 @@ class RuleTagHelper {
 
     Set<String> initialTags = rule.getTags();
     final Set<String> systemTags = rule.getSystemTags();
-    Set<String> withoutSystemTags = Sets.filter(tags, new Predicate<String>() {
-      @Override
-      public boolean apply(@Nullable String input) {
-        return input != null && !systemTags.contains(input);
-      }
-    });
+    Set<String> withoutSystemTags = Sets.filter(tags, input -> input != null && !systemTags.contains(input));
     rule.setTags(withoutSystemTags);
     return withoutSystemTags.size() != initialTags.size() || !withoutSystemTags.containsAll(initialTags);
   }
