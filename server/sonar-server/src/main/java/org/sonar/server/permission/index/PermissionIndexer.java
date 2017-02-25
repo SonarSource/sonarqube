@@ -81,9 +81,9 @@ public class PermissionIndexer implements ProjectIndexer, StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-      List<Dto> authorizations = getAllAuthorizations();
-      Stream<AuthorizationScope> scopes = getScopes(emptyIndexTypes);
-      index(authorizations, scopes, Size.LARGE);
+    List<Dto> authorizations = getAllAuthorizations();
+    Stream<AuthorizationScope> scopes = getScopes(emptyIndexTypes);
+    index(authorizations, scopes, Size.LARGE);
   }
 
   private List<Dto> getAllAuthorizations() {
