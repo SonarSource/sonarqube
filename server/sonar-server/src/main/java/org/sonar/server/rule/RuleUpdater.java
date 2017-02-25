@@ -21,8 +21,6 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -32,8 +30,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -49,8 +47,11 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 @ServerSide
 public class RuleUpdater {
@@ -103,17 +104,13 @@ public class RuleUpdater {
    * Load all the DTOs required for validating changes and updating rule
    */
   private Context newContext(RuleUpdate change) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Context context = new Context();
       context.rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getRuleKey());
       if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
       return context;
-
-    } finally {
-      dbSession.close();
     }
   }
 
@@ -144,45 +141,41 @@ public class RuleUpdater {
 
   private static void updateName(RuleUpdate update, Context context) {
     String name = update.getName();
-    if (Strings.isNullOrEmpty(name)) {
+    if (isNullOrEmpty(name)) {
       throw new IllegalArgumentException("The name is missing");
-    } else {
-      context.rule.setName(name);
     }
+    context.rule.setName(name);
   }
 
   private static void updateDescription(RuleUpdate update, Context context) {
     String description = update.getMarkdownDescription();
-    if (Strings.isNullOrEmpty(description)) {
+    if (isNullOrEmpty(description)) {
       throw new IllegalArgumentException("The description is missing");
-    } else {
-      context.rule.setDescription(description);
-      context.rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
     }
+    context.rule.setDescription(description);
+    context.rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
   }
 
   private static void updateSeverity(RuleUpdate update, Context context) {
     String severity = update.getSeverity();
-    if (Strings.isNullOrEmpty(severity) || !Severity.ALL.contains(severity)) {
+    if (isNullOrEmpty(severity) || !Severity.ALL.contains(severity)) {
       throw new IllegalArgumentException("The severity is invalid");
-    } else {
-      context.rule.setSeverity(severity);
     }
+    context.rule.setSeverity(severity);
   }
 
   private static void updateStatus(RuleUpdate update, Context context) {
     RuleStatus status = update.getStatus();
     if (status == null) {
       throw new IllegalArgumentException("The status is missing");
-    } else {
-      context.rule.setStatus(status);
     }
+    context.rule.setStatus(status);
   }
 
   private static void updateTags(RuleUpdate update, Context context) {
     Set<String> tags = update.getTags();
     if (tags == null || tags.isEmpty()) {
-      context.rule.setTags(Collections.<String>emptySet());
+      context.rule.setTags(Collections.emptySet());
     } else {
       RuleTagHelper.applyTags(context.rule, tags);
     }
@@ -209,7 +202,7 @@ public class RuleUpdater {
   }
 
   private void updateMarkdownNote(RuleUpdate update, Context context, UserSession userSession) {
-    if (StringUtils.isBlank(update.getMarkdownNote())) {
+    if (isBlank(update.getMarkdownNote())) {
       context.rule.setNoteData(null);
       context.rule.setNoteCreatedAt(null);
       context.rule.setNoteUpdatedAt(null);
@@ -235,7 +228,7 @@ public class RuleUpdater {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = context.rule;
       Integer templateId = customRule.getTemplateId();
-      Preconditions.checkNotNull(templateId, "Rule '%s' has no persisted template!", customRule);
+      checkNotNull(templateId, "Rule '%s' has no persisted template!", customRule);
       Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(templateId, dbSession);
       if (!templateRule.isPresent()) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
@@ -280,16 +273,14 @@ public class RuleUpdater {
     }
   }
 
-  private void updateOrInsertActiveRuleParams(DbSession dbSession, RuleParamDto ruleParamDto, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule){
-    from(activeRuleParamsByActiveRule.keySet())
-      .filter(new UpdateOrInsertActiveRuleParams(dbSession, dbClient, ruleParamDto, activeRuleParamsByActiveRule))
-      .toList();
+  private void updateOrInsertActiveRuleParams(DbSession dbSession, RuleParamDto ruleParamDto, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule) {
+    activeRuleParamsByActiveRule
+      .keySet()
+      .forEach(new UpdateOrInsertActiveRuleParams(dbSession, dbClient, ruleParamDto, activeRuleParamsByActiveRule));
   }
 
-  private void deleteActiveRuleParams(DbSession dbSession, String key, Collection<ActiveRuleParamDto> activeRuleParamDtos){
-    from(activeRuleParamDtos)
-      .filter(new DeleteActiveRuleParams(dbSession, dbClient, key))
-      .toList();
+  private void deleteActiveRuleParams(DbSession dbSession, String key, Collection<ActiveRuleParamDto> activeRuleParamDtos) {
+    activeRuleParamDtos.forEach(new DeleteActiveRuleParams(dbSession, dbClient, key));
   }
 
   private static class ActiveRuleParamToActiveRule implements Function<ActiveRuleParamDto, ActiveRuleDto> {
@@ -305,7 +296,7 @@ public class RuleUpdater {
     }
   }
 
-  private static class UpdateOrInsertActiveRuleParams implements Predicate<ActiveRuleDto> {
+  private static class UpdateOrInsertActiveRuleParams implements Consumer<ActiveRuleDto> {
     private final DbSession dbSession;
     private final DbClient dbClient;
     private final RuleParamDto ruleParamDto;
@@ -319,7 +310,7 @@ public class RuleUpdater {
     }
 
     @Override
-    public boolean apply(@Nonnull ActiveRuleDto activeRuleDto) {
+    public void accept(@Nonnull ActiveRuleDto activeRuleDto) {
       Map<String, ActiveRuleParamDto> activeRuleParamByKey = from(activeRuleParams.get(activeRuleDto))
         .uniqueIndex(ActiveRuleParamDto::getKey);
       ActiveRuleParamDto activeRuleParamDto = activeRuleParamByKey.get(ruleParamDto.getName());
@@ -328,11 +319,10 @@ public class RuleUpdater {
       } else {
         dbClient.activeRuleDao().insertParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(ruleParamDto).setValue(ruleParamDto.getDefaultValue()));
       }
-      return true;
     }
   }
 
-  private static class DeleteActiveRuleParams implements Predicate<ActiveRuleParamDto> {
+  private static class DeleteActiveRuleParams implements Consumer<ActiveRuleParamDto> {
     private final DbSession dbSession;
     private final DbClient dbClient;
     private final String key;
@@ -344,11 +334,10 @@ public class RuleUpdater {
     }
 
     @Override
-    public boolean apply(@Nonnull ActiveRuleParamDto activeRuleParamDto) {
+    public void accept(@Nonnull ActiveRuleParamDto activeRuleParamDto) {
       if (activeRuleParamDto.getKey().equals(key)) {
         dbClient.activeRuleDao().deleteParamById(dbSession, activeRuleParamDto.getId());
       }
-      return true;
     }
   }
 

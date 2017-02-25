@@ -143,7 +143,7 @@ public class RuleDto {
   }
 
   public RuleDto setName(@Nullable String s) {
-    checkArgument(s== null || s.length() <= 255, "Rule name is too long: %s", s);
+    checkArgument(s == null || s.length() <= 255, "Rule name is too long: %s", s);
     this.name = s;
     return this;
   }
@@ -205,38 +205,42 @@ public class RuleDto {
     return this;
   }
 
+  @CheckForNull
   public String getNoteData() {
     return noteData;
   }
 
-  public RuleDto setNoteData(String noteData) {
-    this.noteData = noteData;
+  public RuleDto setNoteData(@Nullable String s) {
+    this.noteData = s;
     return this;
   }
 
+  @CheckForNull
   public String getNoteUserLogin() {
     return noteUserLogin;
   }
 
-  public RuleDto setNoteUserLogin(String noteUserLogin) {
+  public RuleDto setNoteUserLogin(@Nullable String noteUserLogin) {
     this.noteUserLogin = noteUserLogin;
     return this;
   }
 
+  @CheckForNull
   public Date getNoteCreatedAt() {
     return noteCreatedAt;
   }
 
-  public RuleDto setNoteCreatedAt(Date noteCreatedAt) {
+  public RuleDto setNoteCreatedAt(@Nullable Date noteCreatedAt) {
     this.noteCreatedAt = noteCreatedAt;
     return this;
   }
 
+  @CheckForNull
   public Date getNoteUpdatedAt() {
     return noteUpdatedAt;
   }
 
-  public RuleDto setNoteUpdatedAt(Date noteUpdatedAt) {
+  public RuleDto setNoteUpdatedAt(@Nullable Date noteUpdatedAt) {
     this.noteUpdatedAt = noteUpdatedAt;
     return this;
   }
