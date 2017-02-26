@@ -47,7 +47,6 @@ public class PostgreSqlTest {
   @Test
   public void should_configure() {
     assertThat(dialect.getId()).isEqualTo("postgresql");
-    assertThat(dialect.getActiveRecordDialectCode()).isEqualTo("postgre");
     assertThat(dialect.getDefaultDriverClassName()).isEqualTo("org.postgresql.Driver");
     assertThat(dialect.getValidationQuery()).isEqualTo("SELECT 1");
   }

@@ -32,7 +32,7 @@ public class PostgreSql extends AbstractDialect {
   static final List<String> INIT_STATEMENTS = ImmutableList.of("SET standard_conforming_strings=on", "SET backslash_quote=off");
 
   public PostgreSql() {
-    super(ID, "postgre", "org.postgresql.Driver", "true", "false", "SELECT 1");
+    super(ID, "org.postgresql.Driver", "true", "false", "SELECT 1");
   }
 
   @Override

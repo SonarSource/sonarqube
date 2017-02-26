@@ -26,7 +26,7 @@ public class MsSql extends AbstractDialect {
   public static final String ID = "mssql";
 
   public MsSql() {
-    super(ID, "sqlserver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", "1", "0", "SELECT 1");
+    super(ID, "com.microsoft.sqlserver.jdbc.SQLServerDriver", "1", "0", "SELECT 1");
   }
 
   @Override

@@ -42,7 +42,6 @@ public class OracleTest {
   @Test
   public void should_configure() {
     assertThat(underTest.getId()).isEqualTo("oracle");
-    assertThat(underTest.getActiveRecordDialectCode()).isEqualTo("oracle");
     assertThat(underTest.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
     assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
   }

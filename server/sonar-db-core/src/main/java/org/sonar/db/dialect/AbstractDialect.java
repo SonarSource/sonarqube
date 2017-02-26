@@ -27,16 +27,14 @@ import java.util.List;
  */
 abstract class AbstractDialect implements Dialect {
   private final String id;
-  private final String activeRecordDialectCode;
   private final String defaultDriverClassName;
   private final String trueSqlValue;
   private final String falseSqlValue;
   private final String validationQuery;
 
-  protected AbstractDialect(String id, String activeRecordDialectCode, String defaultDriverClassName, String trueSqlValue, String falseSqlValue,
+  protected AbstractDialect(String id, String defaultDriverClassName, String trueSqlValue, String falseSqlValue,
     String validationQuery) {
     this.id = id;
-    this.activeRecordDialectCode = activeRecordDialectCode;
     this.defaultDriverClassName = defaultDriverClassName;
     this.trueSqlValue = trueSqlValue;
     this.falseSqlValue = falseSqlValue;
@@ -46,11 +44,6 @@ abstract class AbstractDialect implements Dialect {
   @Override
   public String getId() {
     return id;
-  }
-
-  @Override
-  public String getActiveRecordDialectCode() {
-    return activeRecordDialectCode;
   }
 
   @Override

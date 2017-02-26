@@ -32,7 +32,7 @@ public class Oracle extends AbstractDialect {
   private static final List<String> INIT_STATEMENTS = ImmutableList.of("ALTER SESSION SET NLS_SORT='BINARY'");
 
   public Oracle() {
-    super(ID, "oracle", "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");
+    super(ID, "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");
   }
 
   @Override

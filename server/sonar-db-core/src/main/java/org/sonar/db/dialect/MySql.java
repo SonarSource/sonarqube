@@ -29,7 +29,7 @@ public class MySql extends AbstractDialect {
   public static final String ID = "mysql";
 
   public MySql() {
-    super(ID, "mysql", "com.mysql.jdbc.Driver", "true", "false", "SELECT 1");
+    super(ID, "com.mysql.jdbc.Driver", "true", "false", "SELECT 1");
   }
 
   @Override

@@ -32,11 +32,6 @@ public interface Dialect {
   String getId();
 
   /**
-   * @return the activerecord dialect to be used
-   */
-  String getActiveRecordDialectCode();
-
-  /**
    * Used to autodetect a dialect for a given driver URL
    *
    * @param jdbcConnectionURL a jdbc driver url such as jdbc:mysql://localhost:3306/sonar
