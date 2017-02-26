@@ -31,6 +31,7 @@ import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.joran.spi.ConsoleTarget;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 import org.junit.AfterClass;
@@ -39,9 +40,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.logging.LogbackHelper;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
@@ -230,7 +232,7 @@ public class AppLoggingTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-    
+
     underTest.configure(props);
   }
 
@@ -242,6 +244,31 @@ public class AppLoggingTest {
     expectedException.expectMessage("log level ERROR in property sonar.log.level.app is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
 
     underTest.configure(props);
+  }
+
+  @Test
+  public void no_info_log_from_hazelcast() throws IOException {
+    props.set(ClusterParameters.ENABLED.getName(), "true");
+    new ClusterProperties(props).populateProps(props);
+    underTest.configure(props);
+
+    assertThat(
+      LoggerFactory.getLogger("com.hazelcast").isInfoEnabled()
+    ).isEqualTo(false);
+  }
+
+  @Test
+  public void configure_logging_for_hazelcast() throws IOException {
+    props.set(ClusterParameters.ENABLED.getName(), "true");
+    props.set(ClusterParameters.HAZELCAST_LOG_LEVEL.getName(), "INFO");
+    underTest.configure(props);
+
+    assertThat(
+      LoggerFactory.getLogger("com.hazelcast").isInfoEnabled()
+    ).isEqualTo(true);
+    assertThat(
+      LoggerFactory.getLogger("com.hazelcast").isDebugEnabled()
+    ).isEqualTo(false);
   }
 
   private void emulateRunFromSonarScript() {

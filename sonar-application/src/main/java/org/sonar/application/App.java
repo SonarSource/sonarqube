@@ -50,6 +50,7 @@ public class App implements Stoppable {
   private final JavaCommandFactory javaCommandFactory;
   private final Monitor monitor;
   private final Supplier<List<JavaCommand>> javaCommandSupplier;
+  private final Cluster cluster;
 
   private App(Properties commandLineArguments) {
     this.commandLineArguments = commandLineArguments;
@@ -59,8 +60,12 @@ public class App implements Stoppable {
 
     AppFileSystem appFileSystem = new AppFileSystem(props);
     appFileSystem.verifyProps();
+    ClusterProperties clusterProperties = new ClusterProperties(props);
+    clusterProperties.populateProps(props);
     AppLogging logging = new AppLogging();
     logging.configure(props);
+    clusterProperties.validate();
+    this.cluster = new Cluster(clusterProperties);
 
     // used by orchestrator
     boolean watchForHardStop = props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false);
@@ -76,12 +81,13 @@ public class App implements Stoppable {
 
   @VisibleForTesting
   App(Properties commandLineArguments, Function<Properties, Props> propsSupplier, Monitor monitor, CheckFSConfigOnReload checkFsConfigOnReload,
-    JavaCommandFactory javaCommandFactory) {
+      JavaCommandFactory javaCommandFactory, Cluster cluster) {
     this.commandLineArguments = commandLineArguments;
     this.propsSupplier = propsSupplier;
     this.javaCommandFactory = javaCommandFactory;
     this.monitor = monitor;
     this.javaCommandSupplier = new ReloadableCommandSupplier(propsSupplier.apply(commandLineArguments), checkFsConfigOnReload);
+    this.cluster = cluster;
   }
 
   public void start() throws InterruptedException {
@@ -109,6 +115,9 @@ public class App implements Stoppable {
 
   @Override
   public void stopAsync() {
+    if (cluster != null) {
+      cluster.close();
+    }
     if (monitor != null) {
       monitor.stop();
     }

@@ -19,15 +19,16 @@
  */
 package org.sonar.application;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
-import org.sonar.process.logging.LogLevelConfig;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
+import org.sonar.process.logging.LogLevelConfig;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
@@ -128,7 +129,11 @@ class AppLogging {
     } else {
       configureWithWrapperWritingToFile(ctx);
     }
-    helper.apply(LogLevelConfig.newBuilder().rootLevelFor(ProcessId.APP).build(), props);
+    helper.apply(
+      LogLevelConfig.newBuilder()
+        .rootLevelFor(ProcessId.APP)
+        .immutableLevel("com.hazelcast", Level.toLevel(props.value(ClusterParameters.HAZELCAST_LOG_LEVEL.getName())))
+        .build(), props);
 
     return ctx;
   }
