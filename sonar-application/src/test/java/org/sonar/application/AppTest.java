@@ -88,7 +88,7 @@ public class AppTest {
     Props props = initDefaultProps();
     Monitor monitor = mock(Monitor.class);
     Cluster cluster = mock(Cluster.class);
-    App app = new App(props.rawProperties(), properties -> props, monitor, checkFsConfigOnReload, javaCommandFactory);
+    App app = new App(props.rawProperties(), properties -> props, monitor, checkFsConfigOnReload, javaCommandFactory, cluster);
     app.start();
 
     ArgumentCaptor<Supplier<List<JavaCommand>>> argument = newJavaCommandArgumentCaptor();
@@ -147,7 +147,8 @@ public class AppTest {
     // setup an App that emulate reloading of props returning different configuration
     Iterator<Props> propsIterator = Arrays.asList(initialProps, props).iterator();
     Monitor monitor = mock(Monitor.class);
-    App app = new App(initialProps.rawProperties(), properties -> propsIterator.next(), monitor, checkFsConfigOnReload, javaCommandFactory);
+    Cluster cluster = mock(Cluster.class);
+    App app = new App(initialProps.rawProperties(), properties -> propsIterator.next(), monitor, checkFsConfigOnReload, javaCommandFactory, cluster);
     // start App and capture the JavaCommand supplier it provides to the Monitor
     app.start();
     Supplier<List<JavaCommand>> supplier = captureJavaCommandsSupplier(monitor);
@@ -176,7 +177,8 @@ public class AppTest {
     // setup an App that emulate reloading of props returning different configuration
     Iterator<Props> propsIterator = Arrays.asList(initialProps, props).iterator();
     Monitor monitor = mock(Monitor.class);
-    App app = new App(initialProps.rawProperties(), properties -> propsIterator.next(), monitor, checkFsConfigOnReload, javaCommandFactory);
+    Cluster cluster = mock(Cluster.class);
+    App app = new App(initialProps.rawProperties(), properties -> propsIterator.next(), monitor, checkFsConfigOnReload, javaCommandFactory, cluster);
     // start App and capture the JavaCommand supplier it provides to the Monitor
     app.start();
     Supplier<List<JavaCommand>> supplier = captureJavaCommandsSupplier(monitor);
@@ -215,7 +217,7 @@ public class AppTest {
   private List<JavaCommand> start(Props props) throws Exception {
     Monitor monitor = mock(Monitor.class);
     Cluster cluster = mock(Cluster.class);
-    App app = new App(props.rawProperties(), properties -> props, monitor, checkFsConfigOnReload, javaCommandFactory);
+    App app = new App(props.rawProperties(), properties -> props, monitor, checkFsConfigOnReload, javaCommandFactory, cluster);
     app.start();
     ArgumentCaptor<Supplier<List<JavaCommand>>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
