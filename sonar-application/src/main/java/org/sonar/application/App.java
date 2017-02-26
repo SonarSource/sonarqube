@@ -115,6 +115,9 @@ public class App implements Stoppable {
 
   @Override
   public void stopAsync() {
+    if (cluster != null) {
+      cluster.close();
+    }
     if (monitor != null) {
       monitor.stop();
     }
