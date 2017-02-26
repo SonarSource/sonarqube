@@ -65,7 +65,7 @@ public class App implements Stoppable {
     AppLogging logging = new AppLogging();
     logging.configure(props);
     clusterProperties.validate();
-    cluster = new Cluster(clusterProperties);
+    this.cluster = new Cluster(clusterProperties);
 
     // used by orchestrator
     boolean watchForHardStop = props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false);
@@ -108,8 +108,6 @@ public class App implements Stoppable {
   public static void main(String[] args) throws InterruptedException {
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
-
-    Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
 
     App app = new App(rawProperties);
     app.start();
