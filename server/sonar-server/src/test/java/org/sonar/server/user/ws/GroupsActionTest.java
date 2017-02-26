@@ -58,7 +58,7 @@ public class GroupsActionTest {
   @Before
   public void setUp() {
     System2 system2 = new System2();
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
+    UserDao userDao = new UserDao(system2);
     GroupDao groupDao = new GroupDao(system2);
     UserGroupDao userGroupDao = new UserGroupDao();
     GroupMembershipDao groupMembershipDao = new GroupMembershipDao();
