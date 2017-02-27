@@ -22,7 +22,6 @@ package org.sonar.server.es;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.elasticsearch.action.ActionRequest;
@@ -72,8 +71,6 @@ public class BulkIndexer implements Startable {
   private BulkProcessor bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
   private final AtomicLong counter = new AtomicLong(0L);
-  private final int concurrentRequests;
-  private final Semaphore semaphore;
   private final ProgressLogger progress;
 
   public BulkIndexer(EsClient client, String indexName) {
@@ -81,15 +78,18 @@ public class BulkIndexer implements Startable {
     this.indexName = indexName;
     this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", indexName), counter, LOGGER)
       .setPluralLabel("requests");
-
-    // see https://jira.sonarsource.com/browse/SONAR-8075
-    this.concurrentRequests = Math.max(1, Runtime.getRuntime().availableProcessors() / 5);
-    this.semaphore = new Semaphore(concurrentRequests);
   }
 
   public enum Size {
     /** Use this size for a limited number of documents. */
-    REGULAR,
+    REGULAR {
+
+      @Override
+      int getConcurrentRequests() {
+        // do not parallalize, send request one after another
+        return 0;
+      }
+    },
 
     /** Use this size for initial indexing and if you expect unusual huge numbers of documents. */
     LARGE {
@@ -116,6 +116,11 @@ public class BulkIndexer implements Startable {
       }
 
       @Override
+      int getConcurrentRequests() {
+        return Runtime.getRuntime().availableProcessors() / 5;
+      }
+
+      @Override
       void afterStop(BulkIndexer bulkIndexer) {
         // optimize lucene segments and revert index settings
         // Optimization must be done before re-applying replicas:
@@ -135,6 +140,9 @@ public class BulkIndexer implements Startable {
     void beforeStart(BulkIndexer bulkIndexer) {
       // can be overwritten
     }
+
+    /** @see https://jira.sonarsource.com/browse/SONAR-8075 */
+    abstract int getConcurrentRequests();
 
     void afterStop(BulkIndexer bulkIndexer) {
       // can be overwritten
@@ -162,6 +170,7 @@ public class BulkIndexer implements Startable {
     size.beforeStart(this);
     bulkRequest = client.prepareBulkProcessor(new BulkProcessorListener())
       .setBulkSize(new ByteSizeValue(flushByteSize))
+      .setConcurrentRequests(size.getConcurrentRequests())
       .build();
     counter.set(0L);
     progress.start();
@@ -228,11 +237,8 @@ public class BulkIndexer implements Startable {
 
   @Override
   public void stop() {
-    bulkRequest.close();
     try {
-      if (semaphore.tryAcquire(concurrentRequests, 10, TimeUnit.MINUTES)) {
-        semaphore.release(concurrentRequests);
-      }
+      bulkRequest.awaitClose(10, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 10 minutes", e);
     }
@@ -246,12 +252,11 @@ public class BulkIndexer implements Startable {
 
     @Override
     public void beforeBulk(long executionId, BulkRequest request) {
-      semaphore.acquireUninterruptibly();
+      // no action required
     }
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-      semaphore.release();
       counter.addAndGet(response.getItems().length);
 
       for (BulkItemResponse item : response.getItems()) {
@@ -263,7 +268,6 @@ public class BulkIndexer implements Startable {
 
     @Override
     public void afterBulk(long executionId, BulkRequest req, Throwable e) {
-      semaphore.release();
       LOGGER.error("Fail to execute bulk index request: " + req, e);
     }
   }
