@@ -224,32 +224,37 @@
         </executions>
       </plugin>
       <plugin>
-         <groupId>org.codehaus.gmaven</groupId>
-         <artifactId>groovy-maven-plugin</artifactId>
-         <executions>
-           <execution>
-             <id>compute-version-on-three-fields</id>
-             <phase>generate-resources</phase>
-             <goals>
-               <goal>execute</goal>
-             </goals>
-             <configuration>
-               <source><![CDATA[
+        <groupId>com.github.genthaler</groupId>
+        <artifactId>beanshell-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>compute-version-on-three-fields</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <script>
+                <![CDATA[
                  if (! "${buildVersion}".endsWith("-SNAPSHOT")) {
-                   String apiVersion
-                   String[] fields = "${buildVersion}".tokenize('.')
-                   if (fields.length > 3) {
-                     apiVersion = fields[0..2].join('.')
-                   } else {
-                     apiVersion = fields.join('.')
+                   // example: "6.3.0.1234". To be backward-compatible with scanners, only "6.3.0" must be kept
+                   fields = "${buildVersion}".split("\\.");
+                   sj = new StringJoiner(".");
+                   i = 0;
+                   for (String field : fields) {
+                     if (i == 3) {
+                       break;
+                     }
+                     sj.add(field);
+                     ++i;
                    }
-                   project.properties['buildVersionOnThreeFields'] = apiVersion
+                   project.getProperties().setProperty("buildVersionOnThreeFields", sj.toString());
                  }
-                 ]]>
-               </source>
-             </configuration>
-           </execution>
-         </executions>
+                ]]>
+              </script>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
 
