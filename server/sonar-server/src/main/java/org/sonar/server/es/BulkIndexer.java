@@ -25,12 +25,13 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestBuilder;
 import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkProcessor.Listener;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -68,7 +69,7 @@ public class BulkIndexer implements Startable {
   private final String indexName;
   private Size size = Size.REGULAR;
   private long flushByteSize = FLUSH_BYTE_SIZE;
-  private BulkRequestBuilder bulkRequest = null;
+  private BulkProcessor bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
   private final AtomicLong counter = new AtomicLong(0L);
   private final int concurrentRequests;
@@ -131,16 +132,15 @@ public class BulkIndexer implements Startable {
 
       updateSettings(bulkSettings);
     }
-    bulkRequest = client.prepareBulk().setRefresh(false);
+    bulkRequest = client.prepareBulkProcessor(new BulkProcessorListener())
+      .setBulkSize(new ByteSizeValue(flushByteSize))
+      .build();
     counter.set(0L);
     progress.start();
   }
 
   public void add(ActionRequest<?> request) {
-    bulkRequest.request().add(request);
-    if (bulkRequest.request().estimatedSizeInBytes() >= flushByteSize) {
-      executeBulk();
-    }
+    bulkRequest.add(request);
   }
 
   public void addDeletion(SearchRequestBuilder searchRequest) {
@@ -200,9 +200,7 @@ public class BulkIndexer implements Startable {
 
   @Override
   public void stop() {
-    if (bulkRequest.numberOfActions() > 0) {
-      executeBulk();
-    }
+    bulkRequest.close();
     try {
       if (semaphore.tryAcquire(concurrentRequests, 10, TimeUnit.MINUTES)) {
         semaphore.release(concurrentRequests);
@@ -229,22 +227,15 @@ public class BulkIndexer implements Startable {
     req.get();
   }
 
-  private void executeBulk() {
-    final BulkRequestBuilder req = this.bulkRequest;
-    this.bulkRequest = client.prepareBulk().setRefresh(false);
-    semaphore.acquireUninterruptibly();
-    req.execute(new BulkResponseActionListener(req));
-  }
+  private final class BulkProcessorListener implements Listener {
 
-  private class BulkResponseActionListener implements ActionListener<BulkResponse> {
-    private final BulkRequestBuilder req;
-
-    BulkResponseActionListener(BulkRequestBuilder req) {
-      this.req = req;
+    @Override
+    public void beforeBulk(long executionId, BulkRequest request) {
+      semaphore.acquireUninterruptibly();
     }
 
     @Override
-    public void onResponse(BulkResponse response) {
+    public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
       semaphore.release();
       counter.addAndGet(response.getItems().length);
 
@@ -256,7 +247,7 @@ public class BulkIndexer implements Startable {
     }
 
     @Override
-    public void onFailure(Throwable e) {
+    public void afterBulk(long executionId, BulkRequest req, Throwable e) {
       semaphore.release();
       LOGGER.error("Fail to execute bulk index request: " + req, e);
     }
