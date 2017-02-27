@@ -67,4 +67,7 @@ public interface Sensor extends CheckProject {
    */
   void analyse(Project module, SensorContext context);
 
+  default boolean isGlobal() {
+    return false;
+  }
 }

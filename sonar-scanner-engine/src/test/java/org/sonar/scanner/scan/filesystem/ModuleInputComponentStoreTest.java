@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.sensor.SensorScope;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.mock;
 public class ModuleInputComponentStoreTest {
   @Test
   public void should_cache_files_by_filename() throws IOException {
-    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
+    ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String filename = "some name";
     String moduleKey = "dummy key";
@@ -49,7 +50,7 @@ public class ModuleInputComponentStoreTest {
 
   @Test
   public void should_cache_files_by_extension() throws IOException {
-    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
+    ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String moduleKey = "dummy key";
     InputFile inputFile1 = new TestInputFileBuilder(moduleKey, "some/path/Program.java").build();
@@ -66,7 +67,7 @@ public class ModuleInputComponentStoreTest {
 
   @Test
   public void should_not_cache_duplicates() throws IOException {
-    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
+    ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String ext = "java";
     String filename = "Program." + ext;
@@ -81,7 +82,7 @@ public class ModuleInputComponentStoreTest {
 
   @Test
   public void should_get_empty_iterable_on_cache_miss() {
-    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
+    ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String ext = "java";
     String filename = "Program." + ext;
@@ -90,5 +91,9 @@ public class ModuleInputComponentStoreTest {
 
     assertThat(store.getFilesByName("nonexistent")).isEmpty();
     assertThat(store.getFilesByExtension("nonexistent")).isEmpty();
+  }
+
+  private ModuleInputComponentStore newModuleInputComponentStore() {
+    return new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore(), mock(SensorScope.class));
   }
 }

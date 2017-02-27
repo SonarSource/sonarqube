@@ -64,4 +64,9 @@ public class OneIssuePerDirectorySensor implements Sensor {
           .save();
       });
   }
+
+  @Override
+  public boolean isGlobal() {
+    return true;
+  }
 }

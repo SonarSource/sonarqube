@@ -61,4 +61,9 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
       return wrappedSensor.getClass().getName();
     }
   }
+
+  @Override
+  public boolean isGlobal() {
+    return wrappedSensor.isGlobal();
+  }
 }

@@ -21,6 +21,7 @@ package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,6 +39,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
 import org.sonar.api.batch.fs.internal.FilenamePredicate;
 
@@ -47,7 +50,9 @@ import org.sonar.api.batch.fs.internal.FilenamePredicate;
 @ScannerSide
 public class InputComponentStore {
 
+  private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
   private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();
+  private final Map<String, InputDir> globalInputDirCache = new HashMap<>();
   private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
   private final Map<String, InputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
@@ -115,6 +120,7 @@ public class InputComponentStore {
   public InputComponentStore put(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
+    globalInputFileCache.put(getRelativePath(file), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
     filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
@@ -124,8 +130,32 @@ public class InputComponentStore {
   public InputComponentStore put(InputDir inputDir) {
     DefaultInputDir dir = (DefaultInputDir) inputDir;
     inputDirCache.put(dir.moduleKey(), inputDir.relativePath(), inputDir);
+    globalInputDirCache.put(getRelativePath(inputDir), inputDir);
     inputComponents.put(inputDir.key(), inputDir);
     return this;
+  }
+
+  private String getRelativePath(DefaultInputFile file) {
+    return getRelativePath(file.moduleKey(), file.path());
+  }
+
+  private String getRelativePath(InputDir inputDir) {
+    DefaultInputDir dir = (DefaultInputDir) inputDir;
+    return getRelativePath(dir.moduleKey(), inputDir.path());
+  }
+
+  private String getRelativePath(String moduleKey, Path path) {
+    return getRootPath(moduleKey).relativize(path).toString();
+  }
+
+  private Path getRootPath(String moduleKey) {
+    DefaultInputModule inputModule = (DefaultInputModule) inputModuleCache.get(moduleKey);
+    ProjectDefinition definition = inputModule.definition();
+    ProjectDefinition parent = definition.getParent();
+    if (parent == null) {
+      return definition.getBaseDir().toPath();
+    }
+    return getRootPath(parent.getKey());
   }
 
   @CheckForNull
@@ -134,8 +164,18 @@ public class InputComponentStore {
   }
 
   @CheckForNull
+  public InputFile getFile(String relativePath) {
+    return globalInputFileCache.get(relativePath);
+  }
+
+  @CheckForNull
   public InputDir getDir(String moduleKey, String relativePath) {
     return inputDirCache.get(moduleKey, relativePath);
+  }
+
+  @CheckForNull
+  public InputDir getDir(String relativePath) {
+    return globalInputDirCache.get(relativePath);
   }
 
   @CheckForNull

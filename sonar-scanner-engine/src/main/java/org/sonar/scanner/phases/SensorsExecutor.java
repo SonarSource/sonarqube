@@ -28,17 +28,20 @@ import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import java.util.Collection;
+import org.sonar.scanner.sensor.SensorScope;
 
 @ScannerSide
 public class SensorsExecutor {
   private final EventBus eventBus;
   private final DefaultInputModule module;
   private final ScannerExtensionDictionnary selector;
+  private final SensorScope scope;
 
-  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus) {
+  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus, SensorScope scope) {
     this.selector = selector;
     this.eventBus = eventBus;
     this.module = module;
+    this.scope = scope;
   }
 
   public void execute(SensorContext context) {
@@ -46,10 +49,22 @@ public class SensorsExecutor {
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {
-      executeSensor(context, sensor);
+      if (sensor.isGlobal()) {
+        if (isRoot(module)) {
+          scope.setGlobal(true);
+          executeSensor(context, sensor);
+        }
+      } else {
+        scope.setGlobal(false);
+        executeSensor(context, sensor);
+      }
     }
 
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), false));
+  }
+
+  private boolean isRoot(DefaultInputModule module) {
+    return module.definition().getParent() == null;
   }
 
   private void executeSensor(SensorContext context, Sensor sensor) {

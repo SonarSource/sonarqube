@@ -49,4 +49,7 @@ public interface Sensor {
    */
   void execute(SensorContext context);
 
+  default boolean isGlobal() {
+    return false;
+  }
 }

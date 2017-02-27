@@ -24,31 +24,46 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.scanner.sensor.SensorScope;
 
 @ScannerSide
 public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
 
   private final String moduleKey;
   private final InputComponentStore inputComponentStore;
+  private final SensorScope scope;
 
-  public ModuleInputComponentStore(InputModule module, InputComponentStore inputComponentStore) {
+  public ModuleInputComponentStore(InputModule module, InputComponentStore inputComponentStore, SensorScope scope) {
     this.moduleKey = module.key();
     this.inputComponentStore = inputComponentStore;
+    this.scope = scope;
   }
 
   @Override
   public Iterable<InputFile> inputFiles() {
-    return inputComponentStore.filesByModule(moduleKey);
+    if (scope.isGlobal()) {
+      return inputComponentStore.allFiles();
+    } else {
+      return inputComponentStore.filesByModule(moduleKey);
+    }
   }
 
   @Override
   public InputFile inputFile(String relativePath) {
-    return inputComponentStore.getFile(moduleKey, relativePath);
+    if (scope.isGlobal()) {
+      return inputComponentStore.getFile(relativePath);
+    } else {
+      return inputComponentStore.getFile(moduleKey, relativePath);
+    }
   }
 
   @Override
   public InputDir inputDir(String relativePath) {
-    return inputComponentStore.getDir(moduleKey, relativePath);
+    if (scope.isGlobal()) {
+      return inputComponentStore.getDir(relativePath);
+    } else {
+      return inputComponentStore.getDir(moduleKey, relativePath);
+    }
   }
 
   @Override
