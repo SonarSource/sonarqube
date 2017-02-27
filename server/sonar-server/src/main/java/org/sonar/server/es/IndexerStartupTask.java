@@ -21,6 +21,12 @@ package org.sonar.server.es;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthAction;
+import org.elasticsearch.action.admin.indices.close.CloseIndexAction;
+import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.Settings.Builder;
+import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -31,6 +37,7 @@ import static java.util.stream.Collectors.toSet;
 public class IndexerStartupTask {
 
   private static final Logger LOG = Loggers.get(IndexerStartupTask.class);
+  private static final String SETTING_PREFIX_INITIAL_INDEXING_FINISHED = "sonarqube_initial_indexing_finished.";
 
   private final EsClient esClient;
   private final Settings settings;
@@ -45,7 +52,7 @@ public class IndexerStartupTask {
   public void execute() {
     if (indexesAreEnabled()) {
       stream(indexers)
-      .forEach(this::indexEmptyTypes);
+        .forEach(this::indexEmptyTypes);
     }
   }
 
@@ -54,16 +61,56 @@ public class IndexerStartupTask {
   }
 
   private void indexEmptyTypes(StartupIndexer indexer) {
-    Set<IndexType> emptyTypes = getEmptyTypes(indexer);
-    if (!emptyTypes.isEmpty()) {
-      log(indexer, emptyTypes, "...");
-      indexer.indexOnStartup(emptyTypes);
-      log(indexer, emptyTypes, "done");
+    Set<IndexType> uninizializedTypes = getUninitializedTypes(indexer);
+    if (!uninizializedTypes.isEmpty()) {
+      log(indexer, uninizializedTypes, "...");
+      indexer.indexOnStartup(uninizializedTypes);
+      uninizializedTypes.forEach(this::setInitialized);
+      log(indexer, uninizializedTypes, "done");
     }
   }
 
-  private Set<IndexType> getEmptyTypes(StartupIndexer indexer) {
-    return indexer.getIndexTypes().stream().filter(esClient::isEmpty).collect(toSet());
+  private Set<IndexType> getUninitializedTypes(StartupIndexer indexer) {
+    return indexer.getIndexTypes().stream().filter(this::getUninitialized).collect(toSet());
+  }
+
+  private boolean getUninitialized(IndexType indexType) {
+    String setting = esClient.nativeClient().admin().indices().prepareGetSettings(indexType.getIndex()).get().getSetting(indexType.getIndex(),
+      getInitializedSettingName(indexType));
+    return !"true".equals(setting);
+  }
+
+  private void setInitialized(IndexType indexType) {
+    String index = indexType.getIndex();
+    closeIndex(index);
+    setIndexSetting(index, getInitializedSettingName(indexType), true);
+    openIndex(index);
+    waitForIndexYellow(index);
+  }
+
+  private void closeIndex(String index) {
+    Client nativeClient = esClient.nativeClient();
+    CloseIndexAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).get();
+  }
+
+  private void setIndexSetting(String index, String name, boolean value) {
+    Client nativeClient = esClient.nativeClient();
+    Builder setting = org.elasticsearch.common.settings.Settings.builder().put(name, value);
+    nativeClient.admin().indices().prepareUpdateSettings(index).setSettings(setting).get();
+  }
+
+  private void openIndex(String index) {
+    Client nativeClient = esClient.nativeClient();
+    OpenIndexAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).get();
+  }
+
+  private void waitForIndexYellow(String index) {
+    Client nativeClient = esClient.nativeClient();
+    ClusterHealthAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).setWaitForYellowStatus().get(TimeValue.timeValueMinutes(10));
+  }
+
+  private static String getInitializedSettingName(IndexType indexType) {
+    return "index." + SETTING_PREFIX_INITIAL_INDEXING_FINISHED + indexType.getType();
   }
 
   private void log(StartupIndexer indexer, Set<IndexType> emptyTypes, String suffix) {
