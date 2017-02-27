@@ -92,7 +92,53 @@ public class BulkIndexer implements Startable {
     REGULAR,
 
     /** Use this size for initial indexing and if you expect unusual huge numbers of documents. */
-    LARGE;
+    LARGE {
+
+      @Override
+      void beforeStart(BulkIndexer bulkIndexer) {
+        bulkIndexer.largeInitialSettings = Maps.newHashMap();
+        Map<String, Object> bulkSettings = Maps.newHashMap();
+        GetSettingsResponse settingsResp = bulkIndexer.client.nativeClient().admin().indices().prepareGetSettings(bulkIndexer.indexName).get();
+
+        // deactivate replicas
+        int initialReplicas = Integer.parseInt(settingsResp.getSetting(bulkIndexer.indexName, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
+        if (initialReplicas > 0) {
+          bulkIndexer.largeInitialSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
+          bulkSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
+        }
+
+        // deactivate periodical refresh
+        String refreshInterval = settingsResp.getSetting(bulkIndexer.indexName, REFRESH_INTERVAL_SETTING);
+        bulkIndexer.largeInitialSettings.put(REFRESH_INTERVAL_SETTING, refreshInterval);
+        bulkSettings.put(REFRESH_INTERVAL_SETTING, "-1");
+
+        updateSettings(bulkIndexer, bulkSettings);
+      }
+
+      @Override
+      void afterStop(BulkIndexer bulkIndexer) {
+        // optimize lucene segments and revert index settings
+        // Optimization must be done before re-applying replicas:
+        // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
+        bulkIndexer.client.prepareForceMerge(bulkIndexer.indexName).get();
+
+        updateSettings(bulkIndexer, bulkIndexer.largeInitialSettings);
+      }
+
+      private void updateSettings(BulkIndexer bulkIndexer, Map<String, Object> settings) {
+        UpdateSettingsRequestBuilder req = bulkIndexer.client.nativeClient().admin().indices().prepareUpdateSettings(bulkIndexer.indexName);
+        req.setSettings(settings);
+        req.get();
+      }
+    };
+
+    void beforeStart(BulkIndexer bulkIndexer) {
+      // can be overwritten
+    }
+
+    void afterStop(BulkIndexer bulkIndexer) {
+      // can be overwritten
+    }
   }
 
   /**
@@ -113,25 +159,7 @@ public class BulkIndexer implements Startable {
   @Override
   public void start() {
     Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
-    if (size == Size.LARGE) {
-      largeInitialSettings = Maps.newHashMap();
-      Map<String, Object> bulkSettings = Maps.newHashMap();
-      GetSettingsResponse settingsResp = client.nativeClient().admin().indices().prepareGetSettings(indexName).get();
-
-      // deactivate replicas
-      int initialReplicas = Integer.parseInt(settingsResp.getSetting(indexName, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
-      if (initialReplicas > 0) {
-        largeInitialSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
-        bulkSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
-      }
-
-      // deactivate periodical refresh
-      String refreshInterval = settingsResp.getSetting(indexName, REFRESH_INTERVAL_SETTING);
-      largeInitialSettings.put(REFRESH_INTERVAL_SETTING, refreshInterval);
-      bulkSettings.put(REFRESH_INTERVAL_SETTING, "-1");
-
-      updateSettings(bulkSettings);
-    }
+    size.beforeStart(this);
     bulkRequest = client.prepareBulkProcessor(new BulkProcessorListener())
       .setBulkSize(new ByteSizeValue(flushByteSize))
       .build();
@@ -210,21 +238,8 @@ public class BulkIndexer implements Startable {
     }
     progress.stop();
     client.prepareRefresh(indexName).get();
-    if (size == Size.LARGE) {
-      // optimize lucene segments and revert index settings
-      // Optimization must be done before re-applying replicas:
-      // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      client.prepareForceMerge(indexName).get();
-
-      updateSettings(largeInitialSettings);
-    }
+    size.afterStop(this);
     bulkRequest = null;
-  }
-
-  private void updateSettings(Map<String, Object> settings) {
-    UpdateSettingsRequestBuilder req = client.nativeClient().admin().indices().prepareUpdateSettings(indexName);
-    req.setSettings(settings);
-    req.get();
   }
 
   private final class BulkProcessorListener implements Listener {
