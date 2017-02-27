@@ -30,6 +30,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toSet;
@@ -63,10 +64,11 @@ public class IndexerStartupTask {
   private void indexEmptyTypes(StartupIndexer indexer) {
     Set<IndexType> uninizializedTypes = getUninitializedTypes(indexer);
     if (!uninizializedTypes.isEmpty()) {
-      log(uninizializedTypes, "...");
+      Profiler profiler = Profiler.create(LOG);
+      profiler.startInfo(getLogMessage(uninizializedTypes, "..."));
       indexer.indexOnStartup(uninizializedTypes);
       uninizializedTypes.forEach(this::setInitialized);
-      log(uninizializedTypes, "done");
+      profiler.stopInfo(getLogMessage(uninizializedTypes, "done"));
     }
   }
 
@@ -113,9 +115,9 @@ public class IndexerStartupTask {
     return "index." + SETTING_PREFIX_INITIAL_INDEXING_FINISHED + indexType.getType();
   }
 
-  private void log(Set<IndexType> emptyTypes, String suffix) {
+  private String getLogMessage(Set<IndexType> emptyTypes, String suffix) {
     String s = emptyTypes.size() == 1 ? "" : "s";
     String typeList = emptyTypes.stream().map(Object::toString).collect(Collectors.joining(","));
-    LOG.info("Full indexing of type{} {} {}", s, typeList, suffix);
+    return String.format("Indexing of type%s %s %s", s, typeList, suffix);
   }
 }
