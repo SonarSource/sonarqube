@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.elasticsearch.action.ActionRequest;
@@ -152,10 +153,13 @@ public class BulkIndexer implements Startable {
     }
 
     Integer getNumberOfShards(BulkIndexer bulkIndexer) {
-      Object shards = bulkIndexer.getLargeInitialSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS);
+      Optional<Object> shards = Optional.ofNullable(bulkIndexer)
+        .map(BulkIndexer::getLargeInitialSettings)
+        .map(settings -> settings.get(IndexMetaData.SETTING_NUMBER_OF_SHARDS));
+
       Integer currentNumberOfShards = null;
-      if (shards != null && shards instanceof Number) {
-        currentNumberOfShards = ((Number) shards).intValue();
+      if (shards.isPresent() && shards.get() instanceof Number) {
+        currentNumberOfShards = ((Number) shards.get()).intValue();
       }
       if (currentNumberOfShards == null || currentNumberOfShards < 1) {
         currentNumberOfShards = DEFAULT_NUMBER_OF_SHARDS;
