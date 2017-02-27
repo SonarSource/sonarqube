@@ -27,6 +27,7 @@ public class DbVersion64 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(1600, "Add Projects.TAGS", AddTagsToProjects.class);
+      .add(1600, "Add Projects.TAGS", AddTagsToProjects.class)
+      .add(1601, "Set PROJECTS.COPY_COMPONENT_UUID on local views", SetCopyComponentUuidOnLocalViews.class);
   }
 }
