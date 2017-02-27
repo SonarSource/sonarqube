@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ SonarQube
+  ~ Copyright (C) 2009-2017 SonarSource SA
+  ~ mailto:info AT sonarsource DOT com
+  ~
+  ~ This program is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program; if not, write to the Free Software Foundation,
+  ~ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.component.ComponentMapper">
 
@@ -513,6 +533,13 @@
     )
   </insert>
 
+  <update id="updateTags" parameterType="Component" useGeneratedKeys="false">
+    update projects set
+    tags = #{tagsString,jdbcType=VARCHAR}
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+
   <update id="update" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
     update projects set
     b_changed = #{bChanged,jdbcType=BOOLEAN},
@@ -548,7 +575,6 @@
     where
     uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </update>
-
 
   <update id="applyBChangesForRootComponentUuid" parameterType="string" useGeneratedKeys="false">
     update projects set

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.db.component;
 
 import com.google.common.base.Optional;
@@ -44,6 +45,7 @@ import org.sonar.db.organization.OrganizationDto;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,6 +78,12 @@ public class ComponentDaoTest {
 
   private DbSession dbSession = db.getSession();
   private ComponentDao underTest = new ComponentDao();
+
+  private static ComponentTreeQuery.Builder newTreeQuery(String baseUuid) {
+    return ComponentTreeQuery.builder()
+      .setBaseUuid(baseUuid)
+      .setStrategy(CHILDREN);
+  }
 
   @Test
   public void get_by_uuid() {
@@ -350,7 +358,7 @@ public class ComponentDaoTest {
     expectedException.expectMessage("Qualifiers cannot be empty");
 
     db.prepareDbUnit(getClass(), "shared.xml");
-    underTest.selectComponentsByQualifiers(dbSession, Collections.<String>emptySet());
+    underTest.selectComponentsByQualifiers(dbSession, Collections.emptySet());
   }
 
   @Test
@@ -385,7 +393,7 @@ public class ComponentDaoTest {
 
     assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, newArrayList("unknown"))).isEmpty();
 
-    assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, Collections.<String>emptyList())).isEmpty();
+    assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, Collections.emptyList())).isEmpty();
   }
 
   @Test
@@ -697,8 +705,7 @@ public class ComponentDaoTest {
       .setEnabled(true)
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L)
-      .setTags(newArrayList("platform", "analyzers"))
-      ;
+      .setTags(newArrayList("platform", "analyzers"));
 
     underTest.insert(dbSession, componentDto);
     dbSession.commit();
@@ -822,6 +829,16 @@ public class ComponentDaoTest {
         "b_module_uuid as \"bModuleUuid\", b_module_uuid_path as \"bModuleUuidPath\", b_name as \"bName\", " +
         "b_path as \"bPath\", b_qualifier as \"bQualifier\" " +
         "from projects where uuid='" + uuid + "'");
+  }
+
+  @Test
+  public void update_tags() {
+    ComponentDto project = db.components().insertProject(p -> p.setTags(emptyList()));
+
+    underTest.updateTags(dbSession, project.setTags(newArrayList("finance", "toto", "tutu")));
+    dbSession.commit();
+
+    assertThat(underTest.selectOrFailByKey(dbSession, project.key()).getTags()).containsOnly("finance", "toto", "tutu");
   }
 
   @Test
@@ -1123,11 +1140,5 @@ public class ComponentDaoTest {
     assertThat(underTest.selectProjectsByNameQuery(dbSession, "jec", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
     assertThat(underTest.selectProjectsByNameQuery(dbSession, "1", true)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), module1.uuid(), subModule1.uuid());
     assertThat(underTest.selectProjectsByNameQuery(dbSession, "unknown", true)).extracting(ComponentDto::uuid).isEmpty();
-  }
-
-  private static ComponentTreeQuery.Builder newTreeQuery(String baseUuid) {
-    return ComponentTreeQuery.builder()
-      .setBaseUuid(baseUuid)
-      .setStrategy(CHILDREN);
   }
 }
