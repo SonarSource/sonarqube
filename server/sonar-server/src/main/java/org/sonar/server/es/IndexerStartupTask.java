@@ -63,10 +63,10 @@ public class IndexerStartupTask {
   private void indexEmptyTypes(StartupIndexer indexer) {
     Set<IndexType> uninizializedTypes = getUninitializedTypes(indexer);
     if (!uninizializedTypes.isEmpty()) {
-      log(indexer, uninizializedTypes, "...");
+      log(uninizializedTypes, "...");
       indexer.indexOnStartup(uninizializedTypes);
       uninizializedTypes.forEach(this::setInitialized);
-      log(indexer, uninizializedTypes, "done");
+      log(uninizializedTypes, "done");
     }
   }
 
@@ -113,10 +113,9 @@ public class IndexerStartupTask {
     return "index." + SETTING_PREFIX_INITIAL_INDEXING_FINISHED + indexType.getType();
   }
 
-  private void log(StartupIndexer indexer, Set<IndexType> emptyTypes, String suffix) {
+  private void log(Set<IndexType> emptyTypes, String suffix) {
     String s = emptyTypes.size() == 1 ? "" : "s";
     String typeList = emptyTypes.stream().map(Object::toString).collect(Collectors.joining(","));
-    String indexerName = indexer.getClass().getSimpleName();
-    LOG.info("Full indexing of type{} {} using {} {}", s, typeList, indexerName, suffix);
+    LOG.info("Full indexing of type{} {} {}", s, typeList, suffix);
   }
 }
