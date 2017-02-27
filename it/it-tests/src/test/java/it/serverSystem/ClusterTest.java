@@ -55,10 +55,13 @@ public class ClusterTest {
   /**
    * SONAR-7899
    */
+  @Test
   public void secondary_nodes_do_not_write_to_datastores_at_startup() throws Exception {
     // start "startup leader", which creates and populates datastores
     Orchestrator orchestrator = Orchestrator.builderEnv()
       .setServerProperty("sonar.cluster.enabled", "true")
+      .setServerProperty("sonar.cluster.name", "secondary_nodes_do_not_write_to_datastores_at_startup")
+      .setServerProperty("sonar.cluster.port_autoincrement", "true")
       .setServerProperty("sonar.cluster.web.startupLeader", "true")
       .setServerProperty("sonar.log.level", "TRACE")
       .addPlugin(ItUtils.xooPlugin())
@@ -80,6 +83,7 @@ public class ClusterTest {
     orchestrator.stop();
   }
 
+  @Test
   public void start_cluster_of_elasticsearch_and_web_nodes() throws IOException {
     Orchestrator elasticsearch = null;
     Orchestrator web = null;
@@ -88,6 +92,8 @@ public class ClusterTest {
       ElasticsearchStartupWatcher esWatcher = new ElasticsearchStartupWatcher();
       elasticsearch = Orchestrator.builderEnv()
         .setServerProperty("sonar.cluster.enabled", "true")
+        .setServerProperty("sonar.cluster.name", "start_cluster_of_elasticsearch_and_web_nodes")
+        .setServerProperty("sonar.cluster.port_autoincrement", "true")
         .setServerProperty("sonar.cluster.web.disabled", "true")
         .setServerProperty("sonar.cluster.ce.disabled", "true")
         .setStartupLogWatcher(esWatcher)
@@ -98,6 +104,8 @@ public class ClusterTest {
 
       web = Orchestrator.builderEnv()
         .setServerProperty("sonar.cluster.enabled", "true")
+        .setServerProperty("sonar.cluster.name", "start_cluster_of_elasticsearch_and_web_nodes")
+        .setServerProperty("sonar.cluster.port_autoincrement", "true")
         .setServerProperty("sonar.cluster.web.startupLeader", "true")
         .setServerProperty("sonar.cluster.search.disabled", "true")
         .setServerProperty("sonar.cluster.search.hosts", "localhost:" + esWatcher.port)
