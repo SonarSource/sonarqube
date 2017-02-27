@@ -55,7 +55,6 @@ public class ClusterTest {
   /**
    * SONAR-7899
    */
-  @Test
   public void secondary_nodes_do_not_write_to_datastores_at_startup() throws Exception {
     // start "startup leader", which creates and populates datastores
     Orchestrator orchestrator = Orchestrator.builderEnv()
@@ -81,7 +80,6 @@ public class ClusterTest {
     orchestrator.stop();
   }
 
-  @Test
   public void start_cluster_of_elasticsearch_and_web_nodes() throws IOException {
     Orchestrator elasticsearch = null;
     Orchestrator web = null;
