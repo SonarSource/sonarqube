@@ -35,21 +35,21 @@ public class BulkIndexerSizeTest {
   private BulkIndexer indexer = mock(BulkIndexer.class);
 
   @Test
-  public void should_not_parallelize_if_size_is_regular() {
+  public void should_gently_parallelize_if_size_is_regular() {
     setNumberOfProcesses(12);
-    setNumberOfShards(1);
+    setNumberOfShards(2);
 
     assertConcurrentRequests(Size.REGULAR)
-      .isEqualTo(0);
+      .isEqualTo(1);
   }
 
   @Test
   public void should_parallelize_if_size_is_large() {
     setNumberOfProcesses(12);
-    setNumberOfShards(1);
+    setNumberOfShards(2);
 
     assertConcurrentRequests(Size.LARGE)
-      .isEqualTo(11);
+      .isEqualTo(5);
   }
 
   @Test

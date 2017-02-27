@@ -88,8 +88,8 @@ public class BulkIndexer implements Startable {
 
       @Override
       int getConcurrentRequests(BulkIndexer bulkIndexer) {
-        // do not parallalize, send request one after another
-        return 0;
+        int simultaniousRequests = Math.min(bulkIndexer.getProcesses(), getNumberOfShards(bulkIndexer));
+        return simultaniousRequests - 1;
       }
     },
 
@@ -123,18 +123,6 @@ public class BulkIndexer implements Startable {
         return simultaniousRequests - 1;
       }
 
-      private Integer getNumberOfShards(BulkIndexer bulkIndexer) {
-        Object shards = bulkIndexer.getLargeInitialSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS);
-        Integer currentNumberOfShards = null;
-        if (shards != null && shards instanceof Number) {
-          currentNumberOfShards = ((Number) shards).intValue();
-        }
-        if (currentNumberOfShards == null || currentNumberOfShards < 1) {
-          currentNumberOfShards = DEFAULT_NUMBER_OF_SHARDS;
-        }
-        return currentNumberOfShards;
-      }
-
       @Override
       void afterStop(BulkIndexer bulkIndexer) {
         // optimize lucene segments and revert index settings
@@ -161,6 +149,18 @@ public class BulkIndexer implements Startable {
 
     void afterStop(BulkIndexer bulkIndexer) {
       // can be overwritten
+    }
+
+    Integer getNumberOfShards(BulkIndexer bulkIndexer) {
+      Object shards = bulkIndexer.getLargeInitialSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS);
+      Integer currentNumberOfShards = null;
+      if (shards != null && shards instanceof Number) {
+        currentNumberOfShards = ((Number) shards).intValue();
+      }
+      if (currentNumberOfShards == null || currentNumberOfShards < 1) {
+        currentNumberOfShards = DEFAULT_NUMBER_OF_SHARDS;
+      }
+      return currentNumberOfShards;
     }
   }
 
