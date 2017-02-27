@@ -1,0 +1,161 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.projecttag.ws;
+
+import javax.annotation.Nullable;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
+
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.util.Protobuf.setNullable;
+
+public class SetActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
+  @Rule
+  public DbTester db = DbTester.create();
+  private DbClient dbClient = db.getDbClient();
+  public WsActionTester ws = new WsActionTester(new SetAction(dbClient, new ComponentFinder(dbClient), userSession));
+  private DbSession dbSession = db.getSession();
+  private ComponentDto project;
+
+  @Before
+  public void setUp() {
+    project = db.components().insertProject();
+  }
+
+  @Test
+  public void set_tags_exclude_empty_values() {
+    TestResponse response = call(project.key(), "finance , offshore, platform,   ,");
+
+    assertTags(project.key(), "finance", "offshore", "platform");
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
+  }
+
+  @Test
+  public void reset_tags() {
+    project = db.components().insertProject(p -> p.setTagsString("platform,scanner"));
+
+    call(project.key(), "");
+
+    assertNoTags(project.key());
+  }
+
+  @Test
+  public void override_existing_tags() {
+    project = db.components().insertProject(p -> p.setTagsString("marketing,languages"));
+
+    call(project.key(), "finance,offshore,platform");
+
+    assertTags(project.key(), "finance", "offshore", "platform");
+  }
+
+  @Test
+  public void set_tags_as_project_admin() {
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    call(project.key(), "platform, lambda");
+
+    assertTags(project.key(), "platform", "lambda");
+  }
+
+  @Test
+  public void do_not_duplicate_tags() {
+    call(project.key(), "atlas, atlas, atlas");
+
+    assertTags(project.key(), "atlas");
+  }
+
+  @Test
+  public void fail_if_tag_does_not_respect_format() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("_finance_' is invalid. Project tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
+
+    call(project.key(), "_finance_");
+  }
+
+  @Test
+  public void fail_if_not_project_admin() {
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.key());
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(project.key(), "platform");
+  }
+
+  @Test
+  public void fail_if_no_project() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    call(null, "platform");
+  }
+
+  @Test
+  public void fail_if_no_tags() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    call(project.key(), null);
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.params()).extracting(WebService.Param::key)
+      .containsOnly("project", "tags");
+    assertThat(definition.description()).isNotEmpty();
+    assertThat(definition.since()).isEqualTo("6.4");
+  }
+
+  private TestResponse call(@Nullable String projectKey, @Nullable String tags) {
+    TestRequest request = ws.newRequest();
+    setNullable(projectKey, p -> request.setParam("project", p));
+    setNullable(tags, t -> request.setParam("tags", tags));
+
+    return request.execute();
+  }
+
+  private void assertTags(String projectKey, String... tags) {
+    assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, projectKey).getTags()).containsExactlyInAnyOrder(tags);
+  }
+
+  private void assertNoTags(String projectKey) {
+    assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, projectKey).getTags()).isEmpty();
+  }
+}

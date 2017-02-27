@@ -26,7 +26,8 @@ public class ProjectTagsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      ProjectTagsWs.class
+      ProjectTagsWs.class,
+      SetAction.class
     );
   }
 }
