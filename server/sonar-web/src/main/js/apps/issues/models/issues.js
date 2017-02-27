@@ -76,10 +76,10 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  parseIssues (r) {
+  parseIssues (r, startIndex = 0) {
     const that = this;
     return r.issues.map((issue, index) => {
-      Object.assign(issue, { index });
+      Object.assign(issue, { index: startIndex + index });
       issue = that._injectRelational(issue, r.components, 'component', 'key');
       issue = that._injectRelational(issue, r.components, 'project', 'key');
       issue = that._injectRelational(issue, r.components, 'subProject', 'key');
