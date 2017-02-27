@@ -36,6 +36,7 @@ import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 public class IndexerStartupTaskTest {
 
   private System2 system2 = System2.INSTANCE;
+  private MapSettings settings = new MapSettings();
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -44,24 +45,35 @@ public class IndexerStartupTaskTest {
   public EsTester es = new EsTester(new FakeIndexDefinition());
 
   @Test
-  public void do_not_reindex_existing_nonempty_indexes() throws Exception {
+  public void only_index_once() throws Exception {
     insertDocumentIntoIndex();
-    StartupIndexer indexer = createIndexer();
 
-    emulateStartup(indexer);
+    StartupIndexer indexer1 = createIndexer();
+    emulateStartup(indexer1);
 
-    verify(indexer).getIndexTypes();
-    verifyNoMoreInteractions(indexer);
+    // do index on first run
+    verify(indexer1).getIndexTypes();
+    verify(indexer1).indexOnStartup(Mockito.eq(ImmutableSet.of(INDEX_TYPE_FAKE)));
+
+    StartupIndexer indexer2 = createIndexer();
+    emulateStartup(indexer2);
+
+    // do not index on second run
+    verify(indexer2).getIndexTypes();
+    verifyNoMoreInteractions(indexer2);
   }
 
   @Test
-  public void reindex_empty_indexes() throws Exception {
-    StartupIndexer indexer = createIndexer();
+  public void do_not_index_if_indexes_are_disabled() throws Exception {
+    settings.setProperty("sonar.internal.es.disableIndexes", "true");
 
+    insertDocumentIntoIndex();
+
+    StartupIndexer indexer = createIndexer();
     emulateStartup(indexer);
 
-    verify(indexer).getIndexTypes();
-    verify(indexer).indexOnStartup(Mockito.eq(ImmutableSet.of(INDEX_TYPE_FAKE)));
+    // do not index
+    verifyNoMoreInteractions(indexer);
   }
 
   private void insertDocumentIntoIndex() {
@@ -75,6 +87,6 @@ public class IndexerStartupTaskTest {
   }
 
   private void emulateStartup(StartupIndexer indexer) {
-    new IndexerStartupTask(es.client(), new MapSettings(), indexer).execute();
+    new IndexerStartupTask(es.client(), settings, indexer).execute();
   }
 }
