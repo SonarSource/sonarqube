@@ -81,7 +81,7 @@ public interface SensorDescriptor {
 
   /**
    * This sensor should be executed at the project level, instead of per-module.
-   * @Since 6.4
+   * @since 6.4
    */
   SensorDescriptor global();
 }

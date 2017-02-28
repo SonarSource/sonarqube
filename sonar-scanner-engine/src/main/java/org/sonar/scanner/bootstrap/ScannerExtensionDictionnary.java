@@ -90,7 +90,7 @@ public class ScannerExtensionDictionnary {
           iterator.remove();
         }
       } else if (global) {
-        // only old sensors are not wrapped, and old selectSensors are never global -> exclude
+        // only old sensors are not wrapped, and old sensors are never global -> exclude
         iterator.remove();
       }
     }
