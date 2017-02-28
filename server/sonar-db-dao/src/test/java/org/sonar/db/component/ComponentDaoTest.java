@@ -704,8 +704,7 @@ public class ComponentDaoTest {
       .setDeveloperUuid("uuid_7")
       .setEnabled(true)
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
-      .setAuthorizationUpdatedAt(123456789L)
-      .setTags(newArrayList("platform", "analyzers"));
+      .setAuthorizationUpdatedAt(123456789L);
 
     underTest.insert(dbSession, componentDto);
     dbSession.commit();
@@ -1126,7 +1125,7 @@ public class ComponentDaoTest {
     ComponentDto project1 = db.components().insertComponent(newProjectDto(organizationDto).setName("project1"));
     ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("module1"));
     ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("subModule1"));
-    db.components().insertComponent(newFileDto(subModule1).setName("file"));
+    ComponentDto file = db.components().insertComponent(newFileDto(subModule1).setName("file"));
     ComponentDto project2 = db.components().insertComponent(newProjectDto(organizationDto).setName("project2"));
     ComponentDto project3 = db.components().insertComponent(newProjectDto(organizationDto).setName("project3"));
 
