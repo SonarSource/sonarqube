@@ -26,6 +26,7 @@ import SourceViewerIssuesIndicator from './SourceViewerIssuesIndicator';
 import { translate } from '../../helpers/l10n';
 import { splitByTokens, highlightSymbol, highlightIssueLocations, generateHTML } from './helpers/highlight';
 import type { SourceLine } from './types';
+import type { LinearIssueLocation, IndexedIssueLocation, IndexedIssueLocationMessage } from './helpers/indexing';
 
 type Props = {
   displayAllIssues: boolean,
@@ -39,7 +40,7 @@ type Props = {
   filtered: boolean | null,
   highlighted: boolean,
   highlightedSymbol: string | null,
-  issueLocations: Array<{ from: number, to: number }>,
+  issueLocations: Array<LinearIssueLocation>,
   issues: Array<string>,
   line: SourceLine,
   loadDuplications: (SourceLine, HTMLElement) => void,
@@ -51,10 +52,10 @@ type Props = {
   onSCMClick: (SourceLine, HTMLElement) => void,
   onSymbolClick: (string) => void,
   selectedIssue: string | null,
+  secondaryIssueLocations: Array<IndexedIssueLocation>,
   // $FlowFixMe
-  secondaryIssueLocations: Array<{ from: number, to: number }>,
-  // $FlowFixMe
-  secondaryIssueLocationMessages: Array<{ msg: string, index?: number }>
+  secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
+  selectedIssueLocation: { flow: number, location: number } | null
 };
 
 type State = {
@@ -77,16 +78,7 @@ export default class SourceViewerLine extends React.PureComponent {
     this.detachEvents();
   }
 
-  componentDidUpdate (prevProps: Props) {
-    /* eslint-disable no-console */
-    console.log('re-render line', this.props.line.line, 'because they are not equal:');
-    Object.keys(this.props).forEach(prop => {
-      if (this.props[prop] !== prevProps[prop]) {
-        console.log(prop);
-      }
-    });
-    console.log('');
-
+  componentDidUpdate () {
     this.attachEvents();
   }
 
@@ -276,21 +268,42 @@ export default class SourceViewerLine extends React.PureComponent {
     );
   }
 
-  renderSecondaryIssueLocationMessages (locationMessages: Array<{ msg: string, index?: number }>) {
+  isSecondaryIssueLocationSelected (location: IndexedIssueLocation | IndexedIssueLocationMessage) {
+    const { selectedIssueLocation } = this.props;
+    if (selectedIssueLocation == null) {
+      return false;
+    } else {
+      return selectedIssueLocation.flow === location.flowIndex &&
+        selectedIssueLocation.location === location.locationIndex;
+    }
+  }
+
+  renderSecondaryIssueLocationMessage = (location: IndexedIssueLocationMessage) => {
+    const className = classNames('source-viewer-issue-location', 'issue-location-message', {
+      'selected': this.isSecondaryIssueLocationSelected(location)
+    });
+
     const limitString = (str: string) => (
       str.length > 30 ? str.substr(0, 30) + '...' : str
     );
 
     return (
+      <div
+        key={`${location.flowIndex}-${location.locationIndex}`}
+        className={className}
+        title={location.msg}>
+        {location.index && (
+          <strong>{location.index}: </strong>
+        )}
+        {limitString(location.msg)}
+      </div>
+    );
+  };
+
+  renderSecondaryIssueLocationMessages (locations: Array<IndexedIssueLocationMessage>) {
+    return (
       <div className="source-line-issue-locations">
-        {locationMessages.map((locationMessage, index) => (
-          <div key={index} className="source-viewer-issue-location" title={locationMessage.msg}>
-            {locationMessage.index && (
-              <strong>{locationMessage.index}: </strong>
-            )}
-            {limitString(locationMessage.msg)}
-          </div>
-        ))}
+        {locations.map(this.renderSecondaryIssueLocationMessage)}
       </div>
     );
   }
@@ -312,7 +325,19 @@ export default class SourceViewerLine extends React.PureComponent {
     }
 
     if (secondaryIssueLocations) {
-      tokens = highlightIssueLocations(tokens, secondaryIssueLocations, 'source-line-code-secondary-issue');
+      const linearLocations = secondaryIssueLocations.map(location => ({
+        from: location.from,
+        line: location.line,
+        to: location.to
+      }));
+      tokens = highlightIssueLocations(tokens, linearLocations, 'issue-location');
+      const { selectedIssueLocation } = this.props;
+      if (selectedIssueLocation != null) {
+        const x = secondaryIssueLocations.find(location => this.isSecondaryIssueLocationSelected(location));
+        if (x) {
+          tokens = highlightIssueLocations(tokens, [x], 'selected');
+        }
+      }
     }
 
     const finalCode = generateHTML(tokens);

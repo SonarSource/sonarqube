@@ -41,6 +41,13 @@ type RawIssue = {
   author: string,
   comments?: Array<Comment>,
   component: string,
+  flows: Array<{
+    locations: Array<{
+      msg: string,
+      textRange: TextRange
+    }>
+  }>,
+  key: string,
   line?: number,
   project: string,
   rule: string,

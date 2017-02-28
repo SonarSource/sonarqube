@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import uniqBy from 'lodash/uniqBy';
 import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerCode from './SourceViewerCode';
+import SourceViewerIssueLocations from './SourceViewerIssueLocations';
 import CoveragePopupView from '../source-viewer/popups/coverage-popup';
 import DuplicationPopupView from '../source-viewer/popups/duplication-popup';
 import LineActionsPopupView from '../source-viewer/popups/line-actions-popup';
@@ -40,10 +41,16 @@ import {
   duplicationsByLine,
   symbolsByLine
 } from './helpers/indexing';
+import type {
+  LinearIssueLocation,
+  IndexedIssueLocationsByIssueAndLine,
+  IndexedIssueLocationMessagesByIssueAndLine
+} from './helpers/indexing';
 import { getComponentForSourceViewer, getSources, getDuplications, getTests } from '../../api/components';
 import { translate } from '../../helpers/l10n';
 import type { SourceLine } from './types';
 import type { Issue } from '../issue/types';
+import './styles.css';
 
 // TODO react-virtualized
 
@@ -81,22 +88,15 @@ type State = {
   highlightedSymbol: string | null,
   issues?: Array<Issue>,
   issuesByLine: { [number]: Array<string> },
-  issueLocationsByLine: { [number]: Array<{ from: number, to: number }> },
-  issueSecondaryLocationsByIssueByLine: {
-    [string]: {
-      [number]: Array<{ from: number, to: number }>
-    }
-  },
-  issueSecondaryLocationMessagesByIssueByLine: {
-    [issueKey: string]: {
-      [line: number]: Array<{ msg: string, index?: number }>
-    }
-  },
+  issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
+  issueSecondaryLocationsByIssueByLine: IndexedIssueLocationsByIssueAndLine,
+  issueSecondaryLocationMessagesByIssueByLine: IndexedIssueLocationMessagesByIssueAndLine,
   loading: boolean,
   loadingSourcesAfter: boolean,
   loadingSourcesBefore: boolean,
   notAccessible: boolean,
   notExist: boolean,
+  selectedIssueLocation: { flow: number, location: number } | null,
   sources?: Array<SourceLine>,
   symbolsByLine: { [number]: Array<string> }
 };
@@ -144,6 +144,7 @@ export default class SourceViewerBase extends React.Component {
       notAccessible: false,
       notExist: false,
       selectedIssue: props.defaultSelectedIssue || null,
+      selectedIssueLocation: null,
       symbolsByLine: {}
     };
   }
@@ -424,6 +425,10 @@ export default class SourceViewerBase extends React.Component {
     popup.render();
   };
 
+  handleSelectIssueLocation = (flow: number, location: number) => {
+    this.setState({ selectedIssueLocation: { flow, location } });
+  };
+
   renderCode (sources: Array<SourceLine>) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
@@ -456,6 +461,7 @@ export default class SourceViewerBase extends React.Component {
           onSCMClick={this.handleSCMClick}
           onSymbolClick={this.handleSymbolClick}
           selectedIssue={this.props.selectedIssue}
+          selectedIssueLocation={this.state.selectedIssueLocation}
           sources={sources}
           symbolsByLine={this.state.symbolsByLine}/>
       </TooltipsContainer>
@@ -481,6 +487,10 @@ export default class SourceViewerBase extends React.Component {
 
     const className = classNames('source-viewer', { 'source-duplications-expanded': this.state.displayDuplications });
 
+    const selectedIssueObj = this.props.selectedIssue && this.state.issues != null ?
+      this.state.issues.find(issue => issue.key === this.props.selectedIssue) :
+      null;
+
     return (
       <div className={className} ref={node => this.node = node}>
         <SourceViewerHeader
@@ -493,6 +503,12 @@ export default class SourceViewerBase extends React.Component {
           </div>
         )}
         {this.state.sources != null && this.renderCode(this.state.sources)}
+        {selectedIssueObj != null && (
+          <SourceViewerIssueLocations
+            issue={selectedIssueObj}
+            onSelectLocation={this.handleSelectIssueLocation}
+            selectedLocation={this.state.selectedIssueLocation}/>
+        )}
       </div>
     );
   }

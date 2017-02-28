@@ -23,6 +23,11 @@ import SourceViewerLine from './SourceViewerLine';
 import { translate } from '../../helpers/l10n';
 import type { Duplication, SourceLine } from './types';
 import type { Issue } from '../issue/types';
+import type {
+  LinearIssueLocation,
+  IndexedIssueLocationsByIssueAndLine,
+  IndexedIssueLocationMessagesByIssueAndLine
+} from './helpers/indexing';
 
 const EMPTY_ARRAY = [];
 
@@ -45,17 +50,9 @@ export default class SourceViewerCode extends React.Component {
     highlightedSymbol: string | null,
     issues: Array<Issue>,
     issuesByLine: { [number]: Array<string> },
-    issueLocationsByLine: { [number]: Array<{ from: number, to: number }> },
-    issueSecondaryLocationsByIssueByLine: {
-      [string]: {
-        [number]: Array<{ from: number, to: number }>
-      }
-    },
-    issueSecondaryLocationMessagesByIssueByLine: {
-      [issueKey: string]: {
-        [line: number]: Array<{ msg: string, index?: number }>
-      }
-    },
+    issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
+    issueSecondaryLocationsByIssueByLine: IndexedIssueLocationsByIssueAndLine,
+    issueSecondaryLocationMessagesByIssueByLine: IndexedIssueLocationMessagesByIssueAndLine,
     loadDuplications: (SourceLine, HTMLElement) => void,
     loadSourcesAfter: () => void,
     loadSourcesBefore: () => void,
@@ -69,6 +66,7 @@ export default class SourceViewerCode extends React.Component {
     onSCMClick: (SourceLine, HTMLElement) => void,
     onSymbolClick: (string) => void,
     selectedIssue: string | null,
+    selectedIssueLocation: { flow: number, location: number } | null,
     sources: Array<SourceLine>,
     symbolsByLine: { [number]: Array<string> }
   };
@@ -160,7 +158,8 @@ export default class SourceViewerCode extends React.Component {
         onSymbolClick={this.props.onSymbolClick}
         secondaryIssueLocations={secondaryIssueLocations}
         secondaryIssueLocationMessages={secondaryIssueLocationMessages}
-        selectedIssue={optimizedSelectedIssue}/>
+        selectedIssue={optimizedSelectedIssue}
+        selectedIssueLocation={this.props.selectedIssueLocation}/>
     );
   };
 

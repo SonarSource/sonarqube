@@ -1,0 +1,70 @@
+.source-issue-locations {
+
+}
+
+.source-issue-locations-fixed {
+  position: fixed;
+  bottom: 0;
+  margin-left: -1px;
+  border-top: 1px solid #e6e6e6;
+  border-left: 1px solid #e6e6e6;
+  border-right: 1px solid #e6e6e6;
+  background-color: #fff;
+  overflow: auto;
+}
+
+.source-issue-locations,
+.source-issue-locations-fixed {
+  height: 200px;
+}
+
+.source-issue-locations-header {
+  height: 15px;
+  padding: 0 15px;
+  box-sizing: border-box;
+  background-color: #404040;
+  color: #fff;
+}
+
+.source-issue-locations-list {
+  padding: 15px;
+}
+
+.source-issue-locations-line {
+  display: inline-block;
+  min-width: 25px;
+  margin-right: 15px;
+  color: #777;
+  font-size: 12px;
+  text-align: right;
+}
+
+.issue-location,
+.issue-location-message {
+  display: inline-block;
+  height: 18px;
+  line-height: 18px;
+  background-color: #ffeaea;
+}
+
+.issue-location {
+  /* nothing so far */
+}
+
+.issue-location.highlighted {
+  background-color: #e1e1f2;
+}
+
+.issue-location.selected {
+  background-color: #f4b1b0;
+}
+
+.issue-location-message {
+  padding: 0 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.issue-location-message.selected {
+  outline: 1px solid #dd4040;
+}
