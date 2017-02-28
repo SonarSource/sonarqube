@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.scanner.sensor.SensorScope;
+import org.sonar.scanner.sensor.SensorStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -94,6 +94,6 @@ public class ModuleInputComponentStoreTest {
   }
 
   private ModuleInputComponentStore newModuleInputComponentStore() {
-    return new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore(), mock(SensorScope.class));
+    return new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore(), mock(SensorStrategy.class));
   }
 }

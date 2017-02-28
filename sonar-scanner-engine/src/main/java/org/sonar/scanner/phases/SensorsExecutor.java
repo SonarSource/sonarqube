@@ -28,29 +28,29 @@ import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import java.util.Collection;
-import org.sonar.scanner.sensor.SensorScope;
+import org.sonar.scanner.sensor.SensorStrategy;
 
 @ScannerSide
 public class SensorsExecutor {
   private final EventBus eventBus;
   private final DefaultInputModule module;
   private final ScannerExtensionDictionnary selector;
-  private final SensorScope scope;
+  private final SensorStrategy strategy;
 
-  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus, SensorScope scope) {
+  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus, SensorStrategy strategy) {
     this.selector = selector;
     this.eventBus = eventBus;
     this.module = module;
-    this.scope = scope;
+    this.strategy = strategy;
   }
 
   public void execute(SensorContext context) {
     execute(context, false);
     if (isRoot(module)) {
-      boolean orig = scope.isGlobal();
-      scope.setGlobal(true);
+      boolean orig = strategy.isGlobal();
+      strategy.setGlobal(true);
       execute(context, true);
-      scope.setGlobal(orig);
+      strategy.setGlobal(orig);
     }
   }
 

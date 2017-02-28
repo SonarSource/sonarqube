@@ -19,7 +19,12 @@
  */
 package org.sonar.scanner.sensor;
 
-public class SensorScope {
+/**
+ * A shared, mutable object in the module container.
+ * It's used during the execution of sensors to decide whether
+ * sensors should be executed once for the entire project, or per-module.
+ */
+public class SensorStrategy {
 
   private boolean global = false;
 

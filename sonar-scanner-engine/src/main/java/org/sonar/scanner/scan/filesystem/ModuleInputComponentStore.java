@@ -24,24 +24,24 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.scanner.sensor.SensorScope;
+import org.sonar.scanner.sensor.SensorStrategy;
 
 @ScannerSide
 public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
 
   private final String moduleKey;
   private final InputComponentStore inputComponentStore;
-  private final SensorScope scope;
+  private final SensorStrategy strategy;
 
-  public ModuleInputComponentStore(InputModule module, InputComponentStore inputComponentStore, SensorScope scope) {
+  public ModuleInputComponentStore(InputModule module, InputComponentStore inputComponentStore, SensorStrategy strategy) {
     this.moduleKey = module.key();
     this.inputComponentStore = inputComponentStore;
-    this.scope = scope;
+    this.strategy = strategy;
   }
 
   @Override
   public Iterable<InputFile> inputFiles() {
-    if (scope.isGlobal()) {
+    if (strategy.isGlobal()) {
       return inputComponentStore.allFiles();
     } else {
       return inputComponentStore.filesByModule(moduleKey);
@@ -50,7 +50,7 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
 
   @Override
   public InputFile inputFile(String relativePath) {
-    if (scope.isGlobal()) {
+    if (strategy.isGlobal()) {
       return inputComponentStore.getFile(relativePath);
     } else {
       return inputComponentStore.getFile(moduleKey, relativePath);
@@ -59,7 +59,7 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
 
   @Override
   public InputDir inputDir(String relativePath) {
-    if (scope.isGlobal()) {
+    if (strategy.isGlobal()) {
       return inputComponentStore.getDir(relativePath);
     } else {
       return inputComponentStore.getDir(moduleKey, relativePath);
