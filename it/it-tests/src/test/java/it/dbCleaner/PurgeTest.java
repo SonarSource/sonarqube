@@ -32,6 +32,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -49,6 +50,7 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
+@Ignore
 public class PurgeTest {
 
   private static final String COUNT_FILE_MEASURES = "project_measures pm, projects p where p.uuid = pm.component_uuid and p.scope='FIL'";
