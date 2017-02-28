@@ -39,7 +39,7 @@ public class AddTagsToProjects extends DdlChange {
     VarcharColumnDef column = newVarcharColumnDefBuilder()
       .setColumnName("tags")
       .setIsNullable(true)
-      .setLimit(4_000)
+      .setLimit(500)
       .build();
     context.execute(new AddColumnsBuilder(getDialect(), "projects").addColumn(column).build());
   }

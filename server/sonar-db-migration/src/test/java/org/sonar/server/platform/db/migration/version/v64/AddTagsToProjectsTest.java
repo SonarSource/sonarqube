@@ -42,7 +42,7 @@ public class AddTagsToProjectsTest {
   public void creates_table_on_empty_db() throws SQLException {
     underTest.execute();
 
-    dbTester.assertColumnDefinition("projects", "tags", Types.VARCHAR, 4_000, true);
+    dbTester.assertColumnDefinition("projects", "tags", Types.VARCHAR, 500, true);
   }
 
   @Test
