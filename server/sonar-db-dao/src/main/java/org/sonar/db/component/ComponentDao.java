@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.db.component;
 
 import com.google.common.base.Optional;
@@ -49,34 +48,6 @@ import static org.sonar.db.DaoDatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public class ComponentDao implements Dao {
-
-  private static List<ComponentDto> selectByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query, int offset, int limit) {
-    Set<Long> componentIds = query.getComponentIds();
-    if (componentIds != null && componentIds.isEmpty()) {
-      return emptyList();
-    }
-    return mapper(session).selectByQuery(organizationUuid, query, new RowBounds(offset, limit));
-  }
-
-  private static int countByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query) {
-    Set<Long> componentIds = query.getComponentIds();
-    if (componentIds != null && componentIds.isEmpty()) {
-      return 0;
-    }
-    return mapper(session).countByQuery(organizationUuid, query);
-  }
-
-  @CheckForNull
-  private static String buildUpperLikeSql(@Nullable String textQuery) {
-    if (isBlank(textQuery)) {
-      return null;
-    }
-    return buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), BEFORE_AND_AFTER);
-  }
-
-  private static ComponentMapper mapper(DbSession session) {
-    return session.getMapper(ComponentMapper.class);
-  }
 
   public ComponentDto selectOrFailById(DbSession session, long id) {
     Optional<ComponentDto> componentDto = selectById(session, id);
@@ -111,6 +82,14 @@ public class ComponentDao implements Dao {
     return selectByQueryImpl(dbSession, organizationUuid, query, offset, limit);
   }
 
+  private static List<ComponentDto> selectByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query, int offset, int limit) {
+    Set<Long> componentIds = query.getComponentIds();
+    if (componentIds != null && componentIds.isEmpty()) {
+      return emptyList();
+    }
+    return mapper(session).selectByQuery(organizationUuid, query, new RowBounds(offset, limit));
+  }
+
   public int countByQuery(DbSession session, ComponentQuery query) {
     return countByQueryImpl(session, null, query);
   }
@@ -118,6 +97,14 @@ public class ComponentDao implements Dao {
   public int countByQuery(DbSession session, String organizationUuid, ComponentQuery query) {
     requireNonNull(organizationUuid, "organizationUuid can't be null");
     return countByQueryImpl(session, organizationUuid, query);
+  }
+
+  private static int countByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query) {
+    Set<Long> componentIds = query.getComponentIds();
+    if (componentIds != null && componentIds.isEmpty()) {
+      return 0;
+    }
+    return mapper(session).countByQuery(organizationUuid, query);
   }
 
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
@@ -265,6 +252,14 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).countProvisioned(organizationUuid, buildUpperLikeSql(textQuery), qualifiers);
   }
 
+  @CheckForNull
+  private static String buildUpperLikeSql(@Nullable String textQuery) {
+    if (isBlank(textQuery)) {
+      return null;
+    }
+    return buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), BEFORE_AND_AFTER);
+  }
+
   public List<ComponentDto> selectGhostProjects(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
     return mapper(session).selectGhostProjects(organizationUuid, buildUpperLikeSql(query), new RowBounds(offset, limit));
   }
@@ -326,10 +321,6 @@ public class ComponentDao implements Dao {
     mapper(session).update(component);
   }
 
-  public void updateTags(DbSession session, ComponentDto component) {
-    mapper(session).updateTags(component);
-  }
-
   public void updateBEnabledToFalse(DbSession session, Collection<String> uuids) {
     executeLargeUpdates(uuids, mapper(session)::updateBEnabledToFalse);
   }
@@ -344,5 +335,9 @@ public class ComponentDao implements Dao {
 
   public void delete(DbSession session, long componentId) {
     mapper(session).delete(componentId);
+  }
+
+  private static ComponentMapper mapper(DbSession session) {
+    return session.getMapper(ComponentMapper.class);
   }
 }
