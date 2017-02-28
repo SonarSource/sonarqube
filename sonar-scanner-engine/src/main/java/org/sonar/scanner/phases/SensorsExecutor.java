@@ -20,6 +20,8 @@
 package org.sonar.scanner.phases;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -32,41 +34,49 @@ import org.sonar.scanner.sensor.SensorStrategy;
 
 @ScannerSide
 public class SensorsExecutor {
-  private final EventBus eventBus;
-  private final DefaultInputModule module;
   private final ScannerExtensionDictionnary selector;
+  private final DefaultInputModule module;
+  private final EventBus eventBus;
   private final SensorStrategy strategy;
+  private final boolean isRoot;
 
   public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus, SensorStrategy strategy) {
     this.selector = selector;
-    this.eventBus = eventBus;
     this.module = module;
+    this.eventBus = eventBus;
     this.strategy = strategy;
+    this.isRoot = module.definition().getParent() == null;
   }
 
   public void execute(SensorContext context) {
-    execute(context, false);
-    if (isRoot(module)) {
+    Collection<Sensor> perModuleSensors = selector.selectSensors(module, false);
+    Collection<Sensor> globalSensors;
+    if (isRoot) {
+      globalSensors = selector.selectSensors(module, true);
+    } else {
+      globalSensors = Collections.emptyList();
+    }
+
+    Collection<Sensor> allSensors = new ArrayList<>(perModuleSensors);
+    allSensors.addAll(globalSensors);
+    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(allSensors), true));
+
+    execute(context, perModuleSensors);
+
+    if (isRoot) {
       boolean orig = strategy.isGlobal();
       strategy.setGlobal(true);
-      execute(context, true);
+      execute(context, globalSensors);
       strategy.setGlobal(orig);
     }
+
+    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(allSensors), false));
   }
 
-  private void execute(SensorContext context, boolean global) {
-    Collection<Sensor> sensors = selector.selectSensors(module, global);
-    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
-
+  private void execute(SensorContext context, Collection<Sensor> sensors) {
     for (Sensor sensor : sensors) {
       executeSensor(context, sensor);
     }
-
-    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), false));
-  }
-
-  private boolean isRoot(DefaultInputModule module) {
-    return module.definition().getParent() == null;
   }
 
   private void executeSensor(SensorContext context, Sensor sensor) {
