@@ -20,12 +20,9 @@
 package org.sonar.scanner.profiling;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.annotation.Nullable;
@@ -33,9 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.events.DecoratorExecutionHandler;
-import org.sonar.api.batch.events.DecoratorsPhaseHandler;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
@@ -53,7 +47,7 @@ import org.sonar.scanner.util.ScannerUtils;
 import static org.sonar.scanner.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
 import static org.sonar.scanner.profiling.AbstractTimeProfiling.truncate;
 
-public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, DecoratorExecutionHandler, PostJobExecutionHandler, DecoratorsPhaseHandler,
+public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, PostJobExecutionHandler,
   SensorsPhaseHandler, PostJobsPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler {
 
   static final Logger LOG = LoggerFactory.getLogger(PhasesSumUpTimeProfiler.class);
@@ -67,7 +61,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   ModuleProfiling totalProfiling;
 
   private Map<Project, ModuleProfiling> modulesProfilings = new HashMap<>();
-  private DecoratorsProfiler decoratorsProfiler;
 
   private final System2 system;
   private final File out;
@@ -98,7 +91,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   public void onProjectAnalysis(ProjectAnalysisEvent event) {
     Project module = event.getProject();
     if (event.isStart()) {
-      decoratorsProfiler = new DecoratorsProfiler();
       currentModuleProfiling = new ModuleProfiling(module, system);
     } else {
       currentModuleProfiling.stop();
@@ -172,32 +164,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   }
 
   @Override
-  public void onDecoratorExecution(DecoratorExecutionEvent event) {
-    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR);
-    if (event.isStart()) {
-      if (profiling.getProfilingPerItem(event.getDecorator()) == null) {
-        profiling.newItemProfiling(event.getDecorator());
-      }
-      decoratorsProfiler.start(event.getDecorator());
-    } else {
-      decoratorsProfiler.stop();
-    }
-  }
-
-  @Override
-  public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
-    if (event.isStart()) {
-      currentModuleProfiling.addPhaseProfiling(Phase.DECORATOR);
-    } else {
-      for (Decorator decorator : decoratorsProfiler.getDurations().keySet()) {
-        currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR)
-          .getProfilingPerItem(decorator).setTotalTime(decoratorsProfiler.getDurations().get(decorator));
-      }
-      currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).stop();
-    }
-  }
-
-  @Override
   public void onPostJobsPhase(PostJobsPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phase.POSTJOB);
@@ -242,37 +208,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     } else {
       currentModuleProfiling.getProfilingPerBatchStep(event.stepName()).stop();
     }
-  }
-
-  class DecoratorsProfiler {
-    private List<Decorator> decorators = Lists.newArrayList();
-    private Map<Decorator, Long> durations = new IdentityHashMap<>();
-    private long startTime;
-    private Decorator currentDecorator;
-
-    DecoratorsProfiler() {
-    }
-
-    void start(Decorator decorator) {
-      this.startTime = system.now();
-      this.currentDecorator = decorator;
-    }
-
-    void stop() {
-      final Long cumulatedDuration;
-      if (durations.containsKey(currentDecorator)) {
-        cumulatedDuration = durations.get(currentDecorator);
-      } else {
-        decorators.add(currentDecorator);
-        cumulatedDuration = 0L;
-      }
-      durations.put(currentDecorator, cumulatedDuration + (system.now() - startTime));
-    }
-
-    public Map<Decorator, Long> getDurations() {
-      return durations;
-    }
-
   }
 
 }
