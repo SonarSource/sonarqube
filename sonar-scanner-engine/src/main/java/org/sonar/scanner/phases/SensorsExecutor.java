@@ -49,14 +49,17 @@ public class SensorsExecutor {
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {
+      boolean origGlobal = scope.isGlobal();
       if (sensor.isGlobal()) {
         if (isRoot(module)) {
           scope.setGlobal(true);
           executeSensor(context, sensor);
+          scope.setGlobal(origGlobal);
         }
       } else {
         scope.setGlobal(false);
         executeSensor(context, sensor);
+        scope.setGlobal(origGlobal);
       }
     }
 
