@@ -17,16 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link, withRouter } from 'react-router';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
 
 class GlobalNavUser extends React.Component {
+  props: {
+    currentUser: {
+      email?: string,
+      name: string
+    },
+    location: Object,
+    router: { push: (string) => void }
+  };
+
   handleLogin = e => {
     e.preventDefault();
-    const returnTo = window.location.pathname + window.location.search;
-    window.location = `${window.baseUrl}/sessions/new?return_to=${encodeURIComponent(returnTo)}${window.location.hash}`;
+    const shouldReturnToCurrentPage = window.location.pathname !== `${window.baseUrl}/about`;
+    if (shouldReturnToCurrentPage) {
+      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location = `${window.baseUrl}/sessions/new?return_to=${returnTo}${window.location.hash}`;
+    } else {
+      window.location = `${window.baseUrl}/sessions/new`;
+    }
   };
 
   handleLogout = e => {
