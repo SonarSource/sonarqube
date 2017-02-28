@@ -79,5 +79,9 @@ public interface SensorDescriptor {
    */
   SensorDescriptor requireProperties(String... propertyKeys);
 
+  /**
+   * This sensor should be executed at the project level, instead of per-module.
+   * @Since 6.4
+   */
   SensorDescriptor global();
 }
