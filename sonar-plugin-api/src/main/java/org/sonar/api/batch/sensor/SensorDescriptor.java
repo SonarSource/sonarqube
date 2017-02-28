@@ -79,4 +79,5 @@ public interface SensorDescriptor {
    */
   SensorDescriptor requireProperties(String... propertyKeys);
 
+  SensorDescriptor global();
 }

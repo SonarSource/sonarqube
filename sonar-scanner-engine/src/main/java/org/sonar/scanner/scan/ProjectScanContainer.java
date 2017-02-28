@@ -245,6 +245,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
     LOG.debug("Start recursive analysis of project modules");
     scanRecursively(tree, tree.root());
+
     if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
     }

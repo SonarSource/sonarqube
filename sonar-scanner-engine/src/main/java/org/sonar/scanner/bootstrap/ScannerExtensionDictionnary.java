@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,6 +73,28 @@ public class ScannerExtensionDictionnary {
 
   public <T> Collection<T> select(Class<T> type, @Nullable DefaultInputModule module, boolean sort, @Nullable ExtensionMatcher matcher) {
     List<T> result = getFilteredExtensions(type, module, matcher);
+    if (sort) {
+      return sort(result);
+    }
+    return result;
+  }
+
+  public Collection<org.sonar.api.batch.Sensor> selectSensor(boolean global, @Nullable DefaultInputModule module, boolean sort, @Nullable ExtensionMatcher matcher) {
+    List<org.sonar.api.batch.Sensor> result = getFilteredExtensions(org.sonar.api.batch.Sensor.class, module, matcher);
+
+    Iterator<org.sonar.api.batch.Sensor> iterator = result.iterator();
+    while (iterator.hasNext()) {
+      org.sonar.api.batch.Sensor sensor = iterator.next();
+      if (sensor instanceof SensorWrapper) {
+        if (global ^ ((SensorWrapper) sensor).isGlobal()) {
+          iterator.remove();
+        }
+      } else if (global) {
+        // only old sensors are not wrapped, and old sensors are never global -> exclude
+        iterator.remove();
+      }
+    }
+
     if (sort) {
       return sort(result);
     }

@@ -45,22 +45,21 @@ public class SensorsExecutor {
   }
 
   public void execute(SensorContext context) {
-    Collection<Sensor> sensors = selector.select(Sensor.class, module, true, null);
+    execute(context, false);
+    if (isRoot(module)) {
+      boolean orig = scope.isGlobal();
+      scope.setGlobal(true);
+      execute(context, true);
+      scope.setGlobal(orig);
+    }
+  }
+
+  private void execute(SensorContext context, boolean global) {
+    Collection<Sensor> sensors = selector.selectSensor(global, module, true, null);
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {
-      boolean origGlobal = scope.isGlobal();
-      if (sensor.isGlobal()) {
-        if (isRoot(module)) {
-          scope.setGlobal(true);
-          executeSensor(context, sensor);
-          scope.setGlobal(origGlobal);
-        }
-      } else {
-        scope.setGlobal(false);
-        executeSensor(context, sensor);
-        scope.setGlobal(origGlobal);
-      }
+      executeSensor(context, sensor);
     }
 
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), false));
