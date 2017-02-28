@@ -48,7 +48,10 @@ class LoginFormContainer extends React.Component {
   }
 
   handleSuccessfulLogin = () => {
-    window.location = this.props.location.query['return_to'] || (window.baseUrl + '/');
+    const { location } = this.props;
+    const queryReturnTo = location.query['return_to'];
+    const returnTo = queryReturnTo ? `${queryReturnTo}${location.hash}` : `${window.baseUrl}/`;
+    window.location = returnTo;
   };
 
   handleSubmit = (login: string, password: string) => {
