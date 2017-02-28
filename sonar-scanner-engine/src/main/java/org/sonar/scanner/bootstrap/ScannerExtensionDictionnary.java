@@ -86,7 +86,7 @@ public class ScannerExtensionDictionnary {
     while (iterator.hasNext()) {
       org.sonar.api.batch.Sensor sensor = iterator.next();
       if (sensor instanceof SensorWrapper) {
-        if (global ^ ((SensorWrapper) sensor).isGlobal()) {
+        if (global != ((SensorWrapper) sensor).isGlobal()) {
           iterator.remove();
         }
       } else if (global) {
