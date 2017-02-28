@@ -79,8 +79,8 @@ public class ScannerExtensionDictionnary {
     return result;
   }
 
-  public Collection<org.sonar.api.batch.Sensor> selectSensor(boolean global, @Nullable DefaultInputModule module, boolean sort, @Nullable ExtensionMatcher matcher) {
-    List<org.sonar.api.batch.Sensor> result = getFilteredExtensions(org.sonar.api.batch.Sensor.class, module, matcher);
+  public Collection<org.sonar.api.batch.Sensor> selectSensors(@Nullable DefaultInputModule module, boolean global) {
+    List<org.sonar.api.batch.Sensor> result = getFilteredExtensions(org.sonar.api.batch.Sensor.class, module, null);
 
     Iterator<org.sonar.api.batch.Sensor> iterator = result.iterator();
     while (iterator.hasNext()) {
@@ -90,15 +90,12 @@ public class ScannerExtensionDictionnary {
           iterator.remove();
         }
       } else if (global) {
-        // only old sensors are not wrapped, and old sensors are never global -> exclude
+        // only old sensors are not wrapped, and old selectSensors are never global -> exclude
         iterator.remove();
       }
     }
 
-    if (sort) {
-      return sort(result);
-    }
-    return result;
+    return sort(result);
   }
 
   private static Phase.Name evaluatePhase(Object extension) {

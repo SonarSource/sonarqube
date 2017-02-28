@@ -55,7 +55,7 @@ public class SensorsExecutor {
   }
 
   private void execute(SensorContext context, boolean global) {
-    Collection<Sensor> sensors = selector.selectSensor(global, module, true, null);
+    Collection<Sensor> sensors = selector.selectSensors(module, global);
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {
