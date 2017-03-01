@@ -74,8 +74,10 @@ public class DefaultFileSystemTest {
   public void add_languages() {
     assertThat(fs.languages()).isEmpty();
 
-    fs.addLanguages("java", "php", "cobol");
-    assertThat(fs.languages()).containsOnly("cobol", "java", "php");
+    fs.add(new TestInputFileBuilder("foo", "src/Foo.php").setLanguage("php").build());
+    fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
+
+    assertThat(fs.languages()).containsOnly("java", "php");
   }
 
   @Test

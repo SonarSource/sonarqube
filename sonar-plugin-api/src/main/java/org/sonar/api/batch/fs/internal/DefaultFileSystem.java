@@ -35,7 +35,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
@@ -199,16 +198,6 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  /**
-   * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
-   * using {@link #add(InputFile)}.
-   */
-  public DefaultFileSystem addLanguages(String language, String... others) {
-    ((MapCache) cache).addLanguages(language);
-    ((MapCache) cache).addLanguages(others);
-    return this;
-  }
-
   @Override
   public SortedSet<String> languages() {
     doPreloadFiles();
@@ -297,10 +286,6 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     protected SortedSet<String> languages() {
       return languages;
-    }
-
-    protected void addLanguages(String... languages) {
-      Stream.of(languages).forEach(this.languages::add);
     }
   }
 
