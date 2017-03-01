@@ -200,6 +200,7 @@ public class ReportPublisher implements Startable {
     } else {
       String publicUrl = server.getPublicRootUrl();
       HttpUrl httpUrl = HttpUrl.parse(publicUrl);
+      String serverVersion = (server.getVersion() != null) ? server.getVersion() : "";
 
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
@@ -208,7 +209,7 @@ public class ReportPublisher implements Startable {
       }
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl);
-      metadata.put("serverVersion", server.getVersion());
+      metadata.put("serverVersion", serverVersion);
 
       URL dashboardUrl = httpUrl.newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
