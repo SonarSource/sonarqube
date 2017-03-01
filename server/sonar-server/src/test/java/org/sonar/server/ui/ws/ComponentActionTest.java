@@ -109,11 +109,11 @@ public class ComponentActionTest {
   @Before
   public void before() {
     OrganizationDto organization = dbTester.organizations().insertForKey("my-org");
-    project =  newProjectDto(organization, "abcd")
-        .setKey(PROJECT_KEY)
-        .setName("Polop")
-        .setDescription("test project")
-        .setLanguage("xoo");
+    project = newProjectDto(organization, "abcd")
+      .setKey(PROJECT_KEY)
+      .setName("Polop")
+      .setDescription("test project")
+      .setLanguage("xoo");
   }
 
   @Test
@@ -133,12 +133,40 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void fail_on_missing_permission() throws Exception {
+  public void throw_ForbiddenException_if_required_permission_is_not_granted() throws Exception {
     init();
     componentDbTester.insertComponent(project);
+    userSessionRule.logIn();
 
     expectedException.expect(ForbiddenException.class);
     execute(project.key());
+  }
+
+  @Test
+  public void return_info_if_user_has_browse_permission_on_project() throws Exception {
+    init();
+    componentDbTester.insertComponent(project);
+    userSessionRule.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    verifySuccess(project.key());
+  }
+
+  @Test
+  public void return_info_if_user_has_administration_permission_on_project() throws Exception {
+    init();
+    componentDbTester.insertComponent(project);
+    userSessionRule.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    verifySuccess(project.key());
+  }
+
+  @Test
+  public void return_info_if_user_is_system_administrator() throws Exception {
+    init();
+    componentDbTester.insertComponent(project);
+    userSessionRule.logIn().setSystemAdministrator();
+
+    verifySuccess(project.key());
   }
 
   @Test
@@ -452,5 +480,10 @@ public class ComponentActionTest {
       .build();
 
     return new Page[] {page1, page2, adminPage};
+  }
+
+  private void verifySuccess(String componentKey) {
+    String json = execute(componentKey);
+    assertJson(json).isSimilarTo("{\"key\":\"" + componentKey + "\"}");
   }
 }
