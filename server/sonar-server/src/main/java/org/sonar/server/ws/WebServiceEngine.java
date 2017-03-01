@@ -36,6 +36,7 @@ import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
@@ -140,12 +141,25 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
     try (JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8))) {
       json.beginObject();
-      errors.writeJson(json);
+      writeErrors(json, errors.messages().stream().map(Message::getMessage).collect(Collectors.toList()));
       json.endObject();
     } catch (Exception e) {
       // Do not hide the potential exception raised in the try block.
       throw Throwables.propagate(e);
     }
+  }
+
+  private static void writeErrors(JsonWriter json, List<String> errorMessages) {
+    if (errorMessages.isEmpty()) {
+      return;
+    }
+    json.name("errors").beginArray();
+    errorMessages.forEach(message -> {
+      json.beginObject();
+      json.prop("msg", message);
+      json.endObject();
+    });
+    json.endArray();
   }
 
   private static void checkActionExtension(@Nullable String actionExtension) {

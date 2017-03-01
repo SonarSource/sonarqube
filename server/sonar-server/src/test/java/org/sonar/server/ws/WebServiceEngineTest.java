@@ -20,6 +20,7 @@
 package org.sonar.server.ws;
 
 import java.io.IOException;
+import java.util.MissingFormatArgumentException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
@@ -33,16 +34,13 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonarqube.ws.MediaTypes;
 
-import static java.util.Collections.singletonList;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -291,8 +289,8 @@ public class WebServiceEngineTest {
     ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_to_write_errors");
     DumbResponse response = new DumbResponse();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("error writing json");
+    expectedException.expect(MissingFormatArgumentException.class);
+    expectedException.expectMessage("Format specifier '%s'");
     underTest.execute(request, response);
   }
 
@@ -360,11 +358,8 @@ public class WebServiceEngineTest {
         });
       createNewDefaultAction(newController, "fail_to_write_errors")
         .setHandler((request, response) -> {
-          Errors errors = mock(Errors.class);
-          when(errors.messages()).thenReturn(singletonList(Message.of("invalid argument")));
           // Try to simulate an error when generating JSON errors
-          doThrow(new IllegalArgumentException("error writing json")).when(errors).writeJson(any(JsonWriter.class));
-          throw BadRequestException.create(errors);
+          format("this will fail as no args are given %s");
         });
       createNewDefaultAction(newController, "alive")
         .setHandler((request, response) -> response.noContent());

@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.sonar.api.utils.text.JsonWriter;
 
 public class Errors {
 
@@ -64,18 +63,6 @@ public class Errors {
       add(Message.of(l10nKey, l10nParams));
     }
     return expression;
-  }
-
-  public void writeJson(JsonWriter json) {
-    if (!messages.isEmpty()) {
-      json.name("errors").beginArray();
-      for (Message message : messages) {
-        json.beginObject();
-        json.prop("msg", message.getMessage());
-        json.endObject();
-      }
-      json.endArray();
-    }
   }
 
   @Override
