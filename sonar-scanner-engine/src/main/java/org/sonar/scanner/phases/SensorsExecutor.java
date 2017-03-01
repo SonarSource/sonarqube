@@ -21,6 +21,7 @@ package org.sonar.scanner.phases;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.Sensor;
@@ -29,7 +30,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
-import java.util.Collection;
 import org.sonar.scanner.sensor.SensorStrategy;
 
 @ScannerSide
@@ -52,7 +52,10 @@ public class SensorsExecutor {
     Collection<Sensor> perModuleSensors = selector.selectSensors(module, false);
     Collection<Sensor> globalSensors;
     if (isRoot) {
+      boolean orig = strategy.isGlobal();
+      strategy.setGlobal(true);
       globalSensors = selector.selectSensors(module, true);
+      strategy.setGlobal(orig);
     } else {
       globalSensors = Collections.emptyList();
     }
