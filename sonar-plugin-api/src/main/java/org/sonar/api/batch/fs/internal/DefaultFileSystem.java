@@ -28,7 +28,6 @@ import java.nio.charset.Charset;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,6 +35,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
@@ -53,7 +53,6 @@ import org.sonar.api.utils.PathUtils;
 public class DefaultFileSystem implements FileSystem {
 
   private final Cache cache;
-  private final SortedSet<String> languages = new TreeSet<>();
   private final Path baseDir;
   private Path workDir;
   private Charset encoding;
@@ -192,10 +191,6 @@ public class DefaultFileSystem implements FileSystem {
 
   public DefaultFileSystem add(InputFile inputFile) {
     cache.add(inputFile);
-    String language = inputFile.language();
-    if (language != null) {
-      languages.add(language);
-    }
     return this;
   }
 
@@ -209,15 +204,15 @@ public class DefaultFileSystem implements FileSystem {
    * using {@link #add(InputFile)}.
    */
   public DefaultFileSystem addLanguages(String language, String... others) {
-    languages.add(language);
-    Collections.addAll(languages, others);
+    ((MapCache) cache).addLanguages(language);
+    ((MapCache) cache).addLanguages(others);
     return this;
   }
 
   @Override
   public SortedSet<String> languages() {
     doPreloadFiles();
-    return languages;
+    return cache.languages();
   }
 
   @Override
@@ -245,6 +240,8 @@ public class DefaultFileSystem implements FileSystem {
     public void add(InputDir inputDir) {
       doAdd(inputDir);
     }
+
+    protected abstract SortedSet<String> languages();
   }
 
   /**
@@ -255,6 +252,7 @@ public class DefaultFileSystem implements FileSystem {
     private final Map<String, InputDir> dirMap = new HashMap<>();
     private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
     private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
+    private SortedSet<String> languages = new TreeSet<>();
 
     @Override
     public Iterable<InputFile> inputFiles() {
@@ -283,6 +281,9 @@ public class DefaultFileSystem implements FileSystem {
 
     @Override
     protected void doAdd(InputFile inputFile) {
+      if (inputFile.language() != null) {
+        languages.add(inputFile.language());
+      }
       fileMap.put(inputFile.relativePath(), inputFile);
       filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
       filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
@@ -291,6 +292,15 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     protected void doAdd(InputDir inputDir) {
       dirMap.put(inputDir.relativePath(), inputDir);
+    }
+
+    @Override
+    protected SortedSet<String> languages() {
+      return languages;
+    }
+
+    protected void addLanguages(String... languages) {
+      Stream.of(languages).forEach(this.languages::add);
     }
   }
 

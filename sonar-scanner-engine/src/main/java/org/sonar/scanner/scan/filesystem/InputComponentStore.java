@@ -23,9 +23,12 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 
 import org.sonar.api.batch.ScannerSide;
@@ -50,6 +53,8 @@ import org.sonar.api.batch.fs.internal.FilenamePredicate;
 @ScannerSide
 public class InputComponentStore {
 
+  private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
+  private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
   private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();
   private final Map<String, InputDir> globalInputDirCache = new HashMap<>();
@@ -119,12 +124,21 @@ public class InputComponentStore {
 
   public InputComponentStore put(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
+    addToLanguageCache(file);
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
     globalInputFileCache.put(getRelativePath(file), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
     filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
     return this;
+  }
+
+  private void addToLanguageCache(DefaultInputFile inputFile) {
+    String language = inputFile.language();
+    if (language != null) {
+      globalLanguagesCache.add(language);
+      languagesCache.computeIfAbsent(inputFile.moduleKey(), k -> new TreeSet<>()).add(language);
+    }
   }
 
   public InputComponentStore put(InputDir inputDir) {
@@ -194,5 +208,13 @@ public class InputComponentStore {
 
   public Iterable<InputFile> getFilesByExtension(String extension) {
     return filesByExtensionCache.get(extension);
+  }
+
+  public SortedSet<String> getLanguages() {
+    return globalLanguagesCache;
+  }
+
+  public SortedSet<String> getLanguages(String moduleKey) {
+    return languagesCache.getOrDefault(moduleKey, Collections.emptySortedSet());
   }
 }
