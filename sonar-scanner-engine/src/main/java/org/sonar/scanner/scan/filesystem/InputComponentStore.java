@@ -145,7 +145,7 @@ public class InputComponentStore {
   }
 
   private String getRelativePath(String moduleKey, Path path) {
-    return getRootPath(moduleKey).relativize(path).toString();
+    return getRootPath(moduleKey).relativize(path.toAbsolutePath()).toString();
   }
 
   private Path getRootPath(String moduleKey) {

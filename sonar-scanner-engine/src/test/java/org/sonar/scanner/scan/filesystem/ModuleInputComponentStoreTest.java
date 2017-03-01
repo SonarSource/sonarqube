@@ -20,9 +20,14 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.IOException;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.sensor.SensorStrategy;
 
@@ -30,12 +35,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ModuleInputComponentStoreTest {
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  private InputComponentStore componentStore;
+
+  private final String moduleKey = "dummy key";
+
+  @Before
+  public void setUp() throws IOException {
+    componentStore = new InputComponentStore();
+
+    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
+    definition.setBaseDir(temp.newFolder());
+    componentStore.put(new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId()));
+  }
+
   @Test
   public void should_cache_files_by_filename() throws IOException {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String filename = "some name";
-    String moduleKey = "dummy key";
     InputFile inputFile1 = new TestInputFileBuilder(moduleKey, "some/path/" + filename).build();
     store.doAdd(inputFile1);
 
@@ -52,7 +72,6 @@ public class ModuleInputComponentStoreTest {
   public void should_cache_files_by_extension() throws IOException {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
-    String moduleKey = "dummy key";
     InputFile inputFile1 = new TestInputFileBuilder(moduleKey, "some/path/Program.java").build();
     store.doAdd(inputFile1);
 
@@ -71,7 +90,7 @@ public class ModuleInputComponentStoreTest {
 
     String ext = "java";
     String filename = "Program." + ext;
-    InputFile inputFile = new TestInputFileBuilder("dummy key", "some/path/" + filename).build();
+    InputFile inputFile = new TestInputFileBuilder(moduleKey, "some/path/" + filename).build();
     store.doAdd(inputFile);
     store.doAdd(inputFile);
     store.doAdd(inputFile);
@@ -86,7 +105,7 @@ public class ModuleInputComponentStoreTest {
 
     String ext = "java";
     String filename = "Program." + ext;
-    InputFile inputFile = new TestInputFileBuilder("dummy key", "some/path/" + filename).build();
+    InputFile inputFile = new TestInputFileBuilder(moduleKey, "some/path/" + filename).build();
     store.doAdd(inputFile);
 
     assertThat(store.getFilesByName("nonexistent")).isEmpty();
@@ -94,6 +113,6 @@ public class ModuleInputComponentStoreTest {
   }
 
   private ModuleInputComponentStore newModuleInputComponentStore() {
-    return new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore(), mock(SensorStrategy.class));
+    return new ModuleInputComponentStore(mock(InputModule.class), componentStore, mock(SensorStrategy.class));
   }
 }
