@@ -19,8 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
-import java.util.List;
-
 public class FileSimilarityImpl implements FileSimilarity {
 
   private final SourceSimilarity sourceSimilarity;
@@ -31,15 +29,10 @@ public class FileSimilarityImpl implements FileSimilarity {
 
   @Override
   public int score(File file1, File file2) {
-    int score = 0;
+    // Algorithm could be improved by increasing score
+    // depending on filename similarity
+    // Current implementation relies on file content only.
 
-    // TODO check filenames
-
-    List<String> lineHashes1 = file1.getLineHashes();
-    List<String> lineHashes2 = file2.getLineHashes();
-    if (lineHashes1 != null && lineHashes2 != null) {
-      score += sourceSimilarity.score(lineHashes1, lineHashes2);
-    }
-    return score;
+    return sourceSimilarity.score(file1.getLineHashes(), file2.getLineHashes());
   }
 }

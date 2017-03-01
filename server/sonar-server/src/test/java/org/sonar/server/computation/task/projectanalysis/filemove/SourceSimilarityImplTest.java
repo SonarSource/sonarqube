@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SourceSimilarityImplTest {
@@ -32,7 +33,7 @@ public class SourceSimilarityImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  SourceSimilarityImpl underTest = new SourceSimilarityImpl();
+  private SourceSimilarityImpl underTest = new SourceSimilarityImpl();
 
   @Test
   public void zero_if_fully_different() {
@@ -52,5 +53,10 @@ public class SourceSimilarityImplTest {
     assertThat(underTest.score(asList("a", "b", "c", "d"), asList("a", "b", "e", "f"))).isEqualTo(50);
     assertThat(underTest.score(asList("a"), asList("a", "b", "c"))).isEqualTo(33);
     assertThat(underTest.score(asList("a", "b", "c"), asList("a"))).isEqualTo(33);
+  }
+
+  @Test
+  public void two_empty_lists_are_not_considered_as_equal() {
+    assertThat(underTest.score(emptyList(), emptyList())).isEqualTo(0);
   }
 }
