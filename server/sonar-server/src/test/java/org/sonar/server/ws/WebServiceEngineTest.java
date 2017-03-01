@@ -20,6 +20,8 @@
 package org.sonar.server.ws;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.MissingFormatArgumentException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
@@ -35,8 +37,6 @@ import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
-import org.sonar.server.exceptions.Message;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.lang.String.format;
@@ -350,9 +350,9 @@ public class WebServiceEngineTest {
       createNewDefaultAction(newController, "fail_with_multiple_messages")
         .createParam("count", "Number of error messages to generate")
         .setHandler((request, response) -> {
-          Errors errors = new Errors();
+          List<String> errors = new ArrayList<>();
           for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
-            errors.add(Message.of("Bad request reason #" + count));
+            errors.add("Bad request reason #" + count);
           }
           throw BadRequestException.create(errors);
         });

@@ -53,14 +53,6 @@ public class BadRequestExceptionTest {
   }
 
   @Test
-  public void create_exception_from_errors() throws Exception {
-    Errors errors = new Errors().add(Message.of("error1"), Message.of("error2"));
-    BadRequestException underTest = BadRequestException.create(errors);
-
-    assertThat(underTest.errors().messages().stream().map(Message::getMessage)).containsOnly("error1", "error2");
-  }
-
-  @Test
   public void getMessage_return_first_error() throws Exception {
     BadRequestException underTest = BadRequestException.create(asList("error1", "error2"));
 

@@ -19,16 +19,17 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class QualityGateUpdater {
 
@@ -46,22 +47,20 @@ public class QualityGateUpdater {
   }
 
   private void validateQualityGate(@Nullable Long qGateId, @Nullable String name) {
-    Errors errors = new Errors();
+    List<String> errors = new ArrayList<>();
     if (isNullOrEmpty(name)) {
-      errors.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
+      errors.add(format(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
       checkQualityGateDoesNotAlreadyExist(qGateId, name, errors);
     }
-    if (!errors.messages().isEmpty()) {
-      throw BadRequestException.create(errors);
-    }
+    checkRequest(errors.isEmpty(), errors);
   }
 
-  private void checkQualityGateDoesNotAlreadyExist(@Nullable Long qGateId, String name, Errors errors) {
+  private void checkQualityGateDoesNotAlreadyExist(@Nullable Long qGateId, String name, List<String> errors) {
     QualityGateDto existingQgate = dbClient.qualityGateDao().selectByName(name);
     boolean isModifyingCurrentQgate = qGateId != null && existingQgate != null && existingQgate.getId().equals(qGateId);
     if (!isModifyingCurrentQgate && existingQgate != null) {
-      errors.add(Message.of(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
+      errors.add(format(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
     }
   }
 }

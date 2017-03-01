@@ -40,16 +40,12 @@ public class BadRequestException extends ServerException {
   }
 
   public static BadRequestException create(List<String> errorMessages) {
-    return create(new Errors().add(errorMessages.stream().map(Message::of).collect(Collectors.toList())));
+    checkArgument(!errorMessages.isEmpty(), "At least one error message is required");
+    return new BadRequestException(new Errors().add(errorMessages.stream().map(Message::of).collect(Collectors.toList())));
   }
 
   public static BadRequestException create(String... errorMessages) {
     return create(asList(errorMessages));
-  }
-
-  public static BadRequestException create(Errors e) {
-    checkArgument(!e.messages().isEmpty(), "At least one error message is required");
-    return new BadRequestException(e);
   }
 
   public Errors errors() {
