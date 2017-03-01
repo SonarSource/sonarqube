@@ -39,7 +39,6 @@ import org.sonar.scanner.scan.report.RuleNameProvider;
 import org.sonar.scanner.scan.report.SourceProvider;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
-import org.sonar.scanner.source.CodeColorizerSensor;
 import org.sonar.scanner.source.ZeroCoverageSensor;
 import org.sonar.scanner.task.ListTask;
 import org.sonar.scanner.task.ScanTask;
@@ -67,7 +66,6 @@ public class BatchComponents {
       components.add(ScmPublisher.class);
 
       components.add(ZeroCoverageSensor.class);
-      components.add(CodeColorizerSensor.class);
 
       // CPD
       components.addAll(CpdComponents.all());
