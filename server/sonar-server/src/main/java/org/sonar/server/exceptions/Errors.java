@@ -58,13 +58,6 @@ public class Errors {
     return messages.isEmpty();
   }
 
-  public boolean check(boolean expression, String l10nKey, Object... l10nParams) {
-    if (!expression) {
-      add(Message.of(l10nKey, l10nParams));
-    }
-    return expression;
-  }
-
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)

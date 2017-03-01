@@ -60,6 +60,8 @@ public class QualityGateUpdater {
   private void checkQualityGateDoesNotAlreadyExist(@Nullable Long qGateId, String name, Errors errors) {
     QualityGateDto existingQgate = dbClient.qualityGateDao().selectByName(name);
     boolean isModifyingCurrentQgate = qGateId != null && existingQgate != null && existingQgate.getId().equals(qGateId);
-    errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
+    if (!isModifyingCurrentQgate && existingQgate != null) {
+      errors.add(Message.of(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
+    }
   }
 }

@@ -240,7 +240,9 @@ public class QualityGates {
   private void checkQgateNotAlreadyExists(@Nullable Long updatingQgateId, String name, Errors errors) {
     QualityGateDto existingQgate = dao.selectByName(name);
     boolean isModifyingCurrentQgate = updatingQgateId != null && existingQgate != null && existingQgate.getId().equals(updatingQgateId);
-    errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
+    if (!isModifyingCurrentQgate && existingQgate != null) {
+      errors.add(Message.of(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
+    }
   }
 
   private void checkIsSystemAdministrator() {

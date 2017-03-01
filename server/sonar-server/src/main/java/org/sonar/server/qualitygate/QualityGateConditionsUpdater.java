@@ -141,7 +141,7 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void validateMetric(MetricDto metric, Errors errors) {
-    errors.check(isAlertable(metric), format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
+    check(errors, isAlertable(metric), format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
   }
 
   private static boolean isAlertable(MetricDto metric) {
@@ -154,18 +154,18 @@ public class QualityGateConditionsUpdater {
 
   private static void checkOperator(MetricDto metric, String operator, Errors errors) {
     ValueType valueType = valueOf(metric.getValueType());
-    errors.check(isOperatorAllowed(operator, valueType), format("Operator %s is not allowed for metric type %s.", operator, metric.getValueType()));
+    check(errors, isOperatorAllowed(operator, valueType), format("Operator %s is not allowed for metric type %s.", operator, metric.getValueType()));
   }
 
   private static void checkThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, Errors errors) {
-    errors.check(warningThreshold != null || errorThreshold != null, "At least one threshold (warning, error) must be set.");
+    check(errors, warningThreshold != null || errorThreshold != null, "At least one threshold (warning, error) must be set.");
   }
 
   private static void checkPeriod(MetricDto metric, @Nullable Integer period, Errors errors) {
     if (period == null) {
-      errors.check(!metric.getKey().startsWith("new_"), "A period must be selected for differential metrics.");
+      check(errors, !metric.getKey().startsWith("new_"), "A period must be selected for differential metrics.");
     } else {
-      errors.check(period == 1, "The only valid quality gate period is 1, the leak period.");
+      check(errors, period == 1, "The only valid quality gate period is 1, the leak period.");
     }
   }
 
@@ -210,7 +210,7 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void checkRatingGreaterThanOperator(@Nullable String value, Errors errors) {
-    errors.check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), format("There's no worse rating than E (%s)", value));
+    check(errors, isNullOrEmpty(value) || !Objects.equals(toRating(value), E), format("There's no worse rating than E (%s)", value));
   }
 
   private static Rating toRating(String value) {
@@ -219,5 +219,12 @@ public class QualityGateConditionsUpdater {
 
   private static boolean isValidRating(@Nullable String value) {
     return isNullOrEmpty(value) || RATING_VALID_INT_VALUES.contains(value);
+  }
+
+  private static boolean check(Errors errors, boolean expression, String message) {
+    if (!expression) {
+      errors.add(Message.of(message));
+    }
+    return expression;
   }
 }
