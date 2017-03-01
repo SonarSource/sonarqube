@@ -29,22 +29,15 @@ public interface FileSimilarity {
 
   final class File {
     private final String path;
-    private final String srcHash;
     private final List<String> lineHashes;
 
-    public File(String path, @Nullable String srcHash, @Nullable List<String> lineHashes) {
+    public File(String path, @Nullable List<String> lineHashes) {
       this.path = requireNonNull(path, "path can not be null");
-      this.srcHash = srcHash;
       this.lineHashes = lineHashes;
     }
 
     public String getPath() {
       return path;
-    }
-
-    @CheckForNull
-    public String getSrcHash() {
-      return srcHash;
     }
 
     @CheckForNull

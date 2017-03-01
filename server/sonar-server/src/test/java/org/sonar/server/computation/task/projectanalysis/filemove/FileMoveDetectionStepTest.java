@@ -35,7 +35,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -499,18 +498,15 @@ public class FileMoveDetectionStepTest {
 
   private void mockContentOfFileInDb(String key, String[] content) {
     SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-    SourceHashComputer sourceHashComputer = new SourceHashComputer();
     Iterator<String> lineIterator = Arrays.asList(content).iterator();
     while (lineIterator.hasNext()) {
       String line = lineIterator.next();
       linesHashesComputer.addLine(line);
-      sourceHashComputer.addLine(line, lineIterator.hasNext());
     }
 
     when(fileSourceDao.selectSourceByFileUuid(dbSession, componentUuidOf(key)))
       .thenReturn(new FileSourceDto()
-        .setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()))
-        .setSrcHash(sourceHashComputer.getHash()));
+        .setLineHashes(on('\n').join(linesHashesComputer.getLineHashes())));
   }
 
   private void setFilesInReport(Component... files) {

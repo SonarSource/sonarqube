@@ -78,6 +78,6 @@ public class MatchesByScoreTest {
   }
 
   private static FileSimilarity.File fileOf(String key) {
-    return new FileSimilarity.File("path of " + key, null, null);
+    return new FileSimilarity.File("path of " + key, null);
   }
 }
