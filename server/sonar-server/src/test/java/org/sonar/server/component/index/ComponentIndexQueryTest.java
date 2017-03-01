@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentIndexQueryTest {
@@ -32,11 +33,32 @@ public class ComponentIndexQueryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void should_fail_with_IAE_if_query_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Query must be at least two characters long");
+  public void create_query() {
+    ComponentIndexQuery query = new ComponentIndexQuery()
+      .setQuery("SonarQube")
+      .setQualifiers(asList("TRK", "FIL"))
+      .setLimit(5);
 
-    new ComponentIndexQuery("");
+    assertThat(query.getQuery().get()).isEqualTo("SonarQube");
+    assertThat(query.getQualifiers()).containsOnly("TRK", "FIL");
+    assertThat(query.getLimit().get()).isEqualTo(5);
+  }
+
+  @Test
+  public void create_query_accepts_null_text_query() {
+    ComponentIndexQuery query = new ComponentIndexQuery()
+      .setQuery(null);
+
+    assertThat(query.getQuery()).isNotPresent();
+  }
+
+  @Test
+  public void test_default_values() throws Exception {
+    ComponentIndexQuery query = new ComponentIndexQuery();
+
+    assertThat(query.getQuery()).isNotPresent();
+    assertThat(query.getQualifiers()).isEmpty();
+    assertThat(query.getLimit()).isNotPresent();
   }
 
   @Test
@@ -44,19 +66,19 @@ public class ComponentIndexQueryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Query must be at least two characters long");
 
-    new ComponentIndexQuery("a");
+    new ComponentIndexQuery().setQuery("a");
   }
 
   @Test
   public void should_support_query_with_two_characters_long() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab");
+    ComponentIndexQuery query = new ComponentIndexQuery().setQuery("ab");
 
-    assertThat(query.getQuery()).isEqualTo("ab");
+    assertThat(query.getQuery().get()).isEqualTo("ab");
   }
 
   @Test
   public void should_fail_with_IAE_if_limit_is_negative() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab");
+    ComponentIndexQuery query = new ComponentIndexQuery().setQuery("ab");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Limit has to be strictly positive");
@@ -66,7 +88,7 @@ public class ComponentIndexQueryTest {
 
   @Test
   public void should_fail_with_IAE_if_limit_is_zero() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab");
+    ComponentIndexQuery query = new ComponentIndexQuery().setQuery("ab");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Limit has to be strictly positive");
@@ -76,7 +98,7 @@ public class ComponentIndexQueryTest {
 
   @Test
   public void should_support_positive_limit() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab")
+    ComponentIndexQuery query = new ComponentIndexQuery().setQuery("ab")
       .setLimit(1);
 
     assertThat(query.getLimit()).isEqualTo(Optional.of(1));

@@ -103,12 +103,15 @@ public class ComponentIndex {
   private QueryBuilder createQuery(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
     esQuery.filter(authorizationTypeSupport.createQueryFilter());
-    ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
-      .setQueryText(query.getQuery())
-      .setFieldKey(FIELD_KEY)
-      .setFieldName(FIELD_NAME)
-      .build();
-    return esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, features));
+    return query.getQuery()
+      .map(textQuery -> {
+        ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
+          .setQueryText(textQuery)
+          .setFieldKey(FIELD_KEY)
+          .setFieldName(FIELD_NAME)
+          .build();
+        return esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, features));
+      }).orElse(esQuery);
   }
 
   private static List<ComponentsPerQualifier> aggregationsToQualifiers(SearchResponse response) {
