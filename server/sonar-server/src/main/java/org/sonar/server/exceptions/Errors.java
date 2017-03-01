@@ -54,10 +54,6 @@ public class Errors {
     return messages;
   }
 
-  public boolean isEmpty() {
-    return messages.isEmpty();
-  }
-
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)

@@ -232,7 +232,7 @@ public class QualityGates {
     } else {
       checkQgateNotAlreadyExists(updatingQgateId, name, errors);
     }
-    if (!errors.isEmpty()) {
+    if (!errors.messages().isEmpty()) {
       throw BadRequestException.create(errors);
     }
   }

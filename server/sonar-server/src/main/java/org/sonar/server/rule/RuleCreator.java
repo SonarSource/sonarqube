@@ -118,7 +118,7 @@ public class RuleCreator {
       }
     }
 
-    if (!errors.isEmpty()) {
+    if (!errors.messages().isEmpty()) {
       throw BadRequestException.create(errors);
     }
   }

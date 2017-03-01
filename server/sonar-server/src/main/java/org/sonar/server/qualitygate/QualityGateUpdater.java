@@ -52,7 +52,7 @@ public class QualityGateUpdater {
     } else {
       checkQualityGateDoesNotAlreadyExist(qGateId, name, errors);
     }
-    if (!errors.isEmpty()) {
+    if (!errors.messages().isEmpty()) {
       throw BadRequestException.create(errors);
     }
   }
