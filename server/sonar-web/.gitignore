@@ -8,6 +8,9 @@ node_modules/
 npm-debug.log*
 npm.tar.gz
 
+# VS Code
+.vscode/
+
 # build
 build/
 src/main/webapp/js/
