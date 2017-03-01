@@ -19,10 +19,17 @@
  */
 package org.sonar.scanner.postjob;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
@@ -37,6 +44,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultPostJobContextTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private IssueCache issueCache;
   private InputComponentStore componentStore;
@@ -54,7 +64,7 @@ public class DefaultPostJobContextTest {
   }
 
   @Test
-  public void testIssues() {
+  public void testIssues() throws IOException {
     when(analysisMode.isIssues()).thenReturn(true);
 
     assertThat(context.settings()).isSameAs(settings);
@@ -78,7 +88,14 @@ public class DefaultPostJobContextTest {
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.inputComponent()).isNull();
 
-    componentStore.put(new TestInputFileBuilder("foo", "src/Foo.php").build());
+    String moduleKey = "foo";
+    File baseDir = temp.newFolder();
+    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
+    definition.setBaseDir(baseDir);
+    InputModule inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
+    componentStore.put(inputModule);
+
+    componentStore.put(new TestInputFileBuilder(moduleKey, "src/Foo.php").build());
     assertThat(issue.inputComponent()).isNotNull();
 
   }
