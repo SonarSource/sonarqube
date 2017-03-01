@@ -357,7 +357,7 @@ public class UserUpdaterTest {
         .build());
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).hasSize(3);
+      assertThat(e.errors()).hasSize(3);
     }
   }
 

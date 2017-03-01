@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -111,7 +110,7 @@ public class SendActionTest {
       executeRequest("john@doo.com", "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).extracting(Message::getMessage).containsExactly(
+      assertThat(e.errors()).containsExactly(
         "root cause", "parent cause", "child cause", "last message");
     }
   }

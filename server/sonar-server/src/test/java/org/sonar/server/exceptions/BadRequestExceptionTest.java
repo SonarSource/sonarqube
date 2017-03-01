@@ -42,14 +42,14 @@ public class BadRequestExceptionTest {
   public void create_exception_from_list() throws Exception {
     BadRequestException underTest = BadRequestException.create(asList("error1", "error2"));
 
-    assertThat(underTest.errors().messages().stream().map(Message::getMessage)).containsOnly("error1", "error2");
+    assertThat(underTest.errors()).containsOnly("error1", "error2");
   }
 
   @Test
   public void create_exception_from_var_args() throws Exception {
     BadRequestException underTest = BadRequestException.create("error1", "error2");
 
-    assertThat(underTest.errors().messages().stream().map(Message::getMessage)).containsOnly("error1", "error2");
+    assertThat(underTest.errors()).containsOnly("error1", "error2");
   }
 
   @Test

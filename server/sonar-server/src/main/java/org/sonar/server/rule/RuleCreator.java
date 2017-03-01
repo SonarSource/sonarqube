@@ -32,14 +32,12 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
@@ -117,7 +115,7 @@ public class RuleCreator {
       try {
         validateParam(ruleParam, newRule.parameter(ruleParam.getName()));
       } catch (BadRequestException validationError) {
-        errors.addAll(validationError.errors().messages().stream().map(Message::getMessage).collect(Collectors.toList()));
+        errors.addAll(validationError.errors());
       }
     }
     checkRequest(errors.isEmpty(), errors);

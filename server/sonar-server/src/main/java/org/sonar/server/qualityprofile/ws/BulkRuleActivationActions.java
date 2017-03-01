@@ -26,8 +26,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.Collectors;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.ws.RuleQueryFactory;
@@ -110,7 +108,7 @@ public class BulkRuleActivationActions {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());
     json.prop("failed", result.countFailed());
-    writeErrors(json, result.getErrors().messages().stream().map(Message::getMessage).collect(Collectors.toList()));
+    writeErrors(json, result.getErrors());
     json.endObject().close();
   }
 

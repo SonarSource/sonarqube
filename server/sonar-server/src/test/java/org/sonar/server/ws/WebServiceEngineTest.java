@@ -22,7 +22,6 @@ package org.sonar.server.ws;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.MissingFormatArgumentException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
@@ -39,7 +38,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.MediaTypes;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -285,13 +283,15 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void render_real_exception_when_failing_to_write_json_errors() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_to_write_errors");
+  public void does_not_fail_to_render_error_message_having_percent() {
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/error_message_having_percent");
     DumbResponse response = new DumbResponse();
 
-    expectedException.expect(MissingFormatArgumentException.class);
-    expectedException.expectMessage("Format specifier '%s'");
     underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"this should not fail %s\"}]}");
+    assertThat(response.stream().status()).isEqualTo(400);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
@@ -356,10 +356,9 @@ public class WebServiceEngineTest {
           }
           throw BadRequestException.create(errors);
         });
-      createNewDefaultAction(newController, "fail_to_write_errors")
+      createNewDefaultAction(newController, "error_message_having_percent")
         .setHandler((request, response) -> {
-          // Try to simulate an error when generating JSON errors
-          format("this will fail as no args are given %s");
+          throw new IllegalArgumentException("this should not fail %s");
         });
       createNewDefaultAction(newController, "alive")
         .setHandler((request, response) -> response.noContent());

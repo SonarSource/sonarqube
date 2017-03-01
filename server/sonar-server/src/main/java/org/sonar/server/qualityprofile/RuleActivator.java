@@ -422,7 +422,7 @@ public class RuleActivator {
         } catch (BadRequestException e) {
           // other exceptions stop the bulk activation
           result.incrementFailed();
-          result.getErrors().add(e.errors());
+          result.getErrors().addAll(e.errors());
         }
       }
       dbSession.commit();
@@ -450,7 +450,7 @@ public class RuleActivator {
         } catch (BadRequestException e) {
           // other exceptions stop the bulk activation
           result.incrementFailed();
-          result.getErrors().add(e.errors());
+          result.getErrors().addAll(e.errors());
         }
       }
       dbSession.commit();

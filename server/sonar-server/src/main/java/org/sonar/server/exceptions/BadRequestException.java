@@ -21,7 +21,6 @@ package org.sonar.server.exceptions;
 
 import com.google.common.base.MoreObjects;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -32,23 +31,24 @@ import static java.util.Arrays.asList;
  */
 public class BadRequestException extends ServerException {
 
-  private final transient Errors errors;
+  private final transient List<String> errors;
 
-  private BadRequestException(Errors e) {
-    super(HTTP_BAD_REQUEST, e.messages().get(0).getMessage());
-    this.errors = e;
+  private BadRequestException(List<String> errors) {
+    super(HTTP_BAD_REQUEST, errors.get(0));
+    this.errors = errors;
   }
 
   public static BadRequestException create(List<String> errorMessages) {
     checkArgument(!errorMessages.isEmpty(), "At least one error message is required");
-    return new BadRequestException(new Errors().add(errorMessages.stream().map(Message::of).collect(Collectors.toList())));
+    checkArgument(errorMessages.stream().noneMatch(message -> message == null || message.isEmpty()), "Message cannot be empty");
+    return new BadRequestException(errorMessages);
   }
 
   public static BadRequestException create(String... errorMessages) {
     return create(asList(errorMessages));
   }
 
-  public Errors errors() {
+  public List<String> errors() {
     return errors;
   }
 

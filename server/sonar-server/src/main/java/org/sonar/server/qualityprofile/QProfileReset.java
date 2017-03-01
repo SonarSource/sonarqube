@@ -141,7 +141,7 @@ public class QProfileReset {
         result.addChanges(changes);
       } catch (BadRequestException e) {
         result.incrementFailed();
-        result.getErrors().add(e.errors());
+        result.getErrors().addAll(e.errors());
       }
     }
 
