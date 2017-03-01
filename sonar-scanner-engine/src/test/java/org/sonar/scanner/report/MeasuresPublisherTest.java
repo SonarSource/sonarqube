@@ -58,7 +58,6 @@ public class MeasuresPublisherTest {
   private MeasureCache measureCache;
   private MeasuresPublisher publisher;
 
-  private InputComponentStore componentCache;
   private File outputDir;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
@@ -68,7 +67,7 @@ public class MeasuresPublisherTest {
   public void prepare() throws IOException {
     InputModule = new DefaultInputModule("foo");
     inputFile = new TestInputFileBuilder("foo", "src/Foo.php").setPublish(true).build();
-    componentCache = new InputComponentStore();
+    InputComponentStore componentCache = new InputComponentStore();
     componentCache.put(InputModule);
     componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);
