@@ -305,7 +305,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_all_active_rules() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
     RuleDto rule = RuleTesting.newXooX1();
@@ -329,10 +329,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_profile_active_rules() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    QualityProfileDto profile2 = QProfileTesting.newXooP2();
+    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile2);
 
     dbSession.commit();
@@ -401,10 +401,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_profile_active_rules_with_inheritance() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(profile.getKee());
+    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123").setParentKee(profile.getKee());
     tester.get(QualityProfileDao.class).insert(dbSession, profile2);
 
     dbSession.commit();
@@ -432,7 +432,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_all_active_rules_params() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
     RuleDto rule = RuleTesting.newXooX1();
     ruleDao.insert(dbSession, rule);
@@ -478,7 +478,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void get_note_as_markdown_and_html() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
     RuleDto rule = RuleTesting.newXooX1().setNoteData("this is *bold*");
     ruleDao.insert(dbSession, rule);

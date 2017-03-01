@@ -59,9 +59,11 @@ public class ShowActionMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester().withEsIndexes();
 
+  DefaultOrganizationProvider defaultOrganizationProvider = tester.get(DefaultOrganizationProvider.class);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn()
-    .addPermission(ADMINISTER_QUALITY_PROFILES, tester.get(DefaultOrganizationProvider.class).get().getUuid());
+    .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
 
   WsTester wsTester;
 
@@ -266,7 +268,10 @@ public class ShowActionMediumTest {
     RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, ruleDto, regexParam);
 
-    QualityProfileDto profile = QualityProfileDto.createFor("profile").setName("Profile").setLanguage("xoo");
+    QualityProfileDto profile = QualityProfileDto.createFor("profile")
+      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+      .setName("Profile")
+      .setLanguage("xoo");
     tester.get(QualityProfileDao.class).insert(session, profile);
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
       .setProfileId(profile.getId())

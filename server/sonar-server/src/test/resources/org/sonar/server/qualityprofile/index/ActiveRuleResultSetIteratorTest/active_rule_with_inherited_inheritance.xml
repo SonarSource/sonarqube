@@ -6,9 +6,9 @@
          tags="bug,performance" system_tags="cwe"
          created_at="1500000000000" updated_at="1600000000000"/>
 
-  <rules_profiles id="1" name="Parent" kee="parent" language="xoo" parent_kee="[null]" is_default="[false]"/>
+  <rules_profiles id="1" name="Parent" organization_uuid="org-123" kee="parent" language="xoo" parent_kee="[null]" is_default="[false]"/>
 
-  <rules_profiles id="2" name="Child" kee="child" language="xoo" parent_kee="parent" is_default="[false]"/>
+  <rules_profiles id="2" name="Child" organization_uuid="org-123" kee="child" language="xoo" parent_kee="parent" is_default="[false]"/>
 
   <active_rules id="1" profile_id="2" rule_id="10" failure_level="4" inheritance="INHERITED"
                 created_at="1500000000000" updated_at="1600000000000"/>

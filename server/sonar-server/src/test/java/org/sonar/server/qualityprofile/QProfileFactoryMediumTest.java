@@ -208,7 +208,7 @@ public class QProfileFactoryMediumTest {
   @Test
   public void delete() {
     initRules();
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
     tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(RuleTesting.XOO_X1), XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
@@ -230,7 +230,7 @@ public class QProfileFactoryMediumTest {
     initRules();
 
     // create parent and child profiles
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2(), QProfileTesting.newXooP3());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"), QProfileTesting.newXooP2("org-123"), QProfileTesting.newXooP3("org-123"));
     List<ActiveRuleChange> changes = tester.get(RuleActivator.class).setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
     changes.addAll(tester.get(RuleActivator.class).setParent(dbSession, XOO_P3_KEY, XOO_P1_KEY));
     changes.addAll(tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(RuleTesting.XOO_X1), XOO_P1_KEY));
@@ -256,7 +256,7 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void do_not_delete_default_profile() {
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
     factory.setDefault(dbSession, XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
@@ -274,7 +274,7 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void do_not_delete_if_default_descendant() {
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2(), QProfileTesting.newXooP3());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"), QProfileTesting.newXooP2("org-123"), QProfileTesting.newXooP3("org-123"));
 
     List<ActiveRuleChange> changes = tester.get(RuleActivator.class).setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
     changes.addAll(tester.get(RuleActivator.class).setParent(dbSession, XOO_P3_KEY, XOO_P1_KEY));
@@ -306,7 +306,7 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void set_default_profile() {
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
     dbSession.commit();
     dbSession.clearCache();
 

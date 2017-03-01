@@ -119,7 +119,7 @@ public class RegisterRulesMediumTest {
 
     // Create a profile and activate rule
     logInAsQProfileAdministrator();
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
     dbSession.commit();
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
@@ -151,7 +151,7 @@ public class RegisterRulesMediumTest {
 
     // create a profile and activate rule
     logInAsQProfileAdministrator();
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
     dbSession.commit();
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
@@ -186,7 +186,7 @@ public class RegisterRulesMediumTest {
 
     // Create profile and activate rule
     logInAsQProfileAdministrator();
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
     dbSession.commit();
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);

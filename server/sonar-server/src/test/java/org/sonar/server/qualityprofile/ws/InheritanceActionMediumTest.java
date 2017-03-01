@@ -129,7 +129,7 @@ public class InheritanceActionMediumTest {
   }
 
   private QualityProfileDto createProfile(String lang, String name, String key) {
-    QualityProfileDto profile = QProfileTesting.newQProfileDto(new QProfileName(lang, name), key);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, name), key);
     db.qualityProfileDao().insert(session, profile);
     session.commit();
     return profile;

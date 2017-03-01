@@ -24,10 +24,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.Dto;
+import org.sonar.db.organization.OrganizationDto;
 
 public class QualityProfileDto extends Dto<String> {
 
   private Integer id;
+  /**
+   * The organization, that this quality profile belongs to.
+   * Must not be null, but can be the default organization's uuid.
+   * Refers to {@link OrganizationDto#getUuid()}.
+   */
+  private String organizationUuid;
   private String kee;
   private String name;
   private String language;
@@ -43,6 +50,15 @@ public class QualityProfileDto extends Dto<String> {
   @Deprecated
   public QualityProfileDto() {
 
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public QualityProfileDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
   }
 
   @Override

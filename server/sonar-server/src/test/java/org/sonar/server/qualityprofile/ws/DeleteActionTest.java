@@ -77,7 +77,8 @@ public class DeleteActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new DeleteAction(new Languages(xoo1, xoo2), new QProfileFactory(dbClient), dbClient, new QProfileWsSupport(userSessionRule, defaultOrganizationProvider))));
+      new DeleteAction(new Languages(xoo1, xoo2), new QProfileFactory(dbClient, defaultOrganizationProvider), dbClient,
+        new QProfileWsSupport(userSessionRule, defaultOrganizationProvider))));
   }
 
   @After
@@ -91,7 +92,11 @@ public class DeleteActionTest {
 
     ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "polop");
     componentDao.insert(session, project);
-    qualityProfileDao.insert(session, QualityProfileDto.createFor(profileKey).setLanguage(xoo1.getKey()).setName("Sonar way"));
+    QualityProfileDto qualityProfile = QualityProfileDto.createFor(profileKey)
+      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+      .setLanguage(xoo1.getKey())
+      .setName("Sonar way");
+    qualityProfileDao.insert(session, qualityProfile);
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);
     session.commit();
 
@@ -109,7 +114,11 @@ public class DeleteActionTest {
 
     ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "polop");
     componentDao.insert(session, project);
-    qualityProfileDao.insert(session, QualityProfileDto.createFor(profileKey).setLanguage(xoo1.getKey()).setName("Sonar way"));
+    qualityProfileDao.insert(session,
+      QualityProfileDto.createFor(profileKey)
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+        .setLanguage(xoo1.getKey())
+        .setName("Sonar way"));
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);
     session.commit();
 

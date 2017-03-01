@@ -84,7 +84,7 @@ public class QProfileCopierMediumTest {
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
 
     // create pre-defined profile
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
     dbSession.commit();
     dbSession.clearCache();
     ruleIndexer.index();
@@ -124,7 +124,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // create target with both x1 and x2 activated
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123"));
     activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.CRITICAL);
     activation.setParameter("max", "20");
@@ -145,7 +145,7 @@ public class QProfileCopierMediumTest {
   @Test
   public void create_target_profile_with_same_parent_than_source() {
     // two profiles : parent and its child
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY));
 
     // parent and child with x1 activated
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
