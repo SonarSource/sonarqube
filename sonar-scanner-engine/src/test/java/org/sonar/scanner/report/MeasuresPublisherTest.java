@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -68,13 +67,8 @@ public class MeasuresPublisherTest {
   @Before
   public void prepare() throws IOException {
     String moduleKey = "foo";
-    File baseDir = temp.newFolder();
-    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
-    definition.setBaseDir(baseDir);
-    inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
-
+    inputModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
     inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setPublish(true).build();
-
     InputComponentStore componentCache = new InputComponentStore(new PathResolver());
     componentCache.put(inputModule);
     componentCache.put(inputFile);

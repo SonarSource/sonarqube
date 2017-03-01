@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.postjob;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
@@ -27,8 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
@@ -89,11 +86,7 @@ public class DefaultPostJobContextTest {
     assertThat(issue.inputComponent()).isNull();
 
     String moduleKey = "foo";
-    File baseDir = temp.newFolder();
-    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
-    definition.setBaseDir(baseDir);
-    DefaultInputModule inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
-    componentStore.put(inputModule);
+    componentStore.put(TestInputFileBuilder.newDefaultInputModule("foo", temp.newFolder()));
 
     componentStore.put(new TestInputFileBuilder(moduleKey, "src/Foo.php").build());
     assertThat(issue.inputComponent()).isNotNull();

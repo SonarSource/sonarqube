@@ -19,12 +19,14 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.annotation.Nullable;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
@@ -142,5 +144,11 @@ public class TestInputFileBuilder {
     inputFile.setCharset(charset);
     inputFile.setPublish(publish);
     return inputFile;
+  }
+
+  public static DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
+    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
+    definition.setBaseDir(baseDir);
+    return new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
   }
 }

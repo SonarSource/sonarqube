@@ -27,9 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -50,17 +48,15 @@ public class SourcePublisherTest {
   public void prepare() throws IOException {
     File baseDir = temp.newFolder();
     sourceFile = new File(baseDir, "src/Foo.php");
-    inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+    String moduleKey = "foo";
+    inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php")
       .setLines(5)
       .setModuleBaseDir(baseDir.toPath())
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
 
     InputComponentStore componentStore = new InputComponentStore(new PathResolver());
-
-    ProjectDefinition definition = ProjectDefinition.create().setKey("foo");
-    definition.setBaseDir(baseDir);
-    componentStore.put(new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId()));
+    componentStore.put(TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir));
     componentStore.put(inputFile);
 
     publisher = new SourcePublisher(componentStore);
