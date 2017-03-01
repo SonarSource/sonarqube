@@ -42,7 +42,8 @@ public final class CodeColorizerSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("Code Colorizer Sensor");
+    descriptor.name("Code Colorizer Sensor")
+      .global();
   }
 
   @Override
