@@ -388,6 +388,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setId(dbComponent.uuid())
         .setKey(dbComponent.key())
         .setName(dbComponent.name());
+      wsComponent.getTagsBuilder().addAllTags(dbComponent.getTags());
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbComponent.uuid());
       if (snapshotDto != null) {

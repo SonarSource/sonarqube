@@ -10,21 +10,31 @@
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "key": "my_project",
       "name": "My Project 1",
-      "isFavorite": true
+      "isFavorite": true,
+      "tags": [
+        "finance",
+        "java"
+      ]
     },
     {
       "organization": "my-org-key-1",
       "id": "AU-TpxcA-iU5OvuD2FLz",
       "key": "another_project",
       "name": "My Project 2",
-      "isFavorite": false
+      "isFavorite": false,
+      "tags": []
     },
     {
       "organization": "my-org-key-2",
       "id": "AU-TpxcA-iU5OvuD2FL0",
       "key": "third_project",
       "name": "My Project 3",
-      "isFavorite": false
+      "isFavorite": false,
+      "tags": [
+        "sales",
+        "offshore",
+        "java"
+      ]
     }
   ]
 }

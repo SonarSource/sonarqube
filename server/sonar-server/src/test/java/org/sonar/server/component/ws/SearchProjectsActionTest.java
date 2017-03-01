@@ -159,7 +159,9 @@ public class SearchProjectsActionTest {
     ComponentDto project1 = insertProjectInDbAndEs(newProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
-      .setName("My Project 1"));
+      .setName("My Project 1")
+      .setTagsString("finance, java")
+    );
     insertProjectInDbAndEs(newProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_02)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
@@ -167,7 +169,9 @@ public class SearchProjectsActionTest {
     insertProjectInDbAndEs(newProjectDto(organization2Dto)
       .setUuid(Uuids.UUID_EXAMPLE_03)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
-      .setName("My Project 3"));
+      .setName("My Project 3")
+      .setTagsString("sales, offshore, java")
+    );
     userSession.logIn().setUserId(23);
     addFavourite(project1);
     dbSession.commit();
