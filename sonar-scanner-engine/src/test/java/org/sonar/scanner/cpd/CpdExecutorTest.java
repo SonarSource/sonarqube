@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -90,7 +91,9 @@ public class CpdExecutorTest {
     executor = new CpdExecutor(settings, index, publisher, componentStore);
     reader = new ScannerReportReader(outputDir);
 
-    componentStore.put(new DefaultInputModule("foo"));
+    ProjectDefinition definition = ProjectDefinition.create().setKey("foo");
+    definition.setBaseDir(baseDir);
+    componentStore.put(new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId()));
 
     batchComponent1 = createComponent("src/Foo.php", 5);
     batchComponent2 = createComponent("src/Foo2.php", 5);
