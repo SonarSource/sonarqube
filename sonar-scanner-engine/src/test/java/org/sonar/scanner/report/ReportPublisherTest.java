@@ -82,6 +82,7 @@ public class ReportPublisherTest {
     root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot());
     when(reactor.getRoot()).thenReturn(root);
     when(server.getPublicRootUrl()).thenReturn("https://localhost");
+    when(server.getVersion()).thenReturn("6.4");
   }
 
   @Test
@@ -101,6 +102,7 @@ public class ReportPublisherTest {
       "organization=MyOrg\n" +
         "projectKey=struts\n" +
         "serverUrl=https://localhost\n" +
+        "serverVersion=6.4\n" +
         "dashboardUrl=https://localhost/dashboard/index/struts\n" +
         "ceTaskId=TASK-123\n" +
         "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n");
@@ -121,6 +123,7 @@ public class ReportPublisherTest {
     assertThat(readFileToString(detailsFile)).isEqualTo(
       "projectKey=struts\n" +
         "serverUrl=https://publicserver/sonarqube\n" +
+        "serverVersion=6.4\n" +
         "dashboardUrl=https://publicserver/sonarqube/dashboard/index/struts\n" +
         "ceTaskId=TASK-123\n" +
         "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
