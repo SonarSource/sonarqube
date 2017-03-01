@@ -20,10 +20,13 @@
 package org.sonar.scanner.report;
 
 import java.io.File;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -49,14 +52,19 @@ public class CoveragePublisherTest {
   private MeasureCache measureCache;
   private CoveragePublisher publisher;
 
-  private InputComponentStore componentCache;
   private DefaultInputFile inputFile;
 
   @Before
-  public void prepare() {
-    inputFile = new TestInputFileBuilder("foo", "src/Foo.php").setLines(5).build();
-    componentCache = new InputComponentStore();
-    componentCache.put(new DefaultInputModule("foo"));
+  public void prepare() throws IOException {
+    String moduleKey = "foo";
+    File baseDir = temp.newFolder();
+    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
+    definition.setBaseDir(baseDir);
+    InputModule inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
+
+    inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setLines(5).build();
+    InputComponentStore componentCache = new InputComponentStore();
+    componentCache.put(inputModule);
     componentCache.put(inputFile);
 
     measureCache = mock(MeasureCache.class);
