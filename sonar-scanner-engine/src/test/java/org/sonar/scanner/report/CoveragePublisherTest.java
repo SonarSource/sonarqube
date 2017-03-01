@@ -26,12 +26,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
@@ -60,10 +60,10 @@ public class CoveragePublisherTest {
     File baseDir = temp.newFolder();
     ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
     definition.setBaseDir(baseDir);
-    InputModule inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
+    DefaultInputModule inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
 
     inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setLines(5).build();
-    InputComponentStore componentCache = new InputComponentStore();
+    InputComponentStore componentCache = new InputComponentStore(new PathResolver());
     componentCache.put(inputModule);
     componentCache.put(inputFile);
 

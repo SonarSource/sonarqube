@@ -19,13 +19,10 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -37,6 +34,9 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.scan.filesystem.PathResolver;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class InputComponentStoreTest {
   @Rule
@@ -44,18 +44,20 @@ public class InputComponentStoreTest {
 
   @Test
   public void should_add_input_file() throws Exception {
-    InputComponentStore cache = new InputComponentStore();
+    InputComponentStore cache = new InputComponentStore(new PathResolver());
 
     String mod1key = "struts";
     File mod1baseDir = temp.newFolder();
     ProjectDefinition mod1def = ProjectDefinition.create().setKey(mod1key);
     mod1def.setBaseDir(mod1baseDir);
-    cache.put(new DefaultInputModule(mod1def, TestInputFileBuilder.nextBatchId()));
+    DefaultInputModule rootModule = new DefaultInputModule(mod1def, TestInputFileBuilder.nextBatchId());
+    cache.put(rootModule);
 
     String mod2key = "struts-core";
     File mod2baseDir = temp.newFolder();
     ProjectDefinition mod2def = ProjectDefinition.create().setKey(mod2key);
     mod2def.setBaseDir(mod2baseDir);
+    mod1def.addSubProject(mod2def);
     cache.put(new DefaultInputModule(mod2def, TestInputFileBuilder.nextBatchId()));
 
     DefaultInputFile fooFile = new TestInputFileBuilder(mod1key, "src/main/java/Foo.java")

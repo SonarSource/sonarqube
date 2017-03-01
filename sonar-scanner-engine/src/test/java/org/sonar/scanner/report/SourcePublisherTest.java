@@ -31,8 +31,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +56,7 @@ public class SourcePublisherTest {
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
 
-    InputComponentStore componentStore = new InputComponentStore();
+    InputComponentStore componentStore = new InputComponentStore(new PathResolver());
 
     ProjectDefinition definition = ProjectDefinition.create().setKey("foo");
     definition.setBaseDir(baseDir);

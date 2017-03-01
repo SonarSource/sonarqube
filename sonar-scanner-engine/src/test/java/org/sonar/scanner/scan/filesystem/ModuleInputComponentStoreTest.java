@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.sensor.SensorStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,7 @@ public class ModuleInputComponentStoreTest {
 
   @Before
   public void setUp() throws IOException {
-    componentStore = new InputComponentStore();
+    componentStore = new InputComponentStore(new PathResolver());
 
     ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
     definition.setBaseDir(temp.newFolder());

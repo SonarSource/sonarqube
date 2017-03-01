@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -74,7 +75,7 @@ public class MeasuresPublisherTest {
 
     inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setPublish(true).build();
 
-    InputComponentStore componentCache = new InputComponentStore();
+    InputComponentStore componentCache = new InputComponentStore(new PathResolver());
     componentCache.put(inputModule);
     componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);

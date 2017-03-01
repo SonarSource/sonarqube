@@ -19,32 +19,30 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.CheckForNull;
-
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
 import org.sonar.api.batch.fs.internal.FilenamePredicate;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 /**
  * Store of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -53,6 +51,7 @@ import org.sonar.api.batch.fs.internal.FilenamePredicate;
 @ScannerSide
 public class InputComponentStore {
 
+  private final PathResolver pathResolver;
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
@@ -64,6 +63,10 @@ public class InputComponentStore {
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private InputModule root;
+
+  public InputComponentStore(PathResolver pathResolver) {
+    this.pathResolver = pathResolver;
+  }
 
   public Collection<InputComponent> all() {
     return inputComponents.values();
@@ -85,10 +88,6 @@ public class InputComponentStore {
 
   public InputComponent getByKey(String key) {
     return inputComponents.get(key);
-  }
-
-  public void setRoot(InputModule root) {
-    this.root = root;
   }
 
   @CheckForNull
@@ -126,7 +125,7 @@ public class InputComponentStore {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     addToLanguageCache(file);
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
-    globalInputFileCache.put(getRelativePath(file), inputFile);
+    globalInputFileCache.put(getProjectRelativePath(file), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
     filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
@@ -144,32 +143,21 @@ public class InputComponentStore {
   public InputComponentStore put(InputDir inputDir) {
     DefaultInputDir dir = (DefaultInputDir) inputDir;
     inputDirCache.put(dir.moduleKey(), inputDir.relativePath(), inputDir);
-    globalInputDirCache.put(getRelativePath(inputDir), inputDir);
+    globalInputDirCache.put(getProjectRelativePath(dir), inputDir);
     inputComponents.put(inputDir.key(), inputDir);
     return this;
   }
 
-  private String getRelativePath(DefaultInputFile file) {
-    return getRelativePath(file.moduleKey(), file.path());
+  private String getProjectRelativePath(DefaultInputFile file) {
+    return pathResolver.relativePath(getProjectBaseDir(), file.path());
   }
 
-  private String getRelativePath(InputDir inputDir) {
-    DefaultInputDir dir = (DefaultInputDir) inputDir;
-    return getRelativePath(dir.moduleKey(), inputDir.path());
+  private String getProjectRelativePath(DefaultInputDir dir) {
+    return pathResolver.relativePath(getProjectBaseDir(), dir.path());
   }
 
-  private String getRelativePath(String moduleKey, Path path) {
-    return getRootPath(moduleKey).relativize(path.toAbsolutePath()).toString();
-  }
-
-  private Path getRootPath(String moduleKey) {
-    DefaultInputModule inputModule = (DefaultInputModule) inputModuleCache.get(moduleKey);
-    ProjectDefinition definition = inputModule.definition();
-    ProjectDefinition parent = definition.getParent();
-    if (parent == null) {
-      return definition.getBaseDir().toPath();
-    }
-    return getRootPath(parent.getKey());
+  private Path getProjectBaseDir() {
+    return ((DefaultInputModule) root).definition().getBaseDir().toPath();
   }
 
   @CheckForNull
@@ -197,9 +185,17 @@ public class InputComponentStore {
     return inputModuleCache.get(moduleKey);
   }
 
-  public void put(InputModule inputModule) {
+  public void put(DefaultInputModule inputModule) {
+    Preconditions.checkState(!inputComponents.containsKey(inputModule.key()), "Module '%s' already indexed", inputModule.key());
+    Preconditions.checkState(!inputModuleCache.containsKey(inputModule.key()), "Module '%s' already indexed", inputModule.key());
     inputComponents.put(inputModule.key(), inputModule);
     inputModuleCache.put(inputModule.key(), inputModule);
+    if (inputModule.definition().getParent() == null) {
+      if (root != null) {
+        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + inputModule.key() + "'");
+      }
+      root = inputModule;
+    }
   }
 
   public Iterable<InputFile> getFilesByName(String filename) {

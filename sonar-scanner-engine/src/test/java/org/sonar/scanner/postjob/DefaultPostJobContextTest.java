@@ -28,13 +28,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -57,7 +57,7 @@ public class DefaultPostJobContextTest {
   @Before
   public void prepare() {
     issueCache = mock(IssueCache.class);
-    componentStore = new InputComponentStore();
+    componentStore = new InputComponentStore(new PathResolver());
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings, issueCache, componentStore, analysisMode);
@@ -92,7 +92,7 @@ public class DefaultPostJobContextTest {
     File baseDir = temp.newFolder();
     ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
     definition.setBaseDir(baseDir);
-    InputModule inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
+    DefaultInputModule inputModule = new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
     componentStore.put(inputModule);
 
     componentStore.put(new TestInputFileBuilder(moduleKey, "src/Foo.php").build());
