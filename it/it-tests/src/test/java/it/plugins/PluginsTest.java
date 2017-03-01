@@ -88,7 +88,7 @@ public class PluginsTest {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setZipFile(byWildcardMavenFilename(new File("../../sonar-application/target"), "sonar*.zip").getFile());
 
-    // FIXME JSON plugin is temporary disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "JSON");;
+    // FIXME JSON plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "JSON");;
     installPlugin(builder, "Sonargraph");
     installPlugin(builder, "abap");
     installPlugin(builder, "aemrules");
@@ -101,15 +101,15 @@ public class PluginsTest {
     installPlugin(builder, "codecrackercsharp");
     installPlugin(builder, "cpp");
     installPlugin(builder, "csharp");
-    // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin installPlugin(builder, "css");
-    installPlugin(builder, "erlang");
-    installPlugin(builder, "findbugs");
+    // FIXME css plugin is temporarily disabled as for the moment incompatible with the web plugin installPlugin(builder, "css");
+    // FIXME erlang plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
+    // FIXME findbugs plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     installPlugin(builder, "flex");
     installPlugin(builder, "github");
     installPlugin(builder, "googleanalytics");
     installPlugin(builder, "groovy");
     installPlugin(builder, "java");
-    // FIXME javaProperties plugin is temporary disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "javaProperties");
+    // FIXME javaProperties plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "javaProperties");
     installPlugin(builder, "javascript");
     installPlugin(builder, "jdepend");
     installPlugin(builder, "l10nde");
@@ -129,7 +129,7 @@ public class PluginsTest {
     installPlugin(builder, "pli");
     installPlugin(builder, "plsql");
     installPlugin(builder, "pmd");
-    installPlugin(builder, "puppet");
+    // FIXME puppet plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     installPlugin(builder, "python");
     installPlugin(builder, "rci");
     installPlugin(builder, "rpg");
@@ -193,7 +193,7 @@ public class PluginsTest {
   private static void activateLicenses(OrchestratorBuilder builder) {
     LICENSED_PLUGINS.forEach(builder::activateLicense);
   }
-
+  
   private static void installPlugin(OrchestratorBuilder builder, String pluginKey) {
     builder.setOrchestratorProperty(pluginKey + "Version", "LATEST_RELEASE");
     builder.addPlugin(pluginKey);

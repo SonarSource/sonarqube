@@ -23,7 +23,6 @@
     <module>sonar-scanner-protocol</module>
     <module>sonar-scanner-engine-shaded</module>
     <module>sonar-check-api</module>
-    <module>sonar-colorizer</module>
     <module>sonar-core</module>
     <module>sonar-duplications</module>
     <module>sonar-home</module>
