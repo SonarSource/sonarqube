@@ -106,7 +106,7 @@ public class ScannerWsClient {
     response.failIfNotSuccessful();
   }
 
-  private static String tryParseAsJsonError(String responseContent) {
+  public static String tryParseAsJsonError(String responseContent) {
     try {
       JsonParser parser = new JsonParser();
       JsonObject obj = parser.parse(responseContent).getAsJsonObject();
