@@ -47,6 +47,7 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
 import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
@@ -71,7 +72,7 @@ public class ReportPublisherTest {
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
   Settings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
-  ScannerWsClient wsClient = mock(ScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  ScannerWsClient wsClient;
   Server server = mock(Server.class);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);
   ProjectDefinition root;
@@ -79,6 +80,7 @@ public class ReportPublisherTest {
 
   @Before
   public void setUp() {
+    wsClient = mock(ScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
     root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot());
     when(reactor.getRoot()).thenReturn(root);
     when(server.getPublicRootUrl()).thenReturn("https://localhost");
@@ -104,6 +106,19 @@ public class ReportPublisherTest {
         "dashboardUrl=https://localhost/dashboard/index/struts\n" +
         "ceTaskId=TASK-123\n" +
         "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n");
+  }
+
+  @Test
+  public void parse_upload_error_message() throws IOException {
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    HttpException ex = new HttpException("url", 404, "{\"errors\":[{\"msg\":\"Organization with key 'MyOrg' does not exist\"}]}");
+    WsResponse response = mock(WsResponse.class);
+    when(response.failIfNotSuccessful()).thenThrow(ex);
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
+
+    exception.expect(MessageException.class);
+    exception.expectMessage("Failed to upload report - 404: Organization with key 'MyOrg' does not exist");
+    underTest.upload(temp.newFile());
   }
 
   @Test

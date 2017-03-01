@@ -52,6 +52,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
@@ -174,7 +175,14 @@ public class ReportPublisher implements Startable {
       .setParam("projectName", projectDefinition.getOriginalName())
       .setParam("projectBranch", projectDefinition.getBranch())
       .setPart("report", filePart);
-    WsResponse response = wsClient.call(post).failIfNotSuccessful();
+
+    WsResponse response;
+    try {
+      response = wsClient.call(post).failIfNotSuccessful();
+    } catch (HttpException e) {
+      throw MessageException.of(String.format("Failed to upload report - %d: %s", e.code(), ScannerWsClient.tryParseAsJsonError(e.content())));
+    }
+
     try (InputStream protobuf = response.contentStream()) {
       return WsCe.SubmitResponse.parser().parseFrom(protobuf).getTaskId();
     } catch (Exception e) {
