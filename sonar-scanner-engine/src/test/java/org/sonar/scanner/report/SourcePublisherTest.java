@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -55,9 +56,14 @@ public class SourcePublisherTest {
       .setModuleBaseDir(baseDir.toPath())
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
+
     componentStore = new InputComponentStore();
-    componentStore.put(new DefaultInputModule("foo"));
+
+    ProjectDefinition definition = ProjectDefinition.create().setKey("foo");
+    definition.setBaseDir(baseDir);
+    componentStore.put(new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId()));
     componentStore.put(inputFile);
+
     publisher = new SourcePublisher(componentStore);
     File outputDir = temp.newFolder();
     writer = new ScannerReportWriter(outputDir);
