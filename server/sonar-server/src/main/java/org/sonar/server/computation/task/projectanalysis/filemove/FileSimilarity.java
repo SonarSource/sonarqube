@@ -20,8 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
@@ -31,16 +29,19 @@ public interface FileSimilarity {
     private final String path;
     private final List<String> lineHashes;
 
-    public File(String path, @Nullable List<String> lineHashes) {
+    public File(String path, List<String> lineHashes) {
       this.path = requireNonNull(path, "path can not be null");
-      this.lineHashes = lineHashes;
+      this.lineHashes = requireNonNull(lineHashes, "lineHashes can not be null");
     }
 
     public String getPath() {
       return path;
     }
 
-    @CheckForNull
+    /**
+     * List of hash of each line. An empty list is returned
+     * if file content is empty.
+     */
     public List<String> getLineHashes() {
       return lineHashes;
     }

@@ -56,6 +56,7 @@ import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
@@ -233,7 +234,8 @@ public class FileMoveDetectionStep implements ComputationStep {
     if (fileSourceDto == null) {
       return null;
     }
-    return new File(dbComponent.getPath(), LINES_HASHES_SPLITTER.splitToList(fileSourceDto.getLineHashes()));
+    String lineHashes = firstNonNull(fileSourceDto.getLineHashes(), "");
+    return new File(dbComponent.getPath(), LINES_HASHES_SPLITTER.splitToList(lineHashes));
   }
 
   private static void printIfDebug(ScoreMatrix scoreMatrix) {
