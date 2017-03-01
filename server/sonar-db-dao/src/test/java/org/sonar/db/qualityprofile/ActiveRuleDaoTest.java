@@ -32,6 +32,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -55,8 +57,10 @@ public class ActiveRuleDaoTest {
 
   private static final long NOW = 10000000L;
 
-  private QualityProfileDto profile1 = QualityProfileDto.createFor("qp1").setName("QProile1");
-  private QualityProfileDto profile2 = QualityProfileDto.createFor("qp2").setName("QProile2");
+  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
+
+  private QualityProfileDto profile1 = QualityProfileDto.createFor("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
+  private QualityProfileDto profile2 = QualityProfileDto.createFor("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
 
   private RuleDto rule1 = RuleTesting.newDto(RuleTesting.XOO_X1);
   private RuleDto rule2 = RuleTesting.newDto(RuleTesting.XOO_X2);

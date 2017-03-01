@@ -6,7 +6,7 @@
          tags="bug,performance" system_tags="cwe"
          created_at="1500000000000" updated_at="1600000000000"/>
 
-  <rules_profiles id="100" name="Sonar Way" kee="sonar-way" language="xoo" parent_kee="[null]" is_default="[false]"/>
+  <rules_profiles id="100" name="Sonar Way" organization_uuid="org-123" kee="sonar-way" language="xoo" parent_kee="[null]" is_default="[false]"/>
 
   <active_rules id="1" profile_id="100" rule_id="10" failure_level="3" inheritance="[null]"
                 created_at="1500000000000" updated_at="1600000000000"/>

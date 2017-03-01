@@ -28,6 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.ws.TestRequest;
@@ -75,6 +77,7 @@ public class RuleQueryFactoryTest {
   RuleQueryFactory underTest = new RuleQueryFactory(dbClient);
 
   FakeAction fakeAction = new FakeAction(underTest);
+  OrganizationDto organization = OrganizationTesting.newOrganizationDto();
 
   @Test
   public void create_empty_query() throws Exception {
@@ -150,7 +153,10 @@ public class RuleQueryFactoryTest {
   @Test
   public void create_query_add_language_from_profile() throws Exception {
     String profileKey = "sonar-way";
-    dbClient.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey).setName("Sonar Way").setLanguage("xoo"));
+    dbClient.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey)
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Sonar Way")
+      .setLanguage("xoo"));
     dbSession.commit();
 
     RuleQuery result = execute(

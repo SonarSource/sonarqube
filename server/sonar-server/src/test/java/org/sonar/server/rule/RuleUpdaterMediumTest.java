@@ -435,7 +435,7 @@ public class RuleUpdaterMediumTest {
     ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam3);
 
     // Create a quality profile
-    QualityProfileDto profileDto = QProfileTesting.newXooP1();
+    QualityProfileDto profileDto = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 

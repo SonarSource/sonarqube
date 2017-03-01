@@ -29,6 +29,8 @@ import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
@@ -50,6 +52,7 @@ public class QualityProfileDaoTest {
   private DbSession dbSession = dbTester.getSession();
   private QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(dbTester);
   private QualityProfileDao underTest = dbTester.getDbClient().qualityProfileDao();
+  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
 
   @Before
   public void before() {
@@ -61,6 +64,7 @@ public class QualityProfileDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     QualityProfileDto dto = QualityProfileDto.createFor("abcde")
+      .setOrganizationUuid("org-123")
       .setName("ABCDE")
       .setLanguage("xoo");
 
@@ -74,8 +78,9 @@ public class QualityProfileDaoTest {
   public void update() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    QualityProfileDto dto = new QualityProfileDto()
+    QualityProfileDto dto = QualityProfileDto.createFor("key")
       .setId(1)
+      .setOrganizationUuid(organization.getUuid())
       .setName("New Name")
       .setLanguage("js")
       .setParentKee("fghij")
@@ -376,7 +381,10 @@ public class QualityProfileDaoTest {
   }
 
   private QualityProfileDto insertQualityProfileDto(String key, String name, String language) {
-    QualityProfileDto dto = QualityProfileDto.createFor(key).setName(name).setLanguage(language);
+    QualityProfileDto dto = QualityProfileDto.createFor(key)
+      .setOrganizationUuid(organization.getUuid())
+      .setName(name)
+      .setLanguage(language);
     underTest.insert(dbSession, dto);
     return dto;
   }

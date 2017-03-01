@@ -28,6 +28,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -62,6 +64,8 @@ public class ActiveRuleIndexerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private ActiveRuleIndexer indexer = new ActiveRuleIndexer(system2, dbTester.getDbClient(), esTester.client());
+
+  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
 
   @Test
   public void index_nothing() {
@@ -128,7 +132,10 @@ public class ActiveRuleIndexerTest {
     // Index one active rule
     RuleDto rule = RuleTesting.newDto(RULE_KEY_1);
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), rule);
-    QualityProfileDto profile = QualityProfileDto.createFor("qp").setLanguage("xoo").setName("profile");
+    QualityProfileDto profile = QualityProfileDto.createFor("qp")
+      .setOrganizationUuid(organization.getUuid())
+      .setLanguage("xoo")
+      .setName("profile");
     dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile);
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity(Severity.BLOCKER)
       .setCreatedAt(yesterday).setUpdatedAt(yesterday);

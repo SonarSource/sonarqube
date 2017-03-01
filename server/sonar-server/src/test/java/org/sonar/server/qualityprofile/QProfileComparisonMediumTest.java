@@ -76,8 +76,8 @@ public class QProfileComparisonMediumTest {
     db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
 
-    left = QProfileTesting.newXooP1();
-    right = QProfileTesting.newXooP2();
+    left = QProfileTesting.newXooP1("org-123");
+    right = QProfileTesting.newXooP2("org-123");
     db.qualityProfileDao().insert(dbSession, left, right);
 
     dbSession.commit();

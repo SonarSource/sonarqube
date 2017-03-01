@@ -116,7 +116,7 @@ public class QProfileBackuperMediumTest {
     ruleIndexer.index();
 
     // create profile P1 with rules x2 and x1 activated
-    db.qualityProfileDao().insert(dbSession, newXooP1());
+    db.qualityProfileDao().insert(dbSession, newXooP1("org-123"));
     RuleActivation activation1 = new RuleActivation(XOO_X2).setSeverity("MINOR");
     RuleActivation activation2 = new RuleActivation(XOO_X1);
     RuleActivation activation3 = new RuleActivation(blahRuleKey);
@@ -174,7 +174,7 @@ public class QProfileBackuperMediumTest {
   @Test
   public void restore_and_update_profile() throws Exception {
     // create profile P1 with rules x1 and x2 activated
-    db.qualityProfileDao().insert(dbSession, newXooP1());
+    db.qualityProfileDao().insert(dbSession, newXooP1("org-123"));
     RuleActivation activation = new RuleActivation(XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
@@ -213,8 +213,8 @@ public class QProfileBackuperMediumTest {
   public void restore_child_profile() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      newXooP1(),
-      newXooP2().setParentKee(XOO_P1_KEY));
+      newXooP1("org-123"),
+      newXooP2("org-123").setParentKee(XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile (so inherited by child profile)
@@ -261,8 +261,8 @@ public class QProfileBackuperMediumTest {
   public void restore_parent_profile() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      newXooP1(),
-      newXooP2().setParentKee(XOO_P1_KEY));
+      newXooP1("org-123"),
+      newXooP2("org-123").setParentKee(XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile (so inherited by child profile)
@@ -310,8 +310,8 @@ public class QProfileBackuperMediumTest {
   public void keep_other_inherited_rules() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      newXooP1(),
-      newXooP2().setParentKee(XOO_P1_KEY));
+      newXooP1("org-123"),
+      newXooP2("org-123").setParentKee(XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile and is inherited by child profile

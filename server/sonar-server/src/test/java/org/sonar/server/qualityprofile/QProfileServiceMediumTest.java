@@ -88,7 +88,7 @@ public class QProfileServiceMediumTest {
     dbClient.ruleDao().insert(dbSession, xooRule1);
 
     // create pre-defined profiles P1 and P2
-    dbClient.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());
+    dbClient.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"), QProfileTesting.newXooP2("org-123"));
 
     dbSession.commit();
     dbSession.clearCache();

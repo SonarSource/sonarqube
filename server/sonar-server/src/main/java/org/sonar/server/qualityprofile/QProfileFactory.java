@@ -35,6 +35,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 import static org.sonar.server.ws.WsUtils.checkFound;
@@ -46,9 +47,11 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class QProfileFactory {
 
   private final DbClient db;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileFactory(DbClient db) {
+  public QProfileFactory(DbClient db, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.db = db;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   // ------------- CREATION
@@ -76,6 +79,7 @@ public class QProfileFactory {
       String key = Slug.slugify(String.format("%s %s %s", name.getLanguage(), name.getName(), RandomStringUtils.randomNumeric(5)));
       QualityProfileDto dto = QualityProfileDto.createFor(key)
         .setName(name.getName())
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .setLanguage(name.getLanguage())
         .setRulesUpdatedAtAsDate(now);
       if (db.qualityProfileDao().selectByKey(dbSession, dto.getKey()) == null) {

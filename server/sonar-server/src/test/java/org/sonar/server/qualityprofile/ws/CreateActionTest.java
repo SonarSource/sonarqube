@@ -96,7 +96,7 @@ public class CreateActionTest {
     new RuleActivator(mock(System2.class), dbClient, ruleIndex, new RuleActivatorContextFactory(dbClient), null, activeRuleIndexer, userSession),
     profileImporters);
 
-  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters,
+  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient, defaultOrganizationProvider), qProfileExporters,
     newLanguages(XOO_LANGUAGE), new QProfileWsSupport(userSession, defaultOrganizationProvider),
     activeRuleIndexer, profileImporters);
   private WsActionTester wsTester = new WsActionTester(underTest);

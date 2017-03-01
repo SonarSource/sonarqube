@@ -33,6 +33,7 @@ public class QualityProfileTesting {
   public static QualityProfileDto newQualityProfileDto() {
     String uuid = Uuids.createFast();
     QualityProfileDto dto = QualityProfileDto.createFor(uuid)
+      .setOrganizationUuid(randomAlphanumeric(40))
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))
       .setLastUsed(nextLong());
