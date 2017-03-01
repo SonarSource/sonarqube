@@ -32,7 +32,6 @@ import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -40,6 +39,7 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_A
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class CreateAction implements CustomMeasuresWsAction {
   public static final String ACTION = "create";
@@ -137,17 +137,14 @@ public class CreateAction implements CustomMeasuresWsAction {
   }
 
   private static void checkIsProjectOrModule(ComponentDto component) {
-    if (!Scopes.PROJECT.equals(component.scope())) {
-      throw new BadRequestException(String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
-    }
+    checkRequest(Scopes.PROJECT.equals(component.scope()), "Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid());
   }
 
   private void checkMeasureDoesNotExistAlready(DbSession dbSession, ComponentDto component, MetricDto metric) {
     int nbMeasuresOnSameMetricAndMeasure = dbClient.customMeasureDao().countByComponentIdAndMetricId(dbSession, component.uuid(), metric.getId());
-    if (nbMeasuresOnSameMetricAndMeasure > 0) {
-      throw new BadRequestException(String.format("A measure already exists for project '%s' (id: %s) and metric '%s' (id: '%d')",
-        component.key(), component.uuid(), metric.getKey(), metric.getId()));
-    }
+    checkRequest(nbMeasuresOnSameMetricAndMeasure == 0,
+      "A measure already exists for project '%s' (id: %s) and metric '%s' (id: '%d')",
+      component.key(), component.uuid(), metric.getKey(), metric.getId());
   }
 
   private MetricDto searchMetric(DbSession dbSession, Request request) {

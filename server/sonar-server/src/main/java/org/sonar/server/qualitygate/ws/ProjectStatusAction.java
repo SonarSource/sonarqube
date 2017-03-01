@@ -133,7 +133,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       return getProjectThenSnapshot(dbSession, request);
     }
 
-    throw new BadRequestException(MSG_ONE_PARAMETER_ONLY);
+    throw BadRequestException.create(MSG_ONE_PARAMETER_ONLY);
   }
 
   private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, ProjectStatusWsRequest request) {

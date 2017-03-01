@@ -48,6 +48,7 @@ import static org.sonar.api.measures.Metric.ValueType.valueOf;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class QualityGateConditionsUpdater {
 
@@ -175,12 +176,9 @@ public class QualityGateConditionsUpdater {
     }
 
     boolean conditionExists = conditions.stream().anyMatch(c -> c.getMetricId() == metric.getId() && ObjectUtils.equals(c.getPeriod(), period));
-    if (conditionExists) {
-      String errorMessage = period == null
-        ? format("Condition on metric '%s' already exists.", metric.getShortName())
-        : format("Condition on metric '%s' over leak period already exists.", metric.getShortName());
-      throw new BadRequestException(errorMessage);
-    }
+    checkRequest(!conditionExists, period == null
+      ? format("Condition on metric '%s' already exists.", metric.getShortName())
+      : format("Condition on metric '%s' over leak period already exists.", metric.getShortName()));
   }
 
   private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period, Errors errors) {

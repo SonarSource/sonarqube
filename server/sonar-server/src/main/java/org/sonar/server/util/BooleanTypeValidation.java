@@ -23,9 +23,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
-import org.sonar.server.exceptions.BadRequestException;
 
-import static java.lang.String.format;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class BooleanTypeValidation implements TypeValidation {
 
@@ -36,9 +35,8 @@ public class BooleanTypeValidation implements TypeValidation {
 
   @Override
   public void validate(String value, @Nullable List<String> options) {
-    if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
-      throw new BadRequestException(format("Value '%s' must be one of \"true\" or \"false\".", value));
-    }
+    checkRequest(StringUtils.equalsIgnoreCase(value, "true") || StringUtils.equalsIgnoreCase(value, "false"),
+      "Value '%s' must be one of \"true\" or \"false\".", value);
   }
 
 }

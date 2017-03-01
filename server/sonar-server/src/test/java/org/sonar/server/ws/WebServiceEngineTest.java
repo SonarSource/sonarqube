@@ -345,7 +345,7 @@ public class WebServiceEngineTest {
         });
       createNewDefaultAction(newController, "fail_bad_request")
         .setHandler((request, response) -> {
-          throw new BadRequestException("Bad request !");
+          throw BadRequestException.create("Bad request !");
         });
       createNewDefaultAction(newController, "fail_with_multiple_messages")
         .createParam("count", "Number of error messages to generate")

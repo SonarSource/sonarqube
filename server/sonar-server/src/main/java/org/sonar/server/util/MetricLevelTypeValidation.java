@@ -38,7 +38,7 @@ public class MetricLevelTypeValidation implements TypeValidation {
     try {
       Metric.Level.valueOf(value);
     } catch (IllegalArgumentException e) {
-      throw new BadRequestException(format("Value '%s' must be one of \"OK\", \"WARN\", \"ERROR\".", value));
+      throw BadRequestException.create(format("Value '%s' must be one of \"OK\", \"WARN\", \"ERROR\".", value));
     }
   }
 }

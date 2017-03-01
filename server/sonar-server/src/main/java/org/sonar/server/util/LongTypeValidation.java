@@ -37,7 +37,7 @@ public class LongTypeValidation implements TypeValidation {
     try {
       Long.parseLong(value);
     } catch (NumberFormatException e) {
-      throw new BadRequestException(format("Value '%s' must be a long.", value));
+      throw BadRequestException.create(format("Value '%s' must be a long.", value));
     }
   }
 }

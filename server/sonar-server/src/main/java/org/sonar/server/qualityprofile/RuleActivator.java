@@ -49,6 +49,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Activation and deactivation of rules in Quality profiles
@@ -368,9 +369,7 @@ public class RuleActivator {
     if (activeRuleDto == null) {
       return changes;
     }
-    if (!force && !isCascade && activeRuleDto.getInheritance() != null) {
-      throw new BadRequestException("Cannot deactivate inherited rule '" + key.ruleKey() + "'");
-    }
+    checkRequest(force || isCascade || activeRuleDto.getInheritance() == null, "Cannot deactivate inherited rule '%s'", key.ruleKey());
     change = ActiveRuleChange.createFor(ActiveRuleChange.Type.DEACTIVATED, key);
     changes.add(change);
     persist(change, context, dbSession);
@@ -471,9 +470,7 @@ public class RuleActivator {
 
     } else if (profile.getParentKee() == null || !parentKey.equals(profile.getParentKee())) {
       QualityProfileDto parentProfile = db.qualityProfileDao().selectOrFailByKey(dbSession, parentKey);
-      if (isDescendant(dbSession, profile, parentProfile)) {
-        throw new BadRequestException(String.format("Descendant profile '%s' can not be selected as parent of '%s'", parentKey, profileKey));
-      }
+      checkRequest(!isDescendant(dbSession, profile, parentProfile), "Descendant profile '%s' can not be selected as parent of '%s'", parentKey, profileKey);
       changes.addAll(removeParent(dbSession, profile));
 
       // set new parent

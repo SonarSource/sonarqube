@@ -36,16 +36,15 @@ import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 public class ProjectDataLoader {
@@ -63,9 +62,7 @@ public class ProjectDataLoader {
       ProjectRepositories data = new ProjectRepositories();
       ComponentDto module = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
         "Project or module with key '%s' is not found", query.getModuleKey());
-      if (!isProjectOrModule(module)) {
-        throw new BadRequestException(format("Key '%s' belongs to a component which is not a Project", query.getModuleKey()));
-      }
+      checkRequest(isProjectOrModule(module), "Key '%s' belongs to a component which is not a Project", query.getModuleKey());
 
       boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, module) ||
         userSession.hasOrganizationPermission(module.getOrganizationUuid(), SCAN_EXECUTION);

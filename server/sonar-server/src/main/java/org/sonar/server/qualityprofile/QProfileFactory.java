@@ -63,15 +63,13 @@ public class QProfileFactory {
 
   public QualityProfileDto create(DbSession dbSession, QProfileName name) {
     QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
-    if (dto != null) {
-      throw new BadRequestException("Quality profile already exists: " + name);
-    }
+    checkRequest(dto == null, "Quality profile already exists: %s", name);
     return doCreate(dbSession, name);
   }
 
   private QualityProfileDto doCreate(DbSession dbSession, QProfileName name) {
     if (StringUtils.isEmpty(name.getName())) {
-      throw new BadRequestException("quality_profiles.profile_name_cant_be_blank");
+      throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
     Date now = new Date();
     for (int i = 0; i < 20; i++) {
@@ -191,7 +189,7 @@ public class QProfileFactory {
 
   private static void checkNotDefault(QualityProfileDto p) {
     if (p.isDefault()) {
-      throw new BadRequestException("The profile marked as default can not be deleted: " + p.getKey());
+      throw BadRequestException.create("The profile marked as default can not be deleted: " + p.getKey());
     }
   }
 
@@ -207,9 +205,7 @@ public class QProfileFactory {
         throw new NotFoundException("Quality profile not found: " + key);
       }
       if (!StringUtils.equals(newName, profile.getName())) {
-        if (db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) != null) {
-          throw new BadRequestException("Quality profile already exists: " + newName);
-        }
+        checkRequest(db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) == null, "Quality profile already exists: %s", newName);
         profile.setName(newName);
         db.qualityProfileDao().update(dbSession, profile);
         dbSession.commit();

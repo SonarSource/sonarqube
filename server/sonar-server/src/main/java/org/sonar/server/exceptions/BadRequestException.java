@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.util.Arrays.asList;
 
 /**
  * Request is not valid and can not be processed.
@@ -33,11 +34,6 @@ public class BadRequestException extends ServerException {
 
   private final transient Errors errors;
 
-  public BadRequestException(String message) {
-    super(HTTP_BAD_REQUEST, message);
-    this.errors = new Errors().add(Message.of(message));
-  }
-
   private BadRequestException(Errors e) {
     super(HTTP_BAD_REQUEST, e.messages().get(0).getMessage());
     this.errors = e;
@@ -45,6 +41,10 @@ public class BadRequestException extends ServerException {
 
   public static BadRequestException create(List<String> errorMessages) {
     return create(new Errors().add(errorMessages.stream().map(Message::of).collect(Collectors.toList())));
+  }
+
+  public static BadRequestException create(String... errorMessages) {
+    return create(asList(errorMessages));
   }
 
   public static BadRequestException create(Errors e) {

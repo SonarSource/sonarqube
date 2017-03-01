@@ -48,6 +48,8 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static org.sonar.server.ws.WsUtils.checkRequest;
+
 @ServerSide
 public class QProfileExporters {
 
@@ -167,13 +169,11 @@ public class QProfileExporters {
         return importer;
       }
     }
-    throw new BadRequestException("No such importer : " + importerKey);
+    throw BadRequestException.create("No such importer : " + importerKey);
   }
 
   private static void processValidationMessages(ValidationMessages messages, QProfileResult result) {
-    if (!messages.getErrors().isEmpty()) {
-      throw BadRequestException.create(messages.getErrors());
-    }
+    checkRequest(messages.getErrors().isEmpty(), messages.getErrors());
     result.addWarnings(messages.getWarnings());
     result.addInfos(messages.getInfos());
   }

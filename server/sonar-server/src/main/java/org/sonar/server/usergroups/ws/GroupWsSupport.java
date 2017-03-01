@@ -29,15 +29,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.WsUserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Factorizes code about user groups between web services
@@ -149,9 +148,7 @@ public class GroupWsSupport {
     // There is no database constraint on column groups.name
     // because MySQL cannot create a unique index
     // on a UTF-8 VARCHAR larger than 255 characters on InnoDB
-    if (dbClient.groupDao().selectByName(dbSession, organizationUuid, name).isPresent()) {
-      throw new BadRequestException(format("Group '%s' already exists", name));
-    }
+    checkRequest(!dbClient.groupDao().selectByName(dbSession, organizationUuid, name).isPresent(), "Group '%s' already exists", name);
   }
 
   static WsUserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount) {

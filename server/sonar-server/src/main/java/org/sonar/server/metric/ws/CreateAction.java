@@ -30,10 +30,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.util.MetricKeyValidator.checkMetricKeyFormat;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class CreateAction implements MetricsWsAction {
   private static final String ACTION = "create";
@@ -165,24 +166,15 @@ public class CreateAction implements MetricsWsAction {
   }
 
   private void checkMetricInDbAndTemplate(DbSession dbSession, @Nullable MetricDto metricInDb, MetricDto template) {
-    if (areOneOfTheMandatoryArgumentsEmpty(template)) {
-      throw new IllegalArgumentException(String.format("The mandatory arguments '%s','%s' and '%s' must not be empty", PARAM_KEY, PARAM_NAME, PARAM_TYPE));
-    }
+    checkArgument(!areOneOfTheMandatoryArgumentsEmpty(template), "The mandatory arguments '%s','%s' and '%s' must not be empty", PARAM_KEY, PARAM_NAME, PARAM_TYPE);
     if (metricIsNotInDb(metricInDb)) {
       return;
     }
-    if (isMetricEnabled(metricInDb)) {
-      throw new BadRequestException("An active metric already exist with key: " + metricInDb.getKey());
-    }
-    if (isMetricNonCustom(metricInDb)) {
-      throw new BadRequestException("An non custom metric already exist with key: " + metricInDb.getKey());
-    }
+    checkRequest(!isMetricEnabled(metricInDb), "An active metric already exist with key: " + metricInDb.getKey());
+    checkRequest(!isMetricNonCustom(metricInDb), "An non custom metric already exist with key: %s", metricInDb.getKey());
     if (hasMetricTypeChanged(metricInDb, template)) {
       List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
-      if (hasAssociatedCustomMeasures(customMeasures)) {
-        throw new BadRequestException(String.format("You're trying to change the type '%s' while there are associated measures.",
-          metricInDb.getValueType()));
-      }
+      checkRequest(!hasAssociatedCustomMeasures(customMeasures), "You're trying to change the type '%s' while there are associated measures.", metricInDb.getValueType());
     }
   }
 

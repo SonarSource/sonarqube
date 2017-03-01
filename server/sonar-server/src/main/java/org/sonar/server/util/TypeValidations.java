@@ -25,7 +25,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.server.exceptions.BadRequestException;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 public class TypeValidations {
@@ -48,11 +49,9 @@ public class TypeValidations {
     typeValidation.validate(value, options);
   }
 
-  private TypeValidation findByKey(final String key) {
+  private TypeValidation findByKey(String key) {
     TypeValidation typeValidation = Iterables.find(typeValidationList, new TypeValidationMatchKey(key), null);
-    if (typeValidation == null) {
-      throw new BadRequestException(String.format("Type '%s' is not valid.", key));
-    }
+    checkRequest(typeValidation != null, "Type '%s' is not valid.", key);
     return typeValidation;
   }
 
