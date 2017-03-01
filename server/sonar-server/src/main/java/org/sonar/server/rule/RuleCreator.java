@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -31,18 +32,20 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 public class RuleCreator {
@@ -94,7 +97,7 @@ public class RuleCreator {
   }
 
   private void validateCustomRule(NewCustomRule newRule, DbSession dbSession, RuleKey templateKey) {
-    Errors errors = new Errors();
+    List<String> errors = new ArrayList<>();
 
     validateRuleKey(errors, newRule.ruleKey());
     validateName(errors, newRule);
@@ -102,25 +105,22 @@ public class RuleCreator {
 
     String severity = newRule.severity();
     if (Strings.isNullOrEmpty(severity)) {
-      errors.add(Message.of("coding_rules.validation.missing_severity"));
+      errors.add("The severity is missing");
     } else if (!Severity.ALL.contains(severity)) {
-      errors.add(Message.of("coding_rules.validation.invalid_severity", severity));
+      errors.add(format("Severity \"%s\" is invalid", severity));
     }
     if (newRule.status() == null) {
-      errors.add(Message.of("coding_rules.validation.missing_status"));
+      errors.add("The status is missing");
     }
 
     for (RuleParamDto ruleParam : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateKey)) {
       try {
         validateParam(ruleParam, newRule.parameter(ruleParam.getName()));
       } catch (BadRequestException validationError) {
-        errors.add(validationError.errors());
+        errors.addAll(validationError.errors().messages().stream().map(Message::getMessage).collect(Collectors.toList()));
       }
     }
-
-    if (!errors.messages().isEmpty()) {
-      throw BadRequestException.create(errors);
-    }
+    checkRequest(errors.isEmpty(), errors);
   }
 
   @CheckForNull
@@ -136,21 +136,21 @@ public class RuleCreator {
     }
   }
 
-  private static void validateName(Errors errors, NewCustomRule newRule) {
+  private static void validateName(List<String> errors, NewCustomRule newRule) {
     if (Strings.isNullOrEmpty(newRule.name())) {
-      errors.add(Message.of("coding_rules.validation.missing_name"));
+      errors.add("The name is missing");
     }
   }
 
-  private static void validateDescription(Errors errors, NewCustomRule newRule) {
+  private static void validateDescription(List<String> errors, NewCustomRule newRule) {
     if (Strings.isNullOrEmpty(newRule.htmlDescription()) && Strings.isNullOrEmpty(newRule.markdownDescription())) {
-      errors.add(Message.of("coding_rules.validation.missing_description"));
+      errors.add("The description is missing");
     }
   }
 
-  private static void validateRuleKey(Errors errors, String ruleKey) {
+  private static void validateRuleKey(List<String> errors, String ruleKey) {
     if (!ruleKey.matches("^[\\w]+$")) {
-      errors.add(Message.of("coding_rules.validation.invalid_rule_key", ruleKey));
+      errors.add(format("The rule key \"%s\" is invalid, it should only contain: a-z, 0-9, \"_\"", ruleKey));
     }
   }
 
@@ -198,14 +198,14 @@ public class RuleCreator {
   private void updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
-        throw new ReactivationException(String.format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
+        throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
       } else {
         ruleDto.setStatus(RuleStatus.READY)
           .setUpdatedAt(system2.now());
         dbClient.ruleDao().update(dbSession, ruleDto);
       }
     } else {
-      throw new IllegalArgumentException(String.format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
+      throw new IllegalArgumentException(format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
     }
   }
 
