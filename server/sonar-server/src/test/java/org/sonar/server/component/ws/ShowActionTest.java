@@ -46,6 +46,7 @@ import org.sonarqube.ws.WsComponents.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -78,6 +79,19 @@ public class ShowActionTest {
       .getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("show-example.json"));
+  }
+
+  @Test
+  public void tags_displayed_only_for_project() throws IOException {
+    userSession.logIn().setRoot();
+    insertJsonExampleComponentsAndSnapshots();
+
+    String response = ws.newRequest()
+      .setParam("id", "AVIF-FffA3Ax6PH2efPD")
+      .execute()
+      .getInput();
+
+    assertThat(response).containsOnlyOnce("\"tags\"");
   }
 
   @Test
@@ -194,12 +208,13 @@ public class ShowActionTest {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = newProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
+    ComponentDto project = componentDb.insertComponent(newProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
       .setKey("com.sonarsource:java-markdown")
       .setName("Java Markdown")
       .setDescription("Java Markdown Project")
-      .setQualifier(Qualifiers.PROJECT);
-    componentDb.insertProjectAndSnapshot(project);
+      .setQualifier(Qualifiers.PROJECT)
+      .setTagsString("language, plugin"));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(project).setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime()));
     ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
       .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setName("src/main/java/com/sonarsource/markdown/impl")

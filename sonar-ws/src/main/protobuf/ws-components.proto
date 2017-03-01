@@ -77,4 +77,10 @@ message Component {
   optional string language = 10;
   optional bool isFavorite = 11;
   optional string analysisDate = 13;
+  optional Tags tags = 14;
+
+  message Tags {
+    repeated string tags = 1;
+  }
 }
+

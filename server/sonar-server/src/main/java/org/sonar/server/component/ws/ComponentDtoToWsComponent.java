@@ -21,6 +21,7 @@ package org.sonar.server.component.ws;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -54,7 +55,14 @@ class ComponentDtoToWsComponent {
     setNullable(emptyToNull(dto.path()), wsComponent::setPath);
     setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
+    setTags(dto, wsComponent);
     lastAnalysis.ifPresent(analysis -> wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt())));
     return wsComponent;
+  }
+
+  private static void setTags(ComponentDto dto, WsComponents.Component.Builder wsComponent) {
+    if (Qualifiers.PROJECT.equals(dto.qualifier())) {
+      wsComponent.getTagsBuilder().addAllTags(dto.getTags());
+    }
   }
 }

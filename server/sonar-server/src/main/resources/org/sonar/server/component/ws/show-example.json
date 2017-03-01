@@ -6,7 +6,8 @@
     "name": "Rule.java",
     "qualifier": "FIL",
     "language": "java",
-    "path": "src/main/java/com/sonarsource/markdown/impl/Rule.java"
+    "path": "src/main/java/com/sonarsource/markdown/impl/Rule.java",
+    "analysisDate": "2017-03-01T11:39:03+0100"
   },
   "ancestors": [
     {
@@ -15,7 +16,8 @@
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
       "name": "src/main/java/com/sonarsource/markdown/impl",
       "qualifier": "DIR",
-      "path": "src/main/java/com/sonarsource/markdown/impl"
+      "path": "src/main/java/com/sonarsource/markdown/impl",
+      "analysisDate": "2017-03-01T11:39:03+0100"
     },
     {
       "organization": "my-org-1",
@@ -23,7 +25,12 @@
       "key": "com.sonarsource:java-markdown",
       "name": "Java Markdown",
       "description": "Java Markdown Project",
-      "qualifier": "TRK"
+      "qualifier": "TRK",
+      "analysisDate": "2017-03-01T11:39:03+0100",
+      "tags": [
+        "language",
+        "plugin"
+      ]
     }
   ]
 }
