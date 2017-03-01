@@ -45,7 +45,6 @@ public class SourcePublisherTest {
   private File sourceFile;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
-  private InputComponentStore componentStore;
 
   @Before
   public void prepare() throws IOException {
@@ -57,7 +56,7 @@ public class SourcePublisherTest {
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
 
-    componentStore = new InputComponentStore();
+    InputComponentStore componentStore = new InputComponentStore();
 
     ProjectDefinition definition = ProjectDefinition.create().setKey("foo");
     definition.setBaseDir(baseDir);
