@@ -284,7 +284,7 @@ public class ProjectMeasuresIndexTest {
       newDoc(project4).setLanguages(ImmutableMap.of("<null>", 10, "java", 2, "xoo", 12)));
 
     assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java", "xoo")), PROJECT1, PROJECT2, PROJECT3, project4);
-    assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java")), PROJECT1,project4);
+    assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java")), PROJECT1, project4);
     assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("unknown")));
   }
 
@@ -310,6 +310,20 @@ public class ProjectMeasuresIndexTest {
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery().setProjectUuids(newHashSet(PROJECT1.uuid(), PROJECT3.uuid()));
     assertResults(query, PROJECT1, PROJECT3);
+  }
+
+  @Test
+  public void filter_on_tags() {
+    index(
+      newDoc(PROJECT1).setTags(newArrayList("finance", "platform")),
+      newDoc(PROJECT2).setTags(newArrayList("marketing", "platform")),
+      newDoc(PROJECT3).setTags(newArrayList("finance", "language")));
+
+    assertResults(new ProjectMeasuresQuery().setTags(newHashSet("finance")), PROJECT1, PROJECT3);
+    assertResults(new ProjectMeasuresQuery().setTags(newHashSet("finance", "language")), PROJECT1, PROJECT3);
+    assertResults(new ProjectMeasuresQuery().setTags(newHashSet("finance", "marketing")), PROJECT1, PROJECT2, PROJECT3);
+    assertResults(new ProjectMeasuresQuery().setTags(newHashSet("marketing")), PROJECT2);
+    assertNoResults(new ProjectMeasuresQuery().setTags(newHashSet("tag 42")));
   }
 
   @Test
