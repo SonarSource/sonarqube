@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -48,7 +47,7 @@ public class SetDefaultActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -56,8 +55,8 @@ public class SetDefaultActionTest {
   private String xoo2Key = "xoo2";
   private WsTester tester;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSessionRule, defaultOrganizationProvider);
   private DbClient dbClient = db.getDbClient();
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
 
   @Before
   public void setUp() {
@@ -66,7 +65,7 @@ public class SetDefaultActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new SetDefaultAction(LanguageTesting.newLanguages(xoo1Key, xoo2Key), new QProfileLookup(dbClient), new QProfileFactory(dbClient, defaultOrganizationProvider), wsSupport)));
+      new SetDefaultAction(LanguageTesting.newLanguages(xoo1Key, xoo2Key), new QProfileLookup(dbClient), new QProfileFactory(dbClient), wsSupport)));
   }
 
   @Test

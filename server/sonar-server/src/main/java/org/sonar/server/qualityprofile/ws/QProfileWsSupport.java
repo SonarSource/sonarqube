@@ -19,26 +19,79 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.NewParam;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 @ServerSide
 public class QProfileWsSupport {
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileWsSupport(UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public QProfileWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+  }
+
+  public String getOrganizationKey(QualityProfileDto profile) {
+    return getOrganizationKeyByUuid(profile.getOrganizationUuid());
+  }
+
+  public String getOrganizationUuidByKey(String organizationKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return getOrganizationByKey(dbSession, organizationKey)
+        .getUuid();
+    }
+  }
+
+  public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
+    String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
+      .orElseGet(defaultOrganizationProvider.get()::getKey);
+    return WsUtils.checkFoundWithOptional(
+      dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
+      "No organizationDto with key '%s'", organizationOrDefaultKey);
+  }
+
+  public String getOrganizationKeyByUuid(String organizationUuid) {
+    return getOrganizationByUuid(organizationUuid)
+      .orElseThrow(() -> new IllegalStateException(String.format("Requested the key for non-existing organization uuid '%s'.", organizationUuid)))
+      .getKey();
+  }
+
+  private Optional<OrganizationDto> getOrganizationByUuid(String organizationUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.organizationDao()
+        .selectByUuid(dbSession, organizationUuid);
+    }
   }
 
   public void checkQProfileAdminPermission() {
     userSession
       .checkLoggedIn()
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+  }
+
+  public NewParam createOrganizationParam(NewAction create) {
+    return create
+    .createParam(PARAM_ORGANIZATION)
+    .setDescription("Organization key")
+    .setRequired(false)
+    .setInternal(true)
+    .setExampleValue("my-org");
   }
 }

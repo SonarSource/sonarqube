@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,6 +37,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -95,11 +97,17 @@ public class CreateActionTest {
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
     new RuleActivator(mock(System2.class), dbClient, ruleIndex, new RuleActivatorContextFactory(dbClient), null, activeRuleIndexer, userSession),
     profileImporters);
+  private OrganizationDto organization;
 
-  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient, defaultOrganizationProvider), qProfileExporters,
-    newLanguages(XOO_LANGUAGE), new QProfileWsSupport(userSession, defaultOrganizationProvider),
+  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters,
+    newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
     activeRuleIndexer, profileImporters);
   private WsActionTester wsTester = new WsActionTester(underTest);
+
+  @Before
+  public void before() {
+    organization = dbTester.organizations().insert();
+  }
 
   @Test
   public void create_profile() {
@@ -147,6 +155,23 @@ public class CreateActionTest {
   }
 
   @Test
+  public void create_profile_for_specific_organization() {
+    logInAsQProfileAdministrator();
+    
+    String orgKey = organization.getKey();
+
+    TestRequest request = wsTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("organization", orgKey)
+      .setParam("name", "Profile with messages")
+      .setParam("language", XOO_LANGUAGE)
+      .setParam("backup_with_messages", "<xml/>");
+    
+    assertThat(executeRequest(request).getProfile().getOrganization())
+      .isEqualTo(orgKey);
+  }
+
+  @Test
   public void fail_if_import_generate_error() {
     logInAsQProfileAdministrator();
 
@@ -182,11 +207,16 @@ public class CreateActionTest {
   private CreateWsResponse executeRequest(String name, String language, Map<String, String> xmls) {
     TestRequest request = wsTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("organization", organization.getKey())
       .setParam("name", name)
       .setParam("language", language);
     for (Map.Entry<String, String> entry : xmls.entrySet()) {
       request.setParam("backup_" + entry.getKey(), entry.getValue());
     }
+    return executeRequest(request);
+  }
+
+  private CreateWsResponse executeRequest(TestRequest request) {
     try {
       return parseFrom(request.execute().getInputStream());
     } catch (IOException e) {

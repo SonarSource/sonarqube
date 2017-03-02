@@ -29,8 +29,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,9 +40,8 @@ public class QProfileFactoryTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private DbSession dbSession = dbTester.getSession();
-  private QProfileFactory underTest = new QProfileFactory(dbTester.getDbClient(), defaultOrganizationProvider);
+  private QProfileFactory underTest = new QProfileFactory(dbTester.getDbClient());
 
   @Before
   public void setUp() throws Exception {

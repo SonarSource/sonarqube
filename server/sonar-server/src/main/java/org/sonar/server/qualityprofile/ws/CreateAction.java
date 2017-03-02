@@ -58,7 +58,7 @@ public class CreateAction implements QProfileWsAction {
   private final ActiveRuleIndexer activeRuleIndexer;
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
-    QProfileWsSupport qProfileWsSupport, ActiveRuleIndexer activeRuleIndexer, ProfileImporter[] importers) {
+    QProfileWsSupport qProfileWsSupport, ActiveRuleIndexer activeRuleIndexer, ProfileImporter... importers) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
@@ -83,12 +83,8 @@ public class CreateAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("example-create.json"))
       .setHandler(this);
 
-    create
-      .createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org")
+    qProfileWsSupport
+      .createOrganizationParam(create)
       .setSince("6.4");
 
     create.createParam(PARAM_PROFILE_NAME)
@@ -121,7 +117,8 @@ public class CreateAction implements QProfileWsAction {
 
   private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request) {
     QProfileResult result = new QProfileResult();
-    QualityProfileDto profile = profileFactory.create(dbSession, QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
+    QualityProfileDto profile = profileFactory.create(dbSession, qProfileWsSupport.getOrganizationUuidByKey(createRequest.getOrganizationKey()),
+      QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
     result.setProfile(profile);
     for (ProfileImporter importer : importers) {
       String importerKey = importer.getKey();
@@ -137,6 +134,7 @@ public class CreateAction implements QProfileWsAction {
 
   private static CreateRequest toRequest(Request request) {
     CreateRequest.Builder builder = CreateRequest.builder()
+      .setOrganizationKey(request.param(PARAM_ORGANIZATION))
       .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
       .setProfileName(request.mandatoryParam(PARAM_PROFILE_NAME));
     return builder.build();
@@ -145,6 +143,7 @@ public class CreateAction implements QProfileWsAction {
   private CreateWsResponse buildResponse(QProfileResult result) {
     String language = result.profile().getLanguage();
     CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
+      .setOrganization(qProfileWsSupport.getOrganizationKey(result.profile()))
       .setKey(result.profile().getKey())
       .setName(result.profile().getName())
       .setLanguage(language)
