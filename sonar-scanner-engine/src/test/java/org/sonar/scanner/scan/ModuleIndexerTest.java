@@ -19,16 +19,17 @@
  */
 package org.sonar.scanner.scan;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ModuleIndexerTest {
   private ModuleIndexer indexer;
@@ -40,7 +41,7 @@ public class ModuleIndexerTest {
   @Before
   public void setUp() {
     reactor = mock(ImmutableProjectReactor.class);
-    componentStore = new InputComponentStore();
+    componentStore = new InputComponentStore(new PathResolver());
     tree = new DefaultComponentTree();
     moduleHierarchy = new DefaultInputModuleHierarchy();
     indexer = new ModuleIndexer(reactor, tree, componentStore, new BatchIdGenerator(), moduleHierarchy);

@@ -19,14 +19,19 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
+import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.annotation.CheckForNull;
-
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
@@ -34,11 +39,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
 import org.sonar.api.batch.fs.internal.FilenamePredicate;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 /**
  * Store of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -47,13 +51,22 @@ import org.sonar.api.batch.fs.internal.FilenamePredicate;
 @ScannerSide
 public class InputComponentStore {
 
+  private final PathResolver pathResolver;
+  private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
+  private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
+  private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
   private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();
+  private final Map<String, InputDir> globalInputDirCache = new HashMap<>();
   private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
   private final Map<String, InputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private InputModule root;
+
+  public InputComponentStore(PathResolver pathResolver) {
+    this.pathResolver = pathResolver;
+  }
 
   public Collection<InputComponent> all() {
     return inputComponents.values();
@@ -75,10 +88,6 @@ public class InputComponentStore {
 
   public InputComponent getByKey(String key) {
     return inputComponents.get(key);
-  }
-
-  public void setRoot(InputModule root) {
-    this.root = root;
   }
 
   @CheckForNull
@@ -114,18 +123,41 @@ public class InputComponentStore {
 
   public InputComponentStore put(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
+    addToLanguageCache(file);
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
+    globalInputFileCache.put(getProjectRelativePath(file), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
     filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
     return this;
   }
 
+  private void addToLanguageCache(DefaultInputFile inputFile) {
+    String language = inputFile.language();
+    if (language != null) {
+      globalLanguagesCache.add(language);
+      languagesCache.computeIfAbsent(inputFile.moduleKey(), k -> new TreeSet<>()).add(language);
+    }
+  }
+
   public InputComponentStore put(InputDir inputDir) {
     DefaultInputDir dir = (DefaultInputDir) inputDir;
     inputDirCache.put(dir.moduleKey(), inputDir.relativePath(), inputDir);
+    globalInputDirCache.put(getProjectRelativePath(dir), inputDir);
     inputComponents.put(inputDir.key(), inputDir);
     return this;
+  }
+
+  private String getProjectRelativePath(DefaultInputFile file) {
+    return pathResolver.relativePath(getProjectBaseDir(), file.path());
+  }
+
+  private String getProjectRelativePath(DefaultInputDir dir) {
+    return pathResolver.relativePath(getProjectBaseDir(), dir.path());
+  }
+
+  private Path getProjectBaseDir() {
+    return ((DefaultInputModule) root).definition().getBaseDir().toPath();
   }
 
   @CheckForNull
@@ -134,8 +166,18 @@ public class InputComponentStore {
   }
 
   @CheckForNull
+  public InputFile getFile(String relativePath) {
+    return globalInputFileCache.get(relativePath);
+  }
+
+  @CheckForNull
   public InputDir getDir(String moduleKey, String relativePath) {
     return inputDirCache.get(moduleKey, relativePath);
+  }
+
+  @CheckForNull
+  public InputDir getDir(String relativePath) {
+    return globalInputDirCache.get(relativePath);
   }
 
   @CheckForNull
@@ -143,9 +185,17 @@ public class InputComponentStore {
     return inputModuleCache.get(moduleKey);
   }
 
-  public void put(InputModule inputModule) {
+  public void put(DefaultInputModule inputModule) {
+    Preconditions.checkState(!inputComponents.containsKey(inputModule.key()), "Module '%s' already indexed", inputModule.key());
+    Preconditions.checkState(!inputModuleCache.containsKey(inputModule.key()), "Module '%s' already indexed", inputModule.key());
     inputComponents.put(inputModule.key(), inputModule);
     inputModuleCache.put(inputModule.key(), inputModule);
+    if (inputModule.definition().getParent() == null) {
+      if (root != null) {
+        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + inputModule.key() + "'");
+      }
+      root = inputModule;
+    }
   }
 
   public Iterable<InputFile> getFilesByName(String filename) {
@@ -154,5 +204,13 @@ public class InputComponentStore {
 
   public Iterable<InputFile> getFilesByExtension(String extension) {
     return filesByExtensionCache.get(extension);
+  }
+
+  public SortedSet<String> getLanguages() {
+    return globalLanguagesCache;
+  }
+
+  public SortedSet<String> getLanguages(String moduleKey) {
+    return languagesCache.getOrDefault(moduleKey, Collections.emptySortedSet());
   }
 }

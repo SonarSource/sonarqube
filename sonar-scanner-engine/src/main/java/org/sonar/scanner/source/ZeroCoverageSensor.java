@@ -70,7 +70,8 @@ public final class ZeroCoverageSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("Zero Coverage Sensor");
+    descriptor.name("Zero Coverage Sensor")
+      .global();
   }
 
   @Override

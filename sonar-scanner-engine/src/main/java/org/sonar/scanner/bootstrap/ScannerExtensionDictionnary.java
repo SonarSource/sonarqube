@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,25 @@ public class ScannerExtensionDictionnary {
       return sort(result);
     }
     return result;
+  }
+
+  public Collection<org.sonar.api.batch.Sensor> selectSensors(@Nullable DefaultInputModule module, boolean global) {
+    List<org.sonar.api.batch.Sensor> result = getFilteredExtensions(org.sonar.api.batch.Sensor.class, module, null);
+
+    Iterator<org.sonar.api.batch.Sensor> iterator = result.iterator();
+    while (iterator.hasNext()) {
+      org.sonar.api.batch.Sensor sensor = iterator.next();
+      if (sensor instanceof SensorWrapper) {
+        if (global != ((SensorWrapper) sensor).isGlobal()) {
+          iterator.remove();
+        }
+      } else if (global) {
+        // only old sensors are not wrapped, and old sensors are never global -> exclude
+        iterator.remove();
+      }
+    }
+
+    return sort(result);
   }
 
   private static Phase.Name evaluatePhase(Object extension) {

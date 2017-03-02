@@ -19,15 +19,19 @@
  */
 package org.sonar.scanner.postjob;
 
+import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -38,6 +42,9 @@ import static org.mockito.Mockito.when;
 
 public class DefaultPostJobContextTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private IssueCache issueCache;
   private InputComponentStore componentStore;
   private DefaultPostJobContext context;
@@ -47,14 +54,14 @@ public class DefaultPostJobContextTest {
   @Before
   public void prepare() {
     issueCache = mock(IssueCache.class);
-    componentStore = new InputComponentStore();
+    componentStore = new InputComponentStore(new PathResolver());
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings, issueCache, componentStore, analysisMode);
   }
 
   @Test
-  public void testIssues() {
+  public void testIssues() throws IOException {
     when(analysisMode.isIssues()).thenReturn(true);
 
     assertThat(context.settings()).isSameAs(settings);
@@ -78,7 +85,10 @@ public class DefaultPostJobContextTest {
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.inputComponent()).isNull();
 
-    componentStore.put(new TestInputFileBuilder("foo", "src/Foo.php").build());
+    String moduleKey = "foo";
+    componentStore.put(TestInputFileBuilder.newDefaultInputModule("foo", temp.newFolder()));
+
+    componentStore.put(new TestInputFileBuilder(moduleKey, "src/Foo.php").build());
     assertThat(issue.inputComponent()).isNotNull();
 
   }

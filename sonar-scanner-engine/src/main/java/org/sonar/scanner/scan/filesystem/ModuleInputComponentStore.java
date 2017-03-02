@@ -19,36 +19,61 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.util.SortedSet;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.scanner.sensor.SensorStrategy;
 
 @ScannerSide
 public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
 
   private final String moduleKey;
   private final InputComponentStore inputComponentStore;
+  private final SensorStrategy strategy;
 
-  public ModuleInputComponentStore(InputModule module, InputComponentStore inputComponentStore) {
+  public ModuleInputComponentStore(InputModule module, InputComponentStore inputComponentStore, SensorStrategy strategy) {
     this.moduleKey = module.key();
     this.inputComponentStore = inputComponentStore;
+    this.strategy = strategy;
   }
 
   @Override
   public Iterable<InputFile> inputFiles() {
-    return inputComponentStore.filesByModule(moduleKey);
+    if (strategy.isGlobal()) {
+      return inputComponentStore.allFiles();
+    } else {
+      return inputComponentStore.filesByModule(moduleKey);
+    }
   }
 
   @Override
   public InputFile inputFile(String relativePath) {
-    return inputComponentStore.getFile(moduleKey, relativePath);
+    if (strategy.isGlobal()) {
+      return inputComponentStore.getFile(relativePath);
+    } else {
+      return inputComponentStore.getFile(moduleKey, relativePath);
+    }
   }
 
   @Override
   public InputDir inputDir(String relativePath) {
-    return inputComponentStore.getDir(moduleKey, relativePath);
+    if (strategy.isGlobal()) {
+      return inputComponentStore.getDir(relativePath);
+    } else {
+      return inputComponentStore.getDir(moduleKey, relativePath);
+    }
+  }
+
+  @Override
+  public SortedSet<String> languages() {
+    if (strategy.isGlobal()) {
+      return inputComponentStore.getLanguages();
+    } else {
+      return inputComponentStore.getLanguages(moduleKey);
+    }
   }
 
   @Override

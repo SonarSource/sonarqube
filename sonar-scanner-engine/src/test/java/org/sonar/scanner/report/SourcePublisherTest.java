@@ -28,10 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,20 +43,22 @@ public class SourcePublisherTest {
   private File sourceFile;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
-  private InputComponentStore componentStore;
 
   @Before
   public void prepare() throws IOException {
     File baseDir = temp.newFolder();
     sourceFile = new File(baseDir, "src/Foo.php");
-    inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+    String moduleKey = "foo";
+    inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php")
       .setLines(5)
       .setModuleBaseDir(baseDir.toPath())
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
-    componentStore = new InputComponentStore();
-    componentStore.put(new DefaultInputModule("foo"));
+
+    InputComponentStore componentStore = new InputComponentStore(new PathResolver());
+    componentStore.put(TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir));
     componentStore.put(inputFile);
+
     publisher = new SourcePublisher(componentStore);
     File outputDir = temp.newFolder();
     writer = new ScannerReportWriter(outputDir);

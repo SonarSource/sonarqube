@@ -36,13 +36,13 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.postjob.PostJobContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.resources.Project;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
-import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 import org.sonar.scanner.sensor.SensorOptimizer;
+import org.sonar.scanner.sensor.SensorWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -301,10 +301,7 @@ public class ScannerExtensionDictionnaryTest {
     ScannerExtensionDictionnary selector = newSelector(analyze, post, pre);
     List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
-    assertThat(extensions).hasSize(3);
-    assertThat(extensions.get(0)).isEqualTo(pre);
-    assertThat(extensions.get(1)).isEqualTo(analyze);
-    assertThat(extensions.get(2)).isEqualTo(post);
+    assertThat(extensions).containsExactly(pre, analyze, post);
   }
 
   @Test
@@ -321,6 +318,30 @@ public class ScannerExtensionDictionnaryTest {
     assertThat(extensions.get(2)).isEqualTo(checker);
   }
 
+  @Test
+  public void querySensors() {
+    BatchExtension pre = new PreSensorSubclass();
+    BatchExtension analyze = new GeneratesSomething("something");
+    BatchExtension post = new PostSensorSubclass();
+
+    FakeSensor fakeSensor = new FakeSensor();
+    FakeNewSensor fakeNewSensor = new FakeNewSensor();
+    FakeNewGlobalSensor fakeNewGlobalSensor = new FakeNewGlobalSensor();
+    ScannerExtensionDictionnary selector = newSelector(fakeSensor, fakeNewSensor, fakeNewGlobalSensor);
+    List extensions = Lists.newArrayList(selector.selectSensors(null, false));
+
+    assertThat(extensions).hasSize(2);
+    assertThat(extensions).contains(fakeSensor);
+    extensions.remove(fakeSensor);
+    assertThat(extensions.get(0)).isInstanceOf(SensorWrapper.class);
+    assertThat(((SensorWrapper) extensions.get(0)).wrappedSensor()).isEqualTo(fakeNewSensor);
+
+    extensions = Lists.newArrayList(selector.selectSensors(null, true));
+
+    assertThat(extensions.get(0)).isInstanceOf(SensorWrapper.class);
+    assertThat(((SensorWrapper) extensions.get(0)).wrappedSensor()).isEqualTo(fakeNewGlobalSensor);
+  }
+
   class FakeSensor implements Sensor {
 
     public void analyse(Project project, SensorContext context) {
@@ -330,6 +351,31 @@ public class ScannerExtensionDictionnaryTest {
     public boolean shouldExecuteOnProject(Project project) {
       return true;
     }
+  }
+
+  class FakeNewSensor implements org.sonar.api.batch.sensor.Sensor {
+
+    @Override
+    public void describe(SensorDescriptor descriptor) {
+    }
+
+    @Override
+    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    }
+
+  }
+
+  class FakeNewGlobalSensor implements org.sonar.api.batch.sensor.Sensor {
+
+    @Override
+    public void describe(SensorDescriptor descriptor) {
+      descriptor.global();
+    }
+
+    @Override
+    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    }
+
   }
 
   class MethodDependentOf implements BatchExtension {

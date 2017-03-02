@@ -70,6 +70,7 @@ import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
 import org.sonar.scanner.scan.report.IssuesReports;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
+import org.sonar.scanner.sensor.SensorStrategy;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 import org.sonar.scanner.source.HighlightableBuilder;
 import org.sonar.scanner.source.SymbolizableBuilder;
@@ -136,6 +137,8 @@ public class ModuleScanContainer extends ComponentContainer {
       ScannerExtensionDictionnary.class,
       IssueFilters.class,
       CoverageExclusions.class,
+
+      SensorStrategy.class,
 
       // rules
       new RulesProfileProvider(),

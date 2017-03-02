@@ -52,7 +52,8 @@ public class DeprecatedCpdBlockIndexerSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("CPD Block Indexer");
+    descriptor.name("CPD Block Indexer")
+      .global();
   }
 
   @VisibleForTesting
@@ -65,7 +66,6 @@ public class DeprecatedCpdBlockIndexerSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-
     for (String language : fs.languages()) {
       CpdBlockIndexer blockIndexer = getBlockIndexer(language);
       if (!blockIndexer.isLanguageSupported(language)) {

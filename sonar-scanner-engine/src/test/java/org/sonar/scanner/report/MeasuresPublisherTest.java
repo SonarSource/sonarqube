@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -58,18 +59,18 @@ public class MeasuresPublisherTest {
   private MeasureCache measureCache;
   private MeasuresPublisher publisher;
 
-  private InputComponentStore componentCache;
   private File outputDir;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
-  private DefaultInputModule InputModule;
+  private DefaultInputModule inputModule;
 
   @Before
   public void prepare() throws IOException {
-    InputModule = new DefaultInputModule("foo");
-    inputFile = new TestInputFileBuilder("foo", "src/Foo.php").setPublish(true).build();
-    componentCache = new InputComponentStore();
-    componentCache.put(InputModule);
+    String moduleKey = "foo";
+    inputModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
+    inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setPublish(true).build();
+    InputComponentStore componentCache = new InputComponentStore(new PathResolver());
+    componentCache.put(inputModule);
     componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
@@ -90,7 +91,7 @@ public class MeasuresPublisherTest {
     publisher.publish(writer);
     ScannerReportReader reader = new ScannerReportReader(outputDir);
 
-    assertThat(reader.readComponentMeasures(InputModule.batchId())).hasSize(0);
+    assertThat(reader.readComponentMeasures(inputModule.batchId())).hasSize(0);
     try (CloseableIterator<ScannerReport.Measure> componentMeasures = reader.readComponentMeasures(inputFile.batchId())) {
       assertThat(componentMeasures).hasSize(2);
     }

@@ -32,6 +32,7 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   private InputFile.Type type = null;
   private String[] ruleRepositories = new String[0];
   private String[] properties = new String[0];
+  private boolean global = false;
 
   public String name() {
     return name;
@@ -52,6 +53,10 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
 
   public Collection<String> properties() {
     return Arrays.asList(properties);
+  }
+
+  public boolean isGlobal() {
+    return global;
   }
 
   @Override
@@ -96,6 +101,12 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   @Override
   public DefaultSensorDescriptor requireProperties(String... propertyKeys) {
     this.properties = propertyKeys;
+    return this;
+  }
+
+  @Override
+  public SensorDescriptor global() {
+    this.global = true;
     return this;
   }
 
