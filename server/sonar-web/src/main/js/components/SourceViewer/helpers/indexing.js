@@ -45,6 +45,7 @@ export type IndexedIssueLocationMessage = {
 
 export type IndexedIssueLocationsByIssueAndLine = {
   [issueKey: string]: {
+    // $FlowFixMe
     [lineNumber: number]: Array<IndexedIssueLocation>
   }
 };
@@ -152,4 +153,24 @@ export const symbolsByLine = (sources: Array<SourceLine>) => {
       .filter(key => key);
   });
   return index;
+};
+
+export const findLocationByIndex = (
+  locations: IndexedIssueLocationsByIssueAndLine,
+  flowIndex: number,
+  locationIndex: number) => {
+  const issueKeys = Object.keys(locations);
+  for (const issueKey of issueKeys) {
+    const lineNumbers = Object.keys(locations[issueKey]);
+    for (let lineIndex = 0; lineIndex < lineNumbers.length; lineIndex++) {
+      for (let i = 0; i < locations[issueKey][lineNumbers[lineIndex]].length; i++) {
+        const location = locations[issueKey][lineNumbers[lineIndex]][i];
+        if (location.flowIndex === flowIndex && location.locationIndex === locationIndex) {
+          return location;
+        }
+      }
+    }
+  }
+
+  return null;
 };

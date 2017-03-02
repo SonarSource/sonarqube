@@ -55,7 +55,7 @@ type Props = {
   secondaryIssueLocations: Array<IndexedIssueLocation>,
   // $FlowFixMe
   secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
-  selectedIssueLocation: { flow: number, location: number } | null
+  selectedIssueLocation: IndexedIssueLocation | null
 };
 
 type State = {
@@ -273,8 +273,8 @@ export default class SourceViewerLine extends React.PureComponent {
     if (selectedIssueLocation == null) {
       return false;
     } else {
-      return selectedIssueLocation.flow === location.flowIndex &&
-        selectedIssueLocation.location === location.locationIndex;
+      return selectedIssueLocation.flowIndex === location.flowIndex &&
+        selectedIssueLocation.locationIndex === location.locationIndex;
     }
   }
 

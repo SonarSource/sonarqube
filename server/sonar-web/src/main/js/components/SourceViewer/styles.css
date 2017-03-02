@@ -1,16 +1,15 @@
 .source-issue-locations {
-
+  
 }
 
 .source-issue-locations-fixed {
   position: fixed;
   bottom: 0;
   margin-left: -1px;
-  border-top: 1px solid #e6e6e6;
   border-left: 1px solid #e6e6e6;
   border-right: 1px solid #e6e6e6;
   background-color: #fff;
-  overflow: auto;
+  box-shadow: 0 -6px 12px rgba(0, 0, 0, .175);
 }
 
 .source-issue-locations,
@@ -26,8 +25,19 @@
   color: #fff;
 }
 
+.source-issue-locations-shortcuts {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  color: #777;
+  font-size: 11px;
+}
+
 .source-issue-locations-list {
+  height: 185px;
   padding: 15px;
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 .source-issue-locations-line {

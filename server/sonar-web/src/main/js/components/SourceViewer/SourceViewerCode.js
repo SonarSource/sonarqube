@@ -25,6 +25,7 @@ import type { Duplication, SourceLine } from './types';
 import type { Issue } from '../issue/types';
 import type {
   LinearIssueLocation,
+  IndexedIssueLocation,
   IndexedIssueLocationsByIssueAndLine,
   IndexedIssueLocationMessagesByIssueAndLine
 } from './helpers/indexing';
@@ -66,7 +67,7 @@ export default class SourceViewerCode extends React.Component {
     onSCMClick: (SourceLine, HTMLElement) => void,
     onSymbolClick: (string) => void,
     selectedIssue: string | null,
-    selectedIssueLocation: { flow: number, location: number } | null,
+    selectedIssueLocation: IndexedIssueLocation | null,
     sources: Array<SourceLine>,
     symbolsByLine: { [number]: Array<string> }
   };

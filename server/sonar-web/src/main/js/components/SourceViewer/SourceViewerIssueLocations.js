@@ -21,17 +21,29 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import classNames from 'classnames';
+import { scrollToElement } from '../../helpers/scrolling';
 import type { Issue, FlowLocation } from '../issue/types';
+import type { IndexedIssueLocation } from './helpers/indexing';
+
+type Props = {
+  issue: Issue,
+  onSelectLocation: (flowIndex: number, locationIndex: number) => void,
+  selectedLocation: IndexedIssueLocation | null
+};
 
 export default class SourceViewerIssueLocations extends React.Component {
-  props: {
-    issue: Issue,
-    onSelectLocation: (flow: number, location: number) => void,
-    selectedLocation: { flow: number, location: number } | null
-  };
+  locations: { [string]: HTMLElement } = {};
+  node: HTMLElement;
+  props: Props;
 
   componentDidMount () {
     this.bindShortcuts();
+  }
+
+  componentDidUpdate (prevProps: Props) {
+    if (prevProps.selectedLocation !== this.props.selectedLocation && this.props.selectedLocation != null) {
+      this.scrollToLocation();
+    }
   }
 
   componentWillUnmount () {
@@ -46,6 +58,17 @@ export default class SourceViewerIssueLocations extends React.Component {
     document.removeEventListener('keydown', this.handleKeyPress);
   }
 
+  scrollToLocation () {
+    const { selectedLocation } = this.props;
+    if (selectedLocation != null) {
+      const key = `${selectedLocation.flowIndex}-${selectedLocation.locationIndex}`;
+      const locationElement = this.locations[key];
+      if (locationElement) {
+        scrollToElement(locationElement, 15, 15, this.node);
+      }
+    }
+  }
+
   handleSelectNext () {
     const { issue, selectedLocation } = this.props;
     if (!selectedLocation) {
@@ -54,14 +77,14 @@ export default class SourceViewerIssueLocations extends React.Component {
         this.props.onSelectLocation(0, 0);
       }
     } else {
-      const currentFlow = issue.flows[selectedLocation.flow];
+      const currentFlow = issue.flows[selectedLocation.flowIndex];
       if (currentFlow.locations != null) {
-        if (currentFlow.locations.length > selectedLocation.location + 1) {
+        if (currentFlow.locations.length > selectedLocation.locationIndex + 1) {
           // move to the next location for the same flow
-          this.props.onSelectLocation(selectedLocation.flow, selectedLocation.location + 1);
-        } else if (issue.flows.length > selectedLocation.flow + 1) {
+          this.props.onSelectLocation(selectedLocation.flowIndex, selectedLocation.locationIndex + 1);
+        } else if (issue.flows.length > selectedLocation.flowIndex + 1) {
           // move to the first location of the next flow
-          this.props.onSelectLocation(selectedLocation.flow + 1, 0);
+          this.props.onSelectLocation(selectedLocation.flowIndex + 1, 0);
         }
       }
     }
@@ -77,14 +100,14 @@ export default class SourceViewerIssueLocations extends React.Component {
           this.props.onSelectLocation(issue.flows.length - 1, lastFlow.locations.length - 1);
         }
       }
-    } else if (selectedLocation.location > 0) {
+    } else if (selectedLocation.locationIndex > 0) {
       // move to the previous location for the same flow
-      this.props.onSelectLocation(selectedLocation.flow, selectedLocation.location - 1);
-    } else if (selectedLocation.flow > 0) {
+      this.props.onSelectLocation(selectedLocation.flowIndex, selectedLocation.locationIndex - 1);
+    } else if (selectedLocation.flowIndex > 0) {
       // move to the last location of the previous flow
-      const prevFlow = issue.flows[selectedLocation.flow - 1];
+      const prevFlow = issue.flows[selectedLocation.flowIndex - 1];
       if (prevFlow.locations) {
-        this.props.onSelectLocation(selectedLocation.flow - 1, prevFlow.locations.length - 1);
+        this.props.onSelectLocation(selectedLocation.flowIndex - 1, prevFlow.locations.length - 1);
       }
     }
   }
@@ -93,31 +116,34 @@ export default class SourceViewerIssueLocations extends React.Component {
     const tagName = e.target.tagName.toUpperCase();
     const shouldHandle = tagName !== 'INPUT' && tagName !== 'TEXTAREA' && tagName !== 'BUTTON';
 
-    /* eslint-disable no-console */
-    console.log('bam!');
-
     if (shouldHandle) {
       const selectNext = e.keyCode === 40 && e.altKey;
       const selectPrev = e.keyCode === 38 && e.altKey;
 
       if (selectNext) {
         e.preventDefault();
-        this.handleSelectNext();
+        // keep reversed order
+        this.handleSelectPrev();
       }
 
       if (selectPrev) {
         e.preventDefault();
-        this.handleSelectPrev();
+        // keep reversed order
+        this.handleSelectNext();
       }
     }
   };
+
+  reverseLocations (locations: Array<*>) {
+    return [...locations].reverse();
+  }
 
   isLocationSelected (flowIndex: number, locationIndex: number) {
     const { selectedLocation } = this.props;
     if (selectedLocation == null) {
       return false;
     } else {
-      return selectedLocation.flow === flowIndex && selectedLocation.location === locationIndex;
+      return selectedLocation.flowIndex === flowIndex && selectedLocation.locationIndex === locationIndex;
     }
   }
 
@@ -125,22 +151,25 @@ export default class SourceViewerIssueLocations extends React.Component {
     location: FlowLocation,
     flowIndex: number,
     locationIndex: number,
-    locations?: Array<*>
+    locations: Array<*>
   ) => {
-    const displayIndex = locations != null && locations.length > 1;
+    const displayIndex = locations.length > 1;
 
     const line = location.textRange ? location.textRange.startLine : null;
 
+    const key = `${flowIndex}-${locationIndex}`;
+
     return (
-      <li key={`${flowIndex}-${locationIndex}`} className="spacer-bottom">
+      <li key={key} ref={node => this.locations[key] = node} className="spacer-bottom">
         {line != null && (
           <code className="source-issue-locations-line">L{line}</code>
         )}
 
         <span className={classNames('issue-location-message', {
-          'selected': this.isLocationSelected(flowIndex, locationIndex)
+          // note that locations order is reversed
+          'selected': this.isLocationSelected(flowIndex, locations.length - locationIndex - 1)
         })}>
-          {displayIndex && <strong>{locationIndex}: </strong>}
+          {displayIndex && <strong>{locationIndex + 1}: </strong>}
           {location.msg}
         </span>
       </li>
@@ -148,22 +177,33 @@ export default class SourceViewerIssueLocations extends React.Component {
   };
 
   render () {
+    const { flows } = this.props.issue;
+
     return (
       <div className="source-issue-locations">
-        <AutoSizer>
-          {({ width, height }) => (
-            <div className="source-issue-locations-fixed" style={{ width, height }}>
+        <AutoSizer disableHeight={true}>
+          {({ width }) => (
+            <div className="source-issue-locations-fixed" style={{ width }}>
               <header className="source-issue-locations-header"/>
-              <ul className="source-issue-locations-list">
-                {this.props.issue.flows.map((flow, flowIndex) => (
-                  flow.locations != null && flow.locations.map((location, locationIndex) => (
-                    this.renderLocation(location, flowIndex, locationIndex, flow.locations)
+              <div className="source-issue-locations-shortcuts">
+                <span className="shortcut-button">Alt</span>
+                {' + '}
+                <span className="shortcut-button">&uarr;</span>
+                {' '}
+                <span className="shortcut-button">&darr;</span>
+                {' '}
+                to quicky navigate issue locations
+              </div>
+              <ul ref={node => this.node = node} className="source-issue-locations-list">
+                {flows.map((flow, flowIndex) => (
+                  flow.locations != null && this.reverseLocations(flow.locations).map((location, locationIndex) => (
+                    this.renderLocation(location, flowIndex, locationIndex, flow.locations || [])
                   ))
                 ))}
               </ul>
             </div>
           )}
-        </AutoSizer>
+          </AutoSizer>
       </div>
     );
   }

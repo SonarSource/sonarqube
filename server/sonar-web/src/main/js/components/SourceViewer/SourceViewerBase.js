@@ -39,15 +39,18 @@ import {
   locationsByIssueAndLine,
   locationMessagesByIssueAndLine,
   duplicationsByLine,
-  symbolsByLine
+  symbolsByLine,
+  findLocationByIndex
 } from './helpers/indexing';
 import type {
   LinearIssueLocation,
+  IndexedIssueLocation,
   IndexedIssueLocationsByIssueAndLine,
   IndexedIssueLocationMessagesByIssueAndLine
 } from './helpers/indexing';
 import { getComponentForSourceViewer, getSources, getDuplications, getTests } from '../../api/components';
 import { translate } from '../../helpers/l10n';
+import { scrollToElement } from '../../helpers/scrolling';
 import type { SourceLine } from './types';
 import type { Issue } from '../issue/types';
 import './styles.css';
@@ -96,7 +99,7 @@ type State = {
   loadingSourcesBefore: boolean,
   notAccessible: boolean,
   notExist: boolean,
-  selectedIssueLocation: { flow: number, location: number } | null,
+  selectedIssueLocation: IndexedIssueLocation | null,
   sources?: Array<SourceLine>,
   symbolsByLine: { [number]: Array<string> }
 };
@@ -154,17 +157,31 @@ export default class SourceViewerBase extends React.Component {
     this.fetchComponent();
   }
 
-  componentDidUpdate (prevProps: Props) {
+  componentDidUpdate (prevProps: Props, prevState: State) {
     if (prevProps.component !== this.props.component) {
       this.fetchComponent();
     } else if (this.props.aroundLine != null && prevProps.aroundLine !== this.props.aroundLine &&
       this.isLineOutsideOfRange(this.props.aroundLine)) {
       this.fetchSources();
     }
+
+    if (prevState.selectedIssueLocation !== this.state.selectedIssueLocation &&
+      this.state.selectedIssueLocation != null) {
+      this.scrollToLine(this.state.selectedIssueLocation.line);
+    }
   }
 
   componentWillUnmount () {
     this.mounted = false;
+  }
+
+  scrollToLine (line: number) {
+    const lineElement = this.node.querySelector(
+      `.source-line-code[data-line-number="${line}"] .source-line-issue-locations`
+    );
+    if (lineElement) {
+      scrollToElement(lineElement, 200, 250);
+    }
   }
 
   computeCoverageStatus (lines: Array<SourceLine>): Array<SourceLine> {
@@ -425,8 +442,15 @@ export default class SourceViewerBase extends React.Component {
     popup.render();
   };
 
-  handleSelectIssueLocation = (flow: number, location: number) => {
-    this.setState({ selectedIssueLocation: { flow, location } });
+  handleSelectIssueLocation = (flowIndex: number, locationIndex: number) => {
+    this.setState(prevState => {
+      const selectedIssueLocation = findLocationByIndex(
+        prevState.issueSecondaryLocationsByIssueByLine,
+        flowIndex,
+        locationIndex
+      );
+      return { selectedIssueLocation };
+    });
   };
 
   renderCode (sources: Array<SourceLine>) {
@@ -503,7 +527,7 @@ export default class SourceViewerBase extends React.Component {
           </div>
         )}
         {this.state.sources != null && this.renderCode(this.state.sources)}
-        {selectedIssueObj != null && (
+        {selectedIssueObj != null && selectedIssueObj.flows.length > 0 && (
           <SourceViewerIssueLocations
             issue={selectedIssueObj}
             onSelectLocation={this.handleSelectIssueLocation}
