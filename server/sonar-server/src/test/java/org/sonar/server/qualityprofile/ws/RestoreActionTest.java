@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -49,6 +50,9 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 @RunWith(MockitoJUnitRunner.class)
 public class RestoreActionTest {
   @Rule
+  public DbTester db = DbTester.create();
+
+  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   // TODO Replace with proper DbTester + EsTester medium test once DaoV2 is removed
@@ -59,7 +63,7 @@ public class RestoreActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSessionRule, defaultOrganizationProvider);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider);
   private WsTester tester;
 
   @Before

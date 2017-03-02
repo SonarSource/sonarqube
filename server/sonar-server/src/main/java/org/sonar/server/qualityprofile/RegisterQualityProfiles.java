@@ -46,6 +46,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 /**
@@ -63,24 +64,27 @@ public class RegisterQualityProfiles {
   private final RuleActivator ruleActivator;
   private final Languages languages;
   private final ActiveRuleIndexer activeRuleIndexer;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   /**
    * To be kept when no ProfileDefinition are injected
    */
   public RegisterQualityProfiles(DbClient dbClient,
-    QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer) {
-    this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer);
+    QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
+    this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer, defaultOrganizationProvider);
   }
 
   public RegisterQualityProfiles(DbClient dbClient,
     QProfileFactory profileFactory, RuleActivator ruleActivator,
-    List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer) {
+    List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
     this.definitions = definitions;
     this.languages = languages;
     this.activeRuleIndexer = activeRuleIndexer;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public void start() {
@@ -141,7 +145,7 @@ public class RegisterQualityProfiles {
     if (profileDto != null) {
       changes.addAll(profileFactory.delete(session, profileDto.getKey(), true));
     }
-    profileFactory.create(session, name);
+    profileFactory.create(session, defaultOrganizationProvider.get().getUuid(), name);
     for (RulesProfile profile : profiles) {
       for (org.sonar.api.rules.ActiveRule activeRule : profile.getActiveRules()) {
         RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());

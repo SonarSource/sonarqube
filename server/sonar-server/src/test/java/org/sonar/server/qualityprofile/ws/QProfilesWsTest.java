@@ -31,6 +31,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -46,12 +47,14 @@ import static org.mockito.Mockito.mock;
 public class QProfilesWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create();
 
   private WebService.Controller controller;
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSessionRule, defaultOrganizationProvider);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider);
 
   @Before
   public void setUp() {
