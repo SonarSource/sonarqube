@@ -24,6 +24,7 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
@@ -37,10 +38,12 @@ public class DefaultServer extends Server {
 
   private final Settings settings;
   private final ScannerWsClient client;
+  private final SonarRuntime runtime;
 
-  public DefaultServer(Settings settings, ScannerWsClient client) {
+  public DefaultServer(Settings settings, ScannerWsClient client, SonarRuntime runtime) {
     this.settings = settings;
     this.client = client;
+    this.runtime = runtime;
   }
 
   @Override
@@ -50,7 +53,7 @@ public class DefaultServer extends Server {
 
   @Override
   public String getVersion() {
-    return settings.getString(CoreProperties.SERVER_VERSION);
+    return runtime.getApiVersion().toString();
   }
 
   @Override
