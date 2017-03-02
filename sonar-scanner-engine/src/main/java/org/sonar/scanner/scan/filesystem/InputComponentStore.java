@@ -186,13 +186,14 @@ public class InputComponentStore {
   }
 
   public void put(DefaultInputModule inputModule) {
-    Preconditions.checkState(!inputComponents.containsKey(inputModule.key()), "Module '%s' already indexed", inputModule.key());
-    Preconditions.checkState(!inputModuleCache.containsKey(inputModule.key()), "Module '%s' already indexed", inputModule.key());
-    inputComponents.put(inputModule.key(), inputModule);
-    inputModuleCache.put(inputModule.key(), inputModule);
+    String key = inputModule.key();
+    Preconditions.checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
+    Preconditions.checkState(!inputModuleCache.containsKey(key), "Module '%s' already indexed", key);
+    inputComponents.put(key, inputModule);
+    inputModuleCache.put(key, inputModule);
     if (inputModule.definition().getParent() == null) {
       if (root != null) {
-        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + inputModule.key() + "'");
+        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + key + "'");
       }
       root = inputModule;
     }
