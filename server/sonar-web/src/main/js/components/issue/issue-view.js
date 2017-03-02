@@ -34,12 +34,16 @@ import Template from './templates/issue.hbs';
 import getCurrentUserFromStore from '../../app/utils/getCurrentUserFromStore';
 
 export default Marionette.ItemView.extend({
-  className: 'issue',
   template: Template,
 
   modelEvents: {
     'change': 'notifyAndRender',
     'transition': 'onTransition'
+  },
+
+  className () {
+    const hasCheckbox = this.options.onCheck != null;
+    return hasCheckbox ? 'issue issue-with-checkbox' : 'issue';
   },
 
   events () {
@@ -58,7 +62,8 @@ export default Marionette.ItemView.extend({
       'click .js-issue-rule': 'showRule',
       'click .js-issue-edit-tags': 'editTags',
       'click .js-issue-locations': 'showLocations',
-      'click .js-issue-filter': 'filterSimilarIssues'
+      'click .js-issue-filter': 'filterSimilarIssues',
+      'click .js-toggle': 'onIssueCheck'
     };
   },
 
@@ -283,13 +288,19 @@ export default Marionette.ItemView.extend({
     this.options.onFilterClick(e);
   },
 
+  onIssueCheck (e) {
+    this.options.onCheck(e);
+  },
+
   serializeData () {
     const issueKey = encodeURIComponent(this.model.get('key'));
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       permalink: window.baseUrl + '/issues/search#issues=' + issueKey,
       hasSecondaryLocations: this.model.get('flows').length,
-      hasSimilarIssuesFilter: this.options.onFilterClick != null
+      hasSimilarIssuesFilter: this.options.onFilterClick != null,
+      hasCheckbox: this.options.onCheck != null,
+      checked: this.options.checked
     };
   }
 });

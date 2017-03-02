@@ -24,7 +24,6 @@ import Marionette from 'backbone.marionette';
 import Issue from '../../components/issue/Issue';
 import IssueFilterView from './issue-filter-view';
 import WithStore from '../../components/shared/WithStore';
-// import CheckboxTemplate from './templates/issues-issue-checkbox.hbs';
 
 const SHOULD_NULL = {
   any: ['issues'],
@@ -40,7 +39,9 @@ export default Marionette.ItemView.extend({
   initialize (options) {
     this.openComponentViewer = this.openComponentViewer.bind(this);
     this.onIssueFilterClick = this.onIssueFilterClick.bind(this);
+    this.onIssueCheck = this.onIssueCheck.bind(this);
     this.listenTo(options.app.state, 'change:selectedIndex', this.showIssue);
+    this.listenTo(this.model, 'change:selected', this.showIssue);
   },
 
   template () {
@@ -62,6 +63,8 @@ export default Marionette.ItemView.extend({
       <WithStore>
         <Issue
           issue={this.model}
+          checked={this.model.get('selected')}
+          onCheck={this.onIssueCheck}
           onClick={this.openComponentViewer}
           onFilterClick={this.onIssueFilterClick}
           selected={selected}/>
@@ -96,21 +99,12 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  onIssueToggle (e) {
+  onIssueCheck (e) {
     e.preventDefault();
+    e.stopPropagation();
     this.model.set({ selected: !this.model.get('selected') });
     const selected = this.model.collection.where({ selected: true }).length;
     this.options.app.state.set({ selected });
-  },
-
-  addFilterSelect () {
-    this.$('.issue-table-meta-cell-first')
-        .find('.issue-meta-list')
-        .append(this.filterTemplate(this.model.toJSON()));
-  },
-
-  addCheckbox () {
-    this.$el.append(this.checkboxTemplate(this.model.toJSON()));
   },
 
   changeSelection () {
