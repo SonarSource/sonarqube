@@ -109,7 +109,7 @@ public class PluginsTest {
     installPlugin(builder, "googleanalytics");
     installPlugin(builder, "groovy");
     installPlugin(builder, "java");
-    installPlugin(builder, "javaProperties");
+    // FIXME javaProperties plugin is temporary disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "javaProperties");
     installPlugin(builder, "javascript");
     installPlugin(builder, "jdepend");
     installPlugin(builder, "l10nde");
