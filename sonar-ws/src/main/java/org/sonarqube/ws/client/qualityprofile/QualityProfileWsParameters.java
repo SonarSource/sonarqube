@@ -28,6 +28,7 @@ public class QualityProfileWsParameters {
   public static final String ACTION_REMOVE_PROJECT = "remove_project";
   public static final String ACTION_CREATE = "create";
 
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_DEFAULTS = "defaults";
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_PROFILE_NAME = "profileName";
