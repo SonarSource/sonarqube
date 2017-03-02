@@ -140,8 +140,7 @@ public class ProjectMeasuresQueryFactoryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Language should be set either by using 'language = java' or 'language IN (java, js)");
 
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator(IN).setValue("java").build()),
-      emptySet());
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator(IN).setValue("java").build()), emptySet());
   }
 
   @Test
@@ -149,8 +148,42 @@ public class ProjectMeasuresQueryFactoryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Language should be set either by using 'language = java' or 'language IN (java, js)");
 
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator(EQ).setValues(asList("java")).build()),
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator(EQ).setValues(asList("java")).build()), emptySet());
+  }
+
+
+  @Test
+  public void create_query_on_tag_using_in_operator() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(
+      singletonList(Criterion.builder().setKey("tag").setOperator(IN).setValues(asList("java", "js")).build()),
       emptySet());
+
+    assertThat(query.getTags().get()).containsOnly("java", "js");
+  }
+
+  @Test
+  public void create_query_on_tag_using_equals_operator() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(
+      singletonList(Criterion.builder().setKey("tag").setOperator(EQ).setValue("java").build()),
+      emptySet());
+
+    assertThat(query.getTags().get()).containsOnly("java");
+  }
+
+  @Test
+  public void fail_to_create_query_on_tag_using_in_operator_and_value() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Tag should be set either by using 'tag = java' or 'tag IN (finance, platform)");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("tag").setOperator(IN).setValue("java").build()), emptySet());
+  }
+
+  @Test
+  public void fail_to_create_query_on_tag_using_eq_operator_and_values() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Tag should be set either by using 'tag = java' or 'tag IN (finance, platform)");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("tag").setOperator(EQ).setValues(asList("java")).build()), emptySet());
   }
 
   @Test

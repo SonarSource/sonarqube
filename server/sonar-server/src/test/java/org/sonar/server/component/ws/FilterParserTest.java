@@ -126,14 +126,14 @@ public class FilterParserTest {
 
   @Test
   public void parse_filter_without_any_space_in_criteria() throws Exception {
-    List<Criterion> criterion = FilterParser.parse("ncloc>10 and coverage<=80 and language in (java,js)");
+    List<Criterion> criterion = FilterParser.parse("ncloc>10 and coverage<=80 and tags in (java,platform)");
 
     assertThat(criterion)
       .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue, Criterion::getValues)
       .containsOnly(
         tuple("ncloc", GT, "10", emptyList()),
         tuple("coverage", LTE, "80", emptyList()),
-        tuple("language", IN, null, asList("java", "js")));
+        tuple("tags", IN, null, asList("java", "platform")));
   }
 
   @Test
@@ -198,4 +198,10 @@ public class FilterParserTest {
     assertThat(criterion).hasSize(4);
   }
 
+  @Test
+  public void metric_key_with_and_string() {
+    List<Criterion> criterion = FilterParser.parse("ncloc > 10 and operand = 5");
+
+    assertThat(criterion).hasSize(2).extracting(Criterion::getKey, Criterion::getValue).containsExactly(tuple("ncloc", "10"), tuple("operand", "5"));
+  }
 }

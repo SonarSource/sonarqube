@@ -39,7 +39,7 @@ public class FilterParser {
   private static final String DOUBLE_QUOTES = "\"";
 
   private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile(" and ", Pattern.CASE_INSENSITIVE)).trimResults().omitEmptyStrings();
-  private static final Splitter IN_VALUES_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
+  private static final Splitter IN_VALUES_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
   private static final Pattern PATTERN = Pattern.compile("(\\w+)\\s*([<>]?[=]?)\\s*(.*)", Pattern.CASE_INSENSITIVE);
   private static final Pattern PATTERN_HAVING_VALUES = Pattern.compile("(\\w+)\\s+(in)\\s+\\((.*)\\)", Pattern.CASE_INSENSITIVE);

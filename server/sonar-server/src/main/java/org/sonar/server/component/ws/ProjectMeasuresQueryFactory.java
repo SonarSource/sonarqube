@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
+import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.component.ws.FilterParser.Operator;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
@@ -42,20 +43,21 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUA
 class ProjectMeasuresQueryFactory {
 
   public static final String IS_FAVORITE_CRITERION = "isFavorite";
+  public static final String CRITERION_TAG = "tag";
   public static final String QUERY_KEY = "query";
 
   private ProjectMeasuresQueryFactory() {
     // prevent instantiation
   }
 
-  static ProjectMeasuresQuery newProjectMeasuresQuery(List<FilterParser.Criterion> criteria, @Nullable Set<String> projectUuids) {
+  static ProjectMeasuresQuery newProjectMeasuresQuery(List<Criterion> criteria, @Nullable Set<String> projectUuids) {
     ProjectMeasuresQuery query = new ProjectMeasuresQuery();
     Optional.ofNullable(projectUuids).ifPresent(query::setProjectUuids);
     criteria.forEach(criterion -> processCriterion(criterion, query));
     return query;
   }
 
-  private static void processCriterion(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+  private static void processCriterion(Criterion criterion, ProjectMeasuresQuery query) {
     String key = criterion.getKey().toLowerCase(ENGLISH);
     if (IS_FAVORITE_CRITERION.equalsIgnoreCase(key)) {
       return;
@@ -63,8 +65,14 @@ class ProjectMeasuresQueryFactory {
 
     Operator operator = criterion.getOperator();
     checkArgument(operator != null, "Operator cannot be null for '%s'", key);
+
     if (FILTER_LANGUAGE.equalsIgnoreCase(key)) {
       processLanguages(criterion, query);
+      return;
+    }
+
+    if (CRITERION_TAG.equalsIgnoreCase(key)) {
+      processTags(criterion, query);
       return;
     }
 
@@ -82,7 +90,7 @@ class ProjectMeasuresQueryFactory {
     }
   }
 
-  private static void processLanguages(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+  private static void processLanguages(Criterion criterion, ProjectMeasuresQuery query) {
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     List<String> values = criterion.getValues();
@@ -97,7 +105,22 @@ class ProjectMeasuresQueryFactory {
     throw new IllegalArgumentException("Language should be set either by using 'language = java' or 'language IN (java, js)'");
   }
 
-  private static void processQuery(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+  private static void processTags(Criterion criterion, ProjectMeasuresQuery query) {
+    Operator operator = criterion.getOperator();
+    String value = criterion.getValue();
+    List<String> values = criterion.getValues();
+    if (value != null && EQ.equals(operator)) {
+      query.setTags(singleton(value));
+      return;
+    }
+    if (!values.isEmpty() && IN.equals(operator)) {
+      query.setTags(new HashSet<>(values));
+      return;
+    }
+    throw new IllegalArgumentException("Tag should be set either by using 'tag = java' or 'tag IN (finance, platform)'");
+  }
+
+  private static void processQuery(Criterion criterion, ProjectMeasuresQuery query) {
     Operator operatorValue = criterion.getOperator();
     String value = criterion.getValue();
     checkArgument(value != null, "Query is invalid");
@@ -105,7 +128,7 @@ class ProjectMeasuresQueryFactory {
     query.setQueryText(value);
   }
 
-  private static void processQualityGateStatus(FilterParser.Criterion criterion, ProjectMeasuresQuery query) {
+  private static void processQualityGateStatus(Criterion criterion, ProjectMeasuresQuery query) {
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     checkArgument(EQ.equals(operator), "Only equals operator is available for quality gate criteria");
@@ -121,5 +144,4 @@ class ProjectMeasuresQueryFactory {
       throw new IllegalArgumentException(format("Value '%s' is not a number", value));
     }
   }
-
 }
