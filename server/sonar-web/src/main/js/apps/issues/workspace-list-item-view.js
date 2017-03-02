@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import IssueView from '../../components/issue/issue-view';
+import React from 'react';
+import { render, unmountComponentAtNode } from 'react-dom';
+import Marionette from 'backbone.marionette';
+import Issue from '../../components/issue/Issue';
 import IssueFilterView from './issue-filter-view';
-import CheckboxTemplate from './templates/issues-issue-checkbox.hbs';
-import FilterTemplate from './templates/issues-issue-filter.hbs';
+import WithStore from '../../components/shared/WithStore';
 
 const SHOULD_NULL = {
   any: ['issues'],
@@ -31,35 +33,43 @@ const SHOULD_NULL = {
   assigned: ['assignees']
 };
 
-export default IssueView.extend({
-  checkboxTemplate: CheckboxTemplate,
-  filterTemplate: FilterTemplate,
-
-  events () {
-    return {
-      ...IssueView.prototype.events.apply(this, arguments),
-      'click': 'selectCurrent',
-      'dblclick': 'openComponentViewer',
-      'click .js-issue-navigate': 'openComponentViewer',
-      'click .js-issue-filter': 'onIssueFilterClick',
-      'click .js-toggle': 'onIssueToggle'
-    };
-  },
+export default Marionette.ItemView.extend({
+  className: 'issues-workspace-list-item',
 
   initialize (options) {
-    IssueView.prototype.initialize.apply(this, arguments);
-    this.listenTo(options.app.state, 'change:selectedIndex', this.select);
+    this.openComponentViewer = this.openComponentViewer.bind(this);
+    this.onIssueFilterClick = this.onIssueFilterClick.bind(this);
+    this.onIssueCheck = this.onIssueCheck.bind(this);
+    this.listenTo(options.app.state, 'change:selectedIndex', this.showIssue);
+    this.listenTo(this.model, 'change:selected', this.showIssue);
+  },
+
+  template () {
+    return '<div></div>';
   },
 
   onRender () {
-    IssueView.prototype.onRender.apply(this, arguments);
-    this.select();
-    this.addFilterSelect();
-    this.addCheckbox();
-    this.$el.addClass('issue-navigate-right');
-    if (this.options.app.state.get('canBulkChange')) {
-      this.$el.addClass('issue-with-checkbox');
-    }
+    this.showIssue();
+  },
+
+  onDestroy () {
+    unmountComponentAtNode(this.el);
+  },
+
+  showIssue () {
+    const selected = this.model.get('index') === this.options.app.state.get('selectedIndex');
+
+    render((
+      <WithStore>
+        <Issue
+          issue={this.model}
+          checked={this.model.get('selected')}
+          onCheck={this.onIssueCheck}
+          onClick={this.openComponentViewer}
+          onFilterClick={this.onIssueFilterClick}
+          selected={selected}/>
+      </WithStore>
+    ), this.el);
   },
 
   onIssueFilterClick (e) {
@@ -89,26 +99,21 @@ export default IssueView.extend({
     this.popup.render();
   },
 
-  onIssueToggle (e) {
+  onIssueCheck (e) {
     e.preventDefault();
+    e.stopPropagation();
     this.model.set({ selected: !this.model.get('selected') });
     const selected = this.model.collection.where({ selected: true }).length;
     this.options.app.state.set({ selected });
   },
 
-  addFilterSelect () {
-    this.$('.issue-table-meta-cell-first')
-        .find('.issue-meta-list')
-        .append(this.filterTemplate(this.model.toJSON()));
-  },
-
-  addCheckbox () {
-    this.$el.append(this.checkboxTemplate(this.model.toJSON()));
-  },
-
-  select () {
+  changeSelection () {
     const selected = this.model.get('index') === this.options.app.state.get('selectedIndex');
-    this.$el.toggleClass('selected', selected);
+    if (selected) {
+      this.select();
+    } else {
+      this.unselect();
+    }
   },
 
   selectCurrent () {
@@ -137,12 +142,5 @@ export default IssueView.extend({
     } else {
       return this.options.app.controller.showComponentViewer(this.model);
     }
-  },
-
-  serializeData () {
-    return {
-      ...IssueView.prototype.serializeData.apply(this, arguments),
-      showComponent: true
-    };
   }
 });

@@ -25,22 +25,23 @@ export default Marionette.ItemView.extend({
 
   onRender () {
     this.$el.detach().appendTo($('body'));
+    const triggerEl = $(this.options.triggerEl);
     if (this.options.bottom) {
       this.$el.addClass('bubble-popup-bottom');
       this.$el.css({
-        top: this.options.triggerEl.offset().top + this.options.triggerEl.outerHeight(),
-        left: this.options.triggerEl.offset().left
+        top: triggerEl.offset().top + triggerEl.outerHeight(),
+        left: triggerEl.offset().left
       });
     } else if (this.options.bottomRight) {
       this.$el.addClass('bubble-popup-bottom-right');
       this.$el.css({
-        top: this.options.triggerEl.offset().top + this.options.triggerEl.outerHeight(),
-        right: $(window).width() - this.options.triggerEl.offset().left - this.options.triggerEl.outerWidth()
+        top: triggerEl.offset().top + triggerEl.outerHeight(),
+        right: $(window).width() - triggerEl.offset().left - triggerEl.outerWidth()
       });
     } else {
       this.$el.css({
-        top: this.options.triggerEl.offset().top,
-        left: this.options.triggerEl.offset().left + this.options.triggerEl.outerWidth()
+        top: triggerEl.offset().top,
+        left: triggerEl.offset().left + triggerEl.outerWidth()
       });
     }
     this.attachCloseEvents();
@@ -48,6 +49,7 @@ export default Marionette.ItemView.extend({
 
   attachCloseEvents () {
     const that = this;
+    const triggerEl = $(this.options.triggerEl);
     key('escape', () => {
       that.destroy();
     });
@@ -55,8 +57,8 @@ export default Marionette.ItemView.extend({
       $('body').off('click.bubble-popup');
       that.destroy();
     });
-    this.options.triggerEl.on('click.bubble-popup', e => {
-      that.options.triggerEl.off('click.bubble-popup');
+    triggerEl.on('click.bubble-popup', e => {
+      triggerEl.off('click.bubble-popup');
       e.stopPropagation();
       that.destroy();
     });
@@ -64,7 +66,7 @@ export default Marionette.ItemView.extend({
 
   onDestroy () {
     $('body').off('click.bubble-popup');
-    this.options.triggerEl.off('click.bubble-popup');
+    const triggerEl = $(this.options.triggerEl);
+    triggerEl.off('click.bubble-popup');
   }
 });
-

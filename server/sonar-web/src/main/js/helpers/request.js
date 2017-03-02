@@ -146,19 +146,18 @@ export function request (url: string): Request {
  * @returns {*}
  */
 export function checkStatus (response: Response): Promise<Object> {
-  if (response.status === 401) {
-    // workaround cyclic dependencies
-    const handleRequiredAuthentication = require('../app/utils/handleRequiredAuthentication').default;
-    handleRequiredAuthentication();
-    return Promise.reject();
-  } else if (response.status >= 200 && response.status < 300) {
-    return Promise.resolve(response);
-  } else {
-    const error = new Error(response.status);
-    // $FlowFixMe complains that `response` is not found
-    error.response = response;
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    if (response.status === 401) {
+      // workaround cyclic dependencies
+      const handleRequiredAuthentication = require('../app/utils/handleRequiredAuthentication').default;
+      handleRequiredAuthentication();
+      reject();
+    } else if (response.status >= 200 && response.status < 300) {
+      resolve(response);
+    } else {
+      reject({ response });
+    }
+  });
 }
 
 /**

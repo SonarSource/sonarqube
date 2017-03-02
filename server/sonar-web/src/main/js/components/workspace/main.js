@@ -99,7 +99,8 @@ Workspace.prototype = {
           that.closeComponentViewer();
           m.destroy();
         });
-    this.viewerView.render().$el.appendTo(document.body);
+    this.viewerView.$el.appendTo(document.body);
+    this.viewerView.render();
   },
 
   showComponentViewer (model) {

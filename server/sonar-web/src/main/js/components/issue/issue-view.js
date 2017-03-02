@@ -34,16 +34,21 @@ import Template from './templates/issue.hbs';
 import getCurrentUserFromStore from '../../app/utils/getCurrentUserFromStore';
 
 export default Marionette.ItemView.extend({
-  className: 'issue',
   template: Template,
 
   modelEvents: {
-    'change': 'render',
+    'change': 'notifyAndRender',
     'transition': 'onTransition'
+  },
+
+  className () {
+    const hasCheckbox = this.options.onCheck != null;
+    return hasCheckbox ? 'issue issue-with-checkbox' : 'issue';
   },
 
   events () {
     return {
+      'click': 'handleClick',
       'click .js-issue-comment': 'onComment',
       'click .js-issue-comment-edit': 'editComment',
       'click .js-issue-comment-delete': 'deleteComment',
@@ -56,8 +61,22 @@ export default Marionette.ItemView.extend({
       'click .js-issue-show-changelog': 'showChangeLog',
       'click .js-issue-rule': 'showRule',
       'click .js-issue-edit-tags': 'editTags',
-      'click .js-issue-locations': 'showLocations'
+      'click .js-issue-locations': 'showLocations',
+      'click .js-issue-filter': 'filterSimilarIssues',
+      'click .js-toggle': 'onIssueCheck'
     };
+  },
+
+  notifyAndRender () {
+    const { onIssueChange } = this.options;
+    if (onIssueChange) {
+      onIssueChange(this.model.toJSON());
+    }
+
+    // if ConnectedIssue is used, this view can be destroyed just after onIssueChange()
+    if (!this.isDestroyed) {
+      this.render();
+    }
   },
 
   onRender () {
@@ -243,10 +262,34 @@ export default Marionette.ItemView.extend({
     this.model.trigger('locations', this.model);
   },
 
+  select () {
+    this.$el.addClass('selected');
+  },
+
+  unselect () {
+    this.$el.removeClass('selected');
+  },
+
   onTransition (transition) {
     if (transition === 'falsepositive' || transition === 'wontfix') {
       this.comment({ fromTransition: true });
     }
+  },
+
+  handleClick (e) {
+    e.preventDefault();
+    const { onClick } = this.options;
+    if (onClick) {
+      onClick(this.model.get('key'));
+    }
+  },
+
+  filterSimilarIssues (e) {
+    this.options.onFilterClick(e);
+  },
+
+  onIssueCheck (e) {
+    this.options.onCheck(e);
   },
 
   serializeData () {
@@ -254,8 +297,10 @@ export default Marionette.ItemView.extend({
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       permalink: window.baseUrl + '/issues/search#issues=' + issueKey,
-      hasSecondaryLocations: this.model.get('flows').length
+      hasSecondaryLocations: this.model.get('flows').length,
+      hasSimilarIssuesFilter: this.options.onFilterClick != null,
+      hasCheckbox: this.options.onCheck != null,
+      checked: this.options.checked
     };
   }
 });
-
