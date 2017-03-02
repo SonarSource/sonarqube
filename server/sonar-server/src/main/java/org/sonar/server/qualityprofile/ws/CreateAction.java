@@ -41,6 +41,7 @@ import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 
 public class CreateAction implements QProfileWsAction {
@@ -81,6 +82,14 @@ public class CreateAction implements QProfileWsAction {
       .setPost(true)
       .setResponseExample(getClass().getResource("example-create.json"))
       .setHandler(this);
+
+    create
+      .createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
 
     create.createParam(PARAM_PROFILE_NAME)
       .setDescription("The name for the new quality profile. Since 6.1, this parameter has been renamed from '%s' to '%s'", DEPRECATED_PARAM_PROFILE_NAME, PARAM_PROFILE_NAME)
