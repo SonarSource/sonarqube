@@ -1,0 +1,58 @@
+buildscript {
+  repositories {
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
+  dependencies {
+    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0'
+  }
+}
+
+// TODO improve
+def versionSuffix = System.env.'TRAVIS_BUILD_NUMBER' == null
+  ? '-SNAPSHOT'
+  : ('.0.' + System.env.'TRAVIS_BUILD_NUMBER')
+
+allprojects {
+  group = 'org.sonarsource.sonarqube'
+  version = '6.4' + versionSuffix
+}
+
+configurations {
+  archives
+}
+artifacts {
+  archives(file('pom.xml')) {
+    name 'sonarqube'
+    type 'pom'
+    extension 'pom'
+  }
+}
+
+// TODO requires review
+apply plugin: 'com.jfrog.artifactory'
+artifactory {
+  clientConfig.setIncludeEnvVars(true)
+  clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*')
+  contextUrl = System.getenv('ARTIFACTORY_URL')
+  publish {
+    repository {
+      repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO')
+      username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME')
+      password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD')
+    }
+    defaults {
+      properties = [
+        'vcs.revision': (System.getenv('GIT_COMMIT') ?: System.getenv('TRAVIS_COMMIT')),
+        'vcs.branch': (System.getenv('GIT_BRANCH') ?: System.getenv('TRAVIS_BRANCH')),
+        'build.name': 'sonarlint-intellij',
+        'build.number': (System.getenv('BUILD_ID') ?: System.getenv('TRAVIS_BUILD_NUMBER'))
+      ]
+      publishConfigs('archives')
+      publishPom = true // Publish generated POM files to Artifactory (true by default)
+      publishIvy = false // Publish generated Ivy descriptor files to Artifactory (true by default)
+    }
+  }
+  clientConfig.info.setBuildNumber(System.getenv('TRAVIS_BUILD_NUMBER'))
+}
