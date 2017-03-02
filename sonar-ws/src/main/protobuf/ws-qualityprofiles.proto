@@ -43,6 +43,7 @@ message SearchWsResponse {
     optional string rulesUpdatedAt = 11;
     optional string lastUsed = 13;
     optional string userUpdatedAt = 14;
+    optional string organization = 15;
   }
 }
 
@@ -59,6 +60,7 @@ message CreateWsResponse {
     optional bool isDefault = 6;
     optional Infos infos = 7;
     optional Warnings warnings = 8;
+    optional string organization = 9;
 
     message Infos {
       repeated string infos = 1;

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +36,6 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 import static org.sonar.server.ws.WsUtils.checkFound;
@@ -47,30 +47,30 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class QProfileFactory {
 
   private final DbClient db;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileFactory(DbClient db, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public QProfileFactory(DbClient db) {
     this.db = db;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   // ------------- CREATION
 
-  QualityProfileDto getOrCreate(DbSession dbSession, QProfileName name) {
+  QualityProfileDto getOrCreate(DbSession dbSession, String organizationUuid, QProfileName name) {
+    Preconditions.checkArgument(StringUtils.isNotEmpty(organizationUuid), "Organization is required, when creating a quality profile.");
     QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
-      profile = doCreate(dbSession, name);
+      profile = doCreate(dbSession, organizationUuid, name);
     }
     return profile;
   }
 
-  public QualityProfileDto create(DbSession dbSession, QProfileName name) {
+  public QualityProfileDto create(DbSession dbSession, String organizationUuid, QProfileName name) {
+    Preconditions.checkArgument(StringUtils.isNotEmpty(organizationUuid), "Organization is required, when creating a quality profile.");
     QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
     checkRequest(dto == null, "Quality profile already exists: %s", name);
-    return doCreate(dbSession, name);
+    return doCreate(dbSession, organizationUuid, name);
   }
 
-  private QualityProfileDto doCreate(DbSession dbSession, QProfileName name) {
+  private QualityProfileDto doCreate(DbSession dbSession, String organizationUuid, QProfileName name) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
@@ -79,7 +79,7 @@ public class QProfileFactory {
       String key = Slug.slugify(String.format("%s %s %s", name.getLanguage(), name.getName(), RandomStringUtils.randomNumeric(5)));
       QualityProfileDto dto = QualityProfileDto.createFor(key)
         .setName(name.getName())
-        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+        .setOrganizationUuid(organizationUuid)
         .setLanguage(name.getLanguage())
         .setRulesUpdatedAtAsDate(now);
       if (db.qualityProfileDao().selectByKey(dbSession, dto.getKey()) == null) {

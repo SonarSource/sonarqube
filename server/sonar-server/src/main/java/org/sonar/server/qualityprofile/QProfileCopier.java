@@ -34,6 +34,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 @ServerSide
 public class QProfileCopier {
@@ -42,12 +43,14 @@ public class QProfileCopier {
   private final QProfileFactory factory;
   private final QProfileBackuper backuper;
   private final TempFolder temp;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileCopier(DbClient db, QProfileFactory factory, QProfileBackuper backuper, TempFolder temp) {
+  public QProfileCopier(DbClient db, QProfileFactory factory, QProfileBackuper backuper, TempFolder temp, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.db = db;
     this.factory = factory;
     this.backuper = backuper;
     this.temp = temp;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public QualityProfileDto copyToName(String fromProfileKey, String toName) {
@@ -72,7 +75,7 @@ public class QProfileCopier {
       if (toProfile == null) {
         // Do not delegate creation to QProfileBackuper because we need to keep
         // the parent-child association, if exists.
-        toProfile = factory.create(dbSession, toProfileName);
+        toProfile = factory.create(dbSession, defaultOrganizationProvider.get().getUuid(), toProfileName);
         toProfile.setParentKee(fromProfile.getParentKee());
         db.qualityProfileDao().update(dbSession, toProfile);
         dbSession.commit();
