@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
+import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
@@ -39,6 +40,8 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class RestoreBuiltInActionTest {
+  @Rule
+  public DbTester db = DbTester.create();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -49,7 +52,7 @@ public class RestoreBuiltInActionTest {
   private QProfileReset reset = mock(QProfileReset.class);
   private Languages languages = LanguageTesting.newLanguages("xoo");
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSession, defaultOrganizationProvider);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
 
   private WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(reset, languages, wsSupport));
 

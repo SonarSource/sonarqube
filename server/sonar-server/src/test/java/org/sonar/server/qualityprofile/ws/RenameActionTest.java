@@ -55,7 +55,7 @@ public class RenameActionTest {
   private String xoo2Key = "xoo2";
   private WsTester tester;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSessionRule, defaultOrganizationProvider);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
 
   @Before
   public void setUp() {
@@ -64,7 +64,7 @@ public class RenameActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new RenameAction(new QProfileFactory(dbClient, defaultOrganizationProvider), wsSupport)));
+      new RenameAction(new QProfileFactory(dbClient), wsSupport)));
   }
 
   @Test

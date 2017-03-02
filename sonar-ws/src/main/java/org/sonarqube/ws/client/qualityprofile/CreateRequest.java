@@ -29,10 +29,12 @@ public class CreateRequest {
 
   private final String profileName;
   private final String language;
+  private final String organizationKey;
 
   private CreateRequest(Builder builder) {
     this.profileName = builder.profileName;
     this.language = builder.language;
+    this.organizationKey = builder.organizationKey;
   }
 
   public String getLanguage() {
@@ -43,6 +45,10 @@ public class CreateRequest {
     return profileName;
   }
 
+  public String getOrganizationKey() {
+    return organizationKey;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -50,6 +56,7 @@ public class CreateRequest {
   public static class Builder {
     private String language;
     private String profileName;
+    private String organizationKey;
 
     private Builder() {
       // enforce factory method use
@@ -65,9 +72,15 @@ public class CreateRequest {
       return this;
     }
 
+    public Builder setOrganizationKey(@Nullable String organizationKey) {
+      this.organizationKey = organizationKey;
+      return this;
+    }
+
     public CreateRequest build() {
       checkArgument(language != null && !language.isEmpty(), "Language is mandatory and must not be empty.");
       checkArgument(profileName != null && !profileName.isEmpty(), "Profile name is mandatory and must not be empty.");
+      checkArgument(organizationKey == null || !organizationKey.isEmpty(), "Organization key may be either null or not empty. Empty organization key is invalid.");
       return new CreateRequest(this);
     }
   }
