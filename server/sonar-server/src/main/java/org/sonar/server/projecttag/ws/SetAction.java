@@ -56,17 +56,13 @@ public class SetAction implements ProjectTagsWsAction {
     this.userSession = userSession;
   }
 
-  private static String checkTag(String tag) {
-    checkRequest(tag.matches(VALID_TAG_REGEXP), "Tag '%s' is invalid. Project tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'", tag);
-    return tag;
-  }
-
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setDescription("Set tags on a project.<br>" +
         "Requires the following permission: 'Administer' rights on the specified project")
       .setSince("6.4")
+      .setPost(true)
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)
@@ -101,5 +97,10 @@ public class SetAction implements ProjectTagsWsAction {
     }
 
     response.noContent();
+  }
+
+  private static String checkTag(String tag) {
+    checkRequest(tag.matches(VALID_TAG_REGEXP), "Tag '%s' is invalid. Project tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'", tag);
+    return tag;
   }
 }

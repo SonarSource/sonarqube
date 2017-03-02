@@ -137,6 +137,8 @@ public class SetActionTest {
   public void definition() {
     WebService.Action definition = ws.getDef();
 
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.isInternal()).isFalse();
     assertThat(definition.params()).extracting(WebService.Param::key)
       .containsOnly("project", "tags");
     assertThat(definition.description()).isNotEmpty();
