@@ -23,19 +23,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -411,6 +409,18 @@ public class FileMoveDetectionStepTest {
   }
 
   @Test
+  public void execute_detects_no_move_if_two_files_are_empty() {
+    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    mockComponents(FILE_1.getKey(), FILE_2.getKey());
+    mockContentOfFileInDb(FILE_1.getKey(), null);
+    mockContentOfFileInDb(FILE_2.getKey(), null);
+
+    underTest.execute();
+
+    assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+  }
+
+  @Test
   public void execute_detects_several_moves() {
     // testing:
     // - file1 renamed to file3
@@ -497,20 +507,15 @@ public class FileMoveDetectionStepTest {
     sourceLinesRepository.addLines(ref, content);
   }
 
-  private void mockContentOfFileInDb(String key, String[] content) {
-    SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-    SourceHashComputer sourceHashComputer = new SourceHashComputer();
-    Iterator<String> lineIterator = Arrays.asList(content).iterator();
-    while (lineIterator.hasNext()) {
-      String line = lineIterator.next();
-      linesHashesComputer.addLine(line);
-      sourceHashComputer.addLine(line, lineIterator.hasNext());
+  private void mockContentOfFileInDb(String key, @Nullable String[] content) {
+    FileSourceDto dto = new FileSourceDto();
+    if (content != null) {
+      SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
+      stream(content).forEach(linesHashesComputer::addLine);
+      dto.setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()));
     }
 
-    when(fileSourceDao.selectSourceByFileUuid(dbSession, componentUuidOf(key)))
-      .thenReturn(new FileSourceDto()
-        .setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()))
-        .setSrcHash(sourceHashComputer.getHash()));
+    when(fileSourceDao.selectSourceByFileUuid(dbSession, componentUuidOf(key))).thenReturn(dto);
   }
 
   private void setFilesInReport(Component... files) {

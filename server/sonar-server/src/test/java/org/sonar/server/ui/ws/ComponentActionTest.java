@@ -46,7 +46,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -78,42 +77,28 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentActionTest {
 
-  private static final String PROJECT_KEY = "polop";
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = dbTester.getDbClient();
   private ComponentDbTester componentDbTester = dbTester.components();
-  private UserDbTester userDbTester = dbTester.users();
   private PropertyDbTester propertyDbTester = new PropertyDbTester(dbTester);
-
   private ResourceTypes resourceTypes = mock(ResourceTypes.class);
-
   private ComponentDto project;
   private WsActionTester ws;
-
-  private static QualityProfile createQProfile(String qpKey, String qpName, String languageKey) {
-    return new QualityProfile(qpKey, qpName, languageKey, new Date());
-  }
-
-  private static String qualityProfilesToJson(QualityProfile... qps) {
-    List<QualityProfile> qualityProfiles = Arrays.asList(qps);
-    return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
-  }
 
   @Before
   public void before() {
     OrganizationDto organization = dbTester.organizations().insertForKey("my-org");
-    project =  newProjectDto(organization, "abcd")
-        .setKey(PROJECT_KEY)
-        .setName("Polop")
-        .setDescription("test project")
-        .setLanguage("xoo");
+    project = newProjectDto(organization, "abcd")
+      .setKey("polop")
+      .setName("Polop")
+      .setDescription("test project")
+      .setLanguage("xoo");
   }
 
   @Test
@@ -133,19 +118,47 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void fail_on_missing_permission() throws Exception {
+  public void throw_ForbiddenException_if_required_permission_is_not_granted() throws Exception {
     init();
     componentDbTester.insertComponent(project);
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     execute(project.key());
   }
 
   @Test
+  public void return_info_if_user_has_browse_permission_on_project() throws Exception {
+    init();
+    componentDbTester.insertComponent(project);
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    verifySuccess(project.key());
+  }
+
+  @Test
+  public void return_info_if_user_has_administration_permission_on_project() throws Exception {
+    init();
+    componentDbTester.insertComponent(project);
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    verifySuccess(project.key());
+  }
+
+  @Test
+  public void return_info_if_user_is_system_administrator() throws Exception {
+    init();
+    componentDbTester.insertComponent(project);
+    userSession.logIn().setSystemAdministrator();
+
+    verifySuccess(project.key());
+  }
+
+  @Test
   public void return_component_info_when_anonymous_no_snapshot() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_component_info_when_anonymous_no_snapshot.json");
   }
@@ -153,10 +166,10 @@ public class ComponentActionTest {
   @Test
   public void return_component_info_with_favourite() throws Exception {
     init();
-    UserDto user = userDbTester.insertUser("obiwan");
+    UserDto user = dbTester.users().insertUser("obiwan");
     componentDbTester.insertComponent(project);
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
-    userSessionRule.logIn(user).addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn(user).addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_component_info_with_favourite.json");
   }
@@ -169,7 +182,7 @@ public class ComponentActionTest {
       .setCreatedAt(DateUtils.parseDateTime("2015-04-22T11:44:00+0200").getTime())
       .setVersion("3.14")
       .setLast(true));
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_component_info_when_snapshot.json");
   }
@@ -182,7 +195,7 @@ public class ComponentActionTest {
     addQualityProfiles(project, analysis,
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_quality_profiles.json");
   }
@@ -191,7 +204,7 @@ public class ComponentActionTest {
   public void return_empty_quality_profiles_when_no_measure() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_empty_quality_profiles_when_no_measure.json");
   }
@@ -202,7 +215,7 @@ public class ComponentActionTest {
     componentDbTester.insertComponent(project);
     QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
     dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_quality_gate.json");
   }
@@ -212,7 +225,7 @@ public class ComponentActionTest {
     init();
     componentDbTester.insertComponent(project);
     dbTester.qualityGates().createDefaultQualityGate("Sonar way");
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_default_quality_gate.json");
   }
@@ -221,7 +234,7 @@ public class ComponentActionTest {
   public void return_no_quality_gate_when_not_defined_on_project_and_no_default_one() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     String json = execute(project.key());
     assertThat(json).doesNotContain("qualityGate");
@@ -231,7 +244,7 @@ public class ComponentActionTest {
   public void return_extensions() throws Exception {
     init(createPages());
     componentDbTester.insertProjectAndSnapshot(project);
-    userSessionRule.anonymous().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_extensions.json");
   }
@@ -240,7 +253,7 @@ public class ComponentActionTest {
   public void return_extensions_for_admin() throws Exception {
     init(createPages());
     componentDbTester.insertProjectAndSnapshot(project);
-    userSessionRule.anonymous()
+    userSession.anonymous()
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
@@ -249,9 +262,9 @@ public class ComponentActionTest {
 
   @Test
   public void return_configuration_for_admin() throws Exception {
-    UserDto user = userDbTester.insertUser();
+    UserDto user = dbTester.users().insertUser();
     componentDbTester.insertComponent(project);
-    userSessionRule.logIn(user)
+    userSession.logIn(user)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -276,7 +289,7 @@ public class ComponentActionTest {
   public void return_configuration_with_all_properties() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSessionRule.anonymous()
+    userSession.anonymous()
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -299,7 +312,7 @@ public class ComponentActionTest {
     init();
     ComponentDto project = componentDbTester.insertComponent(this.project);
     ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
-    userSessionRule.anonymous()
+    userSession.anonymous()
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -310,7 +323,7 @@ public class ComponentActionTest {
   public void return_configuration_for_quality_profile_admin() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSessionRule.logIn()
+    userSession.logIn()
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
       .addPermission(ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid());
 
@@ -321,7 +334,7 @@ public class ComponentActionTest {
   public void return_configuration_for_quality_gate_admin() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSessionRule.logIn()
+    userSession.logIn()
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
       .addPermission(ADMINISTER_QUALITY_GATES, project.getOrganizationUuid());
 
@@ -337,7 +350,7 @@ public class ComponentActionTest {
     ComponentDto file = componentDbTester.insertComponent(newFileDto(directory, directory, "cdef").setName("Source.xoo")
       .setKey("palap:src/main/xoo/Source.xoo")
       .setPath(directory.path()));
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(file.key(), "return_bread_crumbs_on_several_levels.json");
   }
@@ -346,7 +359,7 @@ public class ComponentActionTest {
   public void project_administrator_is_allowed_to_get_information() throws Exception {
     init(createPages());
     componentDbTester.insertProjectAndSnapshot(project);
-    userSessionRule.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     execute(project.key());
   }
@@ -366,14 +379,14 @@ public class ComponentActionTest {
       .setLast(true);
     componentDbTester.insertSnapshot(analysis);
     when(resourceTypes.get(project.qualifier())).thenReturn(DefaultResourceTypes.get().getRootType());
-    UserDto user = userDbTester.insertUser("obiwan");
+    UserDto user = dbTester.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
     addQualityProfiles(project, analysis,
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
     QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
     dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
-    userSessionRule.logIn(user)
+    userSession.logIn(user)
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
@@ -387,12 +400,12 @@ public class ComponentActionTest {
     OrganizationDto org = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertProject(org);
 
-    userSessionRule.logIn()
+    userSession.logIn()
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid())
       .addPermission(OrganizationPermission.ADMINISTER, org);
     assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
 
-    userSessionRule.logIn()
+    userSession.logIn()
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": false}}");
@@ -408,7 +421,7 @@ public class ComponentActionTest {
     }});
     pageRepository.start();
     ws = new WsActionTester(
-      new ComponentAction(dbClient, pageRepository, resourceTypes, userSessionRule, new ComponentFinder(dbClient),
+      new ComponentAction(dbClient, pageRepository, resourceTypes, userSession, new ComponentFinder(dbClient),
         new QualityGateFinder(dbClient)));
   }
 
@@ -452,5 +465,19 @@ public class ComponentActionTest {
       .build();
 
     return new Page[] {page1, page2, adminPage};
+  }
+
+  private void verifySuccess(String componentKey) {
+    String json = execute(componentKey);
+    assertJson(json).isSimilarTo("{\"key\":\"" + componentKey + "\"}");
+  }
+
+  private static QualityProfile createQProfile(String qpKey, String qpName, String languageKey) {
+    return new QualityProfile(qpKey, qpName, languageKey, new Date());
+  }
+
+  private static String qualityProfilesToJson(QualityProfile... qps) {
+    List<QualityProfile> qualityProfiles = Arrays.asList(qps);
+    return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
   }
 }

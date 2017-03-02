@@ -41,6 +41,8 @@ export function fetchMeasures () {
     dispatch(startFetching());
 
     const state = getState();
+    /* eslint-disable no-console */
+    console.log(state);
     const component = getMeasuresAppComponent(state);
     const metrics = getMeasuresAppAllMetrics(state);
 

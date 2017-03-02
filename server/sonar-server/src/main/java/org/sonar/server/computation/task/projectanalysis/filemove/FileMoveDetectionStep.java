@@ -37,7 +37,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
@@ -57,6 +56,7 @@ import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
@@ -185,15 +185,13 @@ public class FileMoveDetectionStep implements ComputationStep {
       // SourceHashRepository
       Component component = reportFilesByKey.get(fileKey);
       SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-      SourceHashComputer sourceHashComputer = new SourceHashComputer();
       try (CloseableIterator<String> lineIterator = sourceLinesRepository.readLines(component)) {
         while (lineIterator.hasNext()) {
           String line = lineIterator.next();
           linesHashesComputer.addLine(line);
-          sourceHashComputer.addLine(line, lineIterator.hasNext());
         }
       }
-      builder.put(fileKey, new File(component.getReportAttributes().getPath(), sourceHashComputer.getHash(), linesHashesComputer.getLineHashes()));
+      builder.put(fileKey, new File(component.getReportAttributes().getPath(), linesHashesComputer.getLineHashes()));
     }
     return builder.build();
   }
@@ -236,7 +234,8 @@ public class FileMoveDetectionStep implements ComputationStep {
     if (fileSourceDto == null) {
       return null;
     }
-    return new File(dbComponent.getPath(), fileSourceDto.getSrcHash(), LINES_HASHES_SPLITTER.splitToList(fileSourceDto.getLineHashes()));
+    String lineHashes = firstNonNull(fileSourceDto.getLineHashes(), "");
+    return new File(dbComponent.getPath(), LINES_HASHES_SPLITTER.splitToList(lineHashes));
   }
 
   private static void printIfDebug(ScoreMatrix scoreMatrix) {

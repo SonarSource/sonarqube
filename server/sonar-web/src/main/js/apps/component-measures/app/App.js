@@ -21,15 +21,16 @@ import React from 'react';
 import Spinner from './../components/Spinner';
 
 export default class App extends React.Component {
+  state = { componentSet: false };
+
   componentDidMount () {
     this.props.setComponent(this.props.component);
     this.props.fetchMetrics();
+    this.setState({ componentSet: true });
   }
 
   render () {
-    const { metrics } = this.props;
-
-    if (metrics == null) {
+    if (this.props.metrics == null || !this.state.componentSet) {
       return <Spinner/>;
     }
 

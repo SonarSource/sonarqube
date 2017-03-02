@@ -130,7 +130,9 @@ public class ComponentAction implements NavigationWsAction {
     String componentKey = request.mandatoryParam(PARAM_COMPONENT_KEY);
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
-      if (!(userSession.hasComponentPermission(USER, component) || userSession.hasComponentPermission(ADMIN, component))) {
+      if (!userSession.hasComponentPermission(USER, component) &&
+        !userSession.hasComponentPermission(ADMIN, component) &&
+        !userSession.isSystemAdministrator()) {
         throw insufficientPrivilegesException();
       }
       OrganizationDto org = componentFinder.getOrganization(session, component);

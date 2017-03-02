@@ -27,12 +27,15 @@ import static java.lang.Math.min;
 public class SourceSimilarityImpl implements SourceSimilarity {
 
   @Override
-  public <T extends Object> int score(List<T> left, List<T> right) {
+  public <T> int score(List<T> left, List<T> right) {
+    if (left.isEmpty() && right.isEmpty()) {
+      return 0;
+    }
     int distance = levenshteinDistance(left, right);
     return (int) (100 * (1.0 - ((double) distance) / (max(left.size(), right.size()))));
   }
 
-  <T extends Object> int levenshteinDistance(List<T> left, List<T> right) {
+  private static <T> int levenshteinDistance(List<T> left, List<T> right) {
     int len0 = left.size() + 1;
     int len1 = right.size() + 1;
 

@@ -30,6 +30,8 @@ import java.util.Set;
 import org.junit.Test;
 
 import static com.google.common.collect.ImmutableSet.of;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.filemove.FileMoveDetectionStep.MIN_REQUIRED_SCORE;
 
@@ -39,7 +41,7 @@ public class MatchesByScoreTest {
 
   @Test
   public void creates_returns_always_the_same_instance_of_maxScore_is_less_than_min_required_score() {
-    Set<String> doesNotMatterDbFileKeys = Collections.emptySet();
+    Set<String> doesNotMatterDbFileKeys = emptySet();
     Map<String, FileSimilarity.File> doesNotMatterReportFiles = Collections.emptyMap();
     int[][] doesNotMatterScores = new int[0][0];
 
@@ -78,6 +80,6 @@ public class MatchesByScoreTest {
   }
 
   private static FileSimilarity.File fileOf(String key) {
-    return new FileSimilarity.File("path of " + key, null, null);
+    return new FileSimilarity.File("path of " + key, emptyList());
   }
 }
