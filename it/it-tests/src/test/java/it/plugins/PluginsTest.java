@@ -88,7 +88,7 @@ public class PluginsTest {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setZipFile(byWildcardMavenFilename(new File("../../sonar-application/target"), "sonar*.zip").getFile());
 
-    installPlugin(builder, "JSON");
+    // FIXME JSON plugin is temporary disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "JSON");;
     installPlugin(builder, "Sonargraph");
     installPlugin(builder, "abap");
     installPlugin(builder, "aemrules");
