@@ -119,55 +119,55 @@ BUILD)
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
 
-    # Fetch all commit history so that SonarQube has exact blame information
-    # for issue auto-assignment
-    # This command can fail with "fatal: --unshallow on a complete repository does not make sense"
-    # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
-    # For this reason errors are ignored with "|| true"
-    git fetch --unshallow || true
+#    # Fetch all commit history so that SonarQube has exact blame information
+#    # for issue auto-assignment
+#    # This command can fail with "fatal: --unshallow on a complete repository does not make sense"
+#    # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
+#    # For this reason errors are ignored with "|| true"
+#    git fetch --unshallow || true
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
-          $MAVEN_ARGS \
-          -Pdeploy-sonarsource,release \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.projectVersion=$INITIAL_VERSION
+#    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+#          $MAVEN_ARGS \
+#          -Pdeploy-sonarsource,release \
+#          -Dsonar.host.url=$SONAR_HOST_URL \
+#          -Dsonar.login=$SONAR_TOKEN \
+#          -Dsonar.projectVersion=$INITIAL_VERSION
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
 
-    mvn deploy $MAVEN_ARGS -Pdeploy-sonarsource,release
+#    mvn deploy $MAVEN_ARGS -Pdeploy-sonarsource,release
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
-        $MAVEN_ARGS \
-        -Dsource.skip=true \
-        -Pdeploy-sonarsource \
-        -Dsonar.analysis.mode=preview \
-        -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
-        -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
-        -Dsonar.github.oauth=$GITHUB_TOKEN \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN
+#    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+#        $MAVEN_ARGS \
+#        -Dsource.skip=true \
+#        -Pdeploy-sonarsource \
+#        -Dsonar.analysis.mode=preview \
+#        -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
+#        -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
+#        -Dsonar.github.oauth=$GITHUB_TOKEN \
+#        -Dsonar.host.url=$SONAR_HOST_URL \
+#        -Dsonar.login=$SONAR_TOKEN
 
   else
     echo 'Build feature branch or external pull request'
 
-    mvn install $MAVEN_ARGS -Dsource.skip=true
+#    mvn install $MAVEN_ARGS -Dsource.skip=true
   fi
 
-  installPhantomJs
-  ./run-integration-tests.sh "Lite" "" -Dorchestrator.browser=phantomjs
+#  installPhantomJs
+#  ./run-integration-tests.sh "Lite" "" -Dorchestrator.browser=phantomjs
   ;;
 
 WEB_TESTS)
-  set +u
-  source ~/.nvm/nvm.sh && nvm install 6
-  curl -o- -L https://yarnpkg.com/install.sh | bash
-  export PATH=$HOME/.yarn/bin:$PATH
-  cd server/sonar-web && yarn && yarn test -- --runInBand
+#  set +u
+#  source ~/.nvm/nvm.sh && nvm install 6
+#  curl -o- -L https://yarnpkg.com/install.sh | bash
+#  export PATH=$HOME/.yarn/bin:$PATH
+#  cd server/sonar-web && yarn && yarn test -- --runInBand
   ;;
 
 *)
