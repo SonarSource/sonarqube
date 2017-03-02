@@ -19,11 +19,14 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.server.component.ws.FilterParser.Criterion;
@@ -46,6 +49,14 @@ class ProjectMeasuresQueryFactory {
   public static final String CRITERION_TAG = "tag";
   public static final String QUERY_KEY = "query";
 
+  private static final Map<String, BiConsumer<Criterion, ProjectMeasuresQuery>> CRITERION_PROCESSORS = ImmutableMap.<String, BiConsumer<Criterion, ProjectMeasuresQuery>>builder()
+    .put(IS_FAVORITE_CRITERION.toLowerCase(ENGLISH), (criterion, query) -> processIsFavorite(criterion))
+    .put(FILTER_LANGUAGE, ProjectMeasuresQueryFactory::processLanguages)
+    .put(CRITERION_TAG, ProjectMeasuresQueryFactory::processTags)
+    .put(QUERY_KEY, ProjectMeasuresQueryFactory::processQuery)
+    .put(ALERT_STATUS_KEY, ProjectMeasuresQueryFactory::processQualityGateStatus)
+    .build();
+
   private ProjectMeasuresQueryFactory() {
     // prevent instantiation
   }
@@ -59,38 +70,15 @@ class ProjectMeasuresQueryFactory {
 
   private static void processCriterion(Criterion criterion, ProjectMeasuresQuery query) {
     String key = criterion.getKey().toLowerCase(ENGLISH);
-    if (IS_FAVORITE_CRITERION.equalsIgnoreCase(key)) {
-      return;
-    }
+    CRITERION_PROCESSORS.getOrDefault(key, ProjectMeasuresQueryFactory::processMetricCriterion).accept(criterion, query);
+  }
 
-    Operator operator = criterion.getOperator();
-    checkArgument(operator != null, "Operator cannot be null for '%s'", key);
-
-    if (FILTER_LANGUAGE.equalsIgnoreCase(key)) {
-      processLanguages(criterion, query);
-      return;
-    }
-
-    if (CRITERION_TAG.equalsIgnoreCase(key)) {
-      processTags(criterion, query);
-      return;
-    }
-
-    if (QUERY_KEY.equalsIgnoreCase(key)) {
-      processQuery(criterion, query);
-      return;
-    }
-
-    String value = criterion.getValue();
-    checkArgument(value != null, "Value cannot be null for '%s'", key);
-    if (ALERT_STATUS_KEY.equals(key)) {
-      processQualityGateStatus(criterion, query);
-    } else {
-      query.addMetricCriterion(new MetricCriterion(key, operator, parseValue(value)));
-    }
+  private static void processIsFavorite(Criterion criterion) {
+    checkArgument(criterion.getOperator() == null && criterion.getValue() == null, "Filter on favorites should be declared without an operator nor a value");
   }
 
   private static void processLanguages(Criterion criterion, ProjectMeasuresQuery query) {
+    checkOperator(criterion);
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     List<String> values = criterion.getValues();
@@ -106,6 +94,7 @@ class ProjectMeasuresQueryFactory {
   }
 
   private static void processTags(Criterion criterion, ProjectMeasuresQuery query) {
+    checkOperator(criterion);
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     List<String> values = criterion.getValues();
@@ -121,6 +110,7 @@ class ProjectMeasuresQueryFactory {
   }
 
   private static void processQuery(Criterion criterion, ProjectMeasuresQuery query) {
+    checkOperator(criterion);
     Operator operatorValue = criterion.getOperator();
     String value = criterion.getValue();
     checkArgument(value != null, "Query is invalid");
@@ -129,6 +119,8 @@ class ProjectMeasuresQueryFactory {
   }
 
   private static void processQualityGateStatus(Criterion criterion, ProjectMeasuresQuery query) {
+    checkOperator(criterion);
+    checkValue(criterion);
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     checkArgument(EQ.equals(operator), "Only equals operator is available for quality gate criteria");
@@ -137,11 +129,25 @@ class ProjectMeasuresQueryFactory {
     query.setQualityGateStatus(Level.valueOf(value));
   }
 
+  private static void processMetricCriterion(Criterion criterion, ProjectMeasuresQuery query) {
+    checkOperator(criterion);
+    checkValue(criterion);
+    query.addMetricCriterion(new MetricCriterion(criterion.getKey().toLowerCase(ENGLISH), criterion.getOperator(), parseValue(criterion.getValue())));
+  }
+
   private static double parseValue(String value) {
     try {
       return Double.parseDouble(value);
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException(format("Value '%s' is not a number", value));
     }
+  }
+
+  private static void checkValue(Criterion criterion) {
+    checkArgument(criterion.getValue() != null, "Value cannot be null for '%s'", criterion.getKey());
+  }
+
+  private static void checkOperator(Criterion criterion) {
+    checkArgument(criterion.getOperator() != null, "Operator cannot be null for '%s'", criterion.getKey());
   }
 }
