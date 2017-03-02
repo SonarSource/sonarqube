@@ -32,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
@@ -55,8 +54,6 @@ public class ExportActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
-  private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
   private QProfileBackuper backuper = mock(QProfileBackuper.class);
 
   @Test
