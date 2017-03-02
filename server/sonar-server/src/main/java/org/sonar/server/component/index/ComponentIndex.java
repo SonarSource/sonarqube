@@ -28,6 +28,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -37,6 +38,8 @@ import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Buck
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.sonar.core.util.stream.Collectors;
+import org.sonar.server.component.index.ComponentIndexQuery.Sort;
+import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
@@ -45,6 +48,7 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
@@ -83,7 +87,6 @@ public class ComponentIndex {
       .setSize(0);
 
     SearchResponse response = request.get();
-
     return aggregationsToQualifiers(response);
   }
 
@@ -96,6 +99,7 @@ public class ComponentIndex {
 
   private static TopHitsBuilder createSubAggregation(ComponentIndexQuery query) {
     TopHitsBuilder sub = AggregationBuilders.topHits(DOCS_AGGREGATION_NAME);
+    addSort(query, sub);
     query.getLimit().ifPresent(sub::setSize);
     return sub.setFetchSource(false);
   }
@@ -132,5 +136,21 @@ public class ComponentIndex {
       .collect(Collectors.toList(hits.length));
 
     return new ComponentsPerQualifier(bucket.getKey(), componentUuids, hitList.totalHits());
+  }
+
+  private static void addSort(ComponentIndexQuery query, TopHitsBuilder topHitsBuilder) {
+    Sort sort = query.getSort();
+    switch (sort) {
+      case BY_ASCENDING_NAME:
+        topHitsBuilder.addSort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), ASC);
+        // last sort is by key in order to be deterministic when same value
+        topHitsBuilder.addSort(FIELD_KEY, ASC);
+        break;
+      case BY_SCORE:
+        // default behavior
+        break;
+      default:
+        throw new IllegalStateException(String.format("Unknown sort %s", sort));
+    }
   }
 }

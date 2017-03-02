@@ -25,12 +25,18 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 public class ComponentIndexQuery {
+
+  public enum Sort {
+    BY_ASCENDING_NAME, BY_SCORE
+  }
 
   private Optional<String> query = Optional.empty();
   private Collection<String> qualifiers = Collections.emptyList();
   private Optional<Integer> limit = Optional.empty();
+  private Sort sort = Sort.BY_SCORE;
 
   public ComponentIndexQuery setQuery(@Nullable String query) {
     checkArgument(query == null || query.length() >= 2, "Query must be at least two characters long: %s", query);
@@ -62,5 +68,14 @@ public class ComponentIndexQuery {
 
   public Optional<Integer> getLimit() {
     return limit;
+  }
+
+  public Sort getSort() {
+    return sort;
+  }
+
+  public ComponentIndexQuery setSort(Sort sort) {
+    this.sort = requireNonNull(sort, "Sort cannot be null");
+    return this;
   }
 }
