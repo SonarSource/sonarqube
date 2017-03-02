@@ -32,6 +32,13 @@ const getAsLevel = value => {
   return null;
 };
 
+const getAsString = value => {
+  if (!value) {
+    return null;
+  }
+  return value;
+};
+
 export const parseUrlQuery = urlQuery => ({
   'gate': getAsLevel(urlQuery['gate']),
   'reliability': getAsNumericRating(urlQuery['reliability']),
@@ -39,7 +46,8 @@ export const parseUrlQuery = urlQuery => ({
   'maintainability': getAsNumericRating(urlQuery['maintainability']),
   'coverage': getAsNumericRating(urlQuery['coverage']),
   'duplications': getAsNumericRating(urlQuery['duplications']),
-  'size': getAsNumericRating(urlQuery['size'])
+  'size': getAsNumericRating(urlQuery['size']),
+  'language': getAsString(urlQuery['language'])
 });
 
 const convertIssuesRating = (metric, rating) => {
@@ -136,6 +144,10 @@ export const convertToFilter = (query, isFavorite) => {
     conditions.push(convertIssuesRating('sqale_rating', query['maintainability']));
   }
 
+  if (query['language'] != null) {
+    conditions.push('language = ' + query['language']);
+  }
+
   return conditions.join(' and ');
 };
 
@@ -147,7 +159,8 @@ export const mapMetricToProperty = metricKey => {
     'coverage': 'coverage',
     'duplicated_lines_density': 'duplications',
     'ncloc': 'size',
-    'alert_status': 'gate'
+    'alert_status': 'gate',
+    'language': 'language'
   };
   return map[metricKey];
 };
