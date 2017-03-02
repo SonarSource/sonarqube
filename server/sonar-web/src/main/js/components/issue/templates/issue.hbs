@@ -174,3 +174,9 @@
   <i class="issue-navigate-to-left icon-chevron-left"></i>
   <i class="issue-navigate-to-right icon-chevron-right"></i>
 </a>
+
+{{#if hasCheckbox}}
+  <div class="js-toggle issue-checkbox-container">
+    <i class="issue-checkbox icon-checkbox {{#if checked}}icon-checkbox-checked{{/if}}"></i>
+  </div>
+{{/if}}

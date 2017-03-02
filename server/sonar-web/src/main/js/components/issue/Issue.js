@@ -28,7 +28,9 @@ import type { Issue as IssueType } from './types';
 type Model = { toJSON: () => {} };
 
 type Props = {
+  checked?: boolean,
   issue: IssueType | Model,
+  onCheck?: () => void,
   onClick: () => void,
   onFilterClick?: () => void,
   onIssueChange: ({}) => void,
@@ -101,6 +103,8 @@ class Issue extends React.PureComponent {
     const model = this.props.issue.toJSON ? this.props.issue : new IssueModel(this.props.issue);
     this.issueView = new IssueView({
       model,
+      checked: this.props.checked,
+      onCheck: this.props.onCheck,
       onClick: this.props.onClick,
       onFilterClick: this.props.onFilterClick,
       onIssueChange: this.props.onIssueChange
