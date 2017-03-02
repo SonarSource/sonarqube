@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -47,6 +48,9 @@ public class CopyActionTest {
   private static final String DEFAULT_ORG_UUID = "U1";
 
   @Rule
+  public DbTester db = DbTester.create();
+
+  @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
@@ -64,7 +68,7 @@ public class CopyActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new CopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"), new QProfileWsSupport(userSessionRule, defaultOrganizationProvider))));
+      new CopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"), new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider))));
   }
 
   @Test
