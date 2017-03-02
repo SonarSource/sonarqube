@@ -1,4 +1,5 @@
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'maven'
 
 dependencies {
   compile 'com.google.guava:guava'
@@ -32,4 +33,7 @@ shadowJar {
     )
   }
 }
-build.dependsOn 'shadowJar'
+
+artifacts {
+  archives file: shadowJar.archivePath, builtBy: shadowJar
+}
