@@ -22,6 +22,8 @@ package org.sonar.server.component.index;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -35,6 +37,7 @@ public class ComponentIndexQuery {
 
   private Optional<String> query = Optional.empty();
   private Collection<String> qualifiers = Collections.emptyList();
+  private Optional<Set<String>> componentUuids = Optional.empty();
   private Optional<Integer> limit = Optional.empty();
   private Sort sort = Sort.BY_SCORE;
 
@@ -55,6 +58,15 @@ public class ComponentIndexQuery {
 
   public Collection<String> getQualifiers() {
     return qualifiers;
+  }
+
+  public Optional<Set<String>> getComponentUuids() {
+    return componentUuids;
+  }
+
+  public ComponentIndexQuery setComponentUuids(@Nullable Set<String> componentUuids) {
+    this.componentUuids = Optional.ofNullable(componentUuids);
+    return this;
   }
 
   /**

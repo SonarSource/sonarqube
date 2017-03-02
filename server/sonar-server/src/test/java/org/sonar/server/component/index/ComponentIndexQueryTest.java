@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.component.index.ComponentIndexQuery.Sort;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,11 +39,13 @@ public class ComponentIndexQueryTest {
     ComponentIndexQuery query = new ComponentIndexQuery()
       .setQuery("SonarQube")
       .setQualifiers(asList("TRK", "FIL"))
+      .setComponentUuids(newHashSet("UUID-1", "UUID-1"))
       .setSort(Sort.BY_ASCENDING_NAME)
       .setLimit(5);
 
     assertThat(query.getQuery().get()).isEqualTo("SonarQube");
     assertThat(query.getQualifiers()).containsOnly("TRK", "FIL");
+    assertThat(query.getComponentUuids().get()).containsOnly("UUID-1", "UUID-1");
     assertThat(query.getSort()).isEqualTo(Sort.BY_ASCENDING_NAME);
     assertThat(query.getLimit().get()).isEqualTo(5);
   }
@@ -56,11 +59,20 @@ public class ComponentIndexQueryTest {
   }
 
   @Test
+  public void create_query_accepts_null_component_uuids() {
+    ComponentIndexQuery query = new ComponentIndexQuery()
+      .setComponentUuids(null);
+
+    assertThat(query.getComponentUuids()).isNotPresent();
+  }
+
+  @Test
   public void test_default_values() throws Exception {
     ComponentIndexQuery query = new ComponentIndexQuery();
 
     assertThat(query.getQuery()).isNotPresent();
     assertThat(query.getQualifiers()).isEmpty();
+    assertThat(query.getComponentUuids()).isNotPresent();
     assertThat(query.getSort()).isEqualTo(Sort.BY_SCORE);
     assertThat(query.getLimit()).isNotPresent();
   }

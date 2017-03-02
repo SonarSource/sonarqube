@@ -19,32 +19,43 @@
  */
 package org.sonar.server.component.index;
 
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
-import static org.sonar.server.component.index.ComponentIndexQuery.Sort.BY_ASCENDING_NAME;
 
-public class ComponentIndexSortByNameTest extends ComponentIndexTest {
+public class ComponentIndexFilterByComponentUuidsTest extends ComponentIndexTest {
 
   private ComponentIndexQuery query = new ComponentIndexQuery().setQualifiers(singletonList("TRK"));
 
   @Test
-  public void sort_by_name() throws Exception {
+  public void filter_by_component_uuids() throws Exception {
     ComponentDto project1 = indexProject("quality", "Quality Product");
     ComponentDto project2 = indexProject("sonarqube", "SonarQube");
     ComponentDto project3 = indexProject("apache", "Apache");
 
-    assertSearch(query.setSort(BY_ASCENDING_NAME)).containsExactly(uuids(project3, project1, project2));
+    assertSearch(query.setComponentUuids(newHashSet(project1.uuid()))).containsOnly(project1.uuid());
+    assertSearch(query.setComponentUuids(newHashSet(project1.uuid(), project2.uuid()))).containsOnly(project1.uuid(), project2.uuid());
   }
 
   @Test
-  public void sort_by_name_then_by_key() throws Exception {
-    ComponentDto project1 = indexProject("project1", "Quality Product");
-    ComponentDto project2 = indexProject("project2", "Apache");
-    ComponentDto project3 = indexProject("project3", "Apache");
+  public void return_all_components_when_component_uuids_is_null() throws Exception {
+    ComponentDto project1 = indexProject("quality", "Quality Product");
+    ComponentDto project2 = indexProject("sonarqube", "SonarQube");
+    ComponentDto project3 = indexProject("apache", "Apache");
 
-    assertSearch(query.setSort(BY_ASCENDING_NAME)).containsExactly(uuids(project2, project3, project1));
+    assertSearch(query.setComponentUuids(null)).containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
+  }
+
+  @Test
+  public void return_nothing_when_component_uuids_is_empty() throws Exception {
+    indexProject("quality", "Quality Product");
+    indexProject("sonarqube", "SonarQube");
+    indexProject("apache", "Apache");
+
+    assertSearch(query.setComponentUuids(Collections.emptySet())).isEmpty();
   }
 
 }

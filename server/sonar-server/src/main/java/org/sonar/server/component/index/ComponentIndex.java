@@ -28,7 +28,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -48,6 +47,7 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
@@ -107,6 +107,7 @@ public class ComponentIndex {
   private QueryBuilder createQuery(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
     esQuery.filter(authorizationTypeSupport.createQueryFilter());
+    query.getComponentUuids().ifPresent(componentUuids -> esQuery.filter(termsQuery("_id", componentUuids)));
     return query.getQuery()
       .map(textQuery -> {
         ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
