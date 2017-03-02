@@ -43,7 +43,7 @@ export default class SizeFilter extends React.Component {
     return (
         <FilterContainer
             property="size"
-            options={[1, 2, 3, 4, 5]}
+            getOptions={() => [1, 2, 3, 4, 5]}
             renderName={() => 'Size'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}

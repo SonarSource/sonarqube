@@ -26,7 +26,7 @@ export default class Filter extends React.Component {
   static propTypes = {
     value: React.PropTypes.any,
     property: React.PropTypes.string.isRequired,
-    options: React.PropTypes.array.isRequired,
+    getOptions: React.PropTypes.func.isRequired,
     maxFacetValue: React.PropTypes.number,
     optionClassName: React.PropTypes.string,
 
@@ -96,7 +96,7 @@ export default class Filter extends React.Component {
   renderOptions () {
     return (
         <div className="search-navigator-facet-list">
-          {this.props.options.map(option => this.renderOption(option))}
+          {this.props.getOptions(this.props.facet).map(option => this.renderOption(option))}
         </div>
     );
   }

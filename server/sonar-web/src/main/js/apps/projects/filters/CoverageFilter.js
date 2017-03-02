@@ -43,7 +43,7 @@ export default class CoverageFilter extends React.Component {
     return (
         <FilterContainer
             property="coverage"
-            options={[1, 2, 3, 4, 5]}
+            getOptions={() => [1, 2, 3, 4, 5]}
             renderName={() => 'Coverage'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
