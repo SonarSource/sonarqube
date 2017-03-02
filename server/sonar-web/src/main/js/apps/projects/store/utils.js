@@ -39,12 +39,12 @@ const getAsString = value => {
   return value;
 };
 
-const getAsArray = getAsType => (values => {
+const getAsArray = (values, elementGetter) => {
   if (!values) {
     return null;
   }
-  return values.split(',').map(getAsType);
-});
+  return values.split(',').map(elementGetter);
+};
 
 export const parseUrlQuery = urlQuery => ({
   'gate': getAsLevel(urlQuery['gate']),
@@ -54,7 +54,7 @@ export const parseUrlQuery = urlQuery => ({
   'coverage': getAsNumericRating(urlQuery['coverage']),
   'duplications': getAsNumericRating(urlQuery['duplications']),
   'size': getAsNumericRating(urlQuery['size']),
-  'language': getAsArray(getAsString)(urlQuery['language'])
+  'language': getAsArray(urlQuery['language'], getAsString)
 });
 
 const convertIssuesRating = (metric, rating) => {
@@ -155,7 +155,7 @@ export const convertToFilter = (query, isFavorite) => {
     if (!Array.isArray(query['language']) || query['language'].length < 2) {
       conditions.push('language = ' + query['language']);
     } else {
-      conditions.push('language IN (' + query['language'].join(', ') + ')');
+      conditions.push(`language IN (${query['language'].join(', ')})`);
     }
   }
 

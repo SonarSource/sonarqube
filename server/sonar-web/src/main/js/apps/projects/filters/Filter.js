@@ -21,6 +21,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 export default class Filter extends React.Component {
   static propTypes = {
@@ -113,11 +114,20 @@ export default class Filter extends React.Component {
   }
 
   renderOptions () {
-    return (
+    const options = this.props.getOptions(this.props.facet);
+    if (options && options.length > 0) {
+      return (
         <div className="search-navigator-facet-list">
-          {this.props.getOptions(this.props.facet).map(option => this.renderOption(option))}
+          {options.map(option => this.renderOption(option))}
         </div>
-    );
+      );
+    } else {
+      return (
+        <div className="search-navigator-facet-empty">
+          {translate('no_results')}
+        </div>
+      );
+    }
   }
 
   render () {

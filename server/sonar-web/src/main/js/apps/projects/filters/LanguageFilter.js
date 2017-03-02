@@ -22,27 +22,31 @@ import FilterContainer from './FilterContainer';
 import LanguageFilterOption from './LanguageFilterOption';
 
 export default class LanguageFilter extends React.Component {
+  static propTypes = {
+    query: React.PropTypes.string.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  }
+
   renderOption = option => {
     return (
       <LanguageFilterOption languageKey={option}/>
     );
   };
 
-  getFacetValueForOption = (facet, option) => {
-    return facet[option];
-  };
+  getFacetValueForOption = (facet, option) => facet[option];
 
   render () {
     return (
-        <FilterContainer
-            property="language"
-            getOptions={facet => facet ? Object.keys(facet) : []}
-            renderName={() => 'Languages'}
-            renderOption={this.renderOption}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <FilterContainer
+          property="language"
+          getOptions={facet => facet ? Object.keys(facet) : []}
+          renderName={() => 'Languages'}
+          renderOption={this.renderOption}
+          getFacetValueForOption={this.getFacetValueForOption}
+          query={this.props.query}
+          isFavorite={this.props.isFavorite}
+          organization={this.props.organization}/>
     );
   }
 }

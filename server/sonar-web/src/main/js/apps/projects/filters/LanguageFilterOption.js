@@ -19,18 +19,25 @@
  */
 import { connect } from 'react-redux';
 import React from 'react';
+import { translate } from '../../../helpers/l10n';
+import { getLanguageByKey } from '../../../store/rootReducer';
 
 class LanguageFilterOption extends React.Component {
+  static propTypes = {
+    languageKey: React.PropTypes.string.isRequired,
+    language: React.PropTypes.object
+  }
+
   render () {
     const languageName = this.props.language ? this.props.language.name : this.props.languageKey;
     return (
-      <span>{languageName}</span>
+      <span>{this.props.languageKey !== '<null>' ? languageName : translate('unknown')}</span>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  language: state.languages[ownProps.languageKey]
+  language: getLanguageByKey(state, ownProps.languageKey)
 });
 
 export default connect(mapStateToProps)(LanguageFilterOption);
