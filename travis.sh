@@ -156,7 +156,10 @@ BUILD)
     mvn install --non-recursive
 
     export GRADLE_OPTS="-Xmx512m"
-    ./gradlew build artifactory --no-daemon
+    ./gradlew build install artifactory --no-daemon
+
+    installPhantomJs
+    ./run-integration-tests.sh "Lite" "" -Dorchestrator.browser=phantomjs
 
   else
     echo 'Build feature branch or external pull request'
