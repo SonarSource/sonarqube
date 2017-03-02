@@ -22,8 +22,9 @@ import React from 'react';
 
 class LanguageFilterOption extends React.Component {
   render () {
+    const languageName = this.props.language ? this.props.language.name : this.props.languageKey;
     return (
-      <span>{this.props.language.name}</span>
+      <span>{languageName}</span>
     );
   }
 }

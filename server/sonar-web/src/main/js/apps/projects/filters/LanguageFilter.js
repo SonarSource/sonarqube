@@ -24,9 +24,7 @@ import LanguageFilterOption from './LanguageFilterOption';
 export default class LanguageFilter extends React.Component {
   renderOption = option => {
     return (
-      <span>
-        <LanguageFilterOption languageKey={option}/>
-      </span>
+      <LanguageFilterOption languageKey={option}/>
     );
   };
 
