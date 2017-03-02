@@ -222,7 +222,6 @@ public interface CoreProperties {
   @Deprecated
   String CORE_AUTHENTICATOR_UPDATE_USER_ATTRIBUTES = "sonar.security.updateUserAttributes";
 
-  String SERVER_VERSION = "sonar.core.version";
   String SERVER_ID = "sonar.core.id";
 
   // format is yyyy-MM-dd'T'HH:mm:ssZ

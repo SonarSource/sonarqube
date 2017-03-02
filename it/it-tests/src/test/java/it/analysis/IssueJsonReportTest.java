@@ -31,13 +31,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -46,8 +46,9 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Ignore("Temporarily disabled as non-SNAPSHOT versions are not supported")
 public class IssueJsonReportTest {
+
+  private static final String SONAR_VERSION_PLACEHOLDER = "<SONAR_VERSION>";
 
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
@@ -146,7 +147,7 @@ public class IssueJsonReportTest {
     assertThat(report).isFile().exists();
 
     String json = sanitize(FileUtils.readFileToString(report));
-    String expectedJson = sanitize(IOUtils.toString(getResourceInputStream("no-server-analysis.json")));
+    String expectedJson = expected("no-server-analysis.json");
     JSONAssert.assertEquals(expectedJson, json, false);
   }
 
@@ -173,7 +174,7 @@ public class IssueJsonReportTest {
     assertThat(report).isFile().exists();
 
     String json = sanitize(FileUtils.readFileToString(report));
-    String expectedJson = sanitize(IOUtils.toString(getResourceInputStream("report-on-single-module.json")));
+    String expectedJson = expected("report-on-single-module.json");
     JSONAssert.assertEquals(expectedJson, json, false);
   }
 
@@ -204,7 +205,7 @@ public class IssueJsonReportTest {
     assertThat(report).isFile().exists();
 
     String json = sanitize(FileUtils.readFileToString(report));
-    String expectedJson = sanitize(IOUtils.toString(getResourceInputStream("report-on-single-module-branch.json")));
+    String expectedJson = expected("report-on-single-module-branch.json");
     JSONAssert.assertEquals(expectedJson, json, false);
   }
 
@@ -241,7 +242,7 @@ public class IssueJsonReportTest {
 
     String json = sanitize(FileUtils.readFileToString(report));
     // SONAR-5218 All issues are updated as their root project id has changed (it's now the sub module)
-    String expectedJson = sanitize(IOUtils.toString(getResourceInputStream("report-on-sub-module.json")));
+    String expectedJson = expected("report-on-sub-module.json");
     JSONAssert.assertEquals(expectedJson, json, false);
   }
 
@@ -271,17 +272,13 @@ public class IssueJsonReportTest {
     assertThat(report).isFile().exists();
 
     String json = sanitize(FileUtils.readFileToString(report));
-    String expectedJson = sanitize(IOUtils.toString(getResourceInputStream("report-on-root-module.json")));
+    String expectedJson = expected("report-on-root-module.json");
     JSONAssert.assertEquals(expectedJson, json, false);
   }
 
-  @Test
-  public void sanityCheck() {
-    assertThat(sanitize("5.0-SNAPSHOT")).isEqualTo("<SONAR_VERSION>");
-    assertThat(sanitize("5.0.0-5868-SNAPSHOT")).isEqualTo("<SONAR_VERSION>");
-    assertThat(sanitize("5.0-build1234")).isEqualTo("<SONAR_VERSION>");
-    assertThat(sanitize("5.0.1-build1234")).isEqualTo("<SONAR_VERSION>");
-    assertThat(sanitize("\"5.0.1-build1234\"")).isEqualTo("\"<SONAR_VERSION>\"");
+  private String expected(String path) throws IOException, FileNotFoundException {
+    return sanitize(IOUtils.toString(getResourceInputStream(path)))
+      .replaceAll(Pattern.quote(SONAR_VERSION_PLACEHOLDER), orchestrator.getServer().version().toString());
   }
 
   @Test
@@ -290,10 +287,6 @@ public class IssueJsonReportTest {
   }
 
   private static String sanitize(String s) {
-    // sanitize sonarqube version: "5.4-SNAPSHOT" or "5.4-build1234"
-    s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-SNAPSHOT", "<SONAR_VERSION>");
-    s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-build(\\d)+", "<SONAR_VERSION>");
-
     // sanitize issue uuid keys
     s = s.replaceAll("\"[a-zA-Z_0-9\\-]{15,20}\"", "<ISSUE_KEY>");
 
