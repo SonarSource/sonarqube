@@ -30,6 +30,7 @@ type Model = { toJSON: () => {} };
 type Props = {
   issue: IssueType | Model,
   onClick: () => void,
+  onFilterClick?: () => void,
   onIssueChange: ({}) => void,
   selected: boolean
 };
@@ -101,6 +102,7 @@ class Issue extends React.PureComponent {
     this.issueView = new IssueView({
       model,
       onClick: this.props.onClick,
+      onFilterClick: this.props.onFilterClick,
       onIssueChange: this.props.onIssueChange
     });
     this.issueView.render().$el.appendTo(this.node);
