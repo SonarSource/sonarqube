@@ -25,7 +25,6 @@ import Issue from '../../components/issue/Issue';
 import IssueFilterView from './issue-filter-view';
 import WithStore from '../../components/shared/WithStore';
 // import CheckboxTemplate from './templates/issues-issue-checkbox.hbs';
-// import FilterTemplate from './templates/issues-issue-filter.hbs';
 
 const SHOULD_NULL = {
   any: ['issues'],
@@ -40,6 +39,7 @@ export default Marionette.ItemView.extend({
 
   initialize (options) {
     this.openComponentViewer = this.openComponentViewer.bind(this);
+    this.onIssueFilterClick = this.onIssueFilterClick.bind(this);
     this.listenTo(options.app.state, 'change:selectedIndex', this.showIssue);
   },
 
@@ -63,6 +63,7 @@ export default Marionette.ItemView.extend({
         <Issue
           issue={this.model}
           onClick={this.openComponentViewer}
+          onFilterClick={this.onIssueFilterClick}
           selected={selected}/>
       </WithStore>
     ), this.el);

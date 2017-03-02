@@ -57,7 +57,8 @@ export default Marionette.ItemView.extend({
       'click .js-issue-show-changelog': 'showChangeLog',
       'click .js-issue-rule': 'showRule',
       'click .js-issue-edit-tags': 'editTags',
-      'click .js-issue-locations': 'showLocations'
+      'click .js-issue-locations': 'showLocations',
+      'click .js-issue-filter': 'filterSimilarIssues'
     };
   },
 
@@ -278,12 +279,17 @@ export default Marionette.ItemView.extend({
     }
   },
 
+  filterSimilarIssues (e) {
+    this.options.onFilterClick(e);
+  },
+
   serializeData () {
     const issueKey = encodeURIComponent(this.model.get('key'));
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       permalink: window.baseUrl + '/issues/search#issues=' + issueKey,
-      hasSecondaryLocations: this.model.get('flows').length
+      hasSecondaryLocations: this.model.get('flows').length,
+      hasSimilarIssuesFilter: this.options.onFilterClick != null
     };
   }
 });
