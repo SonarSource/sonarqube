@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -43,6 +44,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
@@ -140,6 +142,11 @@ public class ProjectMeasuresDoc extends BaseDoc {
 
   public ProjectMeasuresDoc setQualityGateStatus(@Nullable String s) {
     setField(FIELD_QUALITY_GATE_STATUS, s != null ? QUALITY_GATE_STATUS.get(s) : null);
+    return this;
+  }
+
+  public ProjectMeasuresDoc setTags(List<String> tags) {
+    setField(FIELD_TAGS, tags);
     return this;
   }
 

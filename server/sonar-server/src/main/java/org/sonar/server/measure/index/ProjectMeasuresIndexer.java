@@ -131,6 +131,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       .setKey(project.getKey())
       .setName(project.getName())
       .setQualityGateStatus(projectMeasures.getMeasures().getQualityGateStatus())
+      .setTags(project.getTags())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
       .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
       .setLanguages(projectMeasures.getMeasures().getLanguageDistribution());
