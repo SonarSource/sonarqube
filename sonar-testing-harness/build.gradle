@@ -1,0 +1,10 @@
+dependencies {
+  compile 'com.googlecode.json-simple:json-simple'
+  compile 'com.google.code.gson:gson'
+  compile 'junit:junit'
+  compile 'commons-io:commons-io'
+  provided 'com.google.code.findbugs:jsr305'
+
+  testCompile 'org.hamcrest:hamcrest-all'
+  testCompile 'org.assertj:assertj-core'
+}

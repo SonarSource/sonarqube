@@ -1,0 +1,9 @@
+dependencies {
+  compile 'org.codehaus.sonar:sonar-channel'
+  compile 'commons-lang:commons-lang'
+  compile 'org.slf4j:slf4j-api'
+
+  testCompile 'ch.qos.logback:logback-classic'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+}

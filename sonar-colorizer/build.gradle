@@ -1,0 +1,12 @@
+apply plugin: 'maven'
+
+dependencies {
+  // TODO exclusion
+  compile 'org.codehaus.sonar:sonar-channel'
+
+  provided 'com.google.code.findbugs:jsr305'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'commons-io:commons-io'
+}

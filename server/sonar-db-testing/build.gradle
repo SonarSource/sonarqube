@@ -1,0 +1,6 @@
+dependencies {
+  compile project(':sonar-testing-harness')
+  compile project(':server:sonar-db-core').sourceSets.test.output
+  compile project(':server:sonar-db-dao').sourceSets.test.output
+  compile 'org.dbunit:dbunit'
+}

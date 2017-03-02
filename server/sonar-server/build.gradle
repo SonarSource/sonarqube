@@ -1,0 +1,74 @@
+sourceSets {
+  test {
+    resources {
+      // TODO filtering
+      srcDirs += ['src/test/projects', 'src/test/filteredresources']
+    }
+  }
+}
+
+dependencies {
+  compile 'org.slf4j:slf4j-api'
+  compile 'org.slf4j:jcl-over-slf4j'
+  compile 'org.slf4j:log4j-over-slf4j'
+  compile 'org.slf4j:jul-to-slf4j'
+  compile 'ch.qos.logback:logback-access'
+  compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
+  compile 'org.apache.tomcat.embed:tomcat-embed-core'
+  compile 'org.apache.tomcat.embed:tomcat-embed-jasper'
+  compile 'com.google.code.gson:gson'
+  compile 'com.h2database:h2'
+  compile project(':sonar-core')
+  compile project(':server:sonar-db-dao')
+  compile project(':server:sonar-db-migration')
+  compile project(':sonar-scanner-protocol')
+  // TODO exclusions
+  compile project(':sonar-markdown')
+  compile project(':server:sonar-process')
+  compile 'org.sonarsource.update-center:sonar-update-center-common'
+  // TODO exclusions
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile 'commons-beanutils:commons-beanutils'
+  compile 'commons-dbutils:commons-dbutils'
+  compile 'org.apache.commons:commons-email'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  compile 'org.picocontainer:picocontainer'
+  compile 'commons-codec:commons-codec'
+  compile 'commons-dbcp:commons-dbcp'
+  compile 'org.elasticsearch:elasticsearch'
+  compile 'org.elasticsearch:elasticsearch:2.4.4:tests'
+  compile 'net.java.dev.jna:jna'
+  compile 'com.google.protobuf:protobuf-java'
+  compile project(':sonar-ws')
+  provided 'com.google.code.findbugs:jsr305'
+  compile project(':server:sonar-plugin-bridge')
+  compile 'io.jsonwebtoken:jjwt'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.assertj:assertj-guava'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'org.hamcrest:hamcrest-all'
+  testCompile project(':server:sonar-db-testing')
+  testCompile 'com.github.tlrx:elasticsearch-test'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'com.github.kevinsawicki:http-request'
+  testCompile project(':server:sonar-search')
+  testCompile 'org.reflections:reflections'
+  testCompile 'org.subethamail:subethasmtp'
+  testCompile 'com.squareup.okhttp3:mockwebserver'
+}
+
+// FIXME
+if (System.env.'APPVEYOR')
+test {
+  exclude 'org/sonar/server/es/request/ProxyCreateIndexRequestBuilderTest.class'
+  exclude 'org/sonar/server/qualityprofile/RuleActivatorMediumTest.class'
+  exclude 'org/sonar/server/qualityprofile/QProfileServiceMediumTest.class'
+  exclude 'org/sonar/server/qualityprofile/ws/ChangeParentActionMediumTest.class'
+  exclude 'org/sonar/server/qualityprofile/ws/InheritanceActionMediumTest.class'
+  exclude 'org/sonar/server/rule/RuleCreatorMediumTest.class'
+  exclude 'org/sonar/server/rule/RuleServiceMediumTest.class'
+}

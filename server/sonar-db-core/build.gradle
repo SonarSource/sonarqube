@@ -1,0 +1,28 @@
+dependencies {
+  provided 'com.google.code.findbugs:jsr305'
+
+  compile 'commons-codec:commons-codec'
+  compile 'org.apache.commons:commons-csv'
+  compile project(':sonar-scanner-protocol')
+  compile project(':sonar-core')
+  compile project(':sonar-plugin-api')
+  compile 'org.mybatis:mybatis'
+  compile 'commons-dbcp:commons-dbcp'
+  compile 'commons-dbutils:commons-dbutils'
+  compile 'net.jpountz.lz4:lz4'
+
+  compile 'org.slf4j:slf4j-api'
+  compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
+  compile project(':server:sonar-process')
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'org.dbunit:dbunit'
+  testCompile project(':sonar-testing-harness')
+
+  testCompile 'mysql:mysql-connector-java'
+  testCompile 'org.postgresql:postgresql'
+  testCompile 'com.h2database:h2'
+}

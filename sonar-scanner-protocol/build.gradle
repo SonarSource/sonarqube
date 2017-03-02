@@ -1,0 +1,14 @@
+dependencies {
+  compile 'net.jpountz.lz4:lz4'
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'com.google.code.gson:gson'
+  provided 'com.google.code.findbugs:jsr305'
+  compile 'commons-io:commons-io'
+  compile project(':sonar-core')
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
+  testCompile 'com.google.guava:guava'
+}

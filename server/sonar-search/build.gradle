@@ -1,0 +1,13 @@
+dependencies {
+  compile project(':server:sonar-process')
+  compile 'org.elasticsearch:elasticsearch'
+  compile 'net.java.dev.jna:jna'
+  provided 'com.google.code.findbugs:jsr305'
+  compile 'org.slf4j:slf4j-api'
+  compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
+
+  testCompile 'com.google.guava:guava'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+}

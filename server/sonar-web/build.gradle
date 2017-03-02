@@ -1,0 +1,20 @@
+apply plugin: 'com.moowork.node'
+apply plugin: 'war'
+
+node {
+  version = '6.9.2'
+  yarnVersion = '0.17.10'
+  download = true
+}
+
+yarn_run {
+  inputs.dir('scripts')
+  inputs.dir('src/main/js')
+  inputs.dir('src/main/less')
+  outputs.dir('src/main/webapp')
+
+  args = ['build-fast']
+  //args = ['build']
+}
+
+war.dependsOn yarn_run

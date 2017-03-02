@@ -1,0 +1,14 @@
+dependencies {
+  compile project(':sonar-core')
+  compile project(':server:sonar-db-core')
+  provided 'com.google.code.findbugs:jsr305'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile project(':sonar-testing-harness')
+  testCompile project(':server:sonar-db-core').sourceSets.test.output
+  testCompile 'org.dbunit:dbunit'
+  testCompile 'com.h2database:h2'
+}

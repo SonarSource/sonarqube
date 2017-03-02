@@ -5,6 +5,11 @@ buildscript {
     }
   }
   dependencies {
+    classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
+    classpath "com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0"
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
+    classpath 'com.moowork.gradle:gradle-node-plugin:1.1.1'
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0'
   }
 }
@@ -15,8 +20,54 @@ def versionSuffix = System.env.'TRAVIS_BUILD_NUMBER' == null
   : ('.0.' + System.env.'TRAVIS_BUILD_NUMBER')
 
 allprojects {
+  apply plugin: 'com.jfrog.artifactory'
+
   group = 'org.sonarsource.sonarqube'
   version = '6.4' + versionSuffix
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+}
+
+subprojects {
+  apply plugin: 'nebula.provided-base'
+
+  // even if it has troubles with dynamic versions ( https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/151 )
+  // in contrast to nebula-dependency-recommender it supports not just versions, but also exclusions
+  apply plugin: 'io.spring.dependency-management'
+  dependencyManagement {
+    imports {
+      mavenBom 'org.sonarsource.sonarqube:sonarqube:6.4' + versionSuffix
+    }
+  }
+
+  apply plugin: 'java'
+  sourceCompatibility = 1.8
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+  }
+
+  def tempDir = file("$buildDir/temp")
+  test.doFirst {
+    // TODO note that due to this any change in this file (even addition of blank line) is considered as modification of input for tests
+    delete tempDir
+    tempDir.mkdirs()
+  }
+  test {
+    systemProperty 'java.io.tmpdir', tempDir
+    maxHeapSize = "512m"
+  }
+
+  apply plugin: 'com.google.protobuf'
+  sourceSets.main.proto.srcDir 'src/main/protobuf'  // in addition to the default 'src/main/proto'
+  sourceSets.test.proto.srcDir 'src/test/protobuf'  // in addition to the default 'src/test/proto'
+  protobuf {
+    protoc {
+      artifact = 'com.google.protobuf:protoc:3.0.0-beta-2'
+    }
+  }
 }
 
 configurations {
@@ -31,7 +82,7 @@ artifacts {
 }
 
 // TODO requires review
-apply plugin: 'com.jfrog.artifactory'
+// TODO get rid of messages "Cannot publish pom"
 artifactory {
   clientConfig.setIncludeEnvVars(true)
   clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*')

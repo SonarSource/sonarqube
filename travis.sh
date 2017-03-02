@@ -152,8 +152,11 @@ BUILD)
 #        -Dsonar.host.url=$SONAR_HOST_URL \
 #        -Dsonar.login=$SONAR_TOKEN
 
+    # install only BOM
+    mvn install --non-recursive
+
     export GRADLE_OPTS="-Xmx512m"
-    ./gradlew artifactory --no-daemon
+    ./gradlew build artifactory --no-daemon
 
   else
     echo 'Build feature branch or external pull request'

@@ -1,0 +1,35 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+  compile 'com.google.guava:guava'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  provided 'com.google.code.findbugs:jsr305'
+  provided project(':sonar-plugin-api')
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+}
+
+jar {
+  classifier = 'original'
+}
+shadowJar {
+  configurations = [project.configurations.default]
+  // location and name is important for integration tests
+  destinationDir = file('target')
+  classifier = null
+  manifest {
+    attributes(
+      'Plugin-Key': 'xoo',
+      'Plugin-Version': project.version,
+      'Plugin-Class': 'org.sonar.xoo.XooPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': project.version,
+      'SonarLint-Supported': 'true',
+      'Plugin-Name': 'Xoo'
+    )
+  }
+}
+build.dependsOn 'shadowJar'

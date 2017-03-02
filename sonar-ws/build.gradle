@@ -1,0 +1,18 @@
+apply plugin: 'maven'
+
+dependencies {
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'com.google.guava:guava'
+  compile 'com.squareup.okhttp3:okhttp'
+  provided 'com.google.code.findbugs:jsr305'
+  compile 'commons-io:commons-io'
+  // TODO optional
+  provided project(path: ':sonar-plugin-api', configuration: 'shadow')
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':sonar-testing-harness')
+  testCompile 'com.squareup.okhttp3:mockwebserver'
+  testCompile 'commons-lang:commons-lang'
+}

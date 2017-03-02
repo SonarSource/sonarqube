@@ -1,0 +1,20 @@
+dependencies {
+  compile 'ch.qos.logback:logback-classic'
+  compile 'commons-codec:commons-codec'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  provided 'com.google.code.findbugs:jsr305'
+  // TODO optional
+  compileOnly 'org.nanohttpd:nanohttpd'
+  // TODO optional
+  compileOnly 'com.google.protobuf:protobuf-java'
+  testCompile 'com.google.protobuf:protobuf-java'
+
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile project(':sonar-testing-harness')
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'com.google.guava:guava'
+  testCompile 'org.eclipse.jetty:jetty-server'
+  testCompile 'com.squareup.okhttp3:okhttp'
+}

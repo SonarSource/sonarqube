@@ -1,0 +1,35 @@
+configurations {
+  includeInResources
+}
+
+dependencies {
+  provided 'com.google.code.findbugs:jsr305'
+  compile 'commons-codec:commons-codec'
+  compile 'org.picocontainer:picocontainer'
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'org.codehaus.sonar:sonar-classloader'
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile 'org.sonarsource.update-center:sonar-update-center-common'
+  compile 'org.slf4j:slf4j-api'
+  compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
+  compile 'org.slf4j:jcl-over-slf4j'
+  compile 'org.slf4j:log4j-over-slf4j'
+
+  includeInResources project(path: ':sonar-plugin-api-deps', configuration: 'shadow')
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':sonar-testing-harness')
+  testCompile 'org.simpleframework:simple:4.1.21'
+}
+
+processResources {
+  into('/') {
+    from configurations.includeInResources
+    // TODO cache not invalidated when pattern changes?
+    rename '(.*)-' + project.version + '-all.jar', '$1.jar'
+  }
+}

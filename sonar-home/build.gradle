@@ -1,0 +1,9 @@
+dependencies {
+  provided 'com.google.code.findbugs:jsr305'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'commons-io:commons-io'
+  testCompile 'commons-codec:commons-codec'
+}

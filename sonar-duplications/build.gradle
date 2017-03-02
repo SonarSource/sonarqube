@@ -1,0 +1,17 @@
+apply plugin: 'maven'
+
+dependencies {
+  compile 'org.codehaus.sonar:sonar-channel'
+  compile 'com.google.guava:guava'
+
+  provided 'com.google.code.findbugs:jsr305'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.hamcrest:hamcrest-all'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'commons-io:commons-io'
+  // TODO exclusions
+  testCompile 'pmd:pmd:4.3'
+  testCompile 'ch.qos.logback:logback-classic'
+}

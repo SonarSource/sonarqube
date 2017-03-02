@@ -1,0 +1,107 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'maven'
+
+configurations {
+  search {
+    transitive = false
+  }
+  ce {
+    transitive = false
+  }
+  scanner
+  webapp
+  jdbc
+  plugin {
+    transitive = false
+  }
+  wrapper
+}
+
+dependencies {
+  compile project(':server:sonar-process')
+  compile project(':server:sonar-process-monitor')
+
+  compile 'com.hazelcast:hazelcast'
+  // TODO all below are provided
+//  compile 'com.google.code.findbugs:jsr305'
+  compile 'org.elasticsearch:elasticsearch'
+  compileOnly project(':server:sonar-server') // needed for compilation, others for packaging
+  compile 'net.java.dev.jna:jna' // TOOD not in pom
+  search project(':server:sonar-search')
+  ce 'org.nanohttpd:nanohttpd' // TODO not in pom
+  ce project(':server:sonar-ce')
+
+  scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
+
+  webapp project(path: ':server:sonar-web', configuration: 'archives')
+
+  jdbc 'com.h2database:h2'
+
+  plugin 'org.sonarsource.java:sonar-java-plugin'
+  plugin 'org.sonarsource.javascript:sonar-javascript-plugin'
+  plugin 'org.sonarsource.dotnet:sonar-csharp-plugin'
+  plugin 'org.sonarsource.scm.git:sonar-scm-git-plugin'
+  plugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin'
+  plugin 'org.sonarsource.php:sonar-php-plugin'
+  plugin 'org.sonarsource.python:sonar-python-plugin'
+  plugin 'org.sonarsource.flex:sonar-flex-plugin'
+
+  wrapper 'tanukisoft:wrapper:3.2.3'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+}
+
+shadowJar {
+  manifest {
+    attributes 'Main-Class': 'org.sonar.application.App'
+  }
+}
+
+task zip(type: Zip) {
+  into('sonarqube/') {
+    from file('src/main/assembly')
+  }
+  into('sonarqube/lib/') {
+    from shadowJar
+  }
+  into('sonarqube/lib/jsw/') {
+    from configurations.wrapper
+  }
+  into('sonarqube/lib/bundled-plugins/') {
+    from configurations.plugin
+  }
+  into('sonarqube/lib/common/') {
+    from configurations.compile
+  }
+  into('sonarqube/lib/server/') {
+    from configurations.compileOnly - configurations.compile
+  }
+  into('sonarqube/lib/search/') {
+    from configurations.search
+  }
+  into('sonarqube/lib/ce/') {
+    from configurations.ce
+  }
+  into('sonarqube/lib/scanner/') {
+    from configurations.scanner
+  }
+  dependsOn configurations.webapp
+  into('sonarqube/web/') {
+    from {
+      configurations.webapp.files.collect { zipTree(it) }
+    }
+  }
+  into('sonarqube/lib/jdbc/h2/') {
+    from configurations.jdbc
+  }
+}
+
+artifacts {
+  archives zip
+}
+
+install.repositories.mavenInstaller.pom.whenConfigured {pom ->
+  pom.dependencies = []
+}

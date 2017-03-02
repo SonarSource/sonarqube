@@ -1,0 +1,12 @@
+dependencies {
+  compile project(':server:sonar-server')
+  compile 'org.nanohttpd:nanohttpd'
+  compile 'com.google.protobuf:protobuf-java'
+  provided 'com.google.code.findbugs:jsr305'
+
+  testCompile 'junit:junit'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':server:sonar-db-testing')
+}

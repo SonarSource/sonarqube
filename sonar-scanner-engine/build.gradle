@@ -1,0 +1,45 @@
+// TODO otherwise not considered as up-to-date - 'gradle -i' shows
+//   file sonar-scanner-engine/src/test/resources/mediumtest/xoo/multi-modules-sample/.sonar/batch-report/metadata.pb has changed
+//   file sonar-scanner-engine/src/test/resources/mediumtest/xoo/sample-generic-coverage/.sonar/batch-report/metadata.pb has changed
+//   file sonar-scanner-engine/src/test/resources/mediumtest/xoo/sample-generic-test-exec/.sonar/batch-report/metadata.pb has changed
+sourceSets.test.resources {
+  exclude '**/.sonar/**'
+}
+
+dependencies {
+  compile 'commons-beanutils:commons-beanutils'
+  provided 'com.google.code.findbugs:jsr305'
+  compile 'org.sonarsource:sonar-persistit'
+  compile 'com.google.guava:guava'
+  compile project(':sonar-core')
+  compile project(':sonar-scanner-protocol')
+  compile project(':sonar-ws')
+  compile project(':sonar-home')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile 'org.slf4j:slf4j-api'
+  compile 'org.slf4j:jcl-over-slf4j'
+  compile 'org.slf4j:log4j-over-slf4j'
+  compile 'org.slf4j:jul-to-slf4j'
+  compile 'commons-lang:commons-lang'
+  compile 'commons-codec:commons-codec'
+  compile 'com.google.code.gson:gson'
+  compile 'org.freemarker:freemarker'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'org.hamcrest:hamcrest-all'
+  testCompile project(':sonar-plugin-api').sourceSets.test.output
+  testCompile 'org.eclipse.jetty:jetty-server'
+  testCompile 'javax.servlet:javax.servlet-api'
+  // TODO how it is used?
+  testCompile project(':plugins:sonar-xoo-plugin')
+}
+
+// FIXME
+if (System.env.'APPVEYOR')
+test {
+  exclude 'org/sonar/scanner/mediumtest/fs/FileSystemMediumTest.class'
+  exclude 'org/sonar/scanner/scan/filesystem/InputFileBuilderTest.class'
+}
