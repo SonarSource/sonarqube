@@ -10,7 +10,12 @@ configurations {
   }
   scanner
   webapp
-  jdbc
+  jdbc_mssql {
+    transitive = false
+  }
+  jdbc_mysql
+  jdbc_postgresql
+  jdbc_h2
   plugin {
     transitive = false
   }
@@ -35,7 +40,10 @@ dependencies {
 
   webapp project(path: ':server:sonar-web', configuration: 'archives')
 
-  jdbc 'com.h2database:h2'
+  jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
+  jdbc_mysql 'mysql:mysql-connector-java'
+  jdbc_postgresql 'org.postgresql:postgresql'
+  jdbc_h2 'com.h2database:h2'
 
   plugin 'org.sonarsource.java:sonar-java-plugin'
   plugin 'org.sonarsource.javascript:sonar-javascript-plugin'
@@ -93,8 +101,17 @@ task zip(type: Zip) {
       configurations.webapp.files.collect { zipTree(it) }
     }
   }
+  into('sonarqube/lib/jdbc/mssql/') {
+    from configurations.jdbc_mssql
+  }
+  into('sonarqube/lib/jdbc/mysql/') {
+    from configurations.jdbc_mysql
+  }
+  into('sonarqube/lib/jdbc/postgresql/') {
+    from configurations.jdbc_postgresql
+  }
   into('sonarqube/lib/jdbc/h2/') {
-    from configurations.jdbc
+    from configurations.jdbc_h2
   }
 }
 
