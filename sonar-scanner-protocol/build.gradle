@@ -1,3 +1,5 @@
+apply plugin: 'maven'
+
 dependencies {
   compile 'net.jpountz.lz4:lz4'
   compile 'com.google.protobuf:protobuf-java'

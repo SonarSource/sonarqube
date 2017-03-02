@@ -1,3 +1,5 @@
+apply plugin: 'maven'
+
 configurations {
   includeInResources
 }
