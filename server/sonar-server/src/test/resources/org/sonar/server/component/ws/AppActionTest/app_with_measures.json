@@ -10,7 +10,7 @@
   "project": "org.sonarsource.sonarqube:sonarqube",
   "projectName": "SonarQube",
   "fav": false,
-  "canMarkAsFavourite": true,
+  "canMarkAsFavorite": true,
   "measures": {
     "lines": "200.0",
     "coverage": "95.4",

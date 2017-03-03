@@ -10,6 +10,6 @@
   "project": "org.sonarsource.sonarqube:sonarqube",
   "projectName": "SonarQube",
   "fav": false,
-  "canMarkAsFavourite": true,
+  "canMarkAsFavorite": true,
   "measures": {}
 }

@@ -140,3 +140,26 @@ export function bulkChangeKey (project: string, from: string, to: string, dryRun
 export const getSuggestions = (query: string): Promise<Object> => (
     getJSON('/api/components/suggestions', { s: query })
 );
+
+export const getComponentForSourceViewer = (component: string): Promise<*> => (
+  getJSON('/api/components/app', { component })
+);
+
+export const getSources = (component: string, from?: number, to?: number): Promise<Array<*>> => {
+  const data: Object = { key: component };
+  if (from) {
+    Object.assign(data, { from });
+  }
+  if (to) {
+    Object.assign(data, { to });
+  }
+  return getJSON('/api/sources/lines', data).then(r => r.sources);
+};
+
+export const getDuplications = (component: string): Promise<*> => (
+  getJSON('/api/duplications/show', { key: component })
+);
+
+export const getTests = (component: string, line: number | string): Promise<*> => (
+  getJSON('/api/tests/list', { sourceFileKey: component, sourceFileLineNumber: line }).then(r => r.tests)
+);
