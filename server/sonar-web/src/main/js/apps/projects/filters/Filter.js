@@ -20,6 +20,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
+import { getFilterUrl } from './utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
@@ -37,9 +38,7 @@ export default class Filter extends React.Component {
 
     getFacetValueForOption: React.PropTypes.func,
 
-    halfWidth: React.PropTypes.bool,
-
-    getFilterUrl: React.PropTypes.func.isRequired
+    halfWidth: React.PropTypes.bool
   };
 
   static defaultProps = {
@@ -64,7 +63,7 @@ export default class Filter extends React.Component {
     } else {
       urlOption = this.isSelected(option) ? null : option;
     }
-    return this.props.getFilterUrl({ [property]: urlOption });
+    return getFilterUrl(this.props, { [property]: urlOption });
   }
 
   renderHeader () {
