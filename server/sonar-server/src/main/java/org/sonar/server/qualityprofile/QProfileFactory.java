@@ -56,7 +56,7 @@ public class QProfileFactory {
 
   QualityProfileDto getOrCreate(DbSession dbSession, String organizationUuid, QProfileName name) {
     Preconditions.checkArgument(StringUtils.isNotEmpty(organizationUuid), "Organization is required, when creating a quality profile.");
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
+    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organizationUuid, name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
       profile = doCreate(dbSession, organizationUuid, name);
     }
@@ -65,7 +65,7 @@ public class QProfileFactory {
 
   public QualityProfileDto create(DbSession dbSession, String organizationUuid, QProfileName name) {
     Preconditions.checkArgument(StringUtils.isNotEmpty(organizationUuid), "Organization is required, when creating a quality profile.");
-    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
+    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organizationUuid, name.getName(), name.getLanguage(), dbSession);
     checkRequest(dto == null, "Quality profile already exists: %s", name);
     return doCreate(dbSession, organizationUuid, name);
   }
