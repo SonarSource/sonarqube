@@ -71,8 +71,15 @@
 
 .issue-location-message {
   padding: 0 10px;
+  border: none;
+  color: #444 !important;
   font-size: 12px;
   white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.issue-location-message:hover {
+  background-color: #f4b1b0;
 }
 
 .issue-location-message.selected {

@@ -147,6 +147,11 @@ export default class SourceViewerIssueLocations extends React.Component {
     }
   }
 
+  handleLocationClick (flowIndex: number, locationIndex: number, e: SyntheticInputEvent) {
+    e.preventDefault();
+    this.props.onSelectLocation(flowIndex, locationIndex);
+  }
+
   renderLocation = (
     location: FlowLocation,
     flowIndex: number,
@@ -165,13 +170,15 @@ export default class SourceViewerIssueLocations extends React.Component {
           <code className="source-issue-locations-line">L{line}</code>
         )}
 
-        <span className={classNames('issue-location-message', {
+        <a className={classNames('issue-location-message', {
           // note that locations order is reversed
           'selected': this.isLocationSelected(flowIndex, locations.length - locationIndex - 1)
-        })}>
+        })}
+          href="#"
+          onClick={this.handleLocationClick.bind(this, flowIndex, locations.length - locationIndex - 1)}>
           {displayIndex && <strong>{locationIndex + 1}: </strong>}
           {location.msg}
-        </span>
+        </a>
       </li>
     );
   };

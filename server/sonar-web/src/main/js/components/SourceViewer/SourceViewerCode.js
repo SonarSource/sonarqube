@@ -65,6 +65,7 @@ export default class SourceViewerCode extends React.Component {
     onIssueUnselect: () => void,
     onLineClick: (number, HTMLElement) => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
+    onSelectLocation: (flowIndex: number, locationIndex: number) => void,
     onSymbolClick: (string) => void,
     selectedIssue: string | null,
     selectedIssueLocation: IndexedIssueLocation | null,
@@ -156,6 +157,7 @@ export default class SourceViewerCode extends React.Component {
         onIssueSelect={this.props.onIssueSelect}
         onIssueUnselect={this.props.onIssueUnselect}
         onSCMClick={this.props.onSCMClick}
+        onSelectLocation={this.props.onSelectLocation}
         onSymbolClick={this.props.onSymbolClick}
         secondaryIssueLocations={secondaryIssueLocations}
         secondaryIssueLocationMessages={secondaryIssueLocationMessages}

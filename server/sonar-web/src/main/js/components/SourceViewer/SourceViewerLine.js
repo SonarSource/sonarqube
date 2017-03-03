@@ -50,6 +50,7 @@ type Props = {
   onIssueSelect: (string) => void,
   onIssueUnselect: () => void,
   onSCMClick: (SourceLine, HTMLElement) => void,
+  onSelectLocation: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: (string) => void,
   selectedIssue: string | null,
   secondaryIssueLocations: Array<IndexedIssueLocation>,
@@ -278,6 +279,11 @@ export default class SourceViewerLine extends React.PureComponent {
     }
   }
 
+  handleLocationMessageClick (flowIndex: number, locationIndex: number, e: SyntheticInputEvent) {
+    e.preventDefault();
+    this.props.onSelectLocation(flowIndex, locationIndex);
+  }
+
   renderSecondaryIssueLocationMessage = (location: IndexedIssueLocationMessage) => {
     const className = classNames('source-viewer-issue-location', 'issue-location-message', {
       'selected': this.isSecondaryIssueLocationSelected(location)
@@ -288,15 +294,17 @@ export default class SourceViewerLine extends React.PureComponent {
     );
 
     return (
-      <div
+      <a
         key={`${location.flowIndex}-${location.locationIndex}`}
+        href="#"
         className={className}
-        title={location.msg}>
+        title={location.msg}
+        onClick={e => this.handleLocationMessageClick(location.flowIndex, location.locationIndex, e)}>
         {location.index && (
           <strong>{location.index}: </strong>
         )}
         {limitString(location.msg)}
-      </div>
+      </a>
     );
   };
 

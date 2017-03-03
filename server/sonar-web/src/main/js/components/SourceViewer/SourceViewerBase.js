@@ -483,6 +483,7 @@ export default class SourceViewerBase extends React.Component {
           onIssueUnselect={this.props.onIssueUnselect}
           onLineClick={this.handleLineClick}
           onSCMClick={this.handleSCMClick}
+          onSelectLocation={this.handleSelectIssueLocation}
           onSymbolClick={this.handleSymbolClick}
           selectedIssue={this.props.selectedIssue}
           selectedIssueLocation={this.state.selectedIssueLocation}
