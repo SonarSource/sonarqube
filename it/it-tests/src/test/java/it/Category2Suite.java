@@ -36,6 +36,7 @@ import it.issue.IssuePurgeTest;
 import it.issue.IssueSearchTest;
 import it.issue.IssueTrackingTest;
 import it.issue.IssueWorkflowTest;
+import it.issue.IssuesPageTest;
 import it.issue.NewIssuesMeasureTest;
 import it.qualityModel.MaintainabilityMeasureTest;
 import it.qualityModel.MaintainabilityRatingMeasureTest;
@@ -92,7 +93,9 @@ import static util.ItUtils.xooPlugin;
   SecurityMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,
   TechnicalDebtMeasureVariationTest.class,
-  TechnicalDebtTest.class
+  TechnicalDebtTest.class,
+  // ui
+  IssuesPageTest.class
 })
 public class Category2Suite {
 
