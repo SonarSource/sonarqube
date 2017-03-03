@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import sortBy from 'lodash/sortBy';
 import FilterContainer from './FilterContainer';
 import LanguageFilterOption from './LanguageFilterOption';
 
@@ -35,20 +36,7 @@ export default class LanguageFilter extends React.Component {
   };
 
   getSortedOptions (facet) {
-    return Object.keys(facet).sort((left, right) => {
-      if (facet[left] !== facet[right]) {
-        return facet[right] - facet[left];
-      }
-      if (left !== right) {
-        if (left > right) {
-          return 1;
-        }
-        if (left < right) {
-          return -1;
-        }
-      }
-      return 0;
-    });
+    return sortBy(Object.keys(facet), [option => -facet[option]]);
   }
 
   getFacetValueForOption = (facet, option) => facet[option];
