@@ -42,7 +42,6 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 import org.sonar.scanner.sensor.SensorOptimizer;
-import org.sonar.scanner.sensor.SensorWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -319,27 +318,22 @@ public class ScannerExtensionDictionnaryTest {
   }
 
   @Test
-  public void querySensors() {
-    BatchExtension pre = new PreSensorSubclass();
-    BatchExtension analyze = new GeneratesSomething("something");
-    BatchExtension post = new PostSensorSubclass();
+  public void selectSensors() {
+    FakeSensor oldSensor = new FakeSensor();
+    FakeNewSensor nonGlobalSensor = new FakeNewSensor();
+    FakeNewGlobalSensor globalSensor = new FakeNewGlobalSensor();
+    ScannerExtensionDictionnary selector = newSelector(oldSensor, nonGlobalSensor, globalSensor);
 
-    FakeSensor fakeSensor = new FakeSensor();
-    FakeNewSensor fakeNewSensor = new FakeNewSensor();
-    FakeNewGlobalSensor fakeNewGlobalSensor = new FakeNewGlobalSensor();
-    ScannerExtensionDictionnary selector = newSelector(fakeSensor, fakeNewSensor, fakeNewGlobalSensor);
-    List extensions = Lists.newArrayList(selector.selectSensors(null, false));
-
+    // verify non-global sensors
+    Collection<Sensor> extensions = selector.selectSensors(null, false);
     assertThat(extensions).hasSize(2);
-    assertThat(extensions).contains(fakeSensor);
-    extensions.remove(fakeSensor);
-    assertThat(extensions.get(0)).isInstanceOf(SensorWrapper.class);
-    assertThat(((SensorWrapper) extensions.get(0)).wrappedSensor()).isEqualTo(fakeNewSensor);
+    assertThat(extensions).contains(oldSensor);
+    extensions.remove(oldSensor);
+    assertThat(extensions).extracting("wrappedSensor").containsExactly(nonGlobalSensor);
 
-    extensions = Lists.newArrayList(selector.selectSensors(null, true));
-
-    assertThat(extensions.get(0)).isInstanceOf(SensorWrapper.class);
-    assertThat(((SensorWrapper) extensions.get(0)).wrappedSensor()).isEqualTo(fakeNewGlobalSensor);
+    // verify global sensors
+    extensions = selector.selectSensors(null, true);
+    assertThat(extensions).extracting("wrappedSensor").containsExactly(globalSensor);
   }
 
   class FakeSensor implements Sensor {
