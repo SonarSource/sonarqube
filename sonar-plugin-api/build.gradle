@@ -2,18 +2,21 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'maven'
 
 dependencies {
-  // TODO relocated
+  // relocated
   compile 'com.google.code.gson:gson'
   compile 'com.google.guava:guava'
   compile 'commons-codec:commons-codec'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
 
+  // shaded, but not relocated
   compile project(':sonar-check-api')
   // TODO exclusions
   compile project(':sonar-colorizer')
   // TODO exclusions
   compile project(':sonar-duplications')
+
+  // TODO not shaded
   // TODO exclusions
   compile 'org.codehaus.woodstox:woodstox-core-lgpl'
   compile 'org.codehaus.woodstox:stax2-api'
@@ -58,4 +61,10 @@ shadowJar {
 
 artifacts {
   archives file: shadowJar.archivePath, builtBy: shadowJar
+}
+
+install.repositories.mavenInstaller.pom.whenConfigured { pom ->
+  pom.dependencies = pom.dependencies.findAll { dep ->
+    dep.groupId =~ 'org.codehaus.*'
+  }
 }
