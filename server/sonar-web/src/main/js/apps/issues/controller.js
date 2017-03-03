@@ -44,7 +44,14 @@ export default Controller.extend({
       this.options.app.state.set({ selectedIndex: 0, page: 1 }, { silent: true });
       this.closeComponentViewer();
     }
-    const data = this.getQueryAsObject();
+    const data = this._issuesParameters();
+    Object.assign(data, this.options.app.state.get('query'));
+    if (this.options.app.state.get('query').assigned_to_me) {
+      Object.assign(data, { assignees: '__me__' });
+    }
+    if (this.options.app.state.get('isContext')) {
+      Object.assign(data, this.options.app.state.get('contextQuery'));
+    }
     return $.get(window.baseUrl + '/api/issues/search', data).done(r => {
       const issues = that.options.app.list.parseIssues(r);
       if (firstPage) {
