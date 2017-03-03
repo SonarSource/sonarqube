@@ -23,7 +23,7 @@ import LanguageFilterOption from './LanguageFilterOption';
 
 export default class LanguageFilter extends React.Component {
   static propTypes = {
-    query: React.PropTypes.string.isRequired,
+    query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
     organization: React.PropTypes.object
   }
@@ -34,13 +34,30 @@ export default class LanguageFilter extends React.Component {
     );
   };
 
+  getSortedOptions (facet) {
+    return Object.keys(facet).sort((left, right) => {
+      if (facet[left] !== facet[right]) {
+        return facet[right] - facet[left];
+      }
+      if (left !== right) {
+        if (left > right) {
+          return 1;
+        }
+        if (left < right) {
+          return -1;
+        }
+      }
+      return 0;
+    });
+  }
+
   getFacetValueForOption = (facet, option) => facet[option];
 
   render () {
     return (
       <FilterContainer
           property="language"
-          getOptions={facet => facet ? Object.keys(facet) : []}
+          getOptions={facet => facet ? this.getSortedOptions(facet) : []}
           renderName={() => 'Languages'}
           renderOption={this.renderOption}
           getFacetValueForOption={this.getFacetValueForOption}
