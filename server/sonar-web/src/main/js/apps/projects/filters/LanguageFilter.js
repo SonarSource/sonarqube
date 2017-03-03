@@ -19,12 +19,12 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
-import Level from '../../../components/ui/Level';
+import LanguageFilterOption from './LanguageFilterOption';
 
-export default class QualityGateFilter extends React.Component {
-  renderOption = (option, selected) => {
+export default class LanguageFilter extends React.Component {
+  renderOption = option => {
     return (
-        <Level level={option} small={true} muted={!selected}/>
+      <LanguageFilterOption languageKey={option}/>
     );
   };
 
@@ -35,9 +35,9 @@ export default class QualityGateFilter extends React.Component {
   render () {
     return (
         <FilterContainer
-            property="gate"
-            getOptions={() => ['OK', 'WARN', 'ERROR']}
-            renderName={() => 'Quality Gate'}
+            property="language"
+            getOptions={facet => facet ? Object.keys(facet) : []}
+            renderName={() => 'Languages'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}
