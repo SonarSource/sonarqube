@@ -20,6 +20,8 @@
 package org.sonar.server.ws;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
@@ -33,16 +35,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
-import org.sonar.server.exceptions.Message;
 import org.sonarqube.ws.MediaTypes;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -287,13 +283,15 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void render_real_exception_when_failing_to_write_json_errors() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_to_write_errors");
+  public void does_not_fail_to_render_error_message_having_percent() {
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/error_message_having_percent");
     DumbResponse response = new DumbResponse();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("error writing json");
     underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"this should not fail %s\"}]}");
+    assertThat(response.stream().status()).isEqualTo(400);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
@@ -347,24 +345,20 @@ public class WebServiceEngineTest {
         });
       createNewDefaultAction(newController, "fail_bad_request")
         .setHandler((request, response) -> {
-          throw new BadRequestException("Bad request !");
+          throw BadRequestException.create("Bad request !");
         });
       createNewDefaultAction(newController, "fail_with_multiple_messages")
         .createParam("count", "Number of error messages to generate")
         .setHandler((request, response) -> {
-          Errors errors = new Errors();
+          List<String> errors = new ArrayList<>();
           for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
-            errors.add(Message.of("Bad request reason #" + count));
+            errors.add("Bad request reason #" + count);
           }
           throw BadRequestException.create(errors);
         });
-      createNewDefaultAction(newController, "fail_to_write_errors")
+      createNewDefaultAction(newController, "error_message_having_percent")
         .setHandler((request, response) -> {
-          Errors errors = mock(Errors.class);
-          when(errors.messages()).thenReturn(singletonList(Message.of("invalid argument")));
-          // Try to simulate an error when generating JSON errors
-          doThrow(new IllegalArgumentException("error writing json")).when(errors).writeJson(any(JsonWriter.class));
-          throw BadRequestException.create(errors);
+          throw new IllegalArgumentException("this should not fail %s");
         });
       createNewDefaultAction(newController, "alive")
         .setHandler((request, response) -> response.noContent());

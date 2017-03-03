@@ -19,23 +19,25 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.Collections;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.core.component.ComponentKeys;
 
 public class SourceHashHolder {
 
+  private final DefaultInputModule module;
+  private final DefaultInputFile inputFile;
   private final ServerLineHashesLoader lastSnapshots;
 
   private FileHashes hashedReference;
   private FileHashes hashedSource;
-  private DefaultInputFile inputFile;
 
-  public SourceHashHolder(DefaultInputFile inputFile, ServerLineHashesLoader lastSnapshots) {
+  public SourceHashHolder(DefaultInputModule module, DefaultInputFile inputFile, ServerLineHashesLoader lastSnapshots) {
+    this.module = module;
     this.inputFile = inputFile;
     this.lastSnapshots = lastSnapshots;
   }
@@ -49,7 +51,9 @@ public class SourceHashHolder {
       } else if (status == Status.SAME) {
         hashedReference = hashedSource;
       } else {
-        String[] lineHashes = lastSnapshots.getLineHashes(inputFile.key());
+        // Need key with branch
+        String serverSideKey = ComponentKeys.createEffectiveKey(module.definition().getKeyWithBranch(), inputFile);
+        String[] lineHashes = lastSnapshots.getLineHashes(serverSideKey);
         hashedReference = lineHashes != null ? FileHashes.create(lineHashes) : null;
       }
     }

@@ -148,7 +148,7 @@ public class ComponentTreeSort {
       return numericalMetricPeriodOrdering(wsRequest, metric, measuresByComponentUuidAndMetric);
     }
 
-    throw new BadRequestException(format("Impossible to sort metric '%s' by measure period.", metric.getKey()));
+    throw BadRequestException.create(format("Impossible to sort metric '%s' by measure period.", metric.getKey()));
   }
 
   private static Ordering<ComponentDto> numericalMetricOrdering(boolean isAscending, @Nullable MetricDto metric,

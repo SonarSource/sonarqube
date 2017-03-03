@@ -38,7 +38,7 @@ public class IntegerTypeValidation implements TypeValidation {
     try {
       Integer.parseInt(value);
     } catch (NumberFormatException e) {
-      throw new BadRequestException(format("Value '%s' must be an integer.", value));
+      throw BadRequestException.create(format("Value '%s' must be an integer.", value));
     }
   }
 

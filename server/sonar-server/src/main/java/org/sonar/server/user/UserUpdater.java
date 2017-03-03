@@ -41,7 +41,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
@@ -54,6 +53,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.sonar.db.user.UserDto.encryptPassword;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 public class UserUpdater {
@@ -171,9 +171,7 @@ public class UserUpdater {
 
     setExternalIdentity(userDto, newUser.externalIdentity());
 
-    if (!messages.isEmpty()) {
-      throw BadRequestException.create(messages);
-    }
+    checkRequest(messages.isEmpty(), messages);
     return userDto;
   }
 
@@ -184,9 +182,7 @@ public class UserUpdater {
     changed |= updateExternalIdentity(updateUser, userDto);
     changed |= updatePassword(updateUser, userDto, messages);
     changed |= updateScmAccounts(dbSession, updateUser, userDto, messages);
-    if (!messages.isEmpty()) {
-      throw BadRequestException.create(messages);
-    }
+    checkRequest(messages.isEmpty(), messages);
     return changed;
   }
 

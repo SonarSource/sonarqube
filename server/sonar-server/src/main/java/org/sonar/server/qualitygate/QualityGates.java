@@ -20,7 +20,9 @@
 package org.sonar.server.qualitygate;
 
 import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -37,14 +39,14 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
+import static java.lang.String.format;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Methods from this class should be moved to {@link QualityGateUpdater} and to new classes QualityGateFinder / QualityGateConditionsUpdater / etc.
@@ -229,21 +231,21 @@ public class QualityGates {
   }
 
   private void validateQualityGate(DbSession dbSession, @Nullable Long updatingQgateId, @Nullable String name) {
-    Errors errors = new Errors();
+    List<String> errors = new ArrayList<>();
     if (Strings.isNullOrEmpty(name)) {
-      errors.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
+      errors.add(format(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
       checkQgateNotAlreadyExists(dbSession, updatingQgateId, name, errors);
     }
-    if (!errors.isEmpty()) {
-      throw BadRequestException.create(errors);
-    }
+    checkRequest(errors.isEmpty(), errors);
   }
 
-  private void checkQgateNotAlreadyExists(DbSession dbSession, @Nullable Long updatingQgateId, String name, Errors errors) {
+  private void checkQgateNotAlreadyExists(DbSession dbSession, @Nullable Long updatingQgateId, String name, List<String> errors) {
     QualityGateDto existingQgate = dao.selectByName(dbSession, name);
     boolean isModifyingCurrentQgate = updatingQgateId != null && existingQgate != null && existingQgate.getId().equals(updatingQgateId);
-    errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
+    if (!isModifyingCurrentQgate && existingQgate != null) {
+      errors.add(format(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
+    }
   }
 
   private void checkIsSystemAdministrator() {

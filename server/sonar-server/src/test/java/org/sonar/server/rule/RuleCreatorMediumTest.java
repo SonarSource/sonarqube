@@ -342,7 +342,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.invalid_rule_key");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The rule key \"*INVALID*\" is invalid, it should only contain: a-z, 0-9, \"_\"");
     }
   }
 
@@ -390,7 +390,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_name");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The name is missing");
     }
   }
 
@@ -409,7 +409,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_description");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The description is missing");
     }
   }
 
@@ -428,7 +428,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_severity");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The severity is missing");
     }
   }
 
@@ -448,7 +448,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.invalid_severity");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Severity \"INVALID\" is invalid");
     }
   }
 
@@ -467,7 +467,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_status");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The status is missing");
     }
   }
 

@@ -23,9 +23,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
-import org.sonar.server.exceptions.BadRequestException;
 
-import static java.lang.String.format;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class StringListTypeValidation implements TypeValidation {
 
@@ -36,10 +35,7 @@ public class StringListTypeValidation implements TypeValidation {
 
   @Override
   public void validate(String value, @Nullable List<String> options) {
-    if (options != null && !options.contains(value)) {
-      String optionsAsString = StringUtils.join(options, ", ");
-      throw new BadRequestException(format("Value '%s' must be one of : %s.", value, optionsAsString));
-    }
+    checkRequest(options == null || options.contains(value), "Value '%s' must be one of : %s.", value, StringUtils.join(options, ", "));
   }
 
 }

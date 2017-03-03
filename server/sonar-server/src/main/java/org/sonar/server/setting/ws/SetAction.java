@@ -288,7 +288,7 @@ public class SetAction implements SettingsWsAction {
     try {
       return gson.fromJson(json, type);
     } catch (JsonSyntaxException e) {
-      throw new BadRequestException(String.format("JSON '%s' does not respect expected format for setting '%s'. Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}", json, key));
+      throw BadRequestException.create(String.format("JSON '%s' does not respect expected format for setting '%s'. Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}", json, key));
     }
   }
 

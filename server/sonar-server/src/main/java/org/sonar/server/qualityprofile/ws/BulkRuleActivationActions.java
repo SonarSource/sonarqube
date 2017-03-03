@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.List;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
@@ -107,7 +108,20 @@ public class BulkRuleActivationActions {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());
     json.prop("failed", result.countFailed());
-    result.getErrors().writeJson(json);
+    writeErrors(json, result.getErrors());
     json.endObject().close();
+  }
+
+  private static void writeErrors(JsonWriter json, List<String> errorMessages) {
+    if (errorMessages.isEmpty()) {
+      return;
+    }
+    json.name("errors").beginArray();
+    errorMessages.forEach(message -> {
+      json.beginObject();
+      json.prop("msg", message);
+      json.endObject();
+    });
+    json.endArray();
   }
 }

@@ -34,7 +34,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -49,6 +48,7 @@ import static org.apache.commons.io.FileUtils.toFile;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Downloads plugins from update center. Files are copied in the directory extensions/downloads and then
@@ -124,10 +124,7 @@ public class PluginDownloader implements Startable {
     Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
     if (updateCenter.isPresent()) {
       List<Release> installablePlugins = updateCenter.get().findInstallablePlugins(pluginKey, version);
-      if (installablePlugins.isEmpty()) {
-        throw new BadRequestException(String.format("Error while downloading plugin '%s' with version '%s'. No compatible plugin found.", pluginKey,
-          version.getName()));
-      }
+      checkRequest(!installablePlugins.isEmpty(), "Error while downloading plugin '%s' with version '%s'. No compatible plugin found.", pluginKey, version.getName());
       for (Release release : installablePlugins) {
         try {
           downloadRelease(release);

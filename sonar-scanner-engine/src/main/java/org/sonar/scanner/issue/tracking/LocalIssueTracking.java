@@ -21,7 +21,6 @@ package org.sonar.scanner.issue.tracking;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +36,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -164,8 +164,9 @@ public class LocalIssueTracking {
   private SourceHashHolder loadSourceHashes(InputComponent component) {
     SourceHashHolder sourceHashHolder = null;
     if (component.isFile()) {
+      DefaultInputModule module = (DefaultInputModule) componentTree.getParent(componentTree.getParent(component));
       DefaultInputFile file = (DefaultInputFile) component;
-      sourceHashHolder = new SourceHashHolder(file, lastLineHashes);
+      sourceHashHolder = new SourceHashHolder(module, file, lastLineHashes);
     }
     return sourceHashHolder;
   }

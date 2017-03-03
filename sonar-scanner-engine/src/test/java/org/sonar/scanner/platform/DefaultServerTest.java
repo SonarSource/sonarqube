@@ -21,8 +21,11 @@ package org.sonar.scanner.platform;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
+import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,13 +38,12 @@ public class DefaultServerTest {
   public void shouldLoadServerProperties() {
     Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_ID, "123");
-    settings.setProperty(CoreProperties.SERVER_VERSION, "2.2");
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
     settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
     ScannerWsClient client = mock(ScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com");
 
-    DefaultServer metadata = new DefaultServer(settings, client);
+    DefaultServer metadata = new DefaultServer(settings, client, SonarRuntimeImpl.forSonarQube(Version.parse("2.2"), SonarQubeSide.SCANNER));
 
     assertThat(metadata.getId()).isEqualTo("123");
     assertThat(metadata.getVersion()).isEqualTo("2.2");
@@ -61,7 +63,7 @@ public class DefaultServerTest {
     Settings settings = new MapSettings();
     ScannerWsClient client = mock(ScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com/");
-    DefaultServer metadata = new DefaultServer(settings, client);
+    DefaultServer metadata = new DefaultServer(settings, client, null);
 
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://server.com/");
     assertThat(metadata.getPublicRootUrl()).isEqualTo("http://server.com");
@@ -75,7 +77,7 @@ public class DefaultServerTest {
     Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "invalid");
     ScannerWsClient client = mock(ScannerWsClient.class);
-    DefaultServer metadata = new DefaultServer(settings, client);
+    DefaultServer metadata = new DefaultServer(settings, client, null);
     metadata.getStartedAt();
   }
 }

@@ -30,9 +30,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.MetricKeyValidator;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class UpdateAction implements MetricsWsAction {
   private static final String ACTION = "update";
@@ -166,25 +167,20 @@ public class UpdateAction implements MetricsWsAction {
   }
 
   private void checkMetricInDbAndTemplate(DbSession dbSession, @Nullable MetricDto metricInDb, MetricDto template) {
-    if (!isMetricFoundInDb(metricInDb) || isMetricDisabled(metricInDb) || !isMetricCustom(metricInDb)) {
-      throw new BadRequestException(String.format("No active custom metric has been found for id '%d'.", template.getId()));
-    }
+    checkRequest(isMetricFoundInDb(metricInDb) && !isMetricDisabled(metricInDb) && isMetricCustom(metricInDb),
+      "No active custom metric has been found for id '%d'.", template.getId());
     checkNoOtherMetricWithTargetKey(dbSession, metricInDb, template);
     if (haveMetricTypeChanged(metricInDb, template)) {
       List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
-      if (haveAssociatedCustomMeasures(customMeasures)) {
-        throw new BadRequestException(String.format("You're trying to change the type '%s' while there are associated custom measures.",
-          metricInDb.getValueType()));
-      }
+      checkRequest(!haveAssociatedCustomMeasures(customMeasures), "You're trying to change the type '%s' while there are associated custom measures.", metricInDb.getValueType());
     }
   }
 
   private void checkNoOtherMetricWithTargetKey(DbSession dbSession, MetricDto metricInDb, MetricDto template) {
     String targetKey = template.getKey();
     MetricDto metricWithTargetKey = dbClient.metricDao().selectByKey(dbSession, targetKey);
-    if (isMetricFoundInDb(metricWithTargetKey) && !metricInDb.getId().equals(metricWithTargetKey.getId())) {
-      throw new BadRequestException(String.format("The key '%s' is already used by an existing metric.", targetKey));
-    }
+    checkRequest(!isMetricFoundInDb(metricWithTargetKey) || metricInDb.getId().equals(metricWithTargetKey.getId()),
+      "The key '%s' is already used by an existing metric.", targetKey);
   }
 
   private static void writeMetric(JsonWriter json, MetricDto metric) {

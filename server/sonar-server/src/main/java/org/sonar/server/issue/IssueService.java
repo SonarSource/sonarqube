@@ -33,9 +33,10 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 @ComputeEngineSide
@@ -70,9 +71,7 @@ public class IssueService {
       User user = null;
       if (!Strings.isNullOrEmpty(assignee)) {
         user = userFinder.findByLogin(assignee);
-        if (user == null) {
-          throw new BadRequestException("Unknown user: " + assignee);
-        }
+        checkRequest(user != null, "Unknown user: %s", assignee);
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueFieldsSetter.assign(issue, user, context)) {

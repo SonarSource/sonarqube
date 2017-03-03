@@ -43,7 +43,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -495,8 +494,7 @@ public class RuleActivatorMediumTest {
       activate(activation, XOO_P1_KEY);
       fail();
     } catch (BadRequestException e) {
-      Message msg = e.errors().messages().get(0);
-      assertThat(msg.getMessage()).isEqualTo("Value 'foo' must be an integer.");
+      assertThat(e.getMessage()).isEqualTo("Value 'foo' must be an integer.");
       verifyZeroActiveRules(XOO_P1_KEY);
     }
   }

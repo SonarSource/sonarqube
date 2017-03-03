@@ -33,7 +33,8 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.exceptions.BadRequestException;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 class RuleActivatorContext {
 
@@ -217,10 +218,10 @@ class RuleActivatorContext {
     }
     for (Map.Entry<String, String> changeParam : change.getParameters().entrySet()) {
       ActiveRuleParamDto param = activeRuleParams.get(changeParam.getKey());
-      if (changeParam.getValue()==null && param != null && param.getValue()!=null) {
+      if (changeParam.getValue() == null && param != null && param.getValue() != null) {
         return false;
       }
-      if (changeParam.getValue()!=null && (param == null || !StringUtils.equals(changeParam.getValue(), param.getValue()))) {
+      if (changeParam.getValue() != null && (param == null || !StringUtils.equals(changeParam.getValue(), param.getValue()))) {
         return false;
       }
     }
@@ -228,15 +229,8 @@ class RuleActivatorContext {
   }
 
   void verifyForActivation() {
-    if (RuleStatus.REMOVED == rule.getStatus()) {
-      throw new BadRequestException("Rule was removed: " + rule.getKey());
-    }
-    if (rule.isTemplate()) {
-      throw new BadRequestException("Rule template can't be activated on a Quality profile: " + rule.getKey());
-    }
-    if (!profile.getLanguage().equals(rule.getLanguage())) {
-      throw new BadRequestException(String.format("Rule %s and profile %s have different languages", rule.getKey(), profile.getKey()));
-    }
-
+    checkRequest(RuleStatus.REMOVED != rule.getStatus(), "Rule was removed: %s", rule.getKey());
+    checkRequest(!rule.isTemplate(), "Rule template can't be activated on a Quality profile: %s", rule.getKey());
+    checkRequest(profile.getLanguage().equals(rule.getLanguage()), "Rule %s and profile %s have different languages", rule.getKey(), profile.getKey());
   }
 }
