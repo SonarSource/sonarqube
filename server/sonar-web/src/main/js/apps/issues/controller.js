@@ -21,6 +21,8 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import Controller from '../../components/navigator/controller';
 import ComponentViewer from './component-viewer/main';
+import getStore from '../../app/utils/getStore';
+import { receiveIssues } from '../../store/issues/duck';
 
 const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'languages'];
 
@@ -33,6 +35,11 @@ export default Controller.extend({
       additionalFields: '_all',
       facets: this._facetsFromServer().join()
     };
+  },
+
+  receiveIssues (issues) {
+    const store = getStore();
+    store.dispatch(receiveIssues(issues));
   },
 
   fetchList (firstPage) {
@@ -54,6 +61,7 @@ export default Controller.extend({
     }
     return $.get(window.baseUrl + '/api/issues/search', data).done(r => {
       const issues = that.options.app.list.parseIssues(r);
+      this.receiveIssues(issues);
       if (firstPage) {
         that.options.app.list.reset(issues);
       } else {
