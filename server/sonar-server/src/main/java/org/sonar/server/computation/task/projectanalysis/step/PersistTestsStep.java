@@ -39,7 +39,6 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
@@ -72,16 +71,13 @@ public class PersistTestsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession session = dbClient.openSession(true);
-    try {
-      TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(session);
+    try (DbSession dbSession = dbClient.openSession(true)) {
+      TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(dbSession);
       new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
-      session.commit();
+      dbSession.commit();
       if (visitor.hasUnprocessedCoverageDetails) {
         LOG.warn("Some coverage tests are not taken into account during analysis of project '{}'", visitor.getProjectKey());
       }
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

@@ -218,7 +218,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   @Override
   protected void after() {
     if (session != null) {
-      MyBatis.closeQuietly(session);
+      session.close();
     }
     db.stop();
     started = false;

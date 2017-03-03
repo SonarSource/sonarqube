@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 
 public class DomainsAction implements MetricsWsAction {
 
@@ -47,16 +46,13 @@ public class DomainsAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<String> domains = dbClient.metricDao().selectEnabledDomains(dbSession);
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       writeDomains(json, domains);
       json.endObject();
       json.close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 
