@@ -133,6 +133,14 @@ export default class SourceViewerCode extends React.Component {
     const optimizedSelectedIssue = selectedIssue != null && issuesForLine.includes(selectedIssue) ?
       selectedIssue : null;
 
+    const { selectedIssueLocation } = this.props;
+    const optimizedSelectedIssueLocation =
+      selectedIssueLocation != null &&
+        secondaryIssueLocations.some(location =>
+          location.flowIndex === selectedIssueLocation.flowIndex &&
+          location.locationIndex === selectedIssueLocation.locationIndex
+        ) ? selectedIssueLocation : null;
+
     return (
       <SourceViewerLine
         displayAllIssues={this.props.displayAllIssues}
@@ -162,7 +170,7 @@ export default class SourceViewerCode extends React.Component {
         secondaryIssueLocations={secondaryIssueLocations}
         secondaryIssueLocationMessages={secondaryIssueLocationMessages}
         selectedIssue={optimizedSelectedIssue}
-        selectedIssueLocation={this.props.selectedIssueLocation}/>
+        selectedIssueLocation={optimizedSelectedIssueLocation}/>
     );
   };
 
