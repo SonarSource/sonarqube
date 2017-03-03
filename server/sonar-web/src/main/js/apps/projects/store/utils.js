@@ -32,6 +32,20 @@ const getAsLevel = value => {
   return null;
 };
 
+const getAsString = value => {
+  if (!value) {
+    return null;
+  }
+  return value;
+};
+
+const getAsArray = (values, elementGetter) => {
+  if (!values) {
+    return null;
+  }
+  return values.split(',').map(elementGetter);
+};
+
 export const parseUrlQuery = urlQuery => ({
   'gate': getAsLevel(urlQuery['gate']),
   'reliability': getAsNumericRating(urlQuery['reliability']),
@@ -39,7 +53,8 @@ export const parseUrlQuery = urlQuery => ({
   'maintainability': getAsNumericRating(urlQuery['maintainability']),
   'coverage': getAsNumericRating(urlQuery['coverage']),
   'duplications': getAsNumericRating(urlQuery['duplications']),
-  'size': getAsNumericRating(urlQuery['size'])
+  'size': getAsNumericRating(urlQuery['size']),
+  'language': getAsArray(urlQuery['language'], getAsString)
 });
 
 const convertIssuesRating = (metric, rating) => {
@@ -136,6 +151,14 @@ export const convertToFilter = (query, isFavorite) => {
     conditions.push(convertIssuesRating('sqale_rating', query['maintainability']));
   }
 
+  if (query['language'] != null) {
+    if (!Array.isArray(query['language']) || query['language'].length < 2) {
+      conditions.push('language = ' + query['language']);
+    } else {
+      conditions.push(`language IN (${query['language'].join(', ')})`);
+    }
+  }
+
   return conditions.join(' and ');
 };
 
@@ -147,7 +170,8 @@ export const mapMetricToProperty = metricKey => {
     'coverage': 'coverage',
     'duplicated_lines_density': 'duplications',
     'ncloc': 'size',
-    'alert_status': 'gate'
+    'alert_status': 'gate',
+    'language': 'language'
   };
   return map[metricKey];
 };

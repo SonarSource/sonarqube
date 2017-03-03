@@ -84,6 +84,7 @@
   background-color: transparent;
 
   .search-navigator-facet-list,
+  .search-navigator-facet-empty,
   .search-navigator-facet-container {
     display: none;
   }
@@ -232,6 +233,14 @@
   margin: 0 0 0 0;
   padding: 0 10px 10px;
   font-size: 0;
+}
+
+.search-navigator-facet-empty {
+  margin: 0 0 0 0;
+  padding: 0 10px 10px;
+  color: @baseFontColor;
+  font-size: @smallFontSize;
+  white-space: nowrap;
 }
 
 .search-navigator-facet-list-align-right {

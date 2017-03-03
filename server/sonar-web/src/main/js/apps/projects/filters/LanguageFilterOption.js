@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { connect } from 'react-redux';
 import React from 'react';
-import FilterContainer from './FilterContainer';
-import Level from '../../../components/ui/Level';
+import { translate } from '../../../helpers/l10n';
+import { getLanguageByKey } from '../../../store/rootReducer';
 
-export default class QualityGateFilter extends React.Component {
-  renderOption = (option, selected) => {
-    return (
-        <Level level={option} small={true} muted={!selected}/>
-    );
-  };
-
-  getFacetValueForOption = (facet, option) => {
-    return facet[option];
-  };
+class LanguageFilterOption extends React.Component {
+  static propTypes = {
+    languageKey: React.PropTypes.string.isRequired,
+    language: React.PropTypes.object
+  }
 
   render () {
+    const languageName = this.props.language ? this.props.language.name : this.props.languageKey;
     return (
-        <FilterContainer
-            property="gate"
-            getOptions={() => ['OK', 'WARN', 'ERROR']}
-            renderName={() => 'Quality Gate'}
-            renderOption={this.renderOption}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <span>{this.props.languageKey !== '<null>' ? languageName : translate('unknown')}</span>
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  language: getLanguageByKey(state, ownProps.languageKey)
+});
+
+export default connect(mapStateToProps)(LanguageFilterOption);

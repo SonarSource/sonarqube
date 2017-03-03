@@ -43,7 +43,7 @@ export default class DuplicationsFilter extends React.Component {
     return (
         <FilterContainer
             property="duplications"
-            options={[1, 2, 3, 4, 5]}
+            getOptions={() => [1, 2, 3, 4, 5]}
             renderName={() => 'Duplications'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}

@@ -68,8 +68,12 @@ export const getGlobalMessages = state => (
     fromGlobalMessages.getGlobalMessages(state.globalMessages)
 );
 
-export const getLanguages = (state, key) => (
-    fromLanguages.getLanguages(state.languages, key)
+export const getLanguages = state => (
+    fromLanguages.getLanguages(state.languages)
+);
+
+export const getLanguageByKey = (state, key) => (
+    fromLanguages.getLanguageByKey(state.languages, key)
 );
 
 export const getCurrentUser = state => (

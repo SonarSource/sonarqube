@@ -18,31 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import sortBy from 'lodash/sortBy';
 import FilterContainer from './FilterContainer';
-import Level from '../../../components/ui/Level';
+import LanguageFilterOption from './LanguageFilterOption';
 
-export default class QualityGateFilter extends React.Component {
-  renderOption = (option, selected) => {
+export default class LanguageFilter extends React.Component {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  }
+
+  renderOption = option => {
     return (
-        <Level level={option} small={true} muted={!selected}/>
+      <LanguageFilterOption languageKey={option}/>
     );
   };
 
-  getFacetValueForOption = (facet, option) => {
-    return facet[option];
-  };
+  getSortedOptions (facet) {
+    return sortBy(Object.keys(facet), [option => -facet[option]]);
+  }
+
+  getFacetValueForOption = (facet, option) => facet[option];
 
   render () {
     return (
-        <FilterContainer
-            property="gate"
-            getOptions={() => ['OK', 'WARN', 'ERROR']}
-            renderName={() => 'Quality Gate'}
-            renderOption={this.renderOption}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <FilterContainer
+          property="language"
+          getOptions={facet => facet ? this.getSortedOptions(facet) : []}
+          renderName={() => 'Languages'}
+          renderOption={this.renderOption}
+          getFacetValueForOption={this.getFacetValueForOption}
+          query={this.props.query}
+          isFavorite={this.props.isFavorite}
+          organization={this.props.organization}/>
     );
   }
 }

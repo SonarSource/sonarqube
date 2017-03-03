@@ -41,7 +41,7 @@ export default class IssuesFilter extends React.Component {
     return (
         <FilterContainer
             property={this.props.property}
-            options={[1, 2, 3, 4, 5]}
+            getOptions={() => [1, 2, 3, 4, 5]}
             renderName={() => this.props.name}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
