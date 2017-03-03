@@ -64,7 +64,7 @@ public class ModuleInputComponentStoreTest {
     InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/Dummy.java").build();
     store.doAdd(dummyInputFile);
 
-    assertThat(store.getFilesByName(filename)).containsOnly(inputFile1, inputFile2);
+    assertThat(store.getFilesByName(filename)).containsExactlyInAnyOrder(inputFile1, inputFile2);
   }
 
   @Test
@@ -80,7 +80,7 @@ public class ModuleInputComponentStoreTest {
     InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/NotJava.cpp").build();
     store.doAdd(dummyInputFile);
 
-    assertThat(store.getFilesByExtension("java")).containsOnly(inputFile1, inputFile2);
+    assertThat(store.getFilesByExtension("java")).containsExactlyInAnyOrder(inputFile1, inputFile2);
   }
 
   @Test
@@ -94,8 +94,8 @@ public class ModuleInputComponentStoreTest {
     store.doAdd(inputFile);
     store.doAdd(inputFile);
 
-    assertThat(store.getFilesByName(filename)).containsOnly(inputFile);
-    assertThat(store.getFilesByExtension(ext)).containsOnly(inputFile);
+    assertThat(store.getFilesByName(filename)).containsExactly(inputFile);
+    assertThat(store.getFilesByExtension(ext)).containsExactly(inputFile);
   }
 
   @Test

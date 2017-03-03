@@ -84,7 +84,7 @@ public class InputComponentStoreTest {
 
     List<InputFile> toPublish = new LinkedList<>();
     cache.allFilesToPublish().forEach(toPublish::add);
-    assertThat(toPublish).containsOnly(fooFile);
+    assertThat(toPublish).containsExactly(fooFile);
 
     cache.remove(fooFile);
     assertThat(cache.allFiles()).hasSize(1);
@@ -121,9 +121,9 @@ public class InputComponentStoreTest {
     String mod2Key = "mod2";
     tester.addFile(mod2Key, "src/main/groovy/Foo.groovy", "groovy");
 
-    assertThat(tester.getLanguages(mod1Key)).containsOnly("java");
-    assertThat(tester.getLanguages(mod2Key)).containsOnly("groovy");
-    assertThat(tester.getLanguages()).containsOnly("java", "groovy");
+    assertThat(tester.getLanguages(mod1Key)).containsExactly("java");
+    assertThat(tester.getLanguages(mod2Key)).containsExactly("groovy");
+    assertThat(tester.getLanguages()).containsExactlyInAnyOrder("java", "groovy");
   }
 
   @Test
@@ -136,8 +136,8 @@ public class InputComponentStoreTest {
     String mod2Key = "mod2";
     InputFile mod2File = tester.addFile(mod2Key, "src/main/groovy/Foo.groovy", "groovy");
 
-    assertThat(tester.filesByModule(mod1Key)).containsOnly(mod1File);
-    assertThat(tester.filesByModule(mod2Key)).containsOnly(mod2File);
-    assertThat(tester.allFiles()).containsOnly(mod1File, mod2File);
+    assertThat(tester.filesByModule(mod1Key)).containsExactly(mod1File);
+    assertThat(tester.filesByModule(mod2Key)).containsExactly(mod2File);
+    assertThat(tester.allFiles()).containsExactlyInAnyOrder(mod1File, mod2File);
   }
 }
