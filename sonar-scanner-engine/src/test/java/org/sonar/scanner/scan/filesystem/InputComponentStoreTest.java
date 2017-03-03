@@ -20,10 +20,11 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,8 +39,8 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InputComponentStoreTest {
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void should_add_input_file() throws Exception {
@@ -94,4 +95,49 @@ public class InputComponentStoreTest {
     assertThat(cache.allFiles()).hasSize(1);
   }
 
+  static class InputComponentStoreTester extends InputComponentStore {
+    InputComponentStoreTester() throws IOException {
+      super(new PathResolver());
+      DefaultInputModule root = TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder());
+      put(root);
+    }
+
+    InputFile addFile(String moduleKey, String relpath, String language) {
+      DefaultInputFile file = new TestInputFileBuilder(moduleKey, relpath)
+        .setLanguage(language)
+        .build();
+      put(file);
+      return file;
+    }
+  }
+
+  @Test
+  public void should_add_languages_per_module_and_globally() throws IOException {
+    InputComponentStoreTester tester = new InputComponentStoreTester();
+
+    String mod1Key = "mod1";
+    tester.addFile(mod1Key, "src/main/java/Foo.java", "java");
+
+    String mod2Key = "mod2";
+    tester.addFile(mod2Key, "src/main/groovy/Foo.groovy", "groovy");
+
+    assertThat(tester.getLanguages(mod1Key)).containsOnly("java");
+    assertThat(tester.getLanguages(mod2Key)).containsOnly("groovy");
+    assertThat(tester.getLanguages()).containsOnly("java", "groovy");
+  }
+
+  @Test
+  public void should_find_files_per_module_and_globally() throws IOException {
+    InputComponentStoreTester tester = new InputComponentStoreTester();
+
+    String mod1Key = "mod1";
+    InputFile mod1File = tester.addFile(mod1Key, "src/main/java/Foo.java", "java");
+
+    String mod2Key = "mod2";
+    InputFile mod2File = tester.addFile(mod2Key, "src/main/groovy/Foo.groovy", "groovy");
+
+    assertThat(tester.filesByModule(mod1Key)).containsOnly(mod1File);
+    assertThat(tester.filesByModule(mod2Key)).containsOnly(mod2File);
+    assertThat(tester.allFiles()).containsOnly(mod1File, mod2File);
+  }
 }
