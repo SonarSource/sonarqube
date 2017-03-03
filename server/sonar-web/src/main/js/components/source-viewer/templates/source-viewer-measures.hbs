@@ -19,16 +19,7 @@
     {{/unless}}
   </div>
 
-  {{#eq q 'UTS'}}
-    <div class="source-viewer-measures">
-      <div class="source-viewer-measures-section">
-        {{> 'measures/_source-viewer-measures-tests'}}
-      </div>
-    </div>
-    <div class="source-viewer-measures">
-      {{> 'measures/_source-viewer-measures-test-cases'}}
-    </div>
-  {{else}}
+  {{#unless isUnitTest}}
     <div class="source-viewer-measures">
       <div class="source-viewer-measures-section">
         <div class="source-viewer-measures-card">
@@ -52,7 +43,16 @@
         {{> 'measures/_source-viewer-measures-duplications'}}
       </div>
     </div>
-  {{/eq}}
+  {{else}}
+    <div class="source-viewer-measures">
+      <div class="source-viewer-measures-section">
+        {{> 'measures/_source-viewer-measures-tests'}}
+      </div>
+    </div>
+    <div class="source-viewer-measures">
+      {{> 'measures/_source-viewer-measures-test-cases'}}
+    </div>
+  {{/unless}}
 
 
   <div class="spacer-bottom">&nbsp;</div>

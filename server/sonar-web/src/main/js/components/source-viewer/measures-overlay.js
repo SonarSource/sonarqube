@@ -34,7 +34,7 @@ export default ModalView.extend({
   initialize () {
     this.testsScroll = 0;
     const requests = [this.requestMeasures(), this.requestIssues()];
-    if (this.model.get('q') === 'UTS') {
+    if (this.model.get('isUnitTest')) {
       requests.push(this.requestTests());
     }
     Promise.all(requests).then(() => this.render());
@@ -282,3 +282,4 @@ export default ModalView.extend({
     };
   }
 });
+

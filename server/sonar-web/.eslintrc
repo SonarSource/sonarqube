@@ -13,8 +13,7 @@
   "globals": {
     "key": true,
     "d3": true,
-    "baseUrl": true,
-    "SyntheticInputEvent": true
+    "baseUrl": true
   },
 
   "parser": "babel-eslint",

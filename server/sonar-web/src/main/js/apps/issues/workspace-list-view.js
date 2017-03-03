@@ -37,6 +37,14 @@ export default WorkspaceListView.extend({
 
   bindShortcuts () {
     const that = this;
+    const doAction = function (action) {
+      const selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
+      if (selectedIssue == null) {
+        return;
+      }
+      const selectedIssueView = that.children.findByModel(selectedIssue);
+      selectedIssueView.$('.js-issue-' + action).click();
+    };
     WorkspaceListView.prototype.bindShortcuts.apply(this, arguments);
     key('right', 'list', () => {
       const selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
@@ -48,12 +56,26 @@ export default WorkspaceListView.extend({
       selectedIssue.set({ selected: !selectedIssue.get('selected') });
       return false;
     });
+    key('f', 'list', () => doAction('transition'));
+    key('a', 'list', () => doAction('assign'));
+    key('m', 'list', () => doAction('assign-to-me'));
+    key('p', 'list', () => doAction('plan'));
+    key('i', 'list', () => doAction('set-severity'));
+    key('c', 'list', () => doAction('comment'));
+    key('t', 'list', () => doAction('edit-tags'));
   },
 
   unbindShortcuts () {
     WorkspaceListView.prototype.unbindShortcuts.apply(this, arguments);
     key.unbind('right', 'list');
     key.unbind('space', 'list');
+    key.unbind('f', 'list');
+    key.unbind('a', 'list');
+    key.unbind('m', 'list');
+    key.unbind('p', 'list');
+    key.unbind('i', 'list');
+    key.unbind('c', 'list');
+    key.unbind('t', 'list');
   },
 
   scrollTo () {
@@ -100,6 +122,7 @@ export default WorkspaceListView.extend({
 
   displayComponent (container, model) {
     const data = { ...model.toJSON() };
+    /* eslint-disable no-console */
     const qualifier = this.options.app.state.get('contextComponentQualifier');
     if (qualifier === 'VW' || qualifier === 'SVW') {
       Object.assign(data, { organization: undefined });

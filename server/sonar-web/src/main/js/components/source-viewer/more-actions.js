@@ -50,8 +50,8 @@ export default Marionette.ItemView.extend({
   },
 
   openInWorkspace () {
-    const key = this.options.parent.model.get('key');
-    Workspace.openComponent({ key });
+    const uuid = this.options.parent.model.id;
+    Workspace.openComponent({ uuid });
   },
 
   showRawSource () {
@@ -66,3 +66,4 @@ export default Marionette.ItemView.extend({
     };
   }
 });
+

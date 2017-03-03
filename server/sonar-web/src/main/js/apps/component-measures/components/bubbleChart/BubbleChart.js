@@ -118,7 +118,7 @@ export default class BubbleChart extends React.Component {
 
   handleBubbleClick (component) {
     if (['FIL', 'UTS'].includes(component.qualifier)) {
-      Workspace.openComponent({ key: component.key });
+      Workspace.openComponent({ uuid: component.id });
     } else {
       window.location = getComponentUrl(component.refKey || component.key);
     }

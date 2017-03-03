@@ -25,8 +25,8 @@ export default Backbone.Model.extend({
     if (!this.has('__type__')) {
       return 'type is missing';
     }
-    if (this.get('__type__') === 'component' && !this.has('key')) {
-      return 'key is missing';
+    if (this.get('__type__') === 'component' && !this.has('uuid')) {
+      return 'uuid is missing';
     }
     if (this.get('__type__') === 'rule' && !this.has('key')) {
       return 'key is missing';

@@ -47,13 +47,16 @@ export default Backbone.Collection.extend({
   },
 
   has (model) {
-    const forComponent = model.isComponent() && this.findWhere({ key: model.get('key') }) != null;
+    const forComponent = model.isComponent() && this.findWhere({ uuid: model.get('uuid') }) != null;
     const forRule = model.isRule() && this.findWhere({ key: model.get('key') }) != null;
     return forComponent || forRule;
   },
 
   add2 (model) {
-    const tryModel = this.findWhere({ key: model.get('key') });
+    const tryModel = model.isComponent() ?
+        this.findWhere({ uuid: model.get('uuid') }) :
+        this.findWhere({ key: model.get('key') });
     return tryModel != null ? tryModel : this.add(model);
   }
 });
+

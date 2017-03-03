@@ -143,14 +143,6 @@
   user-select: none;
 }
 
-.source-meta:focus {
-  outline: none;
-}
-
-.source-meta[role="button"] {
-  cursor: pointer;
-}
-
 .source-meta + .source-meta {
   border-left: 1px solid @barBackgroundColor;
 }
@@ -161,6 +153,10 @@
   background-color: @barBackgroundColor;
   color: @secondFontColor;
   text-align: right;
+
+  &[data-line-number] {
+    cursor: pointer;
+  }
 
   &:before {
     content: attr(data-line-number);
@@ -211,6 +207,10 @@
 .source-line-scm {
   padding: 0 5px;
   background-color: @barBackgroundColor;
+
+  &[data-line-number] {
+    cursor: pointer;
+  }
 }
 
 .source-line-scm-inner {
@@ -229,21 +229,29 @@
   height: @source-line-height;
 }
 
+.source-line-with-issues {
+  cursor: pointer;
+}
+
 .source-line-covered {
   background-color: @green !important;
+  cursor: pointer;
 }
 
 .source-line-uncovered {
   background-color: @red !important;
+  cursor: pointer;
 }
 
 .source-line-partially-covered {
   background-color: @orange !important;
   background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .5) 4px, transparent 4px, transparent 8px, rgba(255, 255, 255, .5) 8px, rgba(255, 255, 255, .5) 12px, transparent 12px, transparent 16px, rgba(255, 255, 255, .5) 16px, rgba(255, 255, 255, .5) 20px) !important;
+  cursor: pointer;
 }
 
 .source-line-duplicated {
   background-color: @duplicationColor !important;
+  cursor: pointer;
 }
 
 

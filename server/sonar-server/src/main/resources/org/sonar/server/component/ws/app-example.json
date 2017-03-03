@@ -7,7 +7,7 @@
   "project": "com.sonarsource:java-markdown",
   "projectName": "Java Markdown",
   "fav": false,
-  "canMarkAsFavorite": true,
+  "canMarkAsFavourite": true,
   "canCreateManualIssue": true,
   "measures": {
     "lines": "786",

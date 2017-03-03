@@ -28,35 +28,37 @@ export default Popup.extend({
   template: Template,
 
   events: {
-    'click a[data-key]': 'goToFile'
+    'click a[data-uuid]': 'goToFile'
   },
 
   goToFile (e) {
     e.stopPropagation();
-    const key = $(e.currentTarget).data('key');
+    const uuid = $(e.currentTarget).data('uuid');
     const line = $(e.currentTarget).data('line');
-    Workspace.openComponent({ key, line });
+    Workspace.openComponent({ uuid, line });
   },
 
   serializeData () {
     const that = this;
-    const groupedBlocks = groupBy(this.options.blocks, '_ref');
+    const files = this.model.get('duplicationFiles');
+    const groupedBlocks = groupBy(this.collection.toJSON(), '_ref');
     let duplications = Object.keys(groupedBlocks).map(fileRef => {
       return {
         blocks: groupedBlocks[fileRef],
-        file: this.options.files[fileRef]
+        file: files[fileRef]
       };
     });
     duplications = sortBy(duplications, d => {
-      const a = d.file.projectName !== that.options.component.projectName;
-      const b = d.file.subProjectName !== that.options.component.subProjectName;
-      const c = d.file.key !== that.options.component.key;
+      const a = d.file.projectName !== that.model.get('projectName');
+      const b = d.file.subProjectName !== that.model.get('subProjectName');
+      const c = d.file.key !== that.model.get('key');
       return '' + a + b + c;
     });
     return {
       duplications,
-      component: this.options.component,
+      component: this.model.toJSON(),
       inRemovedComponent: this.options.inRemovedComponent
     };
   }
 });
+

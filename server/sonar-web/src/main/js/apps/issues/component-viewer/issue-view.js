@@ -17,36 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import keyBy from 'lodash/keyBy';
+import IssueView from '../workspace-list-item-view';
 
-type Issue = { key: string };
+export default IssueView.extend({
+  onRender () {
+    IssueView.prototype.onRender.apply(this, arguments);
+    this.$el.removeClass('issue-navigate-right issue-with-checkbox');
+  },
 
-type ReceiveIssuesAction = {
-  type: 'RECEIVE_ISSUES',
-  issues: Array<Issue>
-};
-
-type Action = ReceiveIssuesAction;
-
-type State = { [key: string]: Issue };
-
-export const receiveIssues = (issues: Array<Issue>): ReceiveIssuesAction => ({
-  type: 'RECEIVE_ISSUES',
-  issues
+  serializeData () {
+    return {
+      ...IssueView.prototype.serializeData.apply(this, arguments),
+      showComponent: false
+    };
+  }
 });
 
-const reducer = (state: State = {}, action: Action) => {
-  switch (action.type) {
-    case 'RECEIVE_ISSUES':
-      return { ...state, ...keyBy(action.issues, 'key') };
-    default:
-      return state;
-  }
-};
-
-export default reducer;
-
-export const getIssueByKey = (state: State, key: string): ?Issue => (
-  state[key]
-);

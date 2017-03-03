@@ -35,15 +35,6 @@
           <li class="issue-meta">
             <a class="js-issue-permalink icon-link" href="{{permalink}}" target="_blank"></a>
           </li>
-
-          {{#if hasSimilarIssuesFilter}}
-            <li class="issue-meta">
-              <button class="button-link issue-action issue-action-with-options js-issue-filter"
-                      aria-label="{{t "issue.filter_similar_issues"}}">
-                <i class="icon-filter icon-half-transparent"></i>&nbsp;<i class="icon-dropdown"></i>
-              </button>
-            </li>
-          {{/if}}
         </ul>
       </td>
     </tr>
@@ -174,9 +165,3 @@
   <i class="issue-navigate-to-left icon-chevron-left"></i>
   <i class="issue-navigate-to-right icon-chevron-right"></i>
 </a>
-
-{{#if hasCheckbox}}
-  <div class="js-toggle issue-checkbox-container">
-    <i class="issue-checkbox icon-checkbox {{#if checked}}icon-checkbox-checked{{/if}}"></i>
-  </div>
-{{/if}}

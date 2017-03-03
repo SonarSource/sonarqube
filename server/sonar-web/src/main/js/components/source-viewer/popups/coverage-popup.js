@@ -27,7 +27,7 @@ export default Popup.extend({
   template: Template,
 
   events: {
-    'click a[data-key]': 'goToFile'
+    'click a[data-id]': 'goToFile'
   },
 
   onRender () {
@@ -37,19 +37,19 @@ export default Popup.extend({
 
   goToFile (e) {
     e.stopPropagation();
-    const key = $(e.currentTarget).data('key');
-    Workspace.openComponent({ key });
+    const id = $(e.currentTarget).data('id');
+    Workspace.openComponent({ uuid: id });
   },
 
   serializeData () {
-    const row = this.options.line || {};
-    const tests = groupBy(this.options.tests, 'fileKey');
-    const testFiles = Object.keys(tests).map(fileKey => {
-      const testSet = tests[fileKey];
+    const row = this.options.row || {};
+    const tests = groupBy(this.collection.toJSON(), 'fileId');
+    const testFiles = Object.keys(tests).map(fileId => {
+      const testSet = tests[fileId];
       const test = testSet[0];
       return {
         file: {
-          key: test.fileKey,
+          id: test.fileId,
           longName: test.fileName
         },
         tests: testSet
@@ -58,3 +58,4 @@ export default Popup.extend({
     return { testFiles, row };
   }
 });
+

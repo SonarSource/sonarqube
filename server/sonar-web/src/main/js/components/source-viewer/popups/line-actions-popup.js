@@ -29,9 +29,9 @@ export default Popup.extend({
 
   getPermalink (e) {
     e.preventDefault();
-    const { component, line } = this.options;
-    const url = `${window.baseUrl}/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;
+    const url =
+        `${window.baseUrl}/component/index?id=${encodeURIComponent(this.model.key())}&line=${this.options.line}`;
     const windowParams = 'resizable=1,scrollbars=1,status=1';
-    window.open(url, component.name, windowParams);
+    window.open(url, this.model.get('name'), windowParams);
   }
 });

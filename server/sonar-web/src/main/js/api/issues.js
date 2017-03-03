@@ -20,21 +20,7 @@
 // @flow
 import { getJSON, post } from '../helpers/request';
 
-type IssuesResponse = {
-  components?: Array<*>,
-  debtTotal?: number,
-  facets: Array<*>,
-  issues: Array<*>,
-  paging: {
-    pageIndex: number,
-    pageSize: number,
-    total: number
-  },
-  rules?: Array<*>,
-  users?: Array<*>
-};
-
-export const searchIssues = (query: {}): Promise<IssuesResponse> => (
+export const searchIssues = (query: {}) => (
     getJSON('/api/issues/search', query)
 );
 
@@ -66,10 +52,10 @@ export function getTags (query: {}): Promise<*> {
 
 export function extractAssignees (
     facet: Array<{ val: string }>,
-    response: IssuesResponse
+    response: { users: Array<{ login: string }> }
 ) {
   return facet.map(item => {
-    const user = response.users ? response.users.find(user => user.login = item.val) : null;
+    const user = response.users.find(user => user.login = item.val);
     return { ...item, user };
   });
 }
@@ -81,7 +67,7 @@ export function getAssignees (query: {}): Promise<*> {
 export function getIssuesCount (query: {}): Promise<*> {
   const data = { ...query, ps: 1, facetMode: 'effort' };
   return searchIssues(data).then(r => {
-    return { issues: r.paging.total, debt: r.debtTotal };
+    return { issues: r.total, debt: r.debtTotal };
   });
 }
 

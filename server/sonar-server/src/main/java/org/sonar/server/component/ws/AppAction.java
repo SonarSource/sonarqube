@@ -44,17 +44,14 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class AppAction implements RequestHandler {
 
   private static final String PARAM_COMPONENT_ID = "componentId";
-  private static final String PARAM_COMPONENT = "component";
   private static final String PARAM_PERIOD = "period";
   static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.VIOLATIONS_KEY,
     CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TESTS_KEY,
@@ -82,40 +79,31 @@ public class AppAction implements RequestHandler {
 
     action
       .createParam(PARAM_COMPONENT_ID)
+      .setRequired(true)
       .setDescription("Component ID")
-      .setDeprecatedSince("6.4")
       .setDeprecatedKey("uuid", "6.4")
       .setExampleValue(UUID_EXAMPLE_01);
-
-    action.createParam(PARAM_COMPONENT)
-      .setDescription("Component key")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
-      .setSince("6.4");
 
     action
       .createParam(PARAM_PERIOD)
       .setDescription("User leak Period in order to get differential measures")
-      .setDeprecatedSince("6.4")
       .setPossibleValues(1);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    try (DbSession session = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByUuidOrKey(session,
-        request.param(PARAM_COMPONENT_ID),
-        request.param(PARAM_COMPONENT),
-        ParamNames.COMPONENT_ID_AND_COMPONENT);
+    try (DbSession session = dbClient.openSession(false);
+      JsonWriter json = response.newJsonWriter()) {
+      json.beginObject();
+      String componentUuid = request.mandatoryParam(PARAM_COMPONENT_ID);
+      ComponentDto component = componentFinder.getByUuid(session, componentUuid);
       userSession.checkComponentPermission(UserRole.USER, component);
 
-      JsonWriter json = response.newJsonWriter();
-      json.beginObject();
       Map<String, MeasureDto> measuresByMetricKey = measuresByMetricKey(component, session);
       appendComponent(json, component, userSession, session);
       appendPermissions(json, component, userSession);
       appendMeasures(json, measuresByMetricKey);
       json.endObject();
-      json.close();
     }
   }
 
@@ -150,7 +138,7 @@ public class AppAction implements RequestHandler {
 
   private static void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
     boolean hasBrowsePermission = userSession.hasComponentPermission(UserRole.USER, component);
-    json.prop("canMarkAsFavorite", userSession.isLoggedIn() && hasBrowsePermission);
+    json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
   }
 
   private static void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {

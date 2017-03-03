@@ -19,11 +19,10 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
 import ComponentsList from './ComponentsList';
 import ListHeader from './ListHeader';
 import Spinner from '../../components/Spinner';
-import SourceViewer from '../../../../components/SourceViewer/StandaloneSourceViewer';
+import SourceViewer from '../../../../components/source-viewer/SourceViewer';
 import ListFooter from '../../../../components/controls/ListFooter';
 
 export default class ListView extends React.Component {
@@ -105,16 +104,6 @@ export default class ListView extends React.Component {
     }
     const selectedIndex = components.indexOf(selected);
     const sourceViewerPeriod = metric.key.indexOf('new_') === 0 && !!leakPeriod ? leakPeriod : null;
-    const sourceViewerPeriodDate = sourceViewerPeriod != null ? moment(sourceViewerPeriod.date).toDate() : null;
-
-    const filterLine = sourceViewerPeriodDate != null ? line => {
-      if (line.scmDate) {
-        const scmDate = moment(line.scmDate).toDate();
-        return scmDate >= sourceViewerPeriodDate;
-      } else {
-        return false;
-      }
-    } : undefined;
 
     return (
         <div ref="container" className="measure-details-plain-list">
@@ -151,8 +140,8 @@ export default class ListView extends React.Component {
           {!!selected && (
               <div className="measure-details-viewer">
                 <SourceViewer
-                  component={selected.key}
-                  filterLine={filterLine}/>
+                    component={selected}
+                    period={sourceViewerPeriod}/>
               </div>
           )}
         </div>

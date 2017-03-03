@@ -54,10 +54,10 @@ class App extends React.Component {
     const { component } = this.props;
 
     if (['FIL', 'UTS'].includes(component.qualifier)) {
-      const SourceViewer = require('../../../components/SourceViewer/StandaloneSourceViewer').default;
+      const SourceViewer = require('../../../components/source-viewer/SourceViewer').default;
       return (
           <div className="page">
-            <SourceViewer component={component.key}/>
+            <SourceViewer component={component}/>
           </div>
       );
     }
