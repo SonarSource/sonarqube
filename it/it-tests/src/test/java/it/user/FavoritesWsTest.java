@@ -45,7 +45,6 @@ public class FavoritesWsTest {
 
   @Before
   public void inspectProject() {
-    orchestrator.resetData();
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
     adminClient = newAdminWsClient(orchestrator);
   }

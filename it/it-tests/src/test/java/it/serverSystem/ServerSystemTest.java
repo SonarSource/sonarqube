@@ -29,7 +29,6 @@ import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONValue;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.MediaTypes;
@@ -54,16 +53,11 @@ public class ServerSystemTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  @Before
-  public void cleanDatabase() {
-    orchestrator.resetData();
-  }
-
   @Test
   public void get_sonarqube_version() {
     Map<String, Object> json = callStatus();
 
-    String version = (String)json.get("version");
+    String version = (String) json.get("version");
     if (!startsWithAny(version, new String[] {"6."})) {
       fail("Bad version: " + version);
     }
