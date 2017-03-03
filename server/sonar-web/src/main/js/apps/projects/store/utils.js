@@ -54,7 +54,8 @@ export const parseUrlQuery = urlQuery => ({
   'coverage': getAsNumericRating(urlQuery['coverage']),
   'duplications': getAsNumericRating(urlQuery['duplications']),
   'size': getAsNumericRating(urlQuery['size']),
-  'language': getAsArray(urlQuery['language'], getAsString)
+  'language': getAsArray(urlQuery['language'], getAsString),
+  'search': getAsString(urlQuery['search'])
 });
 
 const convertIssuesRating = (metric, rating) => {
@@ -157,6 +158,10 @@ export const convertToFilter = (query, isFavorite) => {
     } else {
       conditions.push(`language IN (${query['language'].join(', ')})`);
     }
+  }
+
+  if (query['search'] != null) {
+    conditions.push(`query = "${query['search']}"`);
   }
 
   return conditions.join(' and ');

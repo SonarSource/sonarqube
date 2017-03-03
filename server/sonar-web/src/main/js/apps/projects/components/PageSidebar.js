@@ -27,6 +27,7 @@ import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
 import LanguageFilter from '../filters/LanguageFilter';
+import SearchFilter from '../filters/SearchFilter';
 import { translate } from '../../../helpers/l10n';
 
 export default class PageSidebar extends React.Component {
@@ -56,6 +57,10 @@ export default class PageSidebar extends React.Component {
             )}
 
             <h3>{translate('filters')}</h3>
+            <SearchFilter
+                query={this.props.query}
+                isFavorite={this.props.isFavorite}
+                organization={this.props.organization}/>
           </div>
 
           <QualityGateFilter
