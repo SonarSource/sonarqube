@@ -35,7 +35,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -98,8 +97,7 @@ public class SearchAction implements CustomMeasuresWsAction {
       .setPage(request.mandatoryParamAsInt(WebService.Param.PAGE),
         request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, PROJECT_ID_AND_KEY);
       checkPermissions(userSession, component);
       Long lastAnalysisDateMs = searchLastSnapshotDate(dbSession, component);
@@ -109,8 +107,6 @@ public class SearchAction implements CustomMeasuresWsAction {
       Map<Integer, MetricDto> metricsById = metricsById(dbSession, customMeasures);
 
       writeResponse(response, customMeasures, nbCustomMeasures, component, metricsById, usersByLogin, lastAnalysisDateMs, searchOptions, fieldsToReturn);
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 

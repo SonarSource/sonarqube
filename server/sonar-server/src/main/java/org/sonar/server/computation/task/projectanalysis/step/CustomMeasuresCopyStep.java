@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
@@ -56,12 +55,12 @@ public class CustomMeasuresCopyStep implements ComputationStep {
   @Override
   public void execute() {
     new DepthTraversalTypeAwareCrawler(
-        new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.PRE_ORDER) {
-      @Override
-      public void visitAny(Component component) {
-        copy(component);
-      }
-    }).visit(treeRootHolder.getRoot());
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.PRE_ORDER) {
+        @Override
+        public void visitAny(Component component) {
+          copy(component);
+        }
+      }).visit(treeRootHolder.getRoot());
   }
 
   private void copy(Component component) {
@@ -74,11 +73,8 @@ public class CustomMeasuresCopyStep implements ComputationStep {
   }
 
   private List<CustomMeasureDto> loadCustomMeasures(Component component) {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       return dbClient.customMeasureDao().selectByComponentUuid(session, component.getUuid());
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
@@ -75,17 +74,13 @@ public class MetricsAction implements CustomMeasuresWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY),
         PROJECT_ID_AND_KEY);
       checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 
       writeResponse(response.newJsonWriter(), metrics);
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 

@@ -30,7 +30,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 import org.sonar.server.user.index.UserDoc;
@@ -80,15 +79,12 @@ public class NewIssuesNotification extends Notification {
   public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
     setDefaultMessage(stats.countForMetric(SEVERITY) + " new issues on " + projectName + ".\n");
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       setSeverityStatistics(stats);
       setAssigneesStatistics(stats);
       setTagsStatistics(stats);
       setComponentsStatistics(dbSession, stats);
       setRuleStatistics(dbSession, stats);
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
 
     return this;

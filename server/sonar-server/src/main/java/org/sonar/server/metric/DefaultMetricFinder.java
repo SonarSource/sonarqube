@@ -29,7 +29,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -44,51 +43,39 @@ public class DefaultMetricFinder implements MetricFinder {
 
   @Override
   public Metric findById(int id) {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       MetricDto dto = dbClient.metricDao().selectById(session, id);
       if (dto != null && dto.isEnabled()) {
         return ToMetric.INSTANCE.apply(dto);
       }
       return null;
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
   @Override
   public Metric findByKey(String key) {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       MetricDto dto = dbClient.metricDao().selectByKey(session, key);
       if (dto != null && dto.isEnabled()) {
         return ToMetric.INSTANCE.apply(dto);
       }
       return null;
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
   @Override
   public Collection<Metric> findAll(List<String> metricKeys) {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectByKeys(session, metricKeys);
       return from(dtos).filter(IsEnabled.INSTANCE).transform(ToMetric.INSTANCE).toList();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
   @Override
   public Collection<Metric> findAll() {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectEnabled(session);
       return from(dtos).transform(ToMetric.INSTANCE).toList();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

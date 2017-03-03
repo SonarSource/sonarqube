@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -86,8 +85,7 @@ public class UpdateAction implements CustomMeasuresWsAction {
     String description = request.param(PARAM_DESCRIPTION);
     checkParameters(value, description);
 
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, id);
       MetricDto metric = dbClient.metricDao().selectOrFailById(dbSession, customMeasure.getMetricId());
       ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, customMeasure.getComponentUuid());
@@ -104,8 +102,6 @@ public class UpdateAction implements CustomMeasuresWsAction {
       JsonWriter json = response.newJsonWriter();
       customMeasureJsonWriter.write(json, customMeasure, metric, component, user, true, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
       json.close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 

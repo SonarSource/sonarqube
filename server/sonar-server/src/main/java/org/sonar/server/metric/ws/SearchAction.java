@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.es.SearchOptions;
 
@@ -81,8 +80,7 @@ public class SearchAction implements MetricsWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE),
         request.mandatoryParamAsInt(Param.PAGE_SIZE));
     Boolean isCustom = request.paramAsBoolean(PARAM_IS_CUSTOM);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, isCustom, searchOptions.getOffset(), searchOptions.getLimit());
       int nbMetrics = dbClient.metricDao().countEnabled(dbSession, isCustom);
       JsonWriter json = response.newJsonWriter();
@@ -92,8 +90,6 @@ public class SearchAction implements MetricsWsAction {
       searchOptions.writeJson(json, nbMetrics);
       json.endObject();
       json.close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 
