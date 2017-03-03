@@ -24,6 +24,7 @@ import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
@@ -67,7 +68,13 @@ public class WsUtils {
    */
   public static void checkRequest(boolean expression, String message, Object... messageArguments) {
     if (!expression) {
-      throw new BadRequestException(format(message, messageArguments));
+      throw BadRequestException.create(format(message, messageArguments));
+    }
+  }
+
+  public static void checkRequest(boolean expression, List<String> messages) {
+    if (!expression) {
+      throw BadRequestException.create(messages);
     }
   }
 

@@ -33,7 +33,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
@@ -85,12 +84,9 @@ public class PersistFileSourcesStep implements ComputationStep {
   @Override
   public void execute() {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
-    DbSession session = dbClient.openSession(false);
-    try {
-      new DepthTraversalTypeAwareCrawler(new FileSourceVisitor(session))
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      new DepthTraversalTypeAwareCrawler(new FileSourceVisitor(dbSession))
         .visit(treeRootHolder.getRoot());
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

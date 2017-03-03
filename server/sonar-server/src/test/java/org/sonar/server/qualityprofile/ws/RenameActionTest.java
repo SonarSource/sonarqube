@@ -64,7 +64,7 @@ public class RenameActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new RenameAction(new QProfileFactory(dbClient), wsSupport)));
+      new RenameAction(new QProfileFactory(dbClient, defaultOrganizationProvider), wsSupport)));
   }
 
   @Test
@@ -154,10 +154,25 @@ public class RenameActionTest {
   }
 
   private void createProfiles() {
+    String orgUuid = defaultOrganizationProvider.get().getUuid();
     dbClient.qualityProfileDao().insert(db.getSession(),
-      QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1Key).setName("Sonar way").setDefault(true),
-      QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2Key).setName("Sonar way"),
-      QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456").setDefault(true));
+      QualityProfileDto.createFor("sonar-way-xoo1-12345")
+        .setOrganizationUuid(orgUuid)
+        .setLanguage(xoo1Key)
+        .setName("Sonar way")
+        .setDefault(true),
+
+      QualityProfileDto.createFor("sonar-way-xoo2-23456")
+        .setOrganizationUuid(orgUuid)
+        .setLanguage(xoo2Key)
+        .setName("Sonar way"),
+
+      QualityProfileDto.createFor("my-sonar-way-xoo2-34567")
+        .setOrganizationUuid(orgUuid)
+        .setLanguage(xoo2Key)
+        .setName("My Sonar way")
+        .setParentKee("sonar-way-xoo2-23456")
+        .setDefault(true));
     db.commit();
   }
 

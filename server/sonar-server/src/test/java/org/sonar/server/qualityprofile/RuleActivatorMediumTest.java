@@ -43,7 +43,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -133,7 +132,7 @@ public class RuleActivatorMediumTest {
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile P1
-    profileDto = QProfileTesting.newXooP1();
+    profileDto = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
     dbSession.clearCache();
@@ -495,8 +494,7 @@ public class RuleActivatorMediumTest {
       activate(activation, XOO_P1_KEY);
       fail();
     } catch (BadRequestException e) {
-      Message msg = e.errors().messages().get(0);
-      assertThat(msg.getMessage()).isEqualTo("Value 'foo' must be an integer.");
+      assertThat(e.getMessage()).isEqualTo("Value 'foo' must be an integer.");
       verifyZeroActiveRules(XOO_P1_KEY);
     }
   }
@@ -946,7 +944,7 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRuleInDb(XOO_P1_KEY, XOO_X1, MAJOR, null, ImmutableMap.of("max", "10"));
 
     // create profile P2 with x2
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123"));
     activation = new RuleActivation(XOO_X2);
     activation.setSeverity("MAJOR");
     activate(activation, XOO_P2_KEY);
@@ -995,7 +993,7 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRuleInDb(XOO_P1_KEY, XOO_X1, MAJOR, null, ImmutableMap.of("max", "10"));
 
     // create empty profile P2
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123"));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -1025,7 +1023,7 @@ public class RuleActivatorMediumTest {
     activate(activation, XOO_P1_KEY);
 
     // create profile P2
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2());
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123"));
 
     // mark rule x1 as REMOVED
     RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
@@ -1160,8 +1158,8 @@ public class RuleActivatorMediumTest {
   }
 
   private void createChildProfiles() {
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2().setParentKee(XOO_P1_KEY));
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP3().setParentKee(XOO_P2_KEY));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123").setParentKee(XOO_P1_KEY));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP3("org-123").setParentKee(XOO_P2_KEY));
     dbSession.commit();
   }
 

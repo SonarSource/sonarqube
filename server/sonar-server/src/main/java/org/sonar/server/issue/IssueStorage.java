@@ -36,7 +36,6 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 
@@ -78,11 +77,8 @@ public abstract class IssueStorage {
   }
 
   public void save(Iterable<DefaultIssue> issues) {
-    DbSession session = dbClient.openSession(true);
-    try {
+    try (DbSession session = dbClient.openSession(true)) {
       doSave(session, issues);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -90,14 +86,14 @@ public abstract class IssueStorage {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
     long now = system2.now();
-    
+
     Map<Boolean, List<DefaultIssue>> issuesNewOrUpdated = StreamSupport.stream(issues.spliterator(), true).collect(Collectors.groupingBy(DefaultIssue::isNew));
     List<DefaultIssue> issuesToInsert = firstNonNull(issuesNewOrUpdated.get(true), emptyList());
     List<DefaultIssue> issuesToUpdate = firstNonNull(issuesNewOrUpdated.get(false), emptyList());
-    
+
     Collection<String> inserted = insert(session, issuesToInsert, now);
     Collection<String> updated = update(issuesToUpdate, now);
-    
+
     Collection<String> issuesInsertedOrUpdated = new ArrayList<>(issuesToInsert.size() + issuesToUpdate.size());
     issuesInsertedOrUpdated.addAll(inserted);
     issuesInsertedOrUpdated.addAll(updated);
@@ -136,17 +132,14 @@ public abstract class IssueStorage {
   private Collection<String> update(List<DefaultIssue> issuesToUpdate, long now) {
     Collection<String> updated = new ArrayList<>();
     if (!issuesToUpdate.isEmpty()) {
-      DbSession session = dbClient.openSession(false);
-      try {
-        IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        IssueChangeMapper issueChangeMapper = dbSession.getMapper(IssueChangeMapper.class);
         for (DefaultIssue issue : issuesToUpdate) {
-          String key = doUpdate(session, now, issue);
+          String key = doUpdate(dbSession, now, issue);
           updated.add(key);
           insertChanges(issueChangeMapper, issue);
         }
-        session.commit();
-      } finally {
-        MyBatis.closeQuietly(session);
+        dbSession.commit();
       }
     }
     return updated;

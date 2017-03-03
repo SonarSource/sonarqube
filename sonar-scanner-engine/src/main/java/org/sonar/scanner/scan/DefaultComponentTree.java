@@ -19,19 +19,16 @@
  */
 package org.sonar.scanner.scan;
 
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.CheckForNull;
-
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
-
-import com.google.common.base.Preconditions;
 
 public class DefaultComponentTree implements InputComponentTree {
   private Map<InputComponent, InputComponent> parents = new HashMap<>();
@@ -41,13 +38,7 @@ public class DefaultComponentTree implements InputComponentTree {
     Preconditions.checkNotNull(component);
     Preconditions.checkNotNull(parent);
     parents.put(component, parent);
-    Set<InputComponent> list = children.get(parent);
-    if (list == null) {
-      list = new LinkedHashSet<>();
-      children.put(parent, list);
-    }
-
-    list.add(component);
+    children.computeIfAbsent(parent, k -> new LinkedHashSet<>()).add(component);
   }
 
   @Override

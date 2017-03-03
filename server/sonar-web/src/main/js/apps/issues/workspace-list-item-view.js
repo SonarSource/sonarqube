@@ -21,9 +21,11 @@ import $ from 'jquery';
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import Marionette from 'backbone.marionette';
-import Issue from '../../components/issue/Issue';
+import ConnectedIssue from '../../components/issue/ConnectedIssue';
 import IssueFilterView from './issue-filter-view';
 import WithStore from '../../components/shared/WithStore';
+import getStore from '../../app/utils/getStore';
+import { getIssueByKey } from '../../store/rootReducer';
 
 const SHOULD_NULL = {
   any: ['issues'],
@@ -42,10 +44,19 @@ export default Marionette.ItemView.extend({
     this.onIssueCheck = this.onIssueCheck.bind(this);
     this.listenTo(options.app.state, 'change:selectedIndex', this.showIssue);
     this.listenTo(this.model, 'change:selected', this.showIssue);
+    this.subscribeToStore();
   },
 
   template () {
     return '<div></div>';
+  },
+
+  subscribeToStore () {
+    const store = getStore();
+    store.subscribe(() => {
+      const issue = getIssueByKey(store.getState(), this.model.get('key'));
+      this.model.set(issue);
+    });
   },
 
   onRender () {
@@ -61,8 +72,8 @@ export default Marionette.ItemView.extend({
 
     render((
       <WithStore>
-        <Issue
-          issue={this.model}
+        <ConnectedIssue
+          issueKey={this.model.get('key')}
           checked={this.model.get('selected')}
           onCheck={this.onIssueCheck}
           onClick={this.openComponentViewer}

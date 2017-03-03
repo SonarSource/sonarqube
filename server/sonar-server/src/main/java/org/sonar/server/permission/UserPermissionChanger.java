@@ -24,9 +24,9 @@ import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
-import org.sonar.server.exceptions.BadRequestException;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Adds and removes user permissions. Both global and project scopes are supported.
@@ -89,9 +89,7 @@ public class UserPermissionChanger {
     if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getProjectId().isPresent()) {
       int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUserPermission(dbSession,
         change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId());
-      if (remaining == 0) {
-        throw new BadRequestException(String.format("Last user with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN));
-      }
+      checkRequest(remaining > 0, "Last user with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);
     }
   }
 }

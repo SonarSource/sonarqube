@@ -119,7 +119,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(SUPPORTED_FACETS);
     action
       .createParam(PARAM_FILTER)
-      .setDescription("Filter of projects on name, key, measure value, quality gate, language, or whether a project is a favorite or not.<br>" +
+      .setDescription("Filter of projects on name, key, measure value, quality gate, language, tag or whether a project is a favorite or not.<br>" +
         "The filter must be encoded to form a valid URL (for example '=' must be replaced by '%3D').<br>" +
         "Examples of use:" +
         "<ul>" +
@@ -149,12 +149,17 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>'WARN' for Warning</li>" +
         " <li>'ERROR' for Failed</li>" +
         "</ul>" +
-        "To filter on language keys use language key' : " +
+        "To filter on language keys use the language key: " +
         "<ul>" +
-        " <li>To filter on a single language you can use 'language = java'</li>" +
-        " <li>To filter on a many language you must use 'language IN (java, js)'</li>" +
-        "<ul/>" +
-        "Use the WS api/languages/list to find the key of a language.");
+        " <li>to filter on a single language you can use 'language = java'</li>" +
+        " <li>to filter on several languages you must use 'language IN (java, js)'</li>" +
+        "</ul>" +
+        "Use the WS api/languages/list to find the key of a language." +
+        "To filter on tags use the 'tag' keyword:" +
+        "<ul> " +
+        " <li>to filter on one tag you can use <code>tag = finance</code></li>" +
+        " <li>to filter on several tags you must use <code>tag in (offshore, java)</code></li>" +
+        "</ul>");
     action.createParam(Param.SORT)
       .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), or by project name.<br/>" +
         "See '%s' parameter description for the possible metric values", ALERT_STATUS_KEY, PARAM_FILTER)

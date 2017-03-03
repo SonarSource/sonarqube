@@ -160,8 +160,7 @@ public class SearchProjectsActionTest {
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1")
-      .setTagsString("finance, java")
-    );
+      .setTagsString("finance, java"));
     insertProjectInDbAndEs(newProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_02)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
@@ -170,8 +169,7 @@ public class SearchProjectsActionTest {
       .setUuid(Uuids.UUID_EXAMPLE_03)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3")
-      .setTagsString("sales, offshore, java")
-    );
+      .setTagsString("sales, offshore, java"));
     userSession.logIn().setUserId(23);
     addFavourite(project1);
     dbSession.commit();
@@ -298,6 +296,20 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void filter_projects_by_tags() {
+    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown").setTags(singletonList("marketing")));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube").setTags(newArrayList("offshore")));
+    insertMetrics(COVERAGE, NCLOC);
+    request.setFilter("tag in (finance, offshore)");
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java", "Sonar Qube");
+  }
+
+  @Test
   public void filter_projects_by_text_query() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
     insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonar-java").setName("Sonar Java"));
@@ -306,7 +318,8 @@ public class SearchProjectsActionTest {
     insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonarqube").setName("Sonar Qube"));
 
     assertThat(call(request.setFilter("query = \"Groovy\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Groovy");
-    assertThat(call(request.setFilter("query = \"oNar\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java", "Sonar Groovy", "Sonar Markdown", "Sonar Qube");
+    assertThat(call(request.setFilter("query = \"oNar\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java", "Sonar Groovy", "Sonar Markdown",
+      "Sonar Qube");
     assertThat(call(request.setFilter("query = \"sonar-java\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java");
   }
 
@@ -601,7 +614,8 @@ public class SearchProjectsActionTest {
           .setName(project.name())
           .setMeasures(measures)
           .setQualityGateStatus(qualityGateStatus)
-          .setLanguages(languagesDistribution));
+          .setLanguages(languagesDistribution)
+          .setTags(project.getTags()));
       authorizationIndexerTester.allowOnlyAnyone(project);
     } catch (Exception e) {
       Throwables.propagate(e);

@@ -38,7 +38,7 @@ public class FloatTypeValidation implements TypeValidation {
     try {
       Double.parseDouble(value);
     } catch (NumberFormatException e) {
-      throw new BadRequestException(format("Value '%s' must be an floating point number.", value));
+      throw BadRequestException.create(format("Value '%s' must be an floating point number.", value));
     }
   }
 

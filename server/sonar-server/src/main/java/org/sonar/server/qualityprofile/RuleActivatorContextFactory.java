@@ -30,7 +30,8 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.exceptions.BadRequestException;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 public class RuleActivatorContextFactory {
@@ -44,9 +45,7 @@ public class RuleActivatorContextFactory {
   RuleActivatorContext create(String profileKey, RuleKey ruleKey, DbSession session) {
     RuleActivatorContext context = new RuleActivatorContext();
     QualityProfileDto profile = db.qualityProfileDao().selectByKey(session, profileKey);
-    if (profile == null) {
-      throw new BadRequestException("Quality profile not found: " + profileKey);
-    }
+    checkRequest(profile != null, "Quality profile not found: %s", profileKey);
     context.setProfile(profile);
     return create(ruleKey, session, context);
   }
@@ -54,9 +53,7 @@ public class RuleActivatorContextFactory {
   RuleActivatorContext create(QProfileName profileName, RuleKey ruleKey, DbSession session) {
     RuleActivatorContext context = new RuleActivatorContext();
     QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), session);
-    if (profile == null) {
-      throw new BadRequestException("Quality profile not found: " + profileName);
-    }
+    checkRequest(profile != null, "Quality profile not found: %s", profileName);
     context.setProfile(profile);
     return create(ruleKey, session, context);
   }
@@ -77,9 +74,7 @@ public class RuleActivatorContextFactory {
 
   private RuleDto initRule(RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession) {
     Optional<RuleDto> rule = db.ruleDao().selectByKey(dbSession, ruleKey);
-    if (!rule.isPresent()) {
-      throw new BadRequestException("Rule not found: " + ruleKey);
-    }
+    checkRequest(rule.isPresent(), "Rule not found: %s", ruleKey);
     context.setRule(rule.get());
     context.setRuleParams(db.ruleDao().selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
     return rule.get();

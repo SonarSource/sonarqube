@@ -29,7 +29,6 @@ import org.sonar.core.issue.tracking.LazyInput;
 import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
@@ -69,16 +68,13 @@ public class TrackerBaseInputFactory {
       if (component.getType() != Component.Type.FILE) {
         return EMPTY_LINE_HASH_SEQUENCE;
       }
-      
-      DbSession session = dbClient.openSession(false);
-      try {
+
+      try (DbSession session = dbClient.openSession(false)) {
         List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, effectiveUuid);
         if (hashes == null || hashes.isEmpty()) {
           return EMPTY_LINE_HASH_SEQUENCE;
         }
         return new LineHashSequence(hashes);
-      } finally {
-        MyBatis.closeQuietly(session);
       }
     }
 

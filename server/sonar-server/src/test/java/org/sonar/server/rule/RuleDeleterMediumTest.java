@@ -90,7 +90,7 @@ public class RuleDeleterMediumTest {
     dao.insert(dbSession, customRule);
 
     // Create a quality profile
-    QualityProfileDto profileDto = QProfileTesting.newXooP1();
+    QualityProfileDto profileDto = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
     dbSession.clearCache();

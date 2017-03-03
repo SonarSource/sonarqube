@@ -35,6 +35,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 import static org.sonar.server.ws.WsUtils.checkFound;
@@ -46,9 +47,11 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class QProfileFactory {
 
   private final DbClient db;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileFactory(DbClient db) {
+  public QProfileFactory(DbClient db, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.db = db;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   // ------------- CREATION
@@ -63,21 +66,20 @@ public class QProfileFactory {
 
   public QualityProfileDto create(DbSession dbSession, QProfileName name) {
     QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
-    if (dto != null) {
-      throw new BadRequestException("Quality profile already exists: " + name);
-    }
+    checkRequest(dto == null, "Quality profile already exists: %s", name);
     return doCreate(dbSession, name);
   }
 
   private QualityProfileDto doCreate(DbSession dbSession, QProfileName name) {
     if (StringUtils.isEmpty(name.getName())) {
-      throw new BadRequestException("quality_profiles.profile_name_cant_be_blank");
+      throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
     Date now = new Date();
     for (int i = 0; i < 20; i++) {
       String key = Slug.slugify(String.format("%s %s %s", name.getLanguage(), name.getName(), RandomStringUtils.randomNumeric(5)));
       QualityProfileDto dto = QualityProfileDto.createFor(key)
         .setName(name.getName())
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .setLanguage(name.getLanguage())
         .setRulesUpdatedAtAsDate(now);
       if (db.qualityProfileDao().selectByKey(dbSession, dto.getKey()) == null) {
@@ -191,7 +193,7 @@ public class QProfileFactory {
 
   private static void checkNotDefault(QualityProfileDto p) {
     if (p.isDefault()) {
-      throw new BadRequestException("The profile marked as default can not be deleted: " + p.getKey());
+      throw BadRequestException.create("The profile marked as default can not be deleted: " + p.getKey());
     }
   }
 
@@ -207,9 +209,7 @@ public class QProfileFactory {
         throw new NotFoundException("Quality profile not found: " + key);
       }
       if (!StringUtils.equals(newName, profile.getName())) {
-        if (db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) != null) {
-          throw new BadRequestException("Quality profile already exists: " + newName);
-        }
+        checkRequest(db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) == null, "Quality profile already exists: %s", newName);
         profile.setName(newName);
         db.qualityProfileDao().update(dbSession, profile);
         dbSession.commit();

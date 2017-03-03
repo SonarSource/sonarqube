@@ -82,9 +82,9 @@ public class ShowAction implements QualityGatesWsAction {
 
   private static void checkOneOfIdOrNamePresent(@Nullable Long qGateId, @Nullable String qGateName) {
     if (qGateId == null && qGateName == null) {
-      throw new BadRequestException("Either one of 'id' or 'name' is required.");
+      throw BadRequestException.create("Either one of 'id' or 'name' is required.");
     } else if (qGateId != null && qGateName != null) {
-      throw new BadRequestException("Only one of 'id' or 'name' must be provided.");
+      throw BadRequestException.create("Only one of 'id' or 'name' must be provided.");
     }
   }
 

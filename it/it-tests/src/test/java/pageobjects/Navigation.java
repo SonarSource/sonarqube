@@ -29,6 +29,7 @@ import java.net.URLEncoder;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.openqa.selenium.By;
+import pageobjects.issues.IssuesPage;
 import pageobjects.licenses.LicensesPage;
 import pageobjects.projects.ProjectsPage;
 import pageobjects.settings.SettingsPage;
@@ -59,6 +60,10 @@ public class Navigation extends ExternalResource {
 
   public ProjectsPage openProjects() {
     return open("/projects", ProjectsPage.class);
+  }
+
+  public IssuesPage openIssues() {
+    return open("/issues", IssuesPage.class);
   }
 
   public ProjectDashboardPage openProjectDashboard(String projectKey) {

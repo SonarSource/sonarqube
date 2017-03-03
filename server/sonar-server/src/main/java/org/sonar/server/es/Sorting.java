@@ -22,13 +22,13 @@ package org.sonar.server.es;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.server.exceptions.BadRequestException;
 
-import java.util.List;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Construct sorting criteria of ES requests. Sortable fields must be previously
@@ -63,9 +63,7 @@ public class Sorting {
 
   public void fill(SearchRequestBuilder request, String name, boolean asc) {
     List<Field> list = fields.get(name);
-    if (list.isEmpty()) {
-      throw new BadRequestException("Bad sort field: " + name);
-    }
+    checkRequest(!list.isEmpty(), "Bad sort field: %s", name);
     doFill(request, list, asc);
   }
 

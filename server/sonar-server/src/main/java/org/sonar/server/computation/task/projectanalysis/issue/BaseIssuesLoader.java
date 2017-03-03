@@ -22,14 +22,11 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -55,28 +52,22 @@ public class BaseIssuesLoader {
   }
 
   public List<DefaultIssue> loadForComponentUuid(String componentUuid) {
-    DbSession session = dbClient.openSession(false);
-    final List<DefaultIssue> result = new ArrayList<>();
-    try {
-      session.getMapper(IssueMapper.class).selectNonClosedByComponentUuid(componentUuid, new ResultHandler() {
-        @Override
-        public void handleResult(ResultContext resultContext) {
-          DefaultIssue issue = ((IssueDto) resultContext.getResultObject()).toDefaultIssue();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<DefaultIssue> result = new ArrayList<>();
+      dbSession.getMapper(IssueMapper.class).selectNonClosedByComponentUuid(componentUuid, resultContext -> {
+        DefaultIssue issue = ((IssueDto) resultContext.getResultObject()).toDefaultIssue();
 
-          // TODO this field should be set outside this class
-          if (!isActive(issue.ruleKey()) || ruleRepository.getByKey(issue.ruleKey()).getStatus() == RuleStatus.REMOVED) {
-            issue.setOnDisabledRule(true);
-            // TODO to be improved, why setOnDisabledRule(true) is not enough ?
-            issue.setBeingClosed(true);
-          }
-          // FIXME
-          issue.setSelectedAt(System.currentTimeMillis());
-          result.add(issue);
+        // TODO this field should be set outside this class
+        if (!isActive(issue.ruleKey()) || ruleRepository.getByKey(issue.ruleKey()).getStatus() == RuleStatus.REMOVED) {
+          issue.setOnDisabledRule(true);
+          // TODO to be improved, why setOnDisabledRule(true) is not enough ?
+          issue.setBeingClosed(true);
         }
+        // FIXME
+        issue.setSelectedAt(System.currentTimeMillis());
+        result.add(issue);
       });
       return result;
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -88,11 +79,8 @@ public class BaseIssuesLoader {
    * Uuids of all the components that have open issues on this project.
    */
   public Set<String> loadUuidsOfComponentsWithOpenIssues() {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dbClient.issueDao().selectComponentUuidsOfOpenIssuesForProjectUuid(session, treeRootHolder.getRoot().getUuid());
-    } finally {
-      MyBatis.closeQuietly(session);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.issueDao().selectComponentUuidsOfOpenIssuesForProjectUuid(dbSession, treeRootHolder.getRoot().getUuid());
     }
   }
 }

@@ -38,6 +38,7 @@ public class ProjectMeasuresQuery {
   private String organizationUuid;
   private Set<String> projectUuids;
   private Set<String> languages;
+  private Set<String> tags;
   private String sort = SORT_BY_NAME;
   private boolean asc = true;
   private String queryText;
@@ -85,6 +86,15 @@ public class ProjectMeasuresQuery {
 
   public Optional<Set<String>> getLanguages() {
     return Optional.ofNullable(languages);
+  }
+
+  public ProjectMeasuresQuery setTags(@Nullable Set<String> tags) {
+    this.tags = tags;
+    return this;
+  }
+
+  public Optional<Set<String>> getTags() {
+    return Optional.ofNullable(tags);
   }
 
   public Optional<String> getQueryText() {

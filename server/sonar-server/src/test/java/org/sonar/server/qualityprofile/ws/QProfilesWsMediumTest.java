@@ -405,8 +405,8 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void reset() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
-    QualityProfileDto subProfile = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto subProfile = QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(session, profile, subProfile);
 
     RuleDto rule = createRule(profile.getLanguage(), "rule");
@@ -442,7 +442,7 @@ public class QProfilesWsMediumTest {
     db.organizationDao().insert(session, organizationDto);
     ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(session, profile);
 
     session.commit();
@@ -465,8 +465,8 @@ public class QProfilesWsMediumTest {
     db.organizationDao().insert(session, organizationDto);
     ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
-    QualityProfileDto profile1 = QProfileTesting.newXooP1();
-    QualityProfileDto profile2 = QProfileTesting.newXooP2();
+    QualityProfileDto profile1 = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123");
     db.qualityProfileDao().insert(session, profile1, profile2);
     db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile1.getKey(), session);
 
@@ -484,7 +484,7 @@ public class QProfilesWsMediumTest {
     db.organizationDao().insert(session, organizationDto);
     ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(session, profile);
 
     session.commit();
@@ -543,7 +543,7 @@ public class QProfilesWsMediumTest {
     db.organizationDao().insert(session, organizationDto);
     ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(session, profile);
     db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
 
@@ -561,7 +561,7 @@ public class QProfilesWsMediumTest {
     db.organizationDao().insert(session, organizationDto);
     ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(session, profile);
     db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
 
@@ -574,7 +574,7 @@ public class QProfilesWsMediumTest {
   }
 
   private QualityProfileDto createProfile(String lang) {
-    QualityProfileDto profile = QProfileTesting.newQProfileDto(new QProfileName(lang, "P" + lang), "p" + lang);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, "P" + lang), "p" + lang);
     db.qualityProfileDao().insert(session, profile);
     return profile;
   }

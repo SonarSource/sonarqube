@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -104,11 +105,16 @@ public class ExportAction implements QProfileWsAction {
     String name = request.param(PARAM_PROFILE_NAME);
     String language = request.mandatoryParam(PARAM_LANGUAGE);
     String exporterKey = exporters.exportersForLanguage(language).isEmpty() ? null : request.param(PARAM_FORMAT);
+    QualityProfileDto profile = getProfile(name, language);
+    writeResponse(profile, exporterKey, response);
+  }
+
+  private void writeResponse(QualityProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
     Stream stream = response.stream();
-    try (DbSession dbSession = dbClient.openSession(false);
-      OutputStream output = stream.output();
+    try (
+      DbSession dbSession = dbClient.openSession(false);
+      OutputStream output = response.stream().output();
       Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
-      QualityProfileDto profile = getProfile(dbSession, name, language);
       if (exporterKey == null) {
         stream.setMediaType(MediaTypes.XML);
         backuper.backup(dbSession, profile, writer);
@@ -119,10 +125,11 @@ public class ExportAction implements QProfileWsAction {
     }
   }
 
-  private QualityProfileDto getProfile(DbSession dbSession, @Nullable String name, String language) {
-    QualityProfileDto profile = name == null ? dbClient.qualityProfileDao().selectDefaultProfile(dbSession, language)
-      : dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, dbSession);
-    return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
+  private QualityProfileDto getProfile(@Nullable String name, String language) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityProfileDto profile = name == null ? dbClient.qualityProfileDao().selectDefaultProfile(dbSession, language)
+        : dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, dbSession);
+      return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
+    }
   }
-
 }

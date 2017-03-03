@@ -78,7 +78,7 @@ public class AddProjectActionTest {
   @Test
   public void add_project() throws Exception {
     setUserAsQualityProfileAdmin();
-    QualityProfileDto profile = qualityProfileDbTester.insertQualityProfile(newQProfileDto(QProfileName.createFor(LANGUAGE_1, "profile1"), "Profile"));
+    QualityProfileDto profile = qualityProfileDbTester.insertQualityProfile(newQProfileDto("org-123", QProfileName.createFor(LANGUAGE_1, "profile1"), "Profile"));
     session.commit();
 
     executeRequest(project, profile);
@@ -89,8 +89,8 @@ public class AddProjectActionTest {
   @Test
   public void change_project_association() throws Exception {
     setUserAsQualityProfileAdmin();
-    QualityProfileDto profile1 = newQProfileDto(QProfileName.createFor(LANGUAGE_1, "profile1"), "Profile 1");
-    QualityProfileDto profile2 = newQProfileDto(QProfileName.createFor(LANGUAGE_1, "profile2"), "Profile 2");
+    QualityProfileDto profile1 = newQProfileDto("org-123", QProfileName.createFor(LANGUAGE_1, "profile1"), "Profile 1");
+    QualityProfileDto profile2 = newQProfileDto("org-123", QProfileName.createFor(LANGUAGE_1, "profile2"), "Profile 2");
     qualityProfileDbTester.insertQualityProfiles(profile1, profile2);
     qualityProfileDbTester.associateProjectWithQualityProfile(project, profile1);
     session.commit();
@@ -103,9 +103,9 @@ public class AddProjectActionTest {
   @Test
   public void change_project_association_when_project_is_linked_on_many_profiles() throws Exception {
     setUserAsQualityProfileAdmin();
-    QualityProfileDto profile1Language1 = newQProfileDto(QProfileName.createFor(LANGUAGE_1, "profile1"), "Profile 1");
-    QualityProfileDto profile2Language2 = newQProfileDto(QProfileName.createFor(LANGUAGE_2, "profile2"), "Profile 2");
-    QualityProfileDto profile3Language1 = newQProfileDto(QProfileName.createFor(LANGUAGE_1, "profile3"), "Profile 3");
+    QualityProfileDto profile1Language1 = newQProfileDto("org-123", QProfileName.createFor(LANGUAGE_1, "profile1"), "Profile 1");
+    QualityProfileDto profile2Language2 = newQProfileDto("org-123", QProfileName.createFor(LANGUAGE_2, "profile2"), "Profile 2");
+    QualityProfileDto profile3Language1 = newQProfileDto("org-123", QProfileName.createFor(LANGUAGE_1, "profile3"), "Profile 3");
     qualityProfileDbTester.insertQualityProfiles(profile1Language1, profile2Language2, profile3Language1);
     qualityProfileDbTester.associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
     session.commit();

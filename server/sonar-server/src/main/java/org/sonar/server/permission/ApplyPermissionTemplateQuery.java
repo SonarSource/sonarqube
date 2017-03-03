@@ -20,9 +20,9 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import org.sonar.server.exceptions.BadRequestException;
 
-import static com.google.common.base.CharMatcher.WHITESPACE;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class ApplyPermissionTemplateQuery {
 
@@ -48,11 +48,7 @@ public class ApplyPermissionTemplateQuery {
   }
 
   private void validate() {
-    if (templateUuid == null || WHITESPACE.trimFrom(templateUuid).isEmpty()) {
-      throw new BadRequestException("Permission template is mandatory");
-    }
-    if (componentKeys == null || componentKeys.isEmpty()) {
-      throw new BadRequestException("No project provided. Please provide at least one project.");
-    }
+    checkRequest(isNotBlank(templateUuid), "Permission template is mandatory");
+    checkRequest(componentKeys != null && !componentKeys.isEmpty(), "No project provided. Please provide at least one project.");
   }
 }

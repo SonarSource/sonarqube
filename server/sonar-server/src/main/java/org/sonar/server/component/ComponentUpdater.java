@@ -34,7 +34,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexer.Cause;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 
@@ -82,9 +81,8 @@ public class ComponentUpdater {
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
     checkBranchFormat(newComponent.qualifier(), newComponent.branch());
     String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.branch());
-    if (dbClient.componentDao().selectByKey(session, keyWithBranch).isPresent()) {
-      throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", newComponent.qualifier(), keyWithBranch));
-    }
+    checkRequest(!dbClient.componentDao().selectByKey(session, keyWithBranch).isPresent(),
+      formatMessage("Could not create %s, key already exists: %s", newComponent.qualifier(), keyWithBranch));
 
     String uuid = Uuids.create();
     ComponentDto component = new ComponentDto()
@@ -122,7 +120,7 @@ public class ComponentUpdater {
   private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, String organizationUuid, @Nullable Integer userId) {
     permissionTemplateService.applyDefault(dbSession, organizationUuid, componentDto, userId);
     if (componentDto.qualifier().equals(PROJECT)
-        && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, componentDto)) {
+      && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, componentDto)) {
       favoriteUpdater.add(dbSession, componentDto, userId);
     }
   }
@@ -133,10 +131,8 @@ public class ComponentUpdater {
   }
 
   private void checkBranchFormat(String qualifier, @Nullable String branch) {
-    if (branch != null && !ComponentKeys.isValidBranch(branch)) {
-      throw new BadRequestException(formatMessage("Malformed branch for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.",
-        qualifier, branch));
-    }
+    checkRequest(branch == null || ComponentKeys.isValidBranch(branch),
+      formatMessage("Malformed branch for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.", qualifier, branch));
   }
 
   private String formatMessage(String message, String qualifier, String key) {

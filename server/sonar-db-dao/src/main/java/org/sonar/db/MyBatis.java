@@ -23,14 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.annotation.Nullable;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
 import org.sonar.db.ce.CeScannerContextMapper;
@@ -128,21 +126,6 @@ public class MyBatis implements Startable {
 
   public MyBatis(Database database) {
     this.database = database;
-  }
-
-  /**
-   * @deprecated please use try-with-resources
-   */
-  @Deprecated
-  public static void closeQuietly(@Nullable DbSession session) {
-    if (session != null) {
-      try {
-        session.close();
-      } catch (Exception e) {
-        Loggers.get(MyBatis.class).warn("Fail to close db session", e);
-        // do not re-throw the exception
-      }
-    }
   }
 
   @Override

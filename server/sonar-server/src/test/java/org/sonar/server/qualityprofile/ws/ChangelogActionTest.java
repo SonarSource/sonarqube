@@ -69,7 +69,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_empty() throws Exception {
-    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1("org-123"));
     when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE_KEY, XOO_P1_KEY)
@@ -78,7 +78,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_nominal() throws Exception {
-    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1("org-123"));
     ChangelogLoader.Change change1 = new ChangelogLoader.Change("C1", "ACTIVATED", A_DATE, null, null, null, null, null, null);
     ChangelogLoader.Change change2 = new ChangelogLoader.Change("C2", "ACTIVATED", A_DATE + 10, null, null, null, null, null, null);
     List<ChangelogLoader.Change> changes = asList(change1, change2);
@@ -90,7 +90,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_with_all_fields() throws Exception {
-    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1("org-123"));
     ChangelogLoader.Change change1 = new ChangelogLoader.Change("C1", "ACTIVATED", A_DATE, "MAJOR", "marcel", "Marcel", "INHERITED", RuleTesting.XOO_X1, "X One");
     change1.getParams().put("foo", "foo_value");
     change1.getParams().put("bar", "bar_value");
@@ -103,7 +103,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_inclusive_for_dates() throws Exception {
-    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1("org-123"));
     when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog")

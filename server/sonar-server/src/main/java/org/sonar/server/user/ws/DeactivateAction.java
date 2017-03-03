@@ -118,19 +118,18 @@ public class DeactivateAction implements UsersWsAction {
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
     List<String> problematicOrgs = selectOrganizationsWithNoMoreAdministrators(dbSession, user);
-    if (!problematicOrgs.isEmpty()) {
-      if (problematicOrgs.size() == 1 && defaultOrganizationProvider.get().getUuid().equals(problematicOrgs.get(0))) {
-        throw new BadRequestException("User is last administrator, and cannot be deactivated");
-      }
-      String keys = problematicOrgs
-        .stream()
-        .map(orgUuid -> selectOrganizationByUuid(dbSession, orgUuid, user))
-        .map(OrganizationDto::getKey)
-        .sorted()
-        .collect(Collectors.joining(", "));
-      throw new BadRequestException(format("User is last administrator of organizations [%s], and cannot be deactivated", keys));
-
+    if (problematicOrgs.isEmpty()) {
+      return;
     }
+    checkRequest(problematicOrgs.size() != 1 || !defaultOrganizationProvider.get().getUuid().equals(problematicOrgs.get(0)),
+      "User is last administrator, and cannot be deactivated");
+    String keys = problematicOrgs
+      .stream()
+      .map(orgUuid -> selectOrganizationByUuid(dbSession, orgUuid, user))
+      .map(OrganizationDto::getKey)
+      .sorted()
+      .collect(Collectors.joining(", "));
+    throw BadRequestException.create(format("User is last administrator of organizations [%s], and cannot be deactivated", keys));
   }
 
   private List<String> selectOrganizationsWithNoMoreAdministrators(DbSession dbSession, UserDto user) {

@@ -20,12 +20,12 @@
 package org.sonar.scanner.issue.tracking;
 
 import java.util.function.Function;
-
 import javax.annotation.Nullable;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -76,14 +76,18 @@ public class ServerIssueRepository {
       if (issue == null) {
         return null;
       }
-      String componentKey = ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.hasPath() ? issue.getPath() : null);
-      DefaultInputComponent r = (DefaultInputComponent) resourceCache.getByKey(componentKey);
-      if (r == null) {
-        // Deleted resource
-        issuesCache.put(0, issue.getKey(), issue);
-      } else {
-        issuesCache.put(r.batchId(), issue.getKey(), issue);
+      String moduleKeyWithBranch = issue.getModuleKey();
+      ProjectDefinition projectDefinition = reactor.getProjectDefinition(moduleKeyWithBranch);
+      if (projectDefinition != null) {
+        String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(projectDefinition.getKey(), issue.hasPath() ? issue.getPath() : null);
+        DefaultInputComponent r = (DefaultInputComponent) resourceCache.getByKey(componentKeyWithoutBranch);
+        if (r != null) {
+          issuesCache.put(r.batchId(), issue.getKey(), issue);
+          return null;
+        }
       }
+      // Deleted resource
+      issuesCache.put(0, issue.getKey(), issue);
       return null;
     }
   }

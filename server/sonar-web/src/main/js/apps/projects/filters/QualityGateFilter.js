@@ -36,7 +36,7 @@ export default class QualityGateFilter extends React.Component {
     return (
         <FilterContainer
             property="gate"
-            options={['OK', 'WARN', 'ERROR']}
+            getOptions={() => ['OK', 'WARN', 'ERROR']}
             renderName={() => 'Quality Gate'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}

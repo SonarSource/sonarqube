@@ -28,8 +28,10 @@ import java.util.Collections;
 import java.util.TimeZone;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
@@ -39,15 +41,17 @@ import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
+import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
@@ -60,7 +64,7 @@ public class JSONReportTest {
 
   private SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   JSONReport jsonReport;
@@ -76,20 +80,31 @@ public class JSONReportTest {
   public void before() throws Exception {
     moduleHierarchy = mock(InputModuleHierarchy.class);
     userRepository = mock(UserRepositoryLoader.class);
-    fs = new DefaultFileSystem(temp.newFolder().toPath());
+    File projectBaseDir = temp.newFolder();
+    fs = new DefaultFileSystem(projectBaseDir.toPath());
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(server.getVersion()).thenReturn("3.6");
 
-    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts", TestInputFileBuilder.nextBatchId());
-    DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java").build();
-    inputFile.setStatus(InputFile.Status.CHANGED);
-    InputComponentStore fileCache = mock(InputComponentStore.class);
-    when(fileCache.allFilesToPublish()).thenReturn(Collections.singleton(inputFile));
-    when(fileCache.allDirs()).thenReturn(Collections.singleton(inputDir));
-
-    DefaultInputModule rootModule = new DefaultInputModule("struts");
+    InputComponentStore inputComponentStore = new InputComponentStore(new PathResolver());
+    DefaultComponentTree inputComponentTree = new DefaultComponentTree();
+    DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create().setBaseDir(projectBaseDir).setKey("struts"), 1);
+    inputComponentStore.put(rootModule);
     DefaultInputModule moduleA = new DefaultInputModule("struts-core");
+    inputComponentTree.index(moduleA, rootModule);
     DefaultInputModule moduleB = new DefaultInputModule("struts-ui");
+    inputComponentTree.index(moduleB, rootModule);
+
+    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts", TestInputFileBuilder.nextBatchId())
+      .setModuleBaseDir(projectBaseDir.toPath());
+    DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java")
+      .setModuleBaseDir(projectBaseDir.toPath()).build();
+    inputFile.setStatus(InputFile.Status.CHANGED);
+    inputFile.setPublish(true);
+    inputComponentStore.put(inputFile);
+    inputComponentStore.put(inputDir);
+
+    inputComponentTree.index(inputDir, rootModule);
+    inputComponentTree.index(inputFile, inputDir);
 
     when(moduleHierarchy.children(rootModule)).thenReturn(Arrays.asList(moduleA, moduleB));
     when(moduleHierarchy.parent(moduleA)).thenReturn(rootModule);
@@ -100,7 +115,7 @@ public class JSONReportTest {
     RulesBuilder builder = new RulesBuilder();
     builder.add(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles");
     rules = builder.build();
-    jsonReport = new JSONReport(moduleHierarchy, settings, fs, server, rules, issueCache, rootModule, fileCache, userRepository);
+    jsonReport = new JSONReport(moduleHierarchy, settings, fs, server, rules, issueCache, rootModule, inputComponentStore, userRepository, inputComponentTree);
   }
 
   @Test

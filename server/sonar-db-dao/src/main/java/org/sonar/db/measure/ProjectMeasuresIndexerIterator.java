@@ -54,6 +54,7 @@ import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.api.utils.KeyValueFormat.parseStringInt;
 import static org.sonar.db.DatabaseUtils.repeatCondition;
+import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMeasuresIndexerIterator.ProjectMeasures> {
 
@@ -62,7 +63,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static final Joiner METRICS_JOINER = Joiner.on("','");
 
-  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.uuid, s.created_at FROM projects p " +
+  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.uuid, s.created_at, p.tags " +
+    "FROM projects p " +
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
     "WHERE p.enabled=? AND p.scope=? AND p.qualifier=?";
 
@@ -130,7 +132,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
         String name = rs.getString(4);
         String analysisUuid = DatabaseUtils.getString(rs, 5);
         Long analysisDate = DatabaseUtils.getLong(rs, 6);
-        Project project = new Project(orgUuid, uuid, key, name, analysisUuid, analysisDate);
+        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 7));
+        Project project = new Project(orgUuid, uuid, key, name, tags, analysisUuid, analysisDate);
         projects.add(project);
       }
       return projects;
@@ -253,12 +256,14 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     private final String name;
     private final String analysisUuid;
     private final Long analysisDate;
+    private final List<String> tags;
 
-    public Project(String organizationUuid, String uuid, String key, String name, @Nullable String analysisUuid, @Nullable Long analysisDate) {
+    public Project(String organizationUuid, String uuid, String key, String name, List<String> tags, @Nullable String analysisUuid, @Nullable Long analysisDate) {
       this.organizationUuid = organizationUuid;
       this.uuid = uuid;
       this.key = key;
       this.name = name;
+      this.tags = tags;
       this.analysisUuid = analysisUuid;
       this.analysisDate = analysisDate;
     }
@@ -277,6 +282,10 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
     public String getName() {
       return name;
+    }
+
+    public List<String> getTags() {
+      return tags;
     }
 
     @CheckForNull

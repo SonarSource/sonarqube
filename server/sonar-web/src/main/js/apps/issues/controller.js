@@ -21,6 +21,8 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import Controller from '../../components/navigator/controller';
 import ComponentViewer from './component-viewer/main';
+import getStore from '../../app/utils/getStore';
+import { receiveIssues } from '../../store/issues/duck';
 
 const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'languages'];
 
@@ -35,6 +37,11 @@ export default Controller.extend({
     };
   },
 
+  receiveIssues (issues) {
+    const store = getStore();
+    store.dispatch(receiveIssues(issues));
+  },
+
   fetchList (firstPage) {
     const that = this;
     if (firstPage == null) {
@@ -44,9 +51,17 @@ export default Controller.extend({
       this.options.app.state.set({ selectedIndex: 0, page: 1 }, { silent: true });
       this.closeComponentViewer();
     }
-    const data = this.getQueryAsObject();
+    const data = this._issuesParameters();
+    Object.assign(data, this.options.app.state.get('query'));
+    if (this.options.app.state.get('query').assigned_to_me) {
+      Object.assign(data, { assignees: '__me__' });
+    }
+    if (this.options.app.state.get('isContext')) {
+      Object.assign(data, this.options.app.state.get('contextQuery'));
+    }
     return $.get(window.baseUrl + '/api/issues/search', data).done(r => {
       const issues = that.options.app.list.parseIssues(r);
+      this.receiveIssues(issues);
       if (firstPage) {
         that.options.app.list.reset(issues);
       } else {

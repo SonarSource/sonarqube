@@ -91,7 +91,7 @@ public class PermissionRequestValidator {
     try {
       Pattern.compile(projectPattern);
     } catch (PatternSyntaxException e) {
-      throw new BadRequestException(format("The '%s' parameter must be a valid Java regular expression. '%s' was passed", PARAM_PROJECT_KEY_PATTERN, projectPattern));
+      throw BadRequestException.create(format("The '%s' parameter must be a valid Java regular expression. '%s' was passed", PARAM_PROJECT_KEY_PATTERN, projectPattern));
     }
   }
 }

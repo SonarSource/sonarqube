@@ -25,10 +25,8 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 /**
@@ -124,9 +122,8 @@ public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitor
   }
 
   private void completeDbAttributes(Map<String, Object> attributes) {
-    DbSession dbSession = dbClient.openSession(false);
-    Connection connection = dbSession.getConnection();
-    try {
+    try (DbSession dbSession = dbClient.openSession(false);
+      Connection connection = dbSession.getConnection()) {
       DatabaseMetaData metadata = connection.getMetaData();
       attributes.put("Database", metadata.getDatabaseProductName());
       attributes.put("Database Version", metadata.getDatabaseProductVersion());
@@ -137,10 +134,6 @@ public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitor
       attributes.put("Version Status", getMigrationStatus());
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to get DB metadata", e);
-
-    } finally {
-      DbUtils.closeQuietly(connection);
-      MyBatis.closeQuietly(dbSession);
     }
   }
 }

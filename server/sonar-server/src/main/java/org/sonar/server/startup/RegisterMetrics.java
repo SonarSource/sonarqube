@@ -34,7 +34,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -66,13 +65,10 @@ public class RegisterMetrics {
 
   void register(Iterable<Metric> metrics) {
     Profiler profiler = Profiler.create(LOG).startInfo("Register metrics");
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       save(session, metrics);
       sanitizeQualityGates(session);
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
     profiler.stopDebug();
   }

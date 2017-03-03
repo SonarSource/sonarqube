@@ -37,13 +37,12 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.substring;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;
@@ -103,11 +102,11 @@ public class WebServiceEngine implements LocalConnector, Startable {
       verifyRequest(action, request);
       action.handler().handle(request, response);
     } catch (IllegalArgumentException e) {
-      sendErrors(response, 400, new Errors().add(Message.of(e.getMessage())));
+      sendErrors(response, 400, singletonList(e.getMessage()));
     } catch (BadRequestException e) {
       sendErrors(response, 400, e.errors());
     } catch (ServerException e) {
-      sendErrors(response, e.httpCode(), new Errors().add(Message.of(e.getMessage())));
+      sendErrors(response, e.httpCode(), singletonList(e.getMessage()));
     } catch (Exception e) {
       Response.Stream stream = response.stream();
       if (stream instanceof ServletResponse.ServletStream && ((ServletResponse.ServletStream) stream).response().isCommitted()) {
@@ -118,7 +117,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
       LOGGER.error("Fail to process request " + request, e);
       // Sending exception message into response is a vulnerability. Error must be
       // displayed only in logs.
-      sendErrors(response, 500, new Errors().add(Message.of("An error has occurred. Please contact your administrator")));
+      sendErrors(response, 500, singletonList("An error has occurred. Please contact your administrator"));
     }
   }
 
@@ -130,7 +129,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
     return controller == null ? null : controller.action(actionKey);
   }
 
-  private static void sendErrors(Response response, int status, Errors errors) {
+  private static void sendErrors(Response response, int status, List<String> errors) {
     Response.Stream stream = response.stream();
     if (stream instanceof ServletResponse.ServletStream) {
       ((ServletResponse.ServletStream) stream).reset();
@@ -140,12 +139,25 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
     try (JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8))) {
       json.beginObject();
-      errors.writeJson(json);
+      writeErrors(json, errors);
       json.endObject();
     } catch (Exception e) {
       // Do not hide the potential exception raised in the try block.
       throw Throwables.propagate(e);
     }
+  }
+
+  private static void writeErrors(JsonWriter json, List<String> errorMessages) {
+    if (errorMessages.isEmpty()) {
+      return;
+    }
+    json.name("errors").beginArray();
+    errorMessages.forEach(message -> {
+      json.beginObject();
+      json.prop("msg", message);
+      json.endObject();
+    });
+    json.endArray();
   }
 
   private static void checkActionExtension(@Nullable String actionExtension) {

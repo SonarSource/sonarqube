@@ -25,12 +25,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class UnsetRootAction implements RootsWsAction {
   private static final String PARAM_LOGIN = "login";
@@ -70,10 +70,7 @@ public class UnsetRootAction implements RootsWsAction {
       if (userDto == null || !userDto.isActive()) {
         throw new NotFoundException(format("User with login '%s' not found", login));
       }
-
-      if (dbClient.userDao().countRootUsersButLogin(dbSession, login) == 0) {
-        throw new BadRequestException("Last root can't be unset");
-      }
+      checkRequest(dbClient.userDao().countRootUsersButLogin(dbSession, login) > 0, "Last root can't be unset");
       if (userDto.isRoot()) {
         dbClient.userDao().setRoot(dbSession, login, false);
         dbSession.commit();

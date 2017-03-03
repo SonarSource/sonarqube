@@ -24,11 +24,10 @@ import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.server.exceptions.BadRequestException;
 
-import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class GroupPermissionChanger {
 
@@ -97,10 +96,7 @@ public class GroupPermissionChanger {
       // removing global admin permission from group
       int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
         change.getOrganizationUuid(), SYSTEM_ADMIN, change.getGroupIdOrAnyone().getId());
-
-      if (remaining == 0) {
-        throw new BadRequestException(format("Last group with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN));
-      }
+      checkRequest(remaining > 0, "Last group with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);
     }
   }
 

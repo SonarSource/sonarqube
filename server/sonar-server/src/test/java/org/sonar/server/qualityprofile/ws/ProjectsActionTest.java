@@ -201,8 +201,8 @@ public class ProjectsActionTest {
   }
 
   private void createProfiles() {
-    xooP1 = QProfileTesting.newXooP1();
-    xooP2 = QProfileTesting.newXooP2();
+    xooP1 = QProfileTesting.newXooP1("org-123");
+    xooP2 = QProfileTesting.newXooP2("org-123");
     dbClient.qualityProfileDao().insert(dbSession, xooP1, xooP2);
   }
 

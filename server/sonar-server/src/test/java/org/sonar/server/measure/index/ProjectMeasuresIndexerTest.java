@@ -33,6 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexer;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -41,7 +42,13 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
+
+;
 
 public class ProjectMeasuresIndexerTest {
 
@@ -132,8 +139,9 @@ public class ProjectMeasuresIndexerTest {
       .setId(uuid)
       .setKey("Old Key")
       .setName("Old Name")
+      .setTags(singletonList("old tag"))
       .setAnalysedAt(new Date(1_000_000L)));
-    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), uuid).setKey("New key").setName("New name");
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), uuid).setKey("New key").setName("New name").setTagsString("new tag");
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
 
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
@@ -144,9 +152,10 @@ public class ProjectMeasuresIndexerTest {
       .setQuery(boolQuery().must(matchAllQuery()).filter(
         boolQuery()
           .must(termQuery("_id", uuid))
-          .must(termQuery(ProjectMeasuresIndexDefinition.FIELD_KEY, "New key"))
-          .must(termQuery(ProjectMeasuresIndexDefinition.FIELD_NAME, "New name"))
-          .must(termQuery(ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT, new Date(analysis.getCreatedAt())))));
+          .must(termQuery(FIELD_KEY, "New key"))
+          .must(termQuery(FIELD_NAME, "New name"))
+          .must(termQuery(FIELD_TAGS, "new tag"))
+          .must(termQuery(FIELD_ANALYSED_AT, new Date(analysis.getCreatedAt())))));
     assertThat(request.get().getHits()).hasSize(1);
   }
 

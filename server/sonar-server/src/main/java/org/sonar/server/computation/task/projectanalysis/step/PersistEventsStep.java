@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.event.EventDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -60,14 +59,11 @@ public class PersistEventsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    final DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       long analysisDate = analysisMetadataHolder.getAnalysisDate();
-      new DepthTraversalTypeAwareCrawler(new PersistEventComponentVisitor(session, analysisDate))
+      new DepthTraversalTypeAwareCrawler(new PersistEventComponentVisitor(dbSession, analysisDate))
         .visit(treeRootHolder.getRoot());
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
+      dbSession.commit();
     }
   }
 

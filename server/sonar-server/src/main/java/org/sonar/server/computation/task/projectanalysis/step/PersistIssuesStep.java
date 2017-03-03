@@ -27,7 +27,6 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
@@ -56,12 +55,11 @@ public class PersistIssuesStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession session = dbClient.openSession(true);
-    IssueMapper mapper = session.getMapper(IssueMapper.class);
-    IssueChangeMapper changeMapper = session.getMapper(IssueChangeMapper.class);
+    try (DbSession dbSession = dbClient.openSession(true);
+      CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
 
-    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
-    try {
+      IssueMapper mapper = dbSession.getMapper(IssueMapper.class);
+      IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
         boolean saved = persistIssueIfRequired(mapper, issue);
@@ -69,11 +67,8 @@ public class PersistIssuesStep implements ComputationStep {
           insertChanges(changeMapper, issue);
         }
       }
-      session.flushStatements();
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-      issues.close();
+      dbSession.flushStatements();
+      dbSession.commit();
     }
   }
 

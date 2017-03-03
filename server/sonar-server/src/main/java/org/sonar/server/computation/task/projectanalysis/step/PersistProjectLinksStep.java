@@ -28,7 +28,6 @@ import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
@@ -69,13 +68,10 @@ public class PersistProjectLinksStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       new DepthTraversalTypeAwareCrawler(new ProjectLinkVisitor(session))
         .visit(treeRootHolder.getRoot());
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

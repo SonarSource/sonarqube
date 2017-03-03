@@ -33,19 +33,19 @@ public class QProfileTesting {
   public static final QProfileName XOO_P3_NAME = new QProfileName("xoo", "P3");
   public static final String XOO_P3_KEY = "XOO_P3";
 
-  public static QualityProfileDto newQProfileDto(QProfileName name, String key) {
-    return QualityProfileDto.createFor(key).setName(name.getName()).setLanguage(name.getLanguage());
+  public static QualityProfileDto newQProfileDto(String organizationUuid, QProfileName name, String key) {
+    return QualityProfileDto.createFor(key).setOrganizationUuid(organizationUuid).setName(name.getName()).setLanguage(name.getLanguage());
   }
 
-  public static QualityProfileDto newXooP1() {
-    return newQProfileDto(XOO_P1_NAME, XOO_P1_KEY);
+  public static QualityProfileDto newXooP1(String organizationUuid) {
+    return newQProfileDto(organizationUuid, XOO_P1_NAME, XOO_P1_KEY);
   }
 
-  public static QualityProfileDto newXooP2() {
-    return newQProfileDto(XOO_P2_NAME, XOO_P2_KEY);
+  public static QualityProfileDto newXooP2(String organizationUuid) {
+    return newQProfileDto(organizationUuid, XOO_P2_NAME, XOO_P2_KEY);
   }
 
-  public static QualityProfileDto newXooP3() {
-    return newQProfileDto(XOO_P3_NAME, XOO_P3_KEY);
+  public static QualityProfileDto newXooP3(String organizationUuid) {
+    return newQProfileDto(organizationUuid, XOO_P3_NAME, XOO_P3_KEY);
   }
 }

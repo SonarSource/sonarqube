@@ -104,7 +104,7 @@ public class QProfileExportersTest {
 
   @Test
   public void import_xml() {
-    QualityProfileDto profileDto = QProfileTesting.newQProfileDto(QProfileName.createFor("xoo", "import_xml"), "import_xml");
+    QualityProfileDto profileDto = QProfileTesting.newQProfileDto("org-123", QProfileName.createFor("xoo", "import_xml"), "import_xml");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 
@@ -127,7 +127,7 @@ public class QProfileExportersTest {
 
   @Test
   public void import_xml_return_messages() {
-    QProfileResult result = exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithMessages", toInputStream("<xml/>", UTF_8), dbSession);
+    QProfileResult result = exporters.importXml(QProfileTesting.newXooP1("org-123"), "XooProfileImporterWithMessages", toInputStream("<xml/>", UTF_8), dbSession);
     dbSession.commit();
 
     assertThat(result.infos()).containsOnly("an info");
@@ -137,7 +137,7 @@ public class QProfileExportersTest {
   @Test
   public void fail_to_import_xml_when_error_in_importer() {
     try {
-      exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), dbSession);
+      exporters.importXml(QProfileTesting.newXooP1("org-123"), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), dbSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("error!");
@@ -147,7 +147,7 @@ public class QProfileExportersTest {
   @Test
   public void fail_to_import_xml_on_unknown_importer() {
     try {
-      exporters.importXml(QProfileTesting.newXooP1(), "Unknown", toInputStream("<xml/>", UTF_8), dbSession);
+      exporters.importXml(QProfileTesting.newXooP1("org-123"), "Unknown", toInputStream("<xml/>", UTF_8), dbSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such importer : Unknown");

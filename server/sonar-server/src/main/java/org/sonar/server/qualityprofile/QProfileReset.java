@@ -45,6 +45,8 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
+import static org.sonar.server.ws.WsUtils.checkRequest;
+
 @ServerSide
 public class QProfileReset {
 
@@ -139,7 +141,7 @@ public class QProfileReset {
         result.addChanges(changes);
       } catch (BadRequestException e) {
         result.incrementFailed();
-        result.getErrors().add(e.errors());
+        result.getErrors().addAll(e.errors());
       }
     }
 
@@ -171,8 +173,6 @@ public class QProfileReset {
   }
 
   private void processValidationMessages(ValidationMessages messages) {
-    if (!messages.getErrors().isEmpty()) {
-      throw BadRequestException.create(messages.getErrors());
-    }
+    checkRequest(messages.getErrors().isEmpty(), messages.getErrors());
   }
 }

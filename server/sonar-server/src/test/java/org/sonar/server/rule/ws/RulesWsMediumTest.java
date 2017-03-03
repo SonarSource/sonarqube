@@ -101,7 +101,7 @@ public class RulesWsMediumTest {
 
   @Test
   public void show_rule() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = RuleTesting.newXooX1();
@@ -131,7 +131,7 @@ public class RulesWsMediumTest {
 
   @Test
   public void get_tags() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = RuleTesting.newXooX1().

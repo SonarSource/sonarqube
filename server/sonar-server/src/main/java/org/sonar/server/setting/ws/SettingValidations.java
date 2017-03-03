@@ -112,7 +112,7 @@ public class SettingValidations {
         .filter(result -> !result.isValid())
         .findAny()
         .ifPresent(result -> {
-          throw new BadRequestException(i18n.message(Locale.ENGLISH, "property.error." + result.getErrorKey(),
+          throw BadRequestException.create(i18n.message(Locale.ENGLISH, "property.error." + result.getErrorKey(),
             format("Error when validating setting with key '%s' and value [%s]", data.key, data.values.stream().collect(Collectors.joining(", ")))));
         });
     }

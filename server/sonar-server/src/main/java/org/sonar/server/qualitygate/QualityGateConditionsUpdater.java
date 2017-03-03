@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -34,9 +35,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
-import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -48,6 +46,7 @@ import static org.sonar.api.measures.Metric.ValueType.valueOf;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class QualityGateConditionsUpdater {
 
@@ -129,19 +128,17 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void validateCondition(MetricDto metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    Errors errors = new Errors();
+    List<String> errors = new ArrayList<>();
     validateMetric(metric, errors);
     checkOperator(metric, operator, errors);
     checkThresholds(warningThreshold, errorThreshold, errors);
     checkPeriod(metric, period, errors);
     checkRatingMetric(metric, warningThreshold, errorThreshold, period, errors);
-    if (!errors.isEmpty()) {
-      throw BadRequestException.create(errors);
-    }
+    checkRequest(errors.isEmpty(), errors);
   }
 
-  private static void validateMetric(MetricDto metric, Errors errors) {
-    errors.check(isAlertable(metric), format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
+  private static void validateMetric(MetricDto metric, List<String> errors) {
+    check(isAlertable(metric), errors, "Metric '%s' cannot be used to define a condition.", metric.getKey());
   }
 
   private static boolean isAlertable(MetricDto metric) {
@@ -152,20 +149,20 @@ public class QualityGateConditionsUpdater {
     return !metric.isDataType() && !CoreMetrics.ALERT_STATUS_KEY.equals(metric.getKey());
   }
 
-  private static void checkOperator(MetricDto metric, String operator, Errors errors) {
+  private static void checkOperator(MetricDto metric, String operator, List<String> errors) {
     ValueType valueType = valueOf(metric.getValueType());
-    errors.check(isOperatorAllowed(operator, valueType), format("Operator %s is not allowed for metric type %s.", operator, metric.getValueType()));
+    check(isOperatorAllowed(operator, valueType), errors, "Operator %s is not allowed for metric type %s.", operator, metric.getValueType());
   }
 
-  private static void checkThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, Errors errors) {
-    errors.check(warningThreshold != null || errorThreshold != null, "At least one threshold (warning, error) must be set.");
+  private static void checkThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, List<String> errors) {
+    check(warningThreshold != null || errorThreshold != null, errors, "At least one threshold (warning, error) must be set.");
   }
 
-  private static void checkPeriod(MetricDto metric, @Nullable Integer period, Errors errors) {
+  private static void checkPeriod(MetricDto metric, @Nullable Integer period, List<String> errors) {
     if (period == null) {
-      errors.check(!metric.getKey().startsWith("new_"), "A period must be selected for differential metrics.");
+      check(!metric.getKey().startsWith("new_"), errors, "A period must be selected for differential metrics.");
     } else {
-      errors.check(period == 1, "The only valid quality gate period is 1, the leak period.");
+      check(period == 1, errors, "The only valid quality gate period is 1, the leak period.");
     }
   }
 
@@ -175,23 +172,20 @@ public class QualityGateConditionsUpdater {
     }
 
     boolean conditionExists = conditions.stream().anyMatch(c -> c.getMetricId() == metric.getId() && ObjectUtils.equals(c.getPeriod(), period));
-    if (conditionExists) {
-      String errorMessage = period == null
-        ? format("Condition on metric '%s' already exists.", metric.getShortName())
-        : format("Condition on metric '%s' over leak period already exists.", metric.getShortName());
-      throw new BadRequestException(errorMessage);
-    }
+    checkRequest(!conditionExists, period == null
+      ? format("Condition on metric '%s' already exists.", metric.getShortName())
+      : format("Condition on metric '%s' over leak period already exists.", metric.getShortName()));
   }
 
-  private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period, Errors errors) {
+  private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period, List<String> errors) {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
     }
     if (!isCoreRatingMetric(metric.getKey())) {
-      errors.add(Message.of(format("The metric '%s' cannot be used", metric.getShortName())));
+      errors.add(format("The metric '%s' cannot be used", metric.getShortName()));
     }
     if (period != null && !metric.getKey().startsWith("new_")) {
-      errors.add(Message.of(format("The metric '%s' cannot be used on the leak period", metric.getShortName())));
+      errors.add(format("The metric '%s' cannot be used on the leak period", metric.getShortName()));
     }
     if (!isValidRating(warningThreshold)) {
       addInvalidRatingError(warningThreshold, errors);
@@ -205,12 +199,12 @@ public class QualityGateConditionsUpdater {
     checkRatingGreaterThanOperator(errorThreshold, errors);
   }
 
-  private static void addInvalidRatingError(@Nullable String value, Errors errors) {
-    errors.add(Message.of(format("'%s' is not a valid rating", value)));
+  private static void addInvalidRatingError(@Nullable String value, List<String> errors) {
+    errors.add(format("'%s' is not a valid rating", value));
   }
 
-  private static void checkRatingGreaterThanOperator(@Nullable String value, Errors errors) {
-    errors.check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), format("There's no worse rating than E (%s)", value));
+  private static void checkRatingGreaterThanOperator(@Nullable String value, List<String> errors) {
+    check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), errors, "There's no worse rating than E (%s)", value);
   }
 
   private static Rating toRating(String value) {
@@ -219,5 +213,12 @@ public class QualityGateConditionsUpdater {
 
   private static boolean isValidRating(@Nullable String value) {
     return isNullOrEmpty(value) || RATING_VALID_INT_VALUES.contains(value);
+  }
+
+  private static boolean check(boolean expression, List<String> errors, String message, String... args) {
+    if (!expression) {
+      errors.add(format(message, args));
+    }
+    return expression;
   }
 }

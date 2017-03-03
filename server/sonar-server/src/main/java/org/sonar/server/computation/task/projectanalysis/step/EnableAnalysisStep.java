@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -41,15 +40,11 @@ public class EnableAnalysisStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Component project = treeRootHolder.getRoot();
       dbClient.snapshotDao().switchIsLastFlagAndSetProcessedStatus(dbSession, project.getUuid(), analysisMetadataHolder.getUuid());
       dbClient.componentDao().applyBChangesForRootComponentUuid(dbSession, project.getUuid());
       dbSession.commit();
-
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 

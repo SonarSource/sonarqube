@@ -133,7 +133,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_already_exists() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyInt())).thenThrow(new BadRequestException("already exists"));
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyInt())).thenThrow(BadRequestException.create("already exists"));
     userSession.addPermission(PROVISION_PROJECTS, organization);
 
     expectedException.expect(BadRequestException.class);

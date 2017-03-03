@@ -32,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
@@ -55,13 +54,11 @@ public class ExportActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
-  private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
   private QProfileBackuper backuper = mock(QProfileBackuper.class);
 
   @Test
   public void export_without_format() throws Exception {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1());
+    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
 
     doAnswer(invocation -> {
       invocation.getArgumentAt(2, Writer.class).write("As exported by SQ !");
@@ -76,7 +73,7 @@ public class ExportActionTest {
 
   @Test
   public void export_with_format() throws Exception {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1());
+    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
 
     String result = newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest().setParam("language", profile.getLanguage()).setParam("name", profile.getName())
       .setParam("exporterKey", "polop").execute()
@@ -87,7 +84,7 @@ public class ExportActionTest {
 
   @Test
   public void export_default_profile() throws Exception {
-    db.qualityProfiles().insertQualityProfiles(QProfileTesting.newXooP1(), QProfileTesting.newXooP2().setName("SonarWay").setDefault(true));
+    db.qualityProfiles().insertQualityProfiles(QProfileTesting.newXooP1("org-123"), QProfileTesting.newXooP2("org-123").setName("SonarWay").setDefault(true));
 
     String result = newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest().setParam("language", "xoo").setParam("exporterKey", "polop").execute().getInput();
 
@@ -102,7 +99,7 @@ public class ExportActionTest {
 
   @Test
   public void fail_on_unknown_exporter() throws Exception {
-    db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1());
+    db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
 
     expectedException.expect(IllegalArgumentException.class);
     newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest().setParam("language", "xoo").setParam("exporterKey", "unknown").execute();
@@ -110,7 +107,7 @@ public class ExportActionTest {
 
   @Test
   public void does_not_fail_when_no_exporters() throws Exception {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1());
+    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
 
     newWsActionTester().newRequest().setParam("language", "xoo").setParam("name", profile.getName()).execute();
   }

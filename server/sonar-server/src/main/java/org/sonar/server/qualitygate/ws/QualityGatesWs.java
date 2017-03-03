@@ -90,7 +90,7 @@ public class QualityGatesWs implements WebService {
     try {
       return Long.valueOf(request.mandatoryParam(paramName));
     } catch (NumberFormatException badFormat) {
-      throw new BadRequestException(paramName + " must be a valid long value");
+      throw BadRequestException.create(paramName + " must be a valid long value");
     }
   }
 
