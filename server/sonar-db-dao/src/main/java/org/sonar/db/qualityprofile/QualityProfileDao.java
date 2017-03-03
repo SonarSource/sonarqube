@@ -149,13 +149,30 @@ public class QualityProfileDao implements Dao {
     return descendants;
   }
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   @CheckForNull
   public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
     return mapper(session).selectByNameAndLanguage(name, language);
   }
 
+  @CheckForNull
+  public QualityProfileDto selectByNameAndLanguage(String organizationUuid, String name, String language, DbSession session) {
+    return mapper(session).selectByNameAndLanguage(organizationUuid, name, language);
+  }
+
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public List<QualityProfileDto> selectByNameAndLanguages(String name, Collection<String> languageKeys, DbSession session) {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(name, input));
+  }
+
+  public List<QualityProfileDto> selectByNameAndLanguages(String organizationUuid, String name, Collection<String> languageKeys, DbSession session) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organizationUuid, name, input));
   }
 
   public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {
