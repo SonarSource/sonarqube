@@ -64,8 +64,8 @@ function installJdk8 {
 function fixBuildVersion {
   export INITIAL_VERSION=`maven_expression "project.version"`
 
-  # resolve suffix -SNAPSHOT
-  without_suffix=`echo $INITIAL_VERSION | sed "s/-SNAPSHOT//g"`
+  # remove suffix -SNAPSHOT or -RC
+  without_suffix=`echo $INITIAL_VERSION | sed "s/-.*//g"`
 
   IFS=$'.'
   fields_count=`echo $without_suffix | wc -w`
@@ -76,13 +76,13 @@ function fixBuildVersion {
     export BUILD_VERSION="$without_suffix.$TRAVIS_BUILD_NUMBER"
   fi
 
-  if [ "${without_suffix}" == "${INITIAL_VERSION}" ]; then
-    # not a SNAPSHOT: milestone, RC or GA
-    export PROJECT_VERSION=$INITIAL_VERSION
-  else
+  if [ "${INITIAL_VERSION}" == *"-SNAPSHOT" ]; then
     # SNAPSHOT
     export PROJECT_VERSION=$BUILD_VERSION
     mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
+  else
+    # not a SNAPSHOT: milestone, RC or GA
+    export PROJECT_VERSION=$INITIAL_VERSION
   fi
 
   echo "Build Version  : $BUILD_VERSION"
