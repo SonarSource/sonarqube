@@ -42,9 +42,9 @@ dependencies {
 import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
   filter ReplaceTokens, tokens: [
-    // TODO
-    'project.version': '6.4-SNAPSHOT',
-    'project.version.3digits': '6.4-SNAPSHOT'
+    // TODO review
+    'project.version': project.version,
+    'project.version.3digits': project.version.endsWith('SNAPSHOT') ? project.version : project.version.tokenize('.').take(3).join('.')
   ]
 }
 
