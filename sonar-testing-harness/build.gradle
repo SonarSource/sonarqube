@@ -1,3 +1,5 @@
+apply plugin: 'maven'
+
 dependencies {
   compile 'com.googlecode.json-simple:json-simple'
   compile 'com.google.code.gson:gson'

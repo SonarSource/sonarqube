@@ -1,3 +1,5 @@
+apply plugin: 'maven'
+
 dependencies {
   compile 'ch.qos.logback:logback-classic'
   compile 'commons-codec:commons-codec'
