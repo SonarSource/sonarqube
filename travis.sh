@@ -42,31 +42,50 @@ function installJdk8 {
 #
 # Exported variables:
 # - INITIAL_VERSION: version as defined in pom.xml
-# - PROJECT_VERSION: build version. The name of this variable is important because
+# - BUILD_VERSION: version including the build number
+# - PROJECT_VERSION: target Maven version. The name of this variable is important because
 #   it's used by QA when extracting version from Artifactory build info.
 #
-# Example
+# Example of SNAPSHOT
 # INITIAL_VERSION=6.3-SNAPSHOT
+# BUILD_VERSION=6.3.0.12345
 # PROJECT_VERSION=6.3.0.12345
+#
+# Example of RC
+# INITIAL_VERSION=6.3-RC1
+# BUILD_VERSION=6.3.0.12345
+# PROJECT_VERSION=6.3-RC1
+#
+# Example of GA
+# INITIAL_VERSION=6.3
+# BUILD_VERSION=6.3.0.12345
+# PROJECT_VERSION=6.3
 #
 function fixBuildVersion {
   export INITIAL_VERSION=`maven_expression "project.version"`
 
-  # remove suffix like -SNAPSHOT or -RC
-  without_suffix=`echo $INITIAL_VERSION | sed "s/-.*//g"`
+  # resolve suffix -SNAPSHOT
+  without_suffix=`echo $INITIAL_VERSION | sed "s/-SNAPSHOT//g"`
 
-  # set the third field to '0' if missing, for example 6.3 becomes 6.3.0
   IFS=$'.'
   fields_count=`echo $without_suffix | wc -w`
   unset IFS
   if [ $fields_count -lt 3 ]; then
-    without_suffix="$without_suffix.0"
+    export BUILD_VERSION="$without_suffix.0.$TRAVIS_BUILD_NUMBER"
+  else
+    export BUILD_VERSION="$without_suffix.$TRAVIS_BUILD_NUMBER"
   fi
 
-  export PROJECT_VERSION="$without_suffix.$TRAVIS_BUILD_NUMBER"
+  if [ "${without_suffix}" == "${INITIAL_VERSION}" ]; then
+    # not a SNAPSHOT: milestone, RC or GA
+    export PROJECT_VERSION=$INITIAL_VERSION
+  else
+    # SNAPSHOT
+    export PROJECT_VERSION=$BUILD_VERSION
+  fi
 
-  echo "Source Version: $INITIAL_VERSION"
-  echo "Build Version : $PROJECT_VERSION"
+  echo "Build Version  : $BUILD_VERSION"
+  echo "Project Version: $PROJECT_VERSION"
 
   mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
 }
@@ -94,7 +113,7 @@ BUILD)
 
   # Minimal Maven settings
   export MAVEN_OPTS="-Xmx1G -Xms128m"
-  MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$PROJECT_VERSION"
+  MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
