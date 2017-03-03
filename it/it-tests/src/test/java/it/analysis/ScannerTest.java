@@ -31,7 +31,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -376,47 +375,6 @@ public class ScannerTest {
     scan("analysis/custom-module-key");
     assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleA")).isNotNull();
     assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleB")).isNotNull();
-  }
-
-  /**
-   * SONAR-4692
-   */
-  @Test
-  @Ignore("This test should be moved to a Medium test of the Compute Engine")
-  public void prevent_same_module_key_in_two_projects() {
-    orchestrator.getServer().provisionProject("projectAB", "project AB");
-    orchestrator.getServer().associateProjectToQualityProfile("projectAB", "xoo", "one-issue-per-line");
-    scan("analysis/prevent-common-module/projectAB");
-    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleA")).isNotNull();
-    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleB")).isNotNull();
-
-    orchestrator.getServer().provisionProject("projectAC", "project AC");
-    orchestrator.getServer().associateProjectToQualityProfile("projectAC", "xoo", "one-issue-per-line");
-
-    BuildResult result = scanQuietly("analysis/prevent-common-module/projectAC");
-    assertThat(result.getLastStatus()).isNotEqualTo(0);
-    assertThat(result.getLogs()).contains("Module \"com.sonarsource.it.samples:moduleA\" is already part of project \"projectAB\"");
-  }
-
-  /**
-   * SONAR-4334
-   */
-  @Test
-  @Ignore("Should be move to CE IT/MT")
-  public void fail_if_project_date_is_older_than_latest_snapshot() {
-    orchestrator.getServer().provisionProject("sample", "xoo-sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarScanner analysis = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"));
-    analysis.setProperty("sonar.projectDate", "2014-01-01");
-    orchestrator.executeBuild(analysis);
-
-    analysis.setProperty("sonar.projectDate", "2000-10-19");
-    BuildResult result = orchestrator.executeBuildQuietly(analysis);
-
-    assertThat(result.getLastStatus()).isNotEqualTo(0);
-    assertThat(result.getLogs()).contains("'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '2000-10-19'. " +
-      "Latest quality snapshot: ");
-    assertThat(result.getLogs()).contains("This property may only be used to rebuild the past in a chronological order.");
   }
 
   private BuildResult scan(String projectPath, String... props) {
