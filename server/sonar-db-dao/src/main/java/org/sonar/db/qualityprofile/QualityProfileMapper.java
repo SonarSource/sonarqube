@@ -39,10 +39,23 @@ public interface QualityProfileMapper {
 
   List<QualityProfileDto> selectDefaultProfiles(@Param("languages") List<String> languages);
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   @CheckForNull
   QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
 
+  @CheckForNull
+  QualityProfileDto selectByNameAndLanguage(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("language") String language);
+
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   List<QualityProfileDto> selectByNameAndLanguages(@Param("name") String name, @Param("languages") List<String> languages);
+
+  List<QualityProfileDto> selectByNameAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("languages") List<String> languages);
 
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
