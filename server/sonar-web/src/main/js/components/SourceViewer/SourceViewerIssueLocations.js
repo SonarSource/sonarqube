@@ -69,7 +69,7 @@ export default class SourceViewerIssueLocations extends React.Component {
     }
   }
 
-  handleSelectNext () {
+  handleSelectPrev () {
     const { issue, selectedLocation } = this.props;
     if (!selectedLocation) {
       if (issue.flows.length > 0) {
@@ -78,36 +78,34 @@ export default class SourceViewerIssueLocations extends React.Component {
       }
     } else {
       const currentFlow = issue.flows[selectedLocation.flowIndex];
-      if (currentFlow.locations != null) {
-        if (currentFlow.locations.length > selectedLocation.locationIndex + 1) {
-          // move to the next location for the same flow
-          this.props.onSelectLocation(selectedLocation.flowIndex, selectedLocation.locationIndex + 1);
-        } else if (issue.flows.length > selectedLocation.flowIndex + 1) {
-          // move to the first location of the next flow
-          this.props.onSelectLocation(selectedLocation.flowIndex + 1, 0);
-        }
+      if (currentFlow.locations != null && currentFlow.locations.length > selectedLocation.locationIndex + 1) {
+        // move to the next location for the same flow
+        this.props.onSelectLocation(selectedLocation.flowIndex, selectedLocation.locationIndex + 1);
+      } else if (selectedLocation.flowIndex > 0) {
+        // move to the first location of the previous flow
+        this.props.onSelectLocation(selectedLocation.flowIndex - 1, 0);
       }
     }
   }
 
-  handleSelectPrev () {
+  handleSelectNext () {
     const { issue, selectedLocation } = this.props;
     if (!selectedLocation) {
       if (issue.flows.length > 0) {
-        // move to the last location of the last flow
-        const lastFlow = issue.flows[issue.flows.length - 1];
-        if (lastFlow.locations != null) {
-          this.props.onSelectLocation(issue.flows.length - 1, lastFlow.locations.length - 1);
+        // move to the last location of the first flow
+        const firstFlow = issue.flows[0];
+        if (firstFlow.locations != null) {
+          this.props.onSelectLocation(0, firstFlow.locations.length - 1);
         }
       }
     } else if (selectedLocation.locationIndex > 0) {
       // move to the previous location for the same flow
       this.props.onSelectLocation(selectedLocation.flowIndex, selectedLocation.locationIndex - 1);
-    } else if (selectedLocation.flowIndex > 0) {
-      // move to the last location of the previous flow
-      const prevFlow = issue.flows[selectedLocation.flowIndex - 1];
-      if (prevFlow.locations) {
-        this.props.onSelectLocation(selectedLocation.flowIndex - 1, prevFlow.locations.length - 1);
+    } else if (issue.flows.length > selectedLocation.flowIndex + 1) {
+      // move to the last location of the next flow
+      const nextFlow = issue.flows[selectedLocation.flowIndex + 1];
+      if (nextFlow.locations) {
+        this.props.onSelectLocation(selectedLocation.flowIndex + 1, nextFlow.locations.length - 1);
       }
     }
   }
@@ -122,14 +120,12 @@ export default class SourceViewerIssueLocations extends React.Component {
 
       if (selectNext) {
         e.preventDefault();
-        // keep reversed order
-        this.handleSelectPrev();
+        this.handleSelectNext();
       }
 
       if (selectPrev) {
         e.preventDefault();
-        // keep reversed order
-        this.handleSelectNext();
+        this.handleSelectPrev();
       }
     }
   };
