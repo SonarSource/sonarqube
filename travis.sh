@@ -82,12 +82,11 @@ function fixBuildVersion {
   else
     # SNAPSHOT
     export PROJECT_VERSION=$BUILD_VERSION
+    mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
   fi
 
   echo "Build Version  : $BUILD_VERSION"
   echo "Project Version: $PROJECT_VERSION"
-
-  mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
 }
 
 #
