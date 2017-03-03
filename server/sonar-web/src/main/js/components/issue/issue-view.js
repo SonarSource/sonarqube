@@ -63,7 +63,8 @@ export default Marionette.ItemView.extend({
       'click .js-issue-edit-tags': 'editTags',
       'click .js-issue-locations': 'showLocations',
       'click .js-issue-filter': 'filterSimilarIssues',
-      'click .js-toggle': 'onIssueCheck'
+      'click .js-toggle': 'onIssueCheck',
+      'click .js-issue-permalink': 'onPermalinkClick'
     };
   },
 
@@ -100,6 +101,8 @@ export default Marionette.ItemView.extend({
   },
 
   showChangeLog (e) {
+    e.preventDefault();
+    e.stopPropagation();
     const that = this;
     const t = $(e.currentTarget);
     const changeLog = new ChangeLog();
@@ -235,7 +238,9 @@ export default Marionette.ItemView.extend({
     view.destroy();
   },
 
-  showRule () {
+  showRule (e) {
+    e.preventDefault();
+    e.stopPropagation();
     const ruleKey = this.model.get('rule');
     Workspace.openRule({ key: ruleKey });
   },
@@ -290,6 +295,10 @@ export default Marionette.ItemView.extend({
 
   onIssueCheck (e) {
     this.options.onCheck(e);
+  },
+
+  onPermalinkClick (e) {
+    e.stopPropagation();
   },
 
   serializeData () {
