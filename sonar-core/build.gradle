@@ -1,5 +1,3 @@
-apply plugin: 'maven'
-
 configurations {
   includeInResources
 }
@@ -35,3 +33,5 @@ processResources {
     rename '(.*)-' + project.version + '-all.jar', '$1.jar'
   }
 }
+
+artifactoryPublish.skip = true

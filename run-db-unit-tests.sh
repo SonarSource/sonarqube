@@ -9,7 +9,7 @@ shift
 mvn -B install --non-recursive
 
 # create DB
-mvn -B generate-test-resources \
+mvn -B initialize \
   -pl :sonar-db-core \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
   -Dwith-db-drivers

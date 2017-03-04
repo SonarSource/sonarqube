@@ -1,5 +1,3 @@
-apply plugin: 'maven'
-
 dependencies {
   compile 'com.googlecode.json-simple:json-simple'
   compile 'com.google.code.gson:gson'
@@ -10,3 +8,5 @@ dependencies {
   testCompile 'org.hamcrest:hamcrest-all'
   testCompile 'org.assertj:assertj-core'
 }
+
+artifactoryPublish.skip = true

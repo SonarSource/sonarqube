@@ -1,5 +1,3 @@
-apply plugin: 'maven'
-
 dependencies {
   compile 'net.jpountz.lz4:lz4'
   compile 'com.google.protobuf:protobuf-java'
@@ -14,3 +12,5 @@ dependencies {
   testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
   testCompile 'com.google.guava:guava'
 }
+
+artifactoryPublish.skip = true
