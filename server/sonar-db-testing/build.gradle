@@ -4,3 +4,5 @@ dependencies {
   compile project(':server:sonar-db-dao').sourceSets.test.output
   compile 'org.dbunit:dbunit'
 }
+
+artifactoryPublish.skip = true

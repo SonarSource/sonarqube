@@ -7,3 +7,5 @@ dependencies {
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
 }
+
+artifactoryPublish.skip = true

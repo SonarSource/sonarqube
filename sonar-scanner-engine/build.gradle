@@ -43,3 +43,5 @@ test {
   exclude 'org/sonar/scanner/mediumtest/fs/FileSystemMediumTest.class'
   exclude 'org/sonar/scanner/scan/filesystem/InputFileBuilderTest.class'
 }
+
+artifactoryPublish.skip = true

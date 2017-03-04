@@ -31,3 +31,5 @@ dependencies {
     exclude group: 'org.codehaus.sonar', module: 'sonar-plugin-api'
   }
 }
+
+artifactoryPublish.skip = true

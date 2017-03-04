@@ -19,3 +19,5 @@ test {
   // FIXME requires '../sonar-process/target' directory
   exclude 'org/sonar/process/monitor/MonitorTest.class'
 }
+
+artifactoryPublish.skip = true

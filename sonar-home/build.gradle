@@ -7,3 +7,5 @@ dependencies {
   testCompile 'commons-io:commons-io'
   testCompile 'commons-codec:commons-codec'
 }
+
+artifactoryPublish.skip = true

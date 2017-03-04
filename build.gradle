@@ -74,16 +74,8 @@ subprojects {
 configurations {
   archives
 }
-artifacts {
-  archives(file('pom.xml')) {
-    name 'sonarqube'
-    type 'pom'
-    extension 'pom'
-  }
-}
 
 // TODO requires review
-// TODO get rid of messages "Cannot publish pom"
 artifactory {
   clientConfig.setIncludeEnvVars(true)
   clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*')
@@ -108,3 +100,5 @@ artifactory {
   }
   clientConfig.info.setBuildNumber(System.getenv('TRAVIS_BUILD_NUMBER'))
 }
+
+artifactoryPublish.mavenDescriptor = file('pom.xml')

@@ -10,3 +10,5 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':server:sonar-db-testing')
 }
+
+artifactoryPublish.skip = true

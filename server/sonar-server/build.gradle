@@ -72,3 +72,5 @@ test {
   exclude 'org/sonar/server/rule/RuleCreatorMediumTest.class'
   exclude 'org/sonar/server/rule/RuleServiceMediumTest.class'
 }
+
+artifactoryPublish.skip = true
