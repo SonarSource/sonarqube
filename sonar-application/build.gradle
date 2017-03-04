@@ -61,10 +61,14 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
 }
 
+jar {
+  classifier = 'original'
+}
 shadowJar {
   manifest {
     attributes 'Main-Class': 'org.sonar.application.App'
   }
+  classifier = null
 }
 
 task zip(type: Zip) {
