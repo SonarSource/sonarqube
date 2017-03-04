@@ -25,4 +25,16 @@ dependencies {
   testCompile 'mysql:mysql-connector-java'
   testCompile 'org.postgresql:postgresql'
   testCompile 'com.h2database:h2'
+
+  if (System.getProperty('orchestrator.configUrl')) {
+    compile 'com.microsoft.sqlserver:mssql-jdbc'
+    compile 'mysql:mysql-connector-java'
+    compile 'org.postgresql:postgresql'
+    compile 'com.oracle:ojdbc6'
+  }
+}
+
+test {
+  if (System.getProperty('orchestrator.configUrl'))
+    systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
 }

@@ -15,9 +15,10 @@ buildscript {
 }
 
 // TODO improve
-def versionSuffix = System.env.'TRAVIS_BUILD_NUMBER' == null
+def buildNumber = System.env.'TRAVIS_BUILD_NUMBER' ?: (/* SonarSource infrastructure: */ System.env.'CI_BUILD_NUMBER' ?: null)
+def versionSuffix = buildNumber == null
   ? '-SNAPSHOT'
-  : ('.0.' + System.env.'TRAVIS_BUILD_NUMBER')
+  : ('.0.' + buildNumber)
 
 allprojects {
   apply plugin: 'com.jfrog.artifactory'

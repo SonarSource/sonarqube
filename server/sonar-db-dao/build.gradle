@@ -15,3 +15,8 @@ dependencies {
   testCompile 'org.dbunit:dbunit'
   testCompile 'com.h2database:h2'
 }
+
+test {
+  if (System.getProperty('orchestrator.configUrl'))
+    systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+}
