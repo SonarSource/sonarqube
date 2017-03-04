@@ -42,9 +42,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newWsClient;
 
 public class IssueJsonReportTest {
 
@@ -276,9 +279,13 @@ public class IssueJsonReportTest {
     JSONAssert.assertEquals(expectedJson, json, false);
   }
 
-  private String expected(String path) throws IOException, FileNotFoundException {
-    return sanitize(IOUtils.toString(getResourceInputStream(path)))
-      .replaceAll(Pattern.quote(SONAR_VERSION_PLACEHOLDER), orchestrator.getServer().version().toString());
+  private String expected(String path) throws IOException {
+    try (WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest("api/server/version"))) {
+      String version = response.content();
+
+      return sanitize(IOUtils.toString(getResourceInputStream(path)))
+        .replaceAll(Pattern.quote(SONAR_VERSION_PLACEHOLDER), version);
+    }
   }
 
   @Test
