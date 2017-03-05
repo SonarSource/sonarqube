@@ -17,22 +17,7 @@
   <description>Open source platform for continuous inspection of code quality</description>
 
   <modules>
-    <module>sonar-plugin-api-deps</module>
-    <module>sonar-application</module>
-    <module>sonar-scanner-engine</module>
-    <module>sonar-scanner-protocol</module>
-    <module>sonar-scanner-engine-shaded</module>
-    <module>sonar-check-api</module>
-    <module>sonar-colorizer</module>
-    <module>sonar-core</module>
-    <module>sonar-duplications</module>
-    <module>sonar-home</module>
-    <module>sonar-markdown</module>
-    <module>sonar-plugin-api</module>
     <module>server</module>
-    <module>sonar-ws</module>
-    <module>sonar-testing-harness</module>
-    <module>plugins/sonar-xoo-plugin</module>
   </modules>
 
   <organization>
@@ -384,60 +369,9 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-markdown</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-core</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-db-dao</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-db-migration</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-db-testing</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-scanner-protocol</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-ws</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-home</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.update-center</groupId>
         <artifactId>sonar-update-center-common</artifactId>
         <version>${sonarUpdateCenter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-server</artifactId>
-        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
@@ -453,12 +387,6 @@
             <artifactId>sonar-check-api</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-xoo-plugin</artifactId>
-        <version>${project.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.scm.git</groupId>
@@ -491,26 +419,6 @@
             <artifactId>svnkit</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-db-core</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-db-testing</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-testing-harness</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-bridge</artifactId>
-        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.java</groupId>
