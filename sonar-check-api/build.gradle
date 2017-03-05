@@ -1,7 +1,7 @@
-apply plugin: 'maven'
-
 dependencies {
   provided 'com.google.code.findbugs:jsr305'
 
   testCompile 'junit:junit'
 }
+
+artifactoryPublish.skip = true

@@ -1,5 +1,3 @@
-apply plugin: 'maven'
-
 dependencies {
   compile 'org.codehaus.sonar:sonar-channel'
   compile 'com.google.guava:guava'
@@ -15,3 +13,5 @@ dependencies {
   testCompile 'pmd:pmd:4.3'
   testCompile 'ch.qos.logback:logback-classic'
 }
+
+artifactoryPublish.skip = true

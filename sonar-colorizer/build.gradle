@@ -1,5 +1,3 @@
-apply plugin: 'maven'
-
 dependencies {
   // TODO exclusion
   compile 'org.codehaus.sonar:sonar-channel'
@@ -10,3 +8,5 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'commons-io:commons-io'
 }
+
+artifactoryPublish.skip = true
