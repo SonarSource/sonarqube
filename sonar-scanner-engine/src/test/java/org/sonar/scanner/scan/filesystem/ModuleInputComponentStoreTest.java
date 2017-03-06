@@ -31,7 +31,10 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.sensor.SensorStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ModuleInputComponentStoreTest {
   @Rule
@@ -61,7 +64,7 @@ public class ModuleInputComponentStoreTest {
     InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/Dummy.java").build();
     store.doAdd(dummyInputFile);
 
-    assertThat(store.getFilesByName(filename)).containsOnly(inputFile1, inputFile2);
+    assertThat(store.getFilesByName(filename)).containsExactlyInAnyOrder(inputFile1, inputFile2);
   }
 
   @Test
@@ -77,7 +80,7 @@ public class ModuleInputComponentStoreTest {
     InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/NotJava.cpp").build();
     store.doAdd(dummyInputFile);
 
-    assertThat(store.getFilesByExtension("java")).containsOnly(inputFile1, inputFile2);
+    assertThat(store.getFilesByExtension("java")).containsExactlyInAnyOrder(inputFile1, inputFile2);
   }
 
   @Test
@@ -91,8 +94,8 @@ public class ModuleInputComponentStoreTest {
     store.doAdd(inputFile);
     store.doAdd(inputFile);
 
-    assertThat(store.getFilesByName(filename)).containsOnly(inputFile);
-    assertThat(store.getFilesByExtension(ext)).containsOnly(inputFile);
+    assertThat(store.getFilesByName(filename)).containsExactly(inputFile);
+    assertThat(store.getFilesByExtension(ext)).containsExactly(inputFile);
   }
 
   @Test
@@ -110,5 +113,47 @@ public class ModuleInputComponentStoreTest {
 
   private ModuleInputComponentStore newModuleInputComponentStore() {
     return new ModuleInputComponentStore(mock(InputModule.class), componentStore, mock(SensorStrategy.class));
+  }
+
+  @Test
+  public void should_find_module_components_with_non_global_strategy() {
+    InputComponentStore inputComponentStore = mock(InputComponentStore.class);
+    SensorStrategy strategy = new SensorStrategy();
+    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), inputComponentStore, strategy);
+
+    store.inputFiles();
+    verify(inputComponentStore).filesByModule(any(String.class));
+
+    String relativePath = "somepath";
+    store.inputFile(relativePath);
+    verify(inputComponentStore).getFile(any(String.class), eq(relativePath));
+
+    store.inputDir(relativePath);
+    verify(inputComponentStore).getDir(any(String.class), eq(relativePath));
+
+    store.languages();
+    verify(inputComponentStore).getLanguages(any(String.class));
+  }
+
+  @Test
+  public void should_find_all_components_with_global_strategy() {
+    InputComponentStore inputComponentStore = mock(InputComponentStore.class);
+    SensorStrategy strategy = new SensorStrategy();
+    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), inputComponentStore, strategy);
+
+    strategy.setGlobal(true);
+
+    store.inputFiles();
+    verify(inputComponentStore).allFiles();
+
+    String relativePath = "somepath";
+    store.inputFile(relativePath);
+    verify(inputComponentStore).getFile(relativePath);
+
+    store.inputDir(relativePath);
+    verify(inputComponentStore).getDir(relativePath);
+
+    store.languages();
+    verify(inputComponentStore).getLanguages();
   }
 }
