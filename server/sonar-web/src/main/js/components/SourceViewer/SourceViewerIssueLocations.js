@@ -59,7 +59,10 @@ export default class SourceViewerIssueLocations extends React.Component {
   }
 
   componentDidUpdate (prevProps: Props) {
-    if (prevProps.selectedLocation !== this.props.selectedLocation && this.props.selectedLocation != null) {
+    if (
+      prevProps.selectedLocation !== this.props.selectedLocation &&
+      this.props.selectedLocation != null
+    ) {
       this.scrollToLocation();
     }
   }
@@ -132,7 +135,10 @@ export default class SourceViewerIssueLocations extends React.Component {
       }
     } else {
       const currentFlow = issue.flows[selectedLocation.flowIndex];
-      if (currentFlow.locations != null && currentFlow.locations.length > selectedLocation.locationIndex + 1) {
+      if (
+        currentFlow.locations != null &&
+        currentFlow.locations.length > selectedLocation.locationIndex + 1
+      ) {
         // move to the next location for the same flow
         this.props.onSelectLocation(selectedLocation.flowIndex, selectedLocation.locationIndex + 1);
       } else if (selectedLocation.flowIndex > 0) {
@@ -193,7 +199,8 @@ export default class SourceViewerIssueLocations extends React.Component {
     if (selectedLocation == null) {
       return false;
     } else {
-      return selectedLocation.flowIndex === flowIndex && selectedLocation.locationIndex === locationIndex;
+      return selectedLocation.flowIndex === flowIndex &&
+        selectedLocation.locationIndex === locationIndex;
     }
   }
 
@@ -216,16 +223,19 @@ export default class SourceViewerIssueLocations extends React.Component {
 
     return (
       <li key={key} ref={node => this.locations[key] = node} className="spacer-bottom">
-        {line != null && (
-          <code className="source-issue-locations-line">L{line}</code>
-        )}
+        {line != null && <code className="source-issue-locations-line">L{line}</code>}
 
-        <a className={classNames('issue-location-message', {
-          // note that locations order is reversed
-          'selected': this.isLocationSelected(flowIndex, locations.length - locationIndex - 1)
-        })}
+        <a
+          className={classNames('issue-location-message', {
+            // note that locations order is reversed
+            selected: this.isLocationSelected(flowIndex, locations.length - locationIndex - 1)
+          })}
           href="#"
-          onClick={this.handleLocationClick.bind(this, flowIndex, locations.length - locationIndex - 1)}>
+          onClick={this.handleLocationClick.bind(
+            this,
+            flowIndex,
+            locations.length - locationIndex - 1
+          )}>
           {displayIndex && <strong>{locationIndex + 1}: </strong>}
           {location.msg}
         </a>
@@ -237,13 +247,19 @@ export default class SourceViewerIssueLocations extends React.Component {
     const { flows } = this.props.issue;
     const { height } = this.props;
 
-    const className = classNames('source-issue-locations-panel', { 'fixed': this.state.fixed });
+    const className = classNames('source-issue-locations-panel', { fixed: this.state.fixed });
 
     return (
       <AutoSizer disableHeight={true}>
         {({ width }) => (
-          <div ref={node => this.rootNode = node} className="source-issue-locations" style={{ width, height }}>
-            <div ref={node => this.fixedNode = node} className={className} style={{ width, height }}>
+          <div
+            ref={node => this.rootNode = node}
+            className="source-issue-locations"
+            style={{ width, height }}>
+            <div
+              ref={node => this.fixedNode = node}
+              className={className}
+              style={{ width, height }}>
               <header className="source-issue-locations-header"/>
               <div className="source-issue-locations-shortcuts">
                 <span className="shortcut-button">Alt</span>
@@ -254,17 +270,25 @@ export default class SourceViewerIssueLocations extends React.Component {
                 {' '}
                 to quicky navigate issue locations
               </div>
-              <ul ref={node => this.node = node} className="source-issue-locations-list">
-                {flows.map((flow, flowIndex) => (
-                  flow.locations != null && this.reverseLocations(flow.locations).map((location, locationIndex) => (
-                    this.renderLocation(location, flowIndex, locationIndex, flow.locations || [])
-                  ))
-                ))}
+              <ul
+                ref={node => this.node = node}
+                className="source-issue-locations-list"
+                style={{ height: height - 15 }}>
+                {flows.map(
+                  (flow, flowIndex) =>
+                    flow.locations != null &&
+                      this
+                          .reverseLocations(flow.locations)
+                          .map((location, locationIndex) =>
+                          this.renderLocation(
+                            location,
+                            flowIndex,
+                            locationIndex,
+                            flow.locations || []
+                          ))
+                )}
               </ul>
-              <DraggableCore
-                axis="y"
-                onDrag={this.handleDrag}
-                offsetParent={document.body}>
+              <DraggableCore axis="y" onDrag={this.handleDrag} offsetParent={document.body}>
                 <div className="workspace-viewer-resize"/>
               </DraggableCore>
             </div>

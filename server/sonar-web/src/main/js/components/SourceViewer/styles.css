@@ -56,8 +56,11 @@
 .issue-location,
 .issue-location-message {
   display: inline-block;
+  vertical-align: top;
+  line-height: 16px;
   height: 17px;
-  line-height: 17px;
+  border: 1px solid #ffeaea;
+  box-sizing: border-box;
   background-color: #ffeaea;
 }
 
@@ -66,26 +69,28 @@
 }
 
 .issue-location.highlighted {
+  border-color: #e1e1f2;
   background-color: #e1e1f2;
 }
 
 .issue-location.selected {
+  border-color: #f4b1b0;
   background-color: #f4b1b0;
 }
 
 .issue-location-message {
   padding: 0 10px;
-  border: none;
   color: #444 !important;
   font-size: 12px;
   white-space: nowrap;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .issue-location-message:hover {
+  border-color: #f4b1b0;
   background-color: #f4b1b0;
 }
 
 .issue-location-message.selected {
-  outline: 1px solid #dd4040;
+  border-color: #dd4040;
 }
