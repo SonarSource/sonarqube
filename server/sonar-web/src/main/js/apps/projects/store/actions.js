@@ -28,7 +28,7 @@ import { updateState } from './stateDuck';
 import { getProjectsAppState } from '../../../store/rootReducer';
 import { getMeasuresForProjects } from '../../../api/measures';
 import { receiveComponentsMeasures } from '../../../store/measures/actions';
-import { convertToFilter } from './utils';
+import { convertToQueryData } from './utils';
 import { receiveFavorites } from '../../../store/favorites/duck';
 import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
@@ -143,14 +143,7 @@ const onReceiveMoreProjects = dispatch => response => {
 
 export const fetchProjects = (query, isFavorite, organization) => dispatch => {
   dispatch(updateState({ loading: true }));
-  const data = { ps: PAGE_SIZE, facets: FACETS.join() };
-  const filter = convertToFilter(query, isFavorite);
-  if (filter) {
-    data.filter = filter;
-  }
-  if (organization) {
-    data.organization = organization.key;
-  }
+  const data = convertToQueryData(query, isFavorite, organization, { ps: PAGE_SIZE, facets: FACETS.join() });
   return searchProjects(data).then(onReceiveProjects(dispatch), onFail(dispatch));
 };
 
@@ -158,13 +151,6 @@ export const fetchMoreProjects = (query, isFavorite, organization) => (dispatch,
   dispatch(updateState({ loading: true }));
   const state = getState();
   const { pageIndex } = getProjectsAppState(state);
-  const data = { ps: PAGE_SIZE, p: pageIndex + 1 };
-  const filter = convertToFilter(query, isFavorite);
-  if (filter) {
-    data.filter = filter;
-  }
-  if (organization) {
-    data.organization = organization.key;
-  }
+  const data = convertToQueryData(query, isFavorite, organization, { ps: PAGE_SIZE, p: pageIndex + 1 });
   return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
 };

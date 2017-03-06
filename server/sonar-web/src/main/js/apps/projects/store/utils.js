@@ -55,7 +55,9 @@ export const parseUrlQuery = urlQuery => ({
   'duplications': getAsNumericRating(urlQuery['duplications']),
   'size': getAsNumericRating(urlQuery['size']),
   'languages': getAsArray(urlQuery['languages'], getAsString),
-  'search': getAsString(urlQuery['search'])
+  'search': getAsString(urlQuery['search']),
+  'sortby': getAsString(urlQuery['sortby']),
+  'asc': getAsString(urlQuery['asc'])
 });
 
 const convertIssuesRating = (metric, rating) => {
@@ -117,7 +119,7 @@ const convertSize = size => {
   }
 };
 
-export const convertToFilter = (query, isFavorite) => {
+const convertToFilter = (query, isFavorite) => {
   const conditions = [];
 
   if (isFavorite) {
@@ -166,6 +168,40 @@ export const convertToFilter = (query, isFavorite) => {
   }
 
   return conditions.join(' and ');
+};
+
+const convertToSorting = query => {
+  switch (query.sortby) {
+    case 'reliability':
+    case 'security':
+      return query.sortby + '_rating';
+    case 'maintainability':
+      return 'sqale_rating';
+    case 'duplications':
+      return 'duplicated_lines_density';
+    case 'size':
+      return 'ncloc';
+    default:
+      return query.sortby;
+  }
+};
+
+export const convertToQueryData = (query, isFavorite, organization, defaultData = {}) => {
+  const data = Object.assign({}, defaultData);
+  const filter = convertToFilter(query, isFavorite);
+  if (filter) {
+    data.filter = filter;
+  }
+  if (organization) {
+    data.organization = organization.key;
+  }
+  if (query.sortby) {
+    data.s = convertToSorting(query);
+  }
+  if (query.asc) {
+    data.asc = query.asc;
+  }
+  return data;
 };
 
 export const mapMetricToProperty = metricKey => {
