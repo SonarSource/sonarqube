@@ -34,6 +34,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -159,8 +160,8 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectByNameAndLanguage(String organizationUuid, String name, String language, DbSession session) {
-    return mapper(session).selectByNameAndLanguage(organizationUuid, name, language);
+  public QualityProfileDto selectByNameAndLanguage(OrganizationDto organization, String name, String language, DbSession session) {
+    return mapper(session).selectByNameAndLanguage(organization.getUuid(), name, language);
   }
 
   /**
@@ -171,8 +172,8 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(name, input));
   }
 
-  public List<QualityProfileDto> selectByNameAndLanguages(String organizationUuid, String name, Collection<String> languageKeys, DbSession session) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organizationUuid, name, input));
+  public List<QualityProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organization.getUuid(), name, input));
   }
 
   public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {

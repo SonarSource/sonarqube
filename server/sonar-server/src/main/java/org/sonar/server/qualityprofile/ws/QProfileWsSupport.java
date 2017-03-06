@@ -48,15 +48,11 @@ public class QProfileWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public String getOrganizationKey(QualityProfileDto profile) {
-    return getOrganizationKeyByUuid(profile.getOrganizationUuid());
-  }
-
-  public String getOrganizationUuidByKey(String organizationKey) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return getOrganizationByKey(dbSession, organizationKey)
-        .getUuid();
-    }
+  public String getOrganizationKey(QualityProfileDto profile, DbSession dbSession) {
+    String organizationUuid = profile.getOrganizationUuid();
+    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+      .orElseThrow(() -> new IllegalStateException("Cannot load organization with uuid=" + organizationUuid))
+      .getKey();
   }
 
   public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
@@ -65,19 +61,6 @@ public class QProfileWsSupport {
     return WsUtils.checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organizationDto with key '%s'", organizationOrDefaultKey);
-  }
-
-  public String getOrganizationKeyByUuid(String organizationUuid) {
-    return getOrganizationByUuid(organizationUuid)
-      .orElseThrow(() -> new IllegalStateException(String.format("Requested the key for non-existing organization uuid '%s'.", organizationUuid)))
-      .getKey();
-  }
-
-  private Optional<OrganizationDto> getOrganizationByUuid(String organizationUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.organizationDao()
-        .selectByUuid(dbSession, organizationUuid);
-    }
   }
 
   public void checkQProfileAdminPermission() {
@@ -93,5 +76,14 @@ public class QProfileWsSupport {
     .setRequired(false)
     .setInternal(true)
     .setExampleValue("my-org");
+  }
+
+  /**
+   * @deprecated should not be required anymore, once all quality profile webservices are migrated to use organizations.
+   */
+  @Deprecated
+  public OrganizationDto getDefaultOrganization(DbSession dbSession) {
+    return dbClient.organizationDao().selectByKey(dbSession, defaultOrganizationProvider.get().getKey())
+      .orElseThrow(() -> new IllegalStateException("Could not find default organization"));
   }
 }
