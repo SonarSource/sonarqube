@@ -92,6 +92,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 public class SearchProjectsActionTest {
 
@@ -306,7 +307,6 @@ public class SearchProjectsActionTest {
     insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
     insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown").setTags(singletonList("marketing")));
     insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube").setTags(newArrayList("offshore")));
-    insertMetrics(COVERAGE, NCLOC);
     request.setFilter("tags in (finance, offshore)");
 
     SearchProjectsWsResponse result = call(request);
@@ -502,6 +502,48 @@ public class SearchProjectsActionTest {
         tuple("xoo", 0L),
         tuple("java", 2L),
         tuple("<null>", 1L));
+  }
+
+  @Test
+  public void return_tags_facet() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown").setTags(singletonList("offshore")));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube").setTags(newArrayList("offshore")));
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_TAGS)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> FILTER_TAGS.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getProperty()).isEqualTo(FILTER_TAGS);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("offshore", 2L),
+        tuple("finance", 1L),
+        tuple("platform", 1L));
+  }
+
+  @Test
+  public void return_tags_facet_with_tags_having_no_project_if_tags_is_in_filter() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown").setTags(singletonList("offshore")));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube").setTags(newArrayList("offshore")));
+
+    SearchProjectsWsResponse result = call(request.setFilter("tags = marketing").setFacets(singletonList(FILTER_TAGS)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> FILTER_TAGS.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("offshore", 2L),
+        tuple("finance", 1L),
+        tuple("platform", 1L),
+        tuple("marketing", 0L));
   }
 
   @Test

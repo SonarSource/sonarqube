@@ -111,7 +111,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     .put(SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, facetBuilder))
     .put(ALERT_STATUS_KEY, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, facetBuilder, createQualityGateFacet())))
     .put(FILTER_LANGUAGES, ProjectMeasuresIndex::addLanguagesFacet)
-    .put(FIELD_TAGS, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(FIELD_TAGS, facetBuilder, createTagsFacet())))
+    .put(FIELD_TAGS, ProjectMeasuresIndex::addTagsFacet)
     .build();
 
   private final AuthorizationTypeSupport authorizationTypeSupport;
@@ -182,6 +182,11 @@ public class ProjectMeasuresIndex extends BaseIndex {
     esSearch.addAggregation(facetBuilder.buildStickyFacet(FIELD_LANGUAGES, FILTER_LANGUAGES, languages.isPresent() ? languages.get().toArray() : new Object[] {}));
   }
 
+  private static void addTagsFacet(SearchRequestBuilder esSearch, ProjectMeasuresQuery query, StickyFacetBuilder facetBuilder) {
+    Optional<Set<String>> tags = query.getTags();
+    esSearch.addAggregation(facetBuilder.buildStickyFacet(FIELD_TAGS, FILTER_TAGS, tags.isPresent() ? tags.get().toArray() : new Object[] {}));
+  }
+
   private static AbstractAggregationBuilder createStickyFacet(String facetKey, StickyFacetBuilder facetBuilder, AbstractAggregationBuilder aggregationBuilder) {
     BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(facetKey);
     return AggregationBuilders
@@ -233,10 +238,6 @@ public class ProjectMeasuresIndex extends BaseIndex {
     FiltersAggregationBuilder qualityGateStatusFilter = AggregationBuilders.filters(ALERT_STATUS_KEY);
     QUALITY_GATE_STATUS.entrySet().forEach(entry -> qualityGateStatusFilter.filter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())));
     return qualityGateStatusFilter;
-  }
-
-  private static AbstractAggregationBuilder createTagsFacet() {
-    return AggregationBuilders.terms(FIELD_TAGS).field(FIELD_TAGS);
   }
 
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {

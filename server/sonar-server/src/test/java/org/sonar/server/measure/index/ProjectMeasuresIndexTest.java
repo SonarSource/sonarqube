@@ -1151,6 +1151,18 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void facet_tags_returns_more_than_10_tags_when_tags_filter_contains_value_not_in_top_10() {
+    index(
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("solo", "solo2")));
+
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(ImmutableSet.of("solo", "solo2")), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+
+    assertThat(result).hasSize(12).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10", "solo", "solo2");
+  }
+
+  @Test
   public void search_tags() {
     index(
       newDoc().setTags(newArrayList("finance", "offshore", "java")),

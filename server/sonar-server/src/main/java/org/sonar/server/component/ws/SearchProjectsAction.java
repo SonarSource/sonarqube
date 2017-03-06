@@ -79,6 +79,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 public class SearchProjectsAction implements ComponentsWsAction {
 
@@ -311,6 +312,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     EsToWsFacet esToWsFacet = new EsToWsFacet();
 
     searchResults.query.getLanguages().ifPresent(languages -> addMandatoryValuesToFacet(esFacets, FILTER_LANGUAGES, languages));
+    searchResults.query.getTags().ifPresent(tags -> addMandatoryValuesToFacet(esFacets, FILTER_TAGS, tags));
     Common.Facets wsFacets = esFacets.getAll().entrySet().stream()
       .map(esToWsFacet)
       .collect(Collector.of(
