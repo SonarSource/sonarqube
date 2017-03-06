@@ -85,7 +85,8 @@ public class ProjectMeasuresIndex extends BaseIndex {
     RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
     ALERT_STATUS_KEY,
-    FILTER_LANGUAGE);
+    FILTER_LANGUAGE,
+    FIELD_TAGS);
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
@@ -102,6 +103,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     .put(SECURITY_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, filters))
     .put(ALERT_STATUS_KEY, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet())))
     .put(FILTER_LANGUAGE, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(FILTER_LANGUAGE, filters, createLanguagesFacet())))
+    .put(FIELD_TAGS, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(FIELD_TAGS, filters, createTagsFacet())))
     .build();
 
   private final AuthorizationTypeSupport authorizationTypeSupport;
@@ -123,7 +125,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     filters.values().forEach(esFilter::must);
     requestBuilder.setQuery(esFilter);
 
-    addFacets(requestBuilder, searchOptions, filters);
+    addFacets(query, requestBuilder, searchOptions, filters);
     addSort(query, requestBuilder);
     return new SearchIdResult<>(requestBuilder.get(), id -> id);
   }
@@ -151,7 +153,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
         .order(query.isAsc() ? ASC : DESC));
   }
 
-  private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters) {
+  private static void addFacets(ProjectMeasuresQuery query, SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters) {
     options.getFacets().stream()
       .filter(FACET_FACTORIES::containsKey)
       .map(FACET_FACTORIES::get)
@@ -166,12 +168,12 @@ public class ProjectMeasuresIndex extends BaseIndex {
     esSearch.addAggregation(createStickyFacet(metricKey, filters, createRatingFacet(metricKey)));
   }
 
-  private static AbstractAggregationBuilder createStickyFacet(String metricKey, Map<String, QueryBuilder> filters, AbstractAggregationBuilder aggregationBuilder) {
+  private static AbstractAggregationBuilder createStickyFacet(String facetKey, Map<String, QueryBuilder> filters, AbstractAggregationBuilder aggregationBuilder) {
     StickyFacetBuilder facetBuilder = new StickyFacetBuilder(matchAllQuery(), filters);
-    BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(metricKey);
+    BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(facetKey);
     return AggregationBuilders
-      .global(metricKey)
-      .subAggregation(AggregationBuilders.filter("facet_filter_" + metricKey)
+      .global(facetKey)
+      .subAggregation(AggregationBuilders.filter("facet_filter_" + facetKey)
         .filter(facetFilter)
         .subAggregation(aggregationBuilder));
   }
@@ -228,6 +230,10 @@ public class ProjectMeasuresIndex extends BaseIndex {
           .field(FIELD_LANGUAGES_KEY)
           .subAggregation(AggregationBuilders.sum("size_" + FILTER_LANGUAGE)
             .field(FIELD_LANGUAGES_VALUE)));
+  }
+
+  private static AbstractAggregationBuilder createTagsFacet() {
+    return AggregationBuilders.terms(FIELD_TAGS).field(FIELD_TAGS);
   }
 
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {

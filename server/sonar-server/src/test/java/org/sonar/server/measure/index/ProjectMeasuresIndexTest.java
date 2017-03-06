@@ -57,6 +57,7 @@ import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexTest {
@@ -1027,6 +1028,59 @@ public class ProjectMeasuresIndexTest {
     assertThat(result).containsOnly(
       entry("java", 7L),
       entry("xoo", 5L));
+  }
+
+  @Test
+  public void facet_tags() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("finance", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "finance")),
+      newDoc().setTags(newArrayList("marketing", "offshore")),
+      newDoc().setTags(newArrayList("finance", "marketing")),
+      newDoc().setTags(newArrayList("finance")));
+
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+
+    assertThat(result).containsOnly(
+      entry("finance", 5L),
+      entry("marketing", 3L),
+      entry("offshore", 2L),
+      entry("java", 1L),
+      entry("javascript", 1L));
+  }
+
+  @Test
+  public void facet_tags_is_sticky() {
+    index(
+      newDoc().setTags(newArrayList("finance")).setQualityGateStatus(OK.name()),
+      newDoc().setTags(newArrayList("finance")).setQualityGateStatus(ERROR.name()),
+      newDoc().setTags(newArrayList("cpp")).setQualityGateStatus(WARN.name()));
+
+    Facets facets = underTest.search(
+      new ProjectMeasuresQuery().setTags(newHashSet("cpp")),
+      new SearchOptions().addFacets(FIELD_TAGS).addFacets(ALERT_STATUS_KEY))
+      .getFacets();
+
+    assertThat(facets.get(FIELD_TAGS)).containsOnly(
+      entry("finance", 2L),
+      entry("cpp", 1L));
+    assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
+      entry(OK.name(), 0L),
+      entry(ERROR.name(), 0L),
+      entry(WARN.name(), 1L));
+  }
+
+  @Test
+  public void facet_tags_size_limited_to_10() {
+    index(
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("solo")));
+
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+
+    assertThat(result).hasSize(10).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10");
   }
 
   private void index(ProjectMeasuresDoc... docs) {
