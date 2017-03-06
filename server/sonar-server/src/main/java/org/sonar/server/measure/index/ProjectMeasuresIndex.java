@@ -81,7 +81,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -93,7 +93,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
     ALERT_STATUS_KEY,
-    FILTER_LANGUAGE,
+    FILTER_LANGUAGES,
     FIELD_TAGS);
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
@@ -107,7 +107,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     .put(RELIABILITY_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters))
     .put(SECURITY_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, filters))
     .put(ALERT_STATUS_KEY, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet())))
-    .put(FILTER_LANGUAGE, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(FILTER_LANGUAGE, filters, createLanguagesFacet())))
+    .put(FILTER_LANGUAGES, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(FILTER_LANGUAGES, filters, createLanguagesFacet())))
     .put(FIELD_TAGS, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(FIELD_TAGS, filters, createTagsFacet())))
     .build();
 
@@ -228,7 +228,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static AbstractAggregationBuilder createLanguagesFacet() {
-    return AggregationBuilders.terms(FILTER_LANGUAGE).field(FIELD_LANGUAGES);
+    return AggregationBuilders.terms(FILTER_LANGUAGES).field(FIELD_LANGUAGES);
   }
 
   private static AbstractAggregationBuilder createTagsFacet() {
@@ -258,7 +258,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));
 
     query.getLanguages()
-      .ifPresent(languages -> filters.put(FILTER_LANGUAGE, termsQuery(FIELD_LANGUAGES, languages)));
+      .ifPresent(languages -> filters.put(FILTER_LANGUAGES, termsQuery(FIELD_LANGUAGES, languages)));
 
     query.getOrganizationUuid()
       .ifPresent(organizationUuid -> filters.put(FIELD_ORGANIZATION_UUID, termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));

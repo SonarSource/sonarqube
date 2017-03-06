@@ -72,7 +72,7 @@ public class ProjectMeasuresIndexTest {
   private static final String COVERAGE = "coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
   private static final String NCLOC = "ncloc";
-  private static final String LANGUAGE = "language";
+  private static final String LANGUAGES = "languages";
 
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
   private static final ComponentDto PROJECT1 = newProjectDto(ORG).setUuid("Project-1").setName("Project 1").setKey("key-1");
@@ -993,7 +993,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_language() {
+  public void facet_languages() {
     index(
       newDoc().setLanguages(singletonList("java")),
       newDoc().setLanguages(singletonList("java")),
@@ -1002,9 +1002,9 @@ public class ProjectMeasuresIndexTest {
       newDoc().setLanguages(asList("<null>", "java")),
       newDoc().setLanguages(asList("<null>", "java", "xoo")));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets();
 
-    assertThat(facets.get(LANGUAGE)).containsOnly(
+    assertThat(facets.get(LANGUAGES)).containsOnly(
       entry("<null>", 2L),
       entry("java", 4L),
       entry("xoo", 2L),
@@ -1012,19 +1012,19 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_language_is_limited_to_10_languages() {
+  public void facet_languages_is_limited_to_10_languages() {
     index(
       newDoc().setLanguages(asList("<null>", "java", "xoo", "css", "cpp")),
       newDoc().setLanguages(asList("xml", "php", "python", "perl", "ruby")),
       newDoc().setLanguages(asList("js", "scala")));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets();
 
-    assertThat(facets.get(LANGUAGE)).hasSize(10);
+    assertThat(facets.get(LANGUAGES)).hasSize(10);
   }
 
   @Test
-  public void facet_language_is_sticky() {
+  public void facet_languages_is_sticky() {
     index(
       newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
       newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
@@ -1035,10 +1035,10 @@ public class ProjectMeasuresIndexTest {
 
     Facets facets = underTest.search(
       new ProjectMeasuresQuery().setLanguages(ImmutableSet.of("java")),
-      new SearchOptions().addFacets(LANGUAGE, NCLOC)).getFacets();
+      new SearchOptions().addFacets(LANGUAGES, NCLOC)).getFacets();
 
     // Sticky facet on language does not take into account language filter
-    assertThat(facets.get(LANGUAGE)).containsOnly(
+    assertThat(facets.get(LANGUAGES)).containsOnly(
       entry("<null>", 2L),
       entry("java", 4L),
       entry("xoo", 2L),
@@ -1065,7 +1065,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setLanguages(asList("java", "xoo")));
 
     userSession.logIn(USER1);
-    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets().get(LANGUAGE);
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets().get(LANGUAGES);
 
     assertThat(result).containsOnly(
       entry("java", 2L),

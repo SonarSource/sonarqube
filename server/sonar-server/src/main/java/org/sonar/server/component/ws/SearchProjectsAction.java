@@ -78,7 +78,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FIL
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_SIZE;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 
 public class SearchProjectsAction implements ComponentsWsAction {
 
@@ -105,7 +105,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setResponseExample(getClass().getResource("search_projects-example.json"))
-      .setChangelog(new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGE, PARAM_FILTER)))
+      .setChangelog(new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGES, PARAM_FILTER)))
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)

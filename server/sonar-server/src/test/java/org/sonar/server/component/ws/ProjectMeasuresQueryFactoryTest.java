@@ -120,7 +120,7 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void create_query_on_language_using_in_operator() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(
-      singletonList(Criterion.builder().setKey("language").setOperator(IN).setValues(asList("java", "js")).build()),
+      singletonList(Criterion.builder().setKey("languages").setOperator(IN).setValues(asList("java", "js")).build()),
       emptySet());
 
     assertThat(query.getLanguages().get()).containsOnly("java", "js");
@@ -129,7 +129,7 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void create_query_on_language_using_equals_operator() throws Exception {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(
-      singletonList(Criterion.builder().setKey("language").setOperator(EQ).setValue("java").build()),
+      singletonList(Criterion.builder().setKey("languages").setOperator(EQ).setValue("java").build()),
       emptySet());
 
     assertThat(query.getLanguages().get()).containsOnly("java");
@@ -138,19 +138,18 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void fail_to_create_query_on_language_using_in_operator_and_value() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Language should be set either by using 'language = java' or 'language IN (java, js)");
+    expectedException.expectMessage("Languages should be set either by using 'languages = java' or 'languages IN (java, js)");
 
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator(IN).setValue("java").build()), emptySet());
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("languages").setOperator(IN).setValue("java").build()), emptySet());
   }
 
   @Test
   public void fail_to_create_query_on_language_using_eq_operator_and_values() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Language should be set either by using 'language = java' or 'language IN (java, js)");
+    expectedException.expectMessage("Languages should be set either by using 'languages = java' or 'languages IN (java, js)");
 
-    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("language").setOperator(EQ).setValues(asList("java")).build()), emptySet());
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("languages").setOperator(EQ).setValues(asList("java")).build()), emptySet());
   }
-
 
   @Test
   public void create_query_on_tag_using_in_operator() throws Exception {

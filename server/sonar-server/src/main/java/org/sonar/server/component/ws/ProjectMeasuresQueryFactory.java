@@ -41,7 +41,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
 import static org.sonar.server.component.ws.FilterParser.Operator.IN;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 
 class ProjectMeasuresQueryFactory {
 
@@ -51,7 +51,7 @@ class ProjectMeasuresQueryFactory {
 
   private static final Map<String, BiConsumer<Criterion, ProjectMeasuresQuery>> CRITERION_PROCESSORS = ImmutableMap.<String, BiConsumer<Criterion, ProjectMeasuresQuery>>builder()
     .put(IS_FAVORITE_CRITERION.toLowerCase(ENGLISH), (criterion, query) -> processIsFavorite(criterion))
-    .put(FILTER_LANGUAGE, ProjectMeasuresQueryFactory::processLanguages)
+    .put(FILTER_LANGUAGES, ProjectMeasuresQueryFactory::processLanguages)
     .put(CRITERION_TAG, ProjectMeasuresQueryFactory::processTags)
     .put(QUERY_KEY, ProjectMeasuresQueryFactory::processQuery)
     .put(ALERT_STATUS_KEY, ProjectMeasuresQueryFactory::processQualityGateStatus)
@@ -90,7 +90,7 @@ class ProjectMeasuresQueryFactory {
       query.setLanguages(new HashSet<>(values));
       return;
     }
-    throw new IllegalArgumentException("Language should be set either by using 'language = java' or 'language IN (java, js)'");
+    throw new IllegalArgumentException("Languages should be set either by using 'languages = java' or 'languages IN (java, js)'");
   }
 
   private static void processTags(Criterion criterion, ProjectMeasuresQuery query) {
