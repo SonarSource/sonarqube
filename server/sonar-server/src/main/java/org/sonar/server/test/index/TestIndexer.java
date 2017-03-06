@@ -58,7 +58,8 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
       case PROJECT_CREATION:
         // no need to index, not tests at that time
       case PROJECT_KEY_UPDATE:
-        // no need to index, project key is not used
+      case PROJECT_TAGS_UPDATE:
+        // no need to index, project key and tags are not used
         break;
       case NEW_ANALYSIS:
         deleteProject(projectUuid);

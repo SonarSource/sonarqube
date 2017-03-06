@@ -32,7 +32,7 @@ package org.sonar.server.es;
 public interface ProjectIndexer {
 
   enum Cause {
-    PROJECT_CREATION, PROJECT_KEY_UPDATE, NEW_ANALYSIS
+    PROJECT_CREATION, PROJECT_KEY_UPDATE, NEW_ANALYSIS, PROJECT_TAGS_UPDATE
   }
 
   /**

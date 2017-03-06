@@ -113,7 +113,8 @@ public class PermissionIndexer implements ProjectIndexer, StartupIndexer {
       case NEW_ANALYSIS:
         // nothing to do, permissions don't change during an analysis
       case PROJECT_KEY_UPDATE:
-        // nothing to do, key is not used in this index
+      case PROJECT_TAGS_UPDATE:
+        // nothing to do, key and tags are not used in this index
         break;
       default:
         // defensive case

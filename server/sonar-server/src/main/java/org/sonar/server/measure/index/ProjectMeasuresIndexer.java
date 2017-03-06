@@ -76,6 +76,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       case PROJECT_CREATION:
         // provisioned projects are supported by WS api/components/search_projects
       case NEW_ANALYSIS:
+      case PROJECT_TAGS_UPDATE:
         doIndex(createBulkIndexer(Size.REGULAR), projectUuid);
         break;
       default:

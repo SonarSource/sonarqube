@@ -79,7 +79,8 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
       case PROJECT_CREATION:
         // nothing to do, issues do not exist at project creation
       case PROJECT_KEY_UPDATE:
-        // nothing to do, project key is not used in this index
+      case PROJECT_TAGS_UPDATE:
+        // nothing to do, project key and tags are not used in this index
         break;
       case NEW_ANALYSIS:
         doIndex(createBulkIndexer(Size.REGULAR), projectUuid);

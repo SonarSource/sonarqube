@@ -32,8 +32,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -49,11 +51,13 @@ public class SetAction implements ProjectTagsWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
+  private final List<ProjectIndexer> indexers;
 
-  public SetAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public SetAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, List<ProjectIndexer> indexers) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
+    this.indexers = indexers;
   }
 
   @Override
@@ -94,6 +98,7 @@ public class SetAction implements ProjectTagsWsAction {
       project.setTags(tags);
       dbClient.componentDao().updateTags(dbSession, project);
       dbSession.commit();
+      indexers.forEach(i -> i.indexProject(project.uuid(), PROJECT_TAGS_UPDATE));
     }
 
     response.noContent();
