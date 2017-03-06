@@ -242,16 +242,13 @@ export default class SourceViewerIssueLocations extends React.Component {
     const selected = this.isLocationSelected(flowIndex, locations.length - locationIndex - 1);
 
     return (
-      <li
-        key={key}
-        ref={node => this.locations[key] = node}
-        className={classNames('spacer-bottom', 'flash', 'flash-heavy', {
-          in: selected && this.state.locationBlink
-        })}>
+      <li key={key} ref={node => this.locations[key] = node} className="spacer-bottom">
         {line != null && <code className="source-issue-locations-line">L{line}</code>}
-
         <a
-          className={classNames('issue-location-message', { selected })}
+          className={classNames('issue-location-message', 'flash', 'flash-heavy', {
+            selected,
+            in: selected && this.state.locationBlink
+          })}
           href="#"
           onClick={this.handleLocationClick.bind(
             this,
