@@ -151,6 +151,9 @@ public class CeServer implements Monitored {
       try {
         startup();
         return true;
+      } catch (org.sonar.api.utils.MessageException | org.sonar.process.MessageException e) {
+        LOG.error("Compute Engine startup failed: " + e.getMessage());
+        return false;
       } catch (Throwable e) {
         LOG.error("Compute Engine startup failed", e);
         return false;
