@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
@@ -47,6 +48,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -81,6 +83,9 @@ public class ProjectMeasuresIndexTest {
 
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -1081,6 +1086,75 @@ public class ProjectMeasuresIndexTest {
     Map<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
 
     assertThat(result).hasSize(10).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10");
+  }
+
+  @Test
+  public void search_tags() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags("off", 10);
+
+    assertThat(result).containsExactly("offshore", "official", "Madhoff");
+  }
+
+  @Test
+  public void search_tags_return_all_tags() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 10);
+
+    assertThat(result).containsOnly("offshore", "official", "Madhoff", "finance", "marketing", "java", "javascript");
+  }
+
+  @Test
+  public void search_tags_only_of_authorized_projects() {
+    indexForUser(USER1,
+      newDoc(PROJECT1).setTags(singletonList("finance")),
+      newDoc(PROJECT2).setTags(singletonList("marketing")));
+    indexForUser(USER2,
+      newDoc(PROJECT3).setTags(singletonList("offshore")));
+
+    userSession.logIn(USER1);
+
+    List<String> result = underTest.searchTags(null, 10);
+
+    assertThat(result).containsOnly("finance", "marketing");
+  }
+
+  @Test
+  public void search_tags_with_no_tags() {
+    List<String> result = underTest.searchTags("whatever", 10);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void search_tags_with_page_size_at_0() {
+    index(newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 0);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void fail_if_page_size_greater_than_100() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be lower than or equals to 100");
+
+    underTest.searchTags("whatever", 101);
   }
 
   private void index(ProjectMeasuresDoc... docs) {

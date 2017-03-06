@@ -28,14 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
@@ -47,6 +52,8 @@ import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
@@ -63,6 +70,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.measure.index.ProjectMeasuresDoc.QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
@@ -302,6 +310,34 @@ public class ProjectMeasuresIndex extends BaseIndex {
       default:
         throw new IllegalStateException("Metric criteria non supported: " + criterion.getOperator().name());
     }
+  }
+
+  public List<String> searchTags(@Nullable String textQuery, int pageSize) {
+    checkArgument(pageSize <= 100, "Page size must be lower than or equals to " + 100);
+    if (pageSize == 0) {
+      return emptyList();
+    }
+
+    TermsBuilder tagFacet = AggregationBuilders.terms(FIELD_TAGS)
+      .field(FIELD_TAGS)
+      .size(pageSize)
+      .minDocCount(1);
+    if (textQuery != null) {
+      tagFacet.include(".*" + escapeSpecialRegexChars(textQuery) + ".*");
+    }
+
+    SearchRequestBuilder searchQuery = getClient()
+      .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
+      .setQuery(authorizationTypeSupport.createQueryFilter())
+      .setFetchSource(false)
+      .setSize(0)
+      .addAggregation(tagFacet);
+
+    Terms aggregation = searchQuery.get().getAggregations().get(FIELD_TAGS);
+
+    return aggregation.getBuckets().stream()
+      .map(Bucket::getKeyAsString)
+      .collect(Collectors.toList());
   }
 
   @FunctionalInterface
