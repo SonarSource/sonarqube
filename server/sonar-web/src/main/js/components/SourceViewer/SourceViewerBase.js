@@ -184,7 +184,7 @@ export default class SourceViewerBase extends React.Component {
       `.source-line-code[data-line-number="${line}"] .source-line-issue-locations`
     );
     if (lineElement) {
-      scrollToElement(lineElement, 200, this.state.locationsPanelHeight + 15);
+      scrollToElement(lineElement, 125, this.state.locationsPanelHeight + 75);
     }
   }
 
