@@ -76,7 +76,7 @@ function fixBuildVersion {
     export BUILD_VERSION="$without_suffix.$TRAVIS_BUILD_NUMBER"
   fi
 
-  if [ "${INITIAL_VERSION}" == *"-SNAPSHOT" ]; then
+  if [[ "${INITIAL_VERSION}" == *"-SNAPSHOT" ]]; then
     # SNAPSHOT
     export PROJECT_VERSION=$BUILD_VERSION
     mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -DnewVersion=$PROJECT_VERSION -DgenerateBackupPoms=false -B -e
