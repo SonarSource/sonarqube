@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import SourceViewerLine from './SourceViewerLine';
+import { TooltipsContainer } from '../mixins/tooltips-mixin';
 import { translate } from '../../helpers/l10n';
 import type { Duplication, SourceLine } from './types';
 import type { Issue } from '../issue/types';
@@ -38,7 +39,7 @@ const ZERO_LINE = {
   line: 0
 };
 
-export default class SourceViewerCode extends React.Component {
+export default class SourceViewerCode extends React.PureComponent {
   props: {
     displayAllIssues: boolean,
     duplications?: Array<Duplication>,
@@ -201,16 +202,18 @@ export default class SourceViewerCode extends React.Component {
           </div>
         )}
 
-        <table className="source-table">
-          <tbody>
-            {hasFileIssues && (
-              this.renderLine(ZERO_LINE, -1, hasCoverage, hasDuplications, displayFiltered, hasIssues)
-            )}
-            {sources.map((line, index) => (
-              this.renderLine(line, index, hasCoverage, hasDuplications, displayFiltered, hasIssues)
-            ))}
-          </tbody>
-        </table>
+        <TooltipsContainer>
+          <table className="source-table">
+            <tbody>
+              {hasFileIssues && (
+                this.renderLine(ZERO_LINE, -1, hasCoverage, hasDuplications, displayFiltered, hasIssues)
+              )}
+              {sources.map((line, index) => (
+                this.renderLine(line, index, hasCoverage, hasDuplications, displayFiltered, hasIssues)
+              ))}
+            </tbody>
+          </table>
+        </TooltipsContainer>
 
         {this.props.hasSourcesAfter && (
           <div className="source-viewer-more-code">

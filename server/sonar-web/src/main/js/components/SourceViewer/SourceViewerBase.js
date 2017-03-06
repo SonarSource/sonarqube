@@ -29,7 +29,6 @@ import DuplicationPopupView from '../source-viewer/popups/duplication-popup';
 import LineActionsPopupView from '../source-viewer/popups/line-actions-popup';
 import SCMPopupView from '../source-viewer/popups/scm-popup';
 import MeasuresOverlay from '../source-viewer/measures-overlay';
-import { TooltipsContainer } from '../mixins/tooltips-mixin';
 import Source from '../source-viewer/source';
 import loadIssues from './helpers/loadIssues';
 import getCoverageStatus from './helpers/getCoverageStatus';
@@ -483,40 +482,38 @@ export default class SourceViewerBase extends React.Component {
   renderCode (sources: Array<SourceLine>) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
-      <TooltipsContainer>
-        <SourceViewerCode
-          displayAllIssues={this.props.displayAllIssues}
-          duplications={this.state.duplications}
-          duplicationsByLine={this.state.duplicationsByLine}
-          duplicatedFiles={this.state.duplicatedFiles}
-          hasSourcesBefore={hasSourcesBefore}
-          hasSourcesAfter={this.state.hasSourcesAfter}
-          filterLine={this.props.filterLine}
-          highlightedLine={this.state.highlightedLine}
-          highlightedSymbol={this.state.highlightedSymbol}
-          issues={this.state.issues}
-          issuesByLine={this.state.issuesByLine}
-          issueLocationsByLine={this.state.issueLocationsByLine}
-          issueSecondaryLocationsByIssueByLine={this.state.issueSecondaryLocationsByIssueByLine}
-          issueSecondaryLocationMessagesByIssueByLine={this.state.issueSecondaryLocationMessagesByIssueByLine}
-          loadDuplications={this.loadDuplications}
-          loadSourcesAfter={this.loadSourcesAfter}
-          loadSourcesBefore={this.loadSourcesBefore}
-          loadingSourcesAfter={this.state.loadingSourcesAfter}
-          loadingSourcesBefore={this.state.loadingSourcesBefore}
-          onCoverageClick={this.handleCoverageClick}
-          onDuplicationClick={this.handleDuplicationClick}
-          onIssueSelect={this.props.onIssueSelect}
-          onIssueUnselect={this.props.onIssueUnselect}
-          onLineClick={this.handleLineClick}
-          onSCMClick={this.handleSCMClick}
-          onSelectLocation={this.handleSelectIssueLocation}
-          onSymbolClick={this.handleSymbolClick}
-          selectedIssue={this.props.selectedIssue}
-          selectedIssueLocation={this.state.selectedIssueLocation}
-          sources={sources}
-          symbolsByLine={this.state.symbolsByLine}/>
-      </TooltipsContainer>
+      <SourceViewerCode
+        displayAllIssues={this.props.displayAllIssues}
+        duplications={this.state.duplications}
+        duplicationsByLine={this.state.duplicationsByLine}
+        duplicatedFiles={this.state.duplicatedFiles}
+        hasSourcesBefore={hasSourcesBefore}
+        hasSourcesAfter={this.state.hasSourcesAfter}
+        filterLine={this.props.filterLine}
+        highlightedLine={this.state.highlightedLine}
+        highlightedSymbol={this.state.highlightedSymbol}
+        issues={this.state.issues}
+        issuesByLine={this.state.issuesByLine}
+        issueLocationsByLine={this.state.issueLocationsByLine}
+        issueSecondaryLocationsByIssueByLine={this.state.issueSecondaryLocationsByIssueByLine}
+        issueSecondaryLocationMessagesByIssueByLine={this.state.issueSecondaryLocationMessagesByIssueByLine}
+        loadDuplications={this.loadDuplications}
+        loadSourcesAfter={this.loadSourcesAfter}
+        loadSourcesBefore={this.loadSourcesBefore}
+        loadingSourcesAfter={this.state.loadingSourcesAfter}
+        loadingSourcesBefore={this.state.loadingSourcesBefore}
+        onCoverageClick={this.handleCoverageClick}
+        onDuplicationClick={this.handleDuplicationClick}
+        onIssueSelect={this.props.onIssueSelect}
+        onIssueUnselect={this.props.onIssueUnselect}
+        onLineClick={this.handleLineClick}
+        onSCMClick={this.handleSCMClick}
+        onSelectLocation={this.handleSelectIssueLocation}
+        onSymbolClick={this.handleSymbolClick}
+        selectedIssue={this.props.selectedIssue}
+        selectedIssueLocation={this.state.selectedIssueLocation}
+        sources={sources}
+        symbolsByLine={this.state.symbolsByLine}/>
     );
   }
 
