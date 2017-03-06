@@ -112,6 +112,24 @@
   border-bottom: 1px solid #e6e6e6;
 }
 
+.projects-facet-search {
+  position: relative;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  transition: none;
+}
+
+.projects-facet-search .note {
+  position: absolute;
+  opacity: 0;
+  left: 0;
+  bottom: -6px;
+}
+
+.projects-facet-search input.touched ~ .note {
+  opacity: 1;
+}
+
 .projects-facets-reset {
   float: right;
 }

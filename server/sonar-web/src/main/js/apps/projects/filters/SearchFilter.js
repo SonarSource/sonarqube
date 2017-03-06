@@ -19,30 +19,56 @@
  */
 import React from 'react';
 import { withRouter } from 'react-router';
+import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import { getFilterUrl } from './utils';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 class SearchFilter extends React.Component {
   static propTypes = {
     query: React.PropTypes.object.isRequired,
+    router: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
     organization: React.PropTypes.object
   }
 
-  handleQueryChange = debounce(option => {
-    const path = getFilterUrl(this.props, { search: option || null });
+  state = {
+    userQuery: ''
+  };
+
+  componentWillMount () {
+    this.handleSearch = debounce(this.handleSearch.bind(this), 250);
+  }
+
+  handleSearch (userQuery) {
+    const path = getFilterUrl(this.props, { search: userQuery || null });
     this.props.router.push(path);
-  }, 250);
+  }
+
+  handleQueryChange (userQuery) {
+    this.setState({ userQuery });
+    if (!userQuery || userQuery.length >= 2) {
+      this.handleSearch(userQuery);
+    }
+  }
 
   render () {
+    const { userQuery } = this.state;
+    const inputClassName = classNames('input-super-large', {
+      'touched': userQuery && userQuery.length < 2
+    });
+
     return (
-      <div className="projects-facet-header" data-key="search">
+      <div className="projects-facet-search" data-key="search">
         <input
-          type="text"
-          className="input-super-large"
+          type="search"
+          className={inputClassName}
           placeholder={translate('projects.search')}
-          onChange={event => this.handleQueryChange(event.target.value)}/>
+          onChange={event => this.handleQueryChange(event.target.value)}
+          autoComplete="off"/>
+        <span className="note spacer-left">
+          {translateWithParameters('select2.tooShort', 2)}
+        </span>
       </div>
     );
   }
