@@ -42,17 +42,17 @@ import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
 import static org.sonar.server.component.ws.FilterParser.Operator.IN;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 class ProjectMeasuresQueryFactory {
 
   public static final String IS_FAVORITE_CRITERION = "isFavorite";
-  public static final String CRITERION_TAG = "tag";
   public static final String QUERY_KEY = "query";
 
   private static final Map<String, BiConsumer<Criterion, ProjectMeasuresQuery>> CRITERION_PROCESSORS = ImmutableMap.<String, BiConsumer<Criterion, ProjectMeasuresQuery>>builder()
     .put(IS_FAVORITE_CRITERION.toLowerCase(ENGLISH), (criterion, query) -> processIsFavorite(criterion))
     .put(FILTER_LANGUAGES, ProjectMeasuresQueryFactory::processLanguages)
-    .put(CRITERION_TAG, ProjectMeasuresQueryFactory::processTags)
+    .put(FILTER_TAGS, ProjectMeasuresQueryFactory::processTags)
     .put(QUERY_KEY, ProjectMeasuresQueryFactory::processQuery)
     .put(ALERT_STATUS_KEY, ProjectMeasuresQueryFactory::processQualityGateStatus)
     .build();
@@ -106,7 +106,7 @@ class ProjectMeasuresQueryFactory {
       query.setTags(new HashSet<>(values));
       return;
     }
-    throw new IllegalArgumentException("Tag should be set either by using 'tag = java' or 'tag IN (finance, platform)'");
+    throw new IllegalArgumentException("Tags should be set either by using 'tags = java' or 'tags IN (finance, platform)'");
   }
 
   private static void processQuery(Criterion criterion, ProjectMeasuresQuery query) {

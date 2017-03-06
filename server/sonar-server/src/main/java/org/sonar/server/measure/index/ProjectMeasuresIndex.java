@@ -83,6 +83,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -95,7 +96,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     SECURITY_RATING_KEY,
     ALERT_STATUS_KEY,
     FILTER_LANGUAGES,
-    FIELD_TAGS);
+    FILTER_TAGS);
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;

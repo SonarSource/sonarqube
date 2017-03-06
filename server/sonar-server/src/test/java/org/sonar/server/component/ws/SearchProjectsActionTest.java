@@ -307,7 +307,7 @@ public class SearchProjectsActionTest {
     insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown").setTags(singletonList("marketing")));
     insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube").setTags(newArrayList("offshore")));
     insertMetrics(COVERAGE, NCLOC);
-    request.setFilter("tag in (finance, offshore)");
+    request.setFilter("tags in (finance, offshore)");
 
     SearchProjectsWsResponse result = call(request);
 
