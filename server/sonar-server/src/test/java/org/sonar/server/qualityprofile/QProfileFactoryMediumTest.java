@@ -86,7 +86,7 @@ public class QProfileFactoryMediumTest {
   public void create() {
     String uuid = organization.getUuid();
 
-    QualityProfileDto writtenDto = factory.create(dbSession, uuid, new QProfileName("xoo", "P1"));
+    QualityProfileDto writtenDto = factory.create(dbSession, organization, new QProfileName("xoo", "P1"));
     dbSession.commit();
     dbSession.clearCache();
     assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
@@ -110,11 +110,10 @@ public class QProfileFactoryMediumTest {
   @Test
   public void fail_to_create_if_name_null() {
     QProfileName name = new QProfileName("xoo", null);
-    String organizationUuid = organization.getUuid();
 
     expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
 
-    factory.create(dbSession, organizationUuid, name);
+    factory.create(dbSession, organization, name);
   }
 
   @Test
@@ -123,24 +122,24 @@ public class QProfileFactoryMediumTest {
 
     expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
 
-    factory.create(dbSession, organization.getUuid(), name);
+    factory.create(dbSession, organization, name);
   }
 
   @Test
   public void fail_to_create_if_already_exists() {
     QProfileName name = new QProfileName("xoo", "P1");
-    factory.create(dbSession, organization.getUuid(), name);
+    factory.create(dbSession, organization, name);
     dbSession.commit();
     dbSession.clearCache();
 
     expectBadRequestException("Quality profile already exists: {lang=xoo, name=P1}");
 
-    factory.create(dbSession, organization.getUuid(), name);
+    factory.create(dbSession, organization, name);
   }
 
   @Test
   public void rename() {
-    QualityProfileDto dto = factory.create(dbSession, organization.getUuid(), new QProfileName("xoo", "P1"));
+    QualityProfileDto dto = factory.create(dbSession, organization, new QProfileName("xoo", "P1"));
     dbSession.commit();
     dbSession.clearCache();
     String key = dto.getKey();
@@ -156,7 +155,7 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void ignore_renaming_if_same_name() {
-    QualityProfileDto dto = factory.create(dbSession, organization.getUuid(), new QProfileName("xoo", "P1"));
+    QualityProfileDto dto = factory.create(dbSession, organization, new QProfileName("xoo", "P1"));
     dbSession.commit();
     dbSession.clearCache();
     String key = dto.getKey();
@@ -172,7 +171,7 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void fail_if_blank_renaming() {
-    QualityProfileDto dto = factory.create(dbSession, organization.getUuid(), new QProfileName("xoo", "P1"));
+    QualityProfileDto dto = factory.create(dbSession, organization, new QProfileName("xoo", "P1"));
     dbSession.commit();
     dbSession.clearCache();
     String key = dto.getKey();
@@ -192,8 +191,8 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void fail_renaming_if_name_already_exists() {
-    QualityProfileDto p1 = factory.create(dbSession, organization.getUuid(), new QProfileName("xoo", "P1"));
-    QualityProfileDto p2 = factory.create(dbSession, organization.getUuid(), new QProfileName("xoo", "P2"));
+    QualityProfileDto p1 = factory.create(dbSession, organization, new QProfileName("xoo", "P1"));
+    QualityProfileDto p2 = factory.create(dbSession, organization, new QProfileName("xoo", "P2"));
     dbSession.commit();
     dbSession.clearCache();
 

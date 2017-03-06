@@ -117,7 +117,7 @@ public class CreateAction implements QProfileWsAction {
 
   private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request) {
     QProfileResult result = new QProfileResult();
-    QualityProfileDto profile = profileFactory.create(dbSession, qProfileWsSupport.getOrganizationUuidByKey(createRequest.getOrganizationKey()),
+    QualityProfileDto profile = profileFactory.create(dbSession, qProfileWsSupport.getOrganizationByKey(dbSession, createRequest.getOrganizationKey()),
       QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
     result.setProfile(profile);
     for (ProfileImporter importer : importers) {
@@ -127,9 +127,10 @@ public class CreateAction implements QProfileWsAction {
         result.add(exporters.importXml(profile, importerKey, contentToImport, dbSession));
       }
     }
+    String organizationKey = qProfileWsSupport.getOrganizationKey(result.profile(), dbSession);
     dbSession.commit();
     activeRuleIndexer.index(result.getChanges());
-    return buildResponse(result);
+    return buildResponse(result, organizationKey);
   }
 
   private static CreateRequest toRequest(Request request) {
@@ -140,10 +141,10 @@ public class CreateAction implements QProfileWsAction {
     return builder.build();
   }
 
-  private CreateWsResponse buildResponse(QProfileResult result) {
+  private CreateWsResponse buildResponse(QProfileResult result, String organizationKey) {
     String language = result.profile().getLanguage();
     CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
-      .setOrganization(qProfileWsSupport.getOrganizationKey(result.profile()))
+      .setOrganization(organizationKey)
       .setKey(result.profile().getKey())
       .setName(result.profile().getName())
       .setLanguage(language)
