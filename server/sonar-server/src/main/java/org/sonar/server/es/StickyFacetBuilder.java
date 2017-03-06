@@ -101,20 +101,21 @@ public class StickyFacetBuilder {
   }
 
   public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
-    if (selected.length > 0) {
-      String includes = Arrays.stream(selected)
-        .filter(Objects::nonNull)
-        .map(s -> EsUtils.escapeSpecialRegexChars(s.toString()))
-        .collect(PIPE_JOINER);
-
-      TermsBuilder selectedTerms = AggregationBuilders.terms(facetName + "_selected")
-        .field(fieldName)
-        .include(includes);
-      if (subAggregation != null) {
-        selectedTerms = selectedTerms.subAggregation(subAggregation);
-      }
-      facetTopAggregation.subAggregation(selectedTerms);
+    if (selected.length <= 0) {
+      return facetTopAggregation;
     }
+    String includes = Arrays.stream(selected)
+      .filter(Objects::nonNull)
+      .map(s -> EsUtils.escapeSpecialRegexChars(s.toString()))
+      .collect(PIPE_JOINER);
+
+    TermsBuilder selectedTerms = AggregationBuilders.terms(facetName + "_selected")
+      .field(fieldName)
+      .include(includes);
+    if (subAggregation != null) {
+      selectedTerms = selectedTerms.subAggregation(subAggregation);
+    }
+    facetTopAggregation.subAggregation(selectedTerms);
     return facetTopAggregation;
   }
 }

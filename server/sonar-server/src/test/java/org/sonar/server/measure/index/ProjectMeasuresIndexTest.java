@@ -1053,6 +1053,31 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void facet_languages_returns_more_than_10_languages_when_languages_filter_contains_value_not_in_top_10() {
+    index(
+      newDoc().setLanguages(asList("<null>", "java", "xoo", "css", "cpp")),
+      newDoc().setLanguages(asList("xml", "php", "python", "perl", "ruby")),
+      newDoc().setLanguages(asList("js", "scala")));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery().setLanguages(ImmutableSet.of("xoo", "xml")), new SearchOptions().addFacets(LANGUAGES)).getFacets();
+
+    assertThat(facets.get(LANGUAGES)).containsOnly(
+      entry("<null>", 1L),
+      entry("cpp", 1L),
+      entry("css", 1L),
+      entry("java", 1L),
+      entry("js", 1L),
+      entry("perl", 1L),
+      entry("php", 1L),
+      entry("python", 1L),
+      entry("ruby", 1L),
+      entry("scala", 1L),
+      entry("xoo", 1L),
+      entry("xml", 1L)
+    );
+  }
+
+  @Test
   public void facet_languages_contains_only_projects_authorized_for_user() throws Exception {
     // User can see these projects
     indexForUser(USER1,
