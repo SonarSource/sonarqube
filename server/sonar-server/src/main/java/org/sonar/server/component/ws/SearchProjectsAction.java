@@ -227,7 +227,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Ordering<ComponentDto> ordering = Ordering.explicit(projectUuids).onResultOf(ComponentDto::uuid);
     List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, projectUuids));
     Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);
-    return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid);
+    return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid, query);
   }
 
   private static boolean hasFavoriteFilter(List<Criterion> criteria) {
@@ -285,8 +285,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults,
-    Map<String, OrganizationDto> organizationsByUuid) {
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
     Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
       userSession.isLoggedIn());
 
@@ -301,15 +300,17 @@ public class SearchProjectsAction implements ComponentsWsAction {
           .forEach(response::addComponents);
         return response;
       })
-      .map(response -> addFacets(searchResults.facets, response))
+      .map(response -> addFacets(searchResults, response))
       .map(SearchProjectsWsResponse.Builder::build)
       .findFirst()
       .orElseThrow(() -> new IllegalStateException("SearchProjectsWsResponse not built"));
   }
 
-  private static SearchProjectsWsResponse.Builder addFacets(Facets esFacets, SearchProjectsWsResponse.Builder wsResponse) {
+  private static SearchProjectsWsResponse.Builder addFacets(SearchResults searchResults, SearchProjectsWsResponse.Builder wsResponse) {
+    Facets esFacets = searchResults.facets;
     EsToWsFacet esToWsFacet = new EsToWsFacet();
 
+    searchResults.query.getLanguages().ifPresent(languages -> addMandatoryValuesToFacet(esFacets, FILTER_LANGUAGES, languages));
     Common.Facets wsFacets = esFacets.getAll().entrySet().stream()
       .map(esToWsFacet)
       .collect(Collector.of(
@@ -323,6 +324,18 @@ public class SearchProjectsAction implements ComponentsWsAction {
     wsResponse.setFacets(wsFacets);
 
     return wsResponse;
+  }
+
+  private static void addMandatoryValuesToFacet(Facets facets, String facetName, Iterable<String> mandatoryValues) {
+    Map<String, Long> buckets = facets.get(facetName);
+    if (buckets == null) {
+      return;
+    }
+    for (String mandatoryValue : mandatoryValues) {
+      if (!buckets.containsKey(mandatoryValue)) {
+        buckets.put(mandatoryValue, 0L);
+      }
+    }
   }
 
   private static class EsToWsFacet implements Function<Entry<String, LinkedHashMap<String, Long>>, Common.Facet> {
@@ -413,14 +426,17 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final Set<String> favoriteProjectUuids;
     private final Facets facets;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
+    private final ProjectMeasuresQuery query;
     private final int total;
 
-    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid) {
+    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
+      ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;
       this.total = (int) searchResults.getTotal();
       this.facets = searchResults.getFacets();
       this.analysisByProjectUuid = analysisByProjectUuid;
+      this.query = query;
     }
   }
 }

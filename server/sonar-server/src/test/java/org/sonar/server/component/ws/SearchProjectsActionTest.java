@@ -485,6 +485,26 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void return_languages_facet_with_language_having_no_project_if_language_is_in_filter() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java"));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java"));
+    insertMetrics(COVERAGE, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+
+    SearchProjectsWsResponse result = call(request.setFilter("languages = xoo").setFacets(singletonList(FILTER_LANGUAGES)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> FILTER_LANGUAGES.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsOnly(
+        tuple("xoo", 0L),
+        tuple("java", 2L),
+        tuple("<null>", 1L));
+  }
+
+  @Test
   public void default_sort_is_by_ascending_name() throws Exception {
     OrganizationDto organization = db.getDefaultOrganization();
     insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
