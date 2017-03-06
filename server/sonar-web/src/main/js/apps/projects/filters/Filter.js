@@ -33,6 +33,7 @@ export default class Filter extends React.Component {
 
     renderName: React.PropTypes.func.isRequired,
     renderOption: React.PropTypes.func.isRequired,
+    renderFooter: React.PropTypes.func,
 
     getFacetValueForOption: React.PropTypes.func,
 
@@ -130,11 +131,23 @@ export default class Filter extends React.Component {
     }
   }
 
+  renderFooter () {
+    if (!this.props.renderFooter) {
+      return null;
+    }
+    return (
+      <div className="search-navigator-facet-footer projects-facet-footer">
+        {this.props.renderFooter()}
+      </div>
+    );
+  }
+
   render () {
     return (
         <div className="search-navigator-facet-box" data-key={this.props.property}>
           {this.renderHeader()}
           {this.renderOptions()}
+          {this.renderFooter()}
         </div>
     );
   }
