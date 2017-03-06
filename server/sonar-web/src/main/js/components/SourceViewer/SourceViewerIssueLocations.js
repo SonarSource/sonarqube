@@ -24,6 +24,7 @@ import { DraggableCore } from 'react-draggable';
 import classNames from 'classnames';
 import throttle from 'lodash/throttle';
 import { scrollToElement } from '../../helpers/scrolling';
+import { translate } from '../../helpers/l10n';
 import type { Issue, FlowLocation } from '../issue/types';
 import type { IndexedIssueLocation } from './helpers/indexing';
 
@@ -268,7 +269,7 @@ export default class SourceViewerIssueLocations extends React.Component {
                 {' '}
                 <span className="shortcut-button">&darr;</span>
                 {' '}
-                to quicky navigate issue locations
+                {translate('source_viewer.to_navigate_issue_locations')}
               </div>
               <ul
                 ref={node => this.node = node}
