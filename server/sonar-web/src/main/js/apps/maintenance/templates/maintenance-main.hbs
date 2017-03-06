@@ -1,6 +1,7 @@
 {{#unless setup}}
 
   {{#eq status 'UP'}}{{> '_maintenance-status-up'}}{{/eq}}
+  {{#eq status 'STARTING'}}{{> '_maintenance-status-starting'}}{{/eq}}
   {{#eq status 'DOWN'}}{{> '_maintenance-status-down'}}{{/eq}}
   {{#eq status 'DB_MIGRATION_NEEDED'}}{{> '_maintenance-status-migration'}}{{/eq}}
   {{#eq status 'DB_MIGRATION_RUNNING'}}{{> '_maintenance-status-migration'}}{{/eq}}

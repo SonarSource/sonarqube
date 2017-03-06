@@ -30,26 +30,31 @@ export default Marionette.ItemView.extend({
   },
 
   initialize () {
-    const that = this;
     this.requestOptions = {
       type: 'GET',
       url: window.baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
     };
     this.pollingInternal = setInterval(() => {
-      that.refresh();
+      this.refresh();
     }, 5000);
+    this.wasStarting = false;
   },
 
   refresh () {
-    const that = this;
     return Backbone.ajax(this.requestOptions).done(r => {
-      that.model.set(r);
-      that.render();
-      if (that.model.get('status') === 'UP' || that.model.get('state') === 'NO_MIGRATION') {
-        that.stopPolling();
+      if (r.status === 'STARTING') {
+        this.wasStarting = true;
       }
-      if (that.model.get('state') === 'MIGRATION_SUCCEEDED') {
-        that.goHome();
+      this.model.set(r);
+      this.render();
+      if (this.model.get('status') === 'UP' || this.model.get('state') === 'NO_MIGRATION') {
+        this.stopPolling();
+      }
+      if (this.model.get('status') === 'UP' && this.wasStarting) {
+        this.goHome();
+      }
+      if (this.model.get('state') === 'MIGRATION_SUCCEEDED') {
+        this.goHome();
       }
     });
   },
@@ -59,13 +64,12 @@ export default Marionette.ItemView.extend({
   },
 
   startMigration () {
-    const that = this;
     Backbone.ajax({
       url: window.baseUrl + '/api/system/migrate_db',
       type: 'POST'
     }).done(r => {
-      that.model.set(r);
-      that.render();
+      this.model.set(r);
+      this.render();
     });
   },
 
