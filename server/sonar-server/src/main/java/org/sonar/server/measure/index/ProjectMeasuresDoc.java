@@ -36,8 +36,6 @@ import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_KEY;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
@@ -130,13 +128,8 @@ public class ProjectMeasuresDoc extends BaseDoc {
     return this;
   }
 
-  public ProjectMeasuresDoc setLanguages(Map<String, Integer> languageDistribution) {
-    setField(FIELD_LANGUAGES,
-      languageDistribution.entrySet().stream()
-        .map(entry -> ImmutableMap.<String, Object>of(
-          FIELD_LANGUAGES_KEY, entry.getKey(),
-          FIELD_LANGUAGES_VALUE, entry.getValue()))
-        .collect(Collectors.toList()));
+  public ProjectMeasuresDoc setLanguages(List<String> languages) {
+    setField(FIELD_LANGUAGES, languages);
     return this;
   }
 

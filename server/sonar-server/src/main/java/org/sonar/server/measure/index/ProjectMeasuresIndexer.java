@@ -135,6 +135,6 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       .setTags(project.getTags())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
       .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
-      .setLanguages(projectMeasures.getMeasures().getLanguageDistribution());
+      .setLanguages(projectMeasures.getMeasures().getLanguages());
   }
 }

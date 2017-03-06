@@ -62,8 +62,8 @@ import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -283,10 +283,10 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_by_languages() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, ImmutableMap.of("<null>", 2, "java", 6, "xoo", 18));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, ImmutableMap.of("java", 4, "xoo", 5));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, ImmutableMap.of("xoo", 3));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, ImmutableMap.of("<null>", 5, "java", 16, "xoo", 9));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java", "xoo"));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null,asList("java", "xoo"));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("xoo"));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("<null>", "java", "xoo"));
     insertMetrics(COVERAGE, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
     request.setFilter("language IN (java, js, <null>)");
 
@@ -459,10 +459,10 @@ public class SearchProjectsActionTest {
   @Test
   public void return_languages_facet() {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, ImmutableMap.of("<null>", 2, "java", 6, "xoo", 18));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, ImmutableMap.of("java", 4, "xoo", 5));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, ImmutableMap.of("xoo", 3));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, ImmutableMap.of("<null>", 5, "java", 16, "xoo", 9));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java", "xoo"));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java", "xoo"));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("xoo"));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("<null>", "java", "xoo"));
     insertMetrics(COVERAGE, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_LANGUAGE)));
@@ -474,9 +474,9 @@ public class SearchProjectsActionTest {
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactly(
-        tuple("xoo", 35L),
-        tuple("java", 26L),
-        tuple("<null>", 7L));
+        tuple("xoo", 4L),
+        tuple("java", 3L),
+        tuple("<null>", 2L));
   }
 
   @Test
@@ -595,15 +595,15 @@ public class SearchProjectsActionTest {
   }
 
   private ComponentDto insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
-    return insertProjectInDbAndEs(project, measures, null, emptyMap());
+    return insertProjectInDbAndEs(project, measures, null, emptyList());
   }
 
   private ComponentDto insertProjectInDbAndEs(ComponentDto project, String qualityGateStatus) {
-    return insertProjectInDbAndEs(project, emptyList(), qualityGateStatus, emptyMap());
+    return insertProjectInDbAndEs(project, emptyList(), qualityGateStatus, emptyList());
   }
 
   private ComponentDto insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures, @Nullable String qualityGateStatus,
-    Map<String, Integer> languagesDistribution) {
+    List<String> languages) {
     ComponentDto res = componentDb.insertComponent(project);
     try {
       es.putDocuments(INDEX_TYPE_PROJECT_MEASURES,
@@ -614,7 +614,7 @@ public class SearchProjectsActionTest {
           .setName(project.name())
           .setMeasures(measures)
           .setQualityGateStatus(qualityGateStatus)
-          .setLanguages(languagesDistribution)
+          .setLanguages(languages)
           .setTags(project.getTags()));
       authorizationIndexerTester.allowOnlyAnyone(project);
     } catch (Exception e) {

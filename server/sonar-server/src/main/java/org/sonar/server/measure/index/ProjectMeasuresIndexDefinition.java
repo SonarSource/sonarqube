@@ -40,8 +40,6 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_MEASURES_KEY = "key";
   public static final String FIELD_MEASURES_VALUE = "value";
   public static final String FIELD_LANGUAGES = "languages";
-  public static final String FIELD_LANGUAGES_KEY = "key";
-  public static final String FIELD_LANGUAGES_VALUE = "value";
 
   private final Settings settings;
 
@@ -63,15 +61,12 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_QUALITY_GATE_STATUS).build();
     mapping.stringFieldBuilder(FIELD_TAGS).build();
-    mapping.createDateTimeField(FIELD_ANALYSED_AT);
+    mapping.stringFieldBuilder(FIELD_LANGUAGES).build();
     mapping.nestedFieldBuilder(FIELD_MEASURES)
       .addStringField(FIELD_MEASURES_KEY)
       .addDoubleField(FIELD_MEASURES_VALUE)
       .build();
-    mapping.nestedFieldBuilder(FIELD_LANGUAGES)
-      .addStringField(FIELD_LANGUAGES_KEY)
-      .addIntegerField(FIELD_LANGUAGES_VALUE)
-      .build();
+    mapping.createDateTimeField(FIELD_ANALYSED_AT);
     mapping.setEnableSource(false);
   }
 }

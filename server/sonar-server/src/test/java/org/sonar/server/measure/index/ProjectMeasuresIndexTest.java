@@ -20,6 +20,7 @@
 package org.sonar.server.measure.index;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -284,10 +286,10 @@ public class ProjectMeasuresIndexTest {
   public void filter_on_languages() {
     ComponentDto project4 = newProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
     index(
-      newDoc(PROJECT1).setLanguages(ImmutableMap.of("java", 6)),
-      newDoc(PROJECT2).setLanguages(ImmutableMap.of("xoo", 8)),
-      newDoc(PROJECT3).setLanguages(ImmutableMap.of("xoo", 18)),
-      newDoc(project4).setLanguages(ImmutableMap.of("<null>", 10, "java", 2, "xoo", 12)));
+      newDoc(PROJECT1).setLanguages(singletonList("java")),
+      newDoc(PROJECT2).setLanguages(singletonList("xoo")),
+      newDoc(PROJECT3).setLanguages(singletonList("xoo")),
+      newDoc(project4).setLanguages(asList("<null>", "java", "xoo")));
 
     assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java", "xoo")), PROJECT1, PROJECT2, PROJECT3, project4);
     assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java")), PROJECT1, project4);
@@ -991,48 +993,83 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_languages() {
+  public void facet_language() {
     index(
-      newDoc().setLanguages(ImmutableMap.of("java", 6)),
-      newDoc().setLanguages(ImmutableMap.of("java", 8)),
-      newDoc().setLanguages(ImmutableMap.of("xoo", 18)),
-      newDoc().setLanguages(ImmutableMap.of("xml", 4)),
-      newDoc().setLanguages(ImmutableMap.of("<null>", 2, "java", 5)),
-      newDoc().setLanguages(ImmutableMap.of("<null>", 10, "java", 2, "xoo", 12)));
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(singletonList("xoo")),
+      newDoc().setLanguages(singletonList("xml")),
+      newDoc().setLanguages(asList("<null>", "java")),
+      newDoc().setLanguages(asList("<null>", "java", "xoo")));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets();
 
     assertThat(facets.get(LANGUAGE)).containsOnly(
-      entry("<null>", 12L),
-      entry("java", 21L),
-      entry("xoo", 30L),
-      entry("xml", 4L));
+      entry("<null>", 2L),
+      entry("java", 4L),
+      entry("xoo", 2L),
+      entry("xml", 1L));
   }
 
-  // TODO
   @Test
-  public void facet_languages_is_sticky() {
+  public void facet_language_is_limited_to_10_languages() {
+    index(
+      newDoc().setLanguages(asList("<null>", "java", "xoo", "css", "cpp")),
+      newDoc().setLanguages(asList("xml", "php", "python", "perl", "ruby")),
+      newDoc().setLanguages(asList("js", "scala")));
 
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets();
+
+    assertThat(facets.get(LANGUAGE)).hasSize(10);
+  }
+
+  @Test
+  public void facet_language_is_sticky() {
+    index(
+      newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
+      newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
+      newDoc(NCLOC, 10d).setLanguages(singletonList("xoo")),
+      newDoc(NCLOC, 100d).setLanguages(singletonList("xml")),
+      newDoc(NCLOC, 100d).setLanguages(asList("<null>", "java")),
+      newDoc(NCLOC, 5000d).setLanguages(asList("<null>", "java", "xoo")));
+
+    Facets facets = underTest.search(
+      new ProjectMeasuresQuery().setLanguages(ImmutableSet.of("java")),
+      new SearchOptions().addFacets(LANGUAGE, NCLOC)).getFacets();
+
+    // Sticky facet on language does not take into account language filter
+    assertThat(facets.get(LANGUAGE)).containsOnly(
+      entry("<null>", 2L),
+      entry("java", 4L),
+      entry("xoo", 2L),
+      entry("xml", 1L));
+    // But facet on ncloc does well take account into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 3L),
+      entry("1000.0-10000.0", 1L),
+      entry("10000.0-100000.0", 0L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
   }
 
   @Test
   public void facet_languages_contains_only_projects_authorized_for_user() throws Exception {
     // User can see these projects
     indexForUser(USER1,
-      newDoc().setLanguages(ImmutableMap.of("java", 6)),
-      newDoc().setLanguages(ImmutableMap.of("java", 1, "xoo", 5)));
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(asList("java", "xoo")));
 
     // User cannot see these projects
     indexForUser(USER2,
-      newDoc().setLanguages(ImmutableMap.of("java", 5)),
-      newDoc().setLanguages(ImmutableMap.of("java", 2, "xoo", 12)));
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(asList("java", "xoo")));
 
     userSession.logIn(USER1);
     LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets().get(LANGUAGE);
 
     assertThat(result).containsOnly(
-      entry("java", 7L),
-      entry("xoo", 5L));
+      entry("java", 2L),
+      entry("xoo", 1L));
   }
 
   @Test

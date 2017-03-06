@@ -99,9 +99,6 @@ public class ProjectMeasuresIndex extends BaseIndex {
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 
-  private static final String FIELD_LANGUAGES_KEY = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_KEY;
-  private static final String FIELD_LANGUAGES_VALUE = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_VALUE;
-
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
     .put(NCLOC_KEY, (esSearch, filters) -> addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters))
     .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, filters) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters))
@@ -231,13 +228,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private static AbstractAggregationBuilder createLanguagesFacet() {
-    return AggregationBuilders.nested("nested_" + FILTER_LANGUAGE)
-      .path(FIELD_LANGUAGES)
-      .subAggregation(
-        AggregationBuilders.terms(FILTER_LANGUAGE)
-          .field(FIELD_LANGUAGES_KEY)
-          .subAggregation(AggregationBuilders.sum("size_" + FILTER_LANGUAGE)
-            .field(FIELD_LANGUAGES_VALUE)));
+    return AggregationBuilders.terms(FILTER_LANGUAGE).field(FIELD_LANGUAGES);
   }
 
   private static AbstractAggregationBuilder createTagsFacet() {
@@ -267,8 +258,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));
 
     query.getLanguages()
-      .ifPresent(languages -> filters.put(FILTER_LANGUAGE,
-        nestedQuery(FIELD_LANGUAGES, boolQuery().filter(termsQuery(FIELD_LANGUAGES_KEY, languages)))));
+      .ifPresent(languages -> filters.put(FILTER_LANGUAGE, termsQuery(FIELD_LANGUAGES, languages)));
 
     query.getOrganizationUuid()
       .ifPresent(organizationUuid -> filters.put(FIELD_ORGANIZATION_UUID, termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
