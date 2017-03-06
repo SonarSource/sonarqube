@@ -43,8 +43,8 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -55,22 +55,22 @@ public class QProfileReset {
   private final QProfileFactory factory;
   private final RuleActivator activator;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final QProfileWsSupport qProfileWsSupport;
   private final ProfileDefinition[] definitions;
 
-  public QProfileReset(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory, DefaultOrganizationProvider defaultOrganizationProvider,
+  public QProfileReset(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory, QProfileWsSupport qProfileWsSupport,
     ProfileDefinition... definitions) {
     this.db = db;
     this.activator = activator;
     this.activeRuleIndexer = activeRuleIndexer;
     this.factory = factory;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.qProfileWsSupport = qProfileWsSupport;
     this.definitions = definitions;
   }
 
   public QProfileReset(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
-    this(db, activator, activeRuleIndexer, factory, defaultOrganizationProvider, new ProfileDefinition[0]);
+    QProfileWsSupport qProfileWsSupport) {
+    this(db, activator, activeRuleIndexer, factory, qProfileWsSupport, new ProfileDefinition[0]);
   }
 
   /**
@@ -83,7 +83,7 @@ public class QProfileReset {
       ListMultimap<QProfileName, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);
       for (Map.Entry<QProfileName, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
         QProfileName profileName = entry.getKey();
-        QualityProfileDto profile = factory.getOrCreate(dbSession, defaultOrganizationProvider.get().getUuid(), profileName);
+        QualityProfileDto profile = factory.getOrCreate(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), profileName);
         List<RuleActivation> activations = Lists.newArrayList();
         for (RulesProfile def : entry.getValue()) {
           for (ActiveRule activeRule : def.getActiveRules()) {
@@ -114,7 +114,7 @@ public class QProfileReset {
   BulkChangeResult reset(QProfileName profileName, Collection<RuleActivation> activations) {
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto profile = factory.getOrCreate(dbSession, defaultOrganizationProvider.get().getUuid(), profileName);
+      QualityProfileDto profile = factory.getOrCreate(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), profileName);
       return doReset(dbSession, profile, activations);
     } finally {
       dbSession.close();
