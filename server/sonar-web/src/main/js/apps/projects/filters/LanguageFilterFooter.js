@@ -39,7 +39,7 @@ class LanguageFilterFooter extends React.Component {
     getFilterUrl: React.PropTypes.func.isRequired
   }
 
-  handleLanguageChange = value => {
+  handleLanguageChange = ({ value }) => {
     const urlOptions = (this.props.value || []).concat(value).join(',');
     const path = this.props.getFilterUrl({ [this.props.property]: urlOptions });
     this.props.router.push(path);
@@ -57,7 +57,7 @@ class LanguageFilterFooter extends React.Component {
   render () {
     return (
       <Select
-          onChange={option => this.handleLanguageChange(option.value)}
+          onChange={this.handleLanguageChange}
           className="input-super-large"
           options={this.getOptions()}
           placeholder={translate('search_verb')}
