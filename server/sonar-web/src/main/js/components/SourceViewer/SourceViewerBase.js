@@ -97,6 +97,7 @@ type State = {
   loading: boolean,
   loadingSourcesAfter: boolean,
   loadingSourcesBefore: boolean,
+  locationsPanelHeight: number,
   notAccessible: boolean,
   notExist: boolean,
   selectedIssueLocation: IndexedIssueLocation | null,
@@ -105,6 +106,9 @@ type State = {
 };
 
 const LINES = 500;
+
+const LOCATIONS_PANEL_DEFAULT_HEIGHT = 200;
+const LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY = 'sonarqube.locations.height';
 
 const loadComponent = (key: string): Promise<*> => {
   return getComponentForSourceViewer(key);
@@ -144,6 +148,7 @@ export default class SourceViewerBase extends React.Component {
       loading: true,
       loadingSourcesAfter: false,
       loadingSourcesBefore: false,
+      locationsPanelHeight: this.getInitialLocationsPanelHeight(),
       notAccessible: false,
       notExist: false,
       selectedIssue: props.defaultSelectedIssue || null,
@@ -180,7 +185,7 @@ export default class SourceViewerBase extends React.Component {
       `.source-line-code[data-line-number="${line}"] .source-line-issue-locations`
     );
     if (lineElement) {
-      scrollToElement(lineElement, 200, 250);
+      scrollToElement(lineElement, 200, this.state.locationsPanelHeight + 15);
     }
   }
 
@@ -360,6 +365,23 @@ export default class SourceViewerBase extends React.Component {
     });
   };
 
+  getInitialLocationsPanelHeight () {
+    try {
+      const rawValue = window.localStorage.getItem(LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY);
+      if (!rawValue) {
+        return LOCATIONS_PANEL_DEFAULT_HEIGHT;
+      }
+      const intValue = Number(rawValue);
+      return !isNaN(intValue) ? intValue : LOCATIONS_PANEL_DEFAULT_HEIGHT;
+    } catch (e) {
+      return LOCATIONS_PANEL_DEFAULT_HEIGHT;
+    }
+  }
+
+  storeLocationsPanelHeight (height: number) {
+    window.localStorage.setItem(LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY, height);
+  }
+
   openNewWindow = () => {
     const { component } = this.state;
     if (component != null) {
@@ -453,6 +475,11 @@ export default class SourceViewerBase extends React.Component {
     });
   };
 
+  handleLocationsPanelResize = (height: number) => {
+    this.setState({ locationsPanelHeight: height });
+    this.storeLocationsPanelHeight(height);
+  };
+
   renderCode (sources: Array<SourceLine>) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
@@ -530,7 +557,9 @@ export default class SourceViewerBase extends React.Component {
         {this.state.sources != null && this.renderCode(this.state.sources)}
         {selectedIssueObj != null && selectedIssueObj.flows.length > 0 && (
           <SourceViewerIssueLocations
+            height={this.state.locationsPanelHeight}
             issue={selectedIssueObj}
+            onResize={this.handleLocationsPanelResize}
             onSelectLocation={this.handleSelectIssueLocation}
             selectedLocation={this.state.selectedIssueLocation}/>
         )}

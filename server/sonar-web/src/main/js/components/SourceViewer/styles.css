@@ -1,5 +1,5 @@
 .source-issue-locations {
-  
+  position: relative;
 }
 
 .source-issue-locations-panel {
@@ -13,11 +13,6 @@
   margin-left: -1px;
   border-left: 1px solid #e6e6e6;
   border-right: 1px solid #e6e6e6;
-}
-
-.source-issue-locations,
-.source-issue-locations-panel {
-  height: 200px;
 }
 
 .source-issue-locations-header {
@@ -50,6 +45,12 @@
   color: #777;
   font-size: 12px;
   text-align: right;
+}
+
+.source-issue-locations .react-resizable-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
 }
 
 .issue-location,

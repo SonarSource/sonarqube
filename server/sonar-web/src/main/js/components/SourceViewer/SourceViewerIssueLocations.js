@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+import { DraggableCore } from 'react-draggable';
 import classNames from 'classnames';
 import throttle from 'lodash/throttle';
 import { scrollToElement } from '../../helpers/scrolling';
@@ -27,7 +28,9 @@ import type { Issue, FlowLocation } from '../issue/types';
 import type { IndexedIssueLocation } from './helpers/indexing';
 
 type Props = {
+  height: number,
   issue: Issue,
+  onResize: (height: number) => void,
   onSelectLocation: (flowIndex: number, locationIndex: number) => void,
   selectedLocation: IndexedIssueLocation | null
 };
@@ -96,6 +99,17 @@ export default class SourceViewerIssueLocations extends React.Component {
         return { fixed: true };
       }
     });
+  };
+
+  handleDrag = (e: Event, data: { deltaY: number }) => {
+    let height = this.props.height - data.deltaY;
+    if (height < 100) {
+      height = 100;
+    }
+    if (height > window.innerHeight / 2) {
+      height = window.innerHeight / 2;
+    }
+    this.props.onResize(height);
   };
 
   scrollToLocation () {
@@ -221,14 +235,15 @@ export default class SourceViewerIssueLocations extends React.Component {
 
   render () {
     const { flows } = this.props.issue;
+    const { height } = this.props;
 
     const className = classNames('source-issue-locations-panel', { 'fixed': this.state.fixed });
 
     return (
-      <div ref={node => this.rootNode = node} className="source-issue-locations">
-        <AutoSizer disableHeight={true}>
-          {({ width }) => (
-            <div ref={node => this.fixedNode = node} className={className} style={{ width }}>
+      <AutoSizer disableHeight={true}>
+        {({ width }) => (
+          <div ref={node => this.rootNode = node} className="source-issue-locations" style={{ width, height }}>
+            <div ref={node => this.fixedNode = node} className={className} style={{ width, height }}>
               <header className="source-issue-locations-header"/>
               <div className="source-issue-locations-shortcuts">
                 <span className="shortcut-button">Alt</span>
@@ -246,10 +261,16 @@ export default class SourceViewerIssueLocations extends React.Component {
                   ))
                 ))}
               </ul>
+              <DraggableCore
+                axis="y"
+                onDrag={this.handleDrag}
+                offsetParent={document.body}>
+                <div className="workspace-viewer-resize"/>
+              </DraggableCore>
             </div>
-          )}
-          </AutoSizer>
-      </div>
+          </div>
+        )}
+      </AutoSizer>
     );
   }
 }
