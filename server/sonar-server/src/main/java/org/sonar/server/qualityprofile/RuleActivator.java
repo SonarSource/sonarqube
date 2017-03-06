@@ -141,7 +141,7 @@ public class RuleActivator {
     }
 
     if (!stopPropagation) {
-      changes.addAll(cascadeActivation(dbSession, activation, context.profile().getKey()));
+      changes.addAll(cascadeActivation(dbSession, activation, context.profile()));
     }
 
     if (!changes.isEmpty()) {
@@ -229,14 +229,14 @@ public class RuleActivator {
     return null;
   }
 
-  private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation, String profileKey) {
+  private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation, QualityProfileDto qualityProfileDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
 
     // get all inherited profiles
-    List<QualityProfileDto> children = db.qualityProfileDao().selectChildren(session, profileKey);
+    List<QualityProfileDto> children = db.qualityProfileDao().selectChildren(session, qualityProfileDto.getKey());
     for (QualityProfileDto child : children) {
       RuleActivation childActivation = new RuleActivation(activation).setCascade(true);
-      changes.addAll(activate(session, childActivation, child.getKey()));
+      changes.addAll(activate(session, childActivation, child));
     }
     return changes;
   }
