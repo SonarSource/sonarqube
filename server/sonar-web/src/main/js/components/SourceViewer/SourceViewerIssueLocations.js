@@ -37,7 +37,8 @@ type Props = {
 };
 
 type State = {
-  fixed: boolean
+  fixed: boolean,
+  locationBlink: boolean
 };
 
 export default class SourceViewerIssueLocations extends React.Component {
@@ -50,13 +51,22 @@ export default class SourceViewerIssueLocations extends React.Component {
 
   constructor (props: Props) {
     super(props);
-    this.state = { fixed: true };
+    this.state = { fixed: true, locationBlink: false };
     this.handleScroll = throttle(this.handleScroll, 50);
   }
 
   componentDidMount () {
     this.bindShortcuts();
     this.listenScroll();
+  }
+
+  componentWillReceiveProps (nextProps: Props) {
+    /* eslint-disable no-console */
+    console.log('foo');
+
+    if (nextProps.selectedLocation !== this.props.selectedLocation) {
+      this.setState({ locationBlink: false });
+    }
   }
 
   componentDidUpdate (prevProps: Props) {
@@ -88,6 +98,11 @@ export default class SourceViewerIssueLocations extends React.Component {
   unlistenScroll () {
     window.removeEventListener('scroll', this.handleScroll);
   }
+
+  blinkLocation = () => {
+    this.setState({ locationBlink: true });
+    setTimeout(() => this.setState({ locationBlink: false }), 1000);
+  };
 
   handleScroll = () => {
     const rootNodeTop = this.rootNode.getBoundingClientRect().top;
@@ -145,6 +160,8 @@ export default class SourceViewerIssueLocations extends React.Component {
       } else if (selectedLocation.flowIndex > 0) {
         // move to the first location of the previous flow
         this.props.onSelectLocation(selectedLocation.flowIndex - 1, 0);
+      } else {
+        this.blinkLocation();
       }
     }
   }
@@ -168,6 +185,8 @@ export default class SourceViewerIssueLocations extends React.Component {
       if (nextFlow.locations) {
         this.props.onSelectLocation(selectedLocation.flowIndex + 1, nextFlow.locations.length - 1);
       }
+    } else {
+      this.blinkLocation();
     }
   }
 
@@ -217,20 +236,22 @@ export default class SourceViewerIssueLocations extends React.Component {
     locations: Array<*>
   ) => {
     const displayIndex = locations.length > 1;
-
     const line = location.textRange ? location.textRange.startLine : null;
-
     const key = `${flowIndex}-${locationIndex}`;
+    // note that locations order is reversed
+    const selected = this.isLocationSelected(flowIndex, locations.length - locationIndex - 1);
 
     return (
-      <li key={key} ref={node => this.locations[key] = node} className="spacer-bottom">
+      <li
+        key={key}
+        ref={node => this.locations[key] = node}
+        className={classNames('spacer-bottom', 'flash', 'flash-heavy', {
+          in: selected && this.state.locationBlink
+        })}>
         {line != null && <code className="source-issue-locations-line">L{line}</code>}
 
         <a
-          className={classNames('issue-location-message', {
-            // note that locations order is reversed
-            selected: this.isLocationSelected(flowIndex, locations.length - locationIndex - 1)
-          })}
+          className={classNames('issue-location-message', { selected })}
           href="#"
           onClick={this.handleLocationClick.bind(
             this,

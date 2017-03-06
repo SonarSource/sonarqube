@@ -25,8 +25,10 @@
 
 .source-issue-locations-shortcuts {
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 18px;
+  right: 18px;
+  padding: 6px;
+  background-color: #fff;
   color: #777;
   font-size: 11px;
 }
@@ -45,12 +47,6 @@
   color: #777;
   font-size: 12px;
   text-align: right;
-}
-
-.source-issue-locations .react-resizable-handle {
-  position: absolute;
-  top: 0;
-  left: 50%;
 }
 
 .issue-location,
