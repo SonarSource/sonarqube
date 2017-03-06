@@ -32,12 +32,21 @@ class SearchFilter extends React.Component {
     organization: React.PropTypes.object
   }
 
-  state = {
-    userQuery: ''
-  };
-
-  componentWillMount () {
+  constructor (props) {
+    super(props);
+    this.state = {
+      userQuery: props.query.search
+    };
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    // update the state only if the previous state match the input value and the new state is different
+    if (this.props.query.search === this.state.userQuery && nextProps.query.search !== this.props.query.search) {
+      this.setState({
+        userQuery: nextProps.query.search || ''
+      });
+    }
   }
 
   handleSearch (userQuery) {
@@ -62,6 +71,7 @@ class SearchFilter extends React.Component {
       <div className="projects-facet-search" data-key="search">
         <input
           type="search"
+          value={userQuery || ''}
           className={inputClassName}
           placeholder={translate('projects.search')}
           onChange={event => this.handleQueryChange(event.target.value)}
