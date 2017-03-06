@@ -2,18 +2,21 @@
   
 }
 
-.source-issue-locations-fixed {
+.source-issue-locations-panel {
+  background-color: #fff;
+  box-shadow: 0 -6px 12px rgba(0, 0, 0, .175);
+}
+
+.source-issue-locations-panel.fixed {
   position: fixed;
   bottom: 0;
   margin-left: -1px;
   border-left: 1px solid #e6e6e6;
   border-right: 1px solid #e6e6e6;
-  background-color: #fff;
-  box-shadow: 0 -6px 12px rgba(0, 0, 0, .175);
 }
 
 .source-issue-locations,
-.source-issue-locations-fixed {
+.source-issue-locations-panel {
   height: 200px;
 }
 

@@ -21,6 +21,7 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import classNames from 'classnames';
+import throttle from 'lodash/throttle';
 import { scrollToElement } from '../../helpers/scrolling';
 import type { Issue, FlowLocation } from '../issue/types';
 import type { IndexedIssueLocation } from './helpers/indexing';
@@ -31,13 +32,27 @@ type Props = {
   selectedLocation: IndexedIssueLocation | null
 };
 
+type State = {
+  fixed: boolean
+};
+
 export default class SourceViewerIssueLocations extends React.Component {
+  fixedNode: HTMLElement;
   locations: { [string]: HTMLElement } = {};
   node: HTMLElement;
   props: Props;
+  rootNode: HTMLElement;
+  state: State;
+
+  constructor (props: Props) {
+    super(props);
+    this.state = { fixed: true };
+    this.handleScroll = throttle(this.handleScroll, 50);
+  }
 
   componentDidMount () {
     this.bindShortcuts();
+    this.listenScroll();
   }
 
   componentDidUpdate (prevProps: Props) {
@@ -48,6 +63,7 @@ export default class SourceViewerIssueLocations extends React.Component {
 
   componentWillUnmount () {
     this.unbindShortcuts();
+    this.unlistenScroll();
   }
 
   bindShortcuts () {
@@ -57,6 +73,30 @@ export default class SourceViewerIssueLocations extends React.Component {
   unbindShortcuts () {
     document.removeEventListener('keydown', this.handleKeyPress);
   }
+
+  listenScroll () {
+    window.addEventListener('scroll', this.handleScroll);
+  }
+
+  unlistenScroll () {
+    window.removeEventListener('scroll', this.handleScroll);
+  }
+
+  handleScroll = () => {
+    const rootNodeTop = this.rootNode.getBoundingClientRect().top;
+    const fixedNodeRect = this.fixedNode.getBoundingClientRect();
+    const fixedNodeTop = fixedNodeRect.top;
+    const fixedNodeBottom = fixedNodeRect.bottom;
+    this.setState((state: State) => {
+      if (state.fixed) {
+        if (rootNodeTop <= fixedNodeTop) {
+          return { fixed: false };
+        }
+      } else if (fixedNodeBottom >= window.innerHeight) {
+        return { fixed: true };
+      }
+    });
+  };
 
   scrollToLocation () {
     const { selectedLocation } = this.props;
@@ -182,11 +222,13 @@ export default class SourceViewerIssueLocations extends React.Component {
   render () {
     const { flows } = this.props.issue;
 
+    const className = classNames('source-issue-locations-panel', { 'fixed': this.state.fixed });
+
     return (
-      <div className="source-issue-locations">
+      <div ref={node => this.rootNode = node} className="source-issue-locations">
         <AutoSizer disableHeight={true}>
           {({ width }) => (
-            <div className="source-issue-locations-fixed" style={{ width }}>
+            <div ref={node => this.fixedNode = node} className={className} style={{ width }}>
               <header className="source-issue-locations-header"/>
               <div className="source-issue-locations-shortcuts">
                 <span className="shortcut-button">Alt</span>
