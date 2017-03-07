@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -63,7 +64,11 @@ public class RenameActionTest {
     dbClient = db.getDbClient();
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
-    underTest = new RenameAction(new QProfileFactory(dbClient), wsSupport, dbClient, userSessionRule);
+    underTest = new RenameAction(
+      new QProfileFactory(dbClient, UuidFactoryFast.getInstance()),
+      wsSupport,
+      dbClient,
+      userSessionRule);
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),

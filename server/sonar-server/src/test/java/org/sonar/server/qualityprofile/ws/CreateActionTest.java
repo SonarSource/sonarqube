@@ -34,6 +34,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -78,13 +79,10 @@ public class CreateActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create(system2);
-
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -100,7 +98,7 @@ public class CreateActionTest {
     profileImporters);
   private OrganizationDto organization;
 
-  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters,
+  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient, UuidFactoryFast.getInstance()), qProfileExporters,
     newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
     userSession, activeRuleIndexer, profileImporters);
   private WsActionTester wsTester = new WsActionTester(underTest);
@@ -158,7 +156,7 @@ public class CreateActionTest {
   @Test
   public void create_profile_for_specific_organization() {
     logInAsQProfileAdministrator();
-    
+
     String orgKey = organization.getKey();
 
     TestRequest request = wsTester.newRequest()
@@ -167,7 +165,7 @@ public class CreateActionTest {
       .setParam("name", "Profile with messages")
       .setParam("language", XOO_LANGUAGE)
       .setParam("backup_with_messages", "<xml/>");
-    
+
     assertThat(executeRequest(request).getProfile().getOrganization())
       .isEqualTo(orgKey);
   }
