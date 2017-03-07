@@ -19,11 +19,12 @@
  */
 package org.sonar.server.exceptions;
 
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 public class NotFoundException extends ServerException {
 
-  public NotFoundException(String message) {
-    super(HTTP_NOT_FOUND, message);
+  public NotFoundException(String message, Object... messageArguments) {
+    super(HTTP_NOT_FOUND, format(message, messageArguments));
   }
 }

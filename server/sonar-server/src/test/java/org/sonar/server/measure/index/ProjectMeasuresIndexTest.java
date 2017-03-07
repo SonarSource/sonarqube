@@ -1073,8 +1073,7 @@ public class ProjectMeasuresIndexTest {
       entry("ruby", 1L),
       entry("scala", 1L),
       entry("xoo", 1L),
-      entry("xml", 1L)
-    );
+      entry("xml", 1L));
   }
 
   @Test
@@ -1157,9 +1156,11 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
       newDoc().setTags(newArrayList("solo", "solo2")));
 
-    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(ImmutableSet.of("solo", "solo2")), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(ImmutableSet.of("solo", "solo2")), new SearchOptions().addFacets(FIELD_TAGS)).getFacets()
+      .get(FIELD_TAGS);
 
-    assertThat(result).hasSize(12).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10", "solo", "solo2");
+    assertThat(result).hasSize(12).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10", "solo",
+      "solo2");
   }
 
   @Test
@@ -1172,7 +1173,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags("off", 10);
+    List<String> result = underTest.searchTags(ORG.getUuid(), "off", 10);
 
     assertThat(result).containsExactly("offshore", "official", "Madhoff");
   }
@@ -1187,7 +1188,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 10);
+    List<String> result = underTest.searchTags(ORG.getUuid(), null, 10);
 
     assertThat(result).containsOnly("offshore", "official", "Madhoff", "finance", "marketing", "java", "javascript");
   }
@@ -1202,14 +1203,14 @@ public class ProjectMeasuresIndexTest {
 
     userSession.logIn(USER1);
 
-    List<String> result = underTest.searchTags(null, 10);
+    List<String> result = underTest.searchTags(ORG.getUuid(), null, 10);
 
     assertThat(result).containsOnly("finance", "marketing");
   }
 
   @Test
   public void search_tags_with_no_tags() {
-    List<String> result = underTest.searchTags("whatever", 10);
+    List<String> result = underTest.searchTags(ORG.getUuid(), "whatever", 10);
 
     assertThat(result).isEmpty();
   }
@@ -1218,9 +1219,20 @@ public class ProjectMeasuresIndexTest {
   public void search_tags_with_page_size_at_0() {
     index(newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 0);
+    List<String> result = underTest.searchTags(ORG.getUuid(), null, 0);
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void search_tags_of_organization() {
+    index(
+      newDoc().setOrganizationUuid(ORG.getUuid()).setTags(newArrayList("finance", "marketing")),
+      newDoc().setOrganizationUuid("ORG-2").setTags(newArrayList("hardware", "devops")));
+
+    List<String> result = underTest.searchTags("ORG-2", null, 10);
+
+    assertThat(result).containsOnly("hardware", "devops");
   }
 
   @Test
@@ -1228,7 +1240,7 @@ public class ProjectMeasuresIndexTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Page size must be lower than or equals to 100");
 
-    underTest.searchTags("whatever", 101);
+    underTest.searchTags(ORG.getUuid(), "whatever", 101);
   }
 
   private void index(ProjectMeasuresDoc... docs) {

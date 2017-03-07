@@ -24,7 +24,12 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.WsProjectTags;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -32,10 +37,16 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements ProjectTagsWsAction {
-  private final ProjectMeasuresIndex index;
+  private static final String PARAM_ORGANIZATION = "organization";
 
-  public SearchAction(ProjectMeasuresIndex index) {
+  private final ProjectMeasuresIndex index;
+  private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
+
+  public SearchAction(ProjectMeasuresIndex index, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.index = index;
+    this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -48,6 +59,10 @@ public class SearchAction implements ProjectTagsWsAction {
 
     action.addSearchQuery("off", "tags");
     action.addPageSize(10, 100);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false);
   }
 
   @Override
@@ -57,7 +72,16 @@ public class SearchAction implements ProjectTagsWsAction {
   }
 
   private WsProjectTags.SearchResponse doHandle(Request request) {
-    List<String> tags = index.searchTags(request.param(TEXT_QUERY), request.mandatoryParamAsInt(PAGE_SIZE));
+    OrganizationDto organization = getOrganization(request);
+    List<String> tags = index.searchTags(organization.getUuid(), request.param(TEXT_QUERY), request.mandatoryParamAsInt(PAGE_SIZE));
     return WsProjectTags.SearchResponse.newBuilder().addAllTags(tags).build();
+  }
+
+  private OrganizationDto getOrganization(Request request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String organizationKey = request.getParam(PARAM_ORGANIZATION).or(defaultOrganizationProvider.get()::getKey);
+      return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+        .orElseThrow(() -> new NotFoundException("No organizationDto with key '%s'", organizationKey));
+    }
   }
 }

@@ -112,7 +112,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     action.createFieldsParam(POSSIBLE_FIELDS)
       .setSince("6.4");
     action.createParam(PARAM_ORGANIZATION)
-      .setDescription("the organization to search projects in")
+      .setDescription("Organization key")
       .setRequired(false)
       .setSince("6.3");
     action.createParam(Param.FACETS)
