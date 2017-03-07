@@ -26,8 +26,8 @@ import LineSCM from './components/LineSCM';
 import LineCoverage from './components/LineCoverage';
 import LineDuplications from './components/LineDuplications';
 import LineDuplicationBlock from './components/LineDuplicationBlock';
+import LineIssuesIndicatorContainer from './components/LineIssuesIndicatorContainer';
 import ConnectedIssue from '../issue/ConnectedIssue';
-import SourceViewerIssuesIndicator from './SourceViewerIssuesIndicator';
 import { splitByTokens, highlightSymbol, highlightIssueLocations, generateHTML } from './helpers/highlight';
 import type { SourceLine } from './types';
 import type { LinearIssueLocation, IndexedIssueLocation, IndexedIssueLocationMessage } from './helpers/indexing';
@@ -106,8 +106,7 @@ export default class SourceViewerLine extends React.PureComponent {
     }
   }
 
-  handleIssuesIndicatorClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
+  handleIssuesIndicatorClick = () => {
     this.setState(prevState => {
       // TODO not sure if side effects allowed here
       if (!prevState.issuesOpen) {
@@ -134,28 +133,6 @@ export default class SourceViewerLine extends React.PureComponent {
   handleIssueSelect = (issueKey: string) => {
     this.props.onIssueSelect(issueKey);
   };
-
-  renderIssuesIndicator () {
-    const { issues } = this.props;
-    const hasIssues = issues.length > 0;
-    const className = classNames('source-meta', 'source-line-issues', { 'source-line-with-issues': hasIssues });
-    const onClick = hasIssues ? this.handleIssuesIndicatorClick : undefined;
-
-    return (
-      <td className={className}
-          data-line-number={this.props.line.line}
-          role="button"
-          tabIndex="0"
-          onClick={onClick}>
-        {hasIssues && (
-          <SourceViewerIssuesIndicator issues={issues}/>
-        )}
-        {issues.length > 1 && (
-          <span className="source-line-issues-counter">{issues.length}</span>
-        )}
-      </td>
-    );
-  }
 
   isSecondaryIssueLocationSelected (location: IndexedIssueLocation | IndexedIssueLocationMessage) {
     const { selectedIssueLocation } = this.props;
@@ -295,7 +272,11 @@ export default class SourceViewerLine extends React.PureComponent {
             onClick={this.props.onDuplicationClick}/>
         ))}
 
-        {this.props.displayIssues && !this.props.displayAllIssues && this.renderIssuesIndicator()}
+        {this.props.displayIssues && !this.props.displayAllIssues &&
+          <LineIssuesIndicatorContainer
+            issueKeys={this.props.issues}
+            line={line}
+            onClick={this.handleIssuesIndicatorClick}/>}
 
         {this.props.displayFiltered && (
           <td className="source-meta source-line-filtered-container" data-line-number={line.line}>

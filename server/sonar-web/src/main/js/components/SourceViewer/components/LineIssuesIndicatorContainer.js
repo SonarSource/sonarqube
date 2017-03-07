@@ -18,27 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
 import { connect } from 'react-redux';
-import SeverityIcon from '../shared/severity-icon';
-import { getIssueByKey } from '../../store/rootReducer';
-import { sortBySeverity } from '../../helpers/issues';
+import LineIssuesIndicator from './LineIssuesIndicator';
+import { getIssueByKey } from '../../../store/rootReducer';
 
-class SourceViewerIssuesIndicator extends React.Component {
-  props: {
-    issue: { severity: string }
-  };
+const mapStateToProps = (state, ownProps: { issueKeys: Array<string> }) => ({
+  issues: ownProps.issueKeys.map(issueKey => getIssueByKey(state, issueKey))
+});
 
-  render () {
-    return (
-      <SeverityIcon severity={this.props.issue.severity}/>
-    );
-  }
-}
-
-const mapStateToProps = (state, ownProps: { issues: Array<string> }) => {
-  const issues = ownProps.issues.map(issueKey => getIssueByKey(state, issueKey));
-  return { issue: sortBySeverity(issues)[0] };
-};
-
-export default connect(mapStateToProps)(SourceViewerIssuesIndicator);
+export default connect(mapStateToProps)(LineIssuesIndicator);
