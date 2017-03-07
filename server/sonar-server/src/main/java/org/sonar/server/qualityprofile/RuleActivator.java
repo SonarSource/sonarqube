@@ -233,12 +233,17 @@ public class RuleActivator {
     List<ActiveRuleChange> changes = Lists.newArrayList();
 
     // get all inherited profiles
-    List<QualityProfileDto> children = db.qualityProfileDao().selectChildren(session, qualityProfileDto.getKey());
+    String qualityProfileKey = qualityProfileDto.getKey();
+    List<QualityProfileDto> children = getChildren(session, qualityProfileKey);
     for (QualityProfileDto child : children) {
       RuleActivation childActivation = new RuleActivation(activation).setCascade(true);
       changes.addAll(activate(session, childActivation, child));
     }
     return changes;
+  }
+
+  protected List<QualityProfileDto> getChildren(DbSession session, String qualityProfileKey) {
+    return db.qualityProfileDao().selectChildren(session, qualityProfileKey);
   }
 
   private ActiveRuleDto persist(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
@@ -375,7 +380,7 @@ public class RuleActivator {
     persist(change, context, dbSession);
 
     // get all inherited profiles
-    List<QualityProfileDto> profiles = db.qualityProfileDao().selectChildren(dbSession, key.qProfile());
+    List<QualityProfileDto> profiles = getChildren(dbSession, key.qProfile());
 
     for (QualityProfileDto profile : profiles) {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), key.ruleKey());

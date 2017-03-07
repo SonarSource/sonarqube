@@ -25,6 +25,7 @@ import org.sonar.server.organization.DefaultOrganizationEnforcer;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.qualitygate.RegisterQualityGates;
+import org.sonar.server.qualityprofile.CachingRuleActivator;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.startup.ClearRulesOverloadedDebt;
@@ -52,6 +53,7 @@ public class PlatformLevelStartup extends PlatformLevel {
       IndexerStartupTask.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,
+      CachingRuleActivator.class,
       RegisterRules.class,
       RegisterQualityProfiles.class,
       RegisterPermissionTemplates.class,
