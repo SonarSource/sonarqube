@@ -149,6 +149,17 @@ input[type="submit"].button-success {
   }
 }
 
+.button-grey,
+input[type="submit"].button-grey {
+  border-color: @secondFontColor;
+  color: @secondFontColor;
+
+  &:hover, &:focus, &.active, &.button-active {
+    background: @secondFontColor;
+    color: @white;
+  }
+}
+
 .button-clean,
 .button-clean:hover,
 .button-clean:focus {
