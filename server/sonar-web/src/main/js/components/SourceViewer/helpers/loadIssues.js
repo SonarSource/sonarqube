@@ -35,10 +35,17 @@ const buildQuery = (component: string): Query => ({
   s: 'FILE_LINE'
 });
 
-export const loadPage = (query: Query, page: number, pageSize: number = PAGE_SIZE): Promise<Issues> => {
-  return searchIssues({ ...query, p: page, ps: pageSize }).then(r => (
-    r.issues.map(issue => parseIssueFromResponse(issue, r.components, r.users, r.rules))
-  ));
+export const loadPage = (
+  query: Query,
+  page: number,
+  pageSize: number = PAGE_SIZE
+): Promise<Issues> => {
+  return searchIssues({
+    ...query,
+    p: page,
+    ps: pageSize
+  }).then(r =>
+    r.issues.map(issue => parseIssueFromResponse(issue, r.components, r.users, r.rules)));
 };
 
 export const loadPageAndNext = (

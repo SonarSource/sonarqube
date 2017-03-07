@@ -25,18 +25,19 @@ import { receiveIssues } from '../../store/issues/duck';
 
 const mapStateToProps = null;
 
-const onReceiveComponent = (component: { key: string, canMarkAsFavorite: boolean, fav: boolean }) => dispatch => {
-  if (component.canMarkAsFavorite) {
-    const favorites = [];
-    const notFavorites = [];
-    if (component.fav) {
-      favorites.push({ key: component.key });
-    } else {
-      notFavorites.push({ key: component.key });
+const onReceiveComponent = (component: { key: string, canMarkAsFavorite: boolean, fav: boolean }) =>
+  dispatch => {
+    if (component.canMarkAsFavorite) {
+      const favorites = [];
+      const notFavorites = [];
+      if (component.fav) {
+        favorites.push({ key: component.key });
+      } else {
+        notFavorites.push({ key: component.key });
+      }
+      dispatch(receiveFavorites(favorites, notFavorites));
     }
-    dispatch(receiveFavorites(favorites, notFavorites));
-  }
-};
+  };
 
 const onReceiveIssues = (issues: Array<*>) => dispatch => {
   dispatch(receiveIssues(issues));

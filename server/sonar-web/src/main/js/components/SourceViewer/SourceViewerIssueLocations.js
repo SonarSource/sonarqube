@@ -293,15 +293,10 @@ export default class SourceViewerIssueLocations extends React.Component {
                 {flows.map(
                   (flow, flowIndex) =>
                     flow.locations != null &&
-                      this
-                          .reverseLocations(flow.locations)
-                          .map((location, locationIndex) =>
-                          this.renderLocation(
-                            location,
-                            flowIndex,
-                            locationIndex,
-                            flow.locations || []
-                          ))
+                    this.reverseLocations(
+                      flow.locations
+                    ).map((location, locationIndex) =>
+                      this.renderLocation(location, flowIndex, locationIndex, flow.locations || []))
                 )}
               </ul>
               <DraggableCore axis="y" onDrag={this.handleDrag} offsetParent={document.body}>

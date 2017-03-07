@@ -97,7 +97,8 @@ export default class SourceViewerCode extends React.PureComponent {
   }
 
   getSecondaryIssueLocationMessagesForLine (line: SourceLine, issueKey: string) {
-    return this.props.issueSecondaryLocationMessagesByIssueByLine[issueKey][line.line] || EMPTY_ARRAY;
+    return this.props.issueSecondaryLocationMessagesByIssueByLine[issueKey][line.line] ||
+      EMPTY_ARRAY;
   }
 
   renderLine = (
@@ -110,10 +111,12 @@ export default class SourceViewerCode extends React.PureComponent {
   ) => {
     const { filterLine, selectedIssue, sources } = this.props;
     const filtered = filterLine ? filterLine(line) : null;
-    const secondaryIssueLocations = selectedIssue ?
-      this.getSecondaryIssueLocationsForLine(line, selectedIssue) : EMPTY_ARRAY;
-    const secondaryIssueLocationMessages = selectedIssue ?
-      this.getSecondaryIssueLocationMessagesForLine(line, selectedIssue) : EMPTY_ARRAY;
+    const secondaryIssueLocations = selectedIssue
+      ? this.getSecondaryIssueLocationsForLine(line, selectedIssue)
+      : EMPTY_ARRAY;
+    const secondaryIssueLocationMessages = selectedIssue
+      ? this.getSecondaryIssueLocationMessagesForLine(line, selectedIssue)
+      : EMPTY_ARRAY;
 
     const duplicationsCount = this.props.duplications ? this.props.duplications.length : 0;
 
@@ -122,19 +125,24 @@ export default class SourceViewerCode extends React.PureComponent {
     // for the following properties pass null if the line for sure is not impacted
     const symbolsForLine = this.props.symbolsByLine[line.line] || [];
     const { highlightedSymbol } = this.props;
-    const optimizedHighlightedSymbol = highlightedSymbol != null && symbolsForLine.includes(highlightedSymbol) ?
-      highlightedSymbol : null;
+    const optimizedHighlightedSymbol = highlightedSymbol != null &&
+      symbolsForLine.includes(highlightedSymbol)
+      ? highlightedSymbol
+      : null;
 
-    const optimizedSelectedIssue = selectedIssue != null && issuesForLine.includes(selectedIssue) ?
-      selectedIssue : null;
+    const optimizedSelectedIssue = selectedIssue != null && issuesForLine.includes(selectedIssue)
+      ? selectedIssue
+      : null;
 
     const { selectedIssueLocation } = this.props;
-    const optimizedSelectedIssueLocation =
-      selectedIssueLocation != null &&
-        secondaryIssueLocations.some(location =>
+    const optimizedSelectedIssueLocation = selectedIssueLocation != null &&
+      secondaryIssueLocations.some(
+        location =>
           location.flowIndex === selectedIssueLocation.flowIndex &&
           location.locationIndex === selectedIssueLocation.locationIndex
-        ) ? selectedIssueLocation : null;
+      )
+      ? selectedIssueLocation
+      : null;
 
     return (
       <Line
@@ -184,46 +192,60 @@ export default class SourceViewerCode extends React.PureComponent {
 
     return (
       <div>
-        {this.props.hasSourcesBefore && (
+        {this.props.hasSourcesBefore &&
           <div className="source-viewer-more-code">
-            {this.props.loadingSourcesBefore ? (
-                <div className="js-component-viewer-loading-before">
+            {this.props.loadingSourcesBefore
+              ? <div className="js-component-viewer-loading-before">
                   <i className="spinner"/>
-                  <span className="note spacer-left">{translate('source_viewer.loading_more_code')}</span>
+                  <span className="note spacer-left">
+                    {translate('source_viewer.loading_more_code')}
+                  </span>
                 </div>
-              ) : (
-                <button className="js-component-viewer-source-before" onClick={this.props.loadSourcesBefore}>
+              : <button
+                  className="js-component-viewer-source-before"
+                  onClick={this.props.loadSourcesBefore}>
                   {translate('source_viewer.load_more_code')}
-                </button>
-              )}
-          </div>
-        )}
+                </button>}
+          </div>}
 
         <table className="source-table">
           <tbody>
-            {hasFileIssues && (
-              this.renderLine(ZERO_LINE, -1, hasCoverage, hasDuplications, displayFiltered, hasIssues)
-            )}
-            {sources.map((line, index) => (
-              this.renderLine(line, index, hasCoverage, hasDuplications, displayFiltered, hasIssues)
-            ))}
+            {hasFileIssues &&
+              this.renderLine(
+                ZERO_LINE,
+                -1,
+                hasCoverage,
+                hasDuplications,
+                displayFiltered,
+                hasIssues
+              )}
+            {sources.map((line, index) =>
+              this.renderLine(
+                line,
+                index,
+                hasCoverage,
+                hasDuplications,
+                displayFiltered,
+                hasIssues
+              ))}
           </tbody>
         </table>
 
-        {this.props.hasSourcesAfter && (
+        {this.props.hasSourcesAfter &&
           <div className="source-viewer-more-code">
-            {this.props.loadingSourcesAfter ? (
-                <div className="js-component-viewer-loading-after">
+            {this.props.loadingSourcesAfter
+              ? <div className="js-component-viewer-loading-after">
                   <i className="spinner"/>
-                  <span className="note spacer-left">{translate('source_viewer.loading_more_code')}</span>
+                  <span className="note spacer-left">
+                    {translate('source_viewer.loading_more_code')}
+                  </span>
                 </div>
-              ) : (
-                <button className="js-component-viewer-source-after" onClick={this.props.loadSourcesAfter}>
+              : <button
+                  className="js-component-viewer-source-after"
+                  onClick={this.props.loadSourcesAfter}>
                   {translate('source_viewer.load_more_code')}
-                </button>
-              )}
-          </div>
-        )}
+                </button>}
+          </div>}
       </div>
     );
   }

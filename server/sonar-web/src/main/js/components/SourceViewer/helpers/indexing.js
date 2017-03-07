@@ -34,7 +34,7 @@ export type IndexedIssueLocation = {
   from: number,
   line: number,
   locationIndex: number,
-  to: number,
+  to: number
 };
 
 export type IndexedIssueLocationMessage = {
@@ -81,7 +81,9 @@ export const locationsByLine = (issues: Array<Issue>): { [number]: Array<LinearI
   return index;
 };
 
-export const locationsByIssueAndLine = (issues: Array<Issue>): IndexedIssueLocationsByIssueAndLine => {
+export const locationsByIssueAndLine = (
+  issues: Array<Issue>
+): IndexedIssueLocationsByIssueAndLine => {
   const index = {};
   issues.forEach(issue => {
     const byLine = {};
@@ -102,7 +104,9 @@ export const locationsByIssueAndLine = (issues: Array<Issue>): IndexedIssueLocat
   return index;
 };
 
-export const locationMessagesByIssueAndLine = (issues: Array<Issue>): IndexedIssueLocationMessagesByIssueAndLine => {
+export const locationMessagesByIssueAndLine = (
+  issues: Array<Issue>
+): IndexedIssueLocationMessagesByIssueAndLine => {
   const index = {};
   issues.forEach(issue => {
     const byLine = {};
@@ -158,7 +162,8 @@ export const symbolsByLine = (sources: Array<SourceLine>) => {
 export const findLocationByIndex = (
   locations: IndexedIssueLocationsByIssueAndLine,
   flowIndex: number,
-  locationIndex: number) => {
+  locationIndex: number
+) => {
   const issueKeys = Object.keys(locations);
   for (const issueKey of issueKeys) {
     const lineNumbers = Object.keys(locations[issueKey]);

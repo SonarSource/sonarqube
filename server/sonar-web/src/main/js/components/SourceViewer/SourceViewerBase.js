@@ -47,7 +47,12 @@ import type {
   IndexedIssueLocationsByIssueAndLine,
   IndexedIssueLocationMessagesByIssueAndLine
 } from './helpers/indexing';
-import { getComponentForSourceViewer, getSources, getDuplications, getTests } from '../../api/components';
+import {
+  getComponentForSourceViewer,
+  getSources,
+  getDuplications,
+  getTests
+} from '../../api/components';
 import { translate } from '../../helpers/l10n';
 import { scrollToElement } from '../../helpers/scrolling';
 import type { SourceLine } from './types';
@@ -70,7 +75,7 @@ type Props = {
   onIssueUnselect: () => void,
   onReceiveComponent: ({ canMarkAsFavorite: boolean, fav: boolean, key: string }) => void,
   onReceiveIssues: (issues: Array<*>) => void,
-  selectedIssue: string | null,
+  selectedIssue: string | null
 };
 
 type State = {
@@ -126,8 +131,8 @@ export default class SourceViewerBase extends React.Component {
 
   static defaultProps = {
     displayAllIssues: false,
-    onIssueSelect: () => { },
-    onIssueUnselect: () => { },
+    onIssueSelect: () => {},
+    onIssueUnselect: () => {},
     loadComponent,
     loadIssues,
     loadSources
@@ -166,13 +171,18 @@ export default class SourceViewerBase extends React.Component {
   componentDidUpdate (prevProps: Props, prevState: State) {
     if (prevProps.component !== this.props.component) {
       this.fetchComponent();
-    } else if (this.props.aroundLine != null && prevProps.aroundLine !== this.props.aroundLine &&
-      this.isLineOutsideOfRange(this.props.aroundLine)) {
+    } else if (
+      this.props.aroundLine != null &&
+      prevProps.aroundLine !== this.props.aroundLine &&
+      this.isLineOutsideOfRange(this.props.aroundLine)
+    ) {
       this.fetchSources();
     }
 
-    if (prevState.selectedIssueLocation !== this.state.selectedIssueLocation &&
-      this.state.selectedIssueLocation != null) {
+    if (
+      prevState.selectedIssueLocation !== this.state.selectedIssueLocation &&
+      this.state.selectedIssueLocation != null
+    ) {
       this.scrollToLine(this.state.selectedIssueLocation.line);
     }
   }
@@ -213,22 +223,25 @@ export default class SourceViewerBase extends React.Component {
         this.props.onReceiveIssues(issues);
         if (this.mounted) {
           const finalSources = sources.slice(0, LINES);
-          this.setState({
-            component,
-            issues,
-            issuesByLine: issuesByLine(issues),
-            issueLocationsByLine: locationsByLine(issues),
-            issueSecondaryLocationsByIssueByLine: locationsByIssueAndLine(issues),
-            issueSecondaryLocationMessagesByIssueByLine: locationMessagesByIssueAndLine(issues),
-            loading: false,
-            hasSourcesAfter: sources.length > LINES,
-            sources: this.computeCoverageStatus(finalSources),
-            symbolsByLine: symbolsByLine(sources.slice(0, LINES))
-          }, () => {
-            if (this.props.onLoaded) {
-              this.props.onLoaded(component, finalSources, issues);
+          this.setState(
+            {
+              component,
+              issues,
+              issuesByLine: issuesByLine(issues),
+              issueLocationsByLine: locationsByLine(issues),
+              issueSecondaryLocationsByIssueByLine: locationsByIssueAndLine(issues),
+              issueSecondaryLocationMessagesByIssueByLine: locationMessagesByIssueAndLine(issues),
+              loading: false,
+              hasSourcesAfter: sources.length > LINES,
+              sources: this.computeCoverageStatus(finalSources),
+              symbolsByLine: symbolsByLine(sources.slice(0, LINES))
+            },
+            () => {
+              if (this.props.onLoaded) {
+                this.props.onLoaded(component, finalSources, issues);
+              }
             }
-          });
+          );
         }
       });
     };
@@ -264,15 +277,18 @@ export default class SourceViewerBase extends React.Component {
     this.loadSources().then(sources => {
       if (this.mounted) {
         const finalSources = sources.slice(0, LINES);
-        this.setState({
-          sources: sources.slice(0, LINES),
-          hasSourcesAfter: sources.length > LINES
-        }, () => {
-          if (this.props.onLoaded) {
-            // $FlowFixMe
-            this.props.onLoaded(this.state.component, finalSources, this.state.issues);
+        this.setState(
+          {
+            sources: sources.slice(0, LINES),
+            hasSourcesAfter: sources.length > LINES
+          },
+          () => {
+            if (this.props.onLoaded) {
+              // $FlowFixMe
+              this.props.onLoaded(this.state.component, finalSources, this.state.issues);
+            }
           }
-        });
+        );
       }
     });
   }
@@ -294,10 +310,9 @@ export default class SourceViewerBase extends React.Component {
       // request one additional line to define `hasSourcesAfter`
       const to = this.props.aroundLine ? this.props.aroundLine + LINES / 2 + 1 : LINES + 1;
 
-      return this.props.loadSources(this.props.component, from, to).then(
-        sources => resolve(sources),
-        onFailLoadSources
-      );
+      return this.props
+          .loadSources(this.props.component, from, to)
+          .then(sources => resolve(sources), onFailLoadSources);
     });
   }
 
@@ -351,17 +366,20 @@ export default class SourceViewerBase extends React.Component {
   loadDuplications = (line: SourceLine, element: HTMLElement) => {
     getDuplications(this.props.component).then(r => {
       if (this.mounted) {
-        this.setState({
-          displayDuplications: true,
-          duplications: r.duplications,
-          duplicationsByLine: duplicationsByLine(r.duplications),
-          duplicatedFiles: r.files
-        }, () => {
-          // immediately show dropdown popup if there is only one duplicated block
-          if (r.duplications.length === 1) {
-            this.handleDuplicationClick(0, line.line, element);
+        this.setState(
+          {
+            displayDuplications: true,
+            duplications: r.duplications,
+            duplicationsByLine: duplicationsByLine(r.duplications),
+            duplicatedFiles: r.files
+          },
+          () => {
+            // immediately show dropdown popup if there is only one duplicated block
+            if (r.duplications.length === 1) {
+              this.handleDuplicationClick(0, line.line, element);
+            }
           }
-        });
+        );
       }
     });
   };
@@ -418,14 +436,16 @@ export default class SourceViewerBase extends React.Component {
       const currentFile = b._ref === '1';
       const shouldDisplayForCurrentFile = outOfBounds || foundOne;
       const shouldDisplay = !currentFile || shouldDisplayForCurrentFile;
-      const isOk = (b._ref != null) && shouldDisplay;
+      const isOk = b._ref != null && shouldDisplay;
       if (b._ref === '1' && !outOfBounds) {
         foundOne = true;
       }
       return isOk;
     });
 
-    const element = this.node.querySelector(`.source-line-duplications-extra[data-line-number="${line}"]`);
+    const element = this.node.querySelector(
+      `.source-line-duplications-extra[data-line-number="${line}"]`
+    );
     if (element) {
       const popup = new DuplicationPopupView({
         blocks,
@@ -510,7 +530,9 @@ export default class SourceViewerBase extends React.Component {
         issuesByLine={this.state.issuesByLine}
         issueLocationsByLine={this.state.issueLocationsByLine}
         issueSecondaryLocationsByIssueByLine={this.state.issueSecondaryLocationsByIssueByLine}
-        issueSecondaryLocationMessagesByIssueByLine={this.state.issueSecondaryLocationMessagesByIssueByLine}
+        issueSecondaryLocationMessagesByIssueByLine={
+          this.state.issueSecondaryLocationMessagesByIssueByLine
+        }
         loadDuplications={this.loadDuplications}
         loadSourcesAfter={this.loadSourcesAfter}
         loadSourcesBefore={this.loadSourcesBefore}
@@ -543,7 +565,9 @@ export default class SourceViewerBase extends React.Component {
 
     if (this.state.notExist) {
       return (
-        <div className="alert alert-warning spacer-top">{translate('component_viewer.no_component')}</div>
+        <div className="alert alert-warning spacer-top">
+          {translate('component_viewer.no_component')}
+        </div>
       );
     }
 
@@ -551,11 +575,13 @@ export default class SourceViewerBase extends React.Component {
       return null;
     }
 
-    const className = classNames('source-viewer', { 'source-duplications-expanded': this.state.displayDuplications });
+    const className = classNames('source-viewer', {
+      'source-duplications-expanded': this.state.displayDuplications
+    });
 
-    const selectedIssueObj = this.props.selectedIssue && this.state.issues != null ?
-      this.state.issues.find(issue => issue.key === this.props.selectedIssue) :
-      null;
+    const selectedIssueObj = this.props.selectedIssue && this.state.issues != null
+      ? this.state.issues.find(issue => issue.key === this.props.selectedIssue)
+      : null;
 
     return (
       <div className={className} ref={node => this.node = node}>
@@ -563,20 +589,19 @@ export default class SourceViewerBase extends React.Component {
           component={this.state.component}
           openNewWindow={this.openNewWindow}
           showMeasures={this.showMeasures}/>
-        {this.state.notAccessible && (
+        {this.state.notAccessible &&
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_security')}
-          </div>
-        )}
+          </div>}
         {this.state.sources != null && this.renderCode(this.state.sources)}
-        {selectedIssueObj != null && selectedIssueObj.flows.length > 0 && (
+        {selectedIssueObj != null &&
+          selectedIssueObj.flows.length > 0 &&
           <SourceViewerIssueLocations
             height={this.state.locationsPanelHeight}
             issue={selectedIssueObj}
             onResize={this.handleLocationsPanelResize}
             onSelectLocation={this.handleSelectIssueLocation}
-            selectedLocation={this.state.selectedIssueLocation}/>
-        )}
+            selectedLocation={this.state.selectedIssueLocation}/>}
       </div>
     );
   }
