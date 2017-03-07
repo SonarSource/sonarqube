@@ -22,8 +22,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import Select from 'react-select';
 import difference from 'lodash/difference';
-import isNil from 'lodash/isNil';
-import omitBy from 'lodash/omitBy';
+import { getFilterUrl } from './utils';
 import { getProjectsAppFacetByProperty, getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
@@ -35,13 +34,12 @@ class LanguageFilterFooter extends React.Component {
     organization: React.PropTypes.object,
     languages: React.PropTypes.object,
     value: React.PropTypes.any,
-    facet: React.PropTypes.object,
-    getFilterUrl: React.PropTypes.func.isRequired
+    facet: React.PropTypes.object
   }
 
   handleLanguageChange = ({ value }) => {
     const urlOptions = (this.props.value || []).concat(value).join(',');
-    const path = this.props.getFilterUrl({ [this.props.property]: urlOptions });
+    const path = getFilterUrl(this.props, { [this.props.property]: urlOptions });
     this.props.router.push(path);
   }
 
@@ -70,15 +68,7 @@ class LanguageFilterFooter extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
   languages: getLanguages(state),
   value: ownProps.query[ownProps.property],
-  facet: getProjectsAppFacetByProperty(state, ownProps.property),
-  getFilterUrl: part => {
-    const basePathName = ownProps.organization ?
-        `/organizations/${ownProps.organization.key}/projects` :
-        '/projects';
-    const pathname = basePathName + (ownProps.isFavorite ? '/favorite' : '');
-    const query = omitBy({ ...ownProps.query, ...part }, isNil);
-    return { pathname, query };
-  }
+  facet: getProjectsAppFacetByProperty(state, ownProps.property)
 });
 
 export default connect(mapStateToProps)(withRouter(LanguageFilterFooter));

@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import Filter from './Filter';
-import { getProjectsAppFacetByProperty, getProjectsAppMaxFacetValue } from '../../../store/rootReducer';
+import omitBy from 'lodash/omitBy';
+import isNil from 'lodash/isNil';
 
-const mapStateToProps = (state, ownProps) => ({
-  value: ownProps.query[ownProps.property],
-  facet: getProjectsAppFacetByProperty(state, ownProps.property),
-  maxFacetValue: getProjectsAppMaxFacetValue(state)
-});
-
-export default connect(mapStateToProps)(withRouter(Filter));
+export const getFilterUrl = (ownProps, part) => {
+  const basePathName = ownProps.organization ?
+      `/organizations/${ownProps.organization.key}/projects` :
+      '/projects';
+  const pathname = basePathName + (ownProps.isFavorite ? '/favorite' : '');
+  const query = omitBy({ ...ownProps.query, ...part }, isNil);
+  return { pathname, query };
+};
