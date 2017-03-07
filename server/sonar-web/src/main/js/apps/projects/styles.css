@@ -111,6 +111,11 @@
   font-weight: normal;
   font-size: 11px;
   color: #777;
+  text-transform: lowercase;
+}
+
+.projects-facet-sort .button-group {
+  margin-top: -3px;
 }
 
 .projects-facet-sort .button-small {

@@ -81,11 +81,11 @@ export default class SortingFilter extends React.Component {
             <Link
               onClick={this.blurLink}
               className={this.getLinkClass('left')}
-              to={this.getLinkPath('left')}>{leftText.toLowerCase()}</Link>
+              to={this.getLinkPath('left')}>{leftText}</Link>
             <Link
               onClick={this.blurLink}
               className={this.getLinkClass('right')}
-              to={this.getLinkPath('right')}>{rightText.toLowerCase()}</Link>
+              to={this.getLinkPath('right')}>{rightText}</Link>
           </div>
         </div>
     );
