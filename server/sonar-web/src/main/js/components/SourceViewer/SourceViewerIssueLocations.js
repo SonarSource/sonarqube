@@ -61,9 +61,6 @@ export default class SourceViewerIssueLocations extends React.Component {
   }
 
   componentWillReceiveProps (nextProps: Props) {
-    /* eslint-disable no-console */
-    console.log('foo');
-
     if (nextProps.selectedLocation !== this.props.selectedLocation) {
       this.setState({ locationBlink: false });
     }
