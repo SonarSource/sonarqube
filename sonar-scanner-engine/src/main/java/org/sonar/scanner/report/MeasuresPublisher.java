@@ -82,7 +82,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
   public void publish(ScannerReportWriter writer) {
     final ScannerReport.Measure.Builder builder = ScannerReport.Measure.newBuilder();
 
-    for (final InputComponent c : componentStore.all()) {
+    for (final InputComponent c : componentStore.allFilesToPublish()) {
       DefaultInputComponent component = (DefaultInputComponent) c;
       // Recompute all coverage measures from line data to take into account the possible merge of several reports
       updateCoverageFromLineData(component);
