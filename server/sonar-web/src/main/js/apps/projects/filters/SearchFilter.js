@@ -41,7 +41,6 @@ class SearchFilter extends React.Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    // update the state only if the previous state match the input value and the new state is different
     if (this.props.query.search === this.state.userQuery && nextProps.query.search !== this.props.query.search) {
       this.setState({
         userQuery: nextProps.query.search || ''
