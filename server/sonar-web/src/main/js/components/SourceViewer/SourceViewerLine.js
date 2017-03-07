@@ -24,6 +24,7 @@ import times from 'lodash/times';
 import LineNumber from './components/LineNumber';
 import LineSCM from './components/LineSCM';
 import LineCoverage from './components/LineCoverage';
+import LineDuplications from './components/LineDuplications';
 import ConnectedIssue from '../issue/ConnectedIssue';
 import SourceViewerIssuesIndicator from './SourceViewerIssuesIndicator';
 import { translate } from '../../helpers/l10n';
@@ -133,30 +134,6 @@ export default class SourceViewerLine extends React.PureComponent {
   handleIssueSelect = (issueKey: string) => {
     this.props.onIssueSelect(issueKey);
   };
-
-  renderDuplications () {
-    const { line } = this.props;
-    const className = classNames('source-meta', 'source-line-duplications', {
-      'source-line-duplicated': line.duplicated
-    });
-
-    const handleDuplicationClick = (e: SyntheticInputEvent) => {
-      e.preventDefault();
-      this.props.loadDuplications(this.props.line, e.target);
-    };
-
-    return (
-      <td className={className}
-          title={line.duplicated && translate('source_viewer.tooltip.duplicated_line')}
-          data-placement={line.duplicated && 'right'}
-          data-toggle={line.duplicated && 'tooltip'}
-          role="button"
-          tabIndex="0"
-          onClick={handleDuplicationClick}>
-        <div className="source-line-bar"/>
-      </td>
-    );
-  }
 
   renderDuplicationsExtra () {
     const { duplications, duplicationsCount } = this.props;
@@ -337,7 +314,8 @@ export default class SourceViewerLine extends React.PureComponent {
         {this.props.displayCoverage &&
           <LineCoverage line={line} onClick={this.props.onCoverageClick}/>}
 
-        {this.props.displayDuplications && this.renderDuplications()}
+        {this.props.displayDuplications &&
+          <LineDuplications line={line} onClick={this.props.loadDuplications}/>}
 
         {duplicationsCount > 0 && this.renderDuplicationsExtra()}
 
