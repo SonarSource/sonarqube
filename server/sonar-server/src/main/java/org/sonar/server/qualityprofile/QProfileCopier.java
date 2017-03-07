@@ -57,7 +57,7 @@ public class QProfileCopier {
   public QualityProfileDto copyToName(DbSession dbSession, String fromKey, String toName) {
     QualityProfileDto from = db.qualityProfileDao().selectOrFailByKey(dbSession, fromKey);
     OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, from.getOrganizationUuid())
-      .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + from.getOrganizationUuid() + "] does not exist"));
+        .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + from.getOrganizationUuid() + "] does not exist"));
     QualityProfileDto to = prepareTarget(dbSession, organization, from, toName);
     File backupFile = temp.newFile();
     try {
@@ -76,7 +76,7 @@ public class QProfileCopier {
     if (toProfile == null) {
       // Do not delegate creation to QProfileBackuper because we need to keep
       // the parent-child association, if exists.
-      toProfile = factory.create(dbSession, organization, toProfileName);
+      toProfile = factory.checkAndCreate(dbSession, organization, toProfileName);
       toProfile.setParentKee(from.getParentKee());
       db.qualityProfileDao().update(dbSession, toProfile);
       dbSession.commit();
@@ -87,12 +87,12 @@ public class QProfileCopier {
   private void verify(QualityProfileDto fromProfile, QProfileName toProfileName) {
     if (!StringUtils.equals(fromProfile.getLanguage(), toProfileName.getLanguage())) {
       throw new IllegalArgumentException(String.format(
-        "Source and target profiles do not have the same language: %s and %s",
-        fromProfile.getLanguage(), toProfileName.getLanguage()));
+          "Source and target profiles do not have the same language: %s and %s",
+          fromProfile.getLanguage(), toProfileName.getLanguage()));
     }
     if (fromProfile.getName().equals(toProfileName.getName())) {
       throw new IllegalArgumentException(String.format("Source and target profiles are equal: %s",
-        fromProfile.getName()));
+          fromProfile.getName()));
     }
   }
 

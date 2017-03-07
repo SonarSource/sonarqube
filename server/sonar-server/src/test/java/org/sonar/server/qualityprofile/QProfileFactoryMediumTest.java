@@ -86,6 +86,31 @@ public class QProfileFactoryMediumTest {
   }
 
   @Test
+  public void checkAndCreate() {
+    String uuid = organization.getUuid();
+
+    QualityProfileDto writtenDto = factory.checkAndCreate(dbSession, organization, new QProfileName("xoo", "P1"));
+    dbSession.commit();
+    dbSession.clearCache();
+    assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
+    assertThat(writtenDto.getKey()).startsWith("xoo-p1-");
+    assertThat(writtenDto.getName()).isEqualTo("P1");
+    assertThat(writtenDto.getLanguage()).isEqualTo("xoo");
+    assertThat(writtenDto.getId()).isNotNull();
+
+    // reload the dto
+    QualityProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
+    assertThat(readDto.getOrganizationUuid()).isEqualTo(uuid);
+    assertThat(readDto.getName()).isEqualTo("P1");
+    assertThat(readDto.getKey()).startsWith("xoo-p1");
+    assertThat(readDto.getLanguage()).isEqualTo("xoo");
+    assertThat(readDto.getId()).isNotNull();
+    assertThat(readDto.getParentKee()).isNull();
+
+    assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(1);
+  }
+
+  @Test
   public void create() {
     String uuid = organization.getUuid();
 
@@ -111,7 +136,37 @@ public class QProfileFactoryMediumTest {
   }
 
   @Test
-  public void fail_to_create_if_name_null() {
+  public void checkAndCreate_throws_BadRequestException_if_name_null() {
+    QProfileName name = new QProfileName("xoo", null);
+
+    expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
+
+    factory.checkAndCreate(dbSession, organization, name);
+  }
+
+  @Test
+  public void checkAndCreate_throws_BadRequestException_if_name_empty() {
+    QProfileName name = new QProfileName("xoo", "");
+
+    expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
+
+    factory.checkAndCreate(dbSession, organization, name);
+  }
+
+  @Test
+  public void checkAndCreate_throws_BadRequestException_if_already_exists() {
+    QProfileName name = new QProfileName("xoo", "P1");
+    factory.checkAndCreate(dbSession, organization, name);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    expectBadRequestException("Quality profile already exists: {lang=xoo, name=P1}");
+
+    factory.checkAndCreate(dbSession, organization, name);
+  }
+
+  @Test
+  public void create_throws_BadRequestException_if_name_null() {
     QProfileName name = new QProfileName("xoo", null);
 
     expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
@@ -120,7 +175,7 @@ public class QProfileFactoryMediumTest {
   }
 
   @Test
-  public void fail_to_create_if_name_empty() {
+  public void create_throws_BadRequestException_if_name_empty() {
     QProfileName name = new QProfileName("xoo", "");
 
     expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
@@ -129,15 +184,13 @@ public class QProfileFactoryMediumTest {
   }
 
   @Test
-  public void fail_to_create_if_already_exists() {
+  public void create_does_not_fail_if_already_exists() {
     QProfileName name = new QProfileName("xoo", "P1");
     factory.create(dbSession, organization, name);
     dbSession.commit();
     dbSession.clearCache();
 
-    expectBadRequestException("Quality profile already exists: {lang=xoo, name=P1}");
-
-    factory.create(dbSession, organization, name);
+    assertThat(factory.create(dbSession, organization, name)).isNotNull();
   }
 
   @Test
