@@ -55,9 +55,12 @@ type Props = {
   onDuplicationClick: (number, number) => void,
   onIssueSelect: (string) => void,
   onIssueUnselect: () => void,
+  onIssuesOpen: (SourceLine) => void,
+  onIssuesClose: (SourceLine) => void,
   onSCMClick: (SourceLine, HTMLElement) => void,
   onLocationSelect: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: (string) => void,
+  openIssues: boolean,
   previousLine?: SourceLine,
   selectedIssue: string | null,
   secondaryIssueLocations: Array<IndexedIssueLocation>,
@@ -66,28 +69,21 @@ type Props = {
   selectedIssueLocation: IndexedIssueLocation | null
 };
 
-type State = {
-  issuesOpen: boolean
-};
-
 export default class Line extends React.PureComponent {
   props: Props;
-  state: State = { issuesOpen: false };
 
   handleIssuesIndicatorClick = () => {
-    // TODO not sure if side effects allowed here
-    this.setState(prevState => {
-      if (!prevState.issuesOpen) {
-        const { issues } = this.props;
-        if (issues.length > 0) {
-          this.props.onIssueSelect(issues[0]);
-        }
-      } else {
-        this.props.onIssueUnselect();
-      }
+    if (this.props.openIssues) {
+      this.props.onIssuesClose(this.props.line);
+      this.props.onIssueUnselect();
+    } else {
+      this.props.onIssuesOpen(this.props.line);
 
-      return { issuesOpen: !prevState.issuesOpen };
-    });
+      const { issues } = this.props;
+      if (issues.length > 0) {
+        this.props.onIssueSelect(issues[0]);
+      }
+    }
   };
 
   render () {
@@ -146,7 +142,7 @@ export default class Line extends React.PureComponent {
           secondaryIssueLocations={this.props.secondaryIssueLocations}
           selectedIssue={this.props.selectedIssue}
           selectedIssueLocation={this.props.selectedIssueLocation}
-          showIssues={this.state.issuesOpen || this.props.displayAllIssues}/>
+          showIssues={this.props.openIssues || this.props.displayAllIssues}/>
       </tr>
     );
   }

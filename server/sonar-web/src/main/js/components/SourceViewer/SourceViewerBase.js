@@ -99,6 +99,7 @@ type State = {
   locationsPanelHeight: number,
   notAccessible: boolean,
   notExist: boolean,
+  openIssuesByLine: { [number]: boolean },
   selectedIssueLocation: IndexedIssueLocation | null,
   sources?: Array<SourceLine>,
   symbolsByLine: { [number]: Array<string> }
@@ -150,6 +151,7 @@ export default class SourceViewerBase extends React.Component {
       locationsPanelHeight: this.getInitialLocationsPanelHeight(),
       notAccessible: false,
       notExist: false,
+      openIssuesByLine: {},
       selectedIssue: props.defaultSelectedIssue || null,
       selectedIssueLocation: null,
       symbolsByLine: {}
@@ -479,6 +481,18 @@ export default class SourceViewerBase extends React.Component {
     this.storeLocationsPanelHeight(height);
   };
 
+  handleOpenIssues = (line: SourceLine) => {
+    this.setState(state => ({
+      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
+    }));
+  };
+
+  handleCloseIssues = (line: SourceLine) => {
+    this.setState(state => ({
+      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false }
+    }));
+  };
+
   renderCode (sources: Array<SourceLine>) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
@@ -506,10 +520,13 @@ export default class SourceViewerBase extends React.Component {
         onDuplicationClick={this.handleDuplicationClick}
         onIssueSelect={this.props.onIssueSelect}
         onIssueUnselect={this.props.onIssueUnselect}
+        onIssuesOpen={this.handleOpenIssues}
+        onIssuesClose={this.handleCloseIssues}
         onLineClick={this.handleLineClick}
         onSCMClick={this.handleSCMClick}
         onLocationSelect={this.handleSelectIssueLocation}
         onSymbolClick={this.handleSymbolClick}
+        openIssuesByLine={this.state.openIssuesByLine}
         selectedIssue={this.props.selectedIssue}
         selectedIssueLocation={this.state.selectedIssueLocation}
         sources={sources}

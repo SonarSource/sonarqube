@@ -64,10 +64,13 @@ export default class SourceViewerCode extends React.PureComponent {
     onDuplicationClick: (number, number) => void,
     onIssueSelect: (string) => void,
     onIssueUnselect: () => void,
+    onIssuesOpen: (SourceLine) => void,
+    onIssuesClose: (SourceLine) => void,
     onLineClick: (SourceLine, HTMLElement) => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
     onLocationSelect: (flowIndex: number, locationIndex: number) => void,
     onSymbolClick: (string) => void,
+    openIssuesByLine: { [number]: boolean },
     selectedIssue: string | null,
     selectedIssueLocation: IndexedIssueLocation | null,
     sources: Array<SourceLine>,
@@ -156,9 +159,12 @@ export default class SourceViewerCode extends React.PureComponent {
         onDuplicationClick={this.props.onDuplicationClick}
         onIssueSelect={this.props.onIssueSelect}
         onIssueUnselect={this.props.onIssueUnselect}
+        onIssuesOpen={this.props.onIssuesOpen}
+        onIssuesClose={this.props.onIssuesClose}
         onSCMClick={this.props.onSCMClick}
         onLocationSelect={this.props.onLocationSelect}
         onSymbolClick={this.props.onSymbolClick}
+        openIssues={this.props.openIssuesByLine[line.line] || false}
         previousLine={index > 0 ? sources[index - 1] : undefined}
         secondaryIssueLocations={secondaryIssueLocations}
         secondaryIssueLocationMessages={secondaryIssueLocationMessages}
