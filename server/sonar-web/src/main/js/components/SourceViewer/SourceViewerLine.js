@@ -27,8 +27,7 @@ import LineCoverage from './components/LineCoverage';
 import LineDuplications from './components/LineDuplications';
 import LineDuplicationBlock from './components/LineDuplicationBlock';
 import LineIssuesIndicatorContainer from './components/LineIssuesIndicatorContainer';
-import LineIssuesList from './components/LineIssuesList';
-import { splitByTokens, highlightSymbol, highlightIssueLocations, generateHTML } from './helpers/highlight';
+import LineCode from './components/LineCode';
 import type { SourceLine } from './types';
 import type { LinearIssueLocation, IndexedIssueLocation, IndexedIssueLocationMessage } from './helpers/indexing';
 
@@ -68,43 +67,8 @@ type State = {
 };
 
 export default class SourceViewerLine extends React.PureComponent {
-  codeNode: HTMLElement;
   props: Props;
-  issueElements: { [string]: HTMLElement } = {};
-  issueViews: { [string]: { destroy: () => void } } = {};
   state: State = { issuesOpen: false };
-  symbols: NodeList<HTMLElement>;
-
-  componentDidMount () {
-    this.attachEvents();
-  }
-
-  componentWillUpdate () {
-    this.detachEvents();
-  }
-
-  componentDidUpdate () {
-    this.attachEvents();
-  }
-
-  componentWillUnmount () {
-    this.detachEvents();
-  }
-
-  attachEvents () {
-    this.symbols = this.codeNode.querySelectorAll('.sym');
-    for (const symbol of this.symbols) {
-      symbol.addEventListener('click', this.handleSymbolClick);
-    }
-  }
-
-  detachEvents () {
-    if (this.symbols) {
-      for (const symbol of this.symbols) {
-        symbol.removeEventListener('click', this.handleSymbolClick);
-      }
-    }
-  }
 
   handleIssuesIndicatorClick = () => {
     this.setState(prevState => {
@@ -120,114 +84,6 @@ export default class SourceViewerLine extends React.PureComponent {
 
       return { issuesOpen: !prevState.issuesOpen };
     });
-  }
-
-  handleSymbolClick = (e: Object) => {
-    e.preventDefault();
-    const key = e.currentTarget.className.match(/sym-\d+/);
-    if (key && key[0]) {
-      this.props.onSymbolClick(key[0]);
-    }
-  };
-
-  isSecondaryIssueLocationSelected (location: IndexedIssueLocation | IndexedIssueLocationMessage) {
-    const { selectedIssueLocation } = this.props;
-    if (selectedIssueLocation == null) {
-      return false;
-    } else {
-      return selectedIssueLocation.flowIndex === location.flowIndex &&
-        selectedIssueLocation.locationIndex === location.locationIndex;
-    }
-  }
-
-  handleLocationMessageClick (flowIndex: number, locationIndex: number, e: SyntheticInputEvent) {
-    e.preventDefault();
-    this.props.onSelectLocation(flowIndex, locationIndex);
-  }
-
-  renderSecondaryIssueLocationMessage = (location: IndexedIssueLocationMessage) => {
-    const className = classNames('source-viewer-issue-location', 'issue-location-message', {
-      'selected': this.isSecondaryIssueLocationSelected(location)
-    });
-
-    const limitString = (str: string) => (
-      str.length > 30 ? str.substr(0, 30) + '...' : str
-    );
-
-    return (
-      <a
-        key={`${location.flowIndex}-${location.locationIndex}`}
-        href="#"
-        className={className}
-        title={location.msg}
-        onClick={e => this.handleLocationMessageClick(location.flowIndex, location.locationIndex, e)}>
-        {location.index && (
-          <strong>{location.index}: </strong>
-        )}
-        {limitString(location.msg)}
-      </a>
-    );
-  };
-
-  renderSecondaryIssueLocationMessages (locations: Array<IndexedIssueLocationMessage>) {
-    return (
-      <div className="source-line-issue-locations">
-        {locations.map(this.renderSecondaryIssueLocationMessage)}
-      </div>
-    );
-  }
-
-  renderCode () {
-    const { line, highlightedSymbol, issueLocations, issues, secondaryIssueLocations } = this.props;
-    const { secondaryIssueLocationMessages } = this.props;
-    const className = classNames('source-line-code', 'code', { 'has-issues': issues.length > 0 });
-
-    const code = line.code || '';
-    let tokens = splitByTokens(code);
-
-    if (highlightedSymbol) {
-      tokens = highlightSymbol(tokens, highlightedSymbol);
-    }
-
-    if (issueLocations.length > 0) {
-      tokens = highlightIssueLocations(tokens, issueLocations);
-    }
-
-    if (secondaryIssueLocations) {
-      const linearLocations = secondaryIssueLocations.map(location => ({
-        from: location.from,
-        line: location.line,
-        to: location.to
-      }));
-      tokens = highlightIssueLocations(tokens, linearLocations, 'issue-location');
-      const { selectedIssueLocation } = this.props;
-      if (selectedIssueLocation != null) {
-        const x = secondaryIssueLocations.find(location => this.isSecondaryIssueLocationSelected(location));
-        if (x) {
-          tokens = highlightIssueLocations(tokens, [x], 'selected');
-        }
-      }
-    }
-
-    const finalCode = generateHTML(tokens);
-
-    const showIssues = (this.state.issuesOpen || this.props.displayAllIssues) && issues.length > 0;
-
-    return (
-      <td className={className} data-line-number={line.line}>
-        <div className="source-line-code-inner">
-          <pre ref={node => this.codeNode = node} dangerouslySetInnerHTML={{ __html: finalCode }}/>
-          {secondaryIssueLocationMessages != null && secondaryIssueLocationMessages.length > 0 && (
-            this.renderSecondaryIssueLocationMessages(secondaryIssueLocationMessages)
-          )}
-        </div>
-        {showIssues &&
-          <LineIssuesList
-            issueKeys={issues}
-            onIssueClick={this.props.onIssueSelect}
-            selectedIssue={this.props.selectedIssue}/>}
-      </td>
-    );
   }
 
   render () {
@@ -274,7 +130,19 @@ export default class SourceViewerLine extends React.PureComponent {
           </td>
         )}
 
-        {this.renderCode()}
+        <LineCode
+          highlightedSymbol={this.props.highlightedSymbol}
+          issueKeys={this.props.issues}
+          issueLocations={this.props.issueLocations}
+          line={line}
+          onIssueSelect={this.props.onIssueSelect}
+          onSelectLocation={this.props.onSelectLocation}
+          onSymbolClick={this.props.onSymbolClick}
+          secondaryIssueLocationMessages={this.props.secondaryIssueLocationMessages}
+          secondaryIssueLocations={this.props.secondaryIssueLocations}
+          selectedIssue={this.props.selectedIssue}
+          selectedIssueLocation={this.props.selectedIssueLocation}
+          showIssues={this.state.issuesOpen || this.props.displayAllIssues}/>
       </tr>
     );
   }
