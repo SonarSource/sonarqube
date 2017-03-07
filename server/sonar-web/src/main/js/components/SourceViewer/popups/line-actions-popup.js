@@ -18,28 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Popup from '../../common/popup';
-import Template from '../templates/source-viewer-scm-popup.hbs';
+import Template from './templates/source-viewer-line-options-popup.hbs';
 
 export default Popup.extend({
   template: Template,
 
   events: {
-    'click': 'onClick'
+    'click .js-get-permalink': 'getPermalink'
   },
 
-  onRender () {
-    Popup.prototype.onRender.apply(this, arguments);
-    this.$('.bubble-popup-container').isolatedScroll();
-  },
-
-  onClick (e) {
-    e.stopPropagation();
-  },
-
-  serializeData () {
-    return {
-      ...Popup.prototype.serializeData.apply(this, arguments),
-      line: this.options.line
-    };
+  getPermalink (e) {
+    e.preventDefault();
+    const { component, line } = this.options;
+    const url = `${window.baseUrl}/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;
+    const windowParams = 'resizable=1,scrollbars=1,status=1';
+    window.open(url, component.name, windowParams);
   }
 });

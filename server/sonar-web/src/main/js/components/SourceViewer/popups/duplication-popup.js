@@ -21,7 +21,7 @@ import $ from 'jquery';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import Popup from '../../common/popup';
-import Template from '../templates/source-viewer-duplication-popup.hbs';
+import Template from './templates/source-viewer-duplication-popup.hbs';
 
 export default Popup.extend({
   template: Template,

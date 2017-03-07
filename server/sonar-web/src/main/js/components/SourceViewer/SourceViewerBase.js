@@ -24,12 +24,11 @@ import uniqBy from 'lodash/uniqBy';
 import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerCode from './SourceViewerCode';
 import SourceViewerIssueLocations from './SourceViewerIssueLocations';
-import CoveragePopupView from '../source-viewer/popups/coverage-popup';
-import DuplicationPopupView from '../source-viewer/popups/duplication-popup';
-import LineActionsPopupView from '../source-viewer/popups/line-actions-popup';
-import SCMPopupView from '../source-viewer/popups/scm-popup';
-import MeasuresOverlay from '../source-viewer/measures-overlay';
-import Source from '../source-viewer/source';
+import CoveragePopupView from './popups/coverage-popup';
+import DuplicationPopupView from './popups/duplication-popup';
+import LineActionsPopupView from './popups/line-actions-popup';
+import SCMPopupView from './popups/scm-popup';
+import MeasuresOverlay from './views/measures-overlay';
 import loadIssues from './helpers/loadIssues';
 import getCoverageStatus from './helpers/getCoverageStatus';
 import {
@@ -414,9 +413,8 @@ export default class SourceViewerBase extends React.Component {
   };
 
   showMeasures = () => {
-    const model = new Source(this.state.component);
-    const measuresOvervlay = new MeasuresOverlay({ model, large: true });
-    measuresOvervlay.render();
+    const measuresOverlay = new MeasuresOverlay({ component: this.state.component, large: true });
+    measuresOverlay.render();
   };
 
   handleCoverageClick = (line: SourceLine, element: HTMLElement) => {

@@ -17,21 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import $ from 'jquery';
+import groupBy from 'lodash/groupBy';
 import Popup from '../../common/popup';
-import Template from '../templates/source-viewer-line-options-popup.hbs';
+import Template from './templates/source-viewer-coverage-popup.hbs';
 
 export default Popup.extend({
   template: Template,
 
   events: {
-    'click .js-get-permalink': 'getPermalink'
+    'click a[data-key]': 'goToFile'
   },
 
-  getPermalink (e) {
-    e.preventDefault();
-    const { component, line } = this.options;
-    const url = `${window.baseUrl}/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;
-    const windowParams = 'resizable=1,scrollbars=1,status=1';
-    window.open(url, component.name, windowParams);
+  onRender () {
+    Popup.prototype.onRender.apply(this, arguments);
+    this.$('.bubble-popup-container').isolatedScroll();
+  },
+
+  goToFile (e) {
+    e.stopPropagation();
+    const key = $(e.currentTarget).data('key');
+    const Workspace = require('../../workspace/main').default;
+    Workspace.openComponent({ key });
+  },
+
+  serializeData () {
+    const row = this.options.line || {};
+    const tests = groupBy(this.options.tests, 'fileKey');
+    const testFiles = Object.keys(tests).map(fileKey => {
+      const testSet = tests[fileKey];
+      const test = testSet[0];
+      return {
+        file: {
+          key: test.fileKey,
+          longName: test.fileName
+        },
+        tests: testSet
+      };
+    });
+    return { testFiles, row };
   }
 });

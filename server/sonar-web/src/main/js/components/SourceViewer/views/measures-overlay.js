@@ -21,11 +21,11 @@ import $ from 'jquery';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import toPairs from 'lodash/toPairs';
-import ModalView from '../common/modals';
+import ModalView from '../../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
-import { getMeasures } from '../../api/measures';
-import { getMetrics } from '../../api/metrics';
-import { formatMeasure } from '../../helpers/measures';
+import { getMeasures } from '../../../api/measures';
+import { getMetrics } from '../../../api/metrics';
+import { formatMeasure } from '../../../helpers/measures';
 
 export default ModalView.extend({
   template: Template,
@@ -34,7 +34,7 @@ export default ModalView.extend({
   initialize () {
     this.testsScroll = 0;
     const requests = [this.requestMeasures(), this.requestIssues()];
-    if (this.model.get('q') === 'UTS') {
+    if (this.options.component.q === 'UTS') {
       requests.push(this.requestTests());
     }
     Promise.all(requests).then(() => this.render());
@@ -150,8 +150,8 @@ export default ModalView.extend({
           .filter(metric => metric.type !== 'DATA' && !metric.hidden)
           .map(metric => metric.key);
 
-      return getMeasures(this.model.key(), metricsToRequest).then(measures => {
-        let nextMeasures = this.model.get('measures') || {};
+      return getMeasures(this.options.component.key, metricsToRequest).then(measures => {
+        let nextMeasures = this.options.component.measures || {};
         measures.forEach(measure => {
           const metric = metrics.find(metric => metric.key === measure.metric);
           nextMeasures[metric.key] = formatMeasure(measure.value, metric.type);
@@ -159,20 +159,17 @@ export default ModalView.extend({
           metric.value = nextMeasures[metric.key];
         });
         nextMeasures = this.calcAdditionalMeasures(nextMeasures);
-        this.model.set({
-          measures: nextMeasures,
-          measuresToDisplay: this.prepareMetrics(metrics)
-        });
+        this.measures = nextMeasures;
+        this.measuresToDisplay = this.prepareMetrics(metrics);
       });
     });
   },
 
   requestIssues () {
     return new Promise(resolve => {
-      const that = this;
       const url = window.baseUrl + '/api/issues/search';
       const options = {
-        componentUuids: this.model.id,
+        componentKeys: this.options.component.key,
         resolved: false,
         ps: 1,
         facets: 'types,severities,tags'
@@ -188,12 +185,10 @@ export default ModalView.extend({
 
         const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
 
-        that.model.set({
-          tagsFacet,
-          typesFacet: sortedTypesFacet,
-          severitiesFacet: sortedSeveritiesFacet,
-          issuesCount: data.total
-        });
+        this.tagsFacet = tagsFacet;
+        this.typesFacet = sortedTypesFacet;
+        this.severitiesFacet = sortedSeveritiesFacet;
+        this.issuesCount = data.total;
 
         resolve();
       });
@@ -202,28 +197,27 @@ export default ModalView.extend({
 
   requestTests () {
     return new Promise(resolve => {
-      const that = this;
       const url = window.baseUrl + '/api/tests/list';
-      const options = { testFileId: this.model.id };
+      const options = { testFileKey: this.options.component.key };
 
       $.get(url, options).done(data => {
-        that.model.set({ tests: data.tests });
-        that.testSorting = 'status';
-        that.testAsc = true;
-        that.sortTests(test => `${that.testsOrder.indexOf(test.status)}_______${test.name}`);
+        this.tests = data.tests;
+        this.testSorting = 'status';
+        this.testAsc = true;
+        this.sortTests(test => `${this.testsOrder.indexOf(test.status)}_______${test.name}`);
         resolve();
       });
     });
   },
 
   sortTests (condition) {
-    let tests = this.model.get('tests');
+    let tests = this.tests;
     if (Array.isArray(tests)) {
       tests = sortBy(tests, condition);
       if (!this.testAsc) {
         tests.reverse();
       }
-      this.model.set({ tests });
+      this.tests = tests;
     }
   },
 
@@ -246,25 +240,23 @@ export default ModalView.extend({
   },
 
   sortTestsByStatus () {
-    const that = this;
     if (this.testSorting === 'status') {
       this.testAsc = !this.testAsc;
     }
-    this.sortTests(test => `${that.testsOrder.indexOf(test.status)}_______${test.name}`);
+    this.sortTests(test => `${this.testsOrder.indexOf(test.status)}_______${test.name}`);
     this.testSorting = 'status';
     this.render();
   },
 
   showTest (e) {
-    const that = this;
     const testId = $(e.currentTarget).data('id');
     const url = window.baseUrl + '/api/tests/covered_files';
     const options = { testId };
     this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
     return $.get(url, options).done(data => {
-      that.coveredFiles = data.files;
-      that.selectedTest = that.model.get('tests').find(test => test.id === testId);
-      that.render();
+      this.coveredFiles = data.files;
+      this.selectedTest = this.tests.find(test => test.id === testId);
+      this.render();
     });
   },
 
@@ -276,6 +268,14 @@ export default ModalView.extend({
   serializeData () {
     return {
       ...ModalView.prototype.serializeData.apply(this, arguments),
+      ...this.options.component,
+      measures: this.measures,
+      measuresToDisplay: this.measuresToDisplay,
+      tests: this.tests,
+      tagsFacet: this.tagsFacet,
+      typesFacet: this.typesFacet,
+      severitiesFacet: this.severitiesFacet,
+      issuesCount: this.issuesCount,
       testSorting: this.testSorting,
       selectedTest: this.selectedTest,
       coveredFiles: this.coveredFiles || []
