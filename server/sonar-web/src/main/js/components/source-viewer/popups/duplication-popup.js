@@ -21,7 +21,6 @@ import $ from 'jquery';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import Popup from '../../common/popup';
-import Workspace from '../../workspace/main';
 import Template from '../templates/source-viewer-duplication-popup.hbs';
 
 export default Popup.extend({
@@ -35,6 +34,7 @@ export default Popup.extend({
     e.stopPropagation();
     const key = $(e.currentTarget).data('key');
     const line = $(e.currentTarget).data('line');
+    const Workspace = require('../../workspace/main').default;
     Workspace.openComponent({ key, line });
   },
 

@@ -20,7 +20,6 @@
 import $ from 'jquery';
 import groupBy from 'lodash/groupBy';
 import Popup from '../../common/popup';
-import Workspace from '../../workspace/main';
 import Template from '../templates/source-viewer-coverage-popup.hbs';
 
 export default Popup.extend({
@@ -38,6 +37,7 @@ export default Popup.extend({
   goToFile (e) {
     e.stopPropagation();
     const key = $(e.currentTarget).data('key');
+    const Workspace = require('../../workspace/main').default;
     Workspace.openComponent({ key });
   },
 

@@ -29,7 +29,6 @@ import DeleteCommentView from './views/DeleteCommentView';
 import SetSeverityFormView from './views/set-severity-form-view';
 import SetTypeFormView from './views/set-type-form-view';
 import TagsFormView from './views/tags-form-view';
-import Workspace from '../workspace/main';
 import Template from './templates/issue.hbs';
 import getCurrentUserFromStore from '../../app/utils/getCurrentUserFromStore';
 
@@ -242,6 +241,8 @@ export default Marionette.ItemView.extend({
     e.preventDefault();
     e.stopPropagation();
     const ruleKey = this.model.get('rule');
+    // lazy load Workspace
+    const Workspace = require('../workspace/main').default;
     Workspace.openRule({ key: ruleKey });
   },
 

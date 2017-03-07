@@ -22,7 +22,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import QualifierIcon from '../shared/qualifier-icon';
 import FavoriteContainer from '../controls/FavoriteContainer';
-import Workspace from '../workspace/main';
 import { getProjectUrl, getIssuesUrl } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
@@ -64,6 +63,7 @@ export default class SourceViewerHeader extends React.Component {
   openInWorkspace = (e: SyntheticInputEvent) => {
     e.preventDefault();
     const { key } = this.props.component;
+    const Workspace = require('../workspace/main').default;
     Workspace.openComponent({ key });
   };
 
