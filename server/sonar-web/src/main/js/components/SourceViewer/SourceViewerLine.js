@@ -27,7 +27,7 @@ import LineCoverage from './components/LineCoverage';
 import LineDuplications from './components/LineDuplications';
 import LineDuplicationBlock from './components/LineDuplicationBlock';
 import LineIssuesIndicatorContainer from './components/LineIssuesIndicatorContainer';
-import ConnectedIssue from '../issue/ConnectedIssue';
+import LineIssuesList from './components/LineIssuesList';
 import { splitByTokens, highlightSymbol, highlightIssueLocations, generateHTML } from './helpers/highlight';
 import type { SourceLine } from './types';
 import type { LinearIssueLocation, IndexedIssueLocation, IndexedIssueLocationMessage } from './helpers/indexing';
@@ -130,10 +130,6 @@ export default class SourceViewerLine extends React.PureComponent {
     }
   };
 
-  handleIssueSelect = (issueKey: string) => {
-    this.props.onIssueSelect(issueKey);
-  };
-
   isSecondaryIssueLocationSelected (location: IndexedIssueLocation | IndexedIssueLocationMessage) {
     const { selectedIssueLocation } = this.props;
     if (selectedIssueLocation == null) {
@@ -225,17 +221,11 @@ export default class SourceViewerLine extends React.PureComponent {
             this.renderSecondaryIssueLocationMessages(secondaryIssueLocationMessages)
           )}
         </div>
-        {showIssues && (
-          <div className="issue-list">
-            {issues.map(issue => (
-              <ConnectedIssue
-                key={issue}
-                issueKey={issue}
-                onClick={this.handleIssueSelect}
-                selected={this.props.selectedIssue === issue}/>
-            ))}
-          </div>
-        )}
+        {showIssues &&
+          <LineIssuesList
+            issueKeys={issues}
+            onIssueClick={this.props.onIssueSelect}
+            selectedIssue={this.props.selectedIssue}/>}
       </td>
     );
   }
