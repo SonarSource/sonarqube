@@ -21,7 +21,7 @@ import $ from 'jquery';
 import React from 'react';
 import { render } from 'react-dom';
 import BaseView from './base-viewer-view';
-import SourceViewer from '../../SourceViewer/StandaloneSourceViewer';
+import SourceViewer from '../../SourceViewer/SourceViewer';
 import Template from '../templates/workspace-viewer.hbs';
 import WithStore from '../../shared/WithStore';
 

@@ -70,11 +70,11 @@ type Props = {
   loadIssues: (string, number, number) => Promise<*>,
   loadSources: (string, number, number) => Promise<*>,
   onLoaded?: (component: Object, sources: Array<*>, issues: Array<*>) => void,
-  onIssueSelect: (string) => void,
-  onIssueUnselect: () => void,
+  onIssueSelect?: (string) => void,
+  onIssueUnselect?: () => void,
   onReceiveComponent: ({ canMarkAsFavorite: boolean, fav: boolean, key: string }) => void,
   onReceiveIssues: (issues: Array<*>) => void,
-  selectedIssue: string | null
+  selectedIssue?: string
 };
 
 type State = {
@@ -104,6 +104,7 @@ type State = {
   notAccessible: boolean,
   notExist: boolean,
   openIssuesByLine: { [number]: boolean },
+  selectedIssue?: string,
   selectedIssueLocation: IndexedIssueLocation | null,
   sources?: Array<SourceLine>,
   symbolsByLine: { [number]: Array<string> }
@@ -130,8 +131,6 @@ export default class SourceViewerBase extends React.Component {
 
   static defaultProps = {
     displayAllIssues: false,
-    onIssueSelect: () => {},
-    onIssueUnselect: () => {},
     loadComponent,
     loadIssues,
     loadSources
@@ -156,7 +155,7 @@ export default class SourceViewerBase extends React.Component {
       notAccessible: false,
       notExist: false,
       openIssuesByLine: {},
-      selectedIssue: props.defaultSelectedIssue || null,
+      selectedIssue: props.selectedIssue,
       selectedIssueLocation: null,
       symbolsByLine: {}
     };
@@ -165,6 +164,12 @@ export default class SourceViewerBase extends React.Component {
   componentDidMount () {
     this.mounted = true;
     this.fetchComponent();
+  }
+
+  componentWillReceiveProps (nextProps: Props) {
+    if (nextProps.onIssueSelect != null && nextProps.selectedIssue !== this.props.selectedIssue) {
+      this.setState({ selectedIssue: nextProps.selectedIssue });
+    }
   }
 
   componentDidUpdate (prevProps: Props, prevState: State) {
@@ -499,6 +504,22 @@ export default class SourceViewerBase extends React.Component {
     this.storeLocationsPanelHeight(height);
   };
 
+  handleIssueSelect = (issue: string) => {
+    if (this.props.onIssueSelect) {
+      this.props.onIssueSelect(issue);
+    } else {
+      this.setState({ selectedIssue: issue });
+    }
+  };
+
+  handleIssueUnselect = () => {
+    if (this.props.onIssueUnselect) {
+      this.props.onIssueUnselect();
+    } else {
+      this.setState({ selectedIssue: undefined });
+    }
+  };
+
   handleOpenIssues = (line: SourceLine) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
@@ -538,8 +559,8 @@ export default class SourceViewerBase extends React.Component {
         loadingSourcesBefore={this.state.loadingSourcesBefore}
         onCoverageClick={this.handleCoverageClick}
         onDuplicationClick={this.handleDuplicationClick}
-        onIssueSelect={this.props.onIssueSelect}
-        onIssueUnselect={this.props.onIssueUnselect}
+        onIssueSelect={this.handleIssueSelect}
+        onIssueUnselect={this.handleIssueUnselect}
         onIssuesOpen={this.handleOpenIssues}
         onIssuesClose={this.handleCloseIssues}
         onLineClick={this.handleLineClick}
@@ -547,7 +568,7 @@ export default class SourceViewerBase extends React.Component {
         onLocationSelect={this.handleSelectIssueLocation}
         onSymbolClick={this.handleSymbolClick}
         openIssuesByLine={this.state.openIssuesByLine}
-        selectedIssue={this.props.selectedIssue}
+        selectedIssue={this.state.selectedIssue}
         selectedIssueLocation={this.state.selectedIssueLocation}
         sources={sources}
         symbolsByLine={this.state.symbolsByLine}/>
@@ -577,8 +598,8 @@ export default class SourceViewerBase extends React.Component {
       'source-duplications-expanded': this.state.displayDuplications
     });
 
-    const selectedIssueObj = this.props.selectedIssue && this.state.issues != null
-      ? this.state.issues.find(issue => issue.key === this.props.selectedIssue)
+    const selectedIssueObj = this.state.selectedIssue && this.state.issues != null
+      ? this.state.issues.find(issue => issue.key === this.state.selectedIssue)
       : null;
 
     return (

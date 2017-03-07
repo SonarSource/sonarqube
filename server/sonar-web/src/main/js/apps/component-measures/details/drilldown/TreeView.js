@@ -22,7 +22,7 @@ import moment from 'moment';
 import ComponentsList from './ComponentsList';
 import ListHeader from './ListHeader';
 import Spinner from '../../components/Spinner';
-import SourceViewer from '../../../../components/SourceViewer/StandaloneSourceViewer';
+import SourceViewer from '../../../../components/SourceViewer/SourceViewer';
 import ListFooter from '../../../../components/controls/ListFooter';
 
 export default class TreeView extends React.Component {

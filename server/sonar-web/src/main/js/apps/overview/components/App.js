@@ -23,7 +23,7 @@ import shallowCompare from 'react-addons-shallow-compare';
 import { withRouter } from 'react-router';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
-import StandaloneSourceViewer from '../../../components/SourceViewer/StandaloneSourceViewer';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 type Props = {
   component: {
@@ -57,7 +57,7 @@ class App extends React.Component {
     if (['FIL', 'UTS'].includes(component.qualifier)) {
       return (
           <div className="page">
-            <StandaloneSourceViewer component={component.key}/>
+            <SourceViewer component={component.key}/>
           </div>
       );
     }
