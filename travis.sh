@@ -152,9 +152,6 @@ BUILD)
 #        -Dsonar.host.url=$SONAR_HOST_URL \
 #        -Dsonar.login=$SONAR_TOKEN
 
-    # install only BOM
-    mvn install --non-recursive
-
     export GRADLE_OPTS="-Xmx512m"
     ./gradlew build install artifactory --no-daemon
 

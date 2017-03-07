@@ -45,14 +45,14 @@ dependencies {
   jdbc_postgresql 'org.postgresql:postgresql'
   jdbc_h2 'com.h2database:h2'
 
-  plugin 'org.sonarsource.java:sonar-java-plugin'
-  plugin 'org.sonarsource.javascript:sonar-javascript-plugin'
-  plugin 'org.sonarsource.dotnet:sonar-csharp-plugin'
-  plugin 'org.sonarsource.scm.git:sonar-scm-git-plugin'
-  plugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin'
-  plugin 'org.sonarsource.php:sonar-php-plugin'
-  plugin 'org.sonarsource.python:sonar-python-plugin'
-  plugin 'org.sonarsource.flex:sonar-flex-plugin'
+  plugin 'org.sonarsource.java:sonar-java-plugin:4.5.0.8398'
+  plugin 'org.sonarsource.javascript:sonar-javascript-plugin:2.20.0.4207'
+  plugin 'org.sonarsource.dotnet:sonar-csharp-plugin:5.7.0.612'
+  plugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.2'
+  plugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.4.0.522'
+  plugin 'org.sonarsource.php:sonar-php-plugin:2.9.2.1744'
+  plugin 'org.sonarsource.python:sonar-python-plugin:1.7.0.1195'
+  plugin 'org.sonarsource.flex:sonar-flex-plugin:2.3'
 
   wrapper 'tanukisoft:wrapper:3.2.3'
 

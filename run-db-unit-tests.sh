@@ -5,9 +5,6 @@ set -euo pipefail
 ORCHESTRATOR_CONFIG_URL=$1
 shift
 
-# install BOM
-mvn -B install --non-recursive
-
 # create DB
 mvn -B initialize \
   -pl :sonar-db-core \
