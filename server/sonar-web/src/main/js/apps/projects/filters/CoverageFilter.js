@@ -19,10 +19,19 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
+import SortingFilter from './SortingFilter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
 
 export default class CoverageFilter extends React.Component {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  }
+
+  property = 'coverage';
+
   renderOption = (option, selected) => {
     return (
         <span>
@@ -34,6 +43,17 @@ export default class CoverageFilter extends React.Component {
     );
   };
 
+  renderSort = () => {
+    return (
+        <SortingFilter
+          property={this.property}
+          query={this.props.query}
+          isFavorite={this.props.isFavorite}
+          organization={this.props.organization}
+          sortDesc="right"/>
+    );
+  }
+
   getFacetValueForOption = (facet, option) => {
     const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
     return facet[map[option - 1]];
@@ -42,10 +62,11 @@ export default class CoverageFilter extends React.Component {
   render () {
     return (
         <FilterContainer
-            property="coverage"
+            property={this.property}
             getOptions={() => [1, 2, 3, 4, 5]}
             renderName={() => 'Coverage'}
             renderOption={this.renderOption}
+            renderSort={this.renderSort}
             getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}
             isFavorite={this.props.isFavorite}

@@ -19,10 +19,20 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
+import SortingFilter from './SortingFilter';
 import SizeRating from '../../../components/ui/SizeRating';
+import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
 
 export default class SizeFilter extends React.Component {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  }
+
+  property = 'size';
+
   renderOption = (option, selected) => {
     return (
         <span>
@@ -34,6 +44,18 @@ export default class SizeFilter extends React.Component {
     );
   };
 
+  renderSort = () => {
+    return (
+        <SortingFilter
+          property={this.property}
+          query={this.props.query}
+          isFavorite={this.props.isFavorite}
+          organization={this.props.organization}
+          leftText={translate('biggest')}
+          rightText={translate('smallest')}/>
+    );
+  }
+
   getFacetValueForOption = (facet, option) => {
     const map = ['*-1000.0', '1000.0-10000.0', '10000.0-100000.0', '100000.0-500000.0', '500000.0-*'];
     return facet[map[option - 1]];
@@ -42,10 +64,11 @@ export default class SizeFilter extends React.Component {
   render () {
     return (
         <FilterContainer
-            property="size"
+            property={this.property}
             getOptions={() => [1, 2, 3, 4, 5]}
             renderName={() => 'Size'}
             renderOption={this.renderOption}
+            renderSort={this.renderSort}
             getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}
             isFavorite={this.props.isFavorite}
