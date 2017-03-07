@@ -445,11 +445,11 @@ export default class SourceViewerBase extends React.Component {
     popup.render();
   }
 
-  handleLineClick = (line: number, element: HTMLElement) => {
+  handleLineClick = (line: SourceLine, element: HTMLElement) => {
     this.setState(prevState => ({
-      highlightedLine: prevState.highlightedLine === line ? null : line
+      highlightedLine: prevState.highlightedLine === line.line ? null : line
     }));
-    this.displayLinePopup(line, element);
+    this.displayLinePopup(line.line, element);
   };
 
   handleSymbolClick = (symbol: string) => {

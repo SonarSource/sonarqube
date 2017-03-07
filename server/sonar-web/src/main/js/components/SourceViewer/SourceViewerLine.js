@@ -21,6 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import times from 'lodash/times';
+import LineNumber from './components/LineNumber';
 import ConnectedIssue from '../issue/ConnectedIssue';
 import SourceViewerIssuesIndicator from './SourceViewerIssuesIndicator';
 import { translate } from '../../helpers/l10n';
@@ -44,7 +45,7 @@ type Props = {
   issues: Array<string>,
   line: SourceLine,
   loadDuplications: (SourceLine, HTMLElement) => void,
-  onClick: (number, HTMLElement) => void,
+  onClick: (SourceLine, HTMLElement) => void,
   onCoverageClick: (SourceLine, HTMLElement) => void,
   onDuplicationClick: (number, number) => void,
   onIssueSelect: (string) => void,
@@ -102,11 +103,6 @@ export default class SourceViewerLine extends React.PureComponent {
     }
   }
 
-  handleClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    this.props.onClick(this.props.line.line, e.target);
-  };
-
   handleCoverageClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
     this.props.onCoverageClick(this.props.line, e.target);
@@ -145,18 +141,6 @@ export default class SourceViewerLine extends React.PureComponent {
   handleIssueSelect = (issueKey: string) => {
     this.props.onIssueSelect(issueKey);
   };
-
-  renderLineNumber () {
-    const { line } = this.props;
-    return (
-      <td className="source-meta source-line-number"
-          // don't display 0
-          data-line-number={line.line ? line.line : undefined}
-          role={line.line ? 'button' : undefined}
-          tabIndex={line.line ? 0 : undefined}
-          onClick={line.line ? this.handleClick : undefined}/>
-    );
-  }
 
   renderSCM () {
     const { line } = this.props;
@@ -385,7 +369,7 @@ export default class SourceViewerLine extends React.PureComponent {
 
     return (
       <tr className={className} data-line-number={line.line}>
-        {this.renderLineNumber()}
+        <LineNumber line={line} onClick={this.props.onClick}/>
 
         {this.renderSCM()}
 

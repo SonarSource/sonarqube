@@ -64,7 +64,7 @@ export default class SourceViewerCode extends React.PureComponent {
     onDuplicationClick: (number, number) => void,
     onIssueSelect: (string) => void,
     onIssueUnselect: () => void,
-    onLineClick: (number, HTMLElement) => void,
+    onLineClick: (SourceLine, HTMLElement) => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
     onSelectLocation: (flowIndex: number, locationIndex: number) => void,
     onSymbolClick: (string) => void,
