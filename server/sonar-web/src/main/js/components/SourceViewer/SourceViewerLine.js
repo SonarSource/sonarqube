@@ -22,6 +22,7 @@ import React from 'react';
 import classNames from 'classnames';
 import times from 'lodash/times';
 import LineNumber from './components/LineNumber';
+import LineSCM from './components/LineSCM';
 import ConnectedIssue from '../issue/ConnectedIssue';
 import SourceViewerIssuesIndicator from './SourceViewerIssuesIndicator';
 import { translate } from '../../helpers/l10n';
@@ -35,7 +36,6 @@ type Props = {
   displayDuplications: boolean,
   displayFiltered: boolean,
   displayIssues: boolean,
-  displaySCM: boolean,
   duplications: Array<number>,
   duplicationsCount: number,
   filtered: boolean | null,
@@ -53,6 +53,7 @@ type Props = {
   onSCMClick: (SourceLine, HTMLElement) => void,
   onSelectLocation: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: (string) => void,
+  previousLine?: SourceLine,
   selectedIssue: string | null,
   secondaryIssueLocations: Array<IndexedIssueLocation>,
   // $FlowFixMe
@@ -125,11 +126,6 @@ export default class SourceViewerLine extends React.PureComponent {
     });
   }
 
-  handleSCMClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    this.props.onSCMClick(this.props.line, e.target);
-  }
-
   handleSymbolClick = (e: Object) => {
     e.preventDefault();
     const key = e.currentTarget.className.match(/sym-\d+/);
@@ -141,22 +137,6 @@ export default class SourceViewerLine extends React.PureComponent {
   handleIssueSelect = (issueKey: string) => {
     this.props.onIssueSelect(issueKey);
   };
-
-  renderSCM () {
-    const { line } = this.props;
-    const clickable = !!line.line;
-    return (
-      <td className="source-meta source-line-scm"
-          data-line-number={line.line}
-          role={clickable ? 'button' : undefined}
-          tabIndex={clickable ? 0 : undefined}
-          onClick={clickable ? this.handleSCMClick : undefined}>
-        {this.props.displaySCM && (
-          <div className="source-line-scm-inner" data-author={line.scmAuthor}/>
-        )}
-      </td>
-    );
-  }
 
   renderCoverage () {
     const { line } = this.props;
@@ -371,7 +351,10 @@ export default class SourceViewerLine extends React.PureComponent {
       <tr className={className} data-line-number={line.line}>
         <LineNumber line={line} onClick={this.props.onClick}/>
 
-        {this.renderSCM()}
+        <LineSCM
+          line={line}
+          onClick={this.props.onSCMClick}
+          previousLine={this.props.previousLine}/>
 
         {this.props.displayCoverage && this.renderCoverage()}
 

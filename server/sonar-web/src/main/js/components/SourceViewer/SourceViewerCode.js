@@ -74,14 +74,6 @@ export default class SourceViewerCode extends React.PureComponent {
     symbolsByLine: { [number]: Array<string> }
   };
 
-  isSCMChanged (s: SourceLine, p: null | SourceLine) {
-    let changed = true;
-    if (p != null && s.scmAuthor != null && p.scmAuthor != null) {
-      changed = (s.scmAuthor !== p.scmAuthor) || (s.scmDate !== p.scmDate);
-    }
-    return changed;
-  }
-
   getDuplicationsForLine (line: SourceLine) {
     return this.props.duplicationsByLine[line.line] || EMPTY_ARRAY;
   }
@@ -149,7 +141,6 @@ export default class SourceViewerCode extends React.PureComponent {
         displayDuplications={displayDuplications}
         displayFiltered={displayFiltered}
         displayIssues={displayIssues}
-        displaySCM={this.isSCMChanged(line, index > 0 ? sources[index - 1] : null)}
         duplications={this.getDuplicationsForLine(line)}
         duplicationsCount={duplicationsCount}
         filtered={filtered}
@@ -168,6 +159,7 @@ export default class SourceViewerCode extends React.PureComponent {
         onSCMClick={this.props.onSCMClick}
         onSelectLocation={this.props.onSelectLocation}
         onSymbolClick={this.props.onSymbolClick}
+        previousLine={index > 0 ? sources[index - 1] : undefined}
         secondaryIssueLocations={secondaryIssueLocations}
         secondaryIssueLocationMessages={secondaryIssueLocationMessages}
         selectedIssue={optimizedSelectedIssue}
