@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import times from 'lodash/times';
 import LineNumber from './components/LineNumber';
 import LineSCM from './components/LineSCM';
+import LineCoverage from './components/LineCoverage';
 import ConnectedIssue from '../issue/ConnectedIssue';
 import SourceViewerIssuesIndicator from './SourceViewerIssuesIndicator';
 import { translate } from '../../helpers/l10n';
@@ -104,11 +105,6 @@ export default class SourceViewerLine extends React.PureComponent {
     }
   }
 
-  handleCoverageClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    this.props.onCoverageClick(this.props.line, e.target);
-  };
-
   handleIssuesIndicatorClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
     this.setState(prevState => {
@@ -137,24 +133,6 @@ export default class SourceViewerLine extends React.PureComponent {
   handleIssueSelect = (issueKey: string) => {
     this.props.onIssueSelect(issueKey);
   };
-
-  renderCoverage () {
-    const { line } = this.props;
-    const className = 'source-meta source-line-coverage' +
-      (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
-    return (
-      <td className={className}
-          data-line-number={line.line}
-          title={line.coverageStatus != null && translate('source_viewer.tooltip', line.coverageStatus)}
-          data-placement={line.coverageStatus != null && 'right'}
-          data-toggle={line.coverageStatus != null && 'tooltip'}
-          role={line.coverageStatus != null ? 'button' : undefined}
-          tabIndex={line.coverageStatus != null ? 0 : undefined}
-          onClick={line.coverageStatus != null && this.handleCoverageClick}>
-        <div className="source-line-bar"/>
-      </td>
-    );
-  }
 
   renderDuplications () {
     const { line } = this.props;
@@ -356,7 +334,8 @@ export default class SourceViewerLine extends React.PureComponent {
           onClick={this.props.onSCMClick}
           previousLine={this.props.previousLine}/>
 
-        {this.props.displayCoverage && this.renderCoverage()}
+        {this.props.displayCoverage &&
+          <LineCoverage line={line} onClick={this.props.onCoverageClick}/>}
 
         {this.props.displayDuplications && this.renderDuplications()}
 
