@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.util.Slug;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -49,9 +49,11 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class QProfileFactory {
 
   private final DbClient db;
+  private final UuidFactory uuidFactory;
 
-  public QProfileFactory(DbClient db) {
+  public QProfileFactory(DbClient db, UuidFactory uuidFactory) {
     this.db = db;
+    this.uuidFactory = uuidFactory;
   }
 
   // ------------- CREATION
@@ -96,20 +98,13 @@ public class QProfileFactory {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
     Date now = new Date();
-    for (int i = 0; i < 20; i++) {
-      String key = Slug.slugify(String.format("%s %s %s", name.getLanguage(), name.getName(), RandomStringUtils.randomNumeric(5)));
-      QualityProfileDto dto = QualityProfileDto.createFor(key)
-        .setName(name.getName())
-        .setOrganizationUuid(organization.getUuid())
-        .setLanguage(name.getLanguage())
-        .setRulesUpdatedAtAsDate(now);
-      if (db.qualityProfileDao().selectByKey(dbSession, dto.getKey()) == null) {
-        db.qualityProfileDao().insert(dbSession, dto);
-        return dto;
-      }
-    }
-
-    throw new IllegalStateException("Failed to create an unique quality profile for " + name);
+    QualityProfileDto dto = QualityProfileDto.createFor(uuidFactory.create())
+      .setName(name.getName())
+      .setOrganizationUuid(organization.getUuid())
+      .setLanguage(name.getLanguage())
+      .setRulesUpdatedAtAsDate(now);
+    db.qualityProfileDao().insert(dbSession, dto);
+    return dto;
   }
 
   // ------------- DELETION

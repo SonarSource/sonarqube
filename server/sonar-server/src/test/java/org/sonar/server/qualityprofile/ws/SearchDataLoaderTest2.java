@@ -19,23 +19,16 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,6 +44,13 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 
 public class SearchDataLoaderTest2 {
@@ -74,7 +74,7 @@ public class SearchDataLoaderTest2 {
     profileLookup = new QProfileLookup(dbClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     qProfileWsSupport = new QProfileWsSupport(dbClient, null, defaultOrganizationProvider);
-    profileFactory = new QProfileFactory(dbClient);
+    profileFactory = new QProfileFactory(dbClient, UuidFactoryFast.getInstance());
     componentFinder = mock(ComponentFinder.class);
   }
 

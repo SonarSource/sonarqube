@@ -93,7 +93,7 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
-    assertThat(writtenDto.getKey()).startsWith("xoo-p1-");
+    assertThat(writtenDto.getKey()).isNotEmpty();
     assertThat(writtenDto.getName()).isEqualTo("P1");
     assertThat(writtenDto.getLanguage()).isEqualTo("xoo");
     assertThat(writtenDto.getId()).isNotNull();
@@ -101,10 +101,10 @@ public class QProfileFactoryMediumTest {
     // reload the dto
     QualityProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
     assertThat(readDto.getOrganizationUuid()).isEqualTo(uuid);
-    assertThat(readDto.getName()).isEqualTo("P1");
-    assertThat(readDto.getKey()).startsWith("xoo-p1");
-    assertThat(readDto.getLanguage()).isEqualTo("xoo");
-    assertThat(readDto.getId()).isNotNull();
+    assertThat(readDto.getName()).isEqualTo(writtenDto.getName());
+    assertThat(readDto.getKey()).startsWith(writtenDto.getKey());
+    assertThat(readDto.getLanguage()).isEqualTo(writtenDto.getLanguage());
+    assertThat(readDto.getId()).isEqualTo(writtenDto.getId());
     assertThat(readDto.getParentKee()).isNull();
 
     assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(1);
@@ -118,7 +118,7 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
-    assertThat(writtenDto.getKey()).startsWith("xoo-p1-");
+    assertThat(writtenDto.getKey()).isNotEmpty();
     assertThat(writtenDto.getName()).isEqualTo("P1");
     assertThat(writtenDto.getLanguage()).isEqualTo("xoo");
     assertThat(writtenDto.getId()).isNotNull();
@@ -126,10 +126,10 @@ public class QProfileFactoryMediumTest {
     // reload the dto
     QualityProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
     assertThat(readDto.getOrganizationUuid()).isEqualTo(uuid);
-    assertThat(readDto.getName()).isEqualTo("P1");
-    assertThat(readDto.getKey()).startsWith("xoo-p1");
-    assertThat(readDto.getLanguage()).isEqualTo("xoo");
-    assertThat(readDto.getId()).isNotNull();
+    assertThat(readDto.getName()).isEqualTo(writtenDto.getName());
+    assertThat(readDto.getKey()).startsWith(writtenDto.getKey());
+    assertThat(readDto.getLanguage()).isEqualTo(writtenDto.getLanguage());
+    assertThat(readDto.getId()).isEqualTo(writtenDto.getId());
     assertThat(readDto.getParentKee()).isNull();
 
     assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(1);
