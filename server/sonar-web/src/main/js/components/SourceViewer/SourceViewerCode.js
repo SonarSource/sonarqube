@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import SourceViewerLine from './SourceViewerLine';
+import Line from './components/Line';
 import { TooltipsContainer } from '../mixins/tooltips-mixin';
 import { translate } from '../../helpers/l10n';
 import type { Duplication, SourceLine } from './types';
@@ -66,7 +66,7 @@ export default class SourceViewerCode extends React.PureComponent {
     onIssueUnselect: () => void,
     onLineClick: (SourceLine, HTMLElement) => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
-    onSelectLocation: (flowIndex: number, locationIndex: number) => void,
+    onLocationSelect: (flowIndex: number, locationIndex: number) => void,
     onSymbolClick: (string) => void,
     selectedIssue: string | null,
     selectedIssueLocation: IndexedIssueLocation | null,
@@ -135,7 +135,7 @@ export default class SourceViewerCode extends React.PureComponent {
         ) ? selectedIssueLocation : null;
 
     return (
-      <SourceViewerLine
+      <Line
         displayAllIssues={this.props.displayAllIssues}
         displayCoverage={displayCoverage}
         displayDuplications={displayDuplications}
@@ -157,7 +157,7 @@ export default class SourceViewerCode extends React.PureComponent {
         onIssueSelect={this.props.onIssueSelect}
         onIssueUnselect={this.props.onIssueUnselect}
         onSCMClick={this.props.onSCMClick}
-        onSelectLocation={this.props.onSelectLocation}
+        onLocationSelect={this.props.onLocationSelect}
         onSymbolClick={this.props.onSymbolClick}
         previousLine={index > 0 ? sources[index - 1] : undefined}
         secondaryIssueLocations={secondaryIssueLocations}

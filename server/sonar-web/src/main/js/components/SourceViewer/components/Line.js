@@ -21,15 +21,19 @@
 import React from 'react';
 import classNames from 'classnames';
 import times from 'lodash/times';
-import LineNumber from './components/LineNumber';
-import LineSCM from './components/LineSCM';
-import LineCoverage from './components/LineCoverage';
-import LineDuplications from './components/LineDuplications';
-import LineDuplicationBlock from './components/LineDuplicationBlock';
-import LineIssuesIndicatorContainer from './components/LineIssuesIndicatorContainer';
-import LineCode from './components/LineCode';
-import type { SourceLine } from './types';
-import type { LinearIssueLocation, IndexedIssueLocation, IndexedIssueLocationMessage } from './helpers/indexing';
+import LineNumber from './LineNumber';
+import LineSCM from './LineSCM';
+import LineCoverage from './LineCoverage';
+import LineDuplications from './LineDuplications';
+import LineDuplicationBlock from './LineDuplicationBlock';
+import LineIssuesIndicatorContainer from './LineIssuesIndicatorContainer';
+import LineCode from './LineCode';
+import type { SourceLine } from '../types';
+import type {
+  LinearIssueLocation,
+  IndexedIssueLocation,
+  IndexedIssueLocationMessage
+} from '../helpers/indexing';
 
 type Props = {
   displayAllIssues: boolean,
@@ -52,7 +56,7 @@ type Props = {
   onIssueSelect: (string) => void,
   onIssueUnselect: () => void,
   onSCMClick: (SourceLine, HTMLElement) => void,
-  onSelectLocation: (flowIndex: number, locationIndex: number) => void,
+  onLocationSelect: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: (string) => void,
   previousLine?: SourceLine,
   selectedIssue: string | null,
@@ -66,13 +70,13 @@ type State = {
   issuesOpen: boolean
 };
 
-export default class SourceViewerLine extends React.PureComponent {
+export default class Line extends React.PureComponent {
   props: Props;
   state: State = { issuesOpen: false };
 
   handleIssuesIndicatorClick = () => {
+    // TODO not sure if side effects allowed here
     this.setState(prevState => {
-      // TODO not sure if side effects allowed here
       if (!prevState.issuesOpen) {
         const { issues } = this.props;
         if (issues.length > 0) {
@@ -84,7 +88,7 @@ export default class SourceViewerLine extends React.PureComponent {
 
       return { issuesOpen: !prevState.issuesOpen };
     });
-  }
+  };
 
   render () {
     const { line, duplications, duplicationsCount, filtered } = this.props;
@@ -118,17 +122,17 @@ export default class SourceViewerLine extends React.PureComponent {
             onClick={this.props.onDuplicationClick}/>
         ))}
 
-        {this.props.displayIssues && !this.props.displayAllIssues &&
+        {this.props.displayIssues &&
+          !this.props.displayAllIssues &&
           <LineIssuesIndicatorContainer
             issueKeys={this.props.issues}
             line={line}
             onClick={this.handleIssuesIndicatorClick}/>}
 
-        {this.props.displayFiltered && (
+        {this.props.displayFiltered &&
           <td className="source-meta source-line-filtered-container" data-line-number={line.line}>
             <div className="source-line-bar"/>
-          </td>
-        )}
+          </td>}
 
         <LineCode
           highlightedSymbol={this.props.highlightedSymbol}
@@ -136,7 +140,7 @@ export default class SourceViewerLine extends React.PureComponent {
           issueLocations={this.props.issueLocations}
           line={line}
           onIssueSelect={this.props.onIssueSelect}
-          onSelectLocation={this.props.onSelectLocation}
+          onLocationSelect={this.props.onLocationSelect}
           onSymbolClick={this.props.onSymbolClick}
           secondaryIssueLocationMessages={this.props.secondaryIssueLocationMessages}
           secondaryIssueLocations={this.props.secondaryIssueLocations}

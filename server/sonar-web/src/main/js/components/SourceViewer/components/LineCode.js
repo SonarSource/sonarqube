@@ -40,7 +40,7 @@ type Props = {
   issueLocations: Array<LinearIssueLocation>,
   line: SourceLine,
   onIssueSelect: (issueKey: string) => void,
-  onSelectLocation: (flowIndex: number, locationIndex: number) => void,
+  onLocationSelect: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: (symbol: string) => void,
   secondaryIssueLocations: Array<IndexedIssueLocation>,
   secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
@@ -99,7 +99,7 @@ export default class LineCode extends React.PureComponent {
     locationIndex: number
   ) => {
     e.preventDefault();
-    this.props.onSelectLocation(flowIndex, locationIndex);
+    this.props.onLocationSelect(flowIndex, locationIndex);
   };
 
   isSecondaryIssueLocationSelected (location: IndexedIssueLocation | IndexedIssueLocationMessage) {
