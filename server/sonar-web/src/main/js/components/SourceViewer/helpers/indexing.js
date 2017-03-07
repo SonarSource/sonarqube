@@ -23,6 +23,39 @@ import { getLinearLocations, getIssueLocations } from './issueLocations';
 import type { Issue } from '../../issue/types';
 import type { SourceLine } from '../types';
 
+export type LinearIssueLocation = {
+  from: number,
+  line: number,
+  to: number
+};
+
+export type IndexedIssueLocation = {
+  flowIndex: number,
+  from: number,
+  line: number,
+  locationIndex: number,
+  to: number,
+};
+
+export type IndexedIssueLocationMessage = {
+  flowIndex: number,
+  locationIndex: number,
+  msg: string
+};
+
+export type IndexedIssueLocationsByIssueAndLine = {
+  [issueKey: string]: {
+    // $FlowFixMe
+    [lineNumber: number]: Array<IndexedIssueLocation>
+  }
+};
+
+export type IndexedIssueLocationMessagesByIssueAndLine = {
+  [issueKey: string]: {
+    [lineNumber: number]: Array<IndexedIssueLocationMessage>
+  }
+};
+
 export const issuesByLine = (issues: Array<Issue>) => {
   const index = {};
   issues.forEach(issue => {
@@ -35,7 +68,7 @@ export const issuesByLine = (issues: Array<Issue>) => {
   return index;
 };
 
-export const locationsByLine = (issues: Array<Issue>) => {
+export const locationsByLine = (issues: Array<Issue>): { [number]: Array<LinearIssueLocation> } => {
   const index = {};
   issues.forEach(issue => {
     getLinearLocations(issue.textRange).forEach(location => {
@@ -48,7 +81,7 @@ export const locationsByLine = (issues: Array<Issue>) => {
   return index;
 };
 
-export const locationsByIssueAndLine = (issues: Array<Issue>) => {
+export const locationsByIssueAndLine = (issues: Array<Issue>): IndexedIssueLocationsByIssueAndLine => {
   const index = {};
   issues.forEach(issue => {
     const byLine = {};
@@ -57,7 +90,11 @@ export const locationsByIssueAndLine = (issues: Array<Issue>) => {
         if (!(linearLocation.line in byLine)) {
           byLine[linearLocation.line] = [];
         }
-        byLine[linearLocation.line].push({ from: linearLocation.from, to: linearLocation.to });
+        byLine[linearLocation.line].push({
+          ...linearLocation,
+          flowIndex: location.flowIndex,
+          locationIndex: location.locationIndex
+        });
       });
     });
     index[issue.key] = byLine;
@@ -65,7 +102,7 @@ export const locationsByIssueAndLine = (issues: Array<Issue>) => {
   return index;
 };
 
-export const locationMessagesByIssueAndLine = (issues: Array<Issue>) => {
+export const locationMessagesByIssueAndLine = (issues: Array<Issue>): IndexedIssueLocationMessagesByIssueAndLine => {
   const index = {};
   issues.forEach(issue => {
     const byLine = {};
@@ -74,7 +111,7 @@ export const locationMessagesByIssueAndLine = (issues: Array<Issue>) => {
       if (!(line in byLine)) {
         byLine[line] = [];
       }
-      byLine[line].push({ msg: location.msg, index: location.index });
+      byLine[line].push(location);
     });
     index[issue.key] = byLine;
   });
@@ -116,4 +153,24 @@ export const symbolsByLine = (sources: Array<SourceLine>) => {
       .filter(key => key);
   });
   return index;
+};
+
+export const findLocationByIndex = (
+  locations: IndexedIssueLocationsByIssueAndLine,
+  flowIndex: number,
+  locationIndex: number) => {
+  const issueKeys = Object.keys(locations);
+  for (const issueKey of issueKeys) {
+    const lineNumbers = Object.keys(locations[issueKey]);
+    for (let lineIndex = 0; lineIndex < lineNumbers.length; lineIndex++) {
+      for (let i = 0; i < locations[issueKey][lineNumbers[lineIndex]].length; i++) {
+        const location = locations[issueKey][lineNumbers[lineIndex]][i];
+        if (location.flowIndex === flowIndex && location.locationIndex === locationIndex) {
+          return location;
+        }
+      }
+    }
+  }
+
+  return null;
 };

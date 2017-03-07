@@ -20,9 +20,16 @@
 // @flow
 import React from 'react';
 import SourceViewerLine from './SourceViewerLine';
+import { TooltipsContainer } from '../mixins/tooltips-mixin';
 import { translate } from '../../helpers/l10n';
 import type { Duplication, SourceLine } from './types';
 import type { Issue } from '../issue/types';
+import type {
+  LinearIssueLocation,
+  IndexedIssueLocation,
+  IndexedIssueLocationsByIssueAndLine,
+  IndexedIssueLocationMessagesByIssueAndLine
+} from './helpers/indexing';
 
 const EMPTY_ARRAY = [];
 
@@ -32,7 +39,7 @@ const ZERO_LINE = {
   line: 0
 };
 
-export default class SourceViewerCode extends React.Component {
+export default class SourceViewerCode extends React.PureComponent {
   props: {
     displayAllIssues: boolean,
     duplications?: Array<Duplication>,
@@ -45,17 +52,9 @@ export default class SourceViewerCode extends React.Component {
     highlightedSymbol: string | null,
     issues: Array<Issue>,
     issuesByLine: { [number]: Array<string> },
-    issueLocationsByLine: { [number]: Array<{ from: number, to: number }> },
-    issueSecondaryLocationsByIssueByLine: {
-      [string]: {
-        [number]: Array<{ from: number, to: number }>
-      }
-    },
-    issueSecondaryLocationMessagesByIssueByLine: {
-      [issueKey: string]: {
-        [line: number]: Array<{ msg: string, index?: number }>
-      }
-    },
+    issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
+    issueSecondaryLocationsByIssueByLine: IndexedIssueLocationsByIssueAndLine,
+    issueSecondaryLocationMessagesByIssueByLine: IndexedIssueLocationMessagesByIssueAndLine,
     loadDuplications: (SourceLine, HTMLElement) => void,
     loadSourcesAfter: () => void,
     loadSourcesBefore: () => void,
@@ -67,8 +66,10 @@ export default class SourceViewerCode extends React.Component {
     onIssueUnselect: () => void,
     onLineClick: (number, HTMLElement) => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
+    onSelectLocation: (flowIndex: number, locationIndex: number) => void,
     onSymbolClick: (string) => void,
     selectedIssue: string | null,
+    selectedIssueLocation: IndexedIssueLocation | null,
     sources: Array<SourceLine>,
     symbolsByLine: { [number]: Array<string> }
   };
@@ -133,6 +134,14 @@ export default class SourceViewerCode extends React.Component {
     const optimizedSelectedIssue = selectedIssue != null && issuesForLine.includes(selectedIssue) ?
       selectedIssue : null;
 
+    const { selectedIssueLocation } = this.props;
+    const optimizedSelectedIssueLocation =
+      selectedIssueLocation != null &&
+        secondaryIssueLocations.some(location =>
+          location.flowIndex === selectedIssueLocation.flowIndex &&
+          location.locationIndex === selectedIssueLocation.locationIndex
+        ) ? selectedIssueLocation : null;
+
     return (
       <SourceViewerLine
         displayAllIssues={this.props.displayAllIssues}
@@ -157,10 +166,12 @@ export default class SourceViewerCode extends React.Component {
         onIssueSelect={this.props.onIssueSelect}
         onIssueUnselect={this.props.onIssueUnselect}
         onSCMClick={this.props.onSCMClick}
+        onSelectLocation={this.props.onSelectLocation}
         onSymbolClick={this.props.onSymbolClick}
         secondaryIssueLocations={secondaryIssueLocations}
         secondaryIssueLocationMessages={secondaryIssueLocationMessages}
-        selectedIssue={optimizedSelectedIssue}/>
+        selectedIssue={optimizedSelectedIssue}
+        selectedIssueLocation={optimizedSelectedIssueLocation}/>
     );
   };
 
@@ -191,16 +202,18 @@ export default class SourceViewerCode extends React.Component {
           </div>
         )}
 
-        <table className="source-table">
-          <tbody>
-            {hasFileIssues && (
-              this.renderLine(ZERO_LINE, -1, hasCoverage, hasDuplications, displayFiltered, hasIssues)
-            )}
-            {sources.map((line, index) => (
-              this.renderLine(line, index, hasCoverage, hasDuplications, displayFiltered, hasIssues)
-            ))}
-          </tbody>
-        </table>
+        <TooltipsContainer>
+          <table className="source-table">
+            <tbody>
+              {hasFileIssues && (
+                this.renderLine(ZERO_LINE, -1, hasCoverage, hasDuplications, displayFiltered, hasIssues)
+              )}
+              {sources.map((line, index) => (
+                this.renderLine(line, index, hasCoverage, hasDuplications, displayFiltered, hasIssues)
+              ))}
+            </tbody>
+          </table>
+        </TooltipsContainer>
 
         {this.props.hasSourcesAfter && (
           <div className="source-viewer-more-code">

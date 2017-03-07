@@ -36,18 +36,22 @@ export const getLinearLocations = (textRange?: TextRange): Array<{ line: number,
   return locations;
 };
 
-export const getIssueLocations = (issue: Issue): Array<{ msg: string, textRange: TextRange, index?: number }> => {
-  const primaryLocation = {
-    msg: issue.message,
-    textRange: issue.textRange
-  };
-  const allLocations = [primaryLocation];
-  issue.flows.forEach(({ locations }) => {
+export const getIssueLocations = (issue: Issue): Array<{
+  msg: string,
+  flowIndex: number,
+  locationIndex: number,
+  textRange?: TextRange,
+  index?: number
+}> => {
+  const allLocations = [];
+  issue.flows.forEach(({ locations }, flowIndex) => {
     if (locations) {
       const locationsCount = locations.length;
       locations.forEach((location, index) => {
         const flowLocation = {
           ...location,
+          flowIndex,
+          locationIndex: index,
           // set index only for real flows, do not set for just secondary locations
           index: locationsCount > 1 ? locationsCount - index : undefined
         };

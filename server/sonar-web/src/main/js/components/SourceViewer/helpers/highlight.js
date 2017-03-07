@@ -19,6 +19,7 @@
  */
 // @flow
 import escapeHtml from 'escape-html';
+import type { LinearIssueLocation } from './indexing';
 
 type Token = { className: string, text: string };
 type Tokens = Array<Token>;
@@ -78,7 +79,7 @@ const part = (str: string, from: number, to: number, acc: number): string => {
  */
 export const highlightIssueLocations = (
   tokens: Tokens,
-  issueLocations: Array<{ from: number, to: number }>,
+  issueLocations: Array<LinearIssueLocation>,
   rootClassName: string = ISSUE_LOCATION_CLASS
 ): Tokens => {
   issueLocations.forEach(location => {

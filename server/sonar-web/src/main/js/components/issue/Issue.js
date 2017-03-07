@@ -42,6 +42,10 @@ class Issue extends React.PureComponent {
   node: HTMLElement;
   props: Props;
 
+  static defaultProps = {
+    selected: false
+  };
+
   componentDidMount () {
     this.renderIssueView();
     if (this.props.selected) {

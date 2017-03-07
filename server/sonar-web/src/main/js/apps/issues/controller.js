@@ -63,8 +63,10 @@ export default Controller.extend({
       const issues = that.options.app.list.parseIssues(r);
       this.receiveIssues(issues);
       if (firstPage) {
+        const issues = that.options.app.list.parseIssues(r);
         that.options.app.list.reset(issues);
       } else {
+        const issues = that.options.app.list.parseIssues(r, that.options.app.list.length);
         that.options.app.list.add(issues);
       }
       that.options.app.list.setIndex();

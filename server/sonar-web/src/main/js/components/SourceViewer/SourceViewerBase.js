@@ -23,12 +23,12 @@ import classNames from 'classnames';
 import uniqBy from 'lodash/uniqBy';
 import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerCode from './SourceViewerCode';
+import SourceViewerIssueLocations from './SourceViewerIssueLocations';
 import CoveragePopupView from '../source-viewer/popups/coverage-popup';
 import DuplicationPopupView from '../source-viewer/popups/duplication-popup';
 import LineActionsPopupView from '../source-viewer/popups/line-actions-popup';
 import SCMPopupView from '../source-viewer/popups/scm-popup';
 import MeasuresOverlay from '../source-viewer/measures-overlay';
-import { TooltipsContainer } from '../mixins/tooltips-mixin';
 import Source from '../source-viewer/source';
 import loadIssues from './helpers/loadIssues';
 import getCoverageStatus from './helpers/getCoverageStatus';
@@ -38,12 +38,21 @@ import {
   locationsByIssueAndLine,
   locationMessagesByIssueAndLine,
   duplicationsByLine,
-  symbolsByLine
+  symbolsByLine,
+  findLocationByIndex
+} from './helpers/indexing';
+import type {
+  LinearIssueLocation,
+  IndexedIssueLocation,
+  IndexedIssueLocationsByIssueAndLine,
+  IndexedIssueLocationMessagesByIssueAndLine
 } from './helpers/indexing';
 import { getComponentForSourceViewer, getSources, getDuplications, getTests } from '../../api/components';
 import { translate } from '../../helpers/l10n';
+import { scrollToElement } from '../../helpers/scrolling';
 import type { SourceLine } from './types';
 import type { Issue } from '../issue/types';
+import './styles.css';
 
 // TODO react-virtualized
 
@@ -81,27 +90,24 @@ type State = {
   highlightedSymbol: string | null,
   issues?: Array<Issue>,
   issuesByLine: { [number]: Array<string> },
-  issueLocationsByLine: { [number]: Array<{ from: number, to: number }> },
-  issueSecondaryLocationsByIssueByLine: {
-    [string]: {
-      [number]: Array<{ from: number, to: number }>
-    }
-  },
-  issueSecondaryLocationMessagesByIssueByLine: {
-    [issueKey: string]: {
-      [line: number]: Array<{ msg: string, index?: number }>
-    }
-  },
+  issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
+  issueSecondaryLocationsByIssueByLine: IndexedIssueLocationsByIssueAndLine,
+  issueSecondaryLocationMessagesByIssueByLine: IndexedIssueLocationMessagesByIssueAndLine,
   loading: boolean,
   loadingSourcesAfter: boolean,
   loadingSourcesBefore: boolean,
+  locationsPanelHeight: number,
   notAccessible: boolean,
   notExist: boolean,
+  selectedIssueLocation: IndexedIssueLocation | null,
   sources?: Array<SourceLine>,
   symbolsByLine: { [number]: Array<string> }
 };
 
 const LINES = 500;
+
+const LOCATIONS_PANEL_DEFAULT_HEIGHT = 200;
+const LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY = 'sonarqube.locations.height';
 
 const loadComponent = (key: string): Promise<*> => {
   return getComponentForSourceViewer(key);
@@ -141,9 +147,11 @@ export default class SourceViewerBase extends React.Component {
       loading: true,
       loadingSourcesAfter: false,
       loadingSourcesBefore: false,
+      locationsPanelHeight: this.getInitialLocationsPanelHeight(),
       notAccessible: false,
       notExist: false,
       selectedIssue: props.defaultSelectedIssue || null,
+      selectedIssueLocation: null,
       symbolsByLine: {}
     };
   }
@@ -153,17 +161,31 @@ export default class SourceViewerBase extends React.Component {
     this.fetchComponent();
   }
 
-  componentDidUpdate (prevProps: Props) {
+  componentDidUpdate (prevProps: Props, prevState: State) {
     if (prevProps.component !== this.props.component) {
       this.fetchComponent();
     } else if (this.props.aroundLine != null && prevProps.aroundLine !== this.props.aroundLine &&
       this.isLineOutsideOfRange(this.props.aroundLine)) {
       this.fetchSources();
     }
+
+    if (prevState.selectedIssueLocation !== this.state.selectedIssueLocation &&
+      this.state.selectedIssueLocation != null) {
+      this.scrollToLine(this.state.selectedIssueLocation.line);
+    }
   }
 
   componentWillUnmount () {
     this.mounted = false;
+  }
+
+  scrollToLine (line: number) {
+    const lineElement = this.node.querySelector(
+      `.source-line-code[data-line-number="${line}"] .source-line-issue-locations`
+    );
+    if (lineElement) {
+      scrollToElement(lineElement, 125, this.state.locationsPanelHeight + 75);
+    }
   }
 
   computeCoverageStatus (lines: Array<SourceLine>): Array<SourceLine> {
@@ -342,6 +364,23 @@ export default class SourceViewerBase extends React.Component {
     });
   };
 
+  getInitialLocationsPanelHeight () {
+    try {
+      const rawValue = window.localStorage.getItem(LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY);
+      if (!rawValue) {
+        return LOCATIONS_PANEL_DEFAULT_HEIGHT;
+      }
+      const intValue = Number(rawValue);
+      return !isNaN(intValue) ? intValue : LOCATIONS_PANEL_DEFAULT_HEIGHT;
+    } catch (e) {
+      return LOCATIONS_PANEL_DEFAULT_HEIGHT;
+    }
+  }
+
+  storeLocationsPanelHeight (height: number) {
+    window.localStorage.setItem(LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY, height);
+  }
+
   openNewWindow = () => {
     const { component } = this.state;
     if (component != null) {
@@ -424,41 +463,57 @@ export default class SourceViewerBase extends React.Component {
     popup.render();
   };
 
+  handleSelectIssueLocation = (flowIndex: number, locationIndex: number) => {
+    this.setState(prevState => {
+      const selectedIssueLocation = findLocationByIndex(
+        prevState.issueSecondaryLocationsByIssueByLine,
+        flowIndex,
+        locationIndex
+      );
+      return { selectedIssueLocation };
+    });
+  };
+
+  handleLocationsPanelResize = (height: number) => {
+    this.setState({ locationsPanelHeight: height });
+    this.storeLocationsPanelHeight(height);
+  };
+
   renderCode (sources: Array<SourceLine>) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
-      <TooltipsContainer>
-        <SourceViewerCode
-          displayAllIssues={this.props.displayAllIssues}
-          duplications={this.state.duplications}
-          duplicationsByLine={this.state.duplicationsByLine}
-          duplicatedFiles={this.state.duplicatedFiles}
-          hasSourcesBefore={hasSourcesBefore}
-          hasSourcesAfter={this.state.hasSourcesAfter}
-          filterLine={this.props.filterLine}
-          highlightedLine={this.state.highlightedLine}
-          highlightedSymbol={this.state.highlightedSymbol}
-          issues={this.state.issues}
-          issuesByLine={this.state.issuesByLine}
-          issueLocationsByLine={this.state.issueLocationsByLine}
-          issueSecondaryLocationsByIssueByLine={this.state.issueSecondaryLocationsByIssueByLine}
-          issueSecondaryLocationMessagesByIssueByLine={this.state.issueSecondaryLocationMessagesByIssueByLine}
-          loadDuplications={this.loadDuplications}
-          loadSourcesAfter={this.loadSourcesAfter}
-          loadSourcesBefore={this.loadSourcesBefore}
-          loadingSourcesAfter={this.state.loadingSourcesAfter}
-          loadingSourcesBefore={this.state.loadingSourcesBefore}
-          onCoverageClick={this.handleCoverageClick}
-          onDuplicationClick={this.handleDuplicationClick}
-          onIssueSelect={this.props.onIssueSelect}
-          onIssueUnselect={this.props.onIssueUnselect}
-          onLineClick={this.handleLineClick}
-          onSCMClick={this.handleSCMClick}
-          onSymbolClick={this.handleSymbolClick}
-          selectedIssue={this.props.selectedIssue}
-          sources={sources}
-          symbolsByLine={this.state.symbolsByLine}/>
-      </TooltipsContainer>
+      <SourceViewerCode
+        displayAllIssues={this.props.displayAllIssues}
+        duplications={this.state.duplications}
+        duplicationsByLine={this.state.duplicationsByLine}
+        duplicatedFiles={this.state.duplicatedFiles}
+        hasSourcesBefore={hasSourcesBefore}
+        hasSourcesAfter={this.state.hasSourcesAfter}
+        filterLine={this.props.filterLine}
+        highlightedLine={this.state.highlightedLine}
+        highlightedSymbol={this.state.highlightedSymbol}
+        issues={this.state.issues}
+        issuesByLine={this.state.issuesByLine}
+        issueLocationsByLine={this.state.issueLocationsByLine}
+        issueSecondaryLocationsByIssueByLine={this.state.issueSecondaryLocationsByIssueByLine}
+        issueSecondaryLocationMessagesByIssueByLine={this.state.issueSecondaryLocationMessagesByIssueByLine}
+        loadDuplications={this.loadDuplications}
+        loadSourcesAfter={this.loadSourcesAfter}
+        loadSourcesBefore={this.loadSourcesBefore}
+        loadingSourcesAfter={this.state.loadingSourcesAfter}
+        loadingSourcesBefore={this.state.loadingSourcesBefore}
+        onCoverageClick={this.handleCoverageClick}
+        onDuplicationClick={this.handleDuplicationClick}
+        onIssueSelect={this.props.onIssueSelect}
+        onIssueUnselect={this.props.onIssueUnselect}
+        onLineClick={this.handleLineClick}
+        onSCMClick={this.handleSCMClick}
+        onSelectLocation={this.handleSelectIssueLocation}
+        onSymbolClick={this.handleSymbolClick}
+        selectedIssue={this.props.selectedIssue}
+        selectedIssueLocation={this.state.selectedIssueLocation}
+        sources={sources}
+        symbolsByLine={this.state.symbolsByLine}/>
     );
   }
 
@@ -481,6 +536,10 @@ export default class SourceViewerBase extends React.Component {
 
     const className = classNames('source-viewer', { 'source-duplications-expanded': this.state.displayDuplications });
 
+    const selectedIssueObj = this.props.selectedIssue && this.state.issues != null ?
+      this.state.issues.find(issue => issue.key === this.props.selectedIssue) :
+      null;
+
     return (
       <div className={className} ref={node => this.node = node}>
         <SourceViewerHeader
@@ -493,6 +552,14 @@ export default class SourceViewerBase extends React.Component {
           </div>
         )}
         {this.state.sources != null && this.renderCode(this.state.sources)}
+        {selectedIssueObj != null && selectedIssueObj.flows.length > 0 && (
+          <SourceViewerIssueLocations
+            height={this.state.locationsPanelHeight}
+            issue={selectedIssueObj}
+            onResize={this.handleLocationsPanelResize}
+            onSelectLocation={this.handleSelectIssueLocation}
+            selectedLocation={this.state.selectedIssueLocation}/>
+        )}
       </div>
     );
   }
