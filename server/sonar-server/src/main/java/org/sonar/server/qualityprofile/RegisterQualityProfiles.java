@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
@@ -69,15 +70,15 @@ public class RegisterQualityProfiles {
    * To be kept when no ProfileDefinition are injected
    */
   public RegisterQualityProfiles(DbClient dbClient,
-    QProfileFactory profileFactory, CachingRuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+                                 QProfileFactory profileFactory, CachingRuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer,
+                                 DefaultOrganizationProvider defaultOrganizationProvider) {
     this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer, defaultOrganizationProvider);
   }
 
   public RegisterQualityProfiles(DbClient dbClient,
-    QProfileFactory profileFactory, CachingRuleActivator ruleActivator,
-    List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+                                 QProfileFactory profileFactory, CachingRuleActivator ruleActivator,
+                                 List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer,
+                                 DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
@@ -188,7 +189,7 @@ public class RegisterQualityProfiles {
       RulesProfile profile = definition.createProfile(validation);
       validation.log(LOGGER);
       if (profile != null && !validation.hasErrors()) {
-        byLang.put(StringUtils.lowerCase(profile.getLanguage()), profile);
+        byLang.put(StringUtils.lowerCase(profile.getLanguage(), Locale.ENGLISH), profile);
       }
     }
     return byLang;
@@ -230,10 +231,10 @@ public class RegisterQualityProfiles {
   private boolean shouldRegister(QProfileName key, DbSession session) {
     // check if the profile was already registered in the past
     return dbClient.loadedTemplateDao()
-      .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
+        .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
   }
 
   static String templateKey(QProfileName key) {
-    return StringUtils.lowerCase(key.getLanguage()) + ":" + key.getName();
+    return StringUtils.lowerCase(key.getLanguage(), Locale.ENGLISH) + ":" + key.getName();
   }
 }
