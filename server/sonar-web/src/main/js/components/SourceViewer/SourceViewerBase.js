@@ -168,7 +168,7 @@ export default class SourceViewerBase extends React.Component {
 
   componentWillReceiveProps (nextProps: Props) {
     if (nextProps.onIssueSelect != null && nextProps.selectedIssue !== this.props.selectedIssue) {
-      this.setState({ selectedIssue: nextProps.selectedIssue });
+      this.setState({ selectedIssue: nextProps.selectedIssue, selectedIssueLocation: null });
     }
   }
 
@@ -508,7 +508,7 @@ export default class SourceViewerBase extends React.Component {
     if (this.props.onIssueSelect) {
       this.props.onIssueSelect(issue);
     } else {
-      this.setState({ selectedIssue: issue });
+      this.setState({ selectedIssue: issue, selectedIssueLocation: null });
     }
   };
 
@@ -516,7 +516,7 @@ export default class SourceViewerBase extends React.Component {
     if (this.props.onIssueUnselect) {
       this.props.onIssueUnselect();
     } else {
-      this.setState({ selectedIssue: undefined });
+      this.setState({ selectedIssue: undefined, selectedIssueLocation: null });
     }
   };
 
