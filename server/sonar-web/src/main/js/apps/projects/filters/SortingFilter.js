@@ -29,7 +29,7 @@ export default class SortingFilter extends React.Component {
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
     organization: React.PropTypes.object,
-    sortDesc: React.PropTypes.string,
+    sortDesc: React.PropTypes.oneOf(['left', 'right']),
     leftText: React.PropTypes.string,
     rightText: React.PropTypes.string
   }
