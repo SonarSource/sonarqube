@@ -20,6 +20,8 @@
 package org.sonar.scanner.mediumtest.fs;
 
 import com.google.common.collect.ImmutableMap;
+
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -215,6 +217,7 @@ public class FileSystemMediumTest {
     assertThat(logs.getAllAsString()).contains("2 files indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
     assertThat(logs.getAllAsString()).doesNotContain("'src/sample.java' generated metadata");
+
   }
 
   @Test
@@ -246,25 +249,33 @@ public class FileSystemMediumTest {
   public void dontPublishFilesWithoutDetectedLanguage() throws IOException {
     builder = createBuilder();
 
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    Path mainDir = baseDir.toPath().resolve("src").resolve("main");
+    Files.createDirectories(mainDir);
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    Path testDir = baseDir.toPath().resolve("src").resolve("test");
+    Files.createDirectories(testDir);
+    
+    Path testXooFile = testDir.resolve("sample.java");
+    Files.write(testXooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
+    
+    Path xooFile = mainDir.resolve("sample.xoo");
+    Files.write(xooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
 
-    File javaFile = new File(srcDir, "sample.java");
-    FileUtils.write(javaFile, "Sample xoo\ncontent");
+    Path javaFile = mainDir.resolve("sample.java");
+    Files.write(javaFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
 
     TaskResult result = tester.newTask()
       .properties(builder
-        .put("sonar.sources", "src")
+        .put("sonar.sources", "src/main")
+        .put("sonar.tests", "src/test")
         .build())
       .start();
 
-    assertThat(logs.getAllAsString()).contains("2 files indexed");
-    assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
-    assertThat(logs.getAllAsString()).doesNotContain("'src/sample.java' generated metadata");
-    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/sample.java");
+    assertThat(logs.getAllAsString()).contains("3 files indexed");
+    assertThat(logs.getAllAsString()).contains("'src/main/sample.xoo' generated metadata");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/main/sample.java' generated metadata");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/test/sample.java' generated metadata");
+    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
     assertThat(result.getReportComponent(javaInputFile.key())).isNull();
   }
 
