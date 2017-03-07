@@ -27,6 +27,7 @@ import {
   highlightIssueLocations,
   generateHTML
 } from '../helpers/highlight';
+import type { Tokens } from '../helpers/highlight';
 import type { SourceLine } from '../types';
 import type {
   LinearIssueLocation,
@@ -42,6 +43,7 @@ type Props = {
   onIssueSelect: (issueKey: string) => void,
   onLocationSelect: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: (symbol: string) => void,
+  // $FlowFixMe
   secondaryIssueLocations: Array<IndexedIssueLocation>,
   secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
   selectedIssue: string | null,
@@ -49,13 +51,33 @@ type Props = {
   showIssues: boolean
 };
 
+type State = {
+  tokens: Tokens
+};
+
 export default class LineCode extends React.PureComponent {
   codeNode: HTMLElement;
   props: Props;
+  state: State;
   symbols: NodeList<HTMLElement>;
+
+  constructor (props: Props) {
+    super(props);
+    this.state = {
+      tokens: splitByTokens(props.line.code || '')
+    };
+  }
 
   componentDidMount () {
     this.attachEvents();
+  }
+
+  componentWillReceiveProps (nextProps: Props) {
+    if (nextProps.line.code !== this.props.line.code) {
+      this.setState({
+        tokens: splitByTokens(nextProps.line.code || '')
+      });
+    }
   }
 
   componentWillUpdate () {
@@ -155,8 +177,7 @@ export default class LineCode extends React.PureComponent {
       showIssues
     } = this.props;
 
-    const code = line.code || '';
-    let tokens = splitByTokens(code);
+    let tokens = [...this.state.tokens];
 
     if (highlightedSymbol) {
       tokens = highlightSymbol(tokens, highlightedSymbol);
@@ -167,12 +188,7 @@ export default class LineCode extends React.PureComponent {
     }
 
     if (secondaryIssueLocations) {
-      const linearLocations = secondaryIssueLocations.map(location => ({
-        from: location.from,
-        line: location.line,
-        to: location.to
-      }));
-      tokens = highlightIssueLocations(tokens, linearLocations, 'issue-location');
+      tokens = highlightIssueLocations(tokens, secondaryIssueLocations, 'issue-location');
       if (selectedIssueLocation != null) {
         const x = secondaryIssueLocations.find(location =>
           this.isSecondaryIssueLocationSelected(location));

@@ -21,8 +21,8 @@
 import escapeHtml from 'escape-html';
 import type { LinearIssueLocation } from './indexing';
 
-type Token = { className: string, text: string };
-type Tokens = Array<Token>;
+export type Token = { className: string, text: string };
+export type Tokens = Array<Token>;
 
 const ISSUE_LOCATION_CLASS = 'source-line-code-issue';
 

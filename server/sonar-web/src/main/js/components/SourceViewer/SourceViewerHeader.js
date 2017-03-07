@@ -27,7 +27,7 @@ import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-export default class SourceViewerHeader extends React.Component {
+export default class SourceViewerHeader extends React.PureComponent {
   props: {
     component: {
       canMarkAsFavorite: boolean,
