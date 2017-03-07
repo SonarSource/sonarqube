@@ -33,6 +33,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -110,7 +111,7 @@ public class SearchActionTest {
       new SearchDataLoader(
         languages,
         new QProfileLookup(dbClient),
-        new QProfileFactory(dbClient),
+        new QProfileFactory(dbClient, UuidFactoryFast.getInstance()),
         dbClient,
         new ComponentFinder(dbClient), activeRuleIndex, qProfileWsSupport),
       languages);
