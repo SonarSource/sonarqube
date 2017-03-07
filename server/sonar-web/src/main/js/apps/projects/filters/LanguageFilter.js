@@ -30,6 +30,8 @@ export default class LanguageFilter extends React.Component {
     organization: React.PropTypes.object
   }
 
+  property = 'languages';
+
   renderOption = option => {
     return (
       <LanguageFilterOption languageKey={option}/>
@@ -42,7 +44,7 @@ export default class LanguageFilter extends React.Component {
 
   renderFooter = () => (
     <LanguageFilterFooter
-        property="language"
+        property={this.property}
         query={this.props.query}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}/>
@@ -53,7 +55,7 @@ export default class LanguageFilter extends React.Component {
   render () {
     return (
       <FilterContainer
-          property="language"
+          property={this.property}
           getOptions={facet => facet ? this.getSortedOptions(facet) : []}
           renderName={() => 'Languages'}
           renderOption={this.renderOption}

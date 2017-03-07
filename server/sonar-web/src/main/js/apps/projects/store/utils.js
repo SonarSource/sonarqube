@@ -54,7 +54,7 @@ export const parseUrlQuery = urlQuery => ({
   'coverage': getAsNumericRating(urlQuery['coverage']),
   'duplications': getAsNumericRating(urlQuery['duplications']),
   'size': getAsNumericRating(urlQuery['size']),
-  'language': getAsArray(urlQuery['language'], getAsString),
+  'languages': getAsArray(urlQuery['languages'], getAsString),
   'search': getAsString(urlQuery['search'])
 });
 
@@ -152,11 +152,12 @@ export const convertToFilter = (query, isFavorite) => {
     conditions.push(convertIssuesRating('sqale_rating', query['maintainability']));
   }
 
-  if (query['language'] != null) {
-    if (!Array.isArray(query['language']) || query['language'].length < 2) {
-      conditions.push('language = ' + query['language']);
+  const { languages } = query;
+  if (languages != null) {
+    if (!Array.isArray(languages) || languages.length < 2) {
+      conditions.push('languages = ' + languages);
     } else {
-      conditions.push(`language IN (${query['language'].join(', ')})`);
+      conditions.push(`languages IN (${languages.join(', ')})`);
     }
   }
 
@@ -176,7 +177,7 @@ export const mapMetricToProperty = metricKey => {
     'duplicated_lines_density': 'duplications',
     'ncloc': 'size',
     'alert_status': 'gate',
-    'language': 'language'
+    'languages': 'languages'
   };
   return map[metricKey];
 };

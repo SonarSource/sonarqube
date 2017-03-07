@@ -54,7 +54,7 @@ const FACETS = [
   'duplicated_lines_density',
   'ncloc',
   'alert_status',
-  'language'
+  'languages'
 ];
 
 const onFail = dispatch => error => {
