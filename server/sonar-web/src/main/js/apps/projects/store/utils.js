@@ -56,7 +56,7 @@ export const parseUrlQuery = urlQuery => ({
   'size': getAsNumericRating(urlQuery['size']),
   'languages': getAsArray(urlQuery['languages'], getAsString),
   'search': getAsString(urlQuery['search']),
-  'sortby': getAsString(urlQuery['sortby'])
+  'sort': getAsString(urlQuery['sort'])
 });
 
 const convertIssuesRating = (metric, rating) => {
@@ -163,36 +163,29 @@ const convertToFilter = (query, isFavorite) => {
   return conditions.join(' and ');
 };
 
-const convertToSorting = query => {
-  switch (query.sortby) {
-    case 'reliability':
-    case 'security':
-      return query.sortby + '_rating';
-    case 'maintainability':
-      return 'sqale_rating';
-    case 'duplications':
-      return 'duplicated_lines_density';
-    case 'size':
-      return 'ncloc';
-    default:
-      return query.sortby;
+export const convertToSorting = ({ sort }) => {
+  if (sort && ['-', '+'].includes(sort[0])) {
+    return { s: mapPropertyToMetric(sort.substr(1)), asc: sort[0] !== '-' };
   }
+  return { s: mapPropertyToMetric(sort.trim()) };
 };
 
 export const convertToQueryData = (query, isFavorite, organization, defaultData = {}) => {
   const data = { ...defaultData };
   const filter = convertToFilter(query, isFavorite);
+  const sort = convertToSorting(query);
+
   if (filter) {
     data.filter = filter;
   }
+  if (sort.s) {
+    data.s = sort.s;
+  }
+  if (sort.hasOwnProperty('asc')) {
+    data.asc = sort.asc;
+  }
   if (organization) {
     data.organization = organization.key;
-  }
-  if (query.sortby) {
-    data.s = convertToSorting(query);
-  }
-  if (query.asc) {
-    data.asc = query.asc;
   }
   return data;
 };

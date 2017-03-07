@@ -41,14 +41,14 @@ export default class SortingFilter extends React.Component {
   };
 
   isSortActive (side) {
-    if (this.props.query.sortby === this.props.property) {
-      if (['false', 'no'].includes(this.props.query.asc)) {
-        return side === this.props.sortDesc;
-      } else {
-        return side !== this.props.sortDesc;
-      }
+    const sort = this.props.query['sort'] || '';
+    if (sort[0] === '-') {
+      return sort.substr(1) === this.props.property && side === this.props.sortDesc;
+    } else if (sort[0] === '+') {
+      return sort.substr(1) === this.props.property && side !== this.props.sortDesc;
+    } else {
+      return sort.trim() === this.props.property && side !== this.props.sortDesc;
     }
-    return false;
   }
 
   getLinkClass (side) {
@@ -59,11 +59,10 @@ export default class SortingFilter extends React.Component {
 
   getLinkPath (side) {
     if (this.isSortActive(side)) {
-      return getFilterUrl(this.props, { sortby: null, asc: null });
+      return getFilterUrl(this.props, { sort: null });
     }
     return getFilterUrl(this.props, {
-      sortby: this.props.property,
-      asc: this.props.sortDesc !== side
+      sort: (this.props.sortDesc === side ? '-' : '') + this.props.property
     });
   }
 
