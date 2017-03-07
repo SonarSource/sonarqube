@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -41,7 +42,7 @@ public class QProfileFactoryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = dbTester.getSession();
-  private QProfileFactory underTest = new QProfileFactory(dbTester.getDbClient());
+  private QProfileFactory underTest = new QProfileFactory(dbTester.getDbClient(), UuidFactoryImpl.INSTANCE);
 
   @Before
   public void setUp() throws Exception {

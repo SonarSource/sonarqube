@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -43,8 +44,6 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileName;
-import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -56,10 +55,8 @@ public class DeleteActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -80,7 +77,11 @@ public class DeleteActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new DeleteAction(new Languages(xoo1, xoo2), new QProfileFactory(dbClient), dbClient, userSessionRule,
+      new DeleteAction(
+        new Languages(xoo1, xoo2),
+        new QProfileFactory(dbClient, UuidFactoryFast.getInstance()),
+        dbClient,
+        userSessionRule,
         new QProfileWsSupport(dbClient, userSessionRule, TestDefaultOrganizationProvider.from(dbTester)))));
     organization = dbTester.organizations().insert();
   }
@@ -172,8 +173,7 @@ public class DeleteActionTest {
 
     assertThat(
       dbClient.qualityProfileDao()
-        .selectByKey(dbTester.getSession(), profileInDefaultOrganization.getKey())
-    ).isNotNull();
+        .selectByKey(dbTester.getSession(), profileInDefaultOrganization.getKey())).isNotNull();
     dbTester.getSession().commit();
 
     tester.newPostRequest("api/qualityprofiles", "delete")
@@ -182,8 +182,7 @@ public class DeleteActionTest {
 
     assertThat(
       dbClient.qualityProfileDao()
-        .selectByKey(dbTester.getSession(), profileInDefaultOrganization.getKey())
-    ).isNull();
+        .selectByKey(dbTester.getSession(), profileInDefaultOrganization.getKey())).isNull();
   }
 
   @Test
@@ -276,7 +275,7 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile for language '"+xoo1.getKey()+"' and name 'Polop' does not exist in organization '"+organization.getKey()+"'");
+    expectedException.expectMessage("Quality Profile for language '" + xoo1.getKey() + "' and name 'Polop' does not exist in organization '" + organization.getKey() + "'");
 
     tester.newPostRequest("api/qualityprofiles", "delete")
       .setParam("profileName", "Polop")
