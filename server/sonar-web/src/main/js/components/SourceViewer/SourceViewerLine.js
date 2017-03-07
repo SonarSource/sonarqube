@@ -25,9 +25,9 @@ import LineNumber from './components/LineNumber';
 import LineSCM from './components/LineSCM';
 import LineCoverage from './components/LineCoverage';
 import LineDuplications from './components/LineDuplications';
+import LineDuplicationBlock from './components/LineDuplicationBlock';
 import ConnectedIssue from '../issue/ConnectedIssue';
 import SourceViewerIssuesIndicator from './SourceViewerIssuesIndicator';
-import { translate } from '../../helpers/l10n';
 import { splitByTokens, highlightSymbol, highlightIssueLocations, generateHTML } from './helpers/highlight';
 import type { SourceLine } from './types';
 import type { LinearIssueLocation, IndexedIssueLocation, IndexedIssueLocationMessage } from './helpers/indexing';
@@ -133,37 +133,6 @@ export default class SourceViewerLine extends React.PureComponent {
 
   handleIssueSelect = (issueKey: string) => {
     this.props.onIssueSelect(issueKey);
-  };
-
-  renderDuplicationsExtra () {
-    const { duplications, duplicationsCount } = this.props;
-    return times(duplicationsCount).map(index => this.renderDuplication(index, duplications.includes(index)));
-  }
-
-  renderDuplication = (index: number, duplicated: boolean) => {
-    const className = classNames('source-meta', 'source-line-duplications-extra', {
-      'source-line-duplicated': duplicated
-    });
-
-    const handleDuplicationClick = (e: SyntheticInputEvent) => {
-      e.preventDefault();
-      this.props.onDuplicationClick(index, this.props.line.line);
-    };
-
-    return (
-      <td key={index}
-          className={className}
-          data-line-number={this.props.line.line}
-          data-index={index}
-          title={duplicated ? translate('source_viewer.tooltip.duplicated_block') : undefined}
-          data-placement={duplicated ? 'right' : undefined}
-          data-toggle={duplicated ? 'tooltip' : undefined}
-          role={duplicated ? 'button' : undefined}
-          tabIndex={duplicated ? '0' : undefined}
-          onClick={duplicated ? handleDuplicationClick : undefined}>
-        <div className="source-line-bar"/>
-      </td>
-    );
   };
 
   renderIssuesIndicator () {
@@ -295,7 +264,7 @@ export default class SourceViewerLine extends React.PureComponent {
   }
 
   render () {
-    const { line, duplicationsCount, filtered } = this.props;
+    const { line, duplications, duplicationsCount, filtered } = this.props;
     const className = classNames('source-line', {
       'source-line-highlighted': this.props.highlighted,
       'source-line-shadowed': filtered === false,
@@ -317,7 +286,14 @@ export default class SourceViewerLine extends React.PureComponent {
         {this.props.displayDuplications &&
           <LineDuplications line={line} onClick={this.props.loadDuplications}/>}
 
-        {duplicationsCount > 0 && this.renderDuplicationsExtra()}
+        {times(duplicationsCount).map(index => (
+          <LineDuplicationBlock
+            duplicated={duplications.includes(index)}
+            index={index}
+            key={index}
+            line={this.props.line}
+            onClick={this.props.onDuplicationClick}/>
+        ))}
 
         {this.props.displayIssues && !this.props.displayAllIssues && this.renderIssuesIndicator()}
 
