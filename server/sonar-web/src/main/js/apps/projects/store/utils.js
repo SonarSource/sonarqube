@@ -164,10 +164,10 @@ const convertToFilter = (query, isFavorite) => {
 };
 
 export const convertToSorting = ({ sort }) => {
-  if (sort && ['-', '+'].includes(sort[0])) {
-    return { s: mapPropertyToMetric(sort.substr(1)), asc: sort[0] !== '-' };
+  if (sort && sort[0] === '-') {
+    return { s: mapPropertyToMetric(sort.substr(1)), asc: false };
   }
-  return { s: mapPropertyToMetric(sort.trim()) };
+  return { s: mapPropertyToMetric(sort) };
 };
 
 export const convertToQueryData = (query, isFavorite, organization, defaultData = {}) => {

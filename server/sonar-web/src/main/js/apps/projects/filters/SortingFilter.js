@@ -41,13 +41,11 @@ export default class SortingFilter extends React.Component {
   };
 
   isSortActive (side) {
-    const sort = this.props.query['sort'] || '';
-    if (sort[0] === '-') {
+    const { sort } = this.props.query;
+    if (sort && sort[0] === '-') {
       return sort.substr(1) === this.props.property && side === this.props.sortDesc;
-    } else if (sort[0] === '+') {
-      return sort.substr(1) === this.props.property && side !== this.props.sortDesc;
     } else {
-      return sort.trim() === this.props.property && side !== this.props.sortDesc;
+      return sort === this.props.property && side !== this.props.sortDesc;
     }
   }
 
