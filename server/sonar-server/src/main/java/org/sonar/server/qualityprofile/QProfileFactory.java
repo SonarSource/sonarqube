@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.Slug;
@@ -56,7 +57,7 @@ public class QProfileFactory {
   // ------------- CREATION
 
   QualityProfileDto getOrCreate(DbSession dbSession, OrganizationDto organization, QProfileName name) {
-    Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
+    requireNonNull(organization);
     QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
       profile = doCreate(dbSession, organization, name);
@@ -64,11 +65,30 @@ public class QProfileFactory {
     return profile;
   }
 
-  public QualityProfileDto create(DbSession dbSession, OrganizationDto organization, QProfileName name) {
-    Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
+  /**
+   * Create the quality profile in DB with the specified name.
+   *
+   * @throws BadRequestException if a quality profile with the specified name already exists
+   */
+  public QualityProfileDto checkAndCreate(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+    requireNonNull(organization);
     QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     checkRequest(dto == null, "Quality profile already exists: %s", name);
     return doCreate(dbSession, organization, name);
+  }
+
+  /**
+   * Create the quality profile in DB with the specified name.
+   *
+   * A DB error will be thrown if the quality profile already exists.
+   */
+  public QualityProfileDto create(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+    return doCreate(dbSession, requireNonNull(organization), name);
+  }
+
+  private static OrganizationDto requireNonNull(@Nullable OrganizationDto organization) {
+    Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
+    return organization;
   }
 
   private QualityProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name) {
