@@ -20,7 +20,7 @@
 import React from 'react';
 import sortBy from 'lodash/sortBy';
 import { connect } from 'react-redux';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import Tooltip from '../../../components/controls/Tooltip';
 import { getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
@@ -41,16 +41,24 @@ class ProjectCardLanguages extends React.Component {
     }
 
     const parsedLanguages = distribution.split(';').map(item => item.split('='));
-    const finalLanguages = sortBy(parsedLanguages, l => -1 * Number(l[1]))
-        .slice(0, 2)
-        .map(l => this.getLanguageName(l[0]));
+    const finalLanguages = sortBy(parsedLanguages, l => (-1) * Number(l[1]))
+      .slice(0, 2)
+      .map(l => this.getLanguageName(l[0]));
+
+    const tooltip = (
+      <span>
+        {finalLanguages.map(language => <span key={language}>{language}<br/></span>)}
+      </span>
+    );
 
     return (
-        <TooltipsContainer options={{ delay: { show: 500, hide: 0 } }}>
-          <div className="project-card-languages">
-            <span title={finalLanguages.join('<br/>')} data-toggle="tooltip">{finalLanguages.join(', ')}</span>
-          </div>
-        </TooltipsContainer>
+      <div className="project-card-languages">
+        <Tooltip placement="bottom" overlay={tooltip}>
+          <span title={finalLanguages.join('<br/>')} data-toggle="tooltip">
+            {finalLanguages.join(', ')}
+          </span>
+        </Tooltip>
+      </div>
     );
   }
 }
