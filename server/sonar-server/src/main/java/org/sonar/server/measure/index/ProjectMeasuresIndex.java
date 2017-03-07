@@ -102,10 +102,9 @@ public class ProjectMeasuresIndex extends BaseIndex {
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
-    .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), facetBuilder))
-    .put(DUPLICATED_LINES_DENSITY_KEY,
-      (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), facetBuilder))
-    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), facetBuilder))
+    .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, 1_000d, 10_000d, 100_000d, 500_000d))
+    .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, 3d, 5d, 10d, 20d))
+    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, 30d, 50d, 70d, 80d))
     .put(SQALE_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SQALE_RATING_KEY, facetBuilder))
     .put(RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, facetBuilder))
     .put(SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, facetBuilder))
@@ -161,15 +160,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
         .order(query.isAsc() ? ASC : DESC));
   }
 
-  private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters, ProjectMeasuresQuery query) {
-    StickyFacetBuilder facetBuilder = new StickyFacetBuilder(matchAllQuery(), filters);
-    options.getFacets().stream()
-      .filter(FACET_FACTORIES::containsKey)
-      .map(FACET_FACTORIES::get)
-      .forEach(factory -> factory.addFacet(esSearch, query, facetBuilder));
-  }
-
-  private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, List<Double> thresholds, StickyFacetBuilder facetBuilder) {
+  private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder, Double... thresholds) {
     esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder, createRangeFacet(metricKey, thresholds)));
   }
 
@@ -187,6 +178,14 @@ public class ProjectMeasuresIndex extends BaseIndex {
     esSearch.addAggregation(facetBuilder.buildStickyFacet(FIELD_TAGS, FILTER_TAGS, tags.isPresent() ? tags.get().toArray() : new Object[] {}));
   }
 
+  private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters, ProjectMeasuresQuery query) {
+    StickyFacetBuilder facetBuilder = new StickyFacetBuilder(matchAllQuery(), filters);
+    options.getFacets().stream()
+      .filter(FACET_FACTORIES::containsKey)
+      .map(FACET_FACTORIES::get)
+      .forEach(factory -> factory.addFacet(esSearch, query, facetBuilder));
+  }
+
   private static AbstractAggregationBuilder createStickyFacet(String facetKey, StickyFacetBuilder facetBuilder, AbstractAggregationBuilder aggregationBuilder) {
     BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(facetKey);
     return AggregationBuilders
@@ -196,19 +195,19 @@ public class ProjectMeasuresIndex extends BaseIndex {
         .subAggregation(aggregationBuilder));
   }
 
-  private static AbstractAggregationBuilder createRangeFacet(String metricKey, List<Double> thresholds) {
+  private static AbstractAggregationBuilder createRangeFacet(String metricKey, Double... thresholds) {
     RangeBuilder rangeAgg = AggregationBuilders.range(metricKey)
       .field(FIELD_MEASURES_VALUE);
-    final int lastIndex = thresholds.size() - 1;
-    IntStream.range(0, thresholds.size())
+    final int lastIndex = thresholds.length - 1;
+    IntStream.range(0, thresholds.length)
       .forEach(i -> {
         if (i == 0) {
-          rangeAgg.addUnboundedTo(thresholds.get(0));
-          rangeAgg.addRange(thresholds.get(0), thresholds.get(1));
+          rangeAgg.addUnboundedTo(thresholds[0]);
+          rangeAgg.addRange(thresholds[0], thresholds[1]);
         } else if (i == lastIndex) {
-          rangeAgg.addUnboundedFrom(thresholds.get(lastIndex));
+          rangeAgg.addUnboundedFrom(thresholds[lastIndex]);
         } else {
-          rangeAgg.addRange(thresholds.get(i), thresholds.get(i + 1));
+          rangeAgg.addRange(thresholds[i], thresholds[i + 1]);
         }
       });
 
