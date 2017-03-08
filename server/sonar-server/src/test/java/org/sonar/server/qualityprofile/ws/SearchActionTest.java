@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -183,7 +184,7 @@ public class SearchActionTest {
   @Test
   public void search_for_project_qp() {
     long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
-    OrganizationDto org = db.organizations().insert();
+    OrganizationDto org = db.getDbClient().organizationDao().selectByKey(db.getSession(), defaultOrganizationProvider.get().getKey()).get();
     QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
       .setOrganizationUuid(org.getUuid())
       .setLanguage(xoo1.getKey())
