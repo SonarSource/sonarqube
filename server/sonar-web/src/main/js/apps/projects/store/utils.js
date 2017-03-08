@@ -59,6 +59,36 @@ export const parseUrlQuery = urlQuery => ({
   'sort': getAsString(urlQuery['sort'])
 });
 
+export const mapMetricToProperty = metricKey => {
+  const map = {
+    'reliability_rating': 'reliability',
+    'security_rating': 'security',
+    'sqale_rating': 'maintainability',
+    'coverage': 'coverage',
+    'duplicated_lines_density': 'duplications',
+    'ncloc': 'size',
+    'alert_status': 'gate',
+    'languages': 'languages',
+    'query': 'search'
+  };
+  return map[metricKey];
+};
+
+export const mapPropertyToMetric = property => {
+  const map = {
+    'reliability': 'reliability_rating',
+    'security': 'security_rating',
+    'maintainability': 'sqale_rating',
+    'coverage': 'coverage',
+    'duplications': 'duplicated_lines_density',
+    'size': 'ncloc',
+    'gate': 'alert_status',
+    'languages': 'languages',
+    'search': 'query'
+  };
+  return map[property];
+};
+
 const convertIssuesRating = (metric, rating) => {
   if (rating > 1 && rating < 5) {
     return `${metric} >= ${rating}`;
@@ -188,34 +218,4 @@ export const convertToQueryData = (query, isFavorite, organization, defaultData 
     data.organization = organization.key;
   }
   return data;
-};
-
-export const mapMetricToProperty = metricKey => {
-  const map = {
-    'reliability_rating': 'reliability',
-    'security_rating': 'security',
-    'sqale_rating': 'maintainability',
-    'coverage': 'coverage',
-    'duplicated_lines_density': 'duplications',
-    'ncloc': 'size',
-    'alert_status': 'gate',
-    'languages': 'languages',
-    'query': 'search'
-  };
-  return map[metricKey];
-};
-
-export const mapPropertyToMetric = property => {
-  const map = {
-    'reliability': 'reliability_rating',
-    'security': 'security_rating',
-    'maintainability': 'sqale_rating',
-    'coverage': 'coverage',
-    'duplications': 'duplicated_lines_density',
-    'size': 'ncloc',
-    'gate': 'alert_status',
-    'languages': 'languages',
-    'search': 'query'
-  };
-  return map[property];
 };
