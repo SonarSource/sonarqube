@@ -19,29 +19,11 @@
  */
 // @flow
 import { connect } from 'react-redux';
-import StandaloneSourceViewerBase from './StandaloneSourceViewerBase';
-import { receiveFavorites } from '../../store/favorites/duck';
-import { receiveIssues } from '../../store/issues/duck';
+import LineIssuesIndicator from './LineIssuesIndicator';
+import { getIssueByKey } from '../../../store/rootReducer';
 
-const mapStateToProps = null;
+const mapStateToProps = (state, ownProps: { issueKeys: Array<string> }) => ({
+  issues: ownProps.issueKeys.map(issueKey => getIssueByKey(state, issueKey))
+});
 
-const onReceiveComponent = (component: { key: string, canMarkAsFavorite: boolean, fav: boolean }) => dispatch => {
-  if (component.canMarkAsFavorite) {
-    const favorites = [];
-    const notFavorites = [];
-    if (component.fav) {
-      favorites.push({ key: component.key });
-    } else {
-      notFavorites.push({ key: component.key });
-    }
-    dispatch(receiveFavorites(favorites, notFavorites));
-  }
-};
-
-const onReceiveIssues = (issues: Array<*>) => dispatch => {
-  dispatch(receiveIssues(issues));
-};
-
-const mapDispatchToProps = { onReceiveComponent, onReceiveIssues };
-
-export default connect(mapStateToProps, mapDispatchToProps)(StandaloneSourceViewerBase);
+export default connect(mapStateToProps)(LineIssuesIndicator);

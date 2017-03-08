@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import SourceViewer from '../../../components/SourceViewer/StandaloneSourceViewer';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 export default class App extends React.Component {
   props: {

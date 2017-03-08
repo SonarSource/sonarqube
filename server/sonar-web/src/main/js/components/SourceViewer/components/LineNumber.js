@@ -19,26 +19,32 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
-import SeverityIcon from '../shared/severity-icon';
-import { getIssueByKey } from '../../store/rootReducer';
-import { sortBySeverity } from '../../helpers/issues';
+import type { SourceLine } from '../types';
 
-class SourceViewerIssuesIndicator extends React.Component {
-  props: {
-    issue: { severity: string }
+type Props = {
+  line: SourceLine,
+  onClick: (SourceLine, HTMLElement) => void
+};
+
+export default class LineNumber extends React.PureComponent {
+  props: Props;
+
+  handleClick = (e: SyntheticInputEvent) => {
+    e.preventDefault();
+    this.props.onClick(this.props.line, e.target);
   };
 
   render () {
+    const { line } = this.props.line;
+
     return (
-      <SeverityIcon severity={this.props.issue.severity}/>
+      <td
+        className="source-meta source-line-number"
+        /* don't display 0 */
+        data-line-number={line ? line : undefined}
+        role={line ? 'button' : undefined}
+        tabIndex={line ? 0 : undefined}
+        onClick={line ? this.handleClick : undefined}/>
     );
   }
 }
-
-const mapStateToProps = (state, ownProps: { issues: Array<string> }) => {
-  const issues = ownProps.issues.map(issueKey => getIssueByKey(state, issueKey));
-  return { issue: sortBySeverity(issues)[0] };
-};
-
-export default connect(mapStateToProps)(SourceViewerIssuesIndicator);

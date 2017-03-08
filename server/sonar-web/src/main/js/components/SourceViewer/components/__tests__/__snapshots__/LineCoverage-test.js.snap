@@ -1,0 +1,38 @@
+exports[`test render covered line 1`] = `
+<td
+  className="source-meta source-line-coverage source-line-covered"
+  data-line-number={3}
+  data-placement="right"
+  data-toggle="tooltip"
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+  title="source_viewer.tooltip.covered">
+  <div
+    className="source-line-bar" />
+</td>
+`;
+
+exports[`test render line with unknown coverage 1`] = `
+<td
+  className="source-meta source-line-coverage"
+  data-line-number={3}>
+  <div
+    className="source-line-bar" />
+</td>
+`;
+
+exports[`test render uncovered line 1`] = `
+<td
+  className="source-meta source-line-coverage source-line-uncovered"
+  data-line-number={3}
+  data-placement="right"
+  data-toggle="tooltip"
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+  title="source_viewer.tooltip.uncovered">
+  <div
+    className="source-line-bar" />
+</td>
+`;

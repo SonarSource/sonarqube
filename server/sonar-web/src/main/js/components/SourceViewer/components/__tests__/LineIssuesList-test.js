@@ -17,29 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Popup from '../../common/popup';
-import Template from '../templates/source-viewer-scm-popup.hbs';
+import React from 'react';
+import { shallow } from 'enzyme';
+import LineIssuesList from '../LineIssuesList';
 
-export default Popup.extend({
-  template: Template,
-
-  events: {
-    'click': 'onClick'
-  },
-
-  onRender () {
-    Popup.prototype.onRender.apply(this, arguments);
-    this.$('.bubble-popup-container').isolatedScroll();
-  },
-
-  onClick (e) {
-    e.stopPropagation();
-  },
-
-  serializeData () {
-    return {
-      ...Popup.prototype.serializeData.apply(this, arguments),
-      line: this.options.line
-    };
-  }
+it('render issues list', () => {
+  const line = { line: 3 };
+  const issueKeys = ['foo', 'bar'];
+  const onIssueClick = jest.fn();
+  const wrapper = shallow(
+    <LineIssuesList
+      issueKeys={issueKeys}
+      line={line}
+      onIssueClick={onIssueClick}
+      selectedIssue="foo"/>
+  );
+  expect(wrapper).toMatchSnapshot();
 });

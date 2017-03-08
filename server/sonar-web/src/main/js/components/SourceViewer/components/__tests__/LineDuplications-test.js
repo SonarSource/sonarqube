@@ -17,34 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
-import SourceViewerBase from './SourceViewerBase';
+import { shallow } from 'enzyme';
+import { click } from '../../../../helpers/testUtils';
+import LineDuplications from '../LineDuplications';
 
-type State = {
-  selectedIssue: string | null
-};
+it('render duplicated line', () => {
+  const line = { line: 3, duplicated: true };
+  const onClick = jest.fn();
+  const wrapper = shallow(<LineDuplications line={line} onClick={onClick}/>);
+  expect(wrapper).toMatchSnapshot();
+  click(wrapper);
+  expect(onClick).toHaveBeenCalled();
+});
 
-export default class StandaloneSourceViewerBase extends React.Component {
-  state: State = {
-    selectedIssue: null
-  };
-
-  handleIssueSelect = (issue: string) => {
-    this.setState({ selectedIssue: issue });
-  };
-
-  handleIssueUnselect = () => {
-    this.setState({ selectedIssue: null });
-  };
-
-  render () {
-    return (
-      <SourceViewerBase
-        {...this.props}
-        onIssueSelect={this.handleIssueSelect}
-        onIssueUnselect={this.handleIssueUnselect}
-        selectedIssue={this.state.selectedIssue}/>
-    );
-  }
-}
+it('render not duplicated line', () => {
+  const line = { line: 3, duplicated: false };
+  const onClick = jest.fn();
+  const wrapper = shallow(<LineDuplications line={line} onClick={onClick}/>);
+  expect(wrapper).toMatchSnapshot();
+});

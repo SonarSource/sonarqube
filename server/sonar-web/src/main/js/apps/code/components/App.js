@@ -22,7 +22,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
-import SourceViewer from './../../../components/SourceViewer/StandaloneSourceViewer';
+import SourceViewer from './../../../components/SourceViewer/SourceViewer';
 import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren, parseError } from '../utils';

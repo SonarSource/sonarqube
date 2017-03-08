@@ -17,17 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import groupBy from 'lodash/groupBy';
 import Popup from '../../common/popup';
-import Workspace from '../../workspace/main';
-import Template from '../templates/source-viewer-coverage-popup.hbs';
+import Template from './templates/source-viewer-scm-popup.hbs';
 
 export default Popup.extend({
   template: Template,
 
   events: {
-    'click a[data-key]': 'goToFile'
+    'click': 'onClick'
   },
 
   onRender () {
@@ -35,26 +32,14 @@ export default Popup.extend({
     this.$('.bubble-popup-container').isolatedScroll();
   },
 
-  goToFile (e) {
+  onClick (e) {
     e.stopPropagation();
-    const key = $(e.currentTarget).data('key');
-    Workspace.openComponent({ key });
   },
 
   serializeData () {
-    const row = this.options.line || {};
-    const tests = groupBy(this.options.tests, 'fileKey');
-    const testFiles = Object.keys(tests).map(fileKey => {
-      const testSet = tests[fileKey];
-      const test = testSet[0];
-      return {
-        file: {
-          key: test.fileKey,
-          longName: test.fileName
-        },
-        tests: testSet
-      };
-    });
-    return { testFiles, row };
+    return {
+      ...Popup.prototype.serializeData.apply(this, arguments),
+      line: this.options.line
+    };
   }
 });

@@ -20,7 +20,9 @@
 // @flow
 import type { TextRange, Issue } from '../../issue/types';
 
-export const getLinearLocations = (textRange?: TextRange): Array<{ line: number, from: number, to: number }> => {
+export const getLinearLocations = (
+  textRange?: TextRange
+): Array<{ line: number, from: number, to: number }> => {
   if (!textRange) {
     return [];
   }
@@ -36,7 +38,9 @@ export const getLinearLocations = (textRange?: TextRange): Array<{ line: number,
   return locations;
 };
 
-export const getIssueLocations = (issue: Issue): Array<{
+export const getIssueLocations = (
+  issue: Issue
+): Array<{
   msg: string,
   flowIndex: number,
   locationIndex: number,

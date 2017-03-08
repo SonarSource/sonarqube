@@ -53,9 +53,8 @@
 .issue-location-message {
   display: inline-block;
   vertical-align: top;
-  line-height: 16px;
-  height: 17px;
-  border: 1px solid #ffeaea;
+  line-height: 18px;
+  height: 18px;
   box-sizing: border-box;
   background-color: #ffeaea;
 }
@@ -76,6 +75,7 @@
 
 .issue-location-message {
   padding: 0 10px;
+  border: 1px solid #ffeaea;
   color: #444 !important;
   font-size: 12px;
   white-space: nowrap;

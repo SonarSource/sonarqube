@@ -21,8 +21,8 @@
 import escapeHtml from 'escape-html';
 import type { LinearIssueLocation } from './indexing';
 
-type Token = { className: string, text: string };
-type Tokens = Array<Token>;
+export type Token = { className: string, text: string };
+export type Tokens = Array<Token>;
 
 const ISSUE_LOCATION_CLASS = 'source-line-code-issue';
 
@@ -33,7 +33,7 @@ export const splitByTokens = (code: string, rootClassName: string = ''): Tokens 
   [].forEach.call(container.childNodes, node => {
     if (node.nodeType === 1) {
       // ELEMENT NODE
-      const fullClassName = rootClassName ? (rootClassName + ' ' + node.className) : node.className;
+      const fullClassName = rootClassName ? rootClassName + ' ' + node.className : node.className;
       const innerTokens = splitByTokens(node.innerHTML, fullClassName);
       tokens = tokens.concat(innerTokens);
     }
@@ -45,11 +45,13 @@ export const splitByTokens = (code: string, rootClassName: string = ''): Tokens 
   return tokens;
 };
 
-export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => (
-  tokens.map(token => token.className.includes(symbol) ?
-    { ...token, className: `${token.className} highlighted` } :
-    token
-));
+export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens =>
+  tokens.map(
+    token =>
+      token.className.includes(symbol)
+        ? { ...token, className: `${token.className} highlighted` }
+        : token
+  );
 
 /**
  * Intersect two ranges
@@ -58,7 +60,12 @@ export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => (
  * @param s2 Start position of the second range
  * @param e2 End position of the second range
  */
-const intersect = (s1: number, e1: number, s2: number, e2: number): { from: number, to: number } => {
+const intersect = (
+  s1: number,
+  e1: number,
+  s2: number,
+  e2: number
+): { from: number, to: number } => {
   return { from: Math.max(s1, s2), to: Math.min(e1, e2) };
 };
 
@@ -94,9 +101,9 @@ export const highlightIssueLocations = (
         nextTokens.push({ className: token.className, text: p1 });
       }
       if (p2.length) {
-        const newClassName = token.className.indexOf(rootClassName) === -1 ?
-            `${token.className} ${rootClassName}` :
-            token.className;
+        const newClassName = token.className.indexOf(rootClassName) === -1
+          ? `${token.className} ${rootClassName}`
+          : token.className;
         nextTokens.push({ className: newClassName, text: p2 });
       }
       if (p3.length) {
@@ -110,7 +117,7 @@ export const highlightIssueLocations = (
 };
 
 export const generateHTML = (tokens: Tokens): string => {
-  return tokens.map(token => (
-      `<span class="${token.className}">${escapeHtml(token.text)}</span>`
-  )).join('');
+  return tokens
+      .map(token => `<span class="${token.className}">${escapeHtml(token.text)}</span>`)
+      .join('');
 };

@@ -22,13 +22,12 @@ import React from 'react';
 import { Link } from 'react-router';
 import QualifierIcon from '../shared/qualifier-icon';
 import FavoriteContainer from '../controls/FavoriteContainer';
-import Workspace from '../workspace/main';
 import { getProjectUrl, getIssuesUrl } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-export default class SourceViewerHeader extends React.Component {
+export default class SourceViewerHeader extends React.PureComponent {
   props: {
     component: {
       canMarkAsFavorite: boolean,
@@ -64,11 +63,21 @@ export default class SourceViewerHeader extends React.Component {
   openInWorkspace = (e: SyntheticInputEvent) => {
     e.preventDefault();
     const { key } = this.props.component;
+    const Workspace = require('../workspace/main').default;
     Workspace.openComponent({ key });
   };
 
   render () {
-    const { key, measures, path, project, projectName, q, subProject, subProjectName } = this.props.component;
+    const {
+      key,
+      measures,
+      path,
+      project,
+      projectName,
+      q,
+      subProject,
+      subProjectName
+    } = this.props.component;
     const isUnitTest = q === 'UTS';
     // TODO check if source viewer is displayed inside workspace
     const workspace = false;
@@ -85,13 +94,12 @@ export default class SourceViewerHeader extends React.Component {
               </Link>
             </div>
 
-            {subProject != null && (
+            {subProject != null &&
               <div className="component-name-parent">
                 <Link to={getProjectUrl(subProject)} className="link-with-icon">
                   <QualifierIcon qualifier="BRC"/> <span>{subProjectName}</span>
                 </Link>
-              </div>
-            )}
+              </div>}
 
             <div className="component-name-path">
               <QualifierIcon qualifier={q}/>
@@ -99,17 +107,17 @@ export default class SourceViewerHeader extends React.Component {
               <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
 
-              {this.props.component.canMarkAsFavorite && (
-                <FavoriteContainer className="component-name-favorite" componentKey={key}/>
-              )}
+              {this.props.component.canMarkAsFavorite &&
+                <FavoriteContainer className="component-name-favorite" componentKey={key}/>}
             </div>
           </div>
         </div>
 
         <div className="dropdown source-viewer-header-actions">
-          <a className="js-actions icon-list dropdown-toggle"
-             data-toggle="dropdown"
-             title={translate('component_viewer.more_actions')}/>
+          <a
+            className="js-actions icon-list dropdown-toggle"
+            data-toggle="dropdown"
+            title={translate('component_viewer.more_actions')}/>
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
               <a className="js-measures" href="#" onClick={this.showMeasures}>
@@ -121,63 +129,76 @@ export default class SourceViewerHeader extends React.Component {
                 {translate('component_viewer.new_window')}
               </a>
             </li>
-            {!workspace && (
+            {!workspace &&
               <li>
                 <a className="js-workspace" href="#" onClick={this.openInWorkspace}>
                   {translate('component_viewer.open_in_workspace')}
                 </a>
-              </li>
-            )}
+              </li>}
             <li>
               <a className="js-raw-source" href={rawSourcesLink} target="_blank">
                 {translate('component_viewer.show_raw_source')}
               </a>
             </li>
           </ul>
-         </div>
+        </div>
 
         <div className="source-viewer-header-measures">
-          {isUnitTest && (
+          {isUnitTest &&
             <div className="source-viewer-header-measure">
-              <span className="source-viewer-header-measure-value">{formatMeasure(measures.tests, 'SHORT_INT')}</span>
-              <span className="source-viewer-header-measure-label">{translate('metric.tests.name')}</span>
-            </div>
-          )}
+              <span className="source-viewer-header-measure-value">
+                {formatMeasure(measures.tests, 'SHORT_INT')}
+              </span>
+              <span className="source-viewer-header-measure-label">
+                {translate('metric.tests.name')}
+              </span>
+            </div>}
 
-          {!isUnitTest && (
+          {!isUnitTest &&
             <div className="source-viewer-header-measure">
-              <span className="source-viewer-header-measure-value">{formatMeasure(measures.lines, 'SHORT_INT')}</span>
-              <span className="source-viewer-header-measure-label">{translate('metric.lines.name')}</span>
-            </div>
-          )}
+              <span className="source-viewer-header-measure-value">
+                {formatMeasure(measures.lines, 'SHORT_INT')}
+              </span>
+              <span className="source-viewer-header-measure-label">
+                {translate('metric.lines.name')}
+              </span>
+            </div>}
 
           <div className="source-viewer-header-measure">
             <span className="source-viewer-header-measure-value">
-              <Link to={getIssuesUrl({ resolved: 'false', componentKeys: key })}
-                    className="source-viewer-header-external-link" target="_blank">
+              <Link
+                to={getIssuesUrl({ resolved: 'false', componentKeys: key })}
+                className="source-viewer-header-external-link"
+                target="_blank">
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
                 {' '}
                 <i className="icon-detach"/>
               </Link>
             </span>
-            <span className="source-viewer-header-measure-label">{translate('metric.violations.name')}</span>
+            <span className="source-viewer-header-measure-label">
+              {translate('metric.violations.name')}
+            </span>
           </div>
 
-          {measures.coverage != null && (
+          {measures.coverage != null &&
             <div className="source-viewer-header-measure">
-              <span className="source-viewer-header-measure-value">{formatMeasure(measures.coverage, 'PERCENT')}</span>
-              <span className="source-viewer-header-measure-label">{translate('metric.coverage.name')}</span>
-            </div>
-          )}
+              <span className="source-viewer-header-measure-value">
+                {formatMeasure(measures.coverage, 'PERCENT')}
+              </span>
+              <span className="source-viewer-header-measure-label">
+                {translate('metric.coverage.name')}
+              </span>
+            </div>}
 
-          {measures.duplicationDensity != null && (
+          {measures.duplicationDensity != null &&
             <div className="source-viewer-header-measure">
-            <span className="source-viewer-header-measure-value">
-              {formatMeasure(measures.duplicationDensity, 'PERCENT')}
-            </span>
-              <span className="source-viewer-header-measure-label">{translate('duplications')}</span>
-            </div>
-          )}
+              <span className="source-viewer-header-measure-value">
+                {formatMeasure(measures.duplicationDensity, 'PERCENT')}
+              </span>
+              <span className="source-viewer-header-measure-label">
+                {translate('duplications')}
+              </span>
+            </div>}
         </div>
       </div>
     );

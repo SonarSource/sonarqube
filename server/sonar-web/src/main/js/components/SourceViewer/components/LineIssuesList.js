@@ -17,21 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Popup from '../../common/popup';
-import Template from '../templates/source-viewer-line-options-popup.hbs';
+// @flow
+import React from 'react';
+import ConnectedIssue from '../../issue/ConnectedIssue';
 
-export default Popup.extend({
-  template: Template,
+type Props = {
+  issueKeys: Array<string>,
+  onIssueClick: (issueKey: string) => void,
+  selectedIssue: string | null
+};
 
-  events: {
-    'click .js-get-permalink': 'getPermalink'
-  },
+export default class LineIssuesList extends React.PureComponent {
+  props: Props;
 
-  getPermalink (e) {
-    e.preventDefault();
-    const { component, line } = this.options;
-    const url = `${window.baseUrl}/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;
-    const windowParams = 'resizable=1,scrollbars=1,status=1';
-    window.open(url, component.name, windowParams);
+  render () {
+    const { issueKeys, onIssueClick, selectedIssue } = this.props;
+
+    return (
+      <div className="issue-list">
+        {issueKeys.map(issueKey => (
+          <ConnectedIssue
+            issueKey={issueKey}
+            key={issueKey}
+            onClick={onIssueClick}
+            selected={selectedIssue === issueKey}/>
+        ))}
+      </div>
+    );
   }
-});
+}

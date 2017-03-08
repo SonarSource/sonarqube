@@ -19,10 +19,8 @@
  */
 import $ from 'jquery';
 import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
 import Popup from '../../common/popup';
-import Workspace from '../../workspace/main';
-import Template from '../templates/source-viewer-duplication-popup.hbs';
+import Template from './templates/source-viewer-coverage-popup.hbs';
 
 export default Popup.extend({
   template: Template,
@@ -31,32 +29,32 @@ export default Popup.extend({
     'click a[data-key]': 'goToFile'
   },
 
+  onRender () {
+    Popup.prototype.onRender.apply(this, arguments);
+    this.$('.bubble-popup-container').isolatedScroll();
+  },
+
   goToFile (e) {
     e.stopPropagation();
     const key = $(e.currentTarget).data('key');
-    const line = $(e.currentTarget).data('line');
-    Workspace.openComponent({ key, line });
+    const Workspace = require('../../workspace/main').default;
+    Workspace.openComponent({ key });
   },
 
   serializeData () {
-    const that = this;
-    const groupedBlocks = groupBy(this.options.blocks, '_ref');
-    let duplications = Object.keys(groupedBlocks).map(fileRef => {
+    const row = this.options.line || {};
+    const tests = groupBy(this.options.tests, 'fileKey');
+    const testFiles = Object.keys(tests).map(fileKey => {
+      const testSet = tests[fileKey];
+      const test = testSet[0];
       return {
-        blocks: groupedBlocks[fileRef],
-        file: this.options.files[fileRef]
+        file: {
+          key: test.fileKey,
+          longName: test.fileName
+        },
+        tests: testSet
       };
     });
-    duplications = sortBy(duplications, d => {
-      const a = d.file.projectName !== that.options.component.projectName;
-      const b = d.file.subProjectName !== that.options.component.subProjectName;
-      const c = d.file.key !== that.options.component.key;
-      return '' + a + b + c;
-    });
-    return {
-      duplications,
-      component: this.options.component,
-      inRemovedComponent: this.options.inRemovedComponent
-    };
+    return { testFiles, row };
   }
 });
