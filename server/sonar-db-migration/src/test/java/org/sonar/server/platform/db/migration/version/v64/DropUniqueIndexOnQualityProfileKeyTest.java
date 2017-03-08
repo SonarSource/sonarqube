@@ -24,16 +24,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-public class LetQualityProfileOrganizationUuidAndKeyBeUniqueTest {
+public class DropUniqueIndexOnQualityProfileKeyTest {
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(LetQualityProfileOrganizationUuidAndKeyBeUniqueTest.class, "initial.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DropUniqueIndexOnQualityProfileKeyTest.class, "initial.sql");
 
-  public MakeQualityProfileOrganizationUuidAndKeyUnique underTest = new MakeQualityProfileOrganizationUuidAndKeyUnique(db.database());
+  public DropUniqueIndexOnQualityProfileKey underTest = new DropUniqueIndexOnQualityProfileKey(db.database());
 
   @Test
   public void test() throws SQLException {
     underTest.execute();
-    db.assertUniqueIndex("rules_profiles", "uniq_qprof_org_and_key", "organization_uuid", "kee");
+    db.assertIndexDoesNotExist("rules_profiles", "uniq_qprof_key");
   }
 }
