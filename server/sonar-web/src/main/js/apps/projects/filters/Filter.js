@@ -35,6 +35,7 @@ export default class Filter extends React.Component {
     renderName: React.PropTypes.func.isRequired,
     renderOption: React.PropTypes.func.isRequired,
     renderFooter: React.PropTypes.func,
+    renderSort: React.PropTypes.func,
 
     getFacetValueForOption: React.PropTypes.func,
 
@@ -70,6 +71,7 @@ export default class Filter extends React.Component {
     return (
         <div className="search-navigator-facet-header projects-facet-header">
           {this.props.renderName()}
+          {this.props.renderSort && this.props.renderSort()}
         </div>
     );
   }

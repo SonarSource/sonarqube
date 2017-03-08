@@ -19,9 +19,18 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
+import SortingFilter from './SortingFilter';
 import Rating from '../../../components/ui/Rating';
 
 export default class IssuesFilter extends React.Component {
+  static propTypes = {
+    property: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  }
+
   renderOption = (option, selected) => {
     return (
         <span>
@@ -32,6 +41,16 @@ export default class IssuesFilter extends React.Component {
         </span>
     );
   };
+
+  renderSort = () => {
+    return (
+        <SortingFilter
+          property={this.props.property}
+          query={this.props.query}
+          isFavorite={this.props.isFavorite}
+          organization={this.props.organization}/>
+    );
+  }
 
   getFacetValueForOption = (facet, option) => {
     return facet[option];
@@ -44,6 +63,7 @@ export default class IssuesFilter extends React.Component {
             getOptions={() => [1, 2, 3, 4, 5]}
             renderName={() => this.props.name}
             renderOption={this.renderOption}
+            renderSort={this.renderSort}
             getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}
             isFavorite={this.props.isFavorite}
