@@ -67,6 +67,7 @@ public final class SqTables {
     "metrics",
     "notifications",
     "organizations",
+    "organization_members",
     "permission_templates",
     "perm_templates_users",
     "perm_templates_groups",
