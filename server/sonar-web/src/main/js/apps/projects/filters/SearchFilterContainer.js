@@ -17,17 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
+import React from 'react';
 import { withRouter } from 'react-router';
-import Filter from './Filter';
-import { getProjectsAppFacetByProperty, getProjectsAppMaxFacetValue } from '../../../store/rootReducer';
+import debounce from 'lodash/debounce';
+import { getFilterUrl } from './utils';
+import SearchFilter from './SearchFilter';
 
-const mapStateToProps = (state, ownProps) => ({
-  value: ownProps.query[ownProps.property],
-  facet: getProjectsAppFacetByProperty(state, ownProps.property),
-  maxFacetValue: getProjectsAppMaxFacetValue(state),
-  // override query value to avoid re-rendering
-  query: undefined
-});
+class SearchFilterContainer extends React.Component {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  }
 
-export default connect(mapStateToProps)(withRouter(Filter));
+  constructor (props) {
+    super(props);
+    this.handleSearch = debounce(this.handleSearch.bind(this), 250);
+  }
+
+  handleSearch (userQuery) {
+    const path = getFilterUrl(this.props, { search: userQuery || null });
+    this.props.router.push(path);
+  }
+
+  render () {
+    return (
+      <SearchFilter
+        query={this.props.query}
+        handleSearch={this.handleSearch}/>
+    );
+  }
+}
+
+export default withRouter(SearchFilterContainer);

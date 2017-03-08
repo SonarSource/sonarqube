@@ -17,58 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
-import { withRouter } from 'react-router';
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
-import { getFilterUrl } from './utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-type Props = {
-  query?: string,
-  router: { push: (string) => void },
-  isFavorite?: boolean,
-  organization?: {}
-};
-
-type State = {
-  userQuery?: string
-};
-
-class SearchFilter extends React.PureComponent {
-  handleSearch: (string) => void;
-  props: Props;
-  state: State;
-
-  constructor (props: Props) {
-    super(props);
-    this.state = { userQuery: props.query };
-    this.handleSearch = debounce(this.handleSearch.bind(this), 250);
+export default class SearchFilter extends React.Component {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    handleSearch: React.PropTypes.func.isRequired
   }
 
-  componentWillReceiveProps (nextProps: Props) {
-    if (this.props.query === this.state.userQuery && nextProps.query !== this.props.query) {
-      this.setState({ userQuery: nextProps.query || '' });
+  constructor (props) {
+    super(props);
+    this.state = {
+      userQuery: props.query.search
+    };
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (this.props.query.search === this.state.userQuery && nextProps.query.search !== this.props.query.search) {
+      this.setState({
+        userQuery: nextProps.query.search || ''
+      });
     }
   }
 
-  handleSearch (userQuery) {
-    const path = getFilterUrl(this.props, { search: userQuery || null });
-    this.props.router.push(path);
-  }
-
-  handleQueryChange (userQuery) {
-    this.setState({ userQuery });
-    if (!userQuery || userQuery.length >= 2) {
-      this.handleSearch(userQuery);
+  handleQueryChange = ({ target }) => {
+    this.setState({ userQuery: target.value });
+    if (!target.value || target.value.length >= 2) {
+      this.props.handleSearch(target.value);
     }
   }
 
   render () {
     const { userQuery } = this.state;
     const inputClassName = classNames('input-super-large', {
-      touched: userQuery && userQuery.length < 2
+      'touched': userQuery && userQuery.length < 2
     });
 
     return (
@@ -78,7 +62,7 @@ class SearchFilter extends React.PureComponent {
           value={userQuery || ''}
           className={inputClassName}
           placeholder={translate('projects.search')}
-          onChange={event => this.handleQueryChange(event.target.value)}
+          onChange={this.handleQueryChange}
           autoComplete="off"/>
         <span className="note spacer-left">
           {translateWithParameters('select2.tooShort', 2)}
@@ -87,5 +71,3 @@ class SearchFilter extends React.PureComponent {
     );
   }
 }
-
-export default withRouter(SearchFilter);

@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { getLanguageByKey } from '../../../store/rootReducer';
 
-class LanguageFilterOption extends React.Component {
+export default class LanguageFilterOption extends React.Component {
   static propTypes = {
     languageKey: React.PropTypes.string.isRequired,
     language: React.PropTypes.object
@@ -35,9 +33,3 @@ class LanguageFilterOption extends React.Component {
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  language: getLanguageByKey(state, ownProps.languageKey)
-});
-
-export default connect(mapStateToProps)(LanguageFilterOption);
