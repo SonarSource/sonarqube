@@ -101,4 +101,29 @@ public class ProjectsPageTest {
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
   }
 
+  @Test
+  public void should_add_language() {
+    ProjectsPage page = nav.openProjects();
+    page.getFacetByProperty("languages")
+      .selectOptionItem("xoo2")
+      .shouldHaveValue("xoo2", "0");
+  }
+
+  @Test
+  public void should_sort_by_facet() {
+    ProjectsPage page = nav.openProjects();
+    page.getFacetByProperty("duplications")
+      .sortListDesc();
+    page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "63.7%");
+    page.getFacetByProperty("duplications")
+      .sortListAsc();
+    page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "0.0%");
+  }
+
+  @Test
+  public void should_search_for_project() {
+    ProjectsPage page = nav.openProjects();
+    page.searchProject("s").shouldHaveTotal(2);
+    page.searchProject("sam").shouldHaveTotal(1);
+  }
 }
