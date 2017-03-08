@@ -18,20 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import Select from 'react-select';
 import difference from 'lodash/difference';
 import { getFilterUrl } from './utils';
-import { getProjectsAppFacetByProperty, getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
-class LanguageFilterFooter extends React.Component {
+export default class LanguageFilterFooter extends React.Component {
   static propTypes = {
     property: React.PropTypes.string.isRequired,
     query: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object,
     languages: React.PropTypes.object,
     value: React.PropTypes.any,
     facet: React.PropTypes.object
@@ -64,11 +59,3 @@ class LanguageFilterFooter extends React.Component {
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  languages: getLanguages(state),
-  value: ownProps.query[ownProps.property],
-  facet: getProjectsAppFacetByProperty(state, ownProps.property)
-});
-
-export default connect(mapStateToProps)(withRouter(LanguageFilterFooter));
