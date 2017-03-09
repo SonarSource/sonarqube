@@ -21,7 +21,7 @@ import React from 'react';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
 
-export default class ProjectCardQualityGate extends React.Component {
+export default class ProjectCardQualityGate extends React.PureComponent {
   static propTypes = {
     status: React.PropTypes.string
   };

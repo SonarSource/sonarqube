@@ -28,7 +28,7 @@ import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import Organization from '../../../components/shared/Organization';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class ProjectCard extends React.Component {
+export default class ProjectCard extends React.PureComponent {
   props: {
     measures: { [string]: string },
     organization?: {},

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { withRouter } from 'react-router';
 import classNames from 'classnames';
@@ -24,27 +25,31 @@ import debounce from 'lodash/debounce';
 import { getFilterUrl } from './utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-class SearchFilter extends React.Component {
-  static propTypes = {
-    query: React.PropTypes.object.isRequired,
-    router: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
-  }
+type Props = {
+  query?: string,
+  router: { push: (string) => void },
+  isFavorite?: boolean,
+  organization?: {}
+};
 
-  constructor (props) {
+type State = {
+  userQuery?: string
+};
+
+class SearchFilter extends React.PureComponent {
+  handleSearch: (string) => void;
+  props: Props;
+  state: State;
+
+  constructor (props: Props) {
     super(props);
-    this.state = {
-      userQuery: props.query.search
-    };
+    this.state = { userQuery: props.query };
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  componentWillReceiveProps (nextProps) {
-    if (this.props.query.search === this.state.userQuery && nextProps.query.search !== this.props.query.search) {
-      this.setState({
-        userQuery: nextProps.query.search || ''
-      });
+  componentWillReceiveProps (nextProps: Props) {
+    if (this.props.query === this.state.userQuery && nextProps.query !== this.props.query) {
+      this.setState({ userQuery: nextProps.query || '' });
     }
   }
 
@@ -63,7 +68,7 @@ class SearchFilter extends React.Component {
   render () {
     const { userQuery } = this.state;
     const inputClassName = classNames('input-super-large', {
-      'touched': userQuery && userQuery.length < 2
+      touched: userQuery && userQuery.length < 2
     });
 
     return (

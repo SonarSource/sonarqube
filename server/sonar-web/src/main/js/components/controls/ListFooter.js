@@ -22,7 +22,7 @@ import React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-export default class ListFooter extends React.Component {
+export default class ListFooter extends React.PureComponent {
   static propTypes = {
     count: React.PropTypes.number.isRequired,
     total: React.PropTypes.number.isRequired,

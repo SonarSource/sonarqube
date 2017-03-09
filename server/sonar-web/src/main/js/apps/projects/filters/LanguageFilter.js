@@ -23,19 +23,17 @@ import FilterContainer from './FilterContainer';
 import LanguageFilterOption from './LanguageFilterOption';
 import LanguageFilterFooter from './LanguageFilterFooter';
 
-export default class LanguageFilter extends React.Component {
+export default class LanguageFilter extends React.PureComponent {
   static propTypes = {
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
     organization: React.PropTypes.object
-  }
+  };
 
   property = 'languages';
 
   renderOption = option => {
-    return (
-      <LanguageFilterOption languageKey={option}/>
-    );
+    return <LanguageFilterOption languageKey={option}/>;
   };
 
   getSortedOptions (facet) {
@@ -44,26 +42,30 @@ export default class LanguageFilter extends React.Component {
 
   renderFooter = () => (
     <LanguageFilterFooter
-        property={this.property}
-        query={this.props.query}
-        isFavorite={this.props.isFavorite}
-        organization={this.props.organization}/>
+      property={this.property}
+      query={this.props.query}
+      isFavorite={this.props.isFavorite}
+      organization={this.props.organization}/>
   );
 
   getFacetValueForOption = (facet, option) => facet[option];
 
+  getOptions = facet => facet ? this.getSortedOptions(facet) : [];
+
+  renderName = () => 'Languages';
+
   render () {
     return (
       <FilterContainer
-          property={this.property}
-          getOptions={facet => facet ? this.getSortedOptions(facet) : []}
-          renderName={() => 'Languages'}
-          renderOption={this.renderOption}
-          renderFooter={this.renderFooter}
-          getFacetValueForOption={this.getFacetValueForOption}
-          query={this.props.query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+        property={this.property}
+        getOptions={this.getOptions}
+        renderName={this.renderName}
+        renderOption={this.renderOption}
+        renderFooter={this.renderFooter}
+        getFacetValueForOption={this.getFacetValueForOption}
+        query={this.props.query}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}/>
     );
   }
 }

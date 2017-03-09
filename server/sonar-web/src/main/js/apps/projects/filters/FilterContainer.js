@@ -25,7 +25,9 @@ import { getProjectsAppFacetByProperty, getProjectsAppMaxFacetValue } from '../.
 const mapStateToProps = (state, ownProps) => ({
   value: ownProps.query[ownProps.property],
   facet: getProjectsAppFacetByProperty(state, ownProps.property),
-  maxFacetValue: getProjectsAppMaxFacetValue(state)
+  maxFacetValue: getProjectsAppMaxFacetValue(state),
+  // override query value to avoid re-rendering
+  query: undefined
 });
 
 export default connect(mapStateToProps)(withRouter(Filter));
