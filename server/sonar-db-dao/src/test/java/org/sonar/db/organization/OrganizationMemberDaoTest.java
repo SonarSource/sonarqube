@@ -21,6 +21,7 @@
 package org.sonar.db.organization;
 
 import java.util.Map;
+import java.util.Optional;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +43,18 @@ public class OrganizationMemberDaoTest {
   private DbSession dbSession = db.getSession();
 
   private OrganizationMemberDao underTest = dbClient.organizationMemberDao();
+
+  @Test
+  public void select() {
+    underTest.insert(dbSession, create("O1", 512));
+
+    Optional<OrganizationMemberDto> result = underTest.select(dbSession, "O1", 512);
+
+    assertThat(result).isPresent();
+    assertThat(result.get()).extracting(OrganizationMemberDto::getOrganizationUuid, OrganizationMemberDto::getUserId).containsExactly("O1", 512);
+    assertThat(underTest.select(dbSession, "O1", 256)).isNotPresent();
+    assertThat(underTest.select(dbSession, "O2", 512)).isNotPresent();
+  }
 
   @Test
   public void insert() {

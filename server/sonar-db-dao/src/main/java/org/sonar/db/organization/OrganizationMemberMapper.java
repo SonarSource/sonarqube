@@ -20,6 +20,10 @@
 
 package org.sonar.db.organization;
 
+import org.apache.ibatis.annotations.Param;
+
 public interface OrganizationMemberMapper {
   void insert(OrganizationMemberDto organizationMember);
+
+  OrganizationMemberDto select(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 }
