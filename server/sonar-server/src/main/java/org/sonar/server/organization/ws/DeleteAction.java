@@ -36,6 +36,8 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
+import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_002;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class DeleteAction implements OrganizationsWsAction {
@@ -66,10 +68,11 @@ public class DeleteAction implements OrganizationsWsAction {
       .setSince("6.2")
       .setHandler(this);
 
-    action.createParam(PARAM_KEY)
+    action.createParam(PARAM_ORGANIZATION)
       .setRequired(true)
       .setDescription("Organization key")
-      .setExampleValue("foo-company");
+      .setDeprecatedKey(PARAM_KEY, "6.4")
+      .setExampleValue(KEY_ORG_EXAMPLE_002);
   }
 
   @Override
@@ -79,7 +82,7 @@ public class DeleteAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       organizationFlags.checkEnabled(dbSession);
 
-      String key = request.mandatoryParam(PARAM_KEY);
+      String key = request.mandatoryParam(PARAM_ORGANIZATION);
       preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());
 
       OrganizationDto organizationDto = checkFoundWithOptional(
