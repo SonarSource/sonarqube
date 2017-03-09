@@ -29,12 +29,13 @@ public class OrganizationsWsModule extends Module {
       OrganizationsWs.class,
       OrganizationsWsSupport.class,
       // actions
+      AddMemberAction.class,
       CreateAction.class,
+      DeleteAction.class,
       EnableSupportAction.class,
       SearchAction.class,
-      UpdateAction.class,
-      DeleteAction.class,
-      SearchMyOrganizationsAction.class);
+      SearchMyOrganizationsAction.class,
+      UpdateAction.class);
   }
 
 }
