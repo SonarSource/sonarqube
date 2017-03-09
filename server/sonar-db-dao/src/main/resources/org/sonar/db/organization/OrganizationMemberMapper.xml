@@ -3,6 +3,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.db.organization.OrganizationMemberMapper">
+  <sql id="selectColumns">
+    om.organization_uuid as "organizationUuid",
+    om.user_id as "userId"
+  </sql>
+
+  <select id="select" resultType="OrganizationMember">
+    select
+    <include refid="selectColumns"/>
+    from organization_members om
+    where
+    om.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    and om.user_id = #{userId, jdbcType=INTEGER}
+  </select>
+
   <insert id="insert" parameterType="OrganizationMember" useGeneratedKeys="false">
     insert into organization_members
     (
