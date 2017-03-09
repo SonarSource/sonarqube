@@ -22,9 +22,9 @@ package org.sonar.server.organization.ws;
 import org.sonar.api.server.ws.WebService;
 
 public class OrganizationsWs implements WebService {
-  private final OrganizationsAction[] actions;
+  private final OrganizationsWsAction[] actions;
 
-  public OrganizationsWs(OrganizationsAction... actions) {
+  public OrganizationsWs(OrganizationsWsAction... actions) {
     this.actions = actions;
   }
 
@@ -33,7 +33,7 @@ public class OrganizationsWs implements WebService {
     NewController controller = context.createController("api/organizations")
       .setSince("6.2")
       .setDescription("Manage organizations.");
-    for (OrganizationsAction action : actions) {
+    for (OrganizationsWsAction action : actions) {
       action.define(controller);
     }
     controller.done();
