@@ -26,7 +26,7 @@ import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
 
-export default class ProjectCardMeasures extends React.Component {
+export default class ProjectCardMeasures extends React.PureComponent {
   static propTypes = {
     measures: React.PropTypes.object
   };

@@ -22,14 +22,14 @@ import FilterContainer from './FilterContainer';
 import SortingFilter from './SortingFilter';
 import Rating from '../../../components/ui/Rating';
 
-export default class IssuesFilter extends React.Component {
+export default class IssuesFilter extends React.PureComponent {
   static propTypes = {
     property: React.PropTypes.string.isRequired,
     name: React.PropTypes.string.isRequired,
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
     organization: React.PropTypes.object
-  }
+  };
 
   renderOption = (option, selected, value) => {
     const isUnderSelectedOption = this.highlightUnder(value) && option > value;
@@ -48,13 +48,13 @@ export default class IssuesFilter extends React.Component {
 
   renderSort = () => {
     return (
-        <SortingFilter
-          property={this.props.property}
-          query={this.props.query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+      <SortingFilter
+        property={this.props.property}
+        query={this.props.query}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}/>
     );
-  }
+  };
 
   highlightUnder (option) {
     return option !== null && option > 1;
@@ -64,12 +64,16 @@ export default class IssuesFilter extends React.Component {
     return facet[option];
   };
 
+  getOptions = () => [1, 2, 3, 4, 5];
+
+  renderName = () => this.props.name;
+
   render () {
     return (
         <FilterContainer
             property={this.props.property}
-            getOptions={() => [1, 2, 3, 4, 5]}
-            renderName={() => this.props.name}
+            getOptions={this.getOptions}
+            renderName={this.renderName}
             renderOption={this.renderOption}
             renderSort={this.renderSort}
             highlightUnder={this.highlightUnder}

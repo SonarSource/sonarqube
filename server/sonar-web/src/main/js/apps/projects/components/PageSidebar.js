@@ -30,7 +30,7 @@ import LanguageFilter from '../filters/LanguageFilter';
 import SearchFilter from '../filters/SearchFilter';
 import { translate } from '../../../helpers/l10n';
 
-export default class PageSidebar extends React.Component {
+export default class PageSidebar extends React.PureComponent {
   static propTypes = {
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool.isRequired,
@@ -58,7 +58,7 @@ export default class PageSidebar extends React.Component {
 
             <h3>{translate('filters')}</h3>
             <SearchFilter
-                query={this.props.query}
+                query={this.props.query.search}
                 isFavorite={this.props.isFavorite}
                 organization={this.props.organization}/>
           </div>

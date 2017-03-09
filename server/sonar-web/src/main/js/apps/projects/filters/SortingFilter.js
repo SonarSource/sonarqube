@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import { getFilterUrl } from './utils';
 import { translate } from '../../../helpers/l10n';
 
-export default class SortingFilter extends React.Component {
+export default class SortingFilter extends React.PureComponent {
   static propTypes = {
     property: React.PropTypes.string.isRequired,
     query: React.PropTypes.object.isRequired,

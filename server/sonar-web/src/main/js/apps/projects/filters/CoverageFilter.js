@@ -23,54 +23,61 @@ import SortingFilter from './SortingFilter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
 
-export default class CoverageFilter extends React.Component {
+export default class CoverageFilter extends React.PureComponent {
   static propTypes = {
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
     organization: React.PropTypes.object
-  }
+  };
 
   property = 'coverage';
 
   renderOption = (option, selected) => {
     return (
-        <span>
-          <CoverageRating value={getCoverageRatingAverageValue(option)} size="small" muted={!selected}/>
-          <span className="spacer-left">
-            {getCoverageRatingLabel(option)}
-          </span>
+      <span>
+        <CoverageRating
+          value={getCoverageRatingAverageValue(option)}
+          size="small"
+          muted={!selected}/>
+        <span className="spacer-left">
+          {getCoverageRatingLabel(option)}
         </span>
+      </span>
     );
   };
 
   renderSort = () => {
     return (
-        <SortingFilter
-          property={this.property}
-          query={this.props.query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-          sortDesc="right"/>
+      <SortingFilter
+        property={this.property}
+        query={this.props.query}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        sortDesc="right"/>
     );
-  }
+  };
 
   getFacetValueForOption = (facet, option) => {
     const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
     return facet[map[option - 1]];
   };
 
+  getOptions = () => [1, 2, 3, 4, 5];
+
+  renderName = () => 'Coverage';
+
   render () {
     return (
-        <FilterContainer
-            property={this.property}
-            getOptions={() => [1, 2, 3, 4, 5]}
-            renderName={() => 'Coverage'}
-            renderOption={this.renderOption}
-            renderSort={this.renderSort}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <FilterContainer
+        property={this.property}
+        getOptions={this.getOptions}
+        renderName={this.renderName}
+        renderOption={this.renderOption}
+        renderSort={this.renderSort}
+        getFacetValueForOption={this.getFacetValueForOption}
+        query={this.props.query}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}/>
     );
   }
 }

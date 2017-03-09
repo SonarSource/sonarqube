@@ -23,7 +23,7 @@ import NoProjects from './NoProjects';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import EmptyInstance from './EmptyInstance';
 
-export default class ProjectsList extends React.Component {
+export default class ProjectsList extends React.PureComponent {
   static propTypes = {
     projects: React.PropTypes.arrayOf(React.PropTypes.string),
     isFavorite: React.PropTypes.bool.isRequired,

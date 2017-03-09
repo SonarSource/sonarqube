@@ -24,7 +24,7 @@ import { getFilterUrl } from './utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
-export default class Filter extends React.Component {
+export default class Filter extends React.PureComponent {
   static propTypes = {
     value: React.PropTypes.any,
     property: React.PropTypes.string.isRequired,
