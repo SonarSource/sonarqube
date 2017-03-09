@@ -40,7 +40,7 @@ import static org.sonar.server.organization.OrganizationCreation.NewOrganization
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class CreateAction implements OrganizationsAction {
+public class CreateAction implements OrganizationsWsAction {
   private static final String ACTION = "create";
 
   private final Settings settings;

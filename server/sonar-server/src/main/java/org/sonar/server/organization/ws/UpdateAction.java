@@ -42,7 +42,7 @@ import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_URL;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class UpdateAction implements OrganizationsAction {
+public class UpdateAction implements OrganizationsWsAction {
   private static final String ACTION = "update";
 
   private final UserSession userSession;

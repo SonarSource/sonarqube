@@ -40,7 +40,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
-public class AddMemberAction implements OrganizationsAction {
+public class AddMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
 
