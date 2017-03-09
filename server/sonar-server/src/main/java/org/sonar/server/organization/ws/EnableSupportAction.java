@@ -31,7 +31,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
 
-public class EnableSupportAction implements OrganizationsAction {
+public class EnableSupportAction implements OrganizationsWsAction {
   private static final String ACTION = "enable_support";
 
   private final UserSession userSession;
