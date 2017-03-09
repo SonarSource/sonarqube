@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.organization.OrganizationMemberMapper">
+  <insert id="insert" parameterType="OrganizationMember" useGeneratedKeys="false">
+    insert into organization_members
+    (
+    organization_uuid,
+    user_id
+    )
+    values
+    (
+    #{organizationUuid, jdbcType=VARCHAR},
+    #{userId, jdbcType=INTEGER}
+    )
+  </insert>
+</mapper>
