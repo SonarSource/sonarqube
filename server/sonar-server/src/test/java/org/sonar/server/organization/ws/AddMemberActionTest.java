@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -57,7 +56,7 @@ public class AddMemberActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, new SequenceUuidFactory(), userSession));
+  private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, userSession));
 
   private OrganizationDto organization;
   private UserDto user;

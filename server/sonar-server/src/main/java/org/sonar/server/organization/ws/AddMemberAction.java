@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -43,12 +42,10 @@ import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class AddMemberAction implements OrganizationsAction {
   private final DbClient dbClient;
-  private final UuidFactory uuidFactory;
   private final UserSession userSession;
 
-  public AddMemberAction(DbClient dbClient, UuidFactory uuidFactory, UserSession userSession) {
+  public AddMemberAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
-    this.uuidFactory = uuidFactory;
     this.userSession = userSession;
   }
 
@@ -69,7 +66,7 @@ public class AddMemberAction implements OrganizationsAction {
       .setExampleValue(KEY_ORG_EXAMPLE_001);
 
     action
-      .createParam("login")
+      .createParam(PARAM_LOGIN)
       .setDescription("User login")
       .setRequired(true)
       .setExampleValue("ray.bradbury");
