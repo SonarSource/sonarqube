@@ -52,7 +52,7 @@ public class SearchAction implements OrganizationsWsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(false)
       .setDescription("Search for organizations")
-      .setResponseExample(getClass().getResource("example-search.json"))
+      .setResponseExample(getClass().getResource("search-example.json"))
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
