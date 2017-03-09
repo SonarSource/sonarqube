@@ -145,7 +145,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
   }
 
   private void updateCoverageFromLineData(final InputFile inputFile) {
-    if (((InputFile) inputFile).type() != Type.MAIN) {
+    if (inputFile.type() != Type.MAIN) {
       return;
     }
     DefaultMeasure<String> lineHitsMeasure = (DefaultMeasure<String>) measureCache.byMetric(inputFile.key(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
