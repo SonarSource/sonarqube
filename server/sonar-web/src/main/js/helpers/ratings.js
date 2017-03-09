@@ -26,7 +26,7 @@ const checkNumberRating = coverageRating => {
 export const getCoverageRatingLabel = rating => {
   checkNumberRating(rating);
 
-  const mapping = ['> 80%', '< 80%', '< 70%', '< 50%', '< 30%'];
+  const mapping = ['≥ 80%', '< 80%', '< 70%', '< 50%', '< 30%'];
   return mapping[rating - 1];
 };
 
@@ -39,7 +39,7 @@ export const getCoverageRatingAverageValue = rating => {
 export const getDuplicationsRatingLabel = rating => {
   checkNumberRating(rating);
 
-  const mapping = ['< 3%', '> 3%', '> 5%', '> 10%', '> 20%'];
+  const mapping = ['< 3%', '≥ 3%', '> 5%', '> 10%', '> 20%'];
   return mapping[rating - 1];
 };
 
@@ -52,7 +52,7 @@ export const getDuplicationsRatingAverageValue = rating => {
 export const getSizeRatingLabel = rating => {
   checkNumberRating(rating);
 
-  const mapping = ['< 1k', '> 1k', '> 10k', '> 100k', '> 500k'];
+  const mapping = ['< 1k', '≥ 1k', '> 10k', '> 100k', '> 500k'];
   return mapping[rating - 1];
 };
 
