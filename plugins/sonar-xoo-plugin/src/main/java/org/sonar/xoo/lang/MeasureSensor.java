@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
@@ -50,9 +51,7 @@ public class MeasureSensor implements Sensor {
     this.metricFinder = metricFinder;
   }
 
-  private void processFileMeasures(InputFile inputFile, SensorContext context) {
-    File ioFile = inputFile.file();
-    File measureFile = new File(ioFile.getParentFile(), ioFile.getName() + MEASURES_EXTENSION);
+  private void processFileMeasures(InputComponent component, File measureFile, SensorContext context) {
     if (measureFile.exists()) {
       LOG.debug("Processing " + measureFile.getAbsolutePath());
       try {
@@ -63,7 +62,7 @@ public class MeasureSensor implements Sensor {
           if (StringUtils.isBlank(line) || line.startsWith("#")) {
             continue;
           }
-          processMeasure(inputFile, context, measureFile, lineNumber, line);
+          processMeasure(component, context, measureFile, lineNumber, line);
         }
       } catch (IOException e) {
         throw new IllegalStateException(e);
@@ -71,25 +70,25 @@ public class MeasureSensor implements Sensor {
     }
   }
 
-  private void processMeasure(InputFile inputFile, SensorContext context, File measureFile, int lineNumber, String line) {
+  private void processMeasure(InputComponent component, SensorContext context, File measureFile, int lineNumber, String line) {
     try {
       String metricKey = StringUtils.substringBefore(line, ":");
       String value = line.substring(metricKey.length() + 1);
-      saveMeasure(context, inputFile, metricKey, value);
+      saveMeasure(context, component, metricKey, value);
     } catch (Exception e) {
       LOG.error("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
     }
   }
 
-  private void saveMeasure(SensorContext context, InputFile xooFile, String metricKey, String value) {
+  private void saveMeasure(SensorContext context, InputComponent component, String metricKey, String value) {
     org.sonar.api.batch.measure.Metric<Serializable> metric = metricFinder.findByKey(metricKey);
     if (metric == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);
     }
     NewMeasure<Serializable> newMeasure = context.newMeasure()
       .forMetric(metric)
-      .on(xooFile);
+      .on(component);
     if (Boolean.class.equals(metric.valueType())) {
       newMeasure.withValue(Boolean.parseBoolean(value));
     } else if (Integer.class.equals(metric.valueType())) {
@@ -116,7 +115,10 @@ public class MeasureSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY))) {
-      processFileMeasures(file, context);
+      File ioFile = file.file();
+      File measureFile = new File(ioFile.getParentFile(), ioFile.getName() + MEASURES_EXTENSION);
+      processFileMeasures(file, measureFile, context);
     }
+    processFileMeasures(context.module(), new File(context.fileSystem().baseDir(), "module" + MEASURES_EXTENSION), context);
   }
 }
