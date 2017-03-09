@@ -32,12 +32,13 @@ export default class IssuesFilter extends React.Component {
   }
 
   renderOption = (option, selected, value) => {
+    const isUnderSelectedOption = this.highlightUnder(value) && option > value;
     return (
         <span>
           <Rating
               value={option}
               small={true}
-              muted={!(selected || (value !== null && this.highlightUnder(value) && option > value))}/>
+              muted={!selected && !isUnderSelectedOption}/>
           {option > 1 && option < 5 && (
               <span className="note spacer-left">and worse</span>
           )}
@@ -56,7 +57,7 @@ export default class IssuesFilter extends React.Component {
   }
 
   highlightUnder (option) {
-    return option > 1;
+    return option !== null && option > 1;
   }
 
   getFacetValueForOption = (facet, option) => {
