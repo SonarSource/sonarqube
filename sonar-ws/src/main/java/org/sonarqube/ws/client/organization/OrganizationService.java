@@ -68,7 +68,7 @@ public class OrganizationService extends BaseService {
 
   public void delete(@Nullable String key) {
     PostRequest post = new PostRequest(path("delete"))
-      .setParam("key", key);
+      .setParam("organization", key);
 
     call(post).failIfNotSuccessful();
   }
