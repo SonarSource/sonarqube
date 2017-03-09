@@ -62,7 +62,8 @@ public class SearchAction implements QProfileWsAction {
       .setDescription(
         format("Language key. If provided, only profiles for the given language are returned. " +
           "It should not be used with '%s', '%s or '%s' at the same time.", PARAM_DEFAULTS, PARAM_PROJECT_KEY, PARAM_PROFILE_NAME))
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
+      .setDeprecatedSince("6.4");
 
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription(format("Project or module key. If provided, '%s' and '%s' parameters should not be provided.",
@@ -79,7 +80,8 @@ public class SearchAction implements QProfileWsAction {
 
     action.createParam(PARAM_PROFILE_NAME)
       .setDescription(format("Profile name. It should be always used with the '%s' or '%s' parameter.", PARAM_PROJECT_KEY, PARAM_DEFAULTS))
-      .setExampleValue("SonarQube Way");
+      .setExampleValue("SonarQube Way")
+      .setDeprecatedSince("6.4");
   }
 
   @Override
