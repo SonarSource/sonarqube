@@ -35,7 +35,7 @@ import org.sonarqube.ws.Organizations.Organization;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class SearchAction implements OrganizationsAction {
+public class SearchAction implements OrganizationsWsAction {
   private static final String PARAM_ORGANIZATIONS = "organizations";
   private static final String ACTION = "search";
 

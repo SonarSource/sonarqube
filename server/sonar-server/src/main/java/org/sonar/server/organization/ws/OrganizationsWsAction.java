@@ -21,5 +21,5 @@ package org.sonar.server.organization.ws;
 
 import org.sonar.server.ws.WsAction;
 
-public interface OrganizationsAction extends WsAction {
+public interface OrganizationsWsAction extends WsAction {
 }
