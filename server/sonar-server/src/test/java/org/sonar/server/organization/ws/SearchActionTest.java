@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -81,7 +80,7 @@ public class SearchActionTest {
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isEqualTo(underTest);
     assertThat(action.params()).hasSize(3);
-    assertThat(action.responseExample()).isEqualTo(getClass().getResource("example-search.json"));
+    assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
     WebService.Param organizationsParam = action.param("organizations");
     assertThat(organizationsParam.isRequired()).isFalse();
@@ -118,7 +117,7 @@ public class SearchActionTest {
 
     String response = executeJsonRequest(null, null);
 
-    assertJson(response).isSimilarTo(IOUtils.toString(getClass().getResource("example-search.json")));
+    assertJson(response).isSimilarTo(wsTester.getDef().responseExampleAsString());
   }
 
   @Test

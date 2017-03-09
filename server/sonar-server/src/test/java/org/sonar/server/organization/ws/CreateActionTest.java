@@ -24,7 +24,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -106,7 +105,7 @@ public class CreateActionTest {
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isEqualTo(underTest);
     assertThat(action.params()).hasSize(5);
-    assertThat(action.responseExample()).isEqualTo(getClass().getResource("example-create.json"));
+    assertThat(action.responseExample()).isEqualTo(getClass().getResource("create-example.json"));
     assertThat(action.param("name"))
       .matches(WebService.Param::isRequired)
       .matches(param -> "Foo Company".equals(param.exampleValue()))
@@ -136,7 +135,7 @@ public class CreateActionTest {
 
     String response = executeJsonRequest("Foo Company", "foo-company", "The Foo company produces quality software for Bar.", "https://www.foo.com", "https://www.foo.com/foo.png");
 
-    assertJson(response).isSimilarTo(IOUtils.toString(getClass().getResource("example-create.json")));
+    assertJson(response).isSimilarTo(wsTester.getDef().responseExampleAsString());
   }
 
   @Test
