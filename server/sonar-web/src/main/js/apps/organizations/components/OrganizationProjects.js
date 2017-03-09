@@ -49,7 +49,10 @@ class OrganizationProjects extends React.Component {
         <div id="projects-page" className="page page-limited">
           <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube"/>
           <PageHeaderContainer organization={this.props.organization}/>
-          <AllProjectsContainer location={this.props.location} organization={this.props.organization}/>
+          <AllProjectsContainer
+            isFavorite={false}
+            location={this.props.location}
+            organization={this.props.organization}/>
         </div>
     );
   }
