@@ -19,7 +19,8 @@
 }
 
 .project-card {
-  height: 115px;
+  position: relative;
+  min-height: 121px;
   box-sizing: border-box;
 }
 
@@ -94,6 +95,13 @@
 
 .project-card-quality-gate {
   line-height: 24px;
+}
+
+.project-card-analysis-date {
+  margin-top: -15px;
+  padding-bottom: 5px;
+  padding-right: 20px;
+  text-align: right;
 }
 
 .project-card-not-analyzed {
