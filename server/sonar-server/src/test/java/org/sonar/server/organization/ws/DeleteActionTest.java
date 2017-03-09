@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.organization.ws;
 
 import java.util.List;
@@ -49,8 +50,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 
 public class DeleteActionTest {
 
@@ -82,7 +83,7 @@ public class DeleteActionTest {
     assertThat(action.params()).hasSize(1);
     assertThat(action.responseExample()).isNull();
 
-    assertThat(action.param("key"))
+    assertThat(action.param("organization"))
       .matches(param -> param.isRequired())
       .matches(param -> "foo-company".equals(param.exampleValue()))
       .matches(param -> "Organization key".equals(param.description()));
@@ -113,7 +114,7 @@ public class DeleteActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'key' parameter is missing");
+    expectedException.expectMessage("The 'organization' parameter is missing");
 
     wsTester.newRequest().execute();
   }
@@ -286,7 +287,7 @@ public class DeleteActionTest {
 
   private void sendRequest(String organizationKey) {
     wsTester.newRequest()
-      .setParam(PARAM_KEY, organizationKey)
+      .setParam(PARAM_ORGANIZATION, organizationKey)
       .execute();
   }
 
