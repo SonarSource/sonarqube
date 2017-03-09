@@ -38,10 +38,9 @@ export default class GlobalNavMenu extends React.Component {
   }
 
   renderProjects () {
-    const pathname = this.props.currentUser.isLoggedIn ? '/projects/favorite' : '/projects';
     return (
         <li>
-          <Link to={{ pathname }} activeClassName="active">
+          <Link to="/projects" activeClassName="active">
             {translate('projects.page')}
           </Link>
         </li>

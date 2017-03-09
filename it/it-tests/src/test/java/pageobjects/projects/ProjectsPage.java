@@ -27,6 +27,8 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectsPage {
 
@@ -56,5 +58,25 @@ public class ProjectsPage {
     // warning - number is localized
     $("#projects-total").shouldHave(text(String.valueOf(total)));
     return this;
+  }
+
+  public ProjectsPage shouldDisplayAllProjects() {
+    assertThat(url()).endsWith("/projects");
+    return this;
+  }
+
+  public ProjectsPage shouldDisplayFavoriteProjects() {
+    assertThat(url()).endsWith("/projects/favorite");
+    return this;
+  }
+
+  public ProjectsPage selectAllProjects() {
+    $("#all-projects").click();
+    return shouldDisplayAllProjects();
+  }
+
+  public ProjectsPage selectFavoriteProjects() {
+    $("#favorite-projects").click();
+    return shouldDisplayFavoriteProjects();
   }
 }

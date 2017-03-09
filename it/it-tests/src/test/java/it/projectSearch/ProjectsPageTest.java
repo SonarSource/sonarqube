@@ -78,4 +78,27 @@ public class ProjectsPageTest {
     page.shouldHaveTotal(1);
   }
 
+  @Test
+  public void should_open_default_page() {
+    // default page can be "All Projects" or "Favorite Projects" depending on your last choice
+    ProjectsPage page = nav.openProjects();
+
+      // all projects for anonymous user
+    page.shouldHaveTotal(2).shouldDisplayAllProjects();
+
+    // all projects by default for logged in user
+    page = nav.logIn().asAdmin().openProjects();
+    page.shouldHaveTotal(2).shouldDisplayAllProjects();
+
+    // select favorite
+    page.selectFavoriteProjects();
+    page = nav.openProjects();
+    page.shouldHaveTotal(0).shouldDisplayFavoriteProjects();
+
+    // select all
+    page.selectAllProjects();
+    page = nav.openProjects();
+    page.shouldHaveTotal(2).shouldDisplayAllProjects();
+  }
+
 }

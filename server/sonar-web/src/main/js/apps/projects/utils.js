@@ -17,15 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, IndexRoute } from 'react-router';
-import App from './components/App';
-import DefaultPageSelector from './components/DefaultPageSelector';
-import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
+// @flow
+const LOCALSTORAGE_KEY = 'sonarqube.projects.default';
+const LOCALSTORAGE_FAVORITE = 'favorite';
+const LOCALSTORAGE_ALL = 'all';
 
-export default (
-  <Route component={App}>
-    <IndexRoute component={DefaultPageSelector}/>
-    <Route path="favorite" component={FavoriteProjectsContainer}/>
-  </Route>
-);
+const isFavoriteSet = (): boolean => {
+  const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
+  return setting === LOCALSTORAGE_FAVORITE;
+};
+
+export const shouldRedirectToFavorite = (currentUser: { isLoggedIn: boolean }) => {
+  return currentUser.isLoggedIn && isFavoriteSet();
+};
+
+const save = (value: string) => {
+  try {
+    window.localStorage.setItem(LOCALSTORAGE_KEY, value);
+  } catch (e) {
+    // usually that means the storage is full
+    // just do nothing in this case
+  }
+};
+
+export const saveAll = () => save(LOCALSTORAGE_ALL);
+
+export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);

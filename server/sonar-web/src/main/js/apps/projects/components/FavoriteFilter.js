@@ -20,6 +20,7 @@
 import React from 'react';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { saveAll } from '../utils';
 
 export default class FavoriteFilter extends React.Component {
   render () {
@@ -27,25 +28,34 @@ export default class FavoriteFilter extends React.Component {
       return null;
     }
 
-    const pathnameForFavorite = this.props.organization ?
-        `/organizations/${this.props.organization.key}/projects/favorite` :
-        '/projects/favorite';
+    const pathnameForFavorite = this.props.organization
+      ? `/organizations/${this.props.organization.key}/projects/favorite`
+      : '/projects/favorite';
 
-    const pathnameForAll = this.props.organization ?
-        `/organizations/${this.props.organization.key}/projects` :
-        '/projects';
+    const pathnameForAll = this.props.organization
+      ? `/organizations/${this.props.organization.key}/projects`
+      : '/projects';
 
     return (
-        <div className="projects-sidebar pull-left text-center">
-          <div className="button-group">
-            <Link to={pathnameForFavorite} className="button" activeClassName="button-active">
-              {translate('my_favorites')}
-            </Link>
-            <IndexLink to={pathnameForAll} className="button" activeClassName="button-active">
-              {translate('all')}
-            </IndexLink>
-          </div>
+      <div className="projects-sidebar pull-left text-center">
+        <div className="button-group">
+          <Link
+            id="favorite-projects"
+            to={pathnameForFavorite}
+            className="button"
+            activeClassName="button-active">
+            {translate('my_favorites')}
+          </Link>
+          <IndexLink
+            id="all-projects"
+            to={pathnameForAll}
+            className="button"
+            activeClassName="button-active"
+            onClick={saveAll}>
+            {translate('all')}
+          </IndexLink>
         </div>
+      </div>
     );
   }
 }

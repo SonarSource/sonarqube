@@ -81,9 +81,8 @@ public class UiExtensionsTest {
 
   @Test
   public void project_page() {
-    nav.open("/projects");
+    nav.open("/dashboard?id=sample");
 
-    $(By.linkText("Sample")).click();
     $("#component-navigation-more").click();
     $(By.linkText("Project Page")).click();
 
@@ -93,9 +92,8 @@ public class UiExtensionsTest {
 
   @Test
   public void project_admin_page() {
-    nav.logIn().asAdmin().open("/projects");
+    nav.logIn().asAdmin().open("/dashboard?id=sample");
 
-    $(By.linkText("Sample")).click();
     $("#component-navigation-admin").click();
     $(By.linkText("Project Admin Page")).click();
 
