@@ -38,7 +38,7 @@ import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
-public class DeleteAction implements OrganizationsAction {
+public class DeleteAction implements OrganizationsWsAction {
   private static final String ACTION = "delete";
 
   private final UserSession userSession;

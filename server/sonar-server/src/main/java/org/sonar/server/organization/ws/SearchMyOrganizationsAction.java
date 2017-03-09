@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
-public class SearchMyOrganizationsAction implements OrganizationsAction {
+public class SearchMyOrganizationsAction implements OrganizationsWsAction {
   private static final String ACTION = "search_my_organizations";
 
   private final UserSession userSession;
