@@ -32,11 +32,14 @@ import static org.sonar.core.util.Protobuf.setNullable;
  * Factorizes code and constants between Organization WS's actions.
  */
 public class OrganizationsWsSupport {
+  static final String PARAM_ORGANIZATION = "organization";
   static final String PARAM_KEY = "key";
   static final String PARAM_NAME = "name";
   static final String PARAM_DESCRIPTION = "description";
   static final String PARAM_URL = "url";
   static final String PARAM_AVATAR_URL = "avatar";
+
+  static final String PARAM_LOGIN = "login";
 
   private final OrganizationValidation organizationValidation;
 

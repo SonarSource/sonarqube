@@ -27,6 +27,8 @@ public class KeyExamples {
   public static final String KEY_PROJECT_EXAMPLE_003 = "third_project";
   public static final String KEY_DEVELOPER_EXAMPLE_001 = "DEV:ada@lovelace.com";
 
+  public static final String KEY_ORG_EXAMPLE_001 = "my-org";
+
   private KeyExamples() {
     // prevent instantiation
   }
