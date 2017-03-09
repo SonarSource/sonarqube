@@ -39,11 +39,13 @@ export default class Filter extends React.Component {
 
     getFacetValueForOption: React.PropTypes.func,
 
-    halfWidth: React.PropTypes.bool
+    halfWidth: React.PropTypes.bool,
+    highlightUnder: React.PropTypes.func
   };
 
   static defaultProps = {
-    halfWidth: false
+    halfWidth: false,
+    highlightUnder: () => false
   };
 
   isSelected (option) {
@@ -90,10 +92,11 @@ export default class Filter extends React.Component {
   }
 
   renderOption (option) {
-    const { facet, getFacetValueForOption } = this.props;
+    const { facet, getFacetValueForOption, value } = this.props;
     const className = classNames('facet', 'search-navigator-facet', 'projects-facet', {
       'active': this.isSelected(option),
-      'search-navigator-facet-half': this.props.halfWidth
+      'search-navigator-facet-half': this.props.halfWidth,
+      'search-navigator-facet-highlight-under': this.props.highlightUnder(option)
     }, this.props.optionClassName);
 
     const path = this.getPath(option);
@@ -103,7 +106,7 @@ export default class Filter extends React.Component {
     return (
         <Link key={option} className={className} to={path} data-key={option}>
           <span className="facet-name">
-            {this.props.renderOption(option, this.isSelected(option))}
+            {this.props.renderOption(option, this.isSelected(option), value)}
           </span>
           {facetValue != null && (
               <span className="facet-stat">
