@@ -68,7 +68,7 @@ public class CreateAction implements OrganizationsWsAction {
       .setPost(true)
       .setDescription("Create an organization.<br />" +
         "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization support must be enabled.")
-      .setResponseExample(getClass().getResource("example-create.json"))
+      .setResponseExample(getClass().getResource("create-example.json"))
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
