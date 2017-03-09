@@ -17,18 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonar.db.organization;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class OrganizationMemberDto {
+  private String organizationUuid;
+  private Integer userId;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 46);
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public OrganizationMemberDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
+  }
+
+  public Integer getUserId() {
+    return userId;
+  }
+
+  public OrganizationMemberDto setUserId(Integer userId) {
+    this.userId = userId;
+    return this;
   }
 }
