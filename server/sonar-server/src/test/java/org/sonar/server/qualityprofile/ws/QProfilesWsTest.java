@@ -128,6 +128,8 @@ public class QProfilesWsTest {
     assertThat(search.isPost()).isFalse();
     assertThat(search.params()).hasSize(4);
     assertThat(search.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
+    assertThat(search.param("language").deprecatedSince()).isEqualTo("6.4");
+    assertThat(search.param("profileName").deprecatedSince()).isEqualTo("6.4");
   }
 
   @Test

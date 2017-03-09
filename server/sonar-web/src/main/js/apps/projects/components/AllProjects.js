@@ -22,6 +22,7 @@ import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
 import { parseUrlQuery } from '../store/utils';
+import { saveAll, saveFavorite } from '../utils';
 
 export default class AllProjects extends React.Component {
   static propTypes = {
@@ -35,6 +36,14 @@ export default class AllProjects extends React.Component {
   };
 
   componentDidMount () {
+    // do not touch organization-level page
+    if (!this.props.organization) {
+      if (this.props.isFavorite) {
+        saveFavorite();
+      } else {
+        saveAll();
+      }
+    }
     this.handleQueryChange();
   }
 

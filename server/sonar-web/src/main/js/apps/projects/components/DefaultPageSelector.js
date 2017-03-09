@@ -19,26 +19,36 @@
  */
 // @flow
 import React from 'react';
-import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../store/rootReducer';
+import { withRouter } from 'react-router';
+import AllProjectsContainer from './AllProjectsContainer';
+import { getCurrentUser } from '../../../store/rootReducer';
+import { shouldRedirectToFavorite } from '../utils';
 
-class Landing extends React.Component {
-  static propTypes = {
-    currentUser: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.object]).isRequired
+class DefaultPageSelector extends React.PureComponent {
+  props: {
+    currentUser: { isLoggedIn: boolean },
+    location: {},
+    router: { replace: (path: string) => void }
   };
 
   componentDidMount () {
-    const { currentUser, router } = this.props;
-    if (currentUser.isLoggedIn) {
-      router.replace('/projects');
-    } else {
-      router.replace('/about');
+    if (shouldRedirectToFavorite(this.props.currentUser)) {
+      this.props.router.replace('/projects/favorite');
     }
   }
 
   render () {
-    return null;
+    if (shouldRedirectToFavorite(this.props.currentUser)) {
+      return null;
+    } else {
+      return (
+        <AllProjectsContainer
+          isFavorite={false}
+          location={this.props.location}
+          user={this.props.currentUser}/>
+      );
+    }
   }
 }
 
@@ -46,4 +56,4 @@ const mapStateToProps = state => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(withRouter(Landing));
+export default connect(mapStateToProps)(withRouter(DefaultPageSelector));

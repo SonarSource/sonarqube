@@ -31,10 +31,14 @@ export default class IssuesFilter extends React.Component {
     organization: React.PropTypes.object
   }
 
-  renderOption = (option, selected) => {
+  renderOption = (option, selected, value) => {
+    const isUnderSelectedOption = this.highlightUnder(value) && option > value;
     return (
         <span>
-          <Rating value={option} small={true} muted={!selected}/>
+          <Rating
+              value={option}
+              small={true}
+              muted={!selected && !isUnderSelectedOption}/>
           {option > 1 && option < 5 && (
               <span className="note spacer-left">and worse</span>
           )}
@@ -52,6 +56,10 @@ export default class IssuesFilter extends React.Component {
     );
   }
 
+  highlightUnder (option) {
+    return option !== null && option > 1;
+  }
+
   getFacetValueForOption = (facet, option) => {
     return facet[option];
   };
@@ -64,6 +72,7 @@ export default class IssuesFilter extends React.Component {
             renderName={() => this.props.name}
             renderOption={this.renderOption}
             renderSort={this.renderSort}
+            highlightUnder={this.highlightUnder}
             getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}
             isFavorite={this.props.isFavorite}

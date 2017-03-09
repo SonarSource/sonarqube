@@ -114,8 +114,8 @@
   vertical-align: middle;
   width: 100%;
   margin: 0 0 1px 0;
-  padding: 3px 5px;
-  border: 1px solid transparent;
+  padding: 4px 6px;
+  border: none;
   border-radius: 2px;
   box-sizing: border-box;
   background-color: @barBackgroundColor;
@@ -127,6 +127,12 @@
 
   &:hover {
     border: 1px solid @blue;
+    padding: 3px 5px;
+
+    .facet-stat {
+      top: -1px;
+      right: -1px;
+    }
   }
 
   .facet-name {
@@ -186,6 +192,7 @@
 
   &.active {
     border: 1px solid @blue;
+    padding: 3px 5px;
     background-color: @lightBlue;
     text-decoration: none;
 
@@ -196,6 +203,8 @@
     .facet-stat {
       border-color: @blue;
       background-color: @lightBlue;
+      top: -1px;
+      right: -1px;
 
       &:before {
         background-image: linear-gradient(to right, fade(@lightBlue, 0%), @lightBlue 75%);
@@ -218,6 +227,70 @@
 
   &:nth-child(odd) {
     margin-right: 10%;
+  }
+}
+
+.search-navigator-facet-highlight-under {
+  margin-bottom: 0;
+
+  &:hover, &.active {
+    border-bottom: none;
+    padding-bottom: 4px;
+    border-radius: 2px 2px 0 0;
+
+    & ~ .search-navigator-facet {
+      padding-left: 5px;
+      padding-right: 5px;
+      border-left: 1px solid @blue;
+      border-right: 1px solid @blue;
+      border-radius: 0;
+
+      .facet-stat {
+        right: -1px;
+      }
+
+      &:last-of-type {
+        padding-bottom: 3px;
+        border-bottom: 1px solid @blue;
+        border-radius: 0 0 2px 2px;
+      }
+    }
+
+    &:last-of-type {
+      padding-bottom: 3px;
+      border-bottom: 1px solid @blue;
+      border-radius: 2px;
+    }
+  }
+
+  .selectFacet(@bgColor) {
+    background-color: @bgColor;
+    text-decoration: none;
+
+    .facet-name {
+      background-color: @bgColor;
+    }
+
+    .facet-stat {
+      border-color: @blue;
+      background-color: @bgColor;
+
+      &:before {
+        background-image: linear-gradient(to right, fade(@bgColor, 0%), @bgColor 75%);
+      }
+    }
+
+    .facet-toggle {
+      display: inline;
+    }
+  }
+
+  &.active ~ .search-navigator-facet {
+    .selectFacet(@lightBlue);
+
+    &:hover, &:hover ~ .search-navigator-facet {
+      .selectFacet(darken(@lightBlue, 10%));
+    }
   }
 }
 

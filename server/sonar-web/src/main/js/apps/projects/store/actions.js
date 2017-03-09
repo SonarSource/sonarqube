@@ -92,7 +92,10 @@ const fetchProjectMeasures = projects => dispatch => {
   }
 
   const projectKeys = projects.map(project => project.key);
-  return getMeasuresForProjects(projectKeys, METRICS).then(onReceiveMeasures(dispatch, projectKeys), onFail(dispatch));
+  return getMeasuresForProjects(projectKeys, METRICS).then(
+    onReceiveMeasures(dispatch, projectKeys),
+    onFail(dispatch)
+  );
 };
 
 const fetchProjectOrganizations = projects => dispatch => {
@@ -101,7 +104,10 @@ const fetchProjectOrganizations = projects => dispatch => {
   }
 
   const organizationKeys = uniq(projects.map(project => project.organization));
-  return getOrganizations(organizationKeys).then(onReceiveOrganizations(dispatch), onFail(dispatch));
+  return getOrganizations(organizationKeys).then(
+    onReceiveOrganizations(dispatch),
+    onFail(dispatch)
+  );
 };
 
 const handleFavorites = (dispatch, projects) => {
@@ -122,10 +128,12 @@ const onReceiveProjects = dispatch => response => {
   ]).then(() => {
     dispatch(updateState({ loading: false }));
   });
-  dispatch(updateState({
-    total: response.paging.total,
-    pageIndex: response.paging.pageIndex
-  }));
+  dispatch(
+    updateState({
+      total: response.paging.total,
+      pageIndex: response.paging.pageIndex
+    })
+  );
 };
 
 const onReceiveMoreProjects = dispatch => response => {
@@ -143,7 +151,11 @@ const onReceiveMoreProjects = dispatch => response => {
 
 export const fetchProjects = (query, isFavorite, organization) => dispatch => {
   dispatch(updateState({ loading: true }));
-  const data = convertToQueryData(query, isFavorite, organization, { ps: PAGE_SIZE, facets: FACETS.join() });
+  const data = convertToQueryData(query, isFavorite, organization, {
+    ps: PAGE_SIZE,
+    facets: FACETS.join(),
+    f: 'analysisDate'
+  });
   return searchProjects(data).then(onReceiveProjects(dispatch), onFail(dispatch));
 };
 
@@ -151,6 +163,10 @@ export const fetchMoreProjects = (query, isFavorite, organization) => (dispatch,
   dispatch(updateState({ loading: true }));
   const state = getState();
   const { pageIndex } = getProjectsAppState(state);
-  const data = convertToQueryData(query, isFavorite, organization, { ps: PAGE_SIZE, p: pageIndex + 1 });
+  const data = convertToQueryData(query, isFavorite, organization, {
+    ps: PAGE_SIZE,
+    p: pageIndex + 1,
+    f: 'analysisDate'
+  });
   return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
 };

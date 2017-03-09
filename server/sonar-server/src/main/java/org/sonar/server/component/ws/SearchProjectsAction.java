@@ -110,6 +110,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)
+      .setDescription("Comma-separated list of the fields to be returned in response")
       .setSince("6.4");
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("the organization to search projects in")

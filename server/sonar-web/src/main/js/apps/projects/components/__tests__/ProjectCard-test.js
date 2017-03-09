@@ -18,14 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Route, IndexRoute } from 'react-router';
-import App from './components/App';
-import DefaultPageSelector from './components/DefaultPageSelector';
-import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
+import { shallow } from 'enzyme';
+import ProjectCard from '../ProjectCard';
 
-export default (
-  <Route component={App}>
-    <IndexRoute component={DefaultPageSelector}/>
-    <Route path="favorite" component={FavoriteProjectsContainer}/>
-  </Route>
-);
+const PROJECT = { analysisDate: '2017-01-01', key: 'foo', name: 'Foo' };
+const MEASURES = {};
+
+it('should display analysis date', () => {
+  expect(
+    shallow(<ProjectCard measures={MEASURES} project={PROJECT}/>).find(
+      '.project-card-analysis-date'
+    )
+  ).toMatchSnapshot();
+});
+
+it('should NOT display analysis date', () => {
+  const project = { ...PROJECT, analysisDate: undefined };
+  expect(
+    shallow(<ProjectCard measures={MEASURES} project={project}/>)
+        .find('.project-card-analysis-date')
+        .exists()
+  ).toBeFalsy();
+});
+
+it('should display loading', () => {
+  expect(shallow(<ProjectCard project={PROJECT}/>)).toMatchSnapshot();
+});

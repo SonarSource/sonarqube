@@ -19,7 +19,8 @@
 }
 
 .project-card {
-  height: 115px;
+  position: relative;
+  min-height: 121px;
   box-sizing: border-box;
 }
 
@@ -96,6 +97,13 @@
   line-height: 24px;
 }
 
+.project-card-analysis-date {
+  margin-top: -15px;
+  padding-bottom: 5px;
+  padding-right: 20px;
+  text-align: right;
+}
+
 .project-card-not-analyzed {
   padding: 14px 0;
 }
@@ -169,6 +177,7 @@
   transition: width 0.3s ease;
 }
 
-.search-navigator-facet.active .projects-facet-bar-inner {
+.search-navigator-facet.active .projects-facet-bar-inner,
+.search-navigator-facet-highlight-under.active ~ .search-navigator-facet .projects-facet-bar-inner {
   background-color: #4b9fd5;
 }
