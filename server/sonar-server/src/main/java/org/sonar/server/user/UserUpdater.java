@@ -38,6 +38,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
@@ -118,6 +119,7 @@ public class UserUpdater {
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
     addDefaultGroup(dbSession, existingUser);
+    addUserToDefaultOrganization(dbSession, existingUser);
     dbSession.commit();
   }
 
@@ -348,6 +350,7 @@ public class UserUpdater {
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
     addDefaultGroup(dbSession, userDto);
+    addUserToDefaultOrganization(dbSession, userDto);
     organizationCreation.createForUser(dbSession, userDto);
     dbSession.commit();
     userIndexer.index(userDto.getLogin());
@@ -396,5 +399,10 @@ public class UserUpdater {
           defaultGroupName));
     }
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
+  }
+
+  private void addUserToDefaultOrganization(DbSession dbSession, UserDto userDto) {
+    String defOrgUuid = defaultOrganizationProvider.get().getUuid();
+    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto().setOrganizationUuid(defOrgUuid).setUserId(userDto.getId()));
   }
 }
