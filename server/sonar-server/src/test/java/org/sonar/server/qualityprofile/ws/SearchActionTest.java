@@ -111,7 +111,7 @@ public class SearchActionTest {
       new SearchDataLoader(
         languages,
         new QProfileLookup(dbClient),
-        new QProfileFactory(dbClient, UuidFactoryFast.getInstance()),
+        new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE),
         dbClient,
         new ComponentFinder(dbClient), activeRuleIndex, qProfileWsSupport),
       languages);

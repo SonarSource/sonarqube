@@ -229,6 +229,46 @@ public class RegisterQualityProfiles {
     return builders.stream().map(QualityProfile.Builder::build).collect(Collectors.toList(builders.size()));
   }
 
+  private void registerProfilesForLanguage(DbSession session, OrganizationDto organization, List<QualityProfile> qualityProfiles, List<ActiveRuleChange> changes) {
+    qualityProfiles.stream()
+      .filter(qp -> shouldRegister(qp.getQProfileName(), session))
+      .forEach(qp -> register(session, organization, qp, changes));
+    session.commit();
+  }
+
+  private void register(DbSession session, OrganizationDto organization, QualityProfile qualityProfile, List<ActiveRuleChange> changes) {
+    LOGGER.info("Register profile " + qualityProfile.getQProfileName());
+
+    QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, qualityProfile.getName(), qualityProfile.getLanguage(), session);
+    if (profileDto != null) {
+      changes.addAll(profileFactory.delete(session, profileDto.getKey(), true));
+    }
+    QualityProfileDto newQProfileDto = profileFactory.create(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
+    for (org.sonar.api.rules.ActiveRule activeRule : qualityProfile.getActiveRules()) {
+      RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
+      RuleActivation activation = new RuleActivation(ruleKey);
+      activation.setSeverity(activeRule.getSeverity() != null ? activeRule.getSeverity().name() : null);
+      for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+        activation.setParameter(param.getKey(), param.getValue());
+      }
+      changes.addAll(ruleActivator.activate(session, activation, newQProfileDto));
+    }
+
+    LoadedTemplateDto template = new LoadedTemplateDto(templateKey(qualityProfile.getQProfileName()), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
+    dbClient.loadedTemplateDao().insert(template, session);
+    session.commit();
+  }
+
+  private boolean shouldRegister(QProfileName key, DbSession session) {
+    // check if the profile was already registered in the past
+    return dbClient.loadedTemplateDao()
+      .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
+  }
+
+  static String templateKey(QProfileName key) {
+    return lowerCase(key.getLanguage(), Locale.ENGLISH) + ":" + key.getName();
+  }
+
   private static final class QualityProfile {
     private final QProfileName qProfileName;
     private final boolean isDefault;
@@ -308,48 +348,5 @@ public class RegisterQualityProfiles {
         return new QualityProfile(this);
       }
     }
-  }
-
-  private void registerProfilesForLanguage(DbSession session, OrganizationDto organization, List<QualityProfile> qualityProfiles, List<ActiveRuleChange> changes) {
-    qualityProfiles
-      .forEach(qualityProfile -> {
-        if (shouldRegister(qualityProfile.getQProfileName(), session)) {
-          register(session, organization, qualityProfile, changes);
-        }
-      });
-    session.commit();
-  }
-
-  private void register(DbSession session, OrganizationDto organization, QualityProfile qualityProfile, List<ActiveRuleChange> changes) {
-    LOGGER.info("Register profile " + qualityProfile.getQProfileName());
-
-    QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, qualityProfile.getName(), qualityProfile.getLanguage(), session);
-    if (profileDto != null) {
-      changes.addAll(profileFactory.delete(session, profileDto.getKey(), true));
-    }
-    QualityProfileDto newQProfileDto = profileFactory.create(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
-    for (org.sonar.api.rules.ActiveRule activeRule : qualityProfile.getActiveRules()) {
-      RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-      RuleActivation activation = new RuleActivation(ruleKey);
-      activation.setSeverity(activeRule.getSeverity() != null ? activeRule.getSeverity().name() : null);
-      for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-        activation.setParameter(param.getKey(), param.getValue());
-      }
-      changes.addAll(ruleActivator.activate(session, activation, newQProfileDto));
-    }
-
-    LoadedTemplateDto template = new LoadedTemplateDto(templateKey(qualityProfile.getQProfileName()), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
-    dbClient.loadedTemplateDao().insert(template, session);
-    session.commit();
-  }
-
-  private boolean shouldRegister(QProfileName key, DbSession session) {
-    // check if the profile was already registered in the past
-    return dbClient.loadedTemplateDao()
-      .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
-  }
-
-  static String templateKey(QProfileName key) {
-    return lowerCase(key.getLanguage(), Locale.ENGLISH) + ":" + key.getName();
   }
 }
