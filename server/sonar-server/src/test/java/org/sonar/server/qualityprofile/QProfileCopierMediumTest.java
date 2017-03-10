@@ -32,6 +32,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -48,6 +49,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 
 public class QProfileCopierMediumTest {
 
@@ -56,13 +58,14 @@ public class QProfileCopierMediumTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbClient db;
-  DbSession dbSession;
-  ActiveRuleIndex index;
-  RuleActivator ruleActivator;
-  QProfileCopier copier;
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
+  private DbClient db;
+  private DbSession dbSession;
+  private ActiveRuleIndex index;
+  private RuleActivator ruleActivator;
+  private QProfileCopier copier;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
+  private OrganizationDto organization;
 
   @Before
   public void before() {
@@ -74,6 +77,7 @@ public class QProfileCopierMediumTest {
     copier = tester.get(QProfileCopier.class);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    organization = getDefaultOrganization(tester, db, dbSession);
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
@@ -84,7 +88,7 @@ public class QProfileCopierMediumTest {
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
 
     // create pre-defined profile
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(organization));
     dbSession.commit();
     dbSession.clearCache();
     ruleIndexer.index();
@@ -124,7 +128,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // create target with both x1 and x2 activated
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123"));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2(organization));
     activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.CRITICAL);
     activation.setParameter("max", "20");
@@ -145,7 +149,7 @@ public class QProfileCopierMediumTest {
   @Test
   public void create_target_profile_with_same_parent_than_source() {
     // two profiles : parent and its child
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY));
 
     // parent and child with x1 activated
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
@@ -184,7 +188,7 @@ public class QProfileCopierMediumTest {
 
   private void verifyOneActiveRule(QProfileName profileName, String expectedSeverity,
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
-    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), dbSession);
+    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, profileName.getName(), profileName.getLanguage(), dbSession);
     verifyOneActiveRule(dto.getKey(), expectedSeverity, expectedInheritance, expectedParams);
   }
 
