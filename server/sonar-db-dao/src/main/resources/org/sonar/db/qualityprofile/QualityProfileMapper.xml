@@ -55,6 +55,7 @@
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
+    WHERE p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     ORDER BY p.name, p.language
   </select>
 
@@ -147,6 +148,7 @@
       <foreach collection="languages" open="(" close=")" item="language" separator=",">
         #{language}
       </foreach>
+      AND p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     </where>
   </select>
 
@@ -237,6 +239,8 @@
       <foreach collection="languages" open="(" close=")" item="language" separator=",">
         #{language}
       </foreach>
+      AND p.organization_uuid = #{organizationUuid}
+      AND project.organization_uuid = #{organizationUuid}
     </where>
   </select>
 

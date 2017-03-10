@@ -52,11 +52,12 @@ public class QualityProfileDaoTest {
   private DbSession dbSession = dbTester.getSession();
   private QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(dbTester);
   private QualityProfileDao underTest = dbTester.getDbClient().qualityProfileDao();
-  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
+  private OrganizationDto organization;
 
   @Before
   public void before() {
     when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-01-20T12:00:00+0000").getTime());
+    organization = dbTester.organizations().insertForUuid("QualityProfileDaoTest-ORG");
   }
 
   @Test
@@ -64,7 +65,7 @@ public class QualityProfileDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     QualityProfileDto dto = QualityProfileDto.createFor("abcde")
-      .setOrganizationUuid("org-123")
+      .setOrganizationUuid(organization.getUuid())
       .setName("ABCDE")
       .setLanguage("xoo");
 
@@ -106,7 +107,7 @@ public class QualityProfileDaoTest {
   public void find_all() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession());
+    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
 
     assertThat(dtos).hasSize(2);
 
@@ -127,7 +128,7 @@ public class QualityProfileDaoTest {
   public void find_all_is_sorted_by_profile_name() {
     dbTester.prepareDbUnit(getClass(), "select_all_is_sorted_by_profile_name.xml");
 
-    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession());
+    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
 
     assertThat(dtos).hasSize(3);
     assertThat(dtos.get(0).getName()).isEqualTo("First");
@@ -150,33 +151,33 @@ public class QualityProfileDaoTest {
   public void get_default_profiles() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<QualityProfileDto> java = underTest.selectDefaultProfiles(dbTester.getSession(), singletonList("java"));
+    List<QualityProfileDto> java = underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("java"));
     assertThat(java).extracting("key").containsOnly("java_sonar_way");
 
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), singletonList("js"))).isEmpty();
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), of("java", "js"))).extracting("key").containsOnly("java_sonar_way");
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), of("js", "java"))).extracting("key").containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("js"))).isEmpty();
+    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("java", "js"))).extracting("key").containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("js", "java"))).extracting("key").containsOnly("java_sonar_way");
   }
 
   @Test
   public void get_by_name_and_language() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    QualityProfileDto dto = underTest.selectByNameAndLanguage("Sonar Way", "java", dbTester.getSession());
+    QualityProfileDto dto = underTest.selectByNameAndLanguage(organization, "Sonar Way", "java", dbTester.getSession());
     assertThat(dto.getId()).isEqualTo(1);
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParentKee()).isNull();
 
-    assertThat(underTest.selectByNameAndLanguage("Sonar Way", "java", dbTester.getSession())).isNotNull();
-    assertThat(underTest.selectByNameAndLanguage("Sonar Way", "unknown", dbTester.getSession())).isNull();
+    assertThat(underTest.selectByNameAndLanguage(organization, "Sonar Way", "java", dbTester.getSession())).isNotNull();
+    assertThat(underTest.selectByNameAndLanguage(organization, "Sonar Way", "unknown", dbTester.getSession())).isNull();
   }
 
   @Test
   public void get_by_name_and_languages() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<QualityProfileDto> dtos = underTest.selectByNameAndLanguages("Sonar Way", singletonList("java"), dbTester.getSession());
+    List<QualityProfileDto> dtos = underTest.selectByNameAndLanguages(organization, "Sonar Way", singletonList("java"), dbTester.getSession());
     assertThat(dtos).hasSize(1);
     QualityProfileDto dto = dtos.iterator().next();
     assertThat(dto.getId()).isEqualTo(1);
@@ -184,8 +185,8 @@ public class QualityProfileDaoTest {
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParentKee()).isNull();
 
-    assertThat(underTest.selectByNameAndLanguages("Sonar Way", singletonList("unknown"), dbTester.getSession())).isEmpty();
-    assertThat(underTest.selectByNameAndLanguages("Sonar Way", of("java", "unknown"), dbTester.getSession())).extracting("id").containsOnly(1);
+    assertThat(underTest.selectByNameAndLanguages(organization, "Sonar Way", singletonList("unknown"), dbTester.getSession())).isEmpty();
+    assertThat(underTest.selectByNameAndLanguages(organization, "Sonar Way", of("java", "unknown"), dbTester.getSession())).extracting("id").containsOnly(1);
   }
 
   @Test
@@ -271,12 +272,13 @@ public class QualityProfileDaoTest {
   public void select_by_project_key_and_languages() {
     dbTester.prepareDbUnit(getClass(), "projects.xml");
 
-    List<QualityProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), "org.codehaus.sonar:sonar", singletonList("java"));
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid("org1");
+    List<QualityProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "org.codehaus.sonar:sonar", singletonList("java"));
     assertThat(dto).extracting("id").containsOnly(1);
 
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), "org.codehaus.sonar:sonar", singletonList("unkown"))).isEmpty();
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), "org.codehaus.sonar:sonar", of("java", "unkown"))).extracting("id").containsOnly(1);
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), "unknown", singletonList("java"))).isEmpty();
+    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "org.codehaus.sonar:sonar", singletonList("unkown"))).isEmpty();
+    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "org.codehaus.sonar:sonar", of("java", "unkown"))).extracting("id").containsOnly(1);
+    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "unknown", singletonList("java"))).isEmpty();
   }
 
   @Test

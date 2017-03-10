@@ -23,10 +23,20 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class SearchWsRequest {
+  private String organizationKey;
   private boolean defaults;
   private String language;
   private String profileName;
   private String projectKey;
+
+  public String getOrganizationKey() {
+    return organizationKey;
+  }
+
+  public SearchWsRequest setOrganizationKey(String organizationKey) {
+    this.organizationKey = organizationKey;
+    return this;
+  }
 
   public boolean getDefaults() {
     return defaults;

@@ -48,6 +48,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -64,9 +65,7 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.*;
 
 public class SearchActionTest {
 
@@ -74,6 +73,8 @@ public class SearchActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
   QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
@@ -82,6 +83,7 @@ public class SearchActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
+  private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
   private Language xoo1;
   private Language xoo2;
@@ -100,7 +102,7 @@ public class SearchActionTest {
         new QProfileLookup(dbClient),
         new QProfileFactory(dbClient),
         dbClient,
-        new ComponentFinder(dbClient), activeRuleIndex),
+        new ComponentFinder(dbClient), activeRuleIndex, qProfileWsSupport),
       languages));
   }
 
@@ -113,7 +115,7 @@ public class SearchActionTest {
       "sonar-way-xoo1-12345", 1L,
       "my-sonar-way-xoo2-34567", 2L));
 
-    OrganizationDto organizationDto = db.organizations().insert();
+    OrganizationDto organizationDto = getDefaultOrganization();
     String organizationUuid = organizationDto.getUuid();
     qualityProfileDao.insert(dbSession,
       QualityProfileDto.createFor("sonar-way-xoo1-12345")
@@ -155,6 +157,7 @@ public class SearchActionTest {
   public void search_map_dates() {
     long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
     qualityProfileDb.insertQualityProfiles(newQualityProfileDto()
+      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setLanguage(xoo1.getKey())
       .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
       .setLastUsed(time)
@@ -261,16 +264,19 @@ public class SearchActionTest {
       .setOrganizationUuid(org.getUuid())
       .setLanguage(xoo2.getKey())
       .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar way");
+      .setName("Sonar way")
+      .setDefault(true);
     QualityProfileDto anotherQualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-45678")
       .setOrganizationUuid(org.getUuid())
       .setLanguage(xoo1.getKey())
       .setRulesUpdatedAtAsDate(new Date())
-      .setName("Another way");
+      .setName("Another way")
+      .setDefault(true);
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     ComponentDto project = componentDb.insertComponent(newProjectDto(org, "project-uuid"));
 
     String result = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(PARAM_PROJECT_KEY, project.key())
       .setParam(PARAM_PROFILE_NAME, "Sonar way")
       .execute().getInput();
@@ -288,5 +294,9 @@ public class SearchActionTest {
     } catch (IOException e) {
       throw propagate(e);
     }
+  }
+
+  private OrganizationDto getDefaultOrganization() {
+    return qProfileWsSupport.getOrganizationByKey(db.getSession(), defaultOrganizationProvider.get().getKey());
   }
 }
