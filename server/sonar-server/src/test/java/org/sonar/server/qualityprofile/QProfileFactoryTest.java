@@ -42,7 +42,7 @@ public class QProfileFactoryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = dbTester.getSession();
-  private QProfileFactory underTest = new QProfileFactory(dbTester.getDbClient(), UuidFactoryImpl.INSTANCE);
+  private QProfileFactory underTest = new QProfileFactory(dbTester.getDbClient(), UuidFactoryImpl.INSTANCE, System2.INSTANCE);
 
   @Before
   public void setUp() throws Exception {
