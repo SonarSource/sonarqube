@@ -154,7 +154,7 @@ public class ChangePasswordActionTest {
   public void fail_to_update_password_on_external_auth() throws Exception {
     userSessionRule.logIn().setSystemAdministrator();
 
-    userUpdater.create(NewUser.builder()
+    userUpdater.create(db.getSession(), NewUser.builder()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
@@ -170,7 +170,7 @@ public class ChangePasswordActionTest {
   }
 
   private void createUser() {
-    userUpdater.create(NewUser.builder()
+    userUpdater.create(db.getSession(), NewUser.builder()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
