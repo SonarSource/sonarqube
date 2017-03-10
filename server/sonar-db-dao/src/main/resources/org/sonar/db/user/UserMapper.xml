@@ -138,6 +138,10 @@
     </where>
   </delete>
 
+  <delete id="deleteOrganisationMembership" parameterType="int">
+    DELETE FROM organization_members WHERE user_id=#{id,jdbcType=BIGINT}
+  </delete>
+
   <update id="deactivateUser" parameterType="map">
     UPDATE users SET
       active=${_false},
