@@ -23,6 +23,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
@@ -54,8 +56,12 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.codec.binary.Hex.encodeHexString;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.lowerCase;
+import static org.sonar.db.loadedtemplate.LoadedTemplateDto.QUALITY_PROFILE_TYPE;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -226,12 +232,15 @@ public class RegisterQualityProfiles {
         builders.iterator().next().setComputedDefault(true);
       }
     }
-    return builders.stream().map(QualityProfile.Builder::build).collect(Collectors.toList(builders.size()));
+    MessageDigest md5Digest = DigestUtils.getMd5Digest();
+    return builders.stream()
+      .map(builder -> builder.build(md5Digest))
+      .collect(Collectors.toList(builders.size()));
   }
 
   private void registerProfilesForLanguage(DbSession session, OrganizationDto organization, List<QualityProfile> qualityProfiles, List<ActiveRuleChange> changes) {
     qualityProfiles.stream()
-      .filter(qp -> shouldRegister(qp.getQProfileName(), session))
+      .filter(qp -> shouldRegister(session, qp, organization.getUuid()))
       .forEach(qp -> register(session, organization, qp, changes));
     session.commit();
   }
@@ -254,30 +263,33 @@ public class RegisterQualityProfiles {
       changes.addAll(ruleActivator.activate(session, activation, newQProfileDto));
     }
 
-    LoadedTemplateDto template = new LoadedTemplateDto(templateKey(qualityProfile.getQProfileName()), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
+    LoadedTemplateDto template = new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType());
     dbClient.loadedTemplateDao().insert(template, session);
     session.commit();
   }
 
-  private boolean shouldRegister(QProfileName key, DbSession session) {
+  private boolean shouldRegister(DbSession session, QualityProfile qualityProfile, String organizationUuid) {
     // check if the profile was already registered in the past
     return dbClient.loadedTemplateDao()
-      .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
-  }
-
-  static String templateKey(QProfileName key) {
-    return lowerCase(key.getLanguage(), Locale.ENGLISH) + ":" + key.getName();
+      .countByTypeAndKey(qualityProfile.getLoadedTemplateType(), organizationUuid, session) == 0;
   }
 
   private static final class QualityProfile {
     private final QProfileName qProfileName;
     private final boolean isDefault;
+    private final String loadedTemplateType;
     private final List<org.sonar.api.rules.ActiveRule> activeRules;
 
-    public QualityProfile(Builder builder) {
+    public QualityProfile(Builder builder, MessageDigest messageDigest) {
       this.qProfileName = new QProfileName(builder.getLanguage(), builder.getName());
       this.isDefault = builder.declaredDefault || builder.computedDefault;
+      this.loadedTemplateType = computeLoadedTemplateType(this.qProfileName, messageDigest);
       this.activeRules = ImmutableList.copyOf(builder.activeRules);
+    }
+
+    private static String computeLoadedTemplateType(QProfileName qProfileName, MessageDigest messageDigest) {
+      String qpIdentifier = lowerCase(qProfileName.getLanguage(), Locale.ENGLISH) + ":" + qProfileName.getName();
+      return format("%s.%s", QUALITY_PROFILE_TYPE, encodeHexString(messageDigest.digest(qpIdentifier.getBytes(UTF_8))));
     }
 
     public String getName() {
@@ -294,6 +306,10 @@ public class RegisterQualityProfiles {
 
     public boolean isDefault() {
       return isDefault;
+    }
+
+    public String getLoadedTemplateType() {
+      return loadedTemplateType;
     }
 
     public List<org.sonar.api.rules.ActiveRule> getActiveRules() {
@@ -344,8 +360,8 @@ public class RegisterQualityProfiles {
         return this;
       }
 
-      QualityProfile build() {
-        return new QualityProfile(this);
+      QualityProfile build(MessageDigest messageDigest) {
+        return new QualityProfile(this, messageDigest);
       }
     }
   }
