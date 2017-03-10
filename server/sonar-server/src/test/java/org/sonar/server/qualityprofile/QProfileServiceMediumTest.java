@@ -37,6 +37,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -55,6 +56,7 @@ import static org.sonar.db.rule.RuleTesting.newXooX3;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
+import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 
 public class QProfileServiceMediumTest {
 
@@ -88,7 +90,8 @@ public class QProfileServiceMediumTest {
     dbClient.ruleDao().insert(dbSession, xooRule1);
 
     // create pre-defined profiles P1 and P2
-    dbClient.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"), QProfileTesting.newXooP2("org-123"));
+    OrganizationDto defaultOrganization = getDefaultOrganization(tester, dbClient, dbSession);
+    dbClient.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(defaultOrganization), QProfileTesting.newXooP2(defaultOrganization));
 
     dbSession.commit();
     dbSession.clearCache();

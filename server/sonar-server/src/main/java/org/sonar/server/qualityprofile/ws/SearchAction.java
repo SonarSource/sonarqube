@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,6 +58,8 @@ public class SearchAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
 
+    QProfileWsSupport.createOrganizationParam(action);
+
     action
       .createParam(PARAM_LANGUAGE)
       .setDescription(
@@ -92,13 +95,15 @@ public class SearchAction implements QProfileWsAction {
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return  new SearchWsRequest()
+      .setOrganizationKey(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setProfileName(request.param(PARAM_PROFILE_NAME))
       .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
       .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest request) {
+  @VisibleForTesting
+  SearchWsResponse doHandle(SearchWsRequest request) {
     SearchData data = dataLoader.load(request);
     return buildResponse(data);
   }
@@ -113,6 +118,9 @@ public class SearchAction implements QProfileWsAction {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
       String profileKey = profile.key();
+      if (profile.organization() != null) {
+        profileBuilder.setOrganization(profile.organization().getKey());
+      }
       profileBuilder.setKey(profileKey);
       if (profile.name() != null) {
         profileBuilder.setName(profile.name());
