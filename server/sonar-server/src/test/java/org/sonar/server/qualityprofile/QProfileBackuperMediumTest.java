@@ -37,6 +37,8 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -64,6 +66,7 @@ import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_NAME;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_NAME;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P3_NAME;
+import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 import static org.sonar.server.qualityprofile.QProfileTesting.newXooP1;
 import static org.sonar.server.qualityprofile.QProfileTesting.newXooP2;
 
@@ -76,10 +79,11 @@ public class QProfileBackuperMediumTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbClient db;
-  DbSession dbSession;
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
+  private DbClient db;
+  private DbSession dbSession;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
+  private OrganizationDto organization;
 
   @Before
   public void before() {
@@ -99,6 +103,7 @@ public class QProfileBackuperMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     ruleIndexer.index();
+    organization = getDefaultOrganization(tester, db, dbSession);
   }
 
   @After
@@ -116,7 +121,7 @@ public class QProfileBackuperMediumTest {
     ruleIndexer.index();
 
     // create profile P1 with rules x2 and x1 activated
-    db.qualityProfileDao().insert(dbSession, newXooP1("org-123"));
+    db.qualityProfileDao().insert(dbSession, newXooP1(organization));
     RuleActivation activation1 = new RuleActivation(XOO_X2).setSeverity("MINOR");
     RuleActivation activation2 = new RuleActivation(XOO_X1);
     RuleActivation activation3 = new RuleActivation(blahRuleKey);
@@ -174,7 +179,7 @@ public class QProfileBackuperMediumTest {
   @Test
   public void restore_and_update_profile() throws Exception {
     // create profile P1 with rules x1 and x2 activated
-    db.qualityProfileDao().insert(dbSession, newXooP1("org-123"));
+    db.qualityProfileDao().insert(dbSession, newXooP1(organization));
     RuleActivation activation = new RuleActivation(XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
@@ -213,8 +218,8 @@ public class QProfileBackuperMediumTest {
   public void restore_child_profile() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      newXooP1("org-123"),
-      newXooP2("org-123").setParentKee(XOO_P1_KEY));
+      newXooP1(organization),
+      newXooP2(organization).setParentKee(XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile (so inherited by child profile)
@@ -261,8 +266,8 @@ public class QProfileBackuperMediumTest {
   public void restore_parent_profile() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      newXooP1("org-123"),
-      newXooP2("org-123").setParentKee(XOO_P1_KEY));
+      newXooP1(organization),
+      newXooP2(organization).setParentKee(XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile (so inherited by child profile)
@@ -310,8 +315,8 @@ public class QProfileBackuperMediumTest {
   public void keep_other_inherited_rules() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      newXooP1("org-123"),
-      newXooP2("org-123").setParentKee(XOO_P1_KEY));
+      newXooP1(organization),
+      newXooP2(organization).setParentKee(XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile and is inherited by child profile
