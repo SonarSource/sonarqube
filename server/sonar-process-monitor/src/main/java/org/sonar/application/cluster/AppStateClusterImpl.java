@@ -75,10 +75,10 @@ public class AppStateClusterImpl implements AppState {
     NetworkConfig netConfig = hzConfig.getNetworkConfig();
     netConfig.setPort(clusterProperties.getPort());
 
-    if (!clusterProperties.getInterfaces().isEmpty()) {
+    if (!clusterProperties.getNetworkInterfaces().isEmpty()) {
       netConfig.getInterfaces()
         .setEnabled(true)
-        .setInterfaces(clusterProperties.getInterfaces());
+        .setInterfaces(clusterProperties.getNetworkInterfaces());
     }
 
     // Only allowing TCP/IP configuration
@@ -86,7 +86,7 @@ public class AppStateClusterImpl implements AppState {
     joinConfig.getAwsConfig().setEnabled(false);
     joinConfig.getMulticastConfig().setEnabled(false);
     joinConfig.getTcpIpConfig().setEnabled(true);
-    joinConfig.getTcpIpConfig().setMembers(clusterProperties.getMembers());
+    joinConfig.getTcpIpConfig().setMembers(clusterProperties.getHosts());
 
     // Tweak HazelCast configuration
     hzConfig
