@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -74,7 +75,7 @@ public class SearchDataLoaderTest2 {
     profileLookup = new QProfileLookup(dbClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     qProfileWsSupport = new QProfileWsSupport(dbClient, null, defaultOrganizationProvider);
-    profileFactory = new QProfileFactory(dbClient, UuidFactoryFast.getInstance());
+    profileFactory = new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), new AlwaysIncreasingSystem2());
     componentFinder = mock(ComponentFinder.class);
   }
 
