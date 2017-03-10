@@ -44,13 +44,13 @@ public class ClusterPropertiesTest {
 
     ClusterProperties props = new ClusterProperties(appSettings);
 
-    assertThat(props.getInterfaces())
+    assertThat(props.getNetworkInterfaces())
       .isEqualTo(Collections.emptyList());
     assertThat(props.getPort())
       .isEqualTo(9003);
     assertThat(props.isEnabled())
       .isEqualTo(false);
-    assertThat(props.getMembers())
+    assertThat(props.getHosts())
       .isEqualTo(Collections.emptyList());
     assertThat(props.getName())
       .isEqualTo("");
@@ -78,7 +78,7 @@ public class ClusterPropertiesTest {
   public void test_interfaces_parameter() {
     appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
     appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_INTERFACES, "8.8.8.8"); // This IP belongs to Google
+    appSettings.getProps().set(ProcessProperties.CLUSTER_NETWORK_INTERFACES, "8.8.8.8"); // This IP belongs to Google
 
     ClusterProperties clusterProperties = new ClusterProperties(appSettings);
     expectedException.expect(IllegalArgumentException.class);
@@ -115,22 +115,22 @@ public class ClusterPropertiesTest {
     appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
 
     assertThat(
-      new ClusterProperties(appSettings).getMembers()).isEqualTo(
+      new ClusterProperties(appSettings).getHosts()).isEqualTo(
         Collections.emptyList());
 
-    appSettings.getProps().set(ProcessProperties.CLUSTER_MEMBERS, "192.168.1.1");
+    appSettings.getProps().set(ProcessProperties.CLUSTER_HOSTS, "192.168.1.1");
     assertThat(
-      new ClusterProperties(appSettings).getMembers()).isEqualTo(
+      new ClusterProperties(appSettings).getHosts()).isEqualTo(
         Arrays.asList("192.168.1.1:9003"));
 
-    appSettings.getProps().set(ProcessProperties.CLUSTER_MEMBERS, "192.168.1.2:5501");
+    appSettings.getProps().set(ProcessProperties.CLUSTER_HOSTS, "192.168.1.2:5501");
     assertThat(
-      new ClusterProperties(appSettings).getMembers()).containsExactlyInAnyOrder(
+      new ClusterProperties(appSettings).getHosts()).containsExactlyInAnyOrder(
         "192.168.1.2:5501");
 
-    appSettings.getProps().set(ProcessProperties.CLUSTER_MEMBERS, "192.168.1.2:5501,192.168.1.1");
+    appSettings.getProps().set(ProcessProperties.CLUSTER_HOSTS, "192.168.1.2:5501,192.168.1.1");
     assertThat(
-      new ClusterProperties(appSettings).getMembers()).containsExactlyInAnyOrder(
+      new ClusterProperties(appSettings).getHosts()).containsExactlyInAnyOrder(
         "192.168.1.2:5501", "192.168.1.1:9003");
   }
 }

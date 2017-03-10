@@ -33,9 +33,9 @@ public class ProcessProperties {
   public static final String CLUSTER_SEARCH_DISABLED = "sonar.cluster.search.disabled";
   public static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
   public static final String CLUSTER_WEB_DISABLED = "sonar.cluster.web.disabled";
-  public static final String CLUSTER_MEMBERS = "sonar.cluster.members";
+  public static final String CLUSTER_HOSTS = "sonar.cluster.hosts";
   public static final String CLUSTER_PORT = "sonar.cluster.port";
-  public static final String CLUSTER_INTERFACES = "sonar.cluster.interfaces";
+  public static final String CLUSTER_NETWORK_INTERFACES = "sonar.cluster.networkInterfaces";
   public static final String CLUSTER_NAME = "sonar.cluster.name";
   public static final String HAZELCAST_LOG_LEVEL = "sonar.log.level.app.hazelcast";
   public static final String CLUSTER_WEB_LEADER = "sonar.cluster.web.startupLeader";
@@ -139,8 +139,8 @@ public class ProcessProperties {
     defaults.put(CLUSTER_WEB_DISABLED, "false");
     defaults.put(CLUSTER_SEARCH_DISABLED, "false");
     defaults.put(CLUSTER_NAME, "");
-    defaults.put(CLUSTER_INTERFACES, "");
-    defaults.put(CLUSTER_MEMBERS, "");
+    defaults.put(CLUSTER_NETWORK_INTERFACES, "");
+    defaults.put(CLUSTER_HOSTS, "");
     defaults.put(CLUSTER_PORT, "9003");
     defaults.put(HAZELCAST_LOG_LEVEL, "WARN");
 

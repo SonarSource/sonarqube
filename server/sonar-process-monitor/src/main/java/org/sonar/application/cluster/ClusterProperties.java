@@ -42,19 +42,19 @@ public final class ClusterProperties {
 
   private final int port;
   private final boolean enabled;
-  private final List<String> members;
-  private final List<String> interfaces;
+  private final List<String> hosts;
+  private final List<String> networkInterfaces;
   private final String name;
 
   ClusterProperties(AppSettings appSettings) {
     port = appSettings.getProps().valueAsInt(ProcessProperties.CLUSTER_PORT);
     enabled = appSettings.getProps().valueAsBoolean(ProcessProperties.CLUSTER_ENABLED);
-    interfaces = extractInterfaces(
-      appSettings.getProps().value(ProcessProperties.CLUSTER_INTERFACES, "")
+    networkInterfaces = extractNetworkInterfaces(
+      appSettings.getProps().value(ProcessProperties.CLUSTER_NETWORK_INTERFACES, "")
     );
     name = appSettings.getProps().value(ProcessProperties.CLUSTER_NAME);
-    members = extractMembers(
-      appSettings.getProps().value(ProcessProperties.CLUSTER_MEMBERS, "")
+    hosts = extractHosts(
+      appSettings.getProps().value(ProcessProperties.CLUSTER_HOSTS, "")
     );
   }
 
@@ -66,12 +66,12 @@ public final class ClusterProperties {
     return enabled;
   }
 
-  List<String> getMembers() {
-    return members;
+  List<String> getHosts() {
+    return hosts;
   }
 
-  List<String> getInterfaces() {
-    return interfaces;
+  List<String> getNetworkInterfaces() {
+    return networkInterfaces;
   }
 
   String getName() {
@@ -96,11 +96,11 @@ public final class ClusterProperties {
       port
     );
 
-    // Test the interfaces parameter
+    // Test the networkInterfaces parameter
     try {
       List<String> localInterfaces = findAllLocalIPs();
 
-      interfaces.forEach(
+      networkInterfaces.forEach(
         inet -> checkArgument(
           StringUtils.isEmpty(inet) || localInterfaces.contains(inet),
           "Interface %s is not available on this machine.",
@@ -108,29 +108,29 @@ public final class ClusterProperties {
         )
       );
     } catch (SocketException e) {
-      LOGGER.warn("Unable to retrieve network interfaces. Interfaces won't be checked", e);
+      LOGGER.warn("Unable to retrieve network networkInterfaces. Interfaces won't be checked", e);
     }
   }
 
-  private static List<String> extractMembers(final String members) {
+  private static List<String> extractHosts(final String hosts) {
     List<String> result = new ArrayList<>();
-    for (String member : members.split(",")) {
-      if (StringUtils.isNotEmpty(member)) {
-        if (!member.contains(":")) {
+    for (String host : hosts.split(",")) {
+      if (StringUtils.isNotEmpty(host)) {
+        if (!host.contains(":")) {
           result.add(
-            String.format("%s:%s", member, DEFAULT_PORT)
+            String.format("%s:%s", host, DEFAULT_PORT)
           );
         } else {
-          result.add(member);
+          result.add(host);
         }
       }
     }
     return result;
   }
 
-  private static List<String> extractInterfaces(final String interfaces) {
+  private static List<String> extractNetworkInterfaces(final String networkInterfaces) {
     List<String> result = new ArrayList<>();
-    for (String iface : interfaces.split(",")) {
+    for (String iface : networkInterfaces.split(",")) {
       if (StringUtils.isNotEmpty(iface)) {
         result.add(iface);
       }
