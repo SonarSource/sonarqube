@@ -348,6 +348,19 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
+  public void createForUser_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
+    UserDto user = dbTester.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())).isPresent();
+  }
+
+  @Test
   public void createForUser_does_not_fail_if_name_is_too_long_for_an_organization_name() {
     String nameTooLong = STRING_64_CHARS + "b";
     UserDto user = dbTester.users().insertUser(dto -> dto.setName(nameTooLong).setLogin(A_LOGIN));

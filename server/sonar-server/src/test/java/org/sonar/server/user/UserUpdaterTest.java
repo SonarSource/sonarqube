@@ -54,6 +54,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -484,6 +486,20 @@ public class UserUpdaterTest {
       .setPassword("password")
       .setScmAccounts(newArrayList("u1", "u_1"))
       .build());
+  }
+
+  @Test
+  public void create_personal_organization_when_creating_user() {
+    createDefaultGroup();
+
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("PASSWORD")
+      .build());
+
+    verify(organizationCreation).createForUser(any(DbSession.class), eq(dto));
   }
 
   @Test
