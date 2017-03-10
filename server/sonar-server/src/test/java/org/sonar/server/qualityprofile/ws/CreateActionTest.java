@@ -172,6 +172,32 @@ public class CreateActionTest {
   }
 
   @Test
+  public void create_two_qprofiles_in_different_organizations_with_same_name_and_language() {
+    logInAsQProfileAdministrator();
+
+    // this name will be used twice
+    String profileName = "Profile123";
+
+    OrganizationDto organization1 = dbTester.organizations().insert();
+    TestRequest request1 = wsTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("organization", organization1.getKey())
+      .setParam("name", profileName)
+      .setParam("language", XOO_LANGUAGE);
+    assertThat(executeRequest(request1).getProfile().getOrganization())
+      .isEqualTo(organization1.getKey());
+
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    TestRequest request2 = wsTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("organization", organization2.getKey())
+      .setParam("name", profileName)
+      .setParam("language", XOO_LANGUAGE);
+    assertThat(executeRequest(request2).getProfile().getOrganization())
+      .isEqualTo(organization2.getKey());
+  }
+
+  @Test
   public void fail_if_import_generate_error() {
     logInAsQProfileAdministrator();
 

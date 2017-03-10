@@ -156,7 +156,7 @@ public class QualityProfileDao implements Dao {
   @Deprecated
   @CheckForNull
   public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
-    return mapper(session).selectByNameAndLanguage(name, language);
+    return mapper(session).selectByNameAndLanguage(null, name, language);
   }
 
   @CheckForNull
@@ -169,7 +169,7 @@ public class QualityProfileDao implements Dao {
    */
   @Deprecated
   public List<QualityProfileDto> selectByNameAndLanguages(String name, Collection<String> languageKeys, DbSession session) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(name, input));
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(null, name, input));
   }
 
   public List<QualityProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
