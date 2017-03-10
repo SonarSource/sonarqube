@@ -115,7 +115,6 @@ import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.cluster.ClusterImpl;
-import org.sonar.server.platform.cluster.ClusterProperties;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
@@ -159,8 +158,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     this.level1
       .add(props.rawProperties())
       .add(level1Components())
-      .add(toArray(CorePropertyDefinitions.all()))
-      .add(toArray(ClusterProperties.definitions()));
+      .add(toArray(CorePropertyDefinitions.all()));
     configureFromModules(this.level1);
     this.level1.startComponents();
 

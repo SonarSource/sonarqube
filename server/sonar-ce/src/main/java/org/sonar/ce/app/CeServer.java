@@ -28,11 +28,11 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.ComputeEngine;
 import org.sonar.ce.ComputeEngineImpl;
 import org.sonar.ce.container.ComputeEngineContainerImpl;
+import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
-import org.sonar.ce.log.CeProcessLogging;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.process.ProcessUtils.awaitTermination;
@@ -55,14 +55,12 @@ public class CeServer implements Monitored {
   private AtomicReference<Thread> awaitThread = new AtomicReference<>();
   private volatile boolean stopAwait = false;
 
-  private final StartupBarrier startupBarrier;
   private final ComputeEngine computeEngine;
   @CheckForNull
   private CeMainThread ceMainThread = null;
 
   @VisibleForTesting
-  protected CeServer(StartupBarrier startupBarrier, ComputeEngine computeEngine, MinimumViableSystem mvs) {
-    this.startupBarrier = startupBarrier;
+  protected CeServer(ComputeEngine computeEngine, MinimumViableSystem mvs) {
     this.computeEngine = computeEngine;
     mvs
       .checkWritableTempDir()
@@ -123,7 +121,6 @@ public class CeServer implements Monitored {
     Props props = entryPoint.getProps();
     new CeProcessLogging().configure(props);
     CeServer server = new CeServer(
-      new StartupBarrierFactory().create(entryPoint),
       new ComputeEngineImpl(props, new ComputeEngineContainerImpl()),
       new MinimumViableSystem());
     entryPoint.launch(server);
@@ -140,16 +137,6 @@ public class CeServer implements Monitored {
 
     @Override
     public void run() {
-      boolean webServerOperational = startupBarrier.waitForOperational();
-      if (!webServerOperational) {
-        LOG.debug("Interrupted while waiting for WebServer to be operational. Assuming it will never be. Stopping.");
-        // signal CE is done booting (obviously, since we are about to stop)
-        this.started = true;
-        // release thread (if any) in CeServer#awaitStop()
-        stopAwait();
-        return;
-      }
-
       boolean startupSuccessful = attemptStartup();
       this.started = true;
       if (startupSuccessful) {
