@@ -45,12 +45,9 @@ public class CreateOrganizationMembersTableTest {
 
     assertThat(db.countRowsOfTable(TABLE)).isEqualTo(0);
 
-    db.assertColumnDefinition(TABLE, "uuid", Types.VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE, "organization_uuid", Types.VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE, "user_id", Types.INTEGER, null, false);
-    db.assertPrimaryKey(TABLE, "pk_" + TABLE, "uuid");
-
-    db.assertUniqueIndex(TABLE, "org_members_unique", "organization_uuid", "user_id");
+    db.assertPrimaryKey(TABLE, "pk_" + TABLE, "organization_uuid", "user_id");
   }
 
   @Test

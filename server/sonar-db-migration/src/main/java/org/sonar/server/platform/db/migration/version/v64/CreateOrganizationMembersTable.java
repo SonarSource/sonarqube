@@ -22,9 +22,6 @@ package org.sonar.server.platform.db.migration.version.v64;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -42,21 +39,10 @@ public class CreateOrganizationMembersTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef organizationUuid = newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
-    IntegerColumnDef userId = newIntegerColumnDefBuilder().setColumnName("user_id").setIsNullable(false).build();
     context.execute(
       new CreateTableBuilder(getDialect(), TABLE_NAME)
-        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
-        .addColumn(organizationUuid)
-        .addColumn(userId)
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
+        .addPkColumn(newIntegerColumnDefBuilder().setColumnName("user_id").setIsNullable(false).build())
         .build());
-
-    context.execute(new CreateIndexBuilder(getDialect())
-      .setTable(TABLE_NAME)
-      .setUnique(true)
-      .setName("org_members_unique")
-      .addColumn(organizationUuid)
-      .addColumn(userId)
-      .build());
   }
 }
