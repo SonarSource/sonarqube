@@ -65,7 +65,7 @@ public class RenameActionTest {
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
     underTest = new RenameAction(
-      new QProfileFactory(dbClient, UuidFactoryFast.getInstance()),
+      new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE),
       wsSupport,
       dbClient,
       userSessionRule);

@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -49,10 +50,12 @@ public class QProfileFactory {
 
   private final DbClient db;
   private final UuidFactory uuidFactory;
+  private final System2 system2;
 
-  public QProfileFactory(DbClient db, UuidFactory uuidFactory) {
+  public QProfileFactory(DbClient db, UuidFactory uuidFactory, System2 system2) {
     this.db = db;
     this.uuidFactory = uuidFactory;
+    this.system2 = system2;
   }
 
   // ------------- CREATION
@@ -96,7 +99,7 @@ public class QProfileFactory {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
-    Date now = new Date();
+    Date now = new Date(system2.now());
     QualityProfileDto dto = QualityProfileDto.createFor(uuidFactory.create())
       .setName(name.getName())
       .setOrganizationUuid(organization.getUuid())
