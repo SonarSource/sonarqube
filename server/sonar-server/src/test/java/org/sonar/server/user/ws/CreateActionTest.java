@@ -30,6 +30,8 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -37,7 +39,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationCreationImpl;
+import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
@@ -77,10 +80,11 @@ public class CreateActionTest {
   private UserIndex index = new UserIndex(esTester.client());
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), esTester.client());
   private GroupDto defaultGroupInDefaultOrg;
-  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
 
   private WsActionTester tester = new WsActionTester(new CreateAction(
-    db.getDbClient(), new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation),
+    db.getDbClient(),
+    new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db),
+      new OrganizationCreationImpl(db.getDbClient(), system2, UuidFactoryFast.getInstance(), new OrganizationValidationImpl(), settings)),
     userSessionRule));
 
   @Before
@@ -117,6 +121,38 @@ public class CreateActionTest {
 
     // member of default group in default organization
     assertThat(db.users().selectGroupIdsOfUser(dbUser.get())).containsOnly(defaultGroupInDefaultOrg.getId());
+  }
+
+  @Test
+  public void create_user_also_creates_personal_organization_if_enabled() throws Exception {
+    logInAsSystemAdministrator();
+    enableCreatePersonalOrg(true);
+
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("1234")
+      .build());
+
+    Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
+    assertThat(dbUser).isPresent();
+    Optional<OrganizationDto> userOrganization = db.getDbClient().organizationDao().selectByKey(db.getSession(), "john");
+    assertThat(userOrganization).isPresent();
+    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), userOrganization.get().getUuid(), dbUser.get().getId())).isPresent();
+  }
+
+  @Test
+  public void create_user_does_not_create_personal_organization_when_not_enabled() throws Exception {
+    logInAsSystemAdministrator();
+    enableCreatePersonalOrg(false);
+
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("1234")
+      .build());
+
+    assertThat(db.getDbClient().organizationDao().selectByKey(db.getSession(), "john")).isNotPresent();
   }
 
   @Test
@@ -325,4 +361,9 @@ public class CreateActionTest {
       throw Throwables.propagate(e);
     }
   }
+
+  private void enableCreatePersonalOrg(boolean flag) {
+    settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_CREATE_PERSONAL_ORG, flag);
+  }
+
 }

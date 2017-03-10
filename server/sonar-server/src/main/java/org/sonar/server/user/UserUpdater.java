@@ -386,14 +386,15 @@ public class UserUpdater {
     }
     String defOrgUuid = defaultOrganizationProvider.get().getUuid();
     List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
-    if (!userGroups.stream().anyMatch(g -> defOrgUuid.equals(g.getOrganizationUuid()) && g.getName().equals(defaultGroupName))) {
-      Optional<GroupDto> groupDto = dbClient.groupDao().selectByName(dbSession, defOrgUuid, defaultGroupName);
-      if (!groupDto.isPresent()) {
-        throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
-          format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",
-            defaultGroupName));
-      }
-      dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
+    if (userGroups.stream().anyMatch(g -> defOrgUuid.equals(g.getOrganizationUuid()) && g.getName().equals(defaultGroupName))) {
+      return;
     }
+    Optional<GroupDto> groupDto = dbClient.groupDao().selectByName(dbSession, defOrgUuid, defaultGroupName);
+    if (!groupDto.isPresent()) {
+      throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
+        format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",
+          defaultGroupName));
+    }
+    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
   }
 }
