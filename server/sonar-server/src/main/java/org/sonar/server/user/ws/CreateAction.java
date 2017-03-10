@@ -24,6 +24,8 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
@@ -48,10 +50,12 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS_
 
 public class CreateAction implements UsersWsAction {
 
+  private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
 
-  public CreateAction(UserUpdater userUpdater, UserSession userSession) {
+  public CreateAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession) {
+    this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
   }
@@ -111,17 +115,20 @@ public class CreateAction implements UsersWsAction {
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {
-    NewUser.Builder newUser = NewUser.builder()
-      .setLogin(request.getLogin())
-      .setName(request.getName())
-      .setEmail(request.getEmail())
-      .setScmAccounts(request.getScmAccounts())
-      .setPassword(request.getPassword());
-    if (!request.isLocal()) {
-      newUser.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, request.getLogin()));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      NewUser.Builder newUser = NewUser.builder()
+        .setLogin(request.getLogin())
+        .setName(request.getName())
+        .setEmail(request.getEmail())
+        .setScmAccounts(request.getScmAccounts())
+        .setPassword(request.getPassword());
+      if (!request.isLocal()) {
+        newUser.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, request.getLogin()));
+      }
+      UserDto userDto = userUpdater.create(dbSession, newUser.build());
+      dbSession.commit();
+      return buildResponse(userDto);
     }
-    UserDto userDto = userUpdater.create(newUser.build());
-    return buildResponse(userDto);
   }
 
   private static CreateWsResponse buildResponse(UserDto userDto) {
