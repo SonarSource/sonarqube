@@ -126,4 +126,13 @@ public class ProjectsPageTest {
     page.searchProject("s").shouldHaveTotal(2);
     page.searchProject("sam").shouldHaveTotal(1);
   }
+
+  @Test
+  public void should_search_for_project_and_keep_other_filters() {
+    ProjectsPage page = nav.openProjects();
+    page.shouldHaveTotal(2);
+    page.getFacetByProperty("duplications").selectValue("3");
+    page.shouldHaveTotal(1);
+    page.searchProject("sample").shouldHaveTotal(0);
+  }
 }

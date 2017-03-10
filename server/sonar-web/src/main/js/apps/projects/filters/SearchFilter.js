@@ -17,24 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import classNames from 'classnames';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class SearchFilter extends React.Component {
-  static propTypes = {
-    query: React.PropTypes.object.isRequired,
-    handleSearch: React.PropTypes.func.isRequired
-  }
+type Props = {
+  handleSearch: (userString?: string) => void,
+  query: {}
+};
 
-  constructor (props) {
+type State = {
+  userQuery?: string
+};
+
+export default class SearchFilter extends React.PureComponent {
+  props: Props;
+  state: State;
+
+  constructor (props: Props) {
     super(props);
     this.state = {
       userQuery: props.query.search
     };
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps (nextProps: Props) {
     if (this.props.query.search === this.state.userQuery && nextProps.query.search !== this.props.query.search) {
       this.setState({
         userQuery: nextProps.query.search || ''
@@ -47,12 +55,12 @@ export default class SearchFilter extends React.Component {
     if (!target.value || target.value.length >= 2) {
       this.props.handleSearch(target.value);
     }
-  }
+  };
 
   render () {
     const { userQuery } = this.state;
     const inputClassName = classNames('input-super-large', {
-      'touched': userQuery && userQuery.length < 2
+      touched: userQuery && userQuery.length < 2
     });
 
     return (
