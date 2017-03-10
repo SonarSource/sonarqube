@@ -107,7 +107,7 @@ public class UiTest {
       .click();
 
     // on profile page
-    assertThat(url()).contains("/profiles/show?key=xoo-basic");
+    assertThat(url()).contains("/profiles/show");
     $(".quality-profile-inheritance")
       .shouldBe(visible)
       .shouldHave(text("active rules"));
