@@ -19,9 +19,6 @@
  */
 package org.sonar.process;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
 
@@ -54,18 +51,14 @@ public class LifecycleTest {
 
   @Test
   public void try_to_move_does_not_support_jumping_states() {
-    TestLifeCycleListener listener = new TestLifeCycleListener();
-    Lifecycle lifecycle = new Lifecycle(listener);
+    Lifecycle lifecycle = new Lifecycle();
     assertThat(lifecycle.getState()).isEqualTo(INIT);
-    assertThat(listener.getTransitions()).isEmpty();
 
     assertThat(lifecycle.tryToMoveTo(STARTED)).isFalse();
     assertThat(lifecycle.getState()).isEqualTo(INIT);
-    assertThat(listener.getTransitions()).isEmpty();
 
     assertThat(lifecycle.tryToMoveTo(STARTING)).isTrue();
     assertThat(lifecycle.getState()).isEqualTo(STARTING);
-    assertThat(listener.getTransitions()).containsOnly(new Transition(INIT, STARTING));
   }
 
   @Test
@@ -78,14 +71,11 @@ public class LifecycleTest {
   @Test
   public void can_move_to_STOPPING_from_STARTING_STARTED_OPERATIONAL_only() {
     for (State state : values()) {
-      TestLifeCycleListener listener = new TestLifeCycleListener();
-      boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(STOPPING);
-      if (state == STARTING || state == STARTED  || state == OPERATIONAL) {
+      boolean tryToMoveTo = newLifeCycle(state).tryToMoveTo(STOPPING);
+      if (state == STARTING || state == STARTED || state == OPERATIONAL) {
         assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
-        assertThat(listener.getTransitions()).containsOnly(new Transition(state, STOPPING));
       } else {
         assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
-        assertThat(listener.getTransitions()).isEmpty();
       }
     }
   }
@@ -93,71 +83,48 @@ public class LifecycleTest {
   @Test
   public void can_move_to_OPERATIONAL_from_STARTED_only() {
     for (State state : values()) {
-      TestLifeCycleListener listener = new TestLifeCycleListener();
-      boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(OPERATIONAL);
+      boolean tryToMoveTo = newLifeCycle(state).tryToMoveTo(OPERATIONAL);
       if (state == STARTED) {
         assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
-        assertThat(listener.getTransitions()).containsOnly(new Transition(state, OPERATIONAL));
       } else {
         assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
-        assertThat(listener.getTransitions()).isEmpty();
       }
     }
   }
 
   @Test
   public void can_move_to_STARTING_from_RESTARTING() {
-    TestLifeCycleListener listener = new TestLifeCycleListener();
-    assertThat(newLifeCycle(RESTARTING, listener).tryToMoveTo(STARTING)).isTrue();
-    assertThat(listener.getTransitions()).containsOnly(new Transition(RESTARTING, STARTING));
+    assertThat(newLifeCycle(RESTARTING).tryToMoveTo(STARTING)).isTrue();
   }
 
-  private static Lifecycle newLifeCycle(State state, TestLifeCycleListener... listeners) {
+  private static Lifecycle newLifeCycle(State state) {
     switch (state) {
       case INIT:
-        return new Lifecycle(listeners);
+        return new Lifecycle();
       case STARTING:
-        return newLifeCycle(INIT, state, listeners);
+        return newLifeCycle(INIT, state);
       case STARTED:
-        return newLifeCycle(STARTING, state, listeners);
+        return newLifeCycle(STARTING, state);
       case OPERATIONAL:
-        return newLifeCycle(STARTED, state, listeners);
+        return newLifeCycle(STARTED, state);
       case RESTARTING:
-        return newLifeCycle(OPERATIONAL, state, listeners);
+        return newLifeCycle(OPERATIONAL, state);
       case STOPPING:
-        return newLifeCycle(OPERATIONAL, state, listeners);
+        return newLifeCycle(OPERATIONAL, state);
       case HARD_STOPPING:
-        return newLifeCycle(STARTING, state, listeners);
+        return newLifeCycle(STARTING, state);
       case STOPPED:
-        return newLifeCycle(STOPPING, state, listeners);
+        return newLifeCycle(STOPPING, state);
       default:
         throw new IllegalArgumentException("Unsupported state " + state);
     }
   }
 
-  private static Lifecycle newLifeCycle(State from, State to, TestLifeCycleListener... listeners) {
+  private static Lifecycle newLifeCycle(State from, State to) {
     Lifecycle lifecycle;
-    lifecycle = newLifeCycle(from, listeners);
+    lifecycle = newLifeCycle(from);
     assertThat(lifecycle.tryToMoveTo(to)).isTrue();
-    Arrays.stream(listeners).forEach(TestLifeCycleListener::clear);
     return lifecycle;
-  }
-
-  private static final class TestLifeCycleListener implements Lifecycle.LifecycleListener {
-    private final List<Transition> transitions = new ArrayList<>();
-
-    @Override
-    public void successfulTransition(State from, State to) {
-      transitions.add(new Transition(from, to));
-    }
-
-    public List<Transition> getTransitions() {
-      return transitions;
-    }
-
-    public void clear() {
-      this.transitions.clear();
-    }
   }
 
   private static final class Transition {
