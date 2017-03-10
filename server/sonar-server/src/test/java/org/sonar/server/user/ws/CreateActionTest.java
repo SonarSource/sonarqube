@@ -39,6 +39,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreationImpl;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -80,10 +81,11 @@ public class CreateActionTest {
   private UserIndex index = new UserIndex(esTester.client());
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), esTester.client());
   private GroupDto defaultGroupInDefaultOrg;
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db),
+    new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, defaultOrganizationProvider,
       new OrganizationCreationImpl(db.getDbClient(), system2, UuidFactoryFast.getInstance(), new OrganizationValidationImpl(), settings)),
     userSessionRule));
 
@@ -153,6 +155,22 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.getDbClient().organizationDao().selectByKey(db.getSession(), "john")).isNotPresent();
+  }
+
+  @Test
+  public void create_user_associates_him_to_default_organization() throws Exception {
+    logInAsSystemAdministrator();
+    enableCreatePersonalOrg(true);
+
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("1234")
+      .build());
+
+    Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
+    assertThat(dbUser).isPresent();
+    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dbUser.get().getId())).isPresent();
   }
 
   @Test
