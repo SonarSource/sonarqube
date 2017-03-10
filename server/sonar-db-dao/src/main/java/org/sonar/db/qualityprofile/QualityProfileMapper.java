@@ -32,12 +32,6 @@ public interface QualityProfileMapper {
 
   void delete(int id);
 
-  /**
-   * @deprecated provide organization
-   */
-  @Deprecated
-  List<QualityProfileDto> selectAll();
-
   List<QualityProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
