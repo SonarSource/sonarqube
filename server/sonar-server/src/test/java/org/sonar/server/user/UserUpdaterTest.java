@@ -43,6 +43,7 @@ import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -90,7 +91,8 @@ public class UserUpdaterTest {
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, defaultOrganizationProvider, organizationCreation);
 
   @Before
   public void setUp() {
@@ -503,6 +505,20 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void add_user_as_member_of_default_organization_when_creating_user() {
+    createDefaultGroup();
+
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("PASSWORD")
+      .build());
+
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
+  }
+
+  @Test
   public void reactivate_user_when_creating_user_with_existing_login() {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
       .setLocal(false)
@@ -620,6 +636,17 @@ public class UserUpdaterTest {
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(DEFAULT_GROUP))).isTrue();
+  }
+
+  @Test
+  public void add_user_as_member_of_default_organization_when_reactivating_user() {
+    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
+    createDefaultGroup();
+
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build());
+    session.commit();
+
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
   }
 
   @Test
