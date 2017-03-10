@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
@@ -105,6 +106,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     OrganizationPermission.all()
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization);
+    insertOrganizationMember(dbSession, organization, newUser);
 
     dbSession.commit();
 
@@ -251,5 +253,11 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     dbClient.userGroupDao().insert(
       dbSession,
       new UserGroupDto().setGroupId(group.getId()).setUserId(createUserId));
+  }
+
+  private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, UserDto userDto) {
+    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
+      .setOrganizationUuid(organizationDto.getUuid())
+      .setUserId(userDto.getId()));
   }
 }
