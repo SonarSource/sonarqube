@@ -42,7 +42,7 @@ public class UsersWsTest {
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new UsersWs(
-      new CreateAction(mock(UserUpdater.class), userSessionRule),
+      new CreateAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class)),
       new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),

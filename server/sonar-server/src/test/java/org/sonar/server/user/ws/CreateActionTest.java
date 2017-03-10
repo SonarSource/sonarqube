@@ -80,7 +80,7 @@ public class CreateActionTest {
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
 
   private WsActionTester tester = new WsActionTester(new CreateAction(
-    new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation),
+    db.getDbClient(), new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation),
     userSessionRule));
 
   @Before
