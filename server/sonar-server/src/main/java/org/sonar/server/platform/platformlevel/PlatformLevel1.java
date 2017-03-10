@@ -47,7 +47,6 @@ import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.cluster.ClusterImpl;
-import org.sonar.server.platform.cluster.ClusterProperties;
 import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
@@ -121,7 +120,6 @@ public class PlatformLevel1 extends PlatformLevel {
     addAll(CorePropertyDefinitions.all());
 
     // cluster
-    addAll(ClusterProperties.definitions());
     add(ClusterImpl.class);
   }
 

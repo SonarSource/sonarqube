@@ -19,63 +19,12 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nullable;
 
 public class ProcessUtils {
 
   private ProcessUtils() {
     // only static stuff
-  }
-
-  /**
-   * Do not abuse to this method. It uses exceptions to get status.
-   * @return false if process is null or terminated, else true.
-   */
-  public static boolean isAlive(@Nullable Process process) {
-    boolean alive = false;
-    if (process != null) {
-      try {
-        process.exitValue();
-      } catch (IllegalThreadStateException ignored) {
-        alive = true;
-      }
-    }
-    return alive;
-  }
-
-  /**
-   * Send kill signal to stop process. Shutdown hooks are executed. It's the equivalent of SIGTERM on Linux.
-   * Correctly tested on Java 6 and 7 on both Mac/MSWindows
-   * @return true if the signal is sent, false if process is already down
-   */
-  public static boolean sendKillSignal(@Nullable Process process) {
-    boolean sentSignal = false;
-    if (isAlive(process)) {
-      try {
-        process.destroy();
-        sentSignal = true;
-      } catch (Exception e) {
-        LoggerFactory.getLogger(ProcessUtils.class).error("Fail to kill " + process, e);
-      }
-    }
-    return sentSignal;
-  }
-
-  public static void closeStreams(@Nullable Process process) {
-    if (process!=null) {
-      IOUtils.closeQuietly(process.getInputStream());
-      IOUtils.closeQuietly(process.getOutputStream());
-      IOUtils.closeQuietly(process.getErrorStream());
-    }
-  }
-
-  public static void awaitTermination(Thread... threads) {
-    for (Thread thread : threads) {
-      awaitTermination(thread);
-    }
   }
 
   public static void awaitTermination(@Nullable Thread t) {
@@ -88,6 +37,7 @@ public class ProcessUtils {
         t.join();
       } catch (InterruptedException e) {
         // ignore, keep on waiting for t to stop
+        Thread.currentThread().interrupt();
       }
     }
   }

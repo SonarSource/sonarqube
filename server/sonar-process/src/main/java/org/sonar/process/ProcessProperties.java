@@ -33,6 +33,12 @@ public class ProcessProperties {
   public static final String CLUSTER_SEARCH_DISABLED = "sonar.cluster.search.disabled";
   public static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
   public static final String CLUSTER_WEB_DISABLED = "sonar.cluster.web.disabled";
+  public static final String CLUSTER_MEMBERS = "sonar.cluster.members";
+  public static final String CLUSTER_PORT = "sonar.cluster.port";
+  public static final String CLUSTER_INTERFACES = "sonar.cluster.interfaces";
+  public static final String CLUSTER_NAME = "sonar.cluster.name";
+  public static final String HAZELCAST_LOG_LEVEL = "sonar.log.level.app.hazelcast";
+  public static final String CLUSTER_WEB_LEADER = "sonar.cluster.web.startupLeader";
 
   public static final String JDBC_URL = "sonar.jdbc.url";
   public static final String JDBC_DRIVER_PATH = "sonar.jdbc.driverPath";
@@ -42,6 +48,7 @@ public class ProcessProperties {
   public static final String JDBC_MAX_WAIT = "sonar.jdbc.maxWait";
   public static final String JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS = "sonar.jdbc.minEvictableIdleTimeMillis";
   public static final String JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS = "sonar.jdbc.timeBetweenEvictionRunsMillis";
+  public static final String JDBC_EMBEDDED_PORT = "sonar.embeddedDatabase.port";
 
   public static final String PATH_DATA = "sonar.path.data";
   public static final String PATH_HOME = "sonar.path.home";
@@ -104,29 +111,45 @@ public class ProcessProperties {
 
   public static Properties defaults() {
     Properties defaults = new Properties();
-    defaults.put(ProcessProperties.SEARCH_CLUSTER_NAME, "sonarqube");
-    defaults.put(ProcessProperties.SEARCH_HOST, "127.0.0.1");
-    defaults.put(ProcessProperties.SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
+    defaults.put(SEARCH_CLUSTER_NAME, "sonarqube");
+    defaults.put(SEARCH_HOST, "127.0.0.1");
+    defaults.put(SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
       "-XX:+HeapDumpOnOutOfMemoryError");
-    defaults.put(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS, "");
+    defaults.put(SEARCH_JAVA_ADDITIONAL_OPTS, "");
 
-    defaults.put(ProcessProperties.WEB_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError");
-    defaults.put(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS, "");
-    defaults.put(ProcessProperties.CE_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError");
-    defaults.put(ProcessProperties.CE_JAVA_ADDITIONAL_OPTS, "");
-    defaults.put(ProcessProperties.JDBC_MAX_ACTIVE, "60");
-    defaults.put(ProcessProperties.JDBC_MAX_IDLE, "5");
-    defaults.put(ProcessProperties.JDBC_MIN_IDLE, "2");
-    defaults.put(ProcessProperties.JDBC_MAX_WAIT, "5000");
-    defaults.put(ProcessProperties.JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS, "600000");
-    defaults.put(ProcessProperties.JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS, "30000");
+    defaults.put(PATH_DATA, "data");
+    defaults.put(PATH_LOGS, "logs");
+    defaults.put(PATH_TEMP, "temp");
+    defaults.put(PATH_WEB, "web");
+
+    defaults.put(WEB_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError");
+    defaults.put(WEB_JAVA_ADDITIONAL_OPTS, "");
+    defaults.put(CE_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError");
+    defaults.put(CE_JAVA_ADDITIONAL_OPTS, "");
+    defaults.put(JDBC_MAX_ACTIVE, "60");
+    defaults.put(JDBC_MAX_IDLE, "5");
+    defaults.put(JDBC_MIN_IDLE, "2");
+    defaults.put(JDBC_MAX_WAIT, "5000");
+    defaults.put(JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS, "600000");
+    defaults.put(JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS, "30000");
+
+    defaults.put(CLUSTER_ENABLED, "false");
+    defaults.put(CLUSTER_CE_DISABLED, "false");
+    defaults.put(CLUSTER_WEB_DISABLED, "false");
+    defaults.put(CLUSTER_SEARCH_DISABLED, "false");
+    defaults.put(CLUSTER_NAME, "");
+    defaults.put(CLUSTER_INTERFACES, "");
+    defaults.put(CLUSTER_MEMBERS, "");
+    defaults.put(CLUSTER_PORT, "9003");
+    defaults.put(HAZELCAST_LOG_LEVEL, "WARN");
+
     return defaults;
   }
 
   private static Map<String, Integer> defaultPorts() {
     Map<String, Integer> defaults = new HashMap<>();
-    defaults.put(ProcessProperties.SEARCH_PORT, 9001);
+    defaults.put(SEARCH_PORT, 9001);
     return defaults;
   }
 }

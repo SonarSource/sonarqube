@@ -204,7 +204,7 @@ public class UpgradeTest {
       .setOrchestratorProperty("orchestrator.keepDatabase", "true")
       .setOrchestratorProperty("javaVersion", LATEST_JAVA_RELEASE)
       .addPlugin("java")
-      .setStartupLogWatcher(log -> log.contains("Process[web] is up"));
+      .setStartupLogWatcher(log -> log.contains("Database must be upgraded"));
     orchestrator = builder.build();
     orchestrator.start();
     initSelenide(orchestrator);

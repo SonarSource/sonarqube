@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import static java.lang.String.format;
-import static org.sonar.process.FileUtils.deleteQuietly;
+import static org.sonar.process.FileUtils2.deleteQuietly;
 
 public class MinimumViableSystem {
 
