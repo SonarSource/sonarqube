@@ -72,6 +72,8 @@ public interface UserMapper {
 
   void deletePropertiesMatchingLogin(@Param("propertyKeys") List<String> propertyKeys, @Param("login") String login);
 
+  void deleteOrganisationMembership(int userId);
+
   void deactivateUser(@Param("id") int userId, @Param("now") long now);
 
 }

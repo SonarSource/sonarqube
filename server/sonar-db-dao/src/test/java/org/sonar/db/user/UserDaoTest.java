@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 
@@ -435,6 +436,20 @@ public class UserDaoTest {
     assertThat(deactivated).isTrue();
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey("sonar.issues.defaultAssigneeLogin").build(), session)).hasSize(1);
+  }
+
+  @Test
+  public void deactivate_user_also_remove_all_his_organization_membership() throws Exception {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    UserDto user = newActiveUser();
+    db.organizations().addMember(organization1, user);
+    db.organizations().addMember(organization2, user);
+
+    underTest.deactivateUserByLogin(session, user.getLogin());
+
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization1.getUuid(), user.getId())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization2.getUuid(), user.getId())).isNotPresent();
   }
 
   @Test
