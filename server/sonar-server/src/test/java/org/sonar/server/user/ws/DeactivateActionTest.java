@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import java.util.Optional;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,6 +38,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
@@ -72,21 +72,14 @@ public class DeactivateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws;
-  private UserIndex index;
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private UserIndex index = new UserIndex(esTester.client());
   private DbClient dbClient = db.getDbClient();
-  private UserIndexer userIndexer;
+  private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
   private DbSession dbSession = db.getSession();
 
-  @Before
-  public void setUp() {
-    userIndexer = new UserIndexer(dbClient, esTester.client());
-    index = new UserIndex(esTester.client());
-    userIndexer = new UserIndexer(dbClient, esTester.client());
-    ws = new WsActionTester(new DeactivateAction(
-      dbClient, userIndexer, userSession, new UserJsonWriter(userSession), defaultOrganizationProvider));
-  }
+  private WsActionTester ws = new WsActionTester(new DeactivateAction(
+    dbClient, userIndexer, userSession, new UserJsonWriter(userSession), defaultOrganizationProvider));
 
   @Test
   public void test_definition() {
@@ -113,6 +106,22 @@ public class DeactivateActionTest {
     verifyThatUserIsDeactivated(user.getLogin());
     assertThat(dbClient.userTokenDao().selectByLogin(dbSession, user.getLogin())).isEmpty();
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId().intValue()).build(), dbSession)).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_and_delete_his_organization_membership() throws Exception {
+    UserDto user = insertUser(newUserDto()
+      .setLogin("ada.lovelace")
+      .setEmail("ada.lovelace@noteg.com")
+      .setName("Ada Lovelace")
+      .setScmAccounts(singletonList("al")));
+    OrganizationDto organizationDto = db.organizations().insert();
+    db.organizations().addMember(organizationDto, user);
+    logInAsSystemAdministrator();
+
+    deactivate(user.getLogin()).getInput();
+
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organizationDto.getUuid(), user.getId())).isNotPresent();
   }
 
   @Test
