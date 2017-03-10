@@ -62,20 +62,22 @@
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    WHERE p.name=#{name} AND p.language=#{language}
+    WHERE p.name=#{name, jdbcType=VARCHAR}
+    AND p.language=#{language, jdbcType=VARCHAR}
+    <if test="organizationUuid != null">
+      AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    </if>
   </select>
 
   <select id="selectByNameAndLanguages" parameterType="map" resultType="QualityProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      p.name=#{name}
-      AND p.language in
-      <foreach collection="languages" open="(" close=")" item="language" separator=",">
-        #{language}
-      </foreach>
-    </where>
+    WHERE p.name=#{name, jdbcType=VARCHAR}
+    AND p.language IN <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+    <if test="organizationUuid != null">
+      AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    </if>
   </select>
 
   <select id="selectByKey" parameterType="string" resultType="QualityProfile">
