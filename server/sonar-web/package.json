@@ -103,7 +103,7 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "coverage": "npm test -- --coverage",
-    "format": "prettier --write --list-different --print-width 100 --single-quote --parser flow src/main/js/**/*.js",
+    "format": "prettier --write --list-different --print-width 100 --single-quote --parser flow \"src/main/js/!(libs)/**/*.js\"",
     "lint": "eslint src/main/js",
     "typecheck": "flow src/main/js",
     "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest --runInBand"
