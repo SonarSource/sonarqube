@@ -89,14 +89,6 @@ public class UserUpdater {
     this.organizationCreation = organizationCreation;
   }
 
-  public UserDto create(NewUser newUser) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto createdUser = create(dbSession, newUser);
-      dbSession.commit();
-      return createdUser;
-    }
-  }
-
   public UserDto create(DbSession dbSession, NewUser newUser) {
     String login = newUser.login();
     UserDto userDto = dbClient.userDao().selectByLogin(dbSession, newUser.login());
