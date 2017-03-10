@@ -23,29 +23,29 @@ import debounce from 'lodash/debounce';
 import { getFilterUrl } from './utils';
 import SearchFilter from './SearchFilter';
 
-class SearchFilterContainer extends React.Component {
-  static propTypes = {
-    query: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
-  }
+type Props = {
+  query: {},
+  router: { push: (string) => void },
+  isFavorite?: boolean,
+  organization?: {}
+};
 
-  constructor (props) {
+class SearchFilterContainer extends React.Component {
+  handleSearch: (userQuery?: string) => void;
+  props: Props;
+
+  constructor (props: Props) {
     super(props);
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  handleSearch (userQuery) {
+  handleSearch (userQuery?: string) {
     const path = getFilterUrl(this.props, { search: userQuery || null });
     this.props.router.push(path);
   }
 
   render () {
-    return (
-      <SearchFilter
-        query={this.props.query}
-        handleSearch={this.handleSearch}/>
-    );
+    return <SearchFilter query={this.props.query} handleSearch={this.handleSearch}/>;
   }
 }
 
