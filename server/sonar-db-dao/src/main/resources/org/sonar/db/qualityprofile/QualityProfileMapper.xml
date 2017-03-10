@@ -55,7 +55,9 @@
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    WHERE p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    <if test="organizationUuid != null">
+      WHERE p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    </if>
     ORDER BY p.name, p.language
   </select>
 
@@ -142,14 +144,11 @@
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      p.is_default=${_true}
-      AND p.language in
-      <foreach collection="languages" open="(" close=")" item="language" separator=",">
-        #{language}
-      </foreach>
-      AND p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    </where>
+    WHERE p.is_default=${_true}
+    AND p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+    <if test="organizationUuid != null">
+      AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    </if>
   </select>
 
   <select id="selectProjects" resultType="Component">
@@ -234,14 +233,11 @@
     FROM rules_profiles p
     JOIN project_qprofiles pp ON pp.profile_key=p.kee
     JOIN projects project ON pp.project_uuid=project.uuid AND project.kee=#{projectKey}
-    <where>
-      p.language in
-      <foreach collection="languages" open="(" close=")" item="language" separator=",">
-        #{language}
-      </foreach>
-      AND p.organization_uuid = #{organizationUuid}
-      AND project.organization_uuid = #{organizationUuid}
-    </where>
+    WHERE p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+    <if test="organizationUuid != null">
+      AND project.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    </if>
   </select>
 
   <insert id="insertProjectProfileAssociation" keyColumn="id" useGeneratedKeys="true">
