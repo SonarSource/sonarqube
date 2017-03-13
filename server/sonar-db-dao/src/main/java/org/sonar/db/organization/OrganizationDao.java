@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -46,9 +47,9 @@ public class OrganizationDao implements Dao {
     getMapper(dbSession).insert(organization);
   }
 
-  public List<OrganizationDto> selectByQuery(DbSession dbSession, OrganizationQuery organizationQuery, int offset, int limit) {
+  public List<OrganizationDto> selectByQuery(DbSession dbSession, OrganizationQuery organizationQuery, int page, int pageSize) {
     requireNonNull(organizationQuery, "organizationQuery can't be null");
-    return getMapper(dbSession).selectByQuery(organizationQuery, offset, limit);
+    return getMapper(dbSession).selectByQuery(organizationQuery, page, pageSize);
   }
 
   public Optional<OrganizationDto> selectByUuid(DbSession dbSession, String uuid) {
@@ -70,6 +71,13 @@ public class OrganizationDao implements Dao {
 
   public List<OrganizationDto> selectByPermission(DbSession dbSession, Integer userId, String permission) {
     return getMapper(dbSession).selectByPermission(userId, permission);
+  }
+
+  public List<OrganizationDto> selectOrganizationsWithoutLoadedTemplate(DbSession dbSession, String loadedTemplateType, int page, int pageSize) {
+    checkArgument(page >= 1, "page must be >= 1");
+    checkArgument(pageSize >= 1, "page size must be >= 1");
+    int offset = (page - 1) * pageSize;
+    return getMapper(dbSession).selectOrganizationsWithoutLoadedTemplate(loadedTemplateType, page, pageSize, offset);
   }
 
   /**

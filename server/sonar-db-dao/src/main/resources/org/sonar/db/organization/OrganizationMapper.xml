@@ -123,6 +123,57 @@
       and gu.user_id = #{userId,jdbcType=INTEGER}
   </select>
 
+  <select id="selectOrganizationsWithoutLoadedTemplate" parameterType="map" resultType="Organization">
+    select
+      <include refid="selectColumns"/>
+    <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
+    order by
+      org.created_at asc
+    limit #{pageSize} offset #{offset}
+  </select>
+
+  <select id="selectOrganizationsWithoutLoadedTemplate" parameterType="map" resultType="Organization" databaseId="mssql">
+    select * from (
+      select
+        row_number() over(order by org.created_at asc) as number,
+        <include refid="selectColumns"/>
+      <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
+    ) as query
+    where
+      query.number between (#{offset} + 1) and (#{page} * #{pageSize})
+    order by
+      query.createdAt asc
+  </select>
+
+  <select id="selectOrganizationsWithoutLoadedTemplate" parameterType="map" resultType="Organization" databaseId="oracle">
+    select * from (
+      select rownum as rn, t.* from (
+        select
+          <include refid="selectColumns"/>
+        <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
+        order by
+          org.created_at asc
+      ) t
+    ) t
+    where
+      t.rn between (#{offset} + 1) and (#{page} * #{pageSize})
+  </select>
+
+  <sql id="sqlSelectOrganizationsWithoutLoadedTemplate">
+    from
+      organizations org
+    where
+      not exists (
+        select
+          1
+        from
+          loaded_templates lt
+        where
+          lt.template_type=#{loadedTemplateType,jdbcType=VARCHAR}
+          and lt.kee=org.uuid
+      )
+  </sql>
+
   <insert id="insert" parameterType="Organization" useGeneratedKeys="false">
     insert into organizations
     (
