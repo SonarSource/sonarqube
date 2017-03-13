@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -37,6 +38,8 @@ import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,7 +71,7 @@ public class CopyActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new CopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"), new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider))));
+      new CopyAction(db.getDbClient(), qProfileCopier, LanguageTesting.newLanguages("xoo"), new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider))));
   }
 
   @Test
@@ -78,7 +81,7 @@ public class CopyActionTest {
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
 
-    when(qProfileCopier.copyToName(fromProfileKey, toName)).thenReturn(
+    when(qProfileCopier.copyToName(any(DbSession.class), eq(fromProfileKey), eq(toName))).thenReturn(
       QualityProfileDto.createFor("xoo-other-sonar-way-12345")
         .setName(toName)
         .setLanguage("xoo"));
@@ -88,7 +91,7 @@ public class CopyActionTest {
       .setParam("toName", toName)
       .execute().assertJson(getClass(), "copy_nominal.json");
 
-    verify(qProfileCopier).copyToName(fromProfileKey, toName);
+    verify(qProfileCopier).copyToName(any(DbSession.class), eq(fromProfileKey), eq(toName));
   }
 
   @Test
@@ -98,7 +101,7 @@ public class CopyActionTest {
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
 
-    when(qProfileCopier.copyToName(fromProfileKey, toName)).thenReturn(
+    when(qProfileCopier.copyToName(any(DbSession.class), eq(fromProfileKey), eq(toName))).thenReturn(
       QualityProfileDto.createFor("xoo-other-sonar-way-12345")
         .setName(toName)
         .setLanguage("xoo")
@@ -109,7 +112,7 @@ public class CopyActionTest {
       .setParam("toName", toName)
       .execute().assertJson(getClass(), "copy_with_parent.json");
 
-    verify(qProfileCopier).copyToName(fromProfileKey, toName);
+    verify(qProfileCopier).copyToName(any(DbSession.class), eq(fromProfileKey), eq(toName));
   }
 
   @Test

@@ -77,48 +77,38 @@ public class QProfileReset {
    * Reset built-in profiles for the given language. Missing profiles are created and
    * existing ones are updated.
    */
-  public void resetLanguage(String language) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      ListMultimap<QProfileName, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);
-      for (Map.Entry<QProfileName, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
-        QProfileName profileName = entry.getKey();
-        QualityProfileDto profile = factory.getOrCreate(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), profileName);
-        List<RuleActivation> activations = Lists.newArrayList();
-        for (RulesProfile def : entry.getValue()) {
-          for (ActiveRule activeRule : def.getActiveRules()) {
-            RuleActivation activation = new RuleActivation(RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey()));
-            activation.setSeverity(activeRule.getSeverity().name());
-            if (!activeRule.getActiveRuleParams().isEmpty()) {
-              for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-                activation.setParameter(param.getParamKey(), param.getValue());
-              }
-            } else {
-              for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
-                activation.setParameter(param.getName(), param.getDefaultValue());
-              }
+  public void resetLanguage(DbSession dbSession, String language) {
+    ListMultimap<QProfileName, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);
+    for (Map.Entry<QProfileName, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
+      QProfileName profileName = entry.getKey();
+      QualityProfileDto profile = factory.getOrCreate(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), profileName);
+      List<RuleActivation> activations = Lists.newArrayList();
+      for (RulesProfile def : entry.getValue()) {
+        for (ActiveRule activeRule : def.getActiveRules()) {
+          RuleActivation activation = new RuleActivation(RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey()));
+          activation.setSeverity(activeRule.getSeverity().name());
+          if (!activeRule.getActiveRuleParams().isEmpty()) {
+            for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+              activation.setParameter(param.getParamKey(), param.getValue());
             }
-            activations.add(activation);
+          } else {
+            for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
+              activation.setParameter(param.getName(), param.getDefaultValue());
+            }
           }
+          activations.add(activation);
         }
-        doReset(dbSession, profile, activations);
       }
-    } finally {
-      dbSession.close();
+      doReset(dbSession, profile, activations);
     }
   }
 
   /**
    * Reset the profile, which is created if it does not exist
    */
-  BulkChangeResult reset(QProfileName profileName, Collection<RuleActivation> activations) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      QualityProfileDto profile = factory.getOrCreate(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), profileName);
-      return doReset(dbSession, profile, activations);
-    } finally {
-      dbSession.close();
-    }
+  BulkChangeResult reset(DbSession dbSession, QProfileName profileName, Collection<RuleActivation> activations) {
+    QualityProfileDto profile = factory.getOrCreate(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), profileName);
+    return doReset(dbSession, profile, activations);
   }
 
   /**
