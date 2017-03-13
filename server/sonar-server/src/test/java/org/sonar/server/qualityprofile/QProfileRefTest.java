@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.server.qualityprofile;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,11 +26,9 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
-import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class QProfileRefTest {
 
@@ -75,7 +73,6 @@ public class QProfileRefTest {
     expectedException.expect(IllegalStateException.class);
     ref.getKey();
   }
-
 
   @Test
   public void create_key_ref_from_ws_request() {
