@@ -267,6 +267,7 @@ public class OrganizationTest {
 
     userRule.createUser("bob", "bob");
     userRule.removeGroups("sonar-users");
+    adminOrganizationService.addMember(orgKeyAndName, "bob");
     addPermissionsToUser(orgKeyAndName, "bob", "provisioning", "scan");
 
     ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
@@ -325,6 +326,7 @@ public class OrganizationTest {
     GroupManagement groupManagement = userRule.forOrganization(orgKeyAndName);
 
     userRule.createUser("bob", "bob");
+    adminOrganizationService.addMember(orgKeyAndName, "bob");
     groupManagement.createGroup("grp1");
     groupManagement.createGroup("grp2");
     groupManagement.associateGroupsToUser("bob", "grp1", "grp2");
