@@ -79,6 +79,7 @@ export default class SizeFilter extends React.PureComponent {
         renderName={this.renderName}
         renderOption={this.renderOption}
         renderSort={this.renderSort}
+        highlightUnder={1}
         getFacetValueForOption={this.getFacetValueForOption}
         query={this.props.query}
         isFavorite={this.props.isFavorite}

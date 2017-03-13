@@ -40,17 +40,22 @@ export default class Filter extends React.PureComponent {
     getFacetValueForOption: React.PropTypes.func,
 
     halfWidth: React.PropTypes.bool,
-    highlightUnder: React.PropTypes.func
+    highlightUnder: React.PropTypes.number
   };
 
   static defaultProps = {
-    halfWidth: false,
-    highlightUnder: () => false
+    halfWidth: false
   };
 
   isSelected (option) {
     const { value } = this.props;
     return Array.isArray(value) ? value.includes(option) : option === value;
+  }
+
+  highlightUnder (option) {
+    return this.props.highlightUnder != null &&
+      option !== null &&
+      option > this.props.highlightUnder;
   }
 
   getPath (option) {
@@ -71,10 +76,10 @@ export default class Filter extends React.PureComponent {
 
   renderHeader () {
     return (
-        <div className="search-navigator-facet-header projects-facet-header">
-          {this.props.renderName()}
-          {this.props.renderSort && this.props.renderSort()}
-        </div>
+      <div className="search-navigator-facet-header projects-facet-header">
+        {this.props.renderName()}
+        {this.props.renderSort && this.props.renderSort()}
+      </div>
     );
   }
 
@@ -84,37 +89,46 @@ export default class Filter extends React.PureComponent {
     }
 
     return (
-        <div className="projects-facet-bar">
-          <div className="projects-facet-bar-inner"
-               style={{ width: facetValue / this.props.maxFacetValue * 60 }}/>
-        </div>
+      <div className="projects-facet-bar">
+        <div
+          className="projects-facet-bar-inner"
+          style={{ width: facetValue / this.props.maxFacetValue * 60 }}/>
+      </div>
     );
   }
 
   renderOption (option) {
     const { facet, getFacetValueForOption, value } = this.props;
-    const className = classNames('facet', 'search-navigator-facet', 'projects-facet', {
-      'active': this.isSelected(option),
-      'search-navigator-facet-half': this.props.halfWidth,
-      'search-navigator-facet-highlight-under': this.props.highlightUnder(option)
-    }, this.props.optionClassName);
+    const className = classNames(
+      'facet',
+      'search-navigator-facet',
+      'projects-facet',
+      {
+        'active': this.isSelected(option),
+        'search-navigator-facet-half': this.props.halfWidth,
+        'search-navigator-facet-highlight-under': this.highlightUnder(option)
+      },
+      this.props.optionClassName
+    );
 
     const path = this.getPath(option);
+    const facetValue = facet && getFacetValueForOption
+      ? getFacetValueForOption(facet, option)
+      : null;
 
-    const facetValue = (facet && getFacetValueForOption) ? getFacetValueForOption(facet, option) : null;
+    const isUnderSelectedOption = this.highlightUnder(value) && option > value;
 
     return (
-        <Link key={option} className={className} to={path} data-key={option}>
-          <span className="facet-name">
-            {this.props.renderOption(option, this.isSelected(option), value)}
-          </span>
-          {facetValue != null && (
-              <span className="facet-stat">
-                {formatMeasure(facetValue, 'SHORT_INT')}
-                {this.renderOptionBar(facetValue)}
-              </span>
-          )}
-        </Link>
+      <Link key={option} className={className} to={path} data-key={option}>
+        <span className="facet-name">
+          {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
+        </span>
+        {facetValue != null &&
+          <span className="facet-stat">
+            {formatMeasure(facetValue, 'SHORT_INT')}
+            {this.renderOptionBar(facetValue)}
+          </span>}
+      </Link>
     );
   }
 
@@ -148,11 +162,11 @@ export default class Filter extends React.PureComponent {
 
   render () {
     return (
-        <div className="search-navigator-facet-box" data-key={this.props.property}>
-          {this.renderHeader()}
-          {this.renderOptions()}
-          {this.renderFooter()}
-        </div>
+      <div className="search-navigator-facet-box" data-key={this.props.property}>
+        {this.renderHeader()}
+        {this.renderOptions()}
+        {this.renderFooter()}
+      </div>
     );
   }
 }
