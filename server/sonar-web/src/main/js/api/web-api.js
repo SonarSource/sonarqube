@@ -51,6 +51,7 @@ export type Action = {
 export type Domain = {
   actions: Array<Action>,
   description: string,
+  deprecated: boolean,
   internal: boolean,
   path: string
 };
@@ -60,9 +61,10 @@ export function fetchWebApi (showInternal: boolean = true): Promise<Array<Domain
   const data = { include_internals: showInternal };
 
   return getJSON(url, data).then(r => r.webServices.map(domain => {
+    const deprecated = !domain.actions.find(action => !action.deprecatedSince);
     const internal = !domain.actions.find(action => !action.internal);
 
-    return { ...domain, internal };
+    return { ...domain, deprecated, internal };
   }));
 }
 

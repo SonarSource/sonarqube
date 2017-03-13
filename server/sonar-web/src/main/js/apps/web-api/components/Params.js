@@ -25,13 +25,16 @@ import type { Param } from '../../../api/web-api';
 
 export default class Params extends React.PureComponent {
   props: {
-    params: Array<Param>,
-    showInternal: boolean
+    showDeprecated: boolean,
+    showInternal: boolean,
+    params: Array<Param>
   };
 
   render () {
-    const { showInternal, params } = this.props;
-    const displayedParameters = showInternal ? params : params.filter(p => !p.internal);
+    const { showDeprecated, showInternal, params } = this.props;
+    const displayedParameters = params
+      .filter(p => showDeprecated || !p.deprecatedSince)
+      .filter(p => showInternal || !p.internal);
 
     return (
       <div className="web-api-params">
@@ -52,12 +55,14 @@ export default class Params extends React.PureComponent {
                       <DeprecatedBadge since={param.deprecatedSince}/>
                     </div>}
 
-                  {param.deprecatedKey &&
+                  {showDeprecated &&
+                    param.deprecatedKey &&
                     <div className="little-spacer-top">
                       <code>{param.deprecatedKey}</code>
                     </div>}
 
-                  {param.deprecatedKey &&
+                  {showDeprecated &&
+                    param.deprecatedKey &&
                     param.deprecatedKeySince &&
                     <div className="little-spacer-top">
                       <DeprecatedBadge since={param.deprecatedKeySince}/>

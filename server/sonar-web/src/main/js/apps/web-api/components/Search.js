@@ -17,20 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import debounce from 'lodash/debounce';
 import Checkbox from '../../../components/controls/Checkbox';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
-export default class Search extends React.Component {
-  constructor (props) {
+type Props = {
+  showDeprecated: boolean,
+  showInternal: boolean,
+  onSearch: (string) => void,
+  onToggleInternal: () => void,
+  onToggleDeprecated: () => void
+};
+
+type State = {
+  query: string
+};
+
+export default class Search extends React.PureComponent {
+  actuallySearch: () => void;
+  props: Props;
+  state: State;
+
+  constructor (props: Props) {
     super(props);
     this.state = { query: '' };
     this.actuallySearch = debounce(this.actuallySearch.bind(this), 250);
   }
 
-  handleSearch (e) {
+  handleSearch (e: SyntheticInputEvent) {
     const { value } = e.target;
     this.setState({ query: value });
     this.actuallySearch();
@@ -42,64 +59,60 @@ export default class Search extends React.Component {
   }
 
   render () {
-    const { showInternal, showOnlyDeprecated, onToggleInternal, onToggleDeprecated } = this.props;
+    const { showInternal, showDeprecated, onToggleInternal, onToggleDeprecated } = this.props;
 
     return (
-        <div className="web-api-search">
-          <div>
-            <i className="icon-search"/>
-            <input
-                className="spacer-left input-large"
-                type="search"
-                value={this.state.query}
-                placeholder={translate('search_verb')}
-                onChange={this.handleSearch.bind(this)}/>
-          </div>
-
-          <TooltipsContainer>
-            <div className="big-spacer-top">
-              <Checkbox
-                  checked={showInternal}
-                  onCheck={onToggleInternal}/>
-              {' '}
-              <span
-                  style={{ cursor: 'pointer' }}
-                  title={translate('api_documentation.internal_tooltip')}
-                  tabIndex="0"
-                  role="checkbox"
-                  aria-checked={showInternal ? 'true' : 'false'}
-                  onClick={onToggleInternal}>
-                Show Internal API
-              </span>
-              <i
-                  className="icon-help spacer-left"
-                  title={translate('api_documentation.internal_tooltip')}
-                  data-toggle="tooltip"/>
-            </div>
-          </TooltipsContainer>
-
-          <TooltipsContainer>
-            <div className="spacer-top">
-              <Checkbox
-                  checked={showOnlyDeprecated}
-                  onCheck={onToggleDeprecated}/>
-              {' '}
-              <span
-                  style={{ cursor: 'pointer' }}
-                  title={translate('api_documentation.deprecation_tooltip')}
-                  tabIndex="0"
-                  role="checkbox"
-                  aria-checked={showOnlyDeprecated ? 'true' : 'false'}
-                  onClick={onToggleDeprecated}>
-                Show Only Deprecated API
-              </span>
-              <i
-                  className="icon-help spacer-left"
-                  title={translate('api_documentation.deprecation_tooltip')}
-                  data-toggle="tooltip"/>
-            </div>
-          </TooltipsContainer>
+      <div className="web-api-search">
+        <div>
+          <i className="icon-search"/>
+          <input
+            className="spacer-left input-large"
+            type="search"
+            value={this.state.query}
+            placeholder={translate('search_verb')}
+            onChange={this.handleSearch.bind(this)}/>
         </div>
+
+        <TooltipsContainer>
+          <div className="big-spacer-top">
+            <Checkbox checked={showInternal} onCheck={onToggleInternal}/>
+            {' '}
+            <span
+              style={{ cursor: 'pointer' }}
+              title={translate('api_documentation.internal_tooltip')}
+              tabIndex="0"
+              role="checkbox"
+              aria-checked={showInternal ? 'true' : 'false'}
+              onClick={onToggleInternal}>
+              Show Internal API
+            </span>
+            <i
+              className="icon-help spacer-left"
+              title={translate('api_documentation.internal_tooltip')}
+              data-toggle="tooltip"/>
+          </div>
+        </TooltipsContainer>
+
+        <TooltipsContainer>
+          <div className="spacer-top">
+            <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated}/>
+            {' '}
+            <span
+              style={{ cursor: 'pointer' }}
+              title={translate('api_documentation.deprecation_tooltip')}
+              tabIndex="0"
+              role="checkbox"
+              aria-checked={showDeprecated ? 'true' : 'false'}
+              onClick={onToggleDeprecated}>
+              Show Deprecated API
+            </span>
+            <i
+              className="icon-help spacer-left"
+              title={translate('api_documentation.deprecation_tooltip')}
+              data-toggle="tooltip"/>
+          </div>
+        </TooltipsContainer>
+      </div>
     );
   }
 }
