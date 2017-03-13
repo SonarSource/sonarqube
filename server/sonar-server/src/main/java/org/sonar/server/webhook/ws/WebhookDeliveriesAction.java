@@ -64,7 +64,6 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
         "Require 'Administer' permission on the related project.<br/>" +
         "Note that additional information are returned by api/webhooks/delivery.")
       .setResponseExample(Resources.getResource(this.getClass(), "example-deliveries.json"))
-      .setInternal(true)
       .setHandler(this);
 
     action.createParam(COMPONENT_PARAM)

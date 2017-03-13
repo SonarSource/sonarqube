@@ -47,9 +47,10 @@ public class SearchAction implements RootsWsAction {
     controller.createAction("search")
       .setInternal(true)
       .setPost(false)
-      .setDescription("Search for root user.<br/>" +
+      .setDescription("Search for root users.<br/>" +
         "Requires to be root.")
       .setSince("6.2")
+      .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
   }
 
