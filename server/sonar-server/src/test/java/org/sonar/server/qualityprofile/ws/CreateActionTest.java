@@ -43,6 +43,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileExporters;
@@ -101,7 +102,7 @@ public class CreateActionTest {
 
   private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters,
     newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
-    activeRuleIndexer, profileImporters);
+    userSession, activeRuleIndexer, profileImporters);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Before
@@ -173,12 +174,12 @@ public class CreateActionTest {
 
   @Test
   public void create_two_qprofiles_in_different_organizations_with_same_name_and_language() {
-    logInAsQProfileAdministrator();
 
     // this name will be used twice
     String profileName = "Profile123";
 
     OrganizationDto organization1 = dbTester.organizations().insert();
+    logInAsQProfileAdministrator(organization1);
     TestRequest request1 = wsTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("organization", organization1.getKey())
@@ -188,6 +189,7 @@ public class CreateActionTest {
       .isEqualTo(organization1.getKey());
 
     OrganizationDto organization2 = dbTester.organizations().insert();
+    logInAsQProfileAdministrator(organization2);
     TestRequest request2 = wsTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("organization", organization2.getKey())
@@ -195,6 +197,22 @@ public class CreateActionTest {
       .setParam("language", XOO_LANGUAGE);
     assertThat(executeRequest(request2).getProfile().getOrganization())
       .isEqualTo(organization2.getKey());
+  }
+
+  @Test
+  public void fail_if_unsufficient_privileges() {
+    OrganizationDto organizationX = dbTester.organizations().insert();
+    OrganizationDto organizationY = dbTester.organizations().insert();
+
+    logInAsQProfileAdministrator(organizationX);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    executeRequest(wsTester.newRequest()
+      .setParam("organization", organizationY.getKey())
+      .setParam("name", "some Name")
+      .setParam("language", XOO_LANGUAGE));
   }
 
   @Test
@@ -207,7 +225,7 @@ public class CreateActionTest {
 
   @Test
   public void test_json() throws Exception {
-    logInAsQProfileAdministrator();
+    logInAsQProfileAdministrator(dbTester.getDefaultOrganization());
 
     TestResponse response = wsTester.newRequest()
       .setMethod("POST")
@@ -300,8 +318,12 @@ public class CreateActionTest {
   }
 
   private void logInAsQProfileAdministrator() {
+    logInAsQProfileAdministrator(this.organization);
+  }
+
+  private void logInAsQProfileAdministrator(OrganizationDto organization) {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 }
