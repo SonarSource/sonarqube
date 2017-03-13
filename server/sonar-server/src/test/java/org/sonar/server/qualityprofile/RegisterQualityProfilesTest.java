@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,7 +45,10 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -57,7 +61,7 @@ public class RegisterQualityProfilesTest {
   private static final DummyLanguage BAR_LANGUAGE = new DummyLanguage("bar");
   private static final String TABLE_RULES_PROFILES = "RULES_PROFILES";
   private static final String TYPE_QUALITY_PROFILE = "QUALITY_PROFILE";
-  public static final String SONAR_WAY_QP_NAME = "Sonar way";
+  private static final String SONAR_WAY_QP_NAME = "Sonar way";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -117,13 +121,16 @@ public class RegisterQualityProfilesTest {
   public void start_creates_qp_if_language_exists_and_store_flag_in_loaded_templates() {
     String uuid = "generated uuid";
     long now = 2_456_789;
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", false)), new Languages(FOO_LANGUAGE));
+    DummyProfileDefinition qpDefinition = new DummyProfileDefinition("foo", "foo1", false);
+    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(qpDefinition), new Languages(FOO_LANGUAGE));
     mockForSingleQPInsert(uuid, now);
 
     underTest.start();
 
+    OrganizationDto organization = dbTester.getDefaultOrganization();
     QualityProfileDto dto = getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo1");
     assertThat(dto.getId()).isNotNull();
+    assertThat(dto.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(dto.getLanguage()).isEqualTo(FOO_LANGUAGE.getKey());
     assertThat(dto.getName()).isEqualTo("foo1");
     assertThat(dto.getKee()).isEqualTo(uuid);
@@ -135,7 +142,7 @@ public class RegisterQualityProfilesTest {
     assertThat(dto.isDefault()).isTrue();
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(1);
 
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(TYPE_QUALITY_PROFILE, "foo:foo1", dbTester.getSession()))
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition), organization.getUuid(), dbTester.getSession()))
       .isEqualTo(1);
   }
 
@@ -178,9 +185,10 @@ public class RegisterQualityProfilesTest {
 
   @Test
   public void start_does_not_create_sq_if_loaded_profile_already_exists() {
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto("foo:foo1", TYPE_QUALITY_PROFILE), dbTester.getSession());
+    DummyProfileDefinition qpDefinition = new DummyProfileDefinition("foo", "foo1", false);
+    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(dbTester.getDefaultOrganization().getUuid(), computeLoadedTemplateType(qpDefinition)), dbTester.getSession());
     dbTester.commit();
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", false)), new Languages(FOO_LANGUAGE));
+    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(qpDefinition), new Languages(FOO_LANGUAGE));
 
     underTest.start();
 
@@ -220,9 +228,9 @@ public class RegisterQualityProfilesTest {
     long date2 = 4_231_654L;
     String name = "doh";
 
-    RegisterQualityProfiles underTest = mockedEs(
-      asList(new DummyProfileDefinition("foo", name, true), new DummyProfileDefinition("bar", name, true)),
-      new Languages(FOO_LANGUAGE, BAR_LANGUAGE));
+    DummyProfileDefinition qpDefinition1 = new DummyProfileDefinition("foo", name, true);
+    DummyProfileDefinition qpDefinition2 = new DummyProfileDefinition("bar", name, true);
+    RegisterQualityProfiles underTest = mockedEs(asList(qpDefinition1, qpDefinition2), new Languages(FOO_LANGUAGE, BAR_LANGUAGE));
     when(mockedUuidFactory.create()).thenReturn(uuid1).thenReturn(uuid2).thenThrow(new UnsupportedOperationException("uuidFactory should be called only twice"));
     when(mockedSystem2.now()).thenReturn(date1).thenReturn(date2).thenThrow(new UnsupportedOperationException("now should be called only twice"));
 
@@ -256,9 +264,9 @@ public class RegisterQualityProfilesTest {
     assertThat(dto.isDefault()).isTrue();
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(2);
 
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(TYPE_QUALITY_PROFILE, "foo:doh", dbTester.getSession()))
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition1), organization.getUuid(), dbTester.getSession()))
       .isEqualTo(1);
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(TYPE_QUALITY_PROFILE, "bar:doh", dbTester.getSession()))
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition2), organization.getUuid(), dbTester.getSession()))
       .isEqualTo(1);
   }
 
@@ -409,5 +417,10 @@ public class RegisterQualityProfilesTest {
     public String[] getFileSuffixes() {
       return new String[] {key};
     }
+  }
+
+  private String computeLoadedTemplateType(DummyProfileDefinition qpDefinition) {
+    String qpIdentifier = lowerCase(qpDefinition.getLanguage()) + ":" + qpDefinition.getName();
+    return format("%s.%s", TYPE_QUALITY_PROFILE, DigestUtils.md5Hex(qpIdentifier.getBytes(UTF_8)));
   }
 }
