@@ -23,7 +23,6 @@ import java.io.Reader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
@@ -31,7 +30,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbTester;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -47,19 +45,16 @@ import static org.mockito.Mockito.mock;
 public class QProfilesWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
 
   private WebService.Controller controller;
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(mock(DbClient.class), userSessionRule, defaultOrganizationProvider);
 
   @Before
   public void setUp() {
     QProfileService profileService = mock(QProfileService.class);
-    I18n i18n = mock(I18n.class);
     DbClient dbClient = mock(DbClient.class);
 
     Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);
@@ -78,7 +73,6 @@ public class QProfilesWsTest {
       new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
-      new BackupAction(dbClient, null, null, languages),
       new RestoreAction(null, languages, wsSupport),
       new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),
       new ChangeParentAction(dbClient, null, null, languages, wsSupport),
@@ -113,7 +107,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(23);
+    assertThat(controller.actions()).isNotEmpty();
   }
 
   @Test
@@ -184,14 +178,6 @@ public class QProfilesWsTest {
     assertThat(projects.isPost()).isFalse();
     assertThat(projects.params()).hasSize(5);
     assertThat(projects.responseExampleAsString()).isNotEmpty();
-  }
-
-  @Test
-  public void define_backup_action() {
-    WebService.Action backup = controller.action("backup");
-    assertThat(backup).isNotNull();
-    assertThat(backup.isPost()).isFalse();
-    assertThat(backup.params()).hasSize(3);
   }
 
   @Test
