@@ -39,6 +39,15 @@ public interface OrganizationMapper {
 
   List<OrganizationDto> selectByPermission(@Param("userId") Integer userId, @Param("permission") String permission);
 
+  /**
+   * Assuming the key of the loaded template with the specified type is an organization's UUID, select all organizations
+   * which does not have a row in table LOADED_TEMPLATES with the specified type.
+   *
+   * @param offset {@code ((#{page} - 1) * #{pageSize})}
+   */
+  List<OrganizationDto> selectOrganizationsWithoutLoadedTemplate(@Param("loadedTemplateType") String type,
+    @Param("page") int page, @Param("pageSize") int pageSize, @Param("offset") int offset);
+
   DefaultTemplates selectDefaultTemplatesByUuid(@Param("uuid") String uuid);
 
   /**
