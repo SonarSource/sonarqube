@@ -36,7 +36,7 @@ import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
@@ -44,6 +44,8 @@ import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.crea
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class AddUserAction implements PermissionsWsAction {
@@ -79,7 +81,7 @@ public class AddUserAction implements PermissionsWsAction {
     createPermissionParameter(action);
     createUserLoginParameter(action);
     createProjectParameters(action);
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setDescription("Key of organization, cannot be used at the same time with %s and %s", PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
   }
 
   @Override
@@ -93,6 +95,7 @@ public class AddUserAction implements PermissionsWsAction {
         .map(dto -> dbClient.organizationDao().selectByUuid(dbSession, dto.getOrganizationUuid()))
         .orElseGet(() -> Optional.ofNullable(support.findOrganization(dbSession, organizationKey)))
         .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
+      support.checkMembership(dbSession, org, user);
 
       Optional<ProjectId> projectId = project.map(ProjectId::new);
       checkProjectAdmin(userSession, org.getUuid(), projectId);
@@ -103,7 +106,7 @@ public class AddUserAction implements PermissionsWsAction {
         request.mandatoryParam(PARAM_PERMISSION),
         projectId.orElse(null),
         user);
-      permissionUpdater.apply(dbSession, asList(change));
+      permissionUpdater.apply(dbSession, singletonList(change));
     }
     response.noContent();
   }
