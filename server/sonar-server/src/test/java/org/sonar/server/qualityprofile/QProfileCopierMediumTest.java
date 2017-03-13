@@ -39,7 +39,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -60,7 +59,6 @@ public class QProfileCopierMediumTest {
 
   private DbClient db;
   private DbSession dbSession;
-  private ActiveRuleIndex index;
   private RuleActivator ruleActivator;
   private QProfileCopier copier;
   private RuleIndexer ruleIndexer;
@@ -73,7 +71,6 @@ public class QProfileCopierMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     ruleActivator = tester.get(RuleActivator.class);
-    index = tester.get(ActiveRuleIndex.class);
     copier = tester.get(QProfileCopier.class);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
@@ -111,7 +108,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // target does not exist
-    copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
+    copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_NAME, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
   }
@@ -141,7 +138,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // copy -> reset x1 and deactivate x2
-    copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
+    copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
   }
@@ -161,7 +158,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // copy child -> profile2 is created with parent P1
-    copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
+    copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
     QualityProfileDto profile2Dto = db.qualityProfileDao().selectByKey(dbSession, QProfileTesting.XOO_P2_KEY);
@@ -179,7 +176,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     try {
-      copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P1_NAME.getName());
+      copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P1_NAME.getName());
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Source and target profiles are equal: P1");
