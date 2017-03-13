@@ -73,7 +73,6 @@ public class QProfilesWsTest {
       new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
-      new RestoreAction(null, languages, wsSupport),
       new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),
       new ChangeParentAction(dbClient, null, null, languages, wsSupport),
       new CompareAction(null, null, languages),
@@ -178,14 +177,6 @@ public class QProfilesWsTest {
     assertThat(projects.isPost()).isFalse();
     assertThat(projects.params()).hasSize(5);
     assertThat(projects.responseExampleAsString()).isNotEmpty();
-  }
-
-  @Test
-  public void define_restore_action() {
-    WebService.Action restore = controller.action("restore");
-    assertThat(restore).isNotNull();
-    assertThat(restore.isPost()).isTrue();
-    assertThat(restore.params()).hasSize(1);
   }
 
   @Test

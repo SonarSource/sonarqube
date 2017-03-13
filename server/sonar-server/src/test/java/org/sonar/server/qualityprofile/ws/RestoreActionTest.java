@@ -20,14 +20,13 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.io.Reader;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -38,87 +37,104 @@ import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
-@RunWith(MockitoJUnitRunner.class)
 public class RestoreActionTest {
-  @Rule
-  public DbTester db = DbTester.create();
 
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
-  // TODO Replace with proper DbTester + EsTester medium test once DaoV2 is removed
-  @Mock
-  private QProfileBackuper backuper;
+  private static final String A_LANGUAGE = "xoo";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DbTester db = DbTester.create();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider);
-  private WsTester tester;
+  private QProfileBackuper backuper = mock(QProfileBackuper.class);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
+  private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
+  private WsActionTester tester = new WsActionTester(new RestoreAction(backuper, languages, wsSupport));
 
-  @Before
-  public void setUp() {
-    tester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class),
-      mock(BulkRuleActivationActions.class),
-      new RestoreAction(backuper, LanguageTesting.newLanguages("xoo"), wsSupport)));
+  @Test
+  public void test_definition() {
+    WebService.Action definition = tester.getDef();
+
+    assertThat(definition.key()).isEqualTo("restore");
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.responseExampleAsString()).isNull();
+    assertThat(definition.description()).isNotEmpty();
+
+    // parameters
+    assertThat(definition.params()).hasSize(1);
+    assertThat(definition.param("backup").isRequired()).isTrue();
   }
 
   @Test
-  public void restore_profile() throws Exception {
-    logInAsQProfileAdministrator();
-
-    QualityProfileDto profile = QualityProfileDto.createFor("xoo-sonar-way-12345")
+  public void restore_the_uploaded_backup_on_default_organization() throws Exception {
+    QualityProfileDto profile = QualityProfileDto.createFor("P1")
       .setDefault(false).setLanguage("xoo").setName("Sonar way");
     BulkChangeResult restoreResult = new BulkChangeResult(profile);
-    when(backuper.restore(any(Reader.class), (QProfileName) eq(null))).thenReturn(restoreResult);
+    when(backuper.restore(any(Reader.class), any(QProfileName.class))).thenReturn(restoreResult);
 
-    tester.newPostRequest("api/qualityprofiles", "restore").setParam("backup", "<polop><palap/></polop>").execute()
-      .assertJson(getClass(), "restore_profile.json");
-    verify(backuper).restore(any(Reader.class), (QProfileName) eq(null));
+    logInAsQProfileAdministrator(db.getDefaultOrganization());
+    TestResponse response = restore("<backup/>");
+
+    JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("RestoreActionTest/restore_profile.json"));
+    verify(backuper).restore(any(Reader.class), any(QProfileName.class));
   }
 
   @Test
-  public void fail_on_missing_backup() throws Exception {
-    logInAsQProfileAdministrator();
+  public void throw_IAE_if_backup_is_missing() throws Exception {
+    logInAsQProfileAdministrator(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("A backup file must be provided");
 
-    tester.newPostRequest("api/qualityprofiles", "restore").execute();
+    tester.newRequest()
+      .setMethod("POST")
+      .execute();
   }
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
-    userSessionRule.logIn();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    tester.newPostRequest("api/qualityprofiles", "restore").execute();
+    restore("<backup/>");
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    userSession.anonymous();
+
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    tester.newPostRequest("api/qualityprofiles", "restore").execute();
+    restore("<backup/>");
   }
 
-  private void logInAsQProfileAdministrator() {
-    userSessionRule
+  private void logInAsQProfileAdministrator(OrganizationDto org) {
+    userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES, org);
+  }
+
+  private TestResponse restore(String backupContent) {
+    return tester.newRequest()
+      .setMethod("POST")
+      .setParam("backup", backupContent)
+      .execute();
   }
 }
