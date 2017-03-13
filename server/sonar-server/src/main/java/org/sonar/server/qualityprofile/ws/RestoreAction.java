@@ -21,26 +21,33 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RestoreAction implements QProfileWsAction {
 
   private static final String PARAM_BACKUP = "backup";
 
+  private final DbClient dbClient;
   private final QProfileBackuper backuper;
   private final Languages languages;
   private final QProfileWsSupport wsSupport;
 
-  public RestoreAction(QProfileBackuper backuper, Languages languages, QProfileWsSupport wsSupport) {
+  public RestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, QProfileWsSupport wsSupport) {
+    this.dbClient = dbClient;
     this.backuper = backuper;
     this.languages = languages;
     this.wsSupport = wsSupport;
@@ -66,10 +73,17 @@ public class RestoreAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     wsSupport.checkQProfileAdminPermission();
 
-    try (InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
-      InputStreamReader reader = new InputStreamReader(backup, StandardCharsets.UTF_8)) {
-      BulkChangeResult result = backuper.restore(reader, null);
+    InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
+    InputStreamReader reader = null;
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      checkArgument(backup != null, "A backup file must be provided");
+      reader = new InputStreamReader(backup, UTF_8);
+      BulkChangeResult result = backuper.restore(dbSession, reader, null);
       writeResponse(response.newJsonWriter(), result);
+    } finally {
+      IOUtils.closeQuietly(reader);
+      IOUtils.closeQuietly(backup);
     }
   }
 
