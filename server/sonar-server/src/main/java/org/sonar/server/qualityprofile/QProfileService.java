@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.io.Writer;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
@@ -39,16 +38,14 @@ public class QProfileService {
   private final DbClient db;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final RuleActivator ruleActivator;
-  private final QProfileBackuper backuper;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileBackuper backuper,
+  public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator,
     UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.db = db;
     this.activeRuleIndexer = activeRuleIndexer;
     this.ruleActivator = ruleActivator;
-    this.backuper = backuper;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
@@ -87,11 +84,6 @@ public class QProfileService {
   public BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
     verifyAdminPermission();
     return ruleActivator.bulkDeactivate(ruleQuery, profile);
-  }
-
-  public void backup(String profileKey, Writer writer) {
-    // Allowed to non-admin users (see http://jira.sonarsource.com/browse/SONAR-2039)
-    backuper.backup(profileKey, writer);
   }
 
   private void verifyAdminPermission() {
