@@ -53,7 +53,7 @@ export default class Filter extends React.PureComponent {
   }
 
   highlightUnder (option) {
-    return typeof this.props.highlightUnder === 'number' &&
+    return this.props.highlightUnder != null &&
       option !== null &&
       option > this.props.highlightUnder;
   }
