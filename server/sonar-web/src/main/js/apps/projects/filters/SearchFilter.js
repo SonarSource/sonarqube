@@ -24,7 +24,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 type Props = {
   handleSearch: (userString?: string) => void,
-  query: {}
+  query: { search?: string }
 };
 
 type State = {
@@ -50,7 +50,7 @@ export default class SearchFilter extends React.PureComponent {
     }
   }
 
-  handleQueryChange = ({ target }) => {
+  handleQueryChange = ({ target }: { target: HTMLInputElement }) => {
     this.setState({ userQuery: target.value });
     if (!target.value || target.value.length >= 2) {
       this.props.handleSearch(target.value);
