@@ -117,6 +117,7 @@ public class DumbResponse implements Response {
     return headers.keySet();
   }
 
+  @CheckForNull
   public String getHeader(String name){
     return headers.get(name);
   }
