@@ -20,9 +20,11 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
+import classNames from 'classnames';
 import { getActionKey } from '../utils';
 import Params from './Params';
 import ResponseExample from './ResponseExample';
+import ActionChangelog from './ActionChangelog';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
@@ -36,6 +38,7 @@ type Props = {
 };
 
 type State = {
+  showChangelog: boolean,
   showParams: boolean,
   showResponse: boolean
 };
@@ -44,25 +47,41 @@ export default class Action extends React.PureComponent {
   props: Props;
 
   state: State = {
+    showChangelog: false,
     showParams: false,
     showResponse: false
   };
 
-  handleShowParamsClick (e: SyntheticInputEvent) {
+  handleShowParamsClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
-    this.refs.toggleParameters.blur();
-    this.setState({ showResponse: false, showParams: !this.state.showParams });
-  }
+    this.setState({
+      showChangelog: false,
+      showResponse: false,
+      showParams: !this.state.showParams
+    });
+  };
 
-  handleShowResponseClick (e: SyntheticInputEvent) {
+  handleShowResponseClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
-    this.refs.toggleResponse.blur();
-    this.setState({ showParams: false, showResponse: !this.state.showResponse });
-  }
+    this.setState({
+      showChangelog: false,
+      showParams: false,
+      showResponse: !this.state.showResponse
+    });
+  };
+
+  handleChangelogClick = (e: SyntheticInputEvent) => {
+    e.preventDefault();
+    this.setState({
+      showChangelog: !this.state.showChangelog,
+      showParams: false,
+      showResponse: false
+    });
+  };
 
   render () {
     const { action, domain } = this.props;
-    const { showParams, showResponse } = this.state;
+    const { showChangelog, showParams, showResponse } = this.state;
     const verb = action.post ? 'POST' : 'GET';
     const actionKey = getActionKey(domain.path, action.key);
 
@@ -95,18 +114,34 @@ export default class Action extends React.PureComponent {
           dangerouslySetInnerHTML={{ __html: action.description }}/>
 
         {(action.params || action.hasResponseExample) &&
-          <ul className="web-api-action-actions list-inline">
+          <ul className="web-api-action-actions tabs">
             {action.params &&
               <li>
-                <a ref="toggleParameters" onClick={this.handleShowParamsClick.bind(this)} href="#">
-                  {showParams ? 'Hide Parameters' : 'Show Parameters'}
+                <a
+                  className={classNames({ selected: showParams })}
+                  href="#"
+                  onClick={this.handleShowParamsClick}>
+                  Parameters
                 </a>
               </li>}
 
             {action.hasResponseExample &&
               <li>
-                <a ref="toggleResponse" onClick={this.handleShowResponseClick.bind(this)} href="#">
-                  {showResponse ? 'Hide Response Example' : 'Show Response Example'}
+                <a
+                  className={classNames({ selected: showResponse })}
+                  href="#"
+                  onClick={this.handleShowResponseClick}>
+                  Response Example
+                </a>
+              </li>}
+
+            {action.changelog.length > 0 &&
+              <li>
+                <a
+                  className={classNames({ selected: showChangelog })}
+                  href="#"
+                  onClick={this.handleChangelogClick}>
+                  Changelog
                 </a>
               </li>}
           </ul>}
@@ -121,6 +156,8 @@ export default class Action extends React.PureComponent {
         {showResponse &&
           action.hasResponseExample &&
           <ResponseExample domain={domain} action={action}/>}
+
+        {showChangelog && <ActionChangelog changelog={action.changelog}/>}
       </div>
     );
   }
