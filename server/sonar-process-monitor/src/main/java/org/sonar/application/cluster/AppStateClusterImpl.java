@@ -45,7 +45,7 @@ import org.sonar.process.ProcessId;
 
 import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
 
-public class AppStateClusterImpl implements AppState, AutoCloseable {
+public class AppStateClusterImpl implements AppState {
   static final String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
   static final String LEADER = "LEADER";
 

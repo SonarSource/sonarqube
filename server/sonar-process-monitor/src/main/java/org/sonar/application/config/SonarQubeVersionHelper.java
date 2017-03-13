@@ -23,6 +23,7 @@ package org.sonar.application.config;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 public class SonarQubeVersionHelper {
   private static final String SONARQUBE_VERSION_PATH = "/sonarqube-version.txt";
@@ -40,9 +41,9 @@ public class SonarQubeVersionHelper {
     return sonarqubeVersion;
   }
 
-  private synchronized static void loadVersions() {
+  private static synchronized void loadVersions() {
     try {
-      try (BufferedReader in = new BufferedReader(new InputStreamReader(SonarQubeVersionHelper.class.getResourceAsStream(SONARQUBE_VERSION_PATH)))) {
+      try (BufferedReader in = new BufferedReader(new InputStreamReader(SonarQubeVersionHelper.class.getResourceAsStream(SONARQUBE_VERSION_PATH), Charset.forName("UTF-8")))) {
         sonarqubeVersion = in.readLine();
       }
     } catch (IOException e) {
