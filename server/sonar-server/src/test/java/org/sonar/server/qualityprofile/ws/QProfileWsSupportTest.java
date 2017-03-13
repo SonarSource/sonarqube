@@ -31,6 +31,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QProfileWsSupportTest {
@@ -60,7 +61,7 @@ public class QProfileWsSupportTest {
   @Test
   public void getProfile_throws_NotFoundException_if_specified_key_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile does not exist");
+    expectedException.expectMessage("Quality Profile with key 'missing' does not exist");
 
     underTest.getProfile(db.getSession(), QProfileReference.fromKey("missing"));
   }
@@ -84,7 +85,7 @@ public class QProfileWsSupportTest {
     db.qualityProfiles().insertQualityProfile(profile);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile does not exist");
+    expectedException.expectMessage("Quality Profile for language 'java' and name 'missing' does not exist");
 
     underTest.getProfile(db.getSession(), QProfileReference.fromName(null, "java", "missing"));
   }
@@ -97,7 +98,7 @@ public class QProfileWsSupportTest {
     OrganizationDto org2 = db.organizations().insert();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile does not exist");
+    expectedException.expectMessage(format("Quality Profile for language '%s' and name '%s' does not exist in organization '%s'", profile.getLanguage(), profile.getName(), org2.getKey()));
 
     underTest.getProfile(db.getSession(), QProfileReference.fromName(org2.getKey(), profile.getLanguage(), profile.getName()));
   }
