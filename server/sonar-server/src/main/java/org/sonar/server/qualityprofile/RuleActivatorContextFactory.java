@@ -50,14 +50,6 @@ public class RuleActivatorContextFactory {
     return create(ruleKey, session, context);
   }
 
-  RuleActivatorContext create(QProfileName profileName, RuleKey ruleKey, DbSession session) {
-    RuleActivatorContext context = new RuleActivatorContext();
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), session);
-    checkRequest(profile != null, "Quality profile not found: %s", profileName);
-    context.setProfile(profile);
-    return create(ruleKey, session, context);
-  }
-
   RuleActivatorContext create(QualityProfileDto profile, RuleKey ruleKey, DbSession session) {
     return create(ruleKey, session, new RuleActivatorContext().setProfile(profile));
   }

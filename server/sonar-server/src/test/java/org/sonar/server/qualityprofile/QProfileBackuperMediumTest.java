@@ -127,9 +127,10 @@ public class QProfileBackuperMediumTest {
     RuleActivation activation3 = new RuleActivation(blahRuleKey);
     activation2.setSeverity(Severity.BLOCKER);
     activation2.setParameter("max", "7");
-    tester.get(RuleActivator.class).activate(dbSession, activation1, XOO_P1_NAME);
-    tester.get(RuleActivator.class).activate(dbSession, activation2, XOO_P1_NAME);
-    tester.get(RuleActivator.class).activate(dbSession, activation3, XOO_P1_NAME);
+    QualityProfileDto profileDto = get(XOO_P1_NAME);
+    tester.get(RuleActivator.class).activate(dbSession, activation1, profileDto);
+    tester.get(RuleActivator.class).activate(dbSession, activation2, profileDto);
+    tester.get(RuleActivator.class).activate(dbSession, activation3, profileDto);
     dbSession.commit();
     dbSession.clearCache();
     activeRuleIndexer.index();
@@ -175,11 +176,12 @@ public class QProfileBackuperMediumTest {
     RuleActivation activation = new RuleActivation(XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
-    tester.get(RuleActivator.class).activate(dbSession, activation, XOO_P1_NAME);
+    QualityProfileDto profileDto = get(XOO_P1_NAME);
+    tester.get(RuleActivator.class).activate(dbSession, activation, profileDto);
 
     activation = new RuleActivation(XOO_X2);
     activation.setSeverity(Severity.INFO);
-    tester.get(RuleActivator.class).activate(dbSession, activation, XOO_P1_NAME);
+    tester.get(RuleActivator.class).activate(dbSession, activation, profileDto);
     dbSession.commit();
     dbSession.clearCache();
     activeRuleIndexer.index();
@@ -387,5 +389,9 @@ public class QProfileBackuperMediumTest {
     List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(tester, db, dbSession));
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
+  }
+
+  private QualityProfileDto get(QProfileName profileName) {
+    return db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), dbSession);
   }
 }
