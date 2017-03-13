@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.server.qualityprofile.ws;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -29,29 +30,31 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 /**
- * Reference to a Quality profile. The two exclusive options to reference a profile are:
+ * Reference to a Quality profile as defined by requests to web services api/qualityprofiles.
+ * The two exclusive options to reference a profile are:
  * <ul>
- *   <li>by its key</li>
- *   <li>by the couple {language, name}</li>
+ *   <li>by its id (to be deprecated)</li>
+ *   <li>by the tuple {organizationKey, language, name}</li>
  * </ul>
- *
- * @deprecated replaced by {@link org.sonar.server.qualityprofile.ws.QProfileRef}
  */
-@Deprecated
 public class QProfileRef {
 
-  public static final String PARAM_LANGUAGE = "language";
-  public static final String PARAM_PROFILE_NAME = "profileName";
-  public static final String PARAM_PROFILE_KEY = "profileKey";
+  public static final String DEFAULT_PARAM_LANGUAGE = "language";
+  public static final String DEFAULT_PARAM_PROFILE_NAME = "profileName";
+  public static final String DEFAULT_PARAM_PROFILE_KEY = "profileKey";
 
   private final String key;
+  private final String organizationKey;
   private final String language;
   private final String name;
 
-  private QProfileRef(@Nullable String key, @Nullable String language, @Nullable String name) {
+  private QProfileRef(@Nullable String key, @Nullable String organizationKey, @Nullable String language, @Nullable String name) {
     this.key = key;
+
+    this.organizationKey = organizationKey;
     this.language = language;
     this.name = name;
   }
@@ -72,6 +75,14 @@ public class QProfileRef {
   public String getKey() {
     checkState(key != null, "Key is not present. Please call hasKey().");
     return key;
+  }
+
+  /**
+   * @return key of organization. It is empty when {@link #hasKey()} is {@code true} or if {@link #hasKey()} is
+   * {@code false} and the default organization must be used.
+   */
+  public Optional<String> getOrganizationKey() {
+    return Optional.ofNullable(organizationKey);
   }
 
   /**
@@ -104,6 +115,9 @@ public class QProfileRef {
     if (key != null ? !key.equals(that.key) : (that.key != null)) {
       return false;
     }
+    if (organizationKey != null ? !organizationKey.equals(that.organizationKey) : (that.organizationKey != null)) {
+      return false;
+    }
     if (language != null ? !language.equals(that.language) : (that.language != null)) {
       return false;
     }
@@ -114,43 +128,45 @@ public class QProfileRef {
   @Override
   public int hashCode() {
     int result = key != null ? key.hashCode() : 0;
+    result = 31 * result + (organizationKey != null ? organizationKey.hashCode() : 0);
     result = 31 * result + (language != null ? language.hashCode() : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     return result;
   }
 
   public static QProfileRef from(Request request) {
-    String key = request.param(PARAM_PROFILE_KEY);
-    String lang = request.param(PARAM_LANGUAGE);
-    String name = request.param(PARAM_PROFILE_NAME);
-    return from(key, lang, name);
+    String key = request.param(DEFAULT_PARAM_PROFILE_KEY);
+    String organizationKey = request.param(PARAM_ORGANIZATION);
+    String lang = request.param(DEFAULT_PARAM_LANGUAGE);
+    String name = request.param(DEFAULT_PARAM_PROFILE_NAME);
+    return from(key, organizationKey, lang, name);
   }
 
-  public static QProfileRef from(@Nullable String key, @Nullable String lang, @Nullable String name) {
+  public static QProfileRef from(@Nullable String key, @Nullable String organizationKey, @Nullable String lang, @Nullable String name) {
     if (key != null) {
-      checkArgument(isEmpty(lang) && isEmpty(name), "Either key or couple language/name must be set");
+      checkArgument(isEmpty(organizationKey) && isEmpty(lang) && isEmpty(name), "Either key or tuple organization/language/name must be set");
       return fromKey(key);
     }
     checkArgument(!isEmpty(lang) && !isEmpty(name), "Both profile language and name must be set");
-    return fromName(lang, name);
+    return fromName(organizationKey, lang, name);
   }
 
   public static QProfileRef fromKey(String key) {
-    return new QProfileRef(requireNonNull(key), null, null);
+    return new QProfileRef(requireNonNull(key), null, null, null);
   }
 
-  public static QProfileRef fromName(String lang, String name) {
-    return new QProfileRef(null, requireNonNull(lang), requireNonNull(name));
+  public static QProfileRef fromName(@Nullable String organizationKey, String lang, String name) {
+    return new QProfileRef(null, organizationKey, requireNonNull(lang), requireNonNull(name));
   }
 
   public static void defineParams(WebService.NewAction action, Languages languages) {
-    action.createParam(PARAM_PROFILE_KEY)
+    action.createParam(DEFAULT_PARAM_PROFILE_KEY)
       .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")
       .setExampleValue("sonar-way-java-12345");
-    action.createParam(PARAM_PROFILE_NAME)
+    action.createParam(DEFAULT_PARAM_PROFILE_NAME)
       .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
       .setExampleValue("Sonar way");
-    action.createParam(PARAM_LANGUAGE)
+    action.createParam(DEFAULT_PARAM_LANGUAGE)
       .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and profileName must be set to disambiguate.")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
       .setExampleValue("js");

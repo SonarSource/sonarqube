@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.server.qualityprofile;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,67 +30,52 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class QProfileRefTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void fromKey_creates_reference_by_key() {
+  public void create_ref_by_key() {
     QProfileRef ref = QProfileRef.fromKey("foo");
     assertThat(ref.hasKey()).isTrue();
     assertThat(ref.getKey()).isEqualTo("foo");
-    assertThat(ref.getOrganizationKey()).isEmpty();
   }
 
   @Test
-  public void getLanguage_throws_ISE_on_reference_by_key() {
+  public void getLanguage_throws_ISE_if_key_ref() {
     QProfileRef ref = QProfileRef.fromKey("foo");
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Language is not present. Please call hasKey().");
     ref.getLanguage();
   }
 
   @Test
-  public void getName_throws_ISE_on_reference_by_key() {
+  public void getName_throws_ISE_if_key_ref() {
     QProfileRef ref = QProfileRef.fromKey("foo");
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Name is not present. Please call hasKey().");
     ref.getName();
   }
 
   @Test
-  public void fromName_creates_reference_by_name_on_default_organization() {
-    QProfileRef ref = QProfileRef.fromName(null, "js", "Sonar way");
+  public void create_ref_by_name() {
+    QProfileRef ref = QProfileRef.fromName("js", "Sonar way");
     assertThat(ref.hasKey()).isFalse();
-    assertThat(ref.getOrganizationKey()).isEmpty();
     assertThat(ref.getLanguage()).isEqualTo("js");
     assertThat(ref.getName()).isEqualTo("Sonar way");
   }
 
   @Test
-  public void fromName_creates_reference_by_name_on_specified_organization() {
-    QProfileRef ref = QProfileRef.fromName("my-org", "js", "Sonar way");
-    assertThat(ref.hasKey()).isFalse();
-    assertThat(ref.getOrganizationKey()).hasValue("my-org");
-    assertThat(ref.getLanguage()).isEqualTo("js");
-    assertThat(ref.getName()).isEqualTo("Sonar way");
-  }
-
-  @Test
-  public void getKey_throws_ISE_on_reference_by_name() {
-    QProfileRef ref = QProfileRef.fromName(null, "js", "Sonar way");
+  public void getKey_throws_ISE_if_name_ref() {
+    QProfileRef ref = QProfileRef.fromName("js", "Sonar way");
 
     expectedException.expect(IllegalStateException.class);
     ref.getKey();
   }
 
-
   @Test
-  public void from_reads_request_parameters_and_creates_reference_by_key() {
+  public void create_key_ref_from_ws_request() {
     SimpleGetRequest req = new SimpleGetRequest();
     req.setParam("profileKey", "foo");
 
@@ -99,38 +84,23 @@ public class QProfileRefTest {
   }
 
   @Test
-  public void from_reads_request_parameters_and_creates_reference_by_name_on_default_organization() {
+  public void create_name_ref_from_ws_request() {
     SimpleGetRequest req = new SimpleGetRequest();
     req.setParam("language", "js");
     req.setParam("profileName", "Sonar way");
 
     QProfileRef ref = QProfileRef.from(req);
-    assertThat(ref.getOrganizationKey()).isEmpty();
     assertThat(ref.getLanguage()).isEqualTo("js");
     assertThat(ref.getName()).isEqualTo("Sonar way");
   }
 
   @Test
-  public void from_reads_request_parameters_and_creates_reference_by_name_on_specified_organization() {
+  public void create_name_ref_throws_IAE_if_language_is_missing() {
     SimpleGetRequest req = new SimpleGetRequest();
-    req.setParam("organization", "my-org");
-    req.setParam("language", "js");
-    req.setParam("profileName", "Sonar way");
-
-    QProfileRef ref = QProfileRef.from(req);
-    assertThat(ref.getOrganizationKey()).hasValue("my-org");
-    assertThat(ref.getLanguage()).isEqualTo("js");
-    assertThat(ref.getName()).isEqualTo("Sonar way");
-  }
-
-  @Test
-  public void from_reads_request_parameters_and_throws_IAE_if_language_is_missing() {
-    SimpleGetRequest req = new SimpleGetRequest();
-    req.setParam("profileName", "the name");
+    req.setParam(QProfileRef.PARAM_PROFILE_KEY, "the key");
+    req.setParam(QProfileRef.PARAM_PROFILE_NAME, "the name");
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Both profile language and name must be set");
-
     QProfileRef.from(req);
   }
 
@@ -165,7 +135,7 @@ public class QProfileRefTest {
     QProfileRef key1 = QProfileRef.fromKey("one");
     QProfileRef key1bis = QProfileRef.fromKey("one");
     QProfileRef key2 = QProfileRef.fromKey("two");
-    QProfileRef name = QProfileRef.fromName("my-org", "js", "one");
+    QProfileRef name = QProfileRef.fromName("js", "one");
 
     assertThat(key1.equals(key1)).isTrue();
     assertThat(key1.equals(key1bis)).isTrue();
@@ -178,10 +148,10 @@ public class QProfileRefTest {
 
   @Test
   public void test_equals_and_hashCode_of_name_ref() {
-    QProfileRef name1 = QProfileRef.fromName("org1", "js", "one");
-    QProfileRef name1bis = QProfileRef.fromName("org1", "js", "one");
-    QProfileRef name2 = QProfileRef.fromName("org1", "js", "two");
-    QProfileRef name1OtherLang = QProfileRef.fromName("org1", "java", "one");
+    QProfileRef name1 = QProfileRef.fromName("js", "one");
+    QProfileRef name1bis = QProfileRef.fromName("js", "one");
+    QProfileRef name2 = QProfileRef.fromName("js", "two");
+    QProfileRef name1OtherLang = QProfileRef.fromName("java", "one");
     QProfileRef key = QProfileRef.fromKey("one");
 
     assertThat(name1.equals(name1)).isTrue();

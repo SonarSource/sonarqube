@@ -160,6 +160,10 @@ public class QProfileFactory {
     db.qualityProfileDao().update(session, profile.setDefault(true));
   }
 
+  /**
+   * @deprecated replaced by {@link org.sonar.server.qualityprofile.ws.QProfileWsSupport#getProfile(DbSession, org.sonar.server.qualityprofile.ws.QProfileRef)}
+   */
+  @Deprecated
   public QualityProfileDto find(DbSession dbSession, QProfileRef ref) {
     if (ref.hasKey()) {
       return findByKey(dbSession, ref.getKey());
