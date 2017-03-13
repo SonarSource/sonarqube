@@ -104,7 +104,7 @@
     "coverage": "npm test -- --coverage",
     "lint": "eslint src/main/js",
     "typecheck": "flow src/main/js",
-    "validate": "eslint src/main/js && flow check src/main/js && CI=1 node scripts/test.js"
+    "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest --runInBand"
   },
   "engines": {
     "node": ">=6"
