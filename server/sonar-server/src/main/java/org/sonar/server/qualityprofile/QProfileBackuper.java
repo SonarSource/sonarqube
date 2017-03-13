@@ -61,17 +61,6 @@ public class QProfileBackuper {
     this.db = db;
   }
 
-  /**
-   * @deprecated use {@link #backup(DbSession, QualityProfileDto, Writer)} instead
-   */
-  @Deprecated
-  public void backup(String key, Writer writer) {
-    try (DbSession dbSession = db.openSession(false)) {
-      QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, key);
-      backup(dbSession, profile, writer);
-    }
-  }
-
   public void backup(DbSession dbSession, QualityProfileDto profileDto, Writer writer) {
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey());
     activeRules.sort(BackupActiveRuleComparator.INSTANCE);
@@ -109,7 +98,7 @@ public class QProfileBackuper {
    * @param toProfileName the target profile. If <code>null</code>, then use the
    *                   lang and name declared in the backup
    */
-  public BulkChangeResult restore(Reader reader, @Nullable QProfileName toProfileName) {
+  public BulkChangeResult restore(DbSession dbSession, Reader reader, @Nullable QProfileName toProfileName) {
     try {
       String profileLang = null;
       String profileName = null;
@@ -136,7 +125,7 @@ public class QProfileBackuper {
       }
 
       QProfileName target = (QProfileName) ObjectUtils.defaultIfNull(toProfileName, new QProfileName(profileLang, profileName));
-      return reset.reset(target, ruleActivations);
+      return reset.reset(dbSession, target, ruleActivations);
     } catch (XMLStreamException e) {
       throw new IllegalStateException("Fail to restore Quality profile backup", e);
     }

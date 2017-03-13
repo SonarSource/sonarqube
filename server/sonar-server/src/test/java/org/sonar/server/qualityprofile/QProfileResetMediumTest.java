@@ -139,7 +139,7 @@ public class QProfileResetMediumTest {
     assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
     assertThat(activeRuleParamDtos.get(0).getValue()).isEqualTo("false");
 
-    reset.resetLanguage(ServerTester.Xoo.KEY);
+    reset.resetLanguage(dbSession, ServerTester.Xoo.KEY);
     dbSession.commit();
 
     // Severity and parameter value come back to origin after reset
@@ -188,7 +188,7 @@ public class QProfileResetMediumTest {
       }
     }, defProfile);
 
-    reset.resetLanguage(ServerTester.Xoo.KEY);
+    reset.resetLanguage(dbSession, ServerTester.Xoo.KEY);
 
     // Parameter value come back to origin after reset
     ActiveRuleDto activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
