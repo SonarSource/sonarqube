@@ -23,23 +23,46 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import AllProjectsContainer from './AllProjectsContainer';
 import { getCurrentUser } from '../../../store/rootReducer';
-import { shouldRedirectToFavorite } from '../utils';
+import { isFavoriteSet } from '../utils';
+
+type Props = {
+  currentUser: { isLoggedIn: boolean },
+  location: { query: {} },
+  router: { replace: (path: string) => void }
+};
+
+type State = {
+  shouldByRedirected?: boolean
+};
 
 class DefaultPageSelector extends React.PureComponent {
-  props: {
-    currentUser: { isLoggedIn: boolean },
-    location: {},
-    router: { replace: (path: string) => void }
-  };
+  props: Props;
+  state: State;
+
+  constructor (props: Props) {
+    super(props);
+    this.state = {};
+  }
 
   componentDidMount () {
-    if (shouldRedirectToFavorite(this.props.currentUser)) {
+    this.defineIfShouldBeRedirected();
+  }
+
+  componentDidUpdate () {
+    if (this.state.shouldByRedirected === true) {
       this.props.router.replace('/projects/favorite');
     }
   }
 
+  defineIfShouldBeRedirected () {
+    const shouldByRedirected = Object.keys(this.props.location.query).length === 0 &&
+      this.props.currentUser.isLoggedIn &&
+      isFavoriteSet();
+    this.setState({ shouldByRedirected });
+  }
+
   render () {
-    if (shouldRedirectToFavorite(this.props.currentUser)) {
+    if (this.state.shouldByRedirected == null || this.state.shouldByRedirected === true) {
       return null;
     } else {
       return (

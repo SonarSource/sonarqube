@@ -22,13 +22,9 @@ const LOCALSTORAGE_KEY = 'sonarqube.projects.default';
 const LOCALSTORAGE_FAVORITE = 'favorite';
 const LOCALSTORAGE_ALL = 'all';
 
-const isFavoriteSet = (): boolean => {
+export const isFavoriteSet = (): boolean => {
   const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
   return setting === LOCALSTORAGE_FAVORITE;
-};
-
-export const shouldRedirectToFavorite = (currentUser: { isLoggedIn: boolean }) => {
-  return currentUser.isLoggedIn && isFavoriteSet();
 };
 
 const save = (value: string) => {
