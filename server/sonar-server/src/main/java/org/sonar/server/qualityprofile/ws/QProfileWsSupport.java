@@ -63,10 +63,20 @@ public class QProfileWsSupport {
       "No organizationDto with key '%s'", organizationOrDefaultKey);
   }
 
+  /**
+   * @deprecated provide orgnization
+   */
+  @Deprecated
   public void checkQProfileAdminPermission() {
     userSession
       .checkLoggedIn()
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+  }
+
+  public void checkQProfileAdminPermission(OrganizationDto organization) {
+    userSession
+      .checkLoggedIn()
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 
   public NewParam createOrganizationParam(NewAction create) {

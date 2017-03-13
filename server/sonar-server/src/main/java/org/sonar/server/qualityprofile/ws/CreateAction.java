@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -107,17 +108,17 @@ public class CreateAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    qProfileWsSupport.checkQProfileAdminPermission();
-
-    CreateRequest createRequest = toRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      writeProtobuf(doHandle(dbSession, createRequest, request), request, response);
+      OrganizationDto organization = qProfileWsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+      qProfileWsSupport.checkQProfileAdminPermission(organization);
+      CreateRequest createRequest = toRequest(request, organization);
+      writeProtobuf(doHandle(dbSession, createRequest, request, organization), request, response);
     }
   }
 
-  private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request) {
+  private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request, OrganizationDto organization) {
     QProfileResult result = new QProfileResult();
-    QualityProfileDto profile = profileFactory.create(dbSession, qProfileWsSupport.getOrganizationByKey(dbSession, createRequest.getOrganizationKey()),
+    QualityProfileDto profile = profileFactory.create(dbSession, organization,
       QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
     result.setProfile(profile);
     for (ProfileImporter importer : importers) {
@@ -133,9 +134,9 @@ public class CreateAction implements QProfileWsAction {
     return buildResponse(result, organizationKey);
   }
 
-  private static CreateRequest toRequest(Request request) {
+  private static CreateRequest toRequest(Request request, OrganizationDto organization) {
     CreateRequest.Builder builder = CreateRequest.builder()
-      .setOrganizationKey(request.param(PARAM_ORGANIZATION))
+      .setOrganizationKey(organization.getKey())
       .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
       .setProfileName(request.mandatoryParam(PARAM_PROFILE_NAME));
     return builder.build();
