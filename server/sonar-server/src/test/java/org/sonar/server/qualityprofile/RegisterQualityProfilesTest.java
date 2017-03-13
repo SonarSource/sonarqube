@@ -40,8 +40,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -56,12 +54,12 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.util.UtcDateUtils.formatDateTime;
 
 public class RegisterQualityProfilesTest {
-
   private static final DummyLanguage FOO_LANGUAGE = new DummyLanguage("foo");
   private static final DummyLanguage BAR_LANGUAGE = new DummyLanguage("bar");
   private static final String TABLE_RULES_PROFILES = "RULES_PROFILES";
   private static final String TYPE_QUALITY_PROFILE = "QUALITY_PROFILE";
   private static final String SONAR_WAY_QP_NAME = "Sonar way";
+  private static final String TABLE_LOADED_TEMPLATES = "loaded_templates";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -71,7 +69,6 @@ public class RegisterQualityProfilesTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private DbClient mockedDbClient = mock(DbClient.class);
   private UuidFactory mockedUuidFactory = mock(UuidFactory.class);
   private System2 mockedSystem2 = mock(System2.class);
@@ -118,37 +115,41 @@ public class RegisterQualityProfilesTest {
   }
 
   @Test
-  public void start_creates_qp_if_language_exists_and_store_flag_in_loaded_templates() {
-    String uuid = "generated uuid";
-    long now = 2_456_789;
+  public void start_creates_qp_if_language_exists_and_store_flag_in_loaded_templates_for_each_organization_id_BD() {
+    OrganizationDto otherOrganization = dbTester.organizations().insert();
+    String[] uuids = {"uuid 1", "uuid 2"};
+    Long[] dates = {2_456_789L, 6_123_789L};
+    String[] formattedDates = {formatDateTime(new Date(dates[0])), formatDateTime(new Date(dates[1]))};
     DummyProfileDefinition qpDefinition = new DummyProfileDefinition("foo", "foo1", false);
     RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(qpDefinition), new Languages(FOO_LANGUAGE));
-    mockForSingleQPInsert(uuid, now);
+    mockForQPInserts(uuids, dates);
 
     underTest.start();
 
-    OrganizationDto organization = dbTester.getDefaultOrganization();
-    QualityProfileDto dto = getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo1");
-    assertThat(dto.getId()).isNotNull();
-    assertThat(dto.getOrganizationUuid()).isEqualTo(organization.getUuid());
-    assertThat(dto.getLanguage()).isEqualTo(FOO_LANGUAGE.getKey());
-    assertThat(dto.getName()).isEqualTo("foo1");
-    assertThat(dto.getKee()).isEqualTo(uuid);
-    assertThat(dto.getKey()).isEqualTo(uuid);
-    assertThat(dto.getParentKee()).isNull();
-    assertThat(dto.getRulesUpdatedAt()).isEqualTo(formatDateTime(new Date(now)));
-    assertThat(dto.getLastUsed()).isNull();
-    assertThat(dto.getUserUpdatedAt()).isNull();
-    assertThat(dto.isDefault()).isTrue();
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(1);
+    Arrays.asList(dbTester.getDefaultOrganization(), otherOrganization)
+      .forEach(organization -> {
+        QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, "foo1");
+        assertThat(dto.getId()).isNotNull();
+        assertThat(dto.getOrganizationUuid()).isEqualTo(organization.getUuid());
+        assertThat(dto.getLanguage()).isEqualTo(FOO_LANGUAGE.getKey());
+        assertThat(dto.getName()).isEqualTo("foo1");
+        assertThat(dto.getKee()).isIn(uuids);
+        assertThat(dto.getKey()).isEqualTo(dto.getKee());
+        assertThat(dto.getParentKee()).isNull();
+        assertThat(dto.getRulesUpdatedAt()).isIn(formattedDates);
+        assertThat(dto.getLastUsed()).isNull();
+        assertThat(dto.getUserUpdatedAt()).isNull();
+        assertThat(dto.isDefault()).isTrue();
 
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition), organization.getUuid(), dbTester.getSession()))
-      .isEqualTo(1);
+        assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition), organization.getUuid(), dbTester.getSession()))
+          .isEqualTo(1);
+      });
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(2);
   }
 
   @Test
-  public void start_makes_single_qp_of_a_language_default_even_if_flagged_as_so() {
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", true)), new Languages(FOO_LANGUAGE));
+  public void start_makes_single_qp_of_a_language_default_even_if_not_flagged_as_so() {
+    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", false)), new Languages(FOO_LANGUAGE));
     mockForSingleQPInsert();
 
     underTest.start();
@@ -157,8 +158,8 @@ public class RegisterQualityProfilesTest {
   }
 
   @Test
-  public void start_makes_single_qp_of_a_language_default_even_if_not_flagged_as_so() {
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", false)), new Languages(FOO_LANGUAGE));
+  public void start_makes_single_qp_of_a_language_default_even_if_flagged_as_so() {
+    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", true)), new Languages(FOO_LANGUAGE));
     mockForSingleQPInsert();
 
     underTest.start();
@@ -184,15 +185,22 @@ public class RegisterQualityProfilesTest {
   }
 
   @Test
-  public void start_does_not_create_sq_if_loaded_profile_already_exists() {
+  public void start_does_not_create_sq_if_loaded_profile_of_organization_already_exists() {
+    OrganizationDto org1 = dbTester.organizations().insert();
+    OrganizationDto org2 = dbTester.organizations().insert();
     DummyProfileDefinition qpDefinition = new DummyProfileDefinition("foo", "foo1", false);
     dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(dbTester.getDefaultOrganization().getUuid(), computeLoadedTemplateType(qpDefinition)), dbTester.getSession());
+    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(org1.getUuid(), computeLoadedTemplateType(qpDefinition)), dbTester.getSession());
     dbTester.commit();
     RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(qpDefinition), new Languages(FOO_LANGUAGE));
+    mockForSingleQPInsert();
 
     underTest.start();
 
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(0);
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition), org2.getUuid(), dbTester.getSession()))
+      .isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_LOADED_TEMPLATES)).isEqualTo(3);
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(1);
   }
 
   @Test
@@ -291,8 +299,7 @@ public class RegisterQualityProfilesTest {
         new DummyProfileDefinition("foo", "doh", false), new DummyProfileDefinition("foo", "boo", false),
         new DummyProfileDefinition("foo", SONAR_WAY_QP_NAME, false), new DummyProfileDefinition("foo", "goo", false)),
       new Languages(FOO_LANGUAGE));
-    when(mockedUuidFactory.create()).thenReturn("uuid1").thenReturn("uuid2").thenReturn("uuid3").thenReturn("uuid4");
-    when(mockedSystem2.now()).thenReturn(2_456_789L);
+    mockForQPInserts(new String[] {"uuid1", "uuid2", "uuid3", "uuid4"}, new Long[] {2_456_789L, 2_456_789L, 2_456_789L, 2_456_789L});
 
     underTest.start();
 
@@ -337,8 +344,7 @@ public class RegisterQualityProfilesTest {
   }
 
   private void mockForTwoQPInserts() {
-    when(mockedUuidFactory.create()).thenReturn("uuid1").thenReturn("uuid2").thenThrow(new UnsupportedOperationException("uuidFactory should be called only twice"));
-    when(mockedSystem2.now()).thenReturn(2_456_789L).thenReturn(3_789_159L).thenThrow(new UnsupportedOperationException("now should be called only twice"));
+    mockForQPInserts(new String[] {"uuid1", "uuid2"}, new Long[] {2_456_789L, 3_789_159L});
   }
 
   private void mockForSingleQPInsert(String uuid, long now) {
@@ -346,12 +352,22 @@ public class RegisterQualityProfilesTest {
     when(mockedSystem2.now()).thenReturn(now).thenThrow(new UnsupportedOperationException("now should be called only once"));
   }
 
+  private void mockForQPInserts(String[] uuids, Long[] dates) {
+    when(mockedUuidFactory.create())
+      .thenReturn(uuids[0], Arrays.copyOfRange(uuids, 1, uuids.length))
+      .thenThrow(new UnsupportedOperationException("uuidFactory should be called only " + uuids.length + " times"));
+
+    when(mockedSystem2.now())
+      .thenReturn(dates[0], Arrays.copyOfRange(dates, 1, dates.length))
+      .thenThrow(new UnsupportedOperationException("now should be called only " + dates.length + " times"));
+  }
+
   private QualityProfileDto getPersistedQP(OrganizationDto organization, Language language, String name) {
     return dbClient.qualityProfileDao().selectByNameAndLanguage(organization, name, language.getKey(), dbTester.getSession());
   }
 
   private RegisterQualityProfiles mockedDBAndEs(List<ProfileDefinition> definitions, Languages languages) {
-    return new RegisterQualityProfiles(mockedDbClient, null, null, definitions, languages, mockedActiveRuleIndexer, null);
+    return new RegisterQualityProfiles(mockedDbClient, null, null, definitions, languages, mockedActiveRuleIndexer);
   }
 
   private RegisterQualityProfiles mockedEs(List<ProfileDefinition> definitions, Languages languages) {
@@ -361,8 +377,7 @@ public class RegisterQualityProfilesTest {
       new CachingRuleActivator(mockedSystem2, dbClient, null, new RuleActivatorContextFactory(dbClient), null, null, userSessionRule),
       definitions,
       languages,
-      mockedActiveRuleIndexer,
-      defaultOrganizationProvider);
+      mockedActiveRuleIndexer);
   }
 
   private static final class DummyProfileDefinition extends ProfileDefinition {
