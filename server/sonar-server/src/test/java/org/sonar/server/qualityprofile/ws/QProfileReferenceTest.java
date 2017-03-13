@@ -138,7 +138,7 @@ public class QProfileReferenceTest {
     req.setParam("profileName", "the name");
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Both profile language and name must be set");
+    expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
 
     QProfileReference.from(req);
   }
