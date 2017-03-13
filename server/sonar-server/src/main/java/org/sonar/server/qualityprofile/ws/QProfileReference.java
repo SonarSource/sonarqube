@@ -157,10 +157,10 @@ public class QProfileReference {
 
   public static QProfileReference from(@Nullable String key, @Nullable String organizationKey, @Nullable String lang, @Nullable String name) {
     if (key != null) {
-      checkArgument(isEmpty(organizationKey) && isEmpty(lang) && isEmpty(name), "Either key or tuple organization/language/name must be set");
+      checkArgument(isEmpty(organizationKey) && isEmpty(lang) && isEmpty(name), "When providing a quality profile key, neither of organization/language/name must be set");
       return fromKey(key);
     }
-    checkArgument(!isEmpty(lang) && !isEmpty(name), "Both profile language and name must be set");
+    checkArgument(!isEmpty(lang) && !isEmpty(name), "If no quality profile key is specified, language and name must be set");
     return fromName(organizationKey, lang, name);
   }
 
