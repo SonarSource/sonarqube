@@ -63,6 +63,18 @@ public class QProfileWsSupport {
       "No organizationDto with key '%s'", organizationOrDefaultKey);
   }
 
+  /**
+   * @deprecated provide orgnization
+   *
+   * Use this code instead:
+   * <pre>
+   *   userSession.checkLoggedIn();
+   *   ...
+   *   // open session, if needed to acquire organizationDto
+   *   userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organizationDto.getUuid());
+   * </pre>
+   */
+  @Deprecated
   public void checkQProfileAdminPermission() {
     userSession
       .checkLoggedIn()
