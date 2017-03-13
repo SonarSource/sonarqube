@@ -23,7 +23,8 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import AllProjectsContainer from './AllProjectsContainer';
 import { getCurrentUser } from '../../../store/rootReducer';
-import { isFavoriteSet } from '../utils';
+import { isFavoriteSet, isAllSet } from '../utils';
+import { searchProjects } from '../../../api/components';
 
 type Props = {
   currentUser: { isLoggedIn: boolean },
@@ -48,17 +49,35 @@ class DefaultPageSelector extends React.PureComponent {
     this.defineIfShouldBeRedirected();
   }
 
-  componentDidUpdate () {
-    if (this.state.shouldByRedirected === true) {
+  componentDidUpdate (prevProps: Props) {
+    if (prevProps.location !== this.props.location) {
+      this.defineIfShouldBeRedirected();
+    } else if (this.state.shouldByRedirected === true) {
       this.props.router.replace('/projects/favorite');
     }
   }
 
   defineIfShouldBeRedirected () {
-    const shouldByRedirected = Object.keys(this.props.location.query).length === 0 &&
-      this.props.currentUser.isLoggedIn &&
-      isFavoriteSet();
-    this.setState({ shouldByRedirected });
+    if (Object.keys(this.props.location.query).length > 0) {
+      // show ALL projects when there are some filters
+      this.setState({ shouldByRedirected: false });
+    } else if (!this.props.currentUser.isLoggedIn) {
+      // show ALL projects if user is anonymous
+      this.setState({ shouldByRedirected: false });
+    } else if (isFavoriteSet()) {
+      // show FAVORITE projects if "favorite" setting is explicitly set
+      this.setState({ shouldByRedirected: true });
+    } else if (isAllSet()) {
+      // show ALL projects if "all" setting is explicitly set
+      this.setState({ shouldByRedirected: false });
+    } else {
+      // otherwise, request favorites
+      this.setState({ shouldByRedirected: undefined });
+      searchProjects({ filter: 'isFavorite', ps: 1 }).then(r => {
+        // show FAVORITE projects if there are any
+        this.setState({ shouldByRedirected: r.paging.total > 0 });
+      });
+    }
   }
 
   render () {

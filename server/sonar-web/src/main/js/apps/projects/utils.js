@@ -27,6 +27,11 @@ export const isFavoriteSet = (): boolean => {
   return setting === LOCALSTORAGE_FAVORITE;
 };
 
+export const isAllSet = (): boolean => {
+  const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
+  return setting === LOCALSTORAGE_ALL;
+};
+
 const save = (value: string) => {
   try {
     window.localStorage.setItem(LOCALSTORAGE_KEY, value);
