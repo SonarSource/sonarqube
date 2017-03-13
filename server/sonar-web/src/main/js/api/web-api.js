@@ -20,7 +20,7 @@
 // @flow
 import { getJSON } from '../helpers/request';
 
-type Param = {
+export type Param = {
   key: string,
   defaultValue?: string,
   description: string,
@@ -33,7 +33,7 @@ type Param = {
   required: boolean
 };
 
-type Action = {
+export type Action = {
   key: string,
   description: string,
   deprecatedSince?: string,
@@ -48,7 +48,7 @@ type Action = {
   params?: Array<Param>
 };
 
-type Domain = {
+export type Domain = {
   actions: Array<Action>,
   description: string,
   internal: boolean,

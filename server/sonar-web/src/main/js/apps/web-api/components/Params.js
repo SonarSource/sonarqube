@@ -17,83 +17,98 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import InternalBadge from './InternalBadge';
 import DeprecatedBadge from './DeprecatedBadge';
+import type { Param } from '../../../api/web-api';
 
-export default function Params ({ params, showInternal }) {
-  const displayedParameters = showInternal ? params : params.filter(p => !p.internal);
+export default class Params extends React.PureComponent {
+  props: {
+    params: Array<Param>,
+    showInternal: boolean
+  };
 
-  return (
+  render () {
+    const { showInternal, params } = this.props;
+    const displayedParameters = showInternal ? params : params.filter(p => !p.internal);
+
+    return (
       <div className="web-api-params">
         <table>
           <tbody>
             {displayedParameters.map(param => (
-                <tr key={param.key}>
-                  <td style={{ width: 180 }}>
-                    <code>{param.key}</code>
+              <tr key={param.key}>
+                <td className="markdown" style={{ width: 180 }}>
+                  <code>{param.key}</code>
 
-                    {param.internal && (
-                        <div className="little-spacer-top">
-                          <InternalBadge/>
-                        </div>
-                    )}
+                  {param.internal &&
+                    <div className="little-spacer-top">
+                      <InternalBadge/>
+                    </div>}
 
-                    {param.deprecatedSince && (
-                        <div className="little-spacer-top">
-                          <DeprecatedBadge since={param.deprecatedSince}/>
-                        </div>
-                    )}
+                  {param.deprecatedSince &&
+                    <div className="little-spacer-top">
+                      <DeprecatedBadge since={param.deprecatedSince}/>
+                    </div>}
 
+                  {param.deprecatedKey &&
+                    <div className="little-spacer-top">
+                      <code>{param.deprecatedKey}</code>
+                    </div>}
+
+                  {param.deprecatedKey &&
+                    param.deprecatedKeySince &&
+                    <div className="little-spacer-top">
+                      <DeprecatedBadge since={param.deprecatedKeySince}/>
+                    </div>}
+
+                  <div className="note little-spacer-top">
+                    {param.required ? 'required' : 'optional'}
+                  </div>
+
+                  {param.since &&
                     <div className="note little-spacer-top">
-                      {param.required ? 'required' : 'optional'}
-                    </div>
+                      since {param.since}
+                    </div>}
+                </td>
 
-                    {param.since && (
-                        <div className="note little-spacer-top">
-                          since {param.since}
-                        </div>
-                    )}
-                  </td>
+                <td>
+                  <div
+                    className="markdown"
+                    dangerouslySetInnerHTML={{ __html: param.description }}/>
+                </td>
 
-                  <td>
-                    <div
-                        className="markdown"
-                        dangerouslySetInnerHTML={{ __html: param.description }}/>
-                  </td>
+                <td style={{ width: 250 }}>
+                  {param.possibleValues &&
+                    <div>
+                      <h4>Possible values</h4>
+                      <ul className="list-styled">
+                        {param.possibleValues.map(value => (
+                          <li key={value} className="little-spacer-top">
+                            <code>{value}</code>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>}
 
-                  <td style={{ width: 250 }}>
-                    {param.possibleValues && (
-                        <div>
-                          <h4>Possible values</h4>
-                          <ul className="list-styled">
-                            {param.possibleValues.map(value => (
-                                <li key={value} className="little-spacer-top">
-                                  <code>{value}</code>
-                                </li>
-                            ))}
-                          </ul>
-                        </div>
-                    )}
+                  {param.defaultValue &&
+                    <div className="little-spacer-top">
+                      <h4>Default value</h4>
+                      <code>{param.defaultValue}</code>
+                    </div>}
 
-                    {param.defaultValue && (
-                        <div className="little-spacer-top">
-                          <h4>Default value</h4>
-                          <code>{param.defaultValue}</code>
-                        </div>
-                    )}
-
-                    {param.exampleValue && (
-                        <div className="little-spacer-top">
-                          <h4>Example value</h4>
-                          <code>{param.exampleValue}</code>
-                        </div>
-                    )}
-                  </td>
-                </tr>
+                  {param.exampleValue &&
+                    <div className="little-spacer-top">
+                      <h4>Example value</h4>
+                      <code>{param.exampleValue}</code>
+                    </div>}
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
       </div>
-  );
+    );
+  }
 }
