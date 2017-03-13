@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -63,7 +64,7 @@ public class RestoreActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
-  private WsActionTester tester = new WsActionTester(new RestoreAction(backuper, languages, wsSupport));
+  private WsActionTester tester = new WsActionTester(new RestoreAction(db.getDbClient(), backuper, languages, wsSupport));
 
   @Test
   public void test_definition() {
@@ -84,13 +85,13 @@ public class RestoreActionTest {
     QualityProfileDto profile = QualityProfileDto.createFor("P1")
       .setDefault(false).setLanguage("xoo").setName("Sonar way");
     BulkChangeResult restoreResult = new BulkChangeResult(profile);
-    when(backuper.restore(any(Reader.class), any(QProfileName.class))).thenReturn(restoreResult);
+    when(backuper.restore(any(DbSession.class), any(Reader.class), any(QProfileName.class))).thenReturn(restoreResult);
 
     logInAsQProfileAdministrator(db.getDefaultOrganization());
     TestResponse response = restore("<backup/>");
 
     JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("RestoreActionTest/restore_profile.json"));
-    verify(backuper).restore(any(Reader.class), any(QProfileName.class));
+    verify(backuper).restore(any(DbSession.class), any(Reader.class), any(QProfileName.class));
   }
 
   @Test

@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -35,6 +36,8 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
@@ -54,14 +57,14 @@ public class RestoreBuiltInActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
 
-  private WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(reset, languages, wsSupport));
+  private WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(db.getDbClient(), reset, languages, wsSupport));
 
   @Test
   public void return_empty_result_when_no_info_or_warning() {
     logInAsQProfileAdministrator();
     TestResponse response = tester.newRequest().setParam("language", "xoo").execute();
 
-    verify(reset).resetLanguage("xoo");
+    verify(reset).resetLanguage(any(DbSession.class), eq("xoo"));
     assertThat(response.getStatus()).isEqualTo(204);
   }
 

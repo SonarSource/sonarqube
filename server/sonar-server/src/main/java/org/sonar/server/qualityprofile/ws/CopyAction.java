@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 
@@ -33,11 +35,13 @@ public class CopyAction implements QProfileWsAction {
   private static final String PARAM_PROFILE_NAME = "toName";
   private static final String PARAM_PROFILE_KEY = "fromKey";
 
+  private final DbClient dbClient;
   private final QProfileCopier profileCopier;
   private final Languages languages;
   private final QProfileWsSupport qProfileWsSupport;
 
-  public CopyAction(QProfileCopier profileCopier, Languages languages, QProfileWsSupport qProfileWsSupport) {
+  public CopyAction(DbClient dbClient, QProfileCopier profileCopier, Languages languages, QProfileWsSupport qProfileWsSupport) {
+    this.dbClient = dbClient;
     this.profileCopier = profileCopier;
     this.languages = languages;
     this.qProfileWsSupport = qProfileWsSupport;
@@ -69,20 +73,22 @@ public class CopyAction implements QProfileWsAction {
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
 
-    QualityProfileDto copiedProfile = profileCopier.copyToName(profileKey, newName);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityProfileDto copiedProfile = profileCopier.copyToName(dbSession, profileKey, newName);
 
-    String languageKey = copiedProfile.getLanguage();
-    Language language = languages.get(copiedProfile.getLanguage());
-    String parentKey = copiedProfile.getParentKee();
-    response.newJsonWriter()
-      .beginObject()
-      .prop("key", copiedProfile.getKey())
-      .prop("name", copiedProfile.getName())
-      .prop("language", languageKey)
-      .prop("languageName", language == null ? null : language.getName())
-      .prop("isDefault", copiedProfile.isDefault())
-      .prop("isInherited", parentKey != null)
-      .prop("parentKey", parentKey)
-      .endObject().close();
+      String languageKey = copiedProfile.getLanguage();
+      Language language = languages.get(copiedProfile.getLanguage());
+      String parentKey = copiedProfile.getParentKee();
+      response.newJsonWriter()
+        .beginObject()
+        .prop("key", copiedProfile.getKey())
+        .prop("name", copiedProfile.getName())
+        .prop("language", languageKey)
+        .prop("languageName", language == null ? null : language.getName())
+        .prop("isDefault", copiedProfile.isDefault())
+        .prop("isInherited", parentKey != null)
+        .prop("parentKey", parentKey)
+        .endObject().close();
+    }
   }
 }

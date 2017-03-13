@@ -23,6 +23,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.qualityprofile.QProfileReset;
 
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
@@ -30,11 +32,13 @@ import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
 
 public class RestoreBuiltInAction implements QProfileWsAction {
 
+  private final DbClient dbClient;
   private final QProfileReset reset;
   private final Languages languages;
   private final QProfileWsSupport qProfileWsSupport;
 
-  public RestoreBuiltInAction(QProfileReset reset, Languages languages, QProfileWsSupport qProfileWsSupport) {
+  public RestoreBuiltInAction(DbClient dbClient, QProfileReset reset, Languages languages, QProfileWsSupport qProfileWsSupport) {
+    this.dbClient = dbClient;
     this.reset = reset;
     this.languages = languages;
     this.qProfileWsSupport = qProfileWsSupport;
@@ -60,7 +64,9 @@ public class RestoreBuiltInAction implements QProfileWsAction {
     qProfileWsSupport.checkQProfileAdminPermission();
 
     String language = request.mandatoryParam("language");
-    reset.resetLanguage(language);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      reset.resetLanguage(dbSession, language);
+    }
     response.noContent();
   }
 }
