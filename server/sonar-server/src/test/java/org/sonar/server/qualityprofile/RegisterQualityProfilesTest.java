@@ -40,6 +40,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -54,8 +55,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.util.UtcDateUtils.formatDateTime;
 
 public class RegisterQualityProfilesTest {
-  private static final DummyLanguage FOO_LANGUAGE = new DummyLanguage("foo");
-  private static final DummyLanguage BAR_LANGUAGE = new DummyLanguage("bar");
+  private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
+  private static final Language BAR_LANGUAGE = LanguageTesting.newLanguage("bar", "bar", "bar");
   private static final String TABLE_RULES_PROFILES = "RULES_PROFILES";
   private static final String TYPE_QUALITY_PROFILE = "QUALITY_PROFILE";
   private static final String SONAR_WAY_QP_NAME = "Sonar way";
@@ -374,7 +375,7 @@ public class RegisterQualityProfilesTest {
     return new RegisterQualityProfiles(
       dbClient,
       new QProfileFactory(dbClient, mockedUuidFactory, mockedSystem2),
-      new CachingRuleActivator(mockedSystem2, dbClient, null, new RuleActivatorContextFactory(dbClient), null, null, userSessionRule),
+      new CachingRuleActivator(mockedSystem2, dbClient, null, new CachingRuleActivatorContextFactory(dbClient), null, null, userSessionRule),
       definitions,
       languages,
       mockedActiveRuleIndexer);
@@ -408,29 +409,6 @@ public class RegisterQualityProfilesTest {
 
     boolean isDefaultProfile() {
       return defaultProfile;
-    }
-  }
-
-  private static class DummyLanguage implements Language {
-    private final String key;
-
-    private DummyLanguage(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public String getKey() {
-      return key;
-    }
-
-    @Override
-    public String getName() {
-      return key;
-    }
-
-    @Override
-    public String[] getFileSuffixes() {
-      return new String[] {key};
     }
   }
 

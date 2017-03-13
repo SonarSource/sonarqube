@@ -36,7 +36,7 @@ public class CachingRuleActivator extends RuleActivator {
       .maximumSize(10_000)
       .build();
 
-  public CachingRuleActivator(System2 system2, DbClient db, RuleIndex ruleIndex, RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
+  public CachingRuleActivator(System2 system2, DbClient db, RuleIndex ruleIndex, CachingRuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
     ActiveRuleIndexer activeRuleIndexer, UserSession userSession) {
     super(system2, db, ruleIndex, contextFactory, typeValidations, activeRuleIndexer, userSession);
   }
