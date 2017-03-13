@@ -66,7 +66,7 @@ public class PermissionQuery {
     this.template = builder.template;
     this.searchQuery = builder.searchQuery;
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER);
-    this.searchQueryToSqlLowercase = builder.searchQuery == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
+    this.searchQueryToSqlLowercase = searchQueryToSql == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
     this.pageOffset = offset(builder.pageIndex, builder.pageSize);
   }
