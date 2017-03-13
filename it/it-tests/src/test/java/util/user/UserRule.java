@@ -232,8 +232,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
             .setParam("login", userLogin)
             .setParam("name", group);
         addOrganizationParam(request);
-        WsResponse response = adminWsClient().wsConnector().call(request);
-        assertThat(response.code()).isEqualTo(204);
+        adminWsClient().wsConnector().call(request).failIfNotSuccessful();
       }
     }
   }
