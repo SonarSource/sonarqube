@@ -71,7 +71,7 @@ public class WebhookDeliveryActionTest {
   public void test_definition() {
     assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsOnly("deliveryId");
     assertThat(ws.getDef().isPost()).isFalse();
-    assertThat(ws.getDef().isInternal()).isTrue();
+    assertThat(ws.getDef().isInternal()).isFalse();
     assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
   }
 

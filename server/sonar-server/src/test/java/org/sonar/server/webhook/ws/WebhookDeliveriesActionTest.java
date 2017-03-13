@@ -70,7 +70,7 @@ public class WebhookDeliveriesActionTest {
   public void test_definition() {
     assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsOnly("componentKey", "ceTaskId");
     assertThat(ws.getDef().isPost()).isFalse();
-    assertThat(ws.getDef().isInternal()).isTrue();
+    assertThat(ws.getDef().isInternal()).isFalse();
     assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
   }
 
