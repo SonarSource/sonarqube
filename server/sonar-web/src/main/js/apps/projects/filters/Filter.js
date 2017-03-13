@@ -40,12 +40,11 @@ export default class Filter extends React.PureComponent {
     getFacetValueForOption: React.PropTypes.func,
 
     halfWidth: React.PropTypes.bool,
-    highlightUnder: React.PropTypes.any
+    highlightUnder: React.PropTypes.number
   };
 
   static defaultProps = {
-    halfWidth: false,
-    highlightUnder: false
+    halfWidth: false
   };
 
   isSelected (option) {
