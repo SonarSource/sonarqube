@@ -78,8 +78,8 @@ public class PermissionsWsParametersBuilder {
       .setExampleValue("sonar-administrators");
   }
 
-  public static void createOrganizationParameter(NewAction action) {
-    action.createParam(PARAM_ORGANIZATION)
+  public static NewParam createOrganizationParameter(NewAction action) {
+    return action.createParam(PARAM_ORGANIZATION)
       .setDescription("Key of organization, used when group name is set")
       .setExampleValue("my-org")
       .setSince("6.2")
