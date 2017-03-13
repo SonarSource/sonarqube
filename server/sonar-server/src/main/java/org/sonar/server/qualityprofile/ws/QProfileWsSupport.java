@@ -33,6 +33,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 @ServerSide
@@ -60,7 +61,7 @@ public class QProfileWsSupport {
       .orElseGet(defaultOrganizationProvider.get()::getKey);
     return WsUtils.checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
-      "No organizationDto with key '%s'", organizationOrDefaultKey);
+      "No organization with key '%s'", organizationOrDefaultKey);
   }
 
   /**
@@ -83,11 +84,11 @@ public class QProfileWsSupport {
 
   public NewParam createOrganizationParam(NewAction create) {
     return create
-    .createParam(PARAM_ORGANIZATION)
-    .setDescription("Organization key")
-    .setRequired(false)
-    .setInternal(true)
-    .setExampleValue("my-org");
+      .createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org");
   }
 
   /**
@@ -97,5 +98,21 @@ public class QProfileWsSupport {
   public OrganizationDto getDefaultOrganization(DbSession dbSession) {
     return dbClient.organizationDao().selectByKey(dbSession, defaultOrganizationProvider.get().getKey())
       .orElseThrow(() -> new IllegalStateException("Could not find default organization"));
+  }
+
+  /**
+   * Get the Quality profile specified by the reference {@code ref}.
+   *
+   * @throws org.sonar.server.exceptions.NotFoundException if the specified organization or profile do not exist
+   */
+  public QualityProfileDto getProfile(DbSession dbSession, QProfileReference ref) {
+    QualityProfileDto profile;
+    if (ref.hasKey()) {
+      profile = dbClient.qualityProfileDao().selectByKey(dbSession, ref.getKey());
+    } else {
+      OrganizationDto org = getOrganizationByKey(dbSession, ref.getOrganizationKey().orElse(null));
+      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(org, ref.getName(), ref.getLanguage(), dbSession);
+    }
+    return checkFound(profile, "Quality Profile does not exist");
   }
 }
