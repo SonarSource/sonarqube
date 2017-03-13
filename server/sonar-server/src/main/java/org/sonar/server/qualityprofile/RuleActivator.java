@@ -82,12 +82,7 @@ public class RuleActivator {
     return doActivate(dbSession, activation, context);
   }
 
-  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QProfileName profileName) {
-    RuleActivatorContext context = contextFactory.create(profileName, activation.getRuleKey(), dbSession);
-    return doActivate(dbSession, activation, context);
-  }
-
-  List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QualityProfileDto profileDto) {
+  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QualityProfileDto profileDto) {
     RuleActivatorContext context = contextFactory.create(profileDto, activation.getRuleKey(), dbSession);
     return doActivate(dbSession, activation, context);
   }
