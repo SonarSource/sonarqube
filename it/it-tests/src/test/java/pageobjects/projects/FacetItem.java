@@ -46,6 +46,16 @@ public class FacetItem {
     return this;
   }
 
+  private SelenideElement getSortingButton(String selector) {
+    ElementsCollection buttons = this.elt.$$(".projects-facet-sort a");
+    return buttons.find(new Condition("AttributeMatch") {
+      @Override
+      public boolean apply(WebElement webElement) {
+        return webElement.getAttribute("href").matches(".*sort=" + selector + ".*");
+      }
+    });
+  }
+
   public FacetItem sortListDesc() {
     this.getSortingButton("-").click();
     return this;
@@ -54,15 +64,5 @@ public class FacetItem {
   public FacetItem sortListAsc() {
     this.getSortingButton("[a-zA-Z ]").click();
     return this;
-  }
-
-  public SelenideElement getSortingButton(String selector) {
-    ElementsCollection buttons = this.elt.$$(".projects-facet-sort a");
-    return buttons.find(new Condition("AttributeMatch") {
-      @Override
-      public boolean apply(WebElement webElement) {
-        return webElement.getAttribute("href").matches(".*sort=" + selector + ".*");
-      }
-    });
   }
 }
