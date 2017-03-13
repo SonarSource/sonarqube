@@ -19,29 +19,22 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import Params from '../Params';
+import Domain from '../Domain';
 
-it('should render deprecated parameters', () => {
-  const params = [{
+it('should render deprecated actions', () => {
+  const actions = [{
     key: 'foo',
     deprecatedSince: '5.0'
   }];
-  expect(shallow(<Params params={params} showDeprecated={true}/>)).toMatchSnapshot();
+  const domain = { actions, path: 'api' };
+  expect(shallow(<Domain domain={domain} searchQuery="" showDeprecated={true}/>)).toMatchSnapshot();
 });
 
-it('should not render deprecated parameters', () => {
-  const params = [{
+it('should not render deprecated actions', () => {
+  const actions = [{
     key: 'foo',
     deprecatedSince: '5.0'
   }];
-  expect(shallow(<Params params={params} showDeprecated={false}/>)).toMatchSnapshot();
-});
-
-it('should render deprecated key', () => {
-  const params = [{
-    key: 'foo',
-    deprecatedKey: 'foo-deprecated',
-    deprecatedKeySince: '5.0'
-  }];
-  expect(shallow(<Params params={params} showDeprecated={true}/>)).toMatchSnapshot();
+  const domain = { actions, path: 'api' };
+  expect(shallow(<Domain domain={domain} searchQuery="" showDeprecated={false}/>)).toMatchSnapshot();
 });

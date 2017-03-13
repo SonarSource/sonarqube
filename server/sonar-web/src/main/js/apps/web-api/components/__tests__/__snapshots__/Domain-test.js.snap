@@ -1,0 +1,49 @@
+exports[`test should not render deprecated actions 1`] = `
+<div
+  className="web-api-domain">
+  <header
+    className="web-api-domain-header">
+    <h2
+      className="web-api-domain-title">
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-actions" />
+</div>
+`;
+
+exports[`test should render deprecated actions 1`] = `
+<div
+  className="web-api-domain">
+  <header
+    className="web-api-domain-header">
+    <h2
+      className="web-api-domain-title">
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-actions">
+    <Action
+      action={
+        Object {
+          "deprecatedSince": "5.0",
+          "key": "foo",
+        }
+      }
+      domain={
+        Object {
+          "actions": Array [
+            Object {
+              "deprecatedSince": "5.0",
+              "key": "foo",
+            },
+          ],
+          "path": "api",
+        }
+      }
+      showDeprecated={true} />
+  </div>
+</div>
+`;
