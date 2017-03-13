@@ -65,18 +65,20 @@ public class QProfileWsSupport {
 
   /**
    * @deprecated provide orgnization
+   *
+   * Use this code instead:
+   * <pre>
+   *   userSession.checkLoggedIn();
+   *   ...
+   *   // open session, if needed to acquire organizationDto
+   *   userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organizationDto.getUuid());
+   * </pre>
    */
   @Deprecated
   public void checkQProfileAdminPermission() {
     userSession
       .checkLoggedIn()
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
-  }
-
-  public void checkQProfileAdminPermission(OrganizationDto organization) {
-    userSession
-      .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 
   public NewParam createOrganizationParam(NewAction create) {

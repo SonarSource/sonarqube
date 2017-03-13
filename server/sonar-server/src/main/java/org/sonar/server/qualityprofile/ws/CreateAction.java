@@ -35,10 +35,12 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -56,22 +58,24 @@ public class CreateAction implements QProfileWsAction {
   private final Languages languages;
   private final ProfileImporter[] importers;
   private final QProfileWsSupport qProfileWsSupport;
+  private final UserSession userSession;
   private final ActiveRuleIndexer activeRuleIndexer;
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
-    QProfileWsSupport qProfileWsSupport, ActiveRuleIndexer activeRuleIndexer, ProfileImporter... importers) {
+    QProfileWsSupport qProfileWsSupport, UserSession userSession, ActiveRuleIndexer activeRuleIndexer, ProfileImporter... importers) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
     this.languages = languages;
     this.qProfileWsSupport = qProfileWsSupport;
+    this.userSession = userSession;
     this.activeRuleIndexer = activeRuleIndexer;
     this.importers = importers;
   }
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
-    QProfileWsSupport qProfileWsSupport, ActiveRuleIndexer activeRuleIndexer) {
-    this(dbClient, profileFactory, exporters, languages, qProfileWsSupport, activeRuleIndexer, new ProfileImporter[0]);
+    QProfileWsSupport qProfileWsSupport, UserSession userSession, ActiveRuleIndexer activeRuleIndexer) {
+    this(dbClient, profileFactory, exporters, languages, qProfileWsSupport, userSession, activeRuleIndexer, new ProfileImporter[0]);
   }
 
   @Override
@@ -108,9 +112,10 @@ public class CreateAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = qProfileWsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
-      qProfileWsSupport.checkQProfileAdminPermission(organization);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
       CreateRequest createRequest = toRequest(request, organization);
       writeProtobuf(doHandle(dbSession, createRequest, request, organization), request, response);
     }

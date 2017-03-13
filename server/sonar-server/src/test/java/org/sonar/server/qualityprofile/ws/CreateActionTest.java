@@ -102,7 +102,7 @@ public class CreateActionTest {
 
   private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters,
     newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
-    activeRuleIndexer, profileImporters);
+    userSession, activeRuleIndexer, profileImporters);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Before

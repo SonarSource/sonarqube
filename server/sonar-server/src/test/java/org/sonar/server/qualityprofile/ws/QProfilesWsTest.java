@@ -72,7 +72,7 @@ public class QProfilesWsTest {
       new BulkRuleActivationActions(profileService, null),
       new AddProjectAction(projectAssociationParameters, null, null, dbClient),
       new RemoveProjectAction(projectAssociationParameters, null, null, dbClient),
-      new CreateAction(null, null, null, languages, wsSupport, null, importers),
+      new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
       new RestoreBuiltInAction(null, languages, wsSupport),
       new SearchAction(null, languages),
