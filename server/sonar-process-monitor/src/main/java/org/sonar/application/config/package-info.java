@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.classloader;
+@ParametersAreNonnullByDefault
+package org.sonar.application.config;
 
-import java.util.List;
-
-/**
- * Gives access to protected read methods of {@link Mask}.
- */
-public class MaskReader {
-  private final Mask mask;
-
-  public MaskReader(Mask mask) {
-    this.mask = mask;
-  }
-
-  public List<String> getInclusions() {
-    return mask.getInclusions();
-  }
-
-  public List<String> getExclusions() {
-    return mask.getExclusions();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

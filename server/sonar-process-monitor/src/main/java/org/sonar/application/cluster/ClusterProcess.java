@@ -21,16 +21,17 @@
 package org.sonar.application.cluster;
 
 import java.io.Serializable;
-import javax.annotation.Nonnull;
 import org.sonar.process.ProcessId;
+
+import static java.util.Objects.requireNonNull;
 
 public class ClusterProcess implements Serializable {
   private final ProcessId processId;
   private final String nodeUuid;
 
-  public ClusterProcess(@Nonnull String nodeUuid, @Nonnull ProcessId processId) {
-    this.processId = processId;
-    this.nodeUuid = nodeUuid;
+  public ClusterProcess(String nodeUuid, ProcessId processId) {
+    this.processId = requireNonNull(processId);
+    this.nodeUuid = requireNonNull(nodeUuid);
   }
 
   public ProcessId getProcessId() {
@@ -46,22 +47,20 @@ public class ClusterProcess implements Serializable {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof ClusterProcess)) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     ClusterProcess that = (ClusterProcess) o;
-
     if (processId != that.processId) {
       return false;
     }
-    return nodeUuid != null ? nodeUuid.equals(that.nodeUuid) : that.nodeUuid == null;
+    return nodeUuid.equals(that.nodeUuid);
   }
 
   @Override
   public int hashCode() {
-    int result = processId != null ? processId.hashCode() : 0;
-    result = 31 * result + (nodeUuid != null ? nodeUuid.hashCode() : 0);
+    int result = processId.hashCode();
+    result = 31 * result + nodeUuid.hashCode();
     return result;
   }
 }
