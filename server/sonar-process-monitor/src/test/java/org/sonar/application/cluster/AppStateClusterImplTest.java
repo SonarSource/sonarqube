@@ -32,6 +32,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.mockito.Matchers;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.ProcessId;
@@ -166,7 +167,7 @@ public class AppStateClusterImplTest {
     );
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The local version ${buildVersion} is not the same as the cluster 1.0.0");
+    expectedException.expectMessage(Matchers.matches("The local version .* is not the same as the cluster 1\\.0\\.0"));
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
     } finally {
