@@ -18,45 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow } from 'enzyme';
-import LanguageFilterFooter from '../LanguageFilterFooter';
+import { translate } from '../../../helpers/l10n';
 
-const languages = {
-  java: {
-    key: 'java',
-    name: 'Java'
-  },
-  cs: {
-    key: 'cs',
-    name: 'C#'
-  },
-  js: {
-    key: 'js',
-    name: 'JavaScript'
-  },
-  flex: {
-    key: 'flex',
-    name: 'Flex'
-  },
-  php: {
-    key: 'php',
-    name: 'PHP'
-  },
-  py: {
-    key: 'py',
-    name: 'Python'
+export default class SearchableFilterOption extends React.PureComponent {
+  static propTypes = {
+    optionKey: React.PropTypes.string.isRequired,
+    option: React.PropTypes.object
   }
-};
-const facet = { java: 39, cs: 4, js: 1 };
 
-it('should render the languages without the ones in the facet', () => {
-  const wrapper = shallow(
-    <LanguageFilterFooter
-      property="foo"
-      query={{ languages: null }}
-      facet={facet}
-      languages={languages}/>
-  );
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Select').props().options.length).toBe(3);
-});
+  render () {
+    const optionName = this.props.option ? this.props.option.name : this.props.optionKey;
+    return (
+      <span>{this.props.optionKey !== '<null>' ? optionName : translate('unknown')}</span>
+    );
+  }
+}

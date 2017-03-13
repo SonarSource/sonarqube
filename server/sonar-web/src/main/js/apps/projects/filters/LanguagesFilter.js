@@ -19,53 +19,75 @@
  */
 import React from 'react';
 import sortBy from 'lodash/sortBy';
-import {
-  FilterContainer,
-  LanguageFilterFooterContainer,
-  LanguageFilterOptionContainer
-} from './containers';
+import Filter from './Filter';
+import SearchableFilterFooter from './SearchableFilterFooter';
+import SearchableFilterOption from './SearchableFilterOption';
+import { getLanguageByKey } from '../../../store/languages/reducer';
 
-export default class LanguageFilter extends React.PureComponent {
+export default class LanguagesFilter extends React.PureComponent {
   static propTypes = {
     query: React.PropTypes.object.isRequired,
+    languages: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object,
+    value: React.PropTypes.any,
+    facet: React.PropTypes.object,
+    maxFacetValue: React.PropTypes.number
   };
 
   property = 'languages';
 
-  renderOption = option => {
-    return <LanguageFilterOptionContainer languageKey={option}/>;
-  };
+  renderOption = option => (
+    <SearchableFilterOption
+      optionKey={option}
+      option={getLanguageByKey(this.props.languages, option)}/>
+  );
 
+  renderFooter = () => (
+    <SearchableFilterFooter
+      property={this.property}
+      query={this.props.query}
+      value={this.props.value}
+      facet={this.props.facet}
+      isAsync={false}
+      getOptions={this.getSearchOptions}
+      getOptionLabel={this.getOptionLabel}
+      isFavorite={this.props.isFavorite}
+      organization={this.props.organization}
+      router={this.props.router}/>
+  );
+
+  getOptionLabel (options, key) {
+    return options[key].name;
+  }
+
+  getSearchOptions = () => {
+    return this.props.languages;
+  };
   getSortedOptions (facet) {
+    if (!facet) {
+      return [];
+    }
     return sortBy(Object.keys(facet), [option => -facet[option]]);
   }
 
-  renderFooter = () => (
-    <LanguageFilterFooterContainer
-      property={this.property}
-      query={this.props.query}
-      isFavorite={this.props.isFavorite}
-      organization={this.props.organization}/>
-  );
-
   getFacetValueForOption = (facet, option) => facet[option];
-
-  getOptions = facet => facet ? this.getSortedOptions(facet) : [];
 
   renderName = () => 'Languages';
 
   render () {
     return (
-      <FilterContainer
+      <Filter
         property={this.property}
-        getOptions={this.getOptions}
+        getOptions={this.getSortedOptions}
         renderName={this.renderName}
         renderOption={this.renderOption}
         renderFooter={this.renderFooter}
         getFacetValueForOption={this.getFacetValueForOption}
         query={this.props.query}
+        value={this.props.value}
+        facet={this.props.facet}
+        maxFacetValue={this.props.maxFacetValue}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}/>
     );

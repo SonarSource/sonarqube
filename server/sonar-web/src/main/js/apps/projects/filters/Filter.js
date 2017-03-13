@@ -26,11 +26,15 @@ import { translate } from '../../../helpers/l10n';
 
 export default class Filter extends React.PureComponent {
   static propTypes = {
-    value: React.PropTypes.any,
     property: React.PropTypes.string.isRequired,
     getOptions: React.PropTypes.func.isRequired,
+    query: React.PropTypes.object.isRequired,
+    value: React.PropTypes.any,
     maxFacetValue: React.PropTypes.number,
     optionClassName: React.PropTypes.string,
+    facet: React.PropTypes.object,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object,
 
     renderName: React.PropTypes.func.isRequired,
     renderOption: React.PropTypes.func.isRequired,

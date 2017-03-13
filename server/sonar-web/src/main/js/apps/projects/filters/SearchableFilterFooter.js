@@ -23,39 +23,51 @@ import difference from 'lodash/difference';
 import { getFilterUrl } from './utils';
 import { translate } from '../../../helpers/l10n';
 
-export default class LanguageFilterFooter extends React.Component {
+export default class SearchableFilterFooter extends React.PureComponent {
   static propTypes = {
     property: React.PropTypes.string.isRequired,
     query: React.PropTypes.object.isRequired,
-    languages: React.PropTypes.object,
+    getOptionLabel: React.PropTypes.func.isRequired,
+    getOptions: React.PropTypes.func.isRequired,
+    isAsync: React.PropTypes.bool,
     value: React.PropTypes.any,
     facet: React.PropTypes.object
-  }
+  };
 
   handleLanguageChange = ({ value }) => {
     const urlOptions = (this.props.value || []).concat(value).join(',');
     const path = getFilterUrl(this.props, { [this.props.property]: urlOptions });
     this.props.router.push(path);
-  }
+  };
 
-  getOptions () {
-    const { languages, facet } = this.props;
-    let options = Object.keys(languages);
+  filterOptions = options => {
+    const { facet } = this.props;
+    let optionKeys = Array.isArray(options) ? options : Object.keys(options);
     if (facet) {
-      options = difference(options, Object.keys(facet));
+      optionKeys = difference(optionKeys, Object.keys(facet));
     }
-    return options.map(key => ({ label: languages[key].name, value: key }));
-  }
+    return optionKeys.map(key => ({ label: this.props.getOptionLabel(options, key), value: key }));
+  };
+
+  loadOptions = searchInput => {
+    return this.props
+        .getOptions(searchInput)
+        .then(this.filterOptions)
+        .then(options => ({ options }));
+  };
 
   render () {
-    return (
-      <Select
-          onChange={this.handleLanguageChange}
-          className="input-super-large"
-          options={this.getOptions()}
-          placeholder={translate('search_verb')}
-          clearable={false}
-          searchable={true}/>
-    );
+    const attributes = {
+      onChange: this.handleLanguageChange,
+      className: 'input-super-large',
+      placeholder: translate('search_verb'),
+      clearable: false,
+      searchable: true
+    };
+    if (this.props.isAsync) {
+      return <Select.Async {...attributes} cache={false} facet={this.props.facet} loadOptions={this.loadOptions}/>;
+    } else {
+      return <Select {...attributes} options={this.filterOptions(this.props.getOptions())}/>;
+    }
   }
 }

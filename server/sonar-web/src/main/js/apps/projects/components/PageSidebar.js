@@ -27,8 +27,8 @@ import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
-import LanguageFilter from '../filters/LanguageFilter';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
+import { LanguagesFilterContainer } from '../filters/containers';
 import { translate } from '../../../helpers/l10n';
 
 export default class PageSidebar extends React.PureComponent {
@@ -93,7 +93,7 @@ export default class PageSidebar extends React.PureComponent {
           query={this.props.query}
           isFavorite={this.props.isFavorite}
           organization={this.props.organization}/>
-        <LanguageFilter
+        <LanguagesFilterContainer
           query={this.props.query}
           isFavorite={this.props.isFavorite}
           organization={this.props.organization}/>

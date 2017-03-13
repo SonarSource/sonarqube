@@ -20,13 +20,12 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import Filter from './Filter';
-import LanguageFilterFooter from './LanguageFilterFooter';
-import LanguageFilterOption from './LanguageFilterOption';
+import LanguagesFilter from './LanguagesFilter';
+import SearchableFilterFooter from './SearchableFilterFooter';
 import {
   getProjectsAppFacetByProperty,
   getProjectsAppMaxFacetValue,
-  getLanguages,
-  getLanguageByKey
+  getLanguages
 } from '../../../store/rootReducer';
 
 export const FilterContainer = (function () {
@@ -35,21 +34,23 @@ export const FilterContainer = (function () {
     facet: getProjectsAppFacetByProperty(state, ownProps.property),
     maxFacetValue: getProjectsAppMaxFacetValue(state)
   });
-  return connect(mapStateToProps)(withRouter(Filter));
+  return connect(mapStateToProps)(Filter);
 })();
 
-export const LanguageFilterFooterContainer = (function () {
+export const LanguagesFilterContainer = (function () {
   const mapStateToProps = (state, ownProps) => ({
     languages: getLanguages(state),
+    value: ownProps.query['languages'],
+    facet: getProjectsAppFacetByProperty(state, 'languages'),
+    maxFacetValue: getProjectsAppMaxFacetValue(state)
+  });
+  return connect(mapStateToProps)(withRouter(LanguagesFilter));
+})();
+
+export const TagsFilterFooterContainer = (function () {
+  const mapStateToProps = (state, ownProps) => ({
     value: ownProps.query[ownProps.property],
     facet: getProjectsAppFacetByProperty(state, ownProps.property)
   });
-  return connect(mapStateToProps)(withRouter(LanguageFilterFooter));
-})();
-
-export const LanguageFilterOptionContainer = (function () {
-  const mapStateToProps = (state, ownProps) => ({
-    language: getLanguageByKey(state, ownProps.languageKey)
-  });
-  return connect(mapStateToProps)(LanguageFilterOption);
+  return connect(mapStateToProps)(withRouter(SearchableFilterFooter));
 })();
