@@ -30,7 +30,8 @@ const CUMULATIVE_FACETS = [
   'coverage',
   'duplications',
   'size',
-  'language'
+  'languages',
+  'tags'
 ];
 
 const REVERSED_FACETS = [
