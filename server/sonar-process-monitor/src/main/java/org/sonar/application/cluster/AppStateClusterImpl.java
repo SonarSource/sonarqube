@@ -43,9 +43,13 @@ import org.sonar.application.AppState;
 import org.sonar.application.AppStateListener;
 import org.sonar.process.ProcessId;
 
-public class AppStateClusterImpl implements AppState {
-  static final String OPERATIONAL_PROCESSES = "operational_processes";
-  private static final String LEADER = "leader";
+import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
+
+public class AppStateClusterImpl implements AppState, AutoCloseable {
+  static final String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
+  static final String LEADER = "LEADER";
+
+  static final String SONARQUBE_VERSION = "SONARQUBE_VERSION";
 
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
@@ -73,7 +77,9 @@ public class AppStateClusterImpl implements AppState {
 
     // Configure the network instance
     NetworkConfig netConfig = hzConfig.getNetworkConfig();
-    netConfig.setPort(clusterProperties.getPort());
+    netConfig
+      .setPort(clusterProperties.getPort())
+      .setReuseAddress(true);
 
     if (!clusterProperties.getNetworkInterfaces().isEmpty()) {
       netConfig.getInterfaces()
@@ -99,12 +105,18 @@ public class AppStateClusterImpl implements AppState {
       // Use slf4j for logging
       .setProperty("hazelcast.logging.type", "slf4j");
 
+    hzConfig.getMemberAttributeConfig()
+      .setStringAttribute(SONARQUBE_VERSION, getSonarqubeVersion());
+
     // We are not using the partition group of Hazelcast, so disabling it
     hzConfig.getPartitionGroupConfig().setEnabled(false);
 
     hzInstance = Hazelcast.newHazelcastInstance(hzConfig);
     operationalProcesses = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
     listenerUuid = operationalProcesses.addEntryListener(new OperationalProcessListener());
+
+    // Test if the SonarQube version of the cluster is the same
+    checkSonarQubeClusterVersion(getSonarqubeVersion());
   }
 
   @Override
@@ -168,6 +180,33 @@ public class AppStateClusterImpl implements AppState {
           }
         });
       hzInstance.shutdown();
+    }
+  }
+
+  public String getClusterName() {
+    return hzInstance.getConfig().getGroupConfig().getName();
+  }
+
+  private void checkSonarQubeClusterVersion(String sonarQubeVersion) {
+    IAtomicReference<String> sqVersion = hzInstance.getAtomicReference(SONARQUBE_VERSION);
+    if (sqVersion.get() == null) {
+      ILock lock = hzInstance.getLock(SONARQUBE_VERSION);
+      lock.lock();
+      try {
+        if (sqVersion.get() == null) {
+          sqVersion.set(sonarQubeVersion);
+        }
+      } finally {
+        lock.unlock();
+      }
+    }
+
+    String clusterVersion = sqVersion.get();
+    if (!sqVersion.get().equals(sonarQubeVersion)) {
+      hzInstance.shutdown();
+      throw new IllegalStateException(
+        String.format("The local version %s is not the same as the cluster %s", sonarQubeVersion, clusterVersion)
+      );
     }
   }
 

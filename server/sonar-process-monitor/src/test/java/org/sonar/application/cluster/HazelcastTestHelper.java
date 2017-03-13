@@ -27,23 +27,42 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.instance.HazelcastInstanceImpl;
+import com.hazelcast.instance.HazelcastInstanceProxy;
+import com.hazelcast.instance.Node;
+import com.hazelcast.nio.tcp.TcpIpConnectionManager;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Collection;
+import java.net.ServerSocket;
+import java.nio.channels.ServerSocketChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nonnull;
 
-public class HazelcastHelper {
-  static HazelcastInstance createHazelcastNode(AppStateClusterImpl appStateCluster) {
-    Config hzConfig = new Config()
-      .setInstanceName(appStateCluster.hzInstance.getName() + "_1");
+public class HazelcastTestHelper {
+  static HazelcastInstance createHazelcastNode(
+    @Nonnull String clusterName,
+    int port,
+    @Nonnull List<String> interfaces,
+    @Nonnull List<String> members) {
+
+    Config hzConfig = new Config();
+    hzConfig.getGroupConfig().setName(clusterName);
 
     // Configure the network instance
     NetworkConfig netConfig = hzConfig.getNetworkConfig();
-    netConfig.setPort(9003).setPortAutoIncrement(true);
-    Collection<String> interfaces = appStateCluster.hzInstance.getConfig().getNetworkConfig().getInterfaces().getInterfaces();
-    if (!interfaces.isEmpty()) {
-      netConfig.getInterfaces().addInterface(
-        interfaces.iterator().next()
-      );
-    }
+    netConfig
+      .setPort(port)
+      .setPortAutoIncrement(false)
+      .setReuseAddress(true)
+      .getInterfaces().setEnabled(true);
+
+    interfaces.forEach(
+      inet -> netConfig.getInterfaces().addInterface(inet)
+    );
 
     // Only allowing TCP/IP configuration
     JoinConfig joinConfig = netConfig.getJoin();
@@ -51,12 +70,8 @@ public class HazelcastHelper {
     joinConfig.getMulticastConfig().setEnabled(false);
     joinConfig.getTcpIpConfig().setEnabled(true);
 
-    InetSocketAddress socketAddress = (InetSocketAddress) appStateCluster.hzInstance.getLocalEndpoint().getSocketAddress();
-    joinConfig.getTcpIpConfig().addMember(
-      String.format("%s:%d",
-        socketAddress.getHostString(),
-        socketAddress.getPort()
-      )
+    members.forEach(
+      member -> joinConfig.getTcpIpConfig().addMember(member)
     );
 
     // Tweak HazelCast configuration
@@ -76,6 +91,18 @@ public class HazelcastHelper {
     return Hazelcast.newHazelcastInstance(hzConfig);
   }
 
+  static HazelcastInstance createHazelcastNode(int port, @Nonnull AppStateClusterImpl appStateCluster) {
+    List<String> interfaces = new ArrayList<>(appStateCluster.hzInstance.getConfig().getNetworkConfig().getInterfaces().getInterfaces());
+    InetSocketAddress socketAddress = (InetSocketAddress) appStateCluster.hzInstance.getLocalEndpoint().getSocketAddress();
+    List<String> members = Arrays.asList(
+      String.format("%s:%d",
+        socketAddress.getHostString(),
+        socketAddress.getPort()
+      )
+    );
+    return createHazelcastNode(appStateCluster.getClusterName(), port, interfaces, members);
+  }
+
   static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {
     ClientConfig clientConfig = new ClientConfig();
     InetSocketAddress socketAddress = (InetSocketAddress) appStateCluster.hzInstance.getLocalEndpoint().getSocketAddress();
@@ -87,5 +114,25 @@ public class HazelcastHelper {
       ));
     clientConfig.getGroupConfig().setName(appStateCluster.hzInstance.getConfig().getGroupConfig().getName());
     return HazelcastClient.newHazelcastClient(clientConfig);
+  }
+
+  static int getPort(HazelcastInstance hzInstance) throws NoSuchFieldException, IllegalAccessException, IOException {
+    HazelcastInstanceImpl hz = ((HazelcastInstanceProxy) hzInstance).getOriginal();
+    Field nodeField = hz.getClass().getDeclaredField("node"); //NoSuchFieldException
+    nodeField.setAccessible(true);
+    Node node = (Node) nodeField.get(hz);
+
+    TcpIpConnectionManager connectionManager = ((TcpIpConnectionManager) node.getConnectionManager());
+    Field serverSocketChannelField = connectionManager.getClass().getDeclaredField("serverSocketChannel");
+    serverSocketChannelField.setAccessible(true);
+    ServerSocketChannel serverSocketChannel = (ServerSocketChannel) serverSocketChannelField.get(connectionManager);
+
+    return ((InetSocketAddress) serverSocketChannel.getLocalAddress()).getPort();
+  }
+
+  static int getFreePortOn(InetAddress inetAddress) throws IOException {
+    try (ServerSocket serverSocket = new ServerSocket(0, 50, inetAddress)) {
+      return serverSocket.getLocalPort();
+    }
   }
 }

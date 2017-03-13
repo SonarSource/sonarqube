@@ -21,8 +21,11 @@ package org.sonar.application.cluster;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ReplicatedMap;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.UUID;
+import org.assertj.core.util.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -40,6 +43,11 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.application.cluster.AppStateClusterImpl.OPERATIONAL_PROCESSES;
+import static org.sonar.application.cluster.AppStateClusterImpl.SONARQUBE_VERSION;
+import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
+import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastNode;
+import static org.sonar.application.cluster.HazelcastTestHelper.getFreePortOn;
+import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
 
 public class AppStateClusterImplTest {
 
@@ -47,7 +55,7 @@ public class AppStateClusterImplTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(20));
 
   @Test
   public void instantiation_throws_ISE_if_cluster_mode_is_disabled() throws Exception {
@@ -95,7 +103,7 @@ public class AppStateClusterImplTest {
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       appStateCluster.addListener(listener);
 
-      HazelcastInstance hzInstance = HazelcastHelper.createHazelcastClient(appStateCluster);
+      HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
       String uuid = UUID.randomUUID().toString();
       ReplicatedMap<ClusterProcess, Boolean> replicatedMap = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
       // process is not up yet --> no events are sent to listeners
@@ -112,6 +120,56 @@ public class AppStateClusterImplTest {
       verify(listener, timeout(20_000)).onAppStateOperational(ProcessId.ELASTICSEARCH);
       verifyNoMoreInteractions(listener);
 
+      hzInstance.shutdown();
+    }
+  }
+
+  @Test
+  public void appstateclusterimpl_must_set_sonarqube_version() {
+    TestAppSettings settings = new TestAppSettings();
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+      HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
+      assertThat(hzInstance.getAtomicReference(SONARQUBE_VERSION).get())
+        .isNotNull()
+        .isInstanceOf(String.class)
+        .isEqualTo(getSonarqubeVersion());
+    }
+  }
+
+ @Test
+  public void incorrect_sonarqube_version_must_trigger_an_exception() throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
+    // Create an Hazelcast cluster that simulate an existing cluster
+    InetAddress localhost = InetAddress.getLoopbackAddress();
+    int firstServer = getFreePortOn(localhost);
+
+    HazelcastInstance hzInstance = createHazelcastNode(
+      "sonarqube",
+      firstServer,
+      Arrays.asList(localhost.getHostAddress()),
+      Lists.emptyList()
+    );
+
+    hzInstance.getAtomicReference(SONARQUBE_VERSION).set("1.0.0");
+    int secondServer = getFreePortOn(localhost);
+
+    // Now launch an instance that try to be part of the hzInstance cluster
+    TestAppSettings settings = new TestAppSettings();
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    settings.set(ProcessProperties.CLUSTER_NETWORK_INTERFACES, localhost.getHostAddress());
+    settings.set(ProcessProperties.CLUSTER_PORT, Integer.toString(secondServer));
+    settings.set(ProcessProperties.CLUSTER_HOSTS,
+      String.format("%s:%s", localhost.getHostAddress(), firstServer)
+    );
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The local version ${buildVersion} is not the same as the cluster 1.0.0");
+
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    } finally {
       hzInstance.shutdown();
     }
   }
