@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
 import org.sonar.server.util.LanguageParamUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -43,14 +45,24 @@ public class QProfileRef {
   public static final String PARAM_PROFILE_NAME = "profileName";
   public static final String PARAM_PROFILE_KEY = "profileKey";
 
+  private final OrganizationDto organization;
   private final String key;
   private final String language;
   private final String name;
 
-  private QProfileRef(@Nullable String key, @Nullable String language, @Nullable String name) {
+  private QProfileRef(OrganizationDto organization, @Nullable String key, @Nullable String language, @Nullable String name) {
+    this.organization = organization;
     this.key = key;
     this.language = language;
     this.name = name;
+  }
+
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
+  private QProfileRef(@Nullable String key, @Nullable String language, @Nullable String name) {
+    this(null, key, language, name);
   }
 
   /**
@@ -98,6 +110,9 @@ public class QProfileRef {
       return false;
     }
     QProfileRef that = (QProfileRef) o;
+    if (organization != null ? !organization.equals(that.organization) : (that.organization != null)) {
+      return false;
+    }
     if (key != null ? !key.equals(that.key) : (that.key != null)) {
       return false;
     }
@@ -110,12 +125,17 @@ public class QProfileRef {
 
   @Override
   public int hashCode() {
-    int result = key != null ? key.hashCode() : 0;
+    int result = organization != null ? organization.hashCode() : 0;
+    result = 31 * result + (key != null ? key.hashCode() : 0);
     result = 31 * result + (language != null ? language.hashCode() : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     return result;
   }
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public static QProfileRef from(Request request) {
     String key = request.param(PARAM_PROFILE_KEY);
     String lang = request.param(PARAM_LANGUAGE);
@@ -123,6 +143,10 @@ public class QProfileRef {
     return from(key, lang, name);
   }
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public static QProfileRef from(@Nullable String key, @Nullable String lang, @Nullable String name) {
     if (key != null) {
       checkArgument(isEmpty(lang) && isEmpty(name), "Either key or couple language/name must be set");
@@ -132,14 +156,66 @@ public class QProfileRef {
     return fromName(lang, name);
   }
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public static QProfileRef fromKey(String key) {
     return new QProfileRef(requireNonNull(key), null, null);
   }
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public static QProfileRef fromName(String lang, String name) {
     return new QProfileRef(null, requireNonNull(lang), requireNonNull(name));
   }
 
+  public static QProfileRef from(OrganizationDto organization, Request request) {
+    String key = request.param(PARAM_PROFILE_KEY);
+    String lang = request.param(PARAM_LANGUAGE);
+    String name = request.param(PARAM_PROFILE_NAME);
+    return from(organization, key, lang, name);
+  }
+
+  public static QProfileRef from(OrganizationDto organization, @Nullable String key, @Nullable String lang, @Nullable String name) {
+    if (key != null) {
+      checkArgument(isEmpty(lang) && isEmpty(name), "Either key or couple language/name must be set");
+      return fromKey(organization, key);
+    }
+    checkArgument(!isEmpty(lang) && !isEmpty(name), "Both profile language and name must be set");
+    return fromName(organization, lang, name);
+  }
+
+  public static QProfileRef fromKey(OrganizationDto organization, String key) {
+    return new QProfileRef(organization, requireNonNull(key), null, null);
+  }
+
+  public static QProfileRef fromName(OrganizationDto organization, String lang, String name) {
+    return new QProfileRef(organization, null, requireNonNull(lang), requireNonNull(name));
+  }
+
+  public static void defineParams(WebService.NewAction action, Languages languages, String organizationSince) {
+    QProfileWsSupport
+      .createOrganizationParam(action)
+      .setSince(organizationSince);
+    action.createParam(PARAM_PROFILE_KEY)
+      .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")
+      .setExampleValue("sonar-way-java-12345");
+    action.createParam(PARAM_PROFILE_NAME)
+      .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
+      .setExampleValue("Sonar way");
+    action.createParam(PARAM_LANGUAGE)
+      .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and profileName must be set to disambiguate.")
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
+      .setExampleValue("js");
+  }
+
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public static void defineParams(WebService.NewAction action, Languages languages) {
     action.createParam(PARAM_PROFILE_KEY)
       .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")

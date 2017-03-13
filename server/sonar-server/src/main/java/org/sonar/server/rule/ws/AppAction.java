@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.db.permission.OrganizationPermission;
@@ -83,7 +84,7 @@ public class AppAction implements RulesWsAction {
 
   private void addProfiles(JsonWriter json, DbSession dbSession) {
     json.name("qualityprofiles").beginArray();
-    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession)) {
+    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(dbSession))) {
       if (languageIsSupported(profile)) {
         json
           .beginObject()
@@ -131,4 +132,10 @@ public class AppAction implements RulesWsAction {
     json.endObject();
   }
 
+  private OrganizationDto getDefaultOrganization(DbSession dbSession) {
+    String defaultOrganizationKey = defaultOrganizationProvider.get().getKey();
+    return dbClient.organizationDao()
+      .selectByKey(dbSession, defaultOrganizationKey)
+      .orElseThrow(() -> new IllegalStateException("Cannot find default organization with key "+defaultOrganizationKey));
+  }
 }

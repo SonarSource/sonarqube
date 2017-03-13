@@ -129,7 +129,7 @@ public class QProfilesWsTest {
     WebService.Action search = controller.action("search");
     assertThat(search).isNotNull();
     assertThat(search.isPost()).isFalse();
-    assertThat(search.params()).hasSize(4);
+    assertThat(search.params()).hasSize(5);
     assertThat(search.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
   }
 

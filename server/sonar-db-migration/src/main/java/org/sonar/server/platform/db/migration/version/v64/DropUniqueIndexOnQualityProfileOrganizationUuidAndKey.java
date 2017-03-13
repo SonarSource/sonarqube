@@ -19,21 +19,24 @@
  */
 package org.sonar.server.platform.db.migration.version.v64;
 
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.db.CoreDbTester;
 
-public class LetQualityProfileKeyNotBeUniqueAnymoreTest {
+public class DropUniqueIndexOnQualityProfileOrganizationUuidAndKey extends DdlChange {
 
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(LetQualityProfileKeyNotBeUniqueAnymoreTest.class, "initial.sql");
+  public DropUniqueIndexOnQualityProfileOrganizationUuidAndKey(Database db) {
+    super(db);
+  }
 
-  public DropUniqueIndexOnQualityProfileKey underTest = new DropUniqueIndexOnQualityProfileKey(db.database());
-
-  @Test
-  public void test() throws SQLException {
-    underTest.execute();
-    db.assertIndexDoesNotExist("rules_profiles", "uniq_qprof_key");
+  @Override
+  public void execute(DdlChange.Context context) throws SQLException {
+    context.execute(
+      new DropIndexBuilder(getDialect())
+      .setTable("rules_profiles")
+      .setName("uniq_qprof_org_and_key")
+      .build());
   }
 }
