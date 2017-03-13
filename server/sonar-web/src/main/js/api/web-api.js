@@ -17,11 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import { getJSON } from '../helpers/request';
 
-export function fetchWebApi (showInternal = true) {
+type Param = {
+  key: string,
+  defaultValue?: string,
+  description: string,
+  deprecatedKey?: string,
+  deprecatedKeySince?: string,
+  deprecatedSince?: string,
+  exampleValue?: string,
+  internal: boolean,
+  possibleValues?: Array<string>,
+  required: boolean
+};
+
+type Action = {
+  key: string,
+  description: string,
+  deprecatedSince?: string,
+  since?: string,
+  internal: boolean,
+  post: boolean,
+  hasResponseExample: boolean,
+  changelog: Array<{
+    version: string,
+    description: string
+  }>,
+  params?: Array<Param>
+};
+
+type Domain = {
+  actions: Array<Action>,
+  description: string,
+  internal: boolean,
+  path: string
+};
+
+export function fetchWebApi (showInternal: boolean = true): Promise<Array<Domain>> {
   const url = '/api/webservices/list';
-  const data = { 'include_internals': showInternal };
+  const data = { include_internals: showInternal };
 
   return getJSON(url, data).then(r => r.webServices.map(domain => {
     const internal = !domain.actions.find(action => !action.internal);
@@ -30,7 +66,7 @@ export function fetchWebApi (showInternal = true) {
   }));
 }
 
-export function fetchResponseExample (domain, action) {
+export function fetchResponseExample (domain: string, action: string): Promise<{ example: string }> {
   const url = '/api/webservices/response_example';
   const data = { controller: domain, action };
 
