@@ -38,6 +38,7 @@ import org.sonar.server.usergroups.ws.GroupWsRef;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
+import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -105,5 +106,10 @@ public class PermissionWsSupport {
         dbClient.permissionTemplateDao().selectByName(dbSession, org.getUuid(), ref.name()),
         "Permission template with name '%s' is not found (case insensitive) in organization with key '%s'", ref.name(), org.getKey());
     }
+  }
+
+  public void checkMembership(DbSession dbSession, OrganizationDto organization, UserId user) {
+    dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
+      .orElseThrow(() -> new IllegalArgumentException(format("User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey())));
   }
 }
