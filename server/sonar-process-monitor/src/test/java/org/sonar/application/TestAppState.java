@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
-import org.assertj.core.util.VisibleForTesting;
 import org.sonar.process.ProcessId;
 
 public class TestAppState implements AppState {
