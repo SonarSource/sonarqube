@@ -26,6 +26,7 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -52,8 +53,17 @@ public class IssueDbTester {
   }
 
   public IssueDto insertIssue(Consumer<IssueDto> populateIssueDto) {
+    return insertIssue(db.getDefaultOrganization(), populateIssueDto);
+  }
+
+  public IssueDto insertIssue(OrganizationDto organizationDto) {
+    return insertIssue(organizationDto, issueDto -> {
+    });
+  }
+
+  public IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto> populateIssueDto) {
     RuleDto rule = db.rules().insertRule(newRuleDto());
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertProject(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = newDto(rule, file, project);
     populateIssueDto.accept(issueDto);
