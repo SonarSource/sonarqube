@@ -127,9 +127,7 @@ public class AppStateClusterImplTest {
 
   @Test
   public void appstateclusterimpl_must_set_sonarqube_version() {
-    TestAppSettings settings = new TestAppSettings();
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    TestAppSettings settings = newClusterSettings();
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);

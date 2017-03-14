@@ -23,7 +23,9 @@ package org.sonar.application.config;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import static java.lang.String.format;
 
 public class SonarQubeVersionHelper {
   private static final String SONARQUBE_VERSION_PATH = "/sonarqube-version.txt";
@@ -43,14 +45,15 @@ public class SonarQubeVersionHelper {
 
   private static synchronized void loadVersions() {
     try {
-      try (BufferedReader in = new BufferedReader(new InputStreamReader(SonarQubeVersionHelper.class.getResourceAsStream(SONARQUBE_VERSION_PATH), Charset.forName("UTF-8")))) {
+      try (BufferedReader in = new BufferedReader(
+        new InputStreamReader(
+          SonarQubeVersionHelper.class.getResourceAsStream(SONARQUBE_VERSION_PATH),
+          StandardCharsets.UTF_8
+        ))) {
         sonarqubeVersion = in.readLine();
       }
     } catch (IOException e) {
-      throw new IllegalStateException(
-        String.format("Cannot load %s from classpath", SONARQUBE_VERSION_PATH),
-        e
-      );
+      throw new IllegalStateException(format("Cannot load %s from classpath", SONARQUBE_VERSION_PATH), e);
     }
   }
 }
