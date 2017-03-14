@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
+import org.assertj.core.util.VisibleForTesting;
 import org.sonar.process.ProcessId;
 
 public class TestAppState implements AppState {
@@ -54,6 +55,7 @@ public class TestAppState implements AppState {
     listeners.forEach(l -> l.onAppStateOperational(processId));
   }
 
+  @VisibleForTesting
   public void setRemoteOperational(ProcessId processId) {
     remoteProcesses.put(processId, true);
     listeners.forEach(l -> l.onAppStateOperational(processId));
@@ -68,6 +70,11 @@ public class TestAppState implements AppState {
   public void reset() {
     webLeaderLocked.set(false);
     localProcesses.clear();
+  }
+
+  @Override
+  public void registerSonarQubeVersion(String sonarqubeVersion) {
+    // nothing to do
   }
 
   @Override

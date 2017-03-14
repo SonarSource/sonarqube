@@ -49,6 +49,8 @@ public interface AppState extends AutoCloseable {
 
   void reset();
 
+  void registerSonarQubeVersion(String sonarqubeVersion);
+
   @Override
   void close();
 }

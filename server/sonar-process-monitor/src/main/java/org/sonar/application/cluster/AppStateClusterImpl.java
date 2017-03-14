@@ -38,12 +38,10 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.sonar.application.config.AppSettings;
 import org.sonar.application.AppState;
 import org.sonar.application.AppStateListener;
+import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
-
-import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
 
 public class AppStateClusterImpl implements AppState {
   static final String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
@@ -111,9 +109,6 @@ public class AppStateClusterImpl implements AppState {
     hzInstance = Hazelcast.newHazelcastInstance(hzConfig);
     operationalProcesses = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
     listenerUuid = operationalProcesses.addEntryListener(new OperationalProcessListener());
-
-    // Test if the SonarQube version of the cluster is the same
-    registerSonarQubeVersion(getSonarqubeVersion());
   }
 
   @Override
@@ -180,18 +175,15 @@ public class AppStateClusterImpl implements AppState {
     }
   }
 
-  public String getClusterName() {
-    return hzInstance.getConfig().getGroupConfig().getName();
-  }
-
-  void registerSonarQubeVersion(String sonarQubeVersion) {
+  @Override
+  public void registerSonarQubeVersion(String sonarqubeVersion) {
     IAtomicReference<String> sqVersion = hzInstance.getAtomicReference(SONARQUBE_VERSION);
     if (sqVersion.get() == null) {
       ILock lock = hzInstance.getLock(SONARQUBE_VERSION);
       lock.lock();
       try {
         if (sqVersion.get() == null) {
-          sqVersion.set(sonarQubeVersion);
+          sqVersion.set(sonarqubeVersion);
         }
       } finally {
         lock.unlock();
@@ -199,10 +191,10 @@ public class AppStateClusterImpl implements AppState {
     }
 
     String clusterVersion = sqVersion.get();
-    if (!sqVersion.get().equals(sonarQubeVersion)) {
+    if (!sqVersion.get().equals(sonarqubeVersion)) {
       hzInstance.shutdown();
       throw new IllegalStateException(
-        String.format("The local version %s is not the same as the cluster %s", sonarQubeVersion, clusterVersion)
+        String.format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion)
       );
     }
   }

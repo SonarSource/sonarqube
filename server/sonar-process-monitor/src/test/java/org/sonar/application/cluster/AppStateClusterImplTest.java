@@ -126,6 +126,8 @@ public class AppStateClusterImplTest {
     TestAppSettings settings = newClusterSettings();
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+      appStateCluster.registerSonarQubeVersion(getSonarqubeVersion());
+
       HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
       assertThat(hzInstance.getAtomicReference(SONARQUBE_VERSION).get())
         .isNotNull()
@@ -134,18 +136,23 @@ public class AppStateClusterImplTest {
     }
   }
 
- @Test
+  @Test
   public void incorrect_sonarqube_version_must_trigger_an_exception() throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
     // Now launch an instance that try to be part of the hzInstance cluster
     TestAppSettings settings = new TestAppSettings();
     settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
     settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(Matchers.matches("The local version .* is not the same as the cluster 1\\.0\\.0"));
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+      // Register first version
       appStateCluster.registerSonarQubeVersion("1.0.0");
+
+      expectedException.expect(IllegalStateException.class);
+      expectedException.expectMessage(Matchers.matches("The local version .* is not the same as the cluster 1\\.0\\.0"));
+
+      // Registering a second different version must trigger an exception
+      appStateCluster.registerSonarQubeVersion("2.0.0");
     }
   }
 
