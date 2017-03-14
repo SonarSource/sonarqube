@@ -62,7 +62,7 @@
     <include refid="sqlSelectByQuery" />
     order by
       org.created_at desc
-    limit #{pageSize} offset #{offset}
+    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="Organization" databaseId="mssql">
@@ -72,7 +72,7 @@
       <include refid="sqlSelectByQuery" />
     ) as query
     where
-      query.number between (#{offset} + 1) and ((#{offset} + 1) * #{pageSize})
+      query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
     order by
       query.createdAt desc
   </select>
@@ -86,7 +86,8 @@
         ORDER BY org.created_at desc
       ) t
     ) t
-    where t.rn between (#{offset} + 1) and ((#{offset} + 1) * #{pageSize})
+    where
+      t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
   </select>
 
   <sql id="sqlSelectByQuery">
