@@ -26,12 +26,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.tester.UserSessionRule;
@@ -50,46 +51,88 @@ public class RenameActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
+  private DbClient dbClient;
   private WsTester tester;
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
+  private OrganizationDto organization;
+  private RenameAction underTest;
 
   @Before
   public void setUp() {
-    createProfiles();
-
+    dbClient = db.getDbClient();
+    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+    QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
+    underTest = new RenameAction(new QProfileFactory(dbClient), wsSupport, dbClient, userSessionRule);
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new RenameAction(new QProfileFactory(dbClient), wsSupport)));
+      underTest));
+    organization = db.organizations().insert();
+
+    createProfiles();
   }
 
   @Test
-  public void rename_nominal() throws Exception {
+  public void rename() {
     logInAsQProfileAdministrator();
+    String qualityProfileKey = createNewValidQualityProfileKey();
 
-    tester.newPostRequest("api/qualityprofiles", "rename")
-      .setParam("key", "sonar-way-xoo2-23456")
-      .setParam("name", "Other Sonar Way")
-      .execute().assertNoContent();
+    underTest.doHandle("the new name", qualityProfileKey);
 
-    assertThat(dbClient.qualityProfileDao().selectOrFailByKey(db.getSession(), "sonar-way-xoo2-23456").getName()).isEqualTo("Other Sonar Way");
+    QualityProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), qualityProfileKey);
+    assertThat(reloaded.getName()).isEqualTo("the new name");
   }
 
   @Test
-  public void fail_if_profile_with_same_name_exists() throws Exception {
+  public void fail_renaming_if_name_already_exists() {
     logInAsQProfileAdministrator();
+
+    QualityProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setLanguage("xoo")
+      .setName("Old, valid name");
+    db.qualityProfiles().insertQualityProfile(qualityProfile1);
+    String qualityProfileKey1 = qualityProfile1.getKey();
+
+    QualityProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setLanguage("xoo")
+      .setName("Invalid, duplicated name");
+    db.qualityProfiles().insertQualityProfile(qualityProfile2);
+    String qualityProfileKey2 = qualityProfile2.getKey();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Quality profile already exists: My Sonar way");
+    expectedException.expectMessage("Quality profile already exists: Invalid, duplicated name");
 
-    tester.newPostRequest("api/qualityprofiles", "rename")
-      .setParam("key", "sonar-way-xoo2-23456")
-      .setParam("name", "My Sonar way")
-      .execute();
+    underTest.doHandle("Invalid, duplicated name", qualityProfileKey1);
+  }
+
+  @Test
+  public void allow_same_name_in_different_organizations() {
+    OrganizationDto organizationX = db.organizations().insert();
+    OrganizationDto organizationY = db.organizations().insert();
+    userSessionRule.logIn()
+      .addPermission(ADMINISTER_QUALITY_PROFILES, organizationX);
+
+    QualityProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organizationX.getUuid())
+      .setLanguage("xoo")
+      .setName("Old, unique name");
+    db.qualityProfiles().insertQualityProfile(qualityProfile1);
+    String qualityProfileKey1 = qualityProfile1.getKey();
+
+    QualityProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organizationY.getUuid())
+      .setLanguage("xoo")
+      .setName("Duplicated name");
+    db.qualityProfiles().insertQualityProfile(qualityProfile2);
+    String qualityProfileKey2 = qualityProfile2.getKey();
+
+    underTest.doHandle("Duplicated name", qualityProfileKey1);
+
+    QualityProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), qualityProfileKey1);
+    assertThat(reloaded.getName()).isEqualTo("Duplicated name");
   }
 
   @Test
@@ -118,15 +161,20 @@ public class RenameActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
-    userSessionRule.logIn();
+    OrganizationDto organizationX = db.organizations().insert();
+    OrganizationDto organizationY = db.organizations().insert();
+    userSessionRule.logIn()
+      .addPermission(ADMINISTER_QUALITY_PROFILES, organizationX);
+
+    QualityProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organizationY.getUuid());
+    db.qualityProfiles().insertQualityProfile(qualityProfile);
+    String qualityProfileKey = qualityProfile.getKey();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    tester.newPostRequest("api/qualityprofiles", "rename")
-      .setParam("key", "sonar-way-xoo1-13245")
-      .setParam("name", "Hey look I am not quality profile admin!")
-      .execute();
+    underTest.doHandle("Hey look I am not quality profile admin!", qualityProfileKey);
   }
 
   @Test
@@ -153,8 +201,50 @@ public class RenameActionTest {
       .execute();
   }
 
+  @Test
+  public void allow_100_characters_as_name_and_not_more() throws Exception {
+    logInAsQProfileAdministrator();
+    String qualityProfileKey = createNewValidQualityProfileKey();
+
+    String a100charName = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+    underTest.doHandle(a100charName, qualityProfileKey);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Name is too long (>100 characters)");
+
+    String a101charName = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
+    underTest.doHandle(a101charName, qualityProfileKey);
+  }
+
+  @Test
+  public void fail_if_blank_renaming() {
+    String qualityProfileKey = createNewValidQualityProfileKey();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Name must be set");
+
+    underTest.doHandle(" ", qualityProfileKey);
+  }
+
+  @Test
+  public void fail_renaming_if_profile_not_found() {
+    logInAsQProfileAdministrator();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Quality profile not found: unknown");
+
+    underTest.doHandle("the new name", "unknown");
+  }
+
+  private String createNewValidQualityProfileKey() {
+    QualityProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid());
+    db.qualityProfiles().insertQualityProfile(qualityProfile);
+    return qualityProfile.getKey();
+  }
+
   private void createProfiles() {
-    String orgUuid = defaultOrganizationProvider.get().getUuid();
+    String orgUuid = organization.getUuid();
     dbClient.qualityProfileDao().insert(db.getSession(),
       QualityProfileDto.createFor("sonar-way-xoo1-12345")
         .setOrganizationUuid(orgUuid)
@@ -179,6 +269,6 @@ public class RenameActionTest {
   private void logInAsQProfileAdministrator() {
     userSessionRule
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 }

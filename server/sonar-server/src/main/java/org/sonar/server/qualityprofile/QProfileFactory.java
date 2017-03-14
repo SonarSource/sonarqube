@@ -44,7 +44,7 @@ import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
- * Create, delete, rename and set as default profile.
+ * Create, delete and set as default profile.
  */
 public class QProfileFactory {
 
@@ -200,30 +200,6 @@ public class QProfileFactory {
   private static void checkNotDefault(QualityProfileDto p) {
     if (p.isDefault()) {
       throw BadRequestException.create("The profile marked as default can not be deleted: " + p.getKey());
-    }
-  }
-
-  // ------------- RENAME
-
-  public boolean rename(String key, String newName) {
-    checkRequest(StringUtils.isNotBlank(newName), "Name must be set");
-    checkRequest(newName.length() < 100, String.format("Name is too long (>%d characters)", 100));
-    DbSession dbSession = db.openSession(false);
-    try {
-      QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, key);
-      if (profile == null) {
-        throw new NotFoundException("Quality profile not found: " + key);
-      }
-      if (!StringUtils.equals(newName, profile.getName())) {
-        checkRequest(db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) == null, "Quality profile already exists: %s", newName);
-        profile.setName(newName);
-        db.qualityProfileDao().update(dbSession, profile);
-        dbSession.commit();
-        return true;
-      }
-      return false;
-    } finally {
-      dbSession.close();
     }
   }
 }
