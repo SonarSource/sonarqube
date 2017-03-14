@@ -19,7 +19,10 @@
  */
 package org.sonar.db.rule;
 
+import java.util.function.Consumer;
 import org.sonar.db.DbTester;
+
+import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class RuleDbTester {
 
@@ -30,6 +33,19 @@ public class RuleDbTester {
   }
 
   public RuleDto insertRule(RuleDto ruleDto) {
+    db.getDbClient().ruleDao().insert(db.getSession(), ruleDto);
+    db.commit();
+    return ruleDto;
+  }
+
+  public RuleDto insertRule() {
+    return insertRule(rule -> {
+    });
+  }
+
+  public RuleDto insertRule(Consumer<RuleDto> populateRuleDto) {
+    RuleDto ruleDto = newRuleDto();
+    populateRuleDto.accept(ruleDto);
     db.getDbClient().ruleDao().insert(db.getSession(), ruleDto);
     db.commit();
     return ruleDto;
