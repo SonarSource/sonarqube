@@ -274,6 +274,14 @@ public class PropertiesDao implements Dao {
     });
   }
 
+  public void deleteByOrganizationAndMatchingLogin(DbSession dbSession, String organizationUuid, String login, List<String> propertyKeys) {
+    List<Long> ids = getMapper(dbSession).selectIdsByOrganizationAndMatchingLogin(organizationUuid, login, propertyKeys);
+    executeLargeInputsWithoutOutput(ids, list -> {
+      getMapper(dbSession).deleteByIds(list);
+      return null;
+    });
+  }
+
   public void saveGlobalProperties(Map<String, String> properties) {
     try (DbSession session = mybatis.openSession(false)) {
       PropertiesMapper mapper = getMapper(session);
