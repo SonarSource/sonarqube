@@ -109,8 +109,8 @@ public class RenameAction implements QProfileWsAction {
 
         qualityProfile.setName(newName);
         dbClient.qualityProfileDao().update(dbSession, qualityProfile);
+        dbSession.commit();
       }
-      dbSession.commit();
     }
   }
 }
