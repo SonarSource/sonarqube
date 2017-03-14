@@ -54,16 +54,6 @@ public class IssueService {
     this.userSession = userSession;
   }
 
-  /**
-   * Search for all tags, whatever issue resolution or user access rights
-   */
-  public List<String> listTags(@Nullable String textQuery, int pageSize) {
-    IssueQuery query = IssueQuery.builder()
-      .checkAuthorization(false)
-      .build();
-    return issueIndex.listTags(query, textQuery, pageSize);
-  }
-
   public List<String> listAuthors(@Nullable String textQuery, int pageSize) {
     IssueQuery query = IssueQuery.builder()
       .checkAuthorization(false)
