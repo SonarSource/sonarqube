@@ -141,6 +141,10 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteByOrganization(organizationUuid);
   }
 
+  public void deleteOrganizationMemberPermissions(DbSession dbSession, String organizationUuid, int userId) {
+    mapper(dbSession).deleteOrganizationMemberPermissions(organizationUuid, userId);
+  }
+
   private static UserPermissionMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(UserPermissionMapper.class);
   }
