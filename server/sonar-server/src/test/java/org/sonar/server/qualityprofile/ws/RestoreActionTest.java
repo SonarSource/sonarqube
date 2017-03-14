@@ -19,7 +19,11 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,23 +34,20 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
-import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class RestoreActionTest {
@@ -60,11 +61,11 @@ public class RestoreActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private QProfileBackuper backuper = mock(QProfileBackuper.class);
+  private TestBackuper backuper = new TestBackuper();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
-  private WsActionTester tester = new WsActionTester(new RestoreAction(db.getDbClient(), backuper, languages, wsSupport));
+  private WsActionTester tester = new WsActionTester(new RestoreAction(db.getDbClient(), backuper, languages, userSession, wsSupport));
 
   @Test
   public void test_definition() {
@@ -76,24 +77,58 @@ public class RestoreActionTest {
     assertThat(definition.description()).isNotEmpty();
 
     // parameters
-    assertThat(definition.params()).hasSize(1);
-    assertThat(definition.param("backup").isRequired()).isTrue();
+    assertThat(definition.params()).hasSize(2);
+    WebService.Param backupParam = definition.param("backup");
+    assertThat(backupParam.isRequired()).isTrue();
+    assertThat(backupParam.since()).isNull();
+    WebService.Param orgParam = definition.param("organization");
+    assertThat(orgParam.isRequired()).isFalse();
+    assertThat(orgParam.since()).isEqualTo("6.4");
   }
 
   @Test
-  public void restore_the_uploaded_backup_on_default_organization() throws Exception {
-    QualityProfileDto profile = QualityProfileDto.createFor("P1")
-      .setDefault(false).setLanguage("xoo").setName("Sonar way");
-    BulkChangeResult restoreResult = new BulkChangeResult(profile);
-    when(backuper.restore(any(DbSession.class), any(Reader.class), any(QProfileName.class))).thenReturn(restoreResult);
-
+  public void profile_is_restored_on_default_organization_with_the_name_provided_in_backup() throws Exception {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
-    TestResponse response = restore("<backup/>");
+    TestResponse response = restore("<backup/>", null);
 
-    JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("RestoreActionTest/restore_profile.json"));
-    verify(backuper).restore(any(DbSession.class), any(Reader.class), any(QProfileName.class));
+    assertThat(backuper.restoredOrganization.getUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
+    assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
+    assertThat(backuper.restoredProfile.getName()).isEqualTo("the-name-in-backup");
+    JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
+      "  \"profile\": {" +
+      "    \"name\": \"the-name-in-backup\"," +
+      "    \"language\": \"xoo\"," +
+      "    \"languageName\": \"Xoo\"," +
+      "    \"isDefault\": false," +
+      "    \"isInherited\": false" +
+      "  }," +
+      "  \"ruleSuccesses\": 0," +
+      "  \"ruleFailures\": 0" +
+      "}");
   }
 
+  @Test
+  public void profile_is_restored_on_specified_organization_with_the_name_provided_in_backup() throws Exception {
+    OrganizationDto org = db.organizations().insert();
+    logInAsQProfileAdministrator(org);
+    TestResponse response = restore("<backup/>", org.getKey());
+
+    assertThat(backuper.restoredOrganization.getUuid()).isEqualTo(org.getUuid());
+    assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
+    assertThat(backuper.restoredProfile.getName()).isEqualTo("the-name-in-backup");
+    JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
+      "  \"profile\": {" +
+      "    \"name\": \"the-name-in-backup\"," +
+      "    \"language\": \"xoo\"," +
+      "    \"languageName\": \"Xoo\"," +
+      "    \"isDefault\": false," +
+      "    \"isInherited\": false" +
+      "  }," +
+      "  \"ruleSuccesses\": 0," +
+      "  \"ruleFailures\": 0" +
+      "}");
+
+  }
   @Test
   public void throw_IAE_if_backup_is_missing() throws Exception {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
@@ -107,13 +142,34 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_profile_administrator_of_default_organization() throws Exception {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    restore("<backup/>");
+    restore("<backup/>", null);
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_profile_administrator_of_specified_organization() throws Exception {
+    OrganizationDto org = db.organizations().insert();
+    logInAsQProfileAdministrator(db.getDefaultOrganization());
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    restore("<backup/>", org.getKey());
+  }
+
+  @Test
+  public void throw_NotFoundException_if_specified_organization_does_not_exist() throws Exception {
+    userSession.logIn();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization with key 'missing'");
+
+    restore("<backup/>", "missing");
   }
 
   @Test
@@ -123,7 +179,7 @@ public class RestoreActionTest {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    restore("<backup/>");
+    restore("<backup/>", null);
   }
 
   private void logInAsQProfileAdministrator(OrganizationDto org) {
@@ -132,10 +188,43 @@ public class RestoreActionTest {
       .addPermission(ADMINISTER_QUALITY_PROFILES, org);
   }
 
-  private TestResponse restore(String backupContent) {
-    return tester.newRequest()
+  private TestResponse restore(String backupContent, @Nullable String organizationKey) {
+    TestRequest request = tester.newRequest()
       .setMethod("POST")
-      .setParam("backup", backupContent)
-      .execute();
+      .setParam("backup", backupContent);
+    if (organizationKey != null) {
+      request.setParam("organization", organizationKey);
+    }
+    return request.execute();
+  }
+
+  private static class TestBackuper implements QProfileBackuper {
+
+    private String restoredBackup;
+    private OrganizationDto restoredOrganization;
+    private QualityProfileDto restoredProfile;
+
+    @Override
+    public void backup(DbSession dbSession, QualityProfileDto profile, Writer backupWriter) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BulkChangeResult restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
+      if (restoredProfile != null) {
+        throw new IllegalStateException("Already restored");
+      }
+      try {
+        this.restoredBackup = IOUtils.toString(backup);
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
+      this.restoredOrganization = organization;
+      restoredProfile = QualityProfileDto.createFor("P1")
+        .setDefault(false)
+        .setLanguage("xoo")
+        .setName(overriddenProfileName != null ? overriddenProfileName : "the-name-in-backup");
+      return new BulkChangeResult(restoredProfile);
+    }
   }
 }

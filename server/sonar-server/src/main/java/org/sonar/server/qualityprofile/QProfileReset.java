@@ -38,6 +38,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -106,8 +107,8 @@ public class QProfileReset {
   /**
    * Reset the profile, which is created if it does not exist
    */
-  BulkChangeResult reset(DbSession dbSession, QProfileName profileName, Collection<RuleActivation> activations) {
-    QualityProfileDto profile = factory.getOrCreate(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), profileName);
+  BulkChangeResult reset(DbSession dbSession, OrganizationDto organization, QProfileName profileName, Collection<RuleActivation> activations) {
+    QualityProfileDto profile = factory.getOrCreate(dbSession, organization, profileName);
     return doReset(dbSession, profile, activations);
   }
 
