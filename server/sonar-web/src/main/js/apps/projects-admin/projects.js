@@ -55,14 +55,14 @@ export default class Projects extends React.Component {
   }
 
   isProjectSelected (project) {
-    return this.props.selection.indexOf(project.id) !== -1;
+    return this.props.selection.indexOf(project.key) !== -1;
   }
 
   renderProject (project) {
     const permissionsUrl = getComponentPermissionsUrl(project.key);
 
     return (
-        <tr key={project.id}>
+        <tr key={project.key}>
           <td className="thin">
             <Checkbox
                 checked={this.isProjectSelected(project)}

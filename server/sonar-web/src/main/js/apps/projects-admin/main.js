@@ -165,17 +165,17 @@ export default React.createClass({
   },
 
   onProjectSelected (project) {
-    const newSelection = uniq([].concat(this.state.selection, project.id));
+    const newSelection = uniq([].concat(this.state.selection, project.key));
     this.setState({ selection: newSelection });
   },
 
   onProjectDeselected (project) {
-    const newSelection = without(this.state.selection, project.id);
+    const newSelection = without(this.state.selection, project.key);
     this.setState({ selection: newSelection });
   },
 
   onAllSelected () {
-    const newSelection = this.state.projects.map(project => project.id);
+    const newSelection = this.state.projects.map(project => project.key);
     this.setState({ selection: newSelection });
   },
 
@@ -185,8 +185,8 @@ export default React.createClass({
 
   deleteProjects () {
     this.setState({ ready: false });
-    const ids = this.state.selection.join(',');
-    const data = { ids };
+    const projects = this.state.selection.join(',');
+    const data = { projects };
     if (this.props.organization) {
       Object.assign(data, { organization: this.props.organization.key });
     }

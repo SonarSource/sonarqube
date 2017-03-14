@@ -166,7 +166,7 @@ function retrieveComponentBreadcrumbs (componentKey) {
     return Promise.resolve(existing);
   }
 
-  return getBreadcrumbs({ key: componentKey })
+  return getBreadcrumbs(componentKey)
       .then(skipRootDir)
       .then(breadcrumbs => {
         addComponentBreadcrumbs(componentKey, breadcrumbs);
