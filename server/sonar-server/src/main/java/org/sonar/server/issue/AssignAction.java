@@ -19,15 +19,19 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 @ServerSide
 public class AssignAction extends Action {
@@ -36,45 +40,37 @@ public class AssignAction extends Action {
   public static final String ASSIGNEE_PARAMETER = "assignee";
   public static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
 
-  private final UserFinder userFinder;
+  private final DbClient dbClient;
   private final IssueFieldsSetter issueUpdater;
 
-  public AssignAction(UserFinder userFinder, IssueFieldsSetter issueUpdater) {
+  public AssignAction(DbClient dbClient, IssueFieldsSetter issueUpdater) {
     super(ASSIGN_KEY);
-    this.userFinder = userFinder;
+    this.dbClient = dbClient;
     this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());
   }
 
   @Override
   public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
-    String assignee = assigneeValue(properties);
-    if (!Strings.isNullOrEmpty(assignee)) {
-      User user = selectUser(assignee);
-      if (user == null) {
-        throw new IllegalArgumentException("Unknown user: " + assignee);
-      }
-      properties.put(VERIFIED_ASSIGNEE, user);
-    } else {
-      properties.put(VERIFIED_ASSIGNEE, null);
-    }
+    String assignee = getAssigneeValue(properties);
+    properties.put(VERIFIED_ASSIGNEE, isNullOrEmpty(assignee) ? null : getUser(assignee));
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    if (!properties.containsKey(VERIFIED_ASSIGNEE)) {
-      throw new IllegalArgumentException("Assignee is missing from the execution parameters");
-    }
-    User assignee = (User) properties.get(VERIFIED_ASSIGNEE);
+    checkArgument(properties.containsKey(VERIFIED_ASSIGNEE), "Assignee is missing from the execution parameters");
+    UserDto assignee = (UserDto) properties.get(VERIFIED_ASSIGNEE);
     return issueUpdater.assign(context.issue(), assignee, context.issueChangeContext());
   }
 
-  private String assigneeValue(Map<String, Object> properties) {
+  private static String getAssigneeValue(Map<String, Object> properties) {
     return (String) properties.get(ASSIGNEE_PARAMETER);
   }
 
-  private User selectUser(String assigneeKey) {
-    return userFinder.findByLogin(assigneeKey);
+  private UserDto getUser(String assigneeKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return checkFound(dbClient.userDao().selectByLogin(dbSession, assigneeKey), "Unknown user: %s", assigneeKey);
+    }
   }
 }

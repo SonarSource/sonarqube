@@ -33,12 +33,12 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
-import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -109,13 +109,13 @@ public class IssueFieldsSetter {
     return false;
   }
 
-  public boolean assign(DefaultIssue issue, @Nullable User user, IssueChangeContext context) {
+  public boolean assign(DefaultIssue issue, @Nullable UserDto user, IssueChangeContext context) {
     String sanitizedAssignee = null;
     if (user != null) {
-      sanitizedAssignee = StringUtils.defaultIfBlank(user.login(), null);
+      sanitizedAssignee = StringUtils.defaultIfBlank(user.getLogin(), null);
     }
     if (!Objects.equals(sanitizedAssignee, issue.assignee())) {
-      String newAssigneeName = user != null ? user.name() : null;
+      String newAssigneeName = user != null ? user.getName() : null;
       issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeName);
       issue.setAssignee(sanitizedAssignee);
       issue.setUpdateDate(context.date());
