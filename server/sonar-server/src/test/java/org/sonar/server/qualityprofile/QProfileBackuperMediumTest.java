@@ -146,7 +146,7 @@ public class QProfileBackuperMediumTest {
     // Backup file declares profile P1 on xoo
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
-      null);
+      organization, null);
 
     // Check in db
     QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
@@ -187,7 +187,7 @@ public class QProfileBackuperMediumTest {
     // restore backup, which activates only x1
     // -> update x1 and deactivate x2
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)), null);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)), organization, null);
 
     // Check in db
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
@@ -225,7 +225,7 @@ public class QProfileBackuperMediumTest {
 
     // restore backup of child profile -> overrides x1
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), StandardCharsets.UTF_8)), null);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), StandardCharsets.UTF_8)), organization, null);
 
     // parent profile is unchanged
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
@@ -273,7 +273,7 @@ public class QProfileBackuperMediumTest {
 
     // restore backup of parent profile -> update x1 and propagates to child
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), StandardCharsets.UTF_8)), null);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), StandardCharsets.UTF_8)), organization, null);
 
     // parent profile is updated
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
@@ -322,7 +322,7 @@ public class QProfileBackuperMediumTest {
 
     // backup of child profile contains x2 but not x1
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), StandardCharsets.UTF_8)), XOO_P2_NAME);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), StandardCharsets.UTF_8)), organization, XOO_P2_NAME.getName());
 
     // x1 and x2
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P2_KEY)).hasSize(2);
@@ -332,7 +332,7 @@ public class QProfileBackuperMediumTest {
   public void fail_to_restore_if_not_xml_backup() throws Exception {
     try {
       tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/not-xml-backup.txt"), StandardCharsets.UTF_8)), null);
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/not-xml-backup.txt"), StandardCharsets.UTF_8)), organization, null);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Fail to restore Quality profile backup");
@@ -344,7 +344,7 @@ public class QProfileBackuperMediumTest {
   public void fail_to_restore_if_bad_xml_format() throws Exception {
     try {
       tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/bad-xml-backup.xml"), StandardCharsets.UTF_8)), null);
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/bad-xml-backup.xml"), StandardCharsets.UTF_8)), organization, null);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Backup XML is not valid. Root element must be <profile>.");
@@ -355,7 +355,7 @@ public class QProfileBackuperMediumTest {
   public void fail_to_restore_if_duplicate_rule() throws Exception {
     try {
       tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/duplicates-xml-backup.xml"), StandardCharsets.UTF_8)), null);
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/duplicates-xml-backup.xml"), StandardCharsets.UTF_8)), organization, null);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("The quality profile cannot be restored as it contains duplicates for the following rules: xoo:x1, xoo:x2");
@@ -366,7 +366,7 @@ public class QProfileBackuperMediumTest {
   public void restore_and_override_profile_name() throws Exception {
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
-      XOO_P3_NAME);
+      organization, XOO_P3_NAME.getName());
 
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
     assertThat(activeRules).hasSize(0);
@@ -380,7 +380,7 @@ public class QProfileBackuperMediumTest {
   public void restore_profile_with_zero_rules() throws Exception {
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/empty.xml"), StandardCharsets.UTF_8)),
-      null);
+      organization, null);
 
     dbSession.clearCache();
     assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(0);
