@@ -26,9 +26,11 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
 
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
 public class ProjectsPageTest {
@@ -39,10 +41,14 @@ public class ProjectsPageTest {
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
 
+  private static WsClient wsClient;
+  private static final String PROJECT_KEY = "key-foo";
+
   @BeforeClass
   public static void setUp() {
+    wsClient = newAdminWsClient(ORCHESTRATOR);
     ORCHESTRATOR.resetData();
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProjectKey("key-foo"));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProjectKey(PROJECT_KEY));
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("duplications/file-duplications")).setProjectKey("key-bar"));
   }
 
@@ -50,7 +56,7 @@ public class ProjectsPageTest {
   public void should_display_projects() {
     ProjectsPage page = nav.openProjects();
     page.shouldHaveTotal(2);
-    page.getProjectByKey("key-foo")
+    page.getProjectByKey(PROJECT_KEY)
       .shouldHaveMeasure("reliability_rating", "A")
       .shouldHaveMeasure("security_rating", "A")
       .shouldHaveMeasure("sqale_rating", "A")
@@ -83,11 +89,21 @@ public class ProjectsPageTest {
     // default page can be "All Projects" or "Favorite Projects" depending on your last choice
     ProjectsPage page = nav.openProjects();
 
-      // all projects for anonymous user
+    // all projects for anonymous user
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
     // all projects by default for logged in user
     page = nav.logIn().asAdmin().openProjects();
+    page.shouldHaveTotal(2).shouldDisplayAllProjects();
+
+    // favorite one project
+    wsClient.favorites().add(PROJECT_KEY);
+    page = nav.openProjects();
+    page.shouldHaveTotal(1).shouldDisplayFavoriteProjects();
+
+    // un-favorite this project
+    wsClient.favorites().remove(PROJECT_KEY);
+    page = nav.openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
     // select favorite

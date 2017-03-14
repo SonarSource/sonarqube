@@ -22,10 +22,17 @@ import { Route, IndexRoute } from 'react-router';
 import App from './components/App';
 import DefaultPageSelector from './components/DefaultPageSelector';
 import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
+import { saveAll } from './utils';
 
 export default (
   <Route component={App}>
     <IndexRoute component={DefaultPageSelector}/>
+    <Route
+      path="all"
+      onEnter={(_, replace) => {
+        saveAll();
+        replace('/projects');
+      }}/>
     <Route path="favorite" component={FavoriteProjectsContainer}/>
   </Route>
 );

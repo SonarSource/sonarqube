@@ -17,12 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
-import { saveAll } from '../utils';
+import { saveAll, saveFavorite } from '../utils';
 
-export default class FavoriteFilter extends React.Component {
+export default class FavoriteFilter extends React.PureComponent {
+  handleSaveFavorite = () => {
+    if (!this.props.organization) {
+      saveFavorite();
+    }
+  };
+
+  handleSaveAll = () => {
+    if (!this.props.organization) {
+      saveAll();
+    }
+  };
+
   render () {
     if (!this.props.user.isLoggedIn) {
       return null;
@@ -43,7 +56,8 @@ export default class FavoriteFilter extends React.Component {
             id="favorite-projects"
             to={pathnameForFavorite}
             className="button"
-            activeClassName="button-active">
+            activeClassName="button-active"
+            onClick={this.handleSaveFavorite}>
             {translate('my_favorites')}
           </Link>
           <IndexLink
@@ -51,7 +65,7 @@ export default class FavoriteFilter extends React.Component {
             to={pathnameForAll}
             className="button"
             activeClassName="button-active"
-            onClick={saveAll}>
+            onClick={this.handleSaveAll}>
             {translate('all')}
           </IndexLink>
         </div>
