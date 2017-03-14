@@ -35,6 +35,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsCe.ProjectResponse;
@@ -86,7 +87,7 @@ public class ComponentAction implements CeWsAction {
       CeTaskQuery activityQuery = new CeTaskQuery()
         .setComponentUuid(component.uuid())
         .setOnlyCurrents(true);
-      List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, 0, 1);
+      List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, forPage(1).andSize(1));
 
       ProjectResponse.Builder wsResponseBuilder = ProjectResponse.newBuilder();
       wsResponseBuilder.addAllQueue(formatter.formatQueue(dbSession, queueDtos));

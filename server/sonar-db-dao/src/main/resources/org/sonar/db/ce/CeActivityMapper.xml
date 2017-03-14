@@ -45,33 +45,35 @@
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
-    SELECT
-    <include refid="columns"/>
+    select
+      <include refid="columns"/>
     <include refid="sqlSelectByQuery" />
-    ORDER BY ca.id desc
-    LIMIT #{pageSize} OFFSET #{offset}
+    order by ca.id desc
+    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="mssql">
-    SELECT * FROM (
-    SELECT ROW_NUMBER() OVER(ORDER BY id desc) AS NUMBER,
+    select * from (
+    select row_number() over(order by id desc) as number,
       <include refid="columns"/>
       <include refid="sqlSelectByQuery" />
-      ) AS QUERY
-    WHERE NUMBER BETWEEN (#{offset} + 1) AND ((#{offset} + 1) * #{pageSize})
-    ORDER BY id desc
+      ) as query
+    where
+      query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    order by id desc
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="oracle">
-    SELECT * FROM (
-      SELECT ROWNUM AS rn, t.* FROM (
-        SELECT
+    select * from (
+      select rownum as rn, t.* from (
+        select
         <include refid="columns"/>
         <include refid="sqlSelectByQuery" />
-        ORDER BY ca.id desc
+        order by ca.id desc
       ) t
     ) t
-    WHERE rn BETWEEN (#{offset} + 1) AND ((#{offset} + 1) * #{pageSize})
+    where
+      t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
   </select>
 
   <sql id="sqlSelectByQuery">
