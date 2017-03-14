@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Optional;
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -39,7 +39,6 @@ import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 
 public class RenameAction implements QProfileWsAction {
 
@@ -99,12 +98,14 @@ public class RenameAction implements QProfileWsAction {
       String organizationUuid = qualityProfile.getOrganizationUuid();
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organizationUuid);
 
-      if (!StringUtils.equals(newName, qualityProfile.getName())) {
+      if (!Objects.equals(newName, qualityProfile.getName())) {
         OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-          .orElseThrow(() -> new IllegalStateException("No organization found for uuid "+organizationUuid));
+          .orElseThrow(() -> new IllegalStateException("No organization found for uuid " + organizationUuid));
         String language = qualityProfile.getLanguage();
         ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(organization, newName, language, dbSession))
-          .ifPresent(found -> {throw BadRequestException.create(format("Quality profile already exists: %s", newName));});
+          .ifPresent(found -> {
+            throw BadRequestException.create(format("Quality profile already exists: %s", newName));
+          });
 
         qualityProfile.setName(newName);
         dbClient.qualityProfileDao().update(dbSession, qualityProfile);
