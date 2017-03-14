@@ -149,3 +149,30 @@
   .page-sidebar;
   width: 300px;
 }
+
+.page-sidebar-sticky {
+  padding-right: 0;
+
+  .page-limited & {
+    margin: -20px 0;
+    padding-right: 0 !important;
+
+    .page-sidebar-sticky-inner {
+      padding: 20px 0;
+    }
+  }
+
+  .page-sidebar-sticky-inner {
+    position: fixed;
+    top: 30px;
+    bottom: 0;
+    overflow: auto;
+    width: 290px;
+    border-right: 1px solid #e6e6e6;
+    box-sizing: border-box;
+
+    .search-navigator-facets-list {
+      width: 260px;
+    }
+  }
+}

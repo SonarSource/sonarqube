@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PageHeaderContainer from './PageHeaderContainer';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
@@ -36,12 +37,17 @@ export default class AllProjects extends React.Component {
 
   componentDidMount () {
     this.handleQueryChange();
+    document.getElementById('footer').classList.add('search-navigator-footer');
   }
 
   componentDidUpdate (prevProps) {
     if (prevProps.location.query !== this.props.location.query) {
       this.handleQueryChange();
     }
+  }
+
+  componentWillUnmount () {
+    document.getElementById('footer').classList.remove('search-navigator-footer');
   }
 
   handleQueryChange () {
@@ -54,24 +60,27 @@ export default class AllProjects extends React.Component {
     const isFiltered = Object.keys(this.state.query).some(key => this.state.query[key] != null);
 
     return (
-        <div className="page-with-sidebar page-with-left-sidebar projects-page">
-          <aside className="page-sidebar-fixed projects-sidebar">
+      <div className="page-with-sidebar page-with-left-sidebar projects-page">
+        <aside className="page-sidebar-fixed page-sidebar-sticky projects-sidebar">
+          <div className="page-sidebar-sticky-inner">
             <PageSidebar
-                query={this.state.query}
-                isFavorite={this.props.isFavorite}
-                organization={this.props.organization}/>
-          </aside>
-          <div className="page-main">
-            <ProjectsListContainer
-                isFavorite={this.props.isFavorite}
-                isFiltered={isFiltered}
-                organization={this.props.organization}/>
-            <ProjectsListFooterContainer
-                query={this.state.query}
-                isFavorite={this.props.isFavorite}
-                organization={this.props.organization}/>
+              query={this.state.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
           </div>
+        </aside>
+        <div className="page-main">
+          <PageHeaderContainer/>
+          <ProjectsListContainer
+            isFavorite={this.props.isFavorite}
+            isFiltered={isFiltered}
+            organization={this.props.organization}/>
+          <ProjectsListFooterContainer
+            query={this.state.query}
+            isFavorite={this.props.isFavorite}
+            organization={this.props.organization}/>
         </div>
+      </div>
     );
   }
 }
