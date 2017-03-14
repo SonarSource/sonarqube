@@ -173,7 +173,7 @@ public class QProfilesWsTest {
     WebService.Action setDefault = controller.action("set_default");
     assertThat(setDefault).isNotNull();
     assertThat(setDefault.isPost()).isTrue();
-    assertThat(setDefault.params()).hasSize(3);
+    assertThat(setDefault.params()).hasSize(4);
   }
 
   @Test
