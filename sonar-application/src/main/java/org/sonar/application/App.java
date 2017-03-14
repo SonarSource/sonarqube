@@ -31,6 +31,8 @@ import org.sonar.application.process.StopRequestWatcher;
 import org.sonar.application.process.StopRequestWatcherImpl;
 import org.sonar.process.SystemExit;
 
+import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
+
 public class App {
 
   private final SystemExit systemExit = new SystemExit();
@@ -45,6 +47,7 @@ public class App {
     AppFileSystem fileSystem = new AppFileSystem(settings);
 
     try (AppState appState = new AppStateFactory(settings).create()) {
+      appState.registerSonarQubeVersion(getSonarqubeVersion());
       AppReloader appReloader = new AppReloaderImpl(settingsLoader, fileSystem, appState, logging);
       JavaCommandFactory javaCommandFactory = new JavaCommandFactoryImpl(settings);
       fileSystem.reset();
