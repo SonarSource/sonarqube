@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,6 +38,7 @@ import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
@@ -394,6 +396,34 @@ public class UserPermissionDaoTest {
     verifyOrganizationUuidsInTable();
   }
 
+  @Test
+  public void delete_permissions_of_an_organization_member() {
+    OrganizationDto organization1 = dbTester.organizations().insert();
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(organization1);
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    // user 1 permissions
+    dbTester.users().insertPermissionOnUser(organization1, user1, OrganizationPermission.SCAN);
+    dbTester.users().insertPermissionOnUser(organization1, user1, OrganizationPermission.ADMINISTER);
+    dbTester.users().insertProjectPermissionOnUser(user1, UserRole.CODEVIEWER, project);
+    dbTester.users().insertPermissionOnUser(organization2, user1, OrganizationPermission.SCAN);
+    // user 2 permission
+    dbTester.users().insertPermissionOnUser(organization1, user2, OrganizationPermission.SCAN);
+    dbTester.users().insertProjectPermissionOnUser(user2, UserRole.CODEVIEWER, project);
+
+    underTest.deleteOrganizationMemberPermissions(dbSession, organization1.getUuid(), user1.getId());
+    dbSession.commit();
+
+    // user 1 permissions
+    assertOrgPermissionsOfUser(user1, organization1);
+    assertOrgPermissionsOfUser(user1, organization2, OrganizationPermission.SCAN);
+    assertProjectPermissionsOfUser(user1, project);
+    // user 2 permissions
+    assertOrgPermissionsOfUser(user2, organization1, OrganizationPermission.SCAN);
+    assertProjectPermissionsOfUser(user2, project, CODEVIEWER);
+  }
+
   private void verifyOrganizationUuidsInTable(String... organizationUuids) {
     assertThat(dbTester.select("select organization_uuid as \"organizationUuid\" from user_roles"))
       .extracting((row) -> (String) row.get("organizationUuid"))
@@ -452,5 +482,15 @@ public class UserPermissionDaoTest {
 
   private void assertThatProjectHasNoPermissions(ComponentDto project) {
     assertThat(dbTester.countSql(dbSession, "select count(id) from user_roles where resource_id=" + project.getId())).isEqualTo(0);
+  }
+
+  private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()).stream()
+      .map(OrganizationPermission::fromKey))
+        .containsOnly(permissions);
+  }
+
+  private void assertProjectPermissionsOfUser(UserDto user, ComponentDto project, String... permissions) {
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user.getId(), project.getId())).containsOnly(permissions);
   }
 }

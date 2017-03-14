@@ -123,4 +123,12 @@
     where
       organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </delete>
+
+  <delete id="deleteOrganizationMemberPermissions" parameterType="map">
+    delete from
+      user_roles
+    where
+      organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      user_id = #{userId,jdbcType=INTEGER}
+  </delete>
 </mapper>
