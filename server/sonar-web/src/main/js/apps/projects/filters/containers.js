@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import Filter from './Filter';
 import LanguagesFilter from './LanguagesFilter';
-import SearchableFilterFooter from './SearchableFilterFooter';
+import TagsFilter from './TagsFilter';
 import {
   getProjectsAppFacetByProperty,
   getProjectsAppMaxFacetValue,
@@ -49,8 +49,9 @@ export const LanguagesFilterContainer = (function () {
 
 export const TagsFilterFooterContainer = (function () {
   const mapStateToProps = (state, ownProps) => ({
-    value: ownProps.query[ownProps.property],
-    facet: getProjectsAppFacetByProperty(state, ownProps.property)
+    value: ownProps.query['tags'],
+    facet: getProjectsAppFacetByProperty(state, 'tags'),
+    maxFacetValue: getProjectsAppMaxFacetValue(state)
   });
-  return connect(mapStateToProps)(withRouter(SearchableFilterFooter));
+  return connect(mapStateToProps)(withRouter(TagsFilter));
 })();
