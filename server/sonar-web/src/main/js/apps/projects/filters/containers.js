@@ -47,7 +47,7 @@ export const LanguagesFilterContainer = (function () {
   return connect(mapStateToProps)(withRouter(LanguagesFilter));
 })();
 
-export const TagsFilterFooterContainer = (function () {
+export const TagsFilterContainer = (function () {
   const mapStateToProps = (state, ownProps) => ({
     value: ownProps.query['tags'],
     facet: getProjectsAppFacetByProperty(state, 'tags'),

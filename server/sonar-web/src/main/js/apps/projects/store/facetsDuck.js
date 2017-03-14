@@ -29,9 +29,7 @@ const CUMULATIVE_FACETS = [
   'maintainability',
   'coverage',
   'duplications',
-  'size',
-  'languages',
-  'tags'
+  'size'
 ];
 
 const REVERSED_FACETS = [

@@ -17,57 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import Select from 'react-select';
-import difference from 'lodash/difference';
 import { getFilterUrl } from './utils';
 import { translate } from '../../../helpers/l10n';
 
-export default class SearchableFilterFooter extends React.PureComponent {
-  static propTypes = {
-    property: React.PropTypes.string.isRequired,
-    query: React.PropTypes.object.isRequired,
-    getOptionLabel: React.PropTypes.func.isRequired,
-    getOptions: React.PropTypes.func.isRequired,
-    isAsync: React.PropTypes.bool,
-    value: React.PropTypes.any,
-    facet: React.PropTypes.object
-  };
+type Props = {
+  property: string,
+  query: {},
+  options: {} | [],
+  getOptions: () => [{ label: string, value: string }],
+  onInputChange?: (string) => void,
+  onOpen?: (void) => void,
+  value?: Array<string>,
+  facet?: {},
+  router?: { push: { path: string, query: {} } },
+  isLoading?: boolean
+};
 
-  handleLanguageChange = ({ value }) => {
+export default class SearchableFilterFooter extends React.PureComponent {
+  props: Props;
+
+  handleOptionChange = ({ value }) => {
     const urlOptions = (this.props.value || []).concat(value).join(',');
     const path = getFilterUrl(this.props, { [this.props.property]: urlOptions });
     this.props.router.push(path);
   };
 
-  filterOptions = options => {
-    const { facet } = this.props;
-    let optionKeys = Array.isArray(options) ? options : Object.keys(options);
-    if (facet) {
-      optionKeys = difference(optionKeys, Object.keys(facet));
-    }
-    return optionKeys.map(key => ({ label: this.props.getOptionLabel(options, key), value: key }));
-  };
-
-  loadOptions = searchInput => {
-    return this.props
-        .getOptions(searchInput)
-        .then(this.filterOptions)
-        .then(options => ({ options }));
-  };
-
   render () {
-    const attributes = {
-      onChange: this.handleLanguageChange,
-      className: 'input-super-large',
-      placeholder: translate('search_verb'),
-      clearable: false,
-      searchable: true
-    };
-    if (this.props.isAsync) {
-      return <Select.Async {...attributes} cache={false} facet={this.props.facet} loadOptions={this.loadOptions}/>;
-    } else {
-      return <Select {...attributes} options={this.filterOptions(this.props.getOptions())}/>;
-    }
+    return (
+      <Select
+        onChange={this.handleOptionChange}
+        className="input-super-large"
+        placeholder={translate('search_verb')}
+        clearable={false}
+        searchable={true}
+        onInputChange={this.props.onInputChange}
+        onOpen={this.props.onOpen}
+        isLoading={this.props.isLoading}
+        options={this.props.getOptions()}/>
+    );
   }
 }

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import { withRouter } from 'react-router';
 import debounce from 'lodash/debounce';
@@ -25,7 +26,7 @@ import SearchFilter from './SearchFilter';
 
 type Props = {
   query: {},
-  router: { push: (string) => void },
+  router: { push: (path: string, query?: {}) => void },
   isFavorite?: boolean,
   organization?: {}
 };
