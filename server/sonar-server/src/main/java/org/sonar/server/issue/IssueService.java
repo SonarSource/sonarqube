@@ -27,12 +27,11 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 
@@ -48,17 +47,14 @@ public class IssueService {
   private final IssueFinder issueFinder;
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
-  private final UserFinder userFinder;
   private final UserSession userSession;
 
-  public IssueService(DbClient dbClient, IssueIndex issueIndex, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    UserFinder userFinder, UserSession userSession) {
+  public IssueService(DbClient dbClient, IssueIndex issueIndex, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.issueFinder = issueFinder;
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
-    this.userFinder = userFinder;
     this.userSession = userSession;
   }
 
@@ -68,10 +64,10 @@ public class IssueService {
     DbSession session = dbClient.openSession(false);
     try {
       DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
-      User user = null;
+      UserDto user = null;
       if (!Strings.isNullOrEmpty(assignee)) {
-        user = userFinder.findByLogin(assignee);
-        checkRequest(user != null, "Unknown user: %s", assignee);
+        user = dbClient.userDao().selectByLogin(session, assignee);
+        checkRequest(user != null && user.isActive(), "Unknown user: %s", assignee);
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueFieldsSetter.assign(issue, user, context)) {

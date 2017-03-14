@@ -58,7 +58,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.DefaultUserFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Issues.BulkChangeWsResponse;
@@ -517,7 +516,7 @@ public class BulkChangeActionTest {
   }
 
   private void addActions() {
-    actions.add(new org.sonar.server.issue.AssignAction(new DefaultUserFinder(db.getDbClient()), issueFieldsSetter));
+    actions.add(new org.sonar.server.issue.AssignAction(db.getDbClient(), issueFieldsSetter));
     actions.add(new org.sonar.server.issue.SetSeverityAction(issueFieldsSetter, userSession));
     actions.add(new org.sonar.server.issue.SetTypeAction(issueFieldsSetter, userSession));
     actions.add(new org.sonar.server.issue.TransitionAction(new TransitionService(userSession, issueWorkflow)));
