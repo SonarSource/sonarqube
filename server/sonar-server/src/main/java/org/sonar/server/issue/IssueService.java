@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -31,11 +30,8 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
-
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 @ComputeEngineSide
@@ -56,27 +52,6 @@ public class IssueService {
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
-  }
-
-  public void assign(String issueKey, @Nullable String assignee) {
-    userSession.checkLoggedIn();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
-      UserDto user = null;
-      if (!Strings.isNullOrEmpty(assignee)) {
-        user = dbClient.userDao().selectByLogin(session, assignee);
-        checkRequest(user != null && user.isActive(), "Unknown user: %s", assignee);
-      }
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueFieldsSetter.assign(issue, user, context)) {
-        issueUpdater.saveIssue(session, issue, context, null);
-      }
-
-    } finally {
-      session.close();
-    }
   }
 
   /**
