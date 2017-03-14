@@ -88,7 +88,7 @@ public class QProfilesWsTest {
       new ExportAction(null, null, mock(QProfileExporters.class), languages),
       new ExportersAction(),
       new InheritanceAction(null, null, null, null, languages),
-      new RenameAction(null, wsSupport))).controller(QProfilesWs.API_ENDPOINT);
+      new RenameAction(null, wsSupport, dbClient, userSessionRule))).controller(QProfilesWs.API_ENDPOINT);
   }
 
   private ProfileImporter[] createImporters(Languages languages) {
