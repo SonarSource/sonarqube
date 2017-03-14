@@ -23,16 +23,7 @@ package org.sonar.application.cluster;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.instance.HazelcastInstanceImpl;
-import com.hazelcast.instance.HazelcastInstanceProxy;
-import com.hazelcast.instance.Node;
-import com.hazelcast.nio.tcp.TcpIpConnectionManager;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.nio.channels.ServerSocketChannel;
 
 public class HazelcastTestHelper {
 
