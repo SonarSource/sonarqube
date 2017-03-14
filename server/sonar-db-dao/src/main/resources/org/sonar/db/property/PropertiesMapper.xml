@@ -95,9 +95,9 @@
   <select id="selectByKey" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>
-    from 
+    from
       properties p
-    where 
+    where
       p.prop_key=#{key}
       <if test="resourceId == null">
         and p.resource_id is null
@@ -136,7 +136,7 @@
   <select id="selectByKeysAndComponentIds" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>
-    from 
+    from
       properties p
     where
       p.prop_key in
@@ -308,6 +308,24 @@
         and user_id=#{query.userId,jdbcType=INTEGER}
       </if>
     </where>
+  </delete>
+
+  <select id="selectIdsByOrganizationAndUser" parameterType="map" resultType="long">
+    select py.id
+    from properties py
+    inner join projects ps on py.resource_id = ps.id
+    where
+    py.user_id=#{userId,jdbcType=INTEGER}
+    and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByIds" parameterType="long">
+    delete from properties
+    where
+    id in
+    <foreach collection="ids" open="(" close=")" item="id" separator=",">
+      #{id}
+    </foreach>
   </delete>
 
   <update id="renamePropertyKey" parameterType="map">
