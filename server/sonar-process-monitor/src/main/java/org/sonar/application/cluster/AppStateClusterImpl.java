@@ -105,9 +105,6 @@ public class AppStateClusterImpl implements AppState {
       // Use slf4j for logging
       .setProperty("hazelcast.logging.type", "slf4j");
 
-    hzConfig.getMemberAttributeConfig()
-      .setStringAttribute(SONARQUBE_VERSION, getSonarqubeVersion());
-
     // We are not using the partition group of Hazelcast, so disabling it
     hzConfig.getPartitionGroupConfig().setEnabled(false);
 
