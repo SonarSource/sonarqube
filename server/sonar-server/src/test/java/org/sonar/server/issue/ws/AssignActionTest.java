@@ -19,22 +19,50 @@
  */
 package org.sonar.server.issue.ws;
 
+import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.db.DbTester;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.USER;
 
 public class AssignActionTest {
+
+  private static final String PREVIOUS_ASSIGNEE = "previous";
+  private static final String CURRENT_USER_LOGIN = "john";
+
+  private static final long PAST = 10_000_000_000L;
+  private static final long NOW = 50_000_000_000L;
+
+  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -42,69 +70,181 @@ public class AssignActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  IssueService issueService = mock(IssueService.class);
-  OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
-  AssignAction underTest = new AssignAction(userSession, issueService, responseWriter);
-  WsActionTester tester = new WsActionTester(underTest);
+  @Rule
+  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
 
-  @Test
-  public void assign_to_me() throws Exception {
-    userSession.logIn("perceval");
+  @Rule
+  public DbTester db = DbTester.create(system2);
 
-    tester.newRequest()
-      .setParam("issue", "ABC")
-      .setParam("assignee", "_me")
-      .execute();
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(db.getDbClient()));
+  private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
+  private AssignAction underTest = new AssignAction(system2, userSession, db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new IssueFieldsSetter(),
+    new IssueUpdater(db.getDbClient(),
+      new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient()), db.getDbClient(), issueIndexer), mock(NotificationManager.class)),
+    responseWriter);
+  private WsActionTester tester = new WsActionTester(underTest);
 
-    verify(issueService).assign("ABC", "perceval");
-    verify(responseWriter).write(eq("ABC"), any(Request.class), any(Response.class));
-  }
-
-  @Test
-  public void assign_to_me_with_deprecated_param() throws Exception {
-    userSession.logIn("perceval");
-
-    tester.newRequest()
-      .setParam("issue", "ABC")
-      .setParam("me", "true")
-      .execute();
-
-    verify(issueService).assign("ABC", "perceval");
-    verify(responseWriter).write(eq("ABC"), any(Request.class), any(Response.class));
+  @Before
+  public void setUp() throws Exception {
+    db.users().insertUser(PREVIOUS_ASSIGNEE);
   }
 
   @Test
   public void assign_to_someone() throws Exception {
-    userSession.logIn("perceval");
+    IssueDto issue = newIssueWithBrowsePermission();
+    db.users().insertUser("arthur");
 
     tester.newRequest()
-      .setParam("issue", "ABC")
+      .setParam("issue", issue.getKey())
       .setParam("assignee", "arthur")
       .execute();
 
-    verify(issueService).assign("ABC", "arthur");
-    verify(responseWriter).write(eq("ABC"), any(Request.class), any(Response.class));
+    checkIssueAssignee(issue.getKey(), "arthur");
+    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
   }
 
   @Test
-  public void must_be_authenticated_to_assign_to_me() throws Exception {
+  public void assign_to_me() throws Exception {
+    IssueDto issue = newIssueWithBrowsePermission();
+
+    tester.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", "_me")
+      .execute();
+
+    checkIssueAssignee(issue.getKey(), CURRENT_USER_LOGIN);
+    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+  }
+
+  @Test
+  public void assign_to_me_using_deprecated_me_param() throws Exception {
+    IssueDto issue = newIssueWithBrowsePermission();
+
+    tester.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("me", "true")
+      .execute();
+
+    checkIssueAssignee(issue.getKey(), CURRENT_USER_LOGIN);
+    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+  }
+
+  @Test
+  public void unassign() throws Exception {
+    IssueDto issue = newIssueWithBrowsePermission();
+
+    tester.newRequest()
+      .setParam("issue", issue.getKey())
+      .execute();
+
+    checkIssueAssignee(issue.getKey(), null);
+    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+  }
+
+  @Test
+  public void unassign_with_empty_assignee_param() throws Exception {
+    IssueDto issue = newIssueWithBrowsePermission();
+
+    tester.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", "")
+      .execute();
+
+    checkIssueAssignee(issue.getKey(), null);
+    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+  }
+
+  @Test
+  public void nothing_to_do_when_new_assignee_is_same_as_old_one() throws Exception {
+    db.users().insertUser("arthur");
+    IssueDto issue = newIssueWithBrowsePermission();
+
+    tester.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", PREVIOUS_ASSIGNEE)
+      .execute();
+
+    IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
+    assertThat(issueReloaded.getAssignee()).isEqualTo(PREVIOUS_ASSIGNEE);
+    assertThat(issueReloaded.getUpdatedAt()).isEqualTo(PAST);
+    assertThat(issueReloaded.getIssueUpdateTime()).isEqualTo(PAST);
+  }
+
+  @Test
+  public void fail_when_assignee_does_not_exist() throws Exception {
+    IssueDto issue = newIssueWithBrowsePermission();
+
+    expectedException.expect(NotFoundException.class);
+
+    tester.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_assignee_is_disabled() throws Exception {
+    IssueDto issue = newIssueWithBrowsePermission();
+    db.users().insertUser(user -> user.setActive(false));
+
+    expectedException.expect(NotFoundException.class);
+
+    tester.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_not_authenticated() throws Exception {
+    IssueDto issue = newIssue();
+    userSession.anonymous();
+
     expectedException.expect(UnauthorizedException.class);
 
     tester.newRequest()
-      .setParam("issue", "ABC")
+      .setParam("issue", issue.getKey())
       .setParam("assignee", "_me")
       .execute();
   }
 
   @Test
-  public void unassign() throws Exception {
-    userSession.logIn("perceval");
+  public void fail_when_missing_browse_permission() throws Exception {
+    IssueDto issue = newIssue();
+    db.users().insertUser(CURRENT_USER_LOGIN);
+    userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(CODEVIEWER, issue.getProjectUuid());
+
+    expectedException.expect(ForbiddenException.class);
 
     tester.newRequest()
-      .setParam("issue", "ABC")
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", "_me")
       .execute();
+  }
 
-    verify(issueService).assign("ABC", null);
-    verify(responseWriter).write(eq("ABC"), any(Request.class), any(Response.class));
+  private IssueDto newIssue() {
+    return db.issues().insertIssue(
+      issueDto -> issueDto
+        .setAssignee(PREVIOUS_ASSIGNEE)
+        .setCreatedAt(PAST).setIssueCreationTime(PAST)
+        .setUpdatedAt(PAST).setIssueUpdateTime(PAST));
+  }
+
+  private void setUserWithBrowsePermission(IssueDto issue) {
+    db.users().insertUser(CURRENT_USER_LOGIN);
+    userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(USER, issue.getProjectUuid());
+  }
+
+  private IssueDto newIssueWithBrowsePermission() {
+    IssueDto issue = newIssue();
+    setUserWithBrowsePermission(issue);
+    return issue;
+  }
+
+  private void checkIssueAssignee(String issueKey, @Nullable String expectedAssignee) {
+    IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issueKey).get();
+    assertThat(issueReloaded.getAssignee()).isEqualTo(expectedAssignee);
+    assertThat(issueReloaded.getIssueUpdateTime()).isEqualTo(NOW);
+    assertThat(issueReloaded.getUpdatedAt()).isEqualTo(NOW);
   }
 }
