@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +29,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -82,19 +83,15 @@ public class AssignActionTest {
     new IssueUpdater(db.getDbClient(),
       new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient()), db.getDbClient(), issueIndexer), mock(NotificationManager.class)),
     responseWriter);
-  private WsActionTester tester = new WsActionTester(underTest);
-
-  @Before
-  public void setUp() throws Exception {
-    db.users().insertUser(PREVIOUS_ASSIGNEE);
-  }
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void assign_to_someone() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
-    db.users().insertUser("arthur");
+    UserDto userDto = db.users().insertUser("arthur");
+    addUserAsMemberOfDefaultOrganization(userDto);
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "arthur")
       .execute();
@@ -107,7 +104,7 @@ public class AssignActionTest {
   public void assign_to_me() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "_me")
       .execute();
@@ -120,7 +117,7 @@ public class AssignActionTest {
   public void assign_to_me_using_deprecated_me_param() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("me", "true")
       .execute();
@@ -133,7 +130,7 @@ public class AssignActionTest {
   public void unassign() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .execute();
 
@@ -145,7 +142,7 @@ public class AssignActionTest {
   public void unassign_with_empty_assignee_param() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "")
       .execute();
@@ -156,10 +153,11 @@ public class AssignActionTest {
 
   @Test
   public void nothing_to_do_when_new_assignee_is_same_as_old_one() throws Exception {
-    db.users().insertUser("arthur");
     IssueDto issue = newIssueWithBrowsePermission();
+    UserDto userDto = db.users().insertUser(PREVIOUS_ASSIGNEE);
+    addUserAsMemberOfDefaultOrganization(userDto);
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", PREVIOUS_ASSIGNEE)
       .execute();
@@ -176,7 +174,7 @@ public class AssignActionTest {
 
     expectedException.expect(NotFoundException.class);
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "unknown")
       .execute();
@@ -189,7 +187,7 @@ public class AssignActionTest {
 
     expectedException.expect(NotFoundException.class);
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "unknown")
       .execute();
@@ -202,7 +200,7 @@ public class AssignActionTest {
 
     expectedException.expect(UnauthorizedException.class);
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "_me")
       .execute();
@@ -211,14 +209,31 @@ public class AssignActionTest {
   @Test
   public void fail_when_missing_browse_permission() throws Exception {
     IssueDto issue = newIssue();
-    db.users().insertUser(CURRENT_USER_LOGIN);
     userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(CODEVIEWER, issue.getProjectUuid());
 
     expectedException.expect(ForbiddenException.class);
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "_me")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_assignee_is_not_member_of_organization_of_project_issue() throws Exception {
+    OrganizationDto org = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
+    IssueDto issueDto = db.issues().insertIssue(org);
+    setUserWithBrowsePermission(issueDto);
+    OrganizationDto otherOrganization = db.organizations().insert();
+    UserDto assignee = db.users().insertUser("arthur");
+    db.organizations().addMember(otherOrganization, assignee);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("User 'arthur' is not member of organization 'Organization key'");
+
+    ws.newRequest()
+      .setParam("issue", issueDto.getKey())
+      .setParam("assignee", "arthur")
       .execute();
   }
 
@@ -230,15 +245,16 @@ public class AssignActionTest {
         .setUpdatedAt(PAST).setIssueUpdateTime(PAST));
   }
 
-  private void setUserWithBrowsePermission(IssueDto issue) {
-    db.users().insertUser(CURRENT_USER_LOGIN);
-    userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(USER, issue.getProjectUuid());
-  }
-
   private IssueDto newIssueWithBrowsePermission() {
     IssueDto issue = newIssue();
     setUserWithBrowsePermission(issue);
     return issue;
+  }
+
+  private void setUserWithBrowsePermission(IssueDto issue) {
+    UserDto currentUser = db.users().insertUser(CURRENT_USER_LOGIN);
+    addUserAsMemberOfDefaultOrganization(currentUser);
+    userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(USER, issue.getProjectUuid());
   }
 
   private void checkIssueAssignee(String issueKey, @Nullable String expectedAssignee) {
@@ -247,4 +263,9 @@ public class AssignActionTest {
     assertThat(issueReloaded.getIssueUpdateTime()).isEqualTo(NOW);
     assertThat(issueReloaded.getUpdatedAt()).isEqualTo(NOW);
   }
+
+  private void addUserAsMemberOfDefaultOrganization(UserDto user) {
+    db.organizations().addMember(db.getDefaultOrganization(), user);
+  }
+
 }

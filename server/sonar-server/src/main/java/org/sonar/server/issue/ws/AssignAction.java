@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
@@ -34,6 +35,9 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
@@ -41,6 +45,8 @@ import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
@@ -103,8 +109,12 @@ public class AssignAction implements IssuesWsAction {
 
   private void assign(String issueKey, @Nullable String assignee) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      DefaultIssue issue = issueFinder.getByKey(dbSession, issueKey).toDefaultIssue();
+      IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
+      DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, assignee);
+      if (user != null) {
+        checkMembership(dbSession, issueDto, user);
+      }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       if (issueFieldsSetter.assign(issue, user, context)) {
         issueUpdater.saveIssue(dbSession, issue, context, null);
@@ -126,7 +136,16 @@ public class AssignAction implements IssuesWsAction {
     if (Strings.isNullOrEmpty(assignee)) {
       return null;
     }
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, assignee);
-    return checkFound(user != null && user.isActive() ? user : null, "Unknown user: %s", assignee);
+    return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, assignee), "Unknown user: %s", assignee);
+  }
+
+  private void checkMembership(DbSession dbSession, IssueDto issueDto, UserDto user) {
+    String projectUuid = requireNonNull(issueDto.getProjectUuid());
+    ComponentDto project = Optional.ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull())
+      .orElseThrow(() -> new IllegalStateException(format("Unknown project %s", projectUuid)));
+    OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Unknown organization %s", project.getOrganizationUuid())));
+    dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), user.getId())
+      .orElseThrow(() -> new IllegalArgumentException(format("User '%s' is not member of organization '%s'", user.getLogin(), organizationDto.getKey())));
   }
 }
