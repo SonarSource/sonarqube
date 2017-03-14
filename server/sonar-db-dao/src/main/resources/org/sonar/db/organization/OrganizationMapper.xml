@@ -129,7 +129,7 @@
     <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
     order by
       org.created_at asc
-    limit #{pageSize} offset #{offset}
+    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
   <select id="selectOrganizationsWithoutLoadedTemplate" parameterType="map" resultType="Organization" databaseId="mssql">
@@ -140,7 +140,7 @@
       <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
     ) as query
     where
-      query.number between (#{offset} + 1) and (#{page} * #{pageSize})
+      query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
     order by
       query.createdAt asc
   </select>
@@ -156,7 +156,7 @@
       ) t
     ) t
     where
-      t.rn between (#{offset} + 1) and (#{page} * #{pageSize})
+      t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
   </select>
 
   <sql id="sqlSelectOrganizationsWithoutLoadedTemplate">

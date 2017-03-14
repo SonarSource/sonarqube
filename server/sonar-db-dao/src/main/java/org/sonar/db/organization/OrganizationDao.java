@@ -26,8 +26,8 @@ import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -73,11 +73,8 @@ public class OrganizationDao implements Dao {
     return getMapper(dbSession).selectByPermission(userId, permission);
   }
 
-  public List<OrganizationDto> selectOrganizationsWithoutLoadedTemplate(DbSession dbSession, String loadedTemplateType, int page, int pageSize) {
-    checkArgument(page >= 1, "page must be >= 1");
-    checkArgument(pageSize >= 1, "page size must be >= 1");
-    int offset = (page - 1) * pageSize;
-    return getMapper(dbSession).selectOrganizationsWithoutLoadedTemplate(loadedTemplateType, page, pageSize, offset);
+  public List<OrganizationDto> selectOrganizationsWithoutLoadedTemplate(DbSession dbSession, String loadedTemplateType, Pagination pagination) {
+    return getMapper(dbSession).selectOrganizationsWithoutLoadedTemplate(loadedTemplateType, pagination);
   }
 
   /**
