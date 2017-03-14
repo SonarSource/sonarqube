@@ -26,14 +26,14 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.user.DefaultUser;
+import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
 import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
 import static org.sonar.server.issue.IssueFieldsSetter.SEVERITY;
@@ -53,7 +53,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void assign() {
-    User user = new DefaultUser().setLogin("emmerik").setName("Emmerik");
+    UserDto user = newUserDto().setLogin("emmerik").setName("Emmerik");
 
     boolean updated = updater.assign(issue, user, context);
     assertThat(updated).isTrue();
@@ -67,7 +67,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void unassign() {
     issue.setAssignee("morgan");
-    boolean updated = updater.assign(issue, null, context);
+    boolean updated = updater.assign(issue, (UserDto) null, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.mustSendNotifications()).isTrue();
@@ -78,7 +78,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void change_assignee() {
-    User user = new DefaultUser().setLogin("emmerik").setName("Emmerik");
+    UserDto user = newUserDto().setLogin("emmerik").setName("Emmerik");
 
     issue.setAssignee("morgan");
     boolean updated = updater.assign(issue, user, context);
@@ -92,7 +92,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void not_change_assignee() {
-    User user = new DefaultUser().setLogin("morgan").setName("Morgan");
+    UserDto user = newUserDto().setLogin("morgan").setName("Morgan");
 
     issue.setAssignee("morgan");
     boolean updated = updater.assign(issue, user, context);
