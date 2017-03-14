@@ -109,10 +109,13 @@ public class QProfileWsSupport {
     QualityProfileDto profile;
     if (ref.hasKey()) {
       profile = dbClient.qualityProfileDao().selectByKey(dbSession, ref.getKey());
+      checkFound(profile, "Quality Profile with key '%s' does not exist", ref.getKey());
     } else {
       OrganizationDto org = getOrganizationByKey(dbSession, ref.getOrganizationKey().orElse(null));
       profile = dbClient.qualityProfileDao().selectByNameAndLanguage(org, ref.getName(), ref.getLanguage(), dbSession);
+      checkFound(profile, "Quality Profile for language '%s' and name '%s' does not exist%s", ref.getLanguage(), ref.getName(),
+        ref.getOrganizationKey().map(o -> " in organization '"+o+"'").orElse(""));
     }
-    return checkFound(profile, "Quality Profile does not exist");
+    return profile;
   }
 }
