@@ -68,4 +68,8 @@ public interface PropertiesMapper {
   int deleteByQuery(@Param("query") PropertyQuery query);
 
   int renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
+
+  List<Long> selectIdsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
+
+  void deleteByIds(@Param("ids") List<Long> ids);
 }

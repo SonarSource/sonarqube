@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
@@ -444,8 +445,7 @@ public class PropertiesDaoTest {
       .extracting("key", "resourceId").containsOnly(
         tuple(key, project.getId()),
         tuple(key, project2.getId()),
-        tuple(anotherKey, project2.getId())
-      );
+        tuple(anotherKey, project2.getId()));
 
     assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(123456789L))).isEmpty();
   }
@@ -825,6 +825,28 @@ public class PropertiesDaoTest {
       .hasUserId(100)
       .hasTextValue("new_user");
 
+  }
+
+  @Test
+  public void delete_by_organization_and_user() throws SQLException {
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto anotherOrganization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto anotherProject = dbTester.components().insertProject(anotherOrganization);
+    UserDto user = dbTester.users().insertUser();
+    UserDto anotherUser = dbTester.users().insertUser();
+    insertProperty("KEY_11", "VALUE", project.getId(), user.getId());
+    insertProperty("KEY_12", "VALUE", project.getId(), user.getId());
+    insertProperty("KEY_11", "VALUE", project.getId(), anotherUser.getId());
+    insertProperty("KEY_11", "VALUE", anotherProject.getId(), user.getId());
+
+    underTest.deleteByOrganizationAndUser(session, organization.getUuid(), user.getId());
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).build(), session))
+      .hasSize(1)
+      .extracting(PropertyDto::getUserId).containsOnly(anotherUser.getId());
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(anotherProject.getId()).build(), session)).extracting(PropertyDto::getUserId)
+      .hasSize(1).containsOnly(user.getId());
   }
 
   @Test
