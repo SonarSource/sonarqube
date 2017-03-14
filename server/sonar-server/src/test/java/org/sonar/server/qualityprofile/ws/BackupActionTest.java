@@ -33,6 +33,7 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -50,7 +51,7 @@ public class BackupActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private QProfileBackuper backuper = new QProfileBackuper(null, db.getDbClient());
+  private QProfileBackuper backuper = new QProfileBackuperImpl(null, db.getDbClient());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
@@ -149,6 +150,13 @@ public class BackupActionTest {
       .execute();
   }
 
+  @Test
+  public void throws_IAE_if_profile_reference_is_not_set() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+
+    tester.newRequest().execute();
+  }
+
   private static String xmlForProfileWithoutRules(QualityProfileDto profile) {
     return "<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
@@ -160,7 +168,7 @@ public class BackupActionTest {
 
   private static QualityProfileDto newProfile(OrganizationDto org) {
     return QualityProfileTesting.newQualityProfileDto()
-      .setLanguage("xoo")
+      .setLanguage(A_LANGUAGE)
       .setOrganizationUuid(org.getUuid());
   }
 }
