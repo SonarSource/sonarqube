@@ -109,6 +109,33 @@ public class RenameActionTest {
   }
 
   @Test
+  public void allow_same_name_in_different_organizations() {
+    OrganizationDto organizationX = db.organizations().insert();
+    OrganizationDto organizationY = db.organizations().insert();
+    userSessionRule.logIn()
+      .addPermission(ADMINISTER_QUALITY_PROFILES, organizationX);
+
+    QualityProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organizationX.getUuid())
+      .setLanguage("xoo")
+      .setName("Old, unique name");
+    db.qualityProfiles().insertQualityProfile(qualityProfile1);
+    String qualityProfileKey1 = qualityProfile1.getKey();
+
+    QualityProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organizationY.getUuid())
+      .setLanguage("xoo")
+      .setName("Duplicated name");
+    db.qualityProfiles().insertQualityProfile(qualityProfile2);
+    String qualityProfileKey2 = qualityProfile2.getKey();
+
+    underTest.doHandle("Duplicated name", qualityProfileKey1);
+
+    QualityProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), qualityProfileKey1);
+    assertThat(reloaded.getName()).isEqualTo("Duplicated name");
+  }
+
+  @Test
   public void fail_if_parameter_key_is_missing() throws Exception {
     logInAsQProfileAdministrator();
 
