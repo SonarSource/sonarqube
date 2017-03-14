@@ -188,33 +188,5 @@
         </plugins>
       </build>
     </profile>
-
-    <profile>
-      <!-- SonarSource internal use -->
-      <id>with-db-drivers</id>
-      <activation>
-        <property>
-          <name>with-db-drivers</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.microsoft.sqlserver</groupId>
-          <artifactId>mssql-jdbc</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>mysql</groupId>
-          <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc6</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
   </profiles>
 </project>
