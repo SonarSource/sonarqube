@@ -84,7 +84,7 @@ public class QProfilesWsTest {
       new ChangeParentAction(dbClient, null, null, languages, wsSupport),
       new CompareAction(null, null, languages),
       new CopyAction(null, languages, wsSupport),
-      new DeleteAction(languages, null, null, wsSupport),
+      new DeleteAction(languages, null, null, userSessionRule, wsSupport),
       new ExportAction(null, null, mock(QProfileExporters.class), languages),
       new ExportersAction(),
       new InheritanceAction(null, null, null, null, languages),
@@ -279,8 +279,8 @@ public class QProfilesWsTest {
     WebService.Action delete = controller.action("delete");
     assertThat(delete).isNotNull();
     assertThat(delete.isPost()).isTrue();
-    assertThat(delete.params()).hasSize(3).extracting("key").containsOnly(
-      "profileKey", "language", "profileName");
+    assertThat(delete.params()).hasSize(4).extracting("key").containsOnly(
+      "organization", "profileKey", "language", "profileName");
   }
 
   @Test
