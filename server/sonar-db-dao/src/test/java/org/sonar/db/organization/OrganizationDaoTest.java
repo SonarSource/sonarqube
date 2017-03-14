@@ -55,6 +55,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.organization.OrganizationQuery.returnAll;
+import static org.sonar.db.Pagination.all;
+import static org.sonar.db.Pagination.forPage;
 
 public class OrganizationDaoTest {
   private static final long SOME_DATE = 1_200_999L;
@@ -846,7 +848,7 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectOrganizationsWithoutLoadedTemplate_returns_empty_if_there_is_no_organization() {
-    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "type1", 1, Integer.MAX_VALUE);
+    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "type1", all());
 
     assertThat(organizationDtos).isEmpty();
   }
@@ -857,7 +859,7 @@ public class OrganizationDaoTest {
     String[] organizationUuids = IntStream.range(0, organizationCount).mapToObj(i -> "uuid_" + i).toArray(String[]::new);
     Arrays.stream(organizationUuids).forEach(uuid -> dbTester.organizations().insertForUuid(uuid));
 
-    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "type1", 1, Integer.MAX_VALUE);
+    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "type1", all());
 
     assertThat(organizationDtos)
       .extracting(OrganizationDto::getUuid)
@@ -880,7 +882,7 @@ public class OrganizationDaoTest {
     dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto("", loadedTemplateType), dbSession);
     dbTester.commit();
 
-    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, loadedTemplateType, 1, Integer.MAX_VALUE);
+    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, loadedTemplateType, all());
 
     assertThat(organizationDtos)
       .extracting(OrganizationDto::getUuid)
@@ -896,33 +898,33 @@ public class OrganizationDaoTest {
     when(system2.now()).thenAnswer(t -> alwaysIncreasingSystem2.now());
     IntStream.range(1, 31).forEach(i -> dbTester.organizations().insertForUuid("" + i));
 
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 1, Integer.MAX_VALUE))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", all()))
       .extracting(dto -> Integer.valueOf(dto.getUuid()))
       .hasSize(30)
       .allMatch(i -> i > 0 && i <= 30);
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 1, 30))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(1).andSize(30)))
       .extracting(dto -> Integer.valueOf(dto.getUuid()))
       .hasSize(30)
       .allMatch(i -> i > 0 && i <= 30);
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 1, 10))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(1).andSize(10)))
       .extracting(dto -> Integer.valueOf(dto.getUuid()))
       .hasSize(10)
       .allMatch(i -> i > 0 && i <= 10);
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 2, 10))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(2).andSize(10)))
       .extracting(dto -> Integer.valueOf(dto.getUuid()))
       .hasSize(10)
       .allMatch(i -> i > 10 && i <= 20);
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 5, 5))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(5).andSize(5)))
       .extracting(dto -> Integer.valueOf(dto.getUuid()))
       .hasSize(5)
       .allMatch(i -> i > 20 && i <= 25);
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 6, 5))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(6).andSize(5)))
       .extracting(dto -> Integer.valueOf(dto.getUuid()))
       .hasSize(5)
       .allMatch(i -> i > 25 && i <= 30);
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 7, 5))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(7).andSize(5)))
       .isEmpty();
-    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", 2, 50))
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(2).andSize(50)))
       .isEmpty();
   }
 
