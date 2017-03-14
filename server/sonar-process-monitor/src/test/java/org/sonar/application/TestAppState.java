@@ -55,7 +55,6 @@ public class TestAppState implements AppState {
     listeners.forEach(l -> l.onAppStateOperational(processId));
   }
 
-  @VisibleForTesting
   public void setRemoteOperational(ProcessId processId) {
     remoteProcesses.put(processId, true);
     listeners.forEach(l -> l.onAppStateOperational(processId));
