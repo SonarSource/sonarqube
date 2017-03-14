@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -101,7 +102,16 @@ public class RemoveMemberActionTest {
   }
 
   @Test
-  public void remove_member_from_db_and_all_dependencies() {
+  public void remove_member_from_db() {
+    assertMember(organization.getUuid(), user.getId());
+
+    call(organization.getKey(), user.getLogin());
+
+    assertNotAMember(organization.getUuid(), user.getId());
+  }
+
+  @Test
+  public void remove_organization_permissions() {
     UserDto anotherUser = db.users().insertUser();
     OrganizationDto anotherOrganization = db.organizations().insert();
     ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
@@ -131,6 +141,23 @@ public class RemoveMemberActionTest {
   }
 
   @Test
+  public void remove_from_organization_groups() {
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto anotherUser = db.users().insertUser();
+    GroupDto group = db.users().insertGroup(organization);
+    GroupDto anotherGroup = db.users().insertGroup(anotherOrganization);
+    db.users().insertMembers(group, user, anotherUser);
+    db.users().insertMembers(anotherGroup, user, anotherUser);
+
+    call(organization.getKey(), user.getLogin());
+
+    assertThat(dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, user.getId()))
+      .containsOnly(anotherGroup.getId());
+    assertThat(dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, anotherUser.getId()))
+      .containsOnly(group.getId(), anotherGroup.getId());
+  }
+
+  @Test
   public void user_is_removed_only_from_designated_organization() {
     OrganizationDto anotherOrg = db.organizations().insert();
     db.organizations().addMember(anotherOrg, user);
@@ -141,7 +168,7 @@ public class RemoveMemberActionTest {
   }
 
   @Test
-  public void add_member_as_organization_admin() {
+  public void remove_member_as_organization_admin() {
     userSession.logIn().addPermission(ADMINISTER, organization);
 
     call(organization.getKey(), user.getLogin());
