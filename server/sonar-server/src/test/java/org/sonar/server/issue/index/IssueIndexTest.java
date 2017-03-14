@@ -20,9 +20,9 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -48,17 +48,21 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
-import org.sonar.server.issue.IssueDocTesting;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
+import org.sonar.server.rule.index.RuleDoc;
+import org.sonar.server.rule.index.RuleDocTesting;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -69,41 +73,46 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.db.rule.RuleTesting.XOO_X1;
+import static org.sonar.db.rule.RuleTesting.XOO_X2;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
 public class IssueIndexTest {
 
-  private System2 system2 = System2.INSTANCE;
+  private System2 system2 = mock(System2.class);
 
   @Rule
-  public EsTester tester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ViewIndexDefinition(new MapSettings()));
+  public EsTester tester = new EsTester(
+    new IssueIndexDefinition(new MapSettings()),
+    new ViewIndexDefinition(new MapSettings()),
+    new RuleIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private IssueIndex underTest;
   private IssueIndexer issueIndexer = new IssueIndexer(tester.client(), new IssueIteratorFactory(null));
   private ViewIndexer viewIndexer = new ViewIndexer(null, tester.client());
+  private RuleIndexer ruleIndexer = new RuleIndexer(system2, null, tester.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
+
+  private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
 
   @Before
   public void setUp() {
-    System2 system = mock(System2.class);
-    when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("GMT-1:00"));
-    when(system.now()).thenReturn(System.currentTimeMillis());
-
-    underTest = new IssueIndex(tester.client(), system, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+    when(system2.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("GMT-1:00"));
+    when(system2.now()).thenReturn(System.currentTimeMillis());
   }
 
   @Test
   public void get_by_key() {
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
-    IssueDoc issue = IssueDocTesting.newDoc("ISSUE1", file)
-        .setEffort(100L);
+    IssueDoc issue = newDoc("ISSUE1", file)
+      .setEffort(100L);
     indexIssues(issue);
 
     Issue loaded = getByKey(issue.key());
@@ -122,7 +131,7 @@ public class IssueIndexTest {
   public void get_by_key_with_attributes() {
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
-    IssueDoc issue = IssueDocTesting.newDoc("ISSUE1", file).setAttributes((KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234"))));
+    IssueDoc issue = newDoc("ISSUE1", file).setAttributes((KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234"))));
     indexIssues(issue);
 
     Issue result = getByKey(issue.key());
@@ -133,7 +142,7 @@ public class IssueIndexTest {
   public void comments_field_is_not_available() {
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
-    IssueDoc issue = IssueDocTesting.newDoc("ISSUE1", file);
+    IssueDoc issue = newDoc("ISSUE1", file);
     indexIssues(issue);
 
     Issue result = getByKey(issue.key());
@@ -144,7 +153,7 @@ public class IssueIndexTest {
   public void is_new_field_is_not_available() {
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
-    IssueDoc issue = IssueDocTesting.newDoc("ISSUE1", file);
+    IssueDoc issue = newDoc("ISSUE1", file);
     indexIssues(issue);
 
     Issue result = getByKey(issue.key());
@@ -156,8 +165,8 @@ public class IssueIndexTest {
     ComponentDto project = newProjectDto(newOrganizationDto());
 
     indexIssues(
-        IssueDocTesting.newDoc("1", newFileDto(project, null)),
-        IssueDocTesting.newDoc("2", newFileDto(project, null)));
+      newDoc("1", newFileDto(project, null)),
+      newDoc("2", newFileDto(project, null)));
 
     assertThat(underTest.search(IssueQuery.builder().issueKeys(newArrayList("1", "2")).build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search(IssueQuery.builder().issueKeys(newArrayList("1")).build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -171,12 +180,12 @@ public class IssueIndexTest {
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", project),
-        IssueDocTesting.newDoc("ISSUE2", newFileDto(project, null)),
-        IssueDocTesting.newDoc("ISSUE3", module),
-        IssueDocTesting.newDoc("ISSUE4", newFileDto(module, null)),
-        IssueDocTesting.newDoc("ISSUE5", subModule),
-        IssueDocTesting.newDoc("ISSUE6", newFileDto(subModule, null)));
+      newDoc("ISSUE1", project),
+      newDoc("ISSUE2", newFileDto(project, null)),
+      newDoc("ISSUE3", module),
+      newDoc("ISSUE4", newFileDto(module, null)),
+      newDoc("ISSUE5", subModule),
+      newDoc("ISSUE6", newFileDto(subModule, null)));
 
     assertThat(underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
     assertThat(underTest.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
@@ -189,9 +198,9 @@ public class IssueIndexTest {
     ComponentDto project2 = newProjectDto(organizationDto, "EFGH");
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", newFileDto(project, null)),
-        IssueDocTesting.newDoc("ISSUE2", newFileDto(project, null)),
-        IssueDocTesting.newDoc("ISSUE3", newFileDto(project2, null)));
+      newDoc("ISSUE1", newFileDto(project, null)),
+      newDoc("ISSUE2", newFileDto(project, null)),
+      newDoc("ISSUE3", newFileDto(project2, null)));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("projectUuids")));
     assertThat(result.getFacets().getNames()).containsOnly("projectUuids");
@@ -206,28 +215,28 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(subModule, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE3", module),
-        IssueDocTesting.newDoc("ISSUE5", subModule),
-        IssueDocTesting.newDoc("ISSUE2", file));
+      newDoc("ISSUE3", module),
+      newDoc("ISSUE5", subModule),
+      newDoc("ISSUE2", file));
 
     assertThat(
-        underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions())
-            .getDocs())
-        .isEmpty();
+      underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions())
+        .getDocs())
+          .isEmpty();
     assertThat(
-        underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions())
-            .getDocs())
-        .hasSize(1);
+      underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions())
+        .getDocs())
+          .hasSize(1);
     assertThat(
-        underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
-            .getDocs())
-        .hasSize(2);
+      underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
+        .getDocs())
+          .hasSize(2);
     assertThat(
-        underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions())
-            .getDocs())
-        .isEmpty();
+      underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions())
+        .getDocs())
+          .isEmpty();
     assertThat(
-        underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs())
+      underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs())
         .isEmpty();
   }
 
@@ -243,27 +252,27 @@ public class IssueIndexTest {
     indexView(view, newArrayList(project.uuid()));
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", project),
-        IssueDocTesting.newDoc("ISSUE2", file1),
-        IssueDocTesting.newDoc("ISSUE3", module),
-        IssueDocTesting.newDoc("ISSUE4", file2),
-        IssueDocTesting.newDoc("ISSUE5", subModule),
-        IssueDocTesting.newDoc("ISSUE6", file3));
+      newDoc("ISSUE1", project),
+      newDoc("ISSUE2", file1),
+      newDoc("ISSUE3", module),
+      newDoc("ISSUE4", file2),
+      newDoc("ISSUE5", subModule),
+      newDoc("ISSUE6", file3));
 
     assertThat(underTest.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions())
-        .getDocs()).hasSize(3);
+      .getDocs()).hasSize(3);
     assertThat(underTest.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions())
-        .getDocs()).hasSize(1);
+      .getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().moduleRootUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
-        .getDocs()).hasSize(2);
+      .getDocs()).hasSize(2);
     assertThat(underTest.search(IssueQuery.builder().moduleRootUuids(newArrayList(module.uuid())).build(), new SearchOptions())
-        .getDocs()).hasSize(4);
+      .getDocs()).hasSize(4);
     assertThat(underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions())
-        .getDocs()).hasSize(6);
+      .getDocs()).hasSize(6);
     assertThat(underTest.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new SearchOptions())
-        .getDocs()).hasSize(6);
+      .getDocs()).hasSize(6);
     assertThat(underTest.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions())
-        .getDocs()).isEmpty();
+      .getDocs()).isEmpty();
   }
 
   @Test
@@ -278,12 +287,12 @@ public class IssueIndexTest {
     indexView(view, newArrayList(project.uuid()));
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", project),
-        IssueDocTesting.newDoc("ISSUE2", file1),
-        IssueDocTesting.newDoc("ISSUE3", module),
-        IssueDocTesting.newDoc("ISSUE4", file2),
-        IssueDocTesting.newDoc("ISSUE5", subModule),
-        IssueDocTesting.newDoc("ISSUE6", file3));
+      newDoc("ISSUE1", project),
+      newDoc("ISSUE2", file1),
+      newDoc("ISSUE3", module),
+      newDoc("ISSUE4", file2),
+      newDoc("ISSUE5", subModule),
+      newDoc("ISSUE6", file3));
 
     assertThat(underTest.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
     assertThat(underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
@@ -294,7 +303,7 @@ public class IssueIndexTest {
     // !
     assertThat(underTest.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions()).getDocs())
-        .hasSize(3);
+      .hasSize(3);
   }
 
   @Test
@@ -305,16 +314,16 @@ public class IssueIndexTest {
     ComponentDto file3 = newFileDto(project, null, "CDEF");
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", project),
-        IssueDocTesting.newDoc("ISSUE2", file1),
-        IssueDocTesting.newDoc("ISSUE3", file2),
-        IssueDocTesting.newDoc("ISSUE4", file2),
-        IssueDocTesting.newDoc("ISSUE5", file3));
+      newDoc("ISSUE1", project),
+      newDoc("ISSUE2", file1),
+      newDoc("ISSUE3", file2),
+      newDoc("ISSUE4", file2),
+      newDoc("ISSUE5", file3));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("fileUuids")));
     assertThat(result.getFacets().getNames()).containsOnly("fileUuids");
     assertThat(result.getFacets().get("fileUuids"))
-        .containsOnly(entry("A", 1L), entry("ABCD", 1L), entry("BCDE", 2L), entry("CDEF", 1L));
+      .containsOnly(entry("A", 1L), entry("ABCD", 1L), entry("BCDE", 2L), entry("CDEF", 1L));
   }
 
   @Test
@@ -324,8 +333,8 @@ public class IssueIndexTest {
     ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
-        IssueDocTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
+      newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
+      newDoc("ISSUE2", file2).setDirectoryPath("/"));
 
     assertThat(underTest.search(IssueQuery.builder().directories(newArrayList("/src/main/xoo")).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().directories(newArrayList("/")).build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -339,8 +348,8 @@ public class IssueIndexTest {
     ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
-        IssueDocTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
+      newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
+      newDoc("ISSUE2", file2).setDirectoryPath("/"));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("directories")));
     assertThat(result.getFacets().getNames()).containsOnly("directories");
@@ -354,11 +363,11 @@ public class IssueIndexTest {
     ComponentDto file1 = newFileDto(project1, null);
     ComponentDto project2 = newProjectDto(organizationDto);
     indexIssues(
-        // Project1 has 2 issues (one on a file and one on the project itself)
-        IssueDocTesting.newDoc("ISSUE1", project1),
-        IssueDocTesting.newDoc("ISSUE2", file1),
-        // Project2 has 1 issue
-        IssueDocTesting.newDoc("ISSUE3", project2));
+      // Project1 has 2 issues (one on a file and one on the project itself)
+      newDoc("ISSUE1", project1),
+      newDoc("ISSUE2", file1),
+      // Project2 has 1 issue
+      newDoc("ISSUE3", project2));
 
     // The view1 is containing 2 issues from project1
     String view1 = "ABCD";
@@ -380,8 +389,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setSeverity(Severity.INFO),
-        IssueDocTesting.newDoc("ISSUE2", file).setSeverity(Severity.MAJOR));
+      newDoc("ISSUE1", file).setSeverity(Severity.INFO),
+      newDoc("ISSUE2", file).setSeverity(Severity.MAJOR));
 
     assertThat(underTest.search(IssueQuery.builder().severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search(IssueQuery.builder().severities(newArrayList(Severity.INFO)).build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -394,9 +403,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setSeverity(Severity.INFO),
-        IssueDocTesting.newDoc("ISSUE2", file).setSeverity(Severity.INFO),
-        IssueDocTesting.newDoc("ISSUE3", file).setSeverity(Severity.MAJOR));
+      newDoc("ISSUE1", file).setSeverity(Severity.INFO),
+      newDoc("ISSUE2", file).setSeverity(Severity.INFO),
+      newDoc("ISSUE3", file).setSeverity(Severity.MAJOR));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("severities")));
     assertThat(result.getFacets().getNames()).containsOnly("severities");
@@ -409,11 +418,11 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
-        IssueDocTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN));
+      newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
+      newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN));
 
     assertThat(underTest.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new SearchOptions()).getDocs())
-        .hasSize(2);
+      .hasSize(2);
     assertThat(underTest.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -424,9 +433,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
-        IssueDocTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
-        IssueDocTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN));
+      newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
+      newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
+      newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("statuses")));
     assertThat(result.getFacets().getNames()).containsOnly("statuses");
@@ -439,13 +448,13 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-        IssueDocTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FIXED));
+      newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FIXED));
 
     assertThat(
-        underTest.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions())
-            .getDocs())
-        .hasSize(2);
+      underTest.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions())
+        .getDocs())
+          .hasSize(2);
     assertThat(underTest.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -456,9 +465,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-        IssueDocTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-        IssueDocTesting.newDoc("ISSUE3", file).setResolution(Issue.RESOLUTION_FIXED));
+      newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      newDoc("ISSUE3", file).setResolution(Issue.RESOLUTION_FIXED));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("resolutions")));
     assertThat(result.getFacets().getNames()).containsOnly("resolutions");
@@ -471,9 +480,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
-        IssueDocTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN).setResolution(null),
-        IssueDocTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN).setResolution(null));
+      newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN).setResolution(null),
+      newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN).setResolution(null));
 
     assertThat(underTest.search(IssueQuery.builder().resolved(true).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().resolved(false).build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -486,7 +495,7 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
 
-    indexIssues(IssueDocTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()));
+    indexIssues(newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()));
 
     assertThat(underTest.search(IssueQuery.builder().rules(newArrayList(ruleKey)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().rules(newArrayList(RuleKey.of("rule", "without issue"))).build(), new SearchOptions()).getDocs()).isEmpty();
@@ -498,10 +507,10 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
 
-    indexIssues(IssueDocTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
+    indexIssues(newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
 
     assertThat(underTest.search(IssueQuery.builder().languages(newArrayList("xoo")).build(),
-        new SearchOptions()).getDocs()).hasSize(1);
+      new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().languages(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
@@ -511,7 +520,7 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
 
-    indexIssues(IssueDocTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
+    indexIssues(newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("languages")));
     assertThat(result.getFacets().getNames()).containsOnly("languages");
@@ -524,9 +533,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setAssignee("steph"),
-        IssueDocTesting.newDoc("ISSUE2", file).setAssignee("simon"),
-        IssueDocTesting.newDoc("ISSUE3", file).setAssignee(null));
+      newDoc("ISSUE1", file).setAssignee("steph"),
+      newDoc("ISSUE2", file).setAssignee("simon"),
+      newDoc("ISSUE3", file).setAssignee(null));
 
     assertThat(underTest.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().assignees(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -539,10 +548,10 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setAssignee("steph"),
-        IssueDocTesting.newDoc("ISSUE2", file).setAssignee("simon"),
-        IssueDocTesting.newDoc("ISSUE3", file).setAssignee("simon"),
-        IssueDocTesting.newDoc("ISSUE4", file).setAssignee(null));
+      newDoc("ISSUE1", file).setAssignee("steph"),
+      newDoc("ISSUE2", file).setAssignee("simon"),
+      newDoc("ISSUE3", file).setAssignee("simon"),
+      newDoc("ISSUE4", file).setAssignee(null));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("assignees")));
     assertThat(result.getFacets().getNames()).containsOnly("assignees");
@@ -555,13 +564,13 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setAssignee("j-b"),
-        IssueDocTesting.newDoc("ISSUE2", file).setAssignee("simon"),
-        IssueDocTesting.newDoc("ISSUE3", file).setAssignee("simon"),
-        IssueDocTesting.newDoc("ISSUE4", file).setAssignee(null));
+      newDoc("ISSUE1", file).setAssignee("j-b"),
+      newDoc("ISSUE2", file).setAssignee("simon"),
+      newDoc("ISSUE3", file).setAssignee("simon"),
+      newDoc("ISSUE4", file).setAssignee(null));
 
-    SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().assignees(Arrays.asList("j-b")).build(),
-        new SearchOptions().addFacets(newArrayList("assignees")));
+    SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().assignees(asList("j-b")).build(),
+      new SearchOptions().addFacets(newArrayList("assignees")));
     assertThat(result.getFacets().getNames()).containsOnly("assignees");
     assertThat(result.getFacets().get("assignees")).containsOnly(entry("j-b", 1L), entry("simon", 2L), entry("", 1L));
   }
@@ -572,9 +581,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setAssignee("steph"),
-        IssueDocTesting.newDoc("ISSUE2", file).setAssignee(null),
-        IssueDocTesting.newDoc("ISSUE3", file).setAssignee(null));
+      newDoc("ISSUE1", file).setAssignee("steph"),
+      newDoc("ISSUE2", file).setAssignee(null),
+      newDoc("ISSUE3", file).setAssignee(null));
 
     assertThat(underTest.search(IssueQuery.builder().assigned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().assigned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -587,9 +596,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setAuthorLogin("steph"),
-        IssueDocTesting.newDoc("ISSUE2", file).setAuthorLogin("simon"),
-        IssueDocTesting.newDoc("ISSUE3", file).setAssignee(null));
+      newDoc("ISSUE1", file).setAuthorLogin("steph"),
+      newDoc("ISSUE2", file).setAuthorLogin("simon"),
+      newDoc("ISSUE3", file).setAssignee(null));
 
     assertThat(underTest.search(IssueQuery.builder().authors(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().authors(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -602,10 +611,10 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setAuthorLogin("steph"),
-        IssueDocTesting.newDoc("ISSUE2", file).setAuthorLogin("simon"),
-        IssueDocTesting.newDoc("ISSUE3", file).setAuthorLogin("simon"),
-        IssueDocTesting.newDoc("ISSUE4", file).setAuthorLogin(null));
+      newDoc("ISSUE1", file).setAuthorLogin("steph"),
+      newDoc("ISSUE2", file).setAuthorLogin("simon"),
+      newDoc("ISSUE3", file).setAuthorLogin("simon"),
+      newDoc("ISSUE4", file).setAuthorLogin(null));
 
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("authors")));
     assertThat(result.getFacets().getNames()).containsOnly("authors");
@@ -618,8 +627,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
-        IssueDocTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
+      newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
+      newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
 
     assertThat(underTest.search(IssueQuery.builder().createdAfter(parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).hasSize(2);
     // Lower bound is included
@@ -634,8 +643,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
-        IssueDocTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
+      newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
+      newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
 
     assertThat(underTest.search(IssueQuery.builder().createdBefore(parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).isEmpty();
     // Upper bound is excluded
@@ -650,44 +659,44 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
-        IssueDocTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
+      newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
+      newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
 
     // 19 < createdAt < 25
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-25"))
-        .build(), new SearchOptions()).getDocs()).hasSize(2);
+      .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-25"))
+      .build(), new SearchOptions()).getDocs()).hasSize(2);
 
     // 20 < createdAt < 25: excludes first issue
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-25"))
-        .build(), new SearchOptions()).getDocs()).hasSize(2);
+      .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-25"))
+      .build(), new SearchOptions()).getDocs()).hasSize(2);
 
     // 21 < createdAt < 25
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-25"))
-        .build(), new SearchOptions()).getDocs()).hasSize(1);
+      .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-25"))
+      .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 21 < createdAt < 24
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-24"))
-        .build(), new SearchOptions()).getDocs()).hasSize(1);
+      .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-24"))
+      .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 21 < createdAt < 23: excludes second issue
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-23"))
-        .build(), new SearchOptions()).getDocs()).isEmpty();
+      .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-23"))
+      .build(), new SearchOptions()).getDocs()).isEmpty();
 
     // 19 < createdAt < 21: only first issue
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-21"))
-        .build(), new SearchOptions()).getDocs()).hasSize(1);
+      .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-21"))
+      .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 20 < createdAt < 20: exception
     expectedException.expect(IllegalArgumentException.class);
     underTest.search(IssueQuery.builder()
-        .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-20"))
-        .build(), new SearchOptions()).getDocs();
+      .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-20"))
+      .build(), new SearchOptions()).getDocs();
   }
 
   @Test
@@ -696,23 +705,23 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-20T00:00:00+0100")),
-        IssueDocTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+      newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-20T00:00:00+0100")),
+      newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
 
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-19T23:00:00+0000")).createdBefore(parseDateTime("2014-09-22T23:00:01+0000"))
-        .build(), new SearchOptions()).getDocs()).hasSize(2);
+      .createdAfter(parseDateTime("2014-09-19T23:00:00+0000")).createdBefore(parseDateTime("2014-09-22T23:00:01+0000"))
+      .build(), new SearchOptions()).getDocs()).hasSize(2);
 
     assertThat(underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-19T23:00:01+0000")).createdBefore(parseDateTime("2014-09-22T23:00:00+0000"))
-        .build(), new SearchOptions()).getDocs()).hasSize(0);
+      .createdAfter(parseDateTime("2014-09-19T23:00:01+0000")).createdBefore(parseDateTime("2014-09-22T23:00:00+0000"))
+      .build(), new SearchOptions()).getDocs()).hasSize(0);
   }
 
   @Test
   public void filter_by_created_before_must_be_lower_than_after() {
     try {
       underTest.search(IssueQuery.builder().createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-19")).build(),
-          new SearchOptions());
+        new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException exception) {
       assertThat(exception.getMessage()).isEqualTo("Start bound cannot be larger or equal to end bound");
@@ -742,7 +751,7 @@ public class IssueIndexTest {
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
-    indexIssues(IssueDocTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")));
+    indexIssues(newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")));
 
     assertThat(underTest.search(IssueQuery.builder().createdAt(parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().createdAt(parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).isEmpty();
@@ -754,21 +763,21 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     IssueQuery query = IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2014-09-08T00:00:00+0100"))
-        .checkAuthorization(false)
-        .build();
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2014-09-08T00:00:00+0100"))
+      .checkAuthorization(false)
+      .build();
     SearchResult<IssueDoc> result = underTest.search(query, options);
     Map<String, Long> buckets = result.getFacets().get("createdAt");
     assertThat(buckets).containsOnly(
-        entry("2014-08-31T01:00:00+0000", 0L),
-        entry("2014-09-01T01:00:00+0000", 2L),
-        entry("2014-09-02T01:00:00+0000", 1L),
-        entry("2014-09-03T01:00:00+0000", 0L),
-        entry("2014-09-04T01:00:00+0000", 0L),
-        entry("2014-09-05T01:00:00+0000", 1L),
-        entry("2014-09-06T01:00:00+0000", 0L),
-        entry("2014-09-07T01:00:00+0000", 0L));
+      entry("2014-08-31T01:00:00+0000", 0L),
+      entry("2014-09-01T01:00:00+0000", 2L),
+      entry("2014-09-02T01:00:00+0000", 1L),
+      entry("2014-09-03T01:00:00+0000", 0L),
+      entry("2014-09-04T01:00:00+0000", 0L),
+      entry("2014-09-05T01:00:00+0000", 1L),
+      entry("2014-09-06T01:00:00+0000", 0L),
+      entry("2014-09-07T01:00:00+0000", 0L));
   }
 
   @Test
@@ -777,14 +786,14 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-            .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-            .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
-        SearchOptions).getFacets().get("createdAt");
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
+      SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-        entry("2014-08-25T01:00:00+0000", 0L),
-        entry("2014-09-01T01:00:00+0000", 4L),
-        entry("2014-09-08T01:00:00+0000", 0L),
-        entry("2014-09-15T01:00:00+0000", 1L));
+      entry("2014-08-25T01:00:00+0000", 0L),
+      entry("2014-09-01T01:00:00+0000", 4L),
+      entry("2014-09-08T01:00:00+0000", 0L),
+      entry("2014-09-15T01:00:00+0000", 1L));
   }
 
   @Test
@@ -793,16 +802,16 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-            .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-            .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
-        SearchOptions).getFacets().get("createdAt");
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
+      SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-        entry("2014-08-01T01:00:00+0000", 0L),
-        entry("2014-09-01T01:00:00+0000", 5L),
-        entry("2014-10-01T01:00:00+0000", 0L),
-        entry("2014-11-01T01:00:00+0000", 0L),
-        entry("2014-12-01T01:00:00+0000", 0L),
-        entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2014-08-01T01:00:00+0000", 0L),
+      entry("2014-09-01T01:00:00+0000", 5L),
+      entry("2014-10-01T01:00:00+0000", 0L),
+      entry("2014-11-01T01:00:00+0000", 0L),
+      entry("2014-12-01T01:00:00+0000", 0L),
+      entry("2015-01-01T01:00:00+0000", 1L));
   }
 
   @Test
@@ -810,16 +819,16 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-            .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
-            .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
-        SearchOptions).getFacets().get("createdAt");
+      .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-        entry("2010-01-01T01:00:00+0000", 0L),
-        entry("2011-01-01T01:00:00+0000", 1L),
-        entry("2012-01-01T01:00:00+0000", 0L),
-        entry("2013-01-01T01:00:00+0000", 0L),
-        entry("2014-01-01T01:00:00+0000", 5L),
-        entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2010-01-01T01:00:00+0000", 0L),
+      entry("2011-01-01T01:00:00+0000", 1L),
+      entry("2012-01-01T01:00:00+0000", 0L),
+      entry("2013-01-01T01:00:00+0000", 0L),
+      entry("2014-01-01T01:00:00+0000", 5L),
+      entry("2015-01-01T01:00:00+0000", 1L));
 
   }
 
@@ -828,11 +837,11 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-            .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
-            .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
-        SearchOptions).getFacets().get("createdAt");
+      .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
+      .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
+      SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-        entry("2014-09-01T01:00:00+0000", 2L));
+      entry("2014-09-01T01:00:00+0000", 2L));
   }
 
   @Test
@@ -840,18 +849,18 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2009-01-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100"))
-        .build(), options).getFacets().get("createdAt");
+      .createdAfter(parseDateTime("2009-01-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100"))
+      .build(), options).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-        entry("2008-01-01T01:00:00+0000", 0L),
-        entry("2009-01-01T01:00:00+0000", 0L),
-        entry("2010-01-01T01:00:00+0000", 0L),
-        entry("2011-01-01T01:00:00+0000", 1L),
-        entry("2012-01-01T01:00:00+0000", 0L),
-        entry("2013-01-01T01:00:00+0000", 0L),
-        entry("2014-01-01T01:00:00+0000", 5L),
-        entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2008-01-01T01:00:00+0000", 0L),
+      entry("2009-01-01T01:00:00+0000", 0L),
+      entry("2010-01-01T01:00:00+0000", 0L),
+      entry("2011-01-01T01:00:00+0000", 1L),
+      entry("2012-01-01T01:00:00+0000", 0L),
+      entry("2013-01-01T01:00:00+0000", 0L),
+      entry("2014-01-01T01:00:00+0000", 5L),
+      entry("2015-01-01T01:00:00+0000", 1L));
   }
 
   @Test
@@ -859,14 +868,14 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-            .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
-        SearchOptions).getFacets().get("createdAt");
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-        entry("2011-01-01T01:00:00+0000", 1L),
-        entry("2012-01-01T01:00:00+0000", 0L),
-        entry("2013-01-01T01:00:00+0000", 0L),
-        entry("2014-01-01T01:00:00+0000", 5L),
-        entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2011-01-01T01:00:00+0000", 1L),
+      entry("2012-01-01T01:00:00+0000", 0L),
+      entry("2013-01-01T01:00:00+0000", 0L),
+      entry("2014-01-01T01:00:00+0000", 5L),
+      entry("2015-01-01T01:00:00+0000", 1L));
   }
 
   @Test
@@ -874,7 +883,7 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = new SearchOptions().addFacets("createdAt");
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder().build(),
-        SearchOptions).getFacets().get("createdAt");
+      SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).isNull();
   }
 
@@ -882,13 +891,13 @@ public class IssueIndexTest {
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
-    IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
-    IssueDoc issue1 = IssueDocTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+0100"));
-    IssueDoc issue2 = IssueDocTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-01T10:46:00-1200"));
-    IssueDoc issue3 = IssueDocTesting.newDoc("ISSUE3", file).setFuncCreationDate(parseDateTime("2014-09-02T23:34:56+1200"));
-    IssueDoc issue4 = IssueDocTesting.newDoc("ISSUE4", file).setFuncCreationDate(parseDateTime("2014-09-05T12:34:56+0100"));
-    IssueDoc issue5 = IssueDocTesting.newDoc("ISSUE5", file).setFuncCreationDate(parseDateTime("2014-09-20T12:34:56+0100"));
-    IssueDoc issue6 = IssueDocTesting.newDoc("ISSUE6", file).setFuncCreationDate(parseDateTime("2015-01-18T12:34:56+0100"));
+    IssueDoc issue0 = newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
+    IssueDoc issue1 = newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+0100"));
+    IssueDoc issue2 = newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-01T10:46:00-1200"));
+    IssueDoc issue3 = newDoc("ISSUE3", file).setFuncCreationDate(parseDateTime("2014-09-02T23:34:56+1200"));
+    IssueDoc issue4 = newDoc("ISSUE4", file).setFuncCreationDate(parseDateTime("2014-09-05T12:34:56+0100"));
+    IssueDoc issue5 = newDoc("ISSUE5", file).setFuncCreationDate(parseDateTime("2014-09-20T12:34:56+0100"));
+    IssueDoc issue6 = newDoc("ISSUE6", file).setFuncCreationDate(parseDateTime("2015-01-18T12:34:56+0100"));
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 
@@ -900,7 +909,7 @@ public class IssueIndexTest {
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
     for (int i = 0; i < 12; i++) {
-      indexIssues(IssueDocTesting.newDoc("ISSUE" + i, file));
+      indexIssues(newDoc("ISSUE" + i, file));
     }
 
     IssueQuery.Builder query = IssueQuery.builder();
@@ -925,7 +934,7 @@ public class IssueIndexTest {
     List<IssueDoc> issues = newArrayList();
     for (int i = 0; i < 500; i++) {
       String key = "ISSUE" + i;
-      issues.add(IssueDocTesting.newDoc(key, file));
+      issues.add(newDoc(key, file));
     }
     indexIssues(issues.toArray(new IssueDoc[] {}));
 
@@ -940,9 +949,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_OPEN),
-        IssueDocTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
-        IssueDocTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_REOPENED));
+      newDoc("ISSUE1", file).setStatus(Issue.STATUS_OPEN),
+      newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
+      newDoc("ISSUE3", file).setStatus(Issue.STATUS_REOPENED));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(true);
     SearchResult<IssueDoc> result = underTest.search(query.build(), new SearchOptions());
@@ -963,11 +972,11 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setSeverity(Severity.BLOCKER),
-        IssueDocTesting.newDoc("ISSUE2", file).setSeverity(Severity.INFO),
-        IssueDocTesting.newDoc("ISSUE3", file).setSeverity(Severity.MINOR),
-        IssueDocTesting.newDoc("ISSUE4", file).setSeverity(Severity.CRITICAL),
-        IssueDocTesting.newDoc("ISSUE5", file).setSeverity(Severity.MAJOR));
+      newDoc("ISSUE1", file).setSeverity(Severity.BLOCKER),
+      newDoc("ISSUE2", file).setSeverity(Severity.INFO),
+      newDoc("ISSUE3", file).setSeverity(Severity.MINOR),
+      newDoc("ISSUE4", file).setSeverity(Severity.CRITICAL),
+      newDoc("ISSUE5", file).setSeverity(Severity.MAJOR));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
     SearchResult<IssueDoc> result = underTest.search(query.build(), new SearchOptions());
@@ -992,8 +1001,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setAssignee("steph"),
-        IssueDocTesting.newDoc("ISSUE2", file).setAssignee("simon"));
+      newDoc("ISSUE1", file).setAssignee("steph"),
+      newDoc("ISSUE2", file).setAssignee("simon"));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
     SearchResult<IssueDoc> result = underTest.search(query.build(), new SearchOptions());
@@ -1014,8 +1023,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-        IssueDocTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")));
+      newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
     SearchResult<IssueDoc> result = underTest.search(query.build(), new SearchOptions());
@@ -1036,8 +1045,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+0100")),
-        IssueDocTesting.newDoc("ISSUE2", file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+0100")));
+      newDoc("ISSUE1", file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("ISSUE2", file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
     SearchResult<IssueDoc> result = underTest.search(query.build(), new SearchOptions());
@@ -1058,9 +1067,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE1", file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+0100")),
-        IssueDocTesting.newDoc("ISSUE2", file).setFuncCloseDate(parseDateTime("2014-09-24T00:00:00+0100")),
-        IssueDocTesting.newDoc("ISSUE3", file).setFuncCloseDate(null));
+      newDoc("ISSUE1", file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("ISSUE2", file).setFuncCloseDate(parseDateTime("2014-09-24T00:00:00+0100")),
+      newDoc("ISSUE3", file).setFuncCloseDate(null));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
     SearchResult<IssueDoc> result = underTest.search(query.build(), new SearchOptions());
@@ -1084,16 +1093,16 @@ public class IssueIndexTest {
     ComponentDto file2 = newFileDto(project, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
 
     indexIssues(
-        // file F1
-        IssueDocTesting.newDoc("F1_2", file1).setLine(20),
-        IssueDocTesting.newDoc("F1_1", file1).setLine(null),
-        IssueDocTesting.newDoc("F1_3", file1).setLine(25),
+      // file F1
+      newDoc("F1_2", file1).setLine(20),
+      newDoc("F1_1", file1).setLine(null),
+      newDoc("F1_3", file1).setLine(25),
 
-        // file F2
-        IssueDocTesting.newDoc("F2_1", file2).setLine(9),
-        IssueDocTesting.newDoc("F2_2", file2).setLine(109),
-        // two issues on the same line -> sort by key
-        IssueDocTesting.newDoc("F2_3", file2).setLine(109));
+      // file F2
+      newDoc("F2_1", file2).setLine(9),
+      newDoc("F2_2", file2).setLine(109),
+      // two issues on the same line -> sort by key
+      newDoc("F2_3", file2).setLine(109));
 
     // ascending sort -> F1 then F2. Line "0" first.
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(true);
@@ -1129,23 +1138,23 @@ public class IssueIndexTest {
     ComponentDto file3 = newFileDto(project2, null, "F3").setPath("src/main/xoo/org/sonar/samples/File3.xoo");
 
     indexIssues(
-        // file F1 from project P1
-        IssueDocTesting.newDoc("F1_1", file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-        IssueDocTesting.newDoc("F1_2", file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-        IssueDocTesting.newDoc("F1_3", file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      // file F1 from project P1
+      newDoc("F1_1", file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F1_2", file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F1_3", file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
 
-        // file F2 from project P1
-        IssueDocTesting.newDoc("F2_1", file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-        IssueDocTesting.newDoc("F2_2", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-        // two issues on the same line -> sort by key
-        IssueDocTesting.newDoc("F2_3", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      // file F2 from project P1
+      newDoc("F2_1", file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F2_2", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      // two issues on the same line -> sort by key
+      newDoc("F2_3", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
 
-        // file F3 from project P2
-        IssueDocTesting.newDoc("F3_1", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")),
-        IssueDocTesting.newDoc("F3_2", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+      // file F3 from project P2
+      newDoc("F3_1", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")),
+      newDoc("F3_2", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
 
     assertThat(underTest.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).extracting(IssueDoc::key)
-        .containsExactly("F3_1", "F1_2", "F1_1", "F1_3", "F2_1", "F2_2", "F2_3", "F3_2");
+      .containsExactly("F3_1", "F1_2", "F1_1", "F1_3", "F2_1", "F2_2", "F2_3", "F3_2");
   }
 
   @Test
@@ -1161,13 +1170,13 @@ public class IssueIndexTest {
     GroupDto group2 = newGroupDto();
 
     // project1 can be seen by group1
-    indexIssue(IssueDocTesting.newDoc("ISSUE1", file1));
+    indexIssue(newDoc("ISSUE1", file1));
     authorizationIndexerTester.allowOnlyGroup(project1, group1);
     // project2 can be seen by group2
-    indexIssue(IssueDocTesting.newDoc("ISSUE2", file2));
+    indexIssue(newDoc("ISSUE2", file2));
     authorizationIndexerTester.allowOnlyGroup(project2, group2);
     // project3 can be seen by nobody
-    indexIssue(IssueDocTesting.newDoc("ISSUE3", file3));
+    indexIssue(newDoc("ISSUE3", file3));
 
     userSessionRule.logIn().setGroups(group1);
     assertThat(underTest.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -1199,11 +1208,11 @@ public class IssueIndexTest {
     UserDto user2 = newUserDto();
 
     // project1 can be seen by john, project2 by max, project3 cannot be seen by anyone
-    indexIssue(IssueDocTesting.newDoc("ISSUE1", file1));
+    indexIssue(newDoc("ISSUE1", file1));
     authorizationIndexerTester.allowOnlyUser(project1, user1);
-    indexIssue(IssueDocTesting.newDoc("ISSUE2", file2));
+    indexIssue(newDoc("ISSUE2", file2));
     authorizationIndexerTester.allowOnlyUser(project2, user2);
-    indexIssue(IssueDocTesting.newDoc("ISSUE3", file3));
+    indexIssue(newDoc("ISSUE3", file3));
 
     userSessionRule.logIn(user1);
     assertThat(underTest.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -1220,7 +1229,7 @@ public class IssueIndexTest {
   @Test
   public void root_user_is_authorized_to_access_all_issues() {
     ComponentDto project = newProjectDto(newOrganizationDto());
-    indexIssue(IssueDocTesting.newDoc("I1", project));
+    indexIssue(newDoc("I1", project));
     userSessionRule.logIn().setRoot();
 
     assertThat(underTest.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -1231,17 +1240,17 @@ public class IssueIndexTest {
     ComponentDto project = newProjectDto(newOrganizationDto(), "PROJECT");
     ComponentDto file = newFileDto(project, null).setPath("src/File.xoo");
 
-    IssueDoc issue = IssueDocTesting.newDoc("ISSUE", file)
-        .setRuleKey("squid:S001")
-        .setChecksum("12345")
-        .setAssignee("john")
-        .setLine(11)
-        .setMessage("the message")
-        .setSeverity(Severity.BLOCKER)
-        .setManualSeverity(true)
-        .setStatus(Issue.STATUS_RESOLVED)
-        .setResolution(Issue.RESOLUTION_FIXED)
-        .setFuncCreationDate(new Date());
+    IssueDoc issue = newDoc("ISSUE", file)
+      .setRuleKey("squid:S001")
+      .setChecksum("12345")
+      .setAssignee("john")
+      .setLine(11)
+      .setMessage("the message")
+      .setSeverity(Severity.BLOCKER)
+      .setManualSeverity(true)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setFuncCreationDate(new Date());
     indexIssues(issue);
 
     List<IssueDoc> issues = Lists.newArrayList(underTest.selectIssuesForBatch(file));
@@ -1270,11 +1279,11 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(subModule, null);
 
     indexIssues(
-        IssueDocTesting.newDoc("ISSUE3", module),
-        IssueDocTesting.newDoc("ISSUE5", subModule),
-        IssueDocTesting.newDoc("ISSUE2", file),
-        // Close Issue, should never be returned
-        IssueDocTesting.newDoc("CLOSE_ISSUE", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
+      newDoc("ISSUE3", module),
+      newDoc("ISSUE5", subModule),
+      newDoc("ISSUE2", file),
+      // Close Issue, should never be returned
+      newDoc("CLOSE_ISSUE", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
 
     assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(project))).hasSize(3);
     assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(module))).hasSize(3);
@@ -1304,10 +1313,10 @@ public class IssueIndexTest {
     GroupDto otherGroup = newGroupDto();
 
     // project1 can be seen by allowedGroup
-    indexIssue(IssueDocTesting.newDoc("ISSUE1", file1));
+    indexIssue(newDoc("ISSUE1", file1));
     authorizationIndexerTester.allowOnlyGroup(project1, allowedGroup);
     // project3 can be seen by nobody
-    indexIssue(IssueDocTesting.newDoc("ISSUE3", file2));
+    indexIssue(newDoc("ISSUE3", file2));
 
     userSessionRule.logIn().setGroups(allowedGroup);
     assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(project1))).hasSize(1);
@@ -1316,8 +1325,30 @@ public class IssueIndexTest {
     assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(project2))).isEmpty();
   }
 
+  @Test
+  public void list_tags() {
+    indexRules(
+      RuleDocTesting.newDoc(XOO_X1).setAllTags(asList("tag1", "systag1")),
+      RuleDocTesting.newDoc(XOO_X2).setAllTags(asList("tag2", "systag2")));
+    ComponentDto project = newProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+    indexIssues(
+      newDoc("ISSUE1", file).setRuleKey(XOO_X1.toString()).setTags(ImmutableSet.of("convention", "java8", "bug")),
+      newDoc("ISSUE2", file).setRuleKey(XOO_X1.toString()).setTags(ImmutableSet.of("convention", "bug")),
+      newDoc("ISSUE3", file).setRuleKey(XOO_X2.toString()),
+      newDoc("ISSUE4", file).setRuleKey(XOO_X1.toString()).setTags(ImmutableSet.of("convention")));
+
+    assertThat(underTest.listTags(null, 5)).containsOnly("convention", "java8", "bug", "systag1", "systag2");
+    assertThat(underTest.listTags(null, 2)).containsOnly("bug", "convention");
+    assertThat(underTest.listTags("vent", 5)).containsOnly("convention");
+    assertThat(underTest.listTags("sys", 5)).containsOnly("systag1", "systag2");
+    assertThat(underTest.listTags(null, 1)).containsOnly("bug");
+    assertThat(underTest.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug", "systag1", "systag2", "tag1", "tag2");
+    assertThat(underTest.listTags("invalidRegexp[", 5)).isEmpty();
+  }
+
   private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(Arrays.asList(issues).iterator());
+    issueIndexer.index(asList(issues).iterator());
     for (IssueDoc issue : issues) {
       PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(issue.projectUuid(), system2.now(), "TRK");
       access.allowAnyone();
@@ -1331,5 +1362,9 @@ public class IssueIndexTest {
 
   private void indexView(String viewUuid, List<String> projects) {
     viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
+  }
+
+  private void indexRules(RuleDoc... rules) {
+    ruleIndexer.index(asList(rules).iterator());
   }
 }

@@ -587,11 +587,12 @@ public class IssueIndex extends BaseIndex {
     return values.isEmpty() ? null : termsQuery(field, values);
   }
 
-  public List<String> listTags(IssueQuery query, @Nullable String textQuery, int maxNumberOfTags) {
+  public List<String> listTags(@Nullable String textQuery, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = getClient()
       .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE, RuleIndexDefinition.INDEX_TYPE_RULE);
 
-    requestBuilder.setQuery(boolQuery().must(matchAllQuery()).filter(createBoolFilter(query)));
+    requestBuilder.setQuery(boolQuery().must(matchAllQuery()).filter(createBoolFilter(
+      IssueQuery.builder().checkAuthorization(false).build())));
 
     GlobalBuilder topAggreg = AggregationBuilders.global("tags");
     String tagsOnIssuesSubAggregation = "tags__issues";
