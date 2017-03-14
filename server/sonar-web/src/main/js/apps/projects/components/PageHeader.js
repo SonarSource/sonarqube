@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import FavoriteFilterContainer from './FavoriteFilterContainer';
 import { translate } from '../../../helpers/l10n';
 
 export default class PageHeader extends React.Component {
@@ -43,8 +42,6 @@ export default class PageHeader extends React.Component {
               </span>
             )}
           </div>
-
-          <FavoriteFilterContainer organization={this.props.organization}/>
         </header>
     );
   }

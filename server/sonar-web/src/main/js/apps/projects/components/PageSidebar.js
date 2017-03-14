@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
+import FavoriteFilterContainer from './FavoriteFilterContainer';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import SizeFilter from '../filters/SizeFilter';
@@ -47,6 +48,8 @@ export default class PageSidebar extends React.PureComponent {
 
     return (
       <div className="search-navigator-facets-list">
+        <FavoriteFilterContainer/>
+
         <div className="projects-facets-header clearfix">
           {isFiltered &&
             <div className="projects-facets-reset">

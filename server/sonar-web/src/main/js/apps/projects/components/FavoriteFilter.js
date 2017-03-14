@@ -50,7 +50,7 @@ export default class FavoriteFilter extends React.PureComponent {
       : '/projects';
 
     return (
-      <div className="projects-sidebar pull-left text-center">
+      <header className="page-header text-center">
         <div className="button-group">
           <Link
             id="favorite-projects"
@@ -69,7 +69,7 @@ export default class FavoriteFilter extends React.PureComponent {
             {translate('all')}
           </IndexLink>
         </div>
-      </div>
+      </header>
     );
   }
 }
