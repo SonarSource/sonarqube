@@ -20,41 +20,22 @@
 
 package org.sonar.application.cluster;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.JoinConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IAtomicReference;
-import com.hazelcast.core.ILock;
-import com.hazelcast.core.MapEvent;
-import com.hazelcast.core.ReplicatedMap;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.application.AppState;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
 
 public class AppStateClusterImpl implements AppState {
-  static final String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
-  static final String LEADER = "LEADER";
+  private static Logger LOGGER = LoggerFactory.getLogger(AppStateClusterImpl.class);
 
-  static final String SONARQUBE_VERSION = "SONARQUBE_VERSION";
-
-  private final List<AppStateListener> listeners = new ArrayList<>();
-  private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
   private final Map<ProcessId, Boolean> localProcesses = new EnumMap<>(ProcessId.class);
-  private final String listenerUuid;
-
-  final HazelcastInstance hzInstance;
+  private final HazelcastCluster hazelcastCluster;
 
   public AppStateClusterImpl(AppSettings appSettings) {
     ClusterProperties clusterProperties = new ClusterProperties(appSettings);
@@ -64,56 +45,15 @@ public class AppStateClusterImpl implements AppState {
       throw new IllegalStateException("Cluster is not enabled on this instance");
     }
 
-    Config hzConfig = new Config();
-    try {
-      hzConfig.setInstanceName(InetAddress.getLocalHost().getHostName());
-    } catch (UnknownHostException e) {
-      // Ignore it
-    }
+    hazelcastCluster = HazelcastCluster.create(clusterProperties);
 
-    hzConfig.getGroupConfig().setName(clusterProperties.getName());
-
-    // Configure the network instance
-    NetworkConfig netConfig = hzConfig.getNetworkConfig();
-    netConfig
-      .setPort(clusterProperties.getPort())
-      .setReuseAddress(true);
-
-    if (!clusterProperties.getNetworkInterfaces().isEmpty()) {
-      netConfig.getInterfaces()
-        .setEnabled(true)
-        .setInterfaces(clusterProperties.getNetworkInterfaces());
-    }
-
-    // Only allowing TCP/IP configuration
-    JoinConfig joinConfig = netConfig.getJoin();
-    joinConfig.getAwsConfig().setEnabled(false);
-    joinConfig.getMulticastConfig().setEnabled(false);
-    joinConfig.getTcpIpConfig().setEnabled(true);
-    joinConfig.getTcpIpConfig().setMembers(clusterProperties.getHosts());
-
-    // Tweak HazelCast configuration
-    hzConfig
-      // Increase the number of tries
-      .setProperty("hazelcast.tcp.join.port.try.count", "10")
-      // Don't bind on all interfaces
-      .setProperty("hazelcast.socket.bind.any", "false")
-      // Don't phone home
-      .setProperty("hazelcast.phone.home.enabled", "false")
-      // Use slf4j for logging
-      .setProperty("hazelcast.logging.type", "slf4j");
-
-    // We are not using the partition group of Hazelcast, so disabling it
-    hzConfig.getPartitionGroupConfig().setEnabled(false);
-
-    hzInstance = Hazelcast.newHazelcastInstance(hzConfig);
-    operationalProcesses = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
-    listenerUuid = operationalProcesses.addEntryListener(new OperationalProcessListener());
+    String members = hazelcastCluster.getMembers().stream().collect(Collectors.joining(","));
+    LOGGER.info("Joined the cluster [{}] that contains the following hosts : [{}]", hazelcastCluster.getName(), members);
   }
 
   @Override
   public void addListener(@Nonnull AppStateListener listener) {
-    listeners.add(listener);
+    hazelcastCluster.addListener(listener);
   }
 
   @Override
@@ -121,39 +61,18 @@ public class AppStateClusterImpl implements AppState {
     if (local) {
       return localProcesses.computeIfAbsent(processId, p -> false);
     }
-    for (Map.Entry<ClusterProcess, Boolean> entry : operationalProcesses.entrySet()) {
-      if (entry.getKey().getProcessId().equals(processId) && entry.getValue()) {
-        return true;
-      }
-    }
-    return false;
+    return hazelcastCluster.isOperational(processId);
   }
 
   @Override
   public void setOperational(@Nonnull ProcessId processId) {
     localProcesses.put(processId, true);
-    operationalProcesses.put(new ClusterProcess(getLocalUuid(), processId), Boolean.TRUE);
+    hazelcastCluster.setOperational(processId);
   }
 
   @Override
   public boolean tryToLockWebLeader() {
-    IAtomicReference<String> leader = hzInstance.getAtomicReference(LEADER);
-    if (leader.get() == null) {
-      ILock lock = hzInstance.getLock(LEADER);
-      lock.lock();
-      try {
-        if (leader.get() == null) {
-          leader.set(getLocalUuid());
-          return true;
-        } else {
-          return false;
-        }
-      } finally {
-        lock.unlock();
-      }
-    } else {
-      return false;
-    }
+    return hazelcastCluster.tryToLockWebLeader();
   }
 
   @Override
@@ -163,80 +82,25 @@ public class AppStateClusterImpl implements AppState {
 
   @Override
   public void close() {
-    if (hzInstance != null) {
-      operationalProcesses.removeEntryListener(listenerUuid);
-      operationalProcesses.keySet().forEach(
-        clusterNodeProcess -> {
-          if (clusterNodeProcess.getNodeUuid().equals(getLocalUuid())) {
-            operationalProcesses.remove(clusterNodeProcess);
-          }
-        });
-      hzInstance.shutdown();
-    }
+    hazelcastCluster.close();
   }
 
   @Override
   public void registerSonarQubeVersion(String sonarqubeVersion) {
-    IAtomicReference<String> sqVersion = hzInstance.getAtomicReference(SONARQUBE_VERSION);
-    if (sqVersion.get() == null) {
-      ILock lock = hzInstance.getLock(SONARQUBE_VERSION);
-      lock.lock();
-      try {
-        if (sqVersion.get() == null) {
-          sqVersion.set(sonarqubeVersion);
-        }
-      } finally {
-        lock.unlock();
-      }
-    }
-
-    String clusterVersion = sqVersion.get();
-    if (!sqVersion.get().equals(sonarqubeVersion)) {
-      hzInstance.shutdown();
-      throw new IllegalStateException(
-        String.format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion)
-      );
-    }
+    hazelcastCluster.registerSonarQubeVersion(sonarqubeVersion);
   }
 
-  private String getLocalUuid() {
-    return hzInstance.getLocalEndpoint().getUuid();
+  HazelcastCluster getHazelcastCluster() {
+    return hazelcastCluster;
   }
 
-  private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {
-
-    @Override
-    public void entryAdded(EntryEvent<ClusterProcess, Boolean> event) {
-      if (event.getValue()) {
-        listeners.forEach(appStateListener -> appStateListener.onAppStateOperational(event.getKey().getProcessId()));
-      }
-    }
-
-    @Override
-    public void entryRemoved(EntryEvent<ClusterProcess, Boolean> event) {
-      // Ignore it
-    }
-
-    @Override
-    public void entryUpdated(EntryEvent<ClusterProcess, Boolean> event) {
-      if (event.getValue()) {
-        listeners.forEach(appStateListener -> appStateListener.onAppStateOperational(event.getKey().getProcessId()));
-      }
-    }
-
-    @Override
-    public void entryEvicted(EntryEvent<ClusterProcess, Boolean> event) {
-      // Ignore it
-    }
-
-    @Override
-    public void mapCleared(MapEvent event) {
-      // Ignore it
-    }
-
-    @Override
-    public void mapEvicted(MapEvent event) {
-      // Ignore it
-    }
+  /**
+   * Only used for testing purpose
+   *
+   * @param logger
+   */
+  static void setLogger(Logger logger) {
+    AppStateClusterImpl.LOGGER = logger;
   }
+
 }

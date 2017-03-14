@@ -24,19 +24,34 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import java.net.InetSocketAddress;
+import org.sonar.application.config.TestAppSettings;
+import org.sonar.process.ProcessProperties;
 
 public class HazelcastTestHelper {
 
-  static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {
+  static HazelcastInstance createHazelcastClient(HazelcastCluster hzCluster) {
     ClientConfig clientConfig = new ClientConfig();
-    InetSocketAddress socketAddress = (InetSocketAddress) appStateCluster.hzInstance.getLocalEndpoint().getSocketAddress();
+    InetSocketAddress socketAddress = (InetSocketAddress) hzCluster.hzInstance.getLocalEndpoint().getSocketAddress();
 
     clientConfig.getNetworkConfig().getAddresses().add(
       String.format("%s:%d",
         socketAddress.getHostString(),
         socketAddress.getPort()
       ));
-    clientConfig.getGroupConfig().setName(appStateCluster.hzInstance.getConfig().getGroupConfig().getName());
+    clientConfig.getGroupConfig().setName(hzCluster.getName());
     return HazelcastClient.newHazelcastClient(clientConfig);
   }
+
+  static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {
+    return createHazelcastClient(appStateCluster.getHazelcastCluster());
+  }
+
+
+  static TestAppSettings newClusterSettings() {
+    TestAppSettings settings = new TestAppSettings();
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    return settings;
+  }
+
 }

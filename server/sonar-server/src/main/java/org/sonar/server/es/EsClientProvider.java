@@ -35,8 +35,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-
 @ComputeEngineSide
 @ServerSide
 public class EsClientProvider extends ProviderAdapter {
