@@ -33,7 +33,7 @@ type Props = {
 };
 
 type State = {
-  shouldByRedirected?: boolean
+  shouldBeRedirected?: boolean
 };
 
 class DefaultPageSelector extends React.PureComponent {
@@ -52,7 +52,7 @@ class DefaultPageSelector extends React.PureComponent {
   componentDidUpdate (prevProps: Props) {
     if (prevProps.location !== this.props.location) {
       this.defineIfShouldBeRedirected();
-    } else if (this.state.shouldByRedirected === true) {
+    } else if (this.state.shouldBeRedirected === true) {
       this.props.router.replace('/projects/favorite');
     }
   }
@@ -60,28 +60,28 @@ class DefaultPageSelector extends React.PureComponent {
   defineIfShouldBeRedirected () {
     if (Object.keys(this.props.location.query).length > 0) {
       // show ALL projects when there are some filters
-      this.setState({ shouldByRedirected: false });
+      this.setState({ shouldBeRedirected: false });
     } else if (!this.props.currentUser.isLoggedIn) {
       // show ALL projects if user is anonymous
-      this.setState({ shouldByRedirected: false });
+      this.setState({ shouldBeRedirected: false });
     } else if (isFavoriteSet()) {
       // show FAVORITE projects if "favorite" setting is explicitly set
-      this.setState({ shouldByRedirected: true });
+      this.setState({ shouldBeRedirected: true });
     } else if (isAllSet()) {
       // show ALL projects if "all" setting is explicitly set
-      this.setState({ shouldByRedirected: false });
+      this.setState({ shouldBeRedirected: false });
     } else {
       // otherwise, request favorites
-      this.setState({ shouldByRedirected: undefined });
+      this.setState({ shouldBeRedirected: undefined });
       searchProjects({ filter: 'isFavorite', ps: 1 }).then(r => {
         // show FAVORITE projects if there are any
-        this.setState({ shouldByRedirected: r.paging.total > 0 });
+        this.setState({ shouldBeRedirected: r.paging.total > 0 });
       });
     }
   }
 
   render () {
-    if (this.state.shouldByRedirected == null || this.state.shouldByRedirected === true) {
+    if (this.state.shouldBeRedirected == null || this.state.shouldBeRedirected === true) {
       return null;
     } else {
       return (
