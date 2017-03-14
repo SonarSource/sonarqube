@@ -19,108 +19,92 @@
  */
 package org.sonar.server.issue;
 
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.user.DefaultUser;
-import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.ws.BulkChangeAction;
+import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class AssignActionTest {
 
-  private AssignAction action;
-
-  private final UserFinder userFinder = mock(UserFinder.class);
-  private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public ExpectedException throwable = ExpectedException.none();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  @Before
-  public void before() {
-    action = new AssignAction(userFinder, issueUpdater);
+  @Rule
+  public DbTester dbTester = DbTester.create();
+
+  private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
+
+  private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "emmerik");
+
+  private DefaultIssue issue = new DefaultIssue().setKey("ABC");
+  private Action.Context context = new BulkChangeAction.ActionContext(issue, issueChangeContext);
+
+  private AssignAction action = new AssignAction(dbTester.getDbClient(), issueUpdater);
+
+  @Test
+  public void assign_issue() {
+    UserDto assignee = newUserDto();
+
+    action.execute(ImmutableMap.of("verifiedAssignee", assignee), context);
+
+    assertThat(issue.assignee()).isEqualTo(assignee.getLogin());
   }
 
   @Test
-  public void should_execute() {
-    User assignee = new DefaultUser();
+  public void fail_if_assignee_is_not_verified() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Assignee is missing from the execution parameters");
 
-    Map<String, Object> properties = newHashMap();
-    properties.put(AssignAction.VERIFIED_ASSIGNEE, assignee);
-    DefaultIssue issue = mock(DefaultIssue.class);
-
-    Action.Context context = mock(Action.Context.class);
-    when(context.issue()).thenReturn(issue);
-
-    action.execute(properties, context);
-    verify(issueUpdater).assign(eq(issue), eq(assignee), any(IssueChangeContext.class));
+    action.execute(emptyMap(), context);
   }
 
   @Test
-  public void should_fail_if_assignee_is_not_verified() {
-    throwable.expect(IllegalArgumentException.class);
-    throwable.expectMessage("Assignee is missing from the execution parameters");
-
-    Map<String, Object> properties = newHashMap();
-
-    Action.Context context = mock(Action.Context.class);
-
-    action.execute(properties, context);
-  }
-
-  @Test
-  public void should_verify_assignee_exists() {
+  public void verify_that_assignee_exists() {
     String assignee = "arthur";
-    Map<String, Object> properties = newHashMap();
-    properties.put("assignee", assignee);
+    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", assignee));
+    UserDto user = dbTester.users().insertUser(assignee);
 
-    User user = new DefaultUser().setLogin(assignee);
+    boolean verify = action.verify(properties, singletonList(issue), userSession);
 
-    List<DefaultIssue> issues = newArrayList(new DefaultIssue().setKey("ABC"));
-    when(userFinder.findByLogin(assignee)).thenReturn(user);
-    assertThat(action.verify(properties, issues, mock(ThreadLocalUserSession.class))).isTrue();
-    assertThat(properties.get(AssignAction.VERIFIED_ASSIGNEE)).isEqualTo(user);
+    assertThat(verify).isTrue();
+    UserDto verifiedUser = (UserDto) properties.get(AssignAction.VERIFIED_ASSIGNEE);
+    assertThat(verifiedUser.getLogin()).isEqualTo(user.getLogin());
   }
 
   @Test
-  public void should_fail_if_assignee_does_not_exists() {
-    throwable.expect(IllegalArgumentException.class);
-    throwable.expectMessage("Unknown user: arthur");
+  public void fail_if_assignee_does_not_exists() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Unknown user: arthur");
 
-    String assignee = "arthur";
-    Map<String, Object> properties = newHashMap();
-    properties.put("assignee", assignee);
-
-    List<DefaultIssue> issues = newArrayList(new DefaultIssue().setKey("ABC"));
-    when(userFinder.findByLogin(assignee)).thenReturn(null);
-    action.verify(properties, issues, mock(ThreadLocalUserSession.class));
+    action.verify(ImmutableMap.of("assignee", "arthur"), singletonList(issue), userSession);
   }
 
   @Test
-  public void should_unassign_if_assignee_is_empty() {
-    String assignee = "";
-    Map<String, Object> properties = newHashMap();
-    properties.put("assignee", assignee);
+  public void unassign_issue_if_assignee_is_empty() {
+    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", ""));
 
-    List<DefaultIssue> issues = newArrayList(new DefaultIssue().setKey("ABC"));
-    action.verify(properties, issues, mock(ThreadLocalUserSession.class));
-    assertThat(action.verify(properties, issues, mock(ThreadLocalUserSession.class))).isTrue();
+    boolean verify = action.verify(properties, singletonList(issue), userSession);
+
+    assertThat(verify).isTrue();
     assertThat(properties.containsKey(AssignAction.VERIFIED_ASSIGNEE)).isTrue();
     assertThat(properties.get(AssignAction.VERIFIED_ASSIGNEE)).isNull();
   }

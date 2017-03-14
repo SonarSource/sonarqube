@@ -23,9 +23,9 @@ import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.user.User;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 @ServerSide
@@ -64,7 +64,7 @@ public class FunctionExecutor {
     }
 
     @Override
-    public Function.Context setAssignee(@Nullable User user) {
+    public Function.Context setAssignee(@Nullable UserDto user) {
       updater.assign(issue, user, changeContext);
       return this;
     }
