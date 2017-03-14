@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
@@ -85,7 +86,8 @@ public class OldRestoreAction implements WsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkArgument(backup != null, "A backup file must be provided");
       reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
-      BulkChangeResult result = backuper.restore(dbSession, reader, null);
+      OrganizationDto defaultOrg = qProfileWsSupport.getOrganizationByKey(dbSession, null);
+      BulkChangeResult result = backuper.restore(dbSession, reader, defaultOrg,null);
       writeResponse(response.newJsonWriter(), result);
     } finally {
       IOUtils.closeQuietly(reader);
