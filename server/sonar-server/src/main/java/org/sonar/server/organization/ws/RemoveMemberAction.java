@@ -34,6 +34,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
@@ -90,6 +92,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
       dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organization.getUuid(), user.getId());
       dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organization.getUuid(), user.getId());
       dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organization.getUuid(), user.getId());
+      dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organization.getUuid(), user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
 
       dbClient.organizationMemberDao().delete(dbSession, organizationMember.getOrganizationUuid(), organizationMember.getUserId());
       dbSession.commit();
