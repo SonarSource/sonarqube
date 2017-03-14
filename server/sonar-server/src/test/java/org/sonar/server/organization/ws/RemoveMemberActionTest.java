@@ -46,6 +46,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -172,10 +174,28 @@ public class RemoveMemberActionTest {
     call(organization.getKey(), user.getLogin());
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).build(), dbSession))
-      .hasSize(1)
-      .extracting(PropertyDto::getUserId).containsOnly(anotherUser.getId());
+      .hasSize(1).extracting(PropertyDto::getUserId).containsOnly(anotherUser.getId());
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(anotherProject.getId()).build(), dbSession)).extracting(PropertyDto::getUserId)
       .hasSize(1).containsOnly(user.getId());
+  }
+
+  @Test
+  public void remove_from_default_assignee_properties() {
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
+    UserDto anotherUser = db.users().insertUser();
+    insertProperty(DEFAULT_ISSUE_ASSIGNEE, user.getLogin(), project.getId(), null);
+    insertProperty("ANOTHER_KEY", user.getLogin(), project.getId(), null);
+    insertProperty(DEFAULT_ISSUE_ASSIGNEE, anotherUser.getLogin(), project.getId(), null);
+    insertProperty(DEFAULT_ISSUE_ASSIGNEE, user.getLogin(), anotherProject.getId(), null);
+
+    call(organization.getKey(), user.getLogin());
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).build(), dbSession))
+      .hasSize(2).extracting(PropertyDto::getKey, PropertyDto::getValue)
+      .containsOnly(tuple("ANOTHER_KEY", user.getLogin()), tuple(DEFAULT_ISSUE_ASSIGNEE, anotherUser.getLogin()));
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(anotherProject.getId()).build(), dbSession)).extracting(PropertyDto::getValue)
+      .hasSize(1).containsOnly(user.getLogin());
   }
 
   @Test
@@ -265,7 +285,7 @@ public class RemoveMemberActionTest {
   private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()).stream()
       .map(OrganizationPermission::fromKey))
-      .containsOnly(permissions);
+        .containsOnly(permissions);
   }
 
   private void assertProjectPermissionsOfUser(UserDto user, ComponentDto project, String... permissions) {

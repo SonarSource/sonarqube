@@ -181,6 +181,29 @@
     </where>
   </select>
 
+
+  <select id="selectIdsByOrganizationAndUser" parameterType="map" resultType="long">
+    select py.id
+    from properties py
+      inner join projects ps on py.resource_id = ps.id
+    where
+    py.user_id=#{userId,jdbcType=INTEGER}
+    and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectIdsByOrganizationAndMatchingLogin" parameterType="String" resultType="long">
+    select py.id
+    from properties py
+      inner join projects ps on py.resource_id = ps.id
+    where
+    py.text_value like #{login,jdbcType=VARCHAR}
+    and py.prop_key in
+    <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
+      #{property,jdbcType=VARCHAR}
+    </foreach>
+    and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
   <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
     insert into properties
     (
@@ -309,15 +332,6 @@
       </if>
     </where>
   </delete>
-
-  <select id="selectIdsByOrganizationAndUser" parameterType="map" resultType="long">
-    select py.id
-    from properties py
-    inner join projects ps on py.resource_id = ps.id
-    where
-    py.user_id=#{userId,jdbcType=INTEGER}
-    and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
-  </select>
 
   <delete id="deleteByIds" parameterType="long">
     delete from properties
