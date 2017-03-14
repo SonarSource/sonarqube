@@ -113,7 +113,7 @@ public class AppStateClusterImpl implements AppState {
     listenerUuid = operationalProcesses.addEntryListener(new OperationalProcessListener());
 
     // Test if the SonarQube version of the cluster is the same
-    checkSonarQubeClusterVersion(getSonarqubeVersion());
+    registerSonarQubeVersion(getSonarqubeVersion());
   }
 
   @Override
@@ -184,7 +184,7 @@ public class AppStateClusterImpl implements AppState {
     return hzInstance.getConfig().getGroupConfig().getName();
   }
 
-  private void checkSonarQubeClusterVersion(String sonarQubeVersion) {
+  void registerSonarQubeVersion(String sonarQubeVersion) {
     IAtomicReference<String> sqVersion = hzInstance.getAtomicReference(SONARQUBE_VERSION);
     if (sqVersion.get() == null) {
       ILock lock = hzInstance.getLock(SONARQUBE_VERSION);

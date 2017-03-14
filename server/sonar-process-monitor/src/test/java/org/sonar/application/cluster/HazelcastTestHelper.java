@@ -22,10 +22,6 @@ package org.sonar.application.cluster;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.JoinConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.HazelcastInstanceImpl;
 import com.hazelcast.instance.HazelcastInstanceProxy;
@@ -37,71 +33,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.annotation.Nonnull;
 
 public class HazelcastTestHelper {
-  static HazelcastInstance createHazelcastNode(
-    @Nonnull String clusterName,
-    int port,
-    @Nonnull List<String> interfaces,
-    @Nonnull List<String> members) {
-
-    Config hzConfig = new Config();
-    hzConfig.getGroupConfig().setName(clusterName);
-
-    // Configure the network instance
-    NetworkConfig netConfig = hzConfig.getNetworkConfig();
-    netConfig
-      .setPort(port)
-      .setPortAutoIncrement(false)
-      .setReuseAddress(true)
-      .getInterfaces().setEnabled(true);
-
-    interfaces.forEach(
-      inet -> netConfig.getInterfaces().addInterface(inet)
-    );
-
-    // Only allowing TCP/IP configuration
-    JoinConfig joinConfig = netConfig.getJoin();
-    joinConfig.getAwsConfig().setEnabled(false);
-    joinConfig.getMulticastConfig().setEnabled(false);
-    joinConfig.getTcpIpConfig().setEnabled(true);
-
-    members.forEach(
-      member -> joinConfig.getTcpIpConfig().addMember(member)
-    );
-
-    // Tweak HazelCast configuration
-    hzConfig
-      // Increase the number of tries
-      .setProperty("hazelcast.tcp.join.port.try.count", "10")
-      // Don't bind on all interfaces
-      .setProperty("hazelcast.socket.bind.any", "false")
-      // Don't phone home
-      .setProperty("hazelcast.phone.home.enabled", "false")
-      // Use slf4j for logging
-      .setProperty("hazelcast.logging.type", "slf4j");
-
-    // We are not using the partition group of Hazelcast, so disabling it
-    hzConfig.getPartitionGroupConfig().setEnabled(false);
-
-    return Hazelcast.newHazelcastInstance(hzConfig);
-  }
-
-  static HazelcastInstance createHazelcastNode(int port, @Nonnull AppStateClusterImpl appStateCluster) {
-    List<String> interfaces = new ArrayList<>(appStateCluster.hzInstance.getConfig().getNetworkConfig().getInterfaces().getInterfaces());
-    InetSocketAddress socketAddress = (InetSocketAddress) appStateCluster.hzInstance.getLocalEndpoint().getSocketAddress();
-    List<String> members = Arrays.asList(
-      String.format("%s:%d",
-        socketAddress.getHostString(),
-        socketAddress.getPort()
-      )
-    );
-    return createHazelcastNode(appStateCluster.getClusterName(), port, interfaces, members);
-  }
 
   static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {
     ClientConfig clientConfig = new ClientConfig();
