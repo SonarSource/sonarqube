@@ -28,7 +28,7 @@ public interface OrganizationMapper {
   void insert(@Param("organization") OrganizationDto organization);
 
   List<OrganizationDto> selectByQuery(@Param("query") OrganizationQuery organizationQuery,
-    @Param("offset") int offset, @Param("pageSize") int pageSize);
+    @Param("pagination") Pagination pagination);
 
   @CheckForNull
   OrganizationDto selectByKey(@Param("key") String key);
