@@ -87,6 +87,8 @@ public class RemoveMemberAction implements OrganizationsWsAction {
       OrganizationMemberDto organizationMember = dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
         .orElseThrow(() -> BadRequestException.create(format("User '%s' is not a member of organization '%s'", user.getLogin(), organization.getKey())));
 
+      dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationMember.getOrganizationUuid(), organizationMember.getUserId());
+
       dbClient.organizationMemberDao().delete(dbSession, organizationMember.getOrganizationUuid(), organizationMember.getUserId());
       dbSession.commit();
     }

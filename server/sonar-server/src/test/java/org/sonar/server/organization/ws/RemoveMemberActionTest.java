@@ -29,7 +29,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,9 +43,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 
 public class RemoveMemberActionTest {
@@ -59,6 +64,7 @@ public class RemoveMemberActionTest {
   private WsActionTester ws = new WsActionTester(new RemoveMemberAction(dbClient, userSession));
 
   private OrganizationDto organization;
+  private ComponentDto project;
   private UserDto user;
 
   @Before
@@ -66,6 +72,7 @@ public class RemoveMemberActionTest {
     organization = db.organizations().insert();
     user = db.users().insertUser();
     db.organizations().addMember(organization, user);
+    project = db.components().insertProject(organization);
   }
 
   @Test
@@ -94,12 +101,33 @@ public class RemoveMemberActionTest {
   }
 
   @Test
-  public void remove_member_from_db() {
+  public void remove_member_from_db_and_all_dependencies() {
+    UserDto anotherUser = db.users().insertUser();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
     assertMember(organization.getUuid(), user.getId());
+    db.users().insertPermissionOnUser(organization, user, ADMINISTER);
+    db.users().insertPermissionOnUser(organization, user, SCAN);
+    db.users().insertPermissionOnUser(anotherOrganization, user, ADMINISTER);
+    db.users().insertPermissionOnUser(anotherOrganization, user, SCAN);
+    db.users().insertPermissionOnUser(organization, anotherUser, ADMINISTER);
+    db.users().insertPermissionOnUser(organization, anotherUser, SCAN);
+    db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
+    db.users().insertProjectPermissionOnUser(user, USER, project);
+    db.users().insertProjectPermissionOnUser(user, CODEVIEWER, anotherProject);
+    db.users().insertProjectPermissionOnUser(user, USER, anotherProject);
+    db.users().insertProjectPermissionOnUser(anotherUser, CODEVIEWER, project);
+    db.users().insertProjectPermissionOnUser(anotherUser, USER, project);
 
     call(organization.getKey(), user.getLogin());
 
     assertNotAMember(organization.getUuid(), user.getId());
+    assertOrgPermissionsOfUser(user, organization);
+    assertOrgPermissionsOfUser(user, anotherOrganization, ADMINISTER, SCAN);
+    assertOrgPermissionsOfUser(anotherUser, organization, ADMINISTER, SCAN);
+    assertProjectPermissionsOfUser(user, project);
+    assertProjectPermissionsOfUser(user, anotherProject, CODEVIEWER, USER);
+    assertProjectPermissionsOfUser(anotherUser, project, CODEVIEWER, USER);
   }
 
   @Test
@@ -184,5 +212,15 @@ public class RemoveMemberActionTest {
 
   private void assertMember(String organizationUuid, int userId) {
     assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)).isPresent();
+  }
+
+  private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {
+    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()).stream()
+      .map(OrganizationPermission::fromKey))
+      .containsOnly(permissions);
+  }
+
+  private void assertProjectPermissionsOfUser(UserDto user, ComponentDto project, String... permissions) {
+    assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), project.getId())).containsOnly(permissions);
   }
 }
