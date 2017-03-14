@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow } from 'enzyme';
-import difference from 'lodash/difference';
-import SearchableFilterFooter from '../SearchableFilterFooter';
+import { mount } from 'enzyme';
+import LanguagesFilter from '../LanguagesFilter';
 
 const languages = {
   java: {
@@ -48,47 +47,30 @@ const languages = {
     name: 'Python'
   }
 };
-const tags = ['lang', 'sonar', 'csharp', 'dotnet', 'it', 'net'];
 const languagesFacet = { java: 39, cs: 4, js: 1 };
-const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
-const getLanguageOptions = () => {
-  let languageKeys = Object.keys(languages);
-  if (languagesFacet) {
-    languageKeys = difference(languageKeys, Object.keys(languagesFacet));
-  }
-  return languageKeys.map(key => ({ label: languages[key].name, value: key }));
-};
-
-const getTagOptions = () => {
-  let tagsCopy = [...tags];
-  if (tagsFacet) {
-    tagsCopy = difference(tagsCopy, Object.keys(tagsFacet));
-  }
-  return tagsCopy.map(tag => ({ label: tag, value: tag }));
-};
+const fakeRouter = { push: () => {} };
 
 it('should render the languages without the ones in the facet', () => {
-  const wrapper = shallow(
-    <SearchableFilterFooter
-      property="languages"
+  const wrapper = mount(
+    <LanguagesFilter
       query={{ languages: null }}
-      facet={languagesFacet}
-      options={languages}
-      getOptions={getLanguageOptions}/>
+      languages={languages}
+      router={fakeRouter}
+      facet={languagesFacet}/>
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Select').props().options.length).toBe(3);
+  expect(wrapper.find('Link').length).toBe(3);
 });
 
-it('should render the tags without the ones in the facet', () => {
-  const wrapper = shallow(
-    <SearchableFilterFooter
-      property="tags"
-      query={{ tags: null }}
-      facet={tagsFacet}
-      options={tags}
-      getOptions={getTagOptions}/>
+it('should render the languages facet with the selected languages', () => {
+  const wrapper = mount(
+    <LanguagesFilter
+      query={{ languages: ['java', 'cs'] }}
+      value={['java', 'cs']}
+      languages={languages}
+      router={fakeRouter}
+      facet={languagesFacet}/>
   );
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Select').props().options.length).toBe(3);
 });

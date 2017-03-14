@@ -25,7 +25,7 @@ import { getFilterUrl } from './utils';
 import SearchFilter from './SearchFilter';
 
 type Props = {
-  query: {},
+  query: { search?: string },
   router: { push: (path: string, query?: {}) => void },
   isFavorite?: boolean,
   organization?: {}

@@ -28,20 +28,21 @@ import { getLanguageByKey } from '../../../store/languages/reducer';
 
 type Props = {
   query: {},
-  isFavorite?: boolean,
-  organization?: {},
   languages: {},
+  router: { push: (path: string, query?: {}) => void },
   value?: Array<string>,
   facet?: {},
-  maxFacetValue?: number,
-  router: { push: (path: string, query?: {}) => void }
+  isFavorite?: boolean,
+  organization?: {},
+  maxFacetValue?: number
 };
 
 export default class LanguagesFilter extends React.PureComponent {
+  getSearchOptions: () => [{ label: string, value: string }];
   props: Props;
   property = 'languages';
 
-  renderOption = option => (
+  renderOption = (option: string) => (
     <SearchableFilterOption
       optionKey={option}
       option={getLanguageByKey(this.props.languages, option)}/>
@@ -69,14 +70,14 @@ export default class LanguagesFilter extends React.PureComponent {
     return languageKeys.map(key => ({ label: languages[key].name, value: key }));
   };
 
-  getSortedOptions (facet) {
+  getSortedOptions (facet: {}) {
     if (!facet) {
       return [];
     }
     return sortBy(Object.keys(facet), [option => -facet[option]]);
   }
 
-  getFacetValueForOption = (facet, option) => facet[option];
+  getFacetValueForOption = (facet: {}, option: string) => facet[option];
 
   renderName = () => 'Languages';
 

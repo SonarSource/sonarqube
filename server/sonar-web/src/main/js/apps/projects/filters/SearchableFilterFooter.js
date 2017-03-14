@@ -32,17 +32,17 @@ type Props = {
   onOpen?: (void) => void,
   value?: Array<string>,
   facet?: {},
-  router?: { push: { path: string, query: {} } },
+  router?: { push: (path: string, query?: {}) => void },
   isLoading?: boolean
 };
 
 export default class SearchableFilterFooter extends React.PureComponent {
   props: Props;
 
-  handleOptionChange = ({ value }) => {
+  handleOptionChange: ({ value: string }) => void = ({ value }) => {
     const urlOptions = (this.props.value || []).concat(value).join(',');
     const path = getFilterUrl(this.props, { [this.props.property]: urlOptions });
-    this.props.router.push(path);
+    this.props.router && this.props.router.push(path);
   };
 
   render () {

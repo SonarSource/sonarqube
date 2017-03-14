@@ -42,7 +42,10 @@ public class FacetItem {
   }
 
   public FacetItem selectOptionItem(String value) {
-    this.elt.$(".Select-input input").val(value).pressEnter();
+    SelenideElement selectInput = this.elt.$(".Select-input input");
+    selectInput.val(value);
+    this.elt.$("div.Select-option.is-focused").should(Condition.exist);
+    selectInput.pressEnter();
     return this;
   }
 

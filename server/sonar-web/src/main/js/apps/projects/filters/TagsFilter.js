@@ -46,7 +46,6 @@ type State = {
 const PAGE_SIZE = 20;
 
 export default class TagsFilter extends React.PureComponent {
-  handleSearch: (search?: string) => void;
   getSearchOptions: () => [{ label: string, value: string }];
   props: Props;
   state: State = {
@@ -61,7 +60,7 @@ export default class TagsFilter extends React.PureComponent {
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  renderOption = option => <SearchableFilterOption optionKey={option}/>;
+  renderOption = (option: string) => <SearchableFilterOption optionKey={option}/>;
 
   renderFooter = () => (
     <SearchableFilterFooter
@@ -88,16 +87,16 @@ export default class TagsFilter extends React.PureComponent {
     return tagsCopy.map(tag => ({ label: tag, value: tag }));
   };
 
-  getSortedOptions (facet) {
+  getSortedOptions (facet: {}) {
     if (!facet) {
       return [];
     }
     return sortBy(Object.keys(facet), [option => -facet[option]]);
   }
 
-  getFacetValueForOption = (facet, option) => facet[option];
+  getFacetValueForOption = (facet: {}, option: string) => facet[option];
 
-  handleSearch = search => {
+  handleSearch = (search?: string) => {
     if (search !== this.state.search) {
       search = search || '';
       this.setState({ search, isLoading: true });
