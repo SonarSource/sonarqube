@@ -40,7 +40,7 @@ export type IndexedIssueLocation = {
 export type IndexedIssueLocationMessage = {
   flowIndex: number,
   locationIndex: number,
-  msg: string
+  msg?: string
 };
 
 export type IndexedIssueLocationsByIssueAndLine = {
