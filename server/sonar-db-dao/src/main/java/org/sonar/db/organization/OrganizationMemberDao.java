@@ -25,15 +25,19 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 public class OrganizationMemberDao implements Dao {
-  public void insert(DbSession dbSession, OrganizationMemberDto organizationMemberDto) {
-    mapper(dbSession).insert(organizationMemberDto);
+  private static OrganizationMemberMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(OrganizationMemberMapper.class);
   }
 
   public Optional<OrganizationMemberDto> select(DbSession dbSession, String organizationUuid, int userId) {
     return Optional.ofNullable(mapper(dbSession).select(organizationUuid, userId));
   }
 
-  private static OrganizationMemberMapper mapper(DbSession dbSession) {
-    return dbSession.getMapper(OrganizationMemberMapper.class);
+  public void insert(DbSession dbSession, OrganizationMemberDto organizationMemberDto) {
+    mapper(dbSession).insert(organizationMemberDto);
+  }
+
+  public void delete(DbSession dbSession, String organizationMemberUuid, Integer userId) {
+    mapper(dbSession).delete(organizationMemberUuid, userId);
   }
 }
