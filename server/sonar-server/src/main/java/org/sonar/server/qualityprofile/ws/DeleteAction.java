@@ -28,19 +28,23 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileRef;
+import org.sonar.server.user.UserSession;
+
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class DeleteAction implements QProfileWsAction {
 
   private final Languages languages;
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
+  private final UserSession userSession;
   private final QProfileWsSupport qProfileWsSupport;
 
-  public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, QProfileWsSupport qProfileWsSupport) {
+  public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession, QProfileWsSupport qProfileWsSupport) {
     this.languages = languages;
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
+    this.userSession = userSession;
     this.qProfileWsSupport = qProfileWsSupport;
   }
 
@@ -53,19 +57,21 @@ public class DeleteAction implements QProfileWsAction {
       .setPost(true)
       .setHandler(this);
 
-    QProfileRef.defineParams(action, languages);
+    qProfileWsSupport.createOrganizationParam(action)
+      .setSince("6.4");
+
+    QProfileReference.defineParams(action, languages);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    qProfileWsSupport.checkQProfileAdminPermission();
-
+    userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
+      QualityProfileDto profile = qProfileWsSupport.getProfile(dbSession, QProfileReference.from(request));
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, profile.getOrganizationUuid());
       profileFactory.delete(dbSession, profile.getKey(), false);
       dbSession.commit();
     }
-
     response.noContent();
   }
 }
