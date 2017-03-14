@@ -21,7 +21,6 @@ package org.sonar.server.ce.ws;
 
 import com.google.common.base.Throwables;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.junit.Rule;
@@ -186,7 +185,17 @@ public class ActivityActionTest {
     assertPage(1, asList("T3"));
     assertPage(2, asList("T3", "T2"));
     assertPage(10, asList("T3", "T2", "T1"));
-    assertPage(0, Collections.emptyList());
+  }
+
+  @Test
+  public void throws_IAE_if_pageSize_is_0() {
+    logInAsSystemAdministrator();
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("page size must be >= 1");
+
+    call(ws.newRequest()
+      .setParam(Param.PAGE_SIZE, Integer.toString(0))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
   }
 
   private void assertPage(int pageSize, List<String> expectedOrderedTaskIds) {

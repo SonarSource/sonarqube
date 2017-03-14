@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
@@ -65,12 +66,12 @@ public class CeActivityDao implements Dao {
   /**
    * Ordered by id desc -> newest to oldest
    */
-  public List<CeActivityDto> selectByQuery(DbSession dbSession, CeTaskQuery query, int offset, int pageSize) {
+  public List<CeActivityDto> selectByQuery(DbSession dbSession, CeTaskQuery query, Pagination pagination) {
     if (query.isShortCircuitedByComponentUuids()) {
       return Collections.emptyList();
     }
 
-    return mapper(dbSession).selectByQuery(query, offset, pageSize);
+    return mapper(dbSession).selectByQuery(query, pagination);
   }
 
   public int countLastByStatusAndComponentUuid(DbSession dbSession, CeActivityDto.Status status, @Nullable String componentUuid) {
