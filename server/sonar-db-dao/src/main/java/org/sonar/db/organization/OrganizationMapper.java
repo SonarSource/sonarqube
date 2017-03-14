@@ -22,6 +22,7 @@ package org.sonar.db.organization;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
 public interface OrganizationMapper {
   void insert(@Param("organization") OrganizationDto organization);
@@ -42,11 +43,9 @@ public interface OrganizationMapper {
   /**
    * Assuming the key of the loaded template with the specified type is an organization's UUID, select all organizations
    * which does not have a row in table LOADED_TEMPLATES with the specified type.
-   *
-   * @param offset {@code ((#{page} - 1) * #{pageSize})}
    */
   List<OrganizationDto> selectOrganizationsWithoutLoadedTemplate(@Param("loadedTemplateType") String type,
-    @Param("page") int page, @Param("pageSize") int pageSize, @Param("offset") int offset);
+    @Param("pagination") Pagination pagination);
 
   DefaultTemplates selectDefaultTemplatesByUuid(@Param("uuid") String uuid);
 
