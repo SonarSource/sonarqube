@@ -28,4 +28,6 @@ public interface UserGroupMapper {
   void delete(@Param("groupId") int groupId, @Param("userId") int userId);
 
   void deleteByGroupId(@Param("groupId") int groupId);
+
+  void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 }

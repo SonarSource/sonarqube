@@ -24,4 +24,10 @@
     where group_id = #{groupId,jdbcType=INTEGER}
   </delete>
 
+  <delete id="deleteByOrganizationAndUser" parameterType="map">
+    delete from groups_users
+    where user_id = #{userId,jdbcType=INTEGER} and
+    group_id in (select id from groups where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
+  </delete>
+
 </mapper>
