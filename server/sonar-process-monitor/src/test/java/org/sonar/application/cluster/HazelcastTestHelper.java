@@ -48,24 +48,4 @@ public class HazelcastTestHelper {
     clientConfig.getGroupConfig().setName(appStateCluster.hzInstance.getConfig().getGroupConfig().getName());
     return HazelcastClient.newHazelcastClient(clientConfig);
   }
-
-  static int getPort(HazelcastInstance hzInstance) throws NoSuchFieldException, IllegalAccessException, IOException {
-    HazelcastInstanceImpl hz = ((HazelcastInstanceProxy) hzInstance).getOriginal();
-    Field nodeField = hz.getClass().getDeclaredField("node"); //NoSuchFieldException
-    nodeField.setAccessible(true);
-    Node node = (Node) nodeField.get(hz);
-
-    TcpIpConnectionManager connectionManager = ((TcpIpConnectionManager) node.getConnectionManager());
-    Field serverSocketChannelField = connectionManager.getClass().getDeclaredField("serverSocketChannel");
-    serverSocketChannelField.setAccessible(true);
-    ServerSocketChannel serverSocketChannel = (ServerSocketChannel) serverSocketChannelField.get(connectionManager);
-
-    return ((InetSocketAddress) serverSocketChannel.getLocalAddress()).getPort();
-  }
-
-  static int getFreePortOn(InetAddress inetAddress) throws IOException {
-    try (ServerSocket serverSocket = new ServerSocket(0, 50, inetAddress)) {
-      return serverSocket.getLocalPort();
-    }
-  }
 }
