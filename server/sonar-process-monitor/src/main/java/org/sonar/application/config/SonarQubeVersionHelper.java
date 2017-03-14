@@ -38,12 +38,12 @@ public class SonarQubeVersionHelper {
 
   public static String getSonarqubeVersion() {
     if (sonarqubeVersion == null) {
-      loadVersions();
+      loadVersion();
     }
     return sonarqubeVersion;
   }
 
-  private static synchronized void loadVersions() {
+  private static synchronized void loadVersion() {
     try {
       try (BufferedReader in = new BufferedReader(
         new InputStreamReader(

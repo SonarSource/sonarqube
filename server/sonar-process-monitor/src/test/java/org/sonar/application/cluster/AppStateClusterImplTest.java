@@ -21,7 +21,6 @@ package org.sonar.application.cluster;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ReplicatedMap;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.UUID;
 import org.junit.Rule;
@@ -30,7 +29,6 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.mockito.Matchers;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.ProcessId;
@@ -44,7 +42,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.application.cluster.AppStateClusterImpl.OPERATIONAL_PROCESSES;
 import static org.sonar.application.cluster.AppStateClusterImpl.SONARQUBE_VERSION;
 import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
-import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
 
 public class AppStateClusterImplTest {
 
@@ -122,22 +119,22 @@ public class AppStateClusterImplTest {
   }
 
   @Test
-  public void appstateclusterimpl_must_set_sonarqube_version() {
+  public void registerSonarQubeVersion_publishes_version_on_first_call() {
     TestAppSettings settings = newClusterSettings();
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
-      appStateCluster.registerSonarQubeVersion(getSonarqubeVersion());
+      appStateCluster.registerSonarQubeVersion("6.4.1.5");
 
       HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
       assertThat(hzInstance.getAtomicReference(SONARQUBE_VERSION).get())
         .isNotNull()
         .isInstanceOf(String.class)
-        .isEqualTo(getSonarqubeVersion());
+        .isEqualTo("6.4.1.5");
     }
   }
 
   @Test
-  public void incorrect_sonarqube_version_must_trigger_an_exception() throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
+  public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
     // Now launch an instance that try to be part of the hzInstance cluster
     TestAppSettings settings = new TestAppSettings();
     settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
@@ -149,7 +146,7 @@ public class AppStateClusterImplTest {
       appStateCluster.registerSonarQubeVersion("1.0.0");
 
       expectedException.expect(IllegalStateException.class);
-      expectedException.expectMessage(Matchers.matches("The local version .* is not the same as the cluster 1\\.0\\.0"));
+      expectedException.expectMessage("The local version 2.0.0 is not the same as the cluster 1.0.0");
 
       // Registering a second different version must trigger an exception
       appStateCluster.registerSonarQubeVersion("2.0.0");
