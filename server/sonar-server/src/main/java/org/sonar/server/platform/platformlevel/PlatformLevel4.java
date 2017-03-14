@@ -140,7 +140,7 @@ import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
-import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileExporters;
@@ -275,7 +275,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RuleActivatorContextFactory.class,
       QProfileFactory.class,
       QProfileCopier.class,
-      QProfileBackuper.class,
+      QProfileBackuperImpl.class,
       QProfileReset.class,
       QProfilesWsModule.class,
 
