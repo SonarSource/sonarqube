@@ -43,7 +43,7 @@ public class IssueTesting {
    */
   public static IssueDto newDto(RuleDto rule, ComponentDto file, ComponentDto project) {
     return new IssueDto()
-      .setKee(Uuids.create())
+      .setKee(Uuids.createFast())
       .setRule(rule)
       .setType(RuleType.CODE_SMELL)
       .setComponent(file)
