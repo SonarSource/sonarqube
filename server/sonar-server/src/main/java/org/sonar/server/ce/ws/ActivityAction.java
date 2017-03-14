@@ -56,6 +56,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
@@ -254,7 +255,7 @@ public class ActivityAction implements CeWsAction {
   }
 
   private List<WsCe.Task> loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
-    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, OFFSET, request.getPageSize());
+    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, forPage(1).andSize(request.getPageSize()));
     return formatter.formatActivity(dbSession, dtos);
   }
 
