@@ -32,6 +32,7 @@ import org.sonar.db.organization.OrganizationQuery;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
 
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -79,8 +80,7 @@ public class SearchAction implements OrganizationsWsAction {
       List<OrganizationDto> dtos = dbClient.organizationDao().selectByQuery(
         dbSession,
         organizationQuery,
-        paging.offset(),
-        paging.pageSize());
+        forPage(paging.pageIndex()).andSize(paging.pageSize()));
 
       writeResponse(request, response, dtos);
     }
