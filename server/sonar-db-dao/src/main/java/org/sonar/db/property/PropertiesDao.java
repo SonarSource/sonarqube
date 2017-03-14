@@ -39,6 +39,7 @@ import org.sonar.db.MyBatis;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PropertiesDao implements Dao {
 
@@ -263,6 +264,14 @@ public class PropertiesDao implements Dao {
       deleteGlobalProperty(key, session);
       session.commit();
     }
+  }
+
+  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, int userId) {
+    List<Long> ids = getMapper(dbSession).selectIdsByOrganizationAndUser(organizationUuid, userId);
+    executeLargeInputsWithoutOutput(ids, subList -> {
+      getMapper(dbSession).deleteByIds(subList);
+      return null;
+    });
   }
 
   public void saveGlobalProperties(Map<String, String> properties) {

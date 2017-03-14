@@ -32,6 +32,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -158,6 +160,25 @@ public class RemoveMemberActionTest {
   }
 
   @Test
+  public void remove_from_org_properties() {
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
+    UserDto anotherUser = db.users().insertUser();
+    insertProperty("KEY_11", "VALUE", project.getId(), user.getId());
+    insertProperty("KEY_12", "VALUE", project.getId(), user.getId());
+    insertProperty("KEY_11", "VALUE", project.getId(), anotherUser.getId());
+    insertProperty("KEY_11", "VALUE", anotherProject.getId(), user.getId());
+
+    call(organization.getKey(), user.getLogin());
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).build(), dbSession))
+      .hasSize(1)
+      .extracting(PropertyDto::getUserId).containsOnly(anotherUser.getId());
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(anotherProject.getId()).build(), dbSession)).extracting(PropertyDto::getUserId)
+      .hasSize(1).containsOnly(user.getId());
+  }
+
+  @Test
   public void user_is_removed_only_from_designated_organization() {
     OrganizationDto anotherOrg = db.organizations().insert();
     db.organizations().addMember(anotherOrg, user);
@@ -249,5 +270,13 @@ public class RemoveMemberActionTest {
 
   private void assertProjectPermissionsOfUser(UserDto user, ComponentDto project, String... permissions) {
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), project.getId())).containsOnly(permissions);
+  }
+
+  private void insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId) {
+    PropertyDto dto = new PropertyDto().setKey(key)
+      .setResourceId(resourceId == null ? null : resourceId)
+      .setUserId(userId == null ? null : userId)
+      .setValue(value);
+    db.properties().insertProperty(dto);
   }
 }
