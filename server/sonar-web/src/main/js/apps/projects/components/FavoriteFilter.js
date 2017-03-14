@@ -23,7 +23,7 @@ import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { saveAll, saveFavorite } from '../utils';
 
-export default class FavoriteFilter extends React.Component {
+export default class FavoriteFilter extends React.PureComponent {
   handleSaveFavorite = () => {
     if (!this.props.organization) {
       saveFavorite();
