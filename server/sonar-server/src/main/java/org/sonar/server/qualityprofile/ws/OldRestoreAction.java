@@ -35,6 +35,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileRestoreSummary;
 import org.sonar.server.ws.WsAction;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -87,7 +88,7 @@ public class OldRestoreAction implements WsAction {
       checkArgument(backup != null, "A backup file must be provided");
       reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
       OrganizationDto defaultOrg = qProfileWsSupport.getOrganizationByKey(dbSession, null);
-      BulkChangeResult result = backuper.restore(dbSession, reader, defaultOrg,null);
+      QProfileRestoreSummary result = backuper.restore(dbSession, reader, defaultOrg,null);
       writeResponse(response.newJsonWriter(), result);
     } finally {
       IOUtils.closeQuietly(reader);
@@ -95,9 +96,8 @@ public class OldRestoreAction implements WsAction {
     }
   }
 
-  private void writeResponse(JsonWriter json, BulkChangeResult result) {
-    QualityProfileDto profile = result.profile();
-    if (profile != null) {
+  private void writeResponse(JsonWriter json, QProfileRestoreSummary result) {
+    QualityProfileDto profile = result.getProfile();
       String languageKey = profile.getLanguage();
       Language language = languages.get(languageKey);
 
@@ -112,9 +112,10 @@ public class OldRestoreAction implements WsAction {
         jsonProfile.prop("languageName", language.getName());
       }
       jsonProfile.endObject();
-    }
-    json.prop("ruleSuccesses", result.countSucceeded());
-    json.prop("ruleFailures", result.countFailed());
+
+    BulkChangeResult ruleChanges = result.getRuleChanges();
+    json.prop("ruleSuccesses", ruleChanges.countSucceeded());
+    json.prop("ruleFailures", ruleChanges.countFailed());
     json.endObject().close();
   }
 }
