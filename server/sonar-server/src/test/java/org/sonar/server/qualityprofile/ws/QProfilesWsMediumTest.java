@@ -32,10 +32,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -44,8 +40,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -434,143 +428,6 @@ public class QProfilesWsMediumTest {
 
     // 2. assert rule child rule is NOT minor
     assertThat(db.activeRuleDao().selectOrFailByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
-  }
-
-  @Test
-  public void add_project_with_key_and_uuid() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
-
-    // Second call must not fail, do nothing
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
-  }
-
-  @Test
-  public void change_project_association_with_key_and_uuid() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile1 = QProfileTesting.newXooP1("org-123");
-    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123");
-    db.qualityProfileDao().insert(session, profile1, profile2);
-    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile1.getKey(), session);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", profile2.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile2.getKee());
-  }
-
-  @Test
-  public void add_project_with_name_language_and_key() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("language", "xoo").setParam("profileName", profile.getName()).setParam("projectKey", project.getKey())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_missing_language() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileName", "polop").setParam("projectKey", "palap")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_missing_name() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("language", "xoo").setParam("projectKey", "palap")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_too_many_profile_parameters() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", "plouf").setParam("language", "xoo").setParam("profileName", "polop").setParam("projectUuid", "palap")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_missing_project() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", "plouf")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_too_many_project_parameters() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", "plouf").setParam("projectUuid", "polop").setParam("projectKey", "palap")
-      .execute();
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void add_project_unknown_profile() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("projectUuid", "plouf").setParam("profileName", "polop").setParam("language", "xoo")
-      .execute();
-  }
-
-  @Test
-  public void remove_project_with_key_and_uuid() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "remove_project")
-      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo")).isNull();
-  }
-
-  @Test
-  public void remove_project_with_name_language_and_key() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "remove_project")
-      .setParam("language", "xoo").setParam("profileName", profile.getName()).setParam("projectKey", project.getKey())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo")).isNull();
   }
 
   private QualityProfileDto createProfile(String lang) {

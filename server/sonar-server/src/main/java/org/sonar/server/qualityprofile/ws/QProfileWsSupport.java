@@ -82,8 +82,8 @@ public class QProfileWsSupport {
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 
-  public static NewParam createOrganizationParam(NewAction create) {
-    return create
+  public static NewParam createOrganizationParam(NewAction action) {
+    return action
       .createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setRequired(false)

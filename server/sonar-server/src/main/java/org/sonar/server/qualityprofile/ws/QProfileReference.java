@@ -19,19 +19,24 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Arrays;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.util.LanguageParamUtils;
+import org.sonar.core.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 
 /**
  * Reference to a Quality profile as defined by requests to web services api/qualityprofiles.
@@ -42,10 +47,6 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
  * </ul>
  */
 public class QProfileReference {
-
-  public static final String DEFAULT_PARAM_PROFILE_KEY = "profileKey";
-  public static final String DEFAULT_PARAM_LANGUAGE = "language";
-  public static final String DEFAULT_PARAM_PROFILE_NAME = "profileName";
 
   private enum Type {
     KEY, NAME
@@ -149,10 +150,10 @@ public class QProfileReference {
   }
 
   public static QProfileReference from(Request request) {
-    String key = request.param(DEFAULT_PARAM_PROFILE_KEY);
+    String key = request.param(PARAM_PROFILE_KEY);
     String organizationKey = request.param(PARAM_ORGANIZATION);
-    String lang = request.param(DEFAULT_PARAM_LANGUAGE);
-    String name = request.param(DEFAULT_PARAM_PROFILE_NAME);
+    String lang = request.param(PARAM_LANGUAGE);
+    String name = request.param(PARAM_PROFILE_NAME);
     return from(key, organizationKey, lang, name);
   }
 
@@ -174,15 +175,14 @@ public class QProfileReference {
   }
 
   public static void defineParams(WebService.NewAction action, Languages languages) {
-    action.createParam(DEFAULT_PARAM_PROFILE_KEY)
+    action.createParam(PARAM_PROFILE_KEY)
       .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
-    action.createParam(DEFAULT_PARAM_PROFILE_NAME)
+    action.createParam(PARAM_PROFILE_NAME)
       .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
       .setExampleValue("Sonar way");
-    action.createParam(DEFAULT_PARAM_LANGUAGE)
+    action.createParam(PARAM_LANGUAGE)
       .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and profileName must be set to disambiguate.")
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
-      .setExampleValue("js");
+      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet()));
   }
 }
