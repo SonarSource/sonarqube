@@ -19,42 +19,31 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
-public class BulkChangeResult {
+import static java.util.Objects.requireNonNull;
 
-  private final List<String> errors = new ArrayList<>();
-  private int succeeded = 0;
-  private int failed = 0;
-  private final List<ActiveRuleChange> changes = new ArrayList<>();
+public final class QProfileRestoreSummary {
+  private final OrganizationDto organization;
+  private final QualityProfileDto profile;
+  private final BulkChangeResult ruleChanges;
 
-  public List<String> getErrors() {
-    return errors;
+  public QProfileRestoreSummary(OrganizationDto organization, QualityProfileDto profile, BulkChangeResult ruleChanges) {
+    this.organization = requireNonNull(organization);
+    this.profile = requireNonNull(profile);
+    this.ruleChanges = requireNonNull(ruleChanges);
   }
 
-  public int countSucceeded() {
-    return succeeded;
+  public OrganizationDto getOrganization() {
+    return organization;
   }
 
-  public int countFailed() {
-    return failed;
+  public QualityProfileDto getProfile() {
+    return profile;
   }
 
-  void incrementSucceeded() {
-    succeeded++;
-  }
-
-  void incrementFailed() {
-    failed++;
-  }
-
-  void addChanges(Collection<ActiveRuleChange> c) {
-    this.changes.addAll(c);
-  }
-
-  public List<ActiveRuleChange> getChanges() {
-    return changes;
+  public BulkChangeResult getRuleChanges() {
+    return ruleChanges;
   }
 }
