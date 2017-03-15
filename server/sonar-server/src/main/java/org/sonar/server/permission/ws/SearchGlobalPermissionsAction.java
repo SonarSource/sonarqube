@@ -66,7 +66,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
       .setSince("5.2")
       .setHandler(this);
 
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override
