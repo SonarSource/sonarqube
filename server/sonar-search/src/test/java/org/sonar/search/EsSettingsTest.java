@@ -43,7 +43,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
-    props.set(ProcessProperties.SEARCH_CLUSTER_NAME, "sonarqube");
+    props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
 
     EsSettings esSettings = new EsSettings(props);
 

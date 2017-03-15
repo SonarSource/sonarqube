@@ -73,10 +73,10 @@ public class SearchServerTest {
   public void start_stop_server() throws Exception {
     Props props = new Props(new Properties());
     // the following properties have always default values (see ProcessProperties)
-    InetAddress host = InetAddress.getLocalHost();
+    InetAddress host = InetAddress.getLoopbackAddress();
     props.set(ProcessProperties.SEARCH_HOST, host.getHostAddress());
     props.set(ProcessProperties.SEARCH_PORT, String.valueOf(port));
-    props.set(ProcessProperties.SEARCH_CLUSTER_NAME, A_CLUSTER_NAME);
+    props.set(ProcessProperties.CLUSTER_NAME, A_CLUSTER_NAME);
     props.set(EsSettings.CLUSTER_SEARCH_NODE_NAME, A_NODE_NAME);
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessEntryPoint.PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());

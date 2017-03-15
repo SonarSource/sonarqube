@@ -51,7 +51,7 @@ public class EsClientProviderTest {
   @Before
   public void setUp() throws Exception {
     // mandatory property
-    settings.setProperty(ProcessProperties.SEARCH_CLUSTER_NAME, "the_cluster_name");
+    settings.setProperty(ProcessProperties.CLUSTER_NAME, "the_cluster_name");
 
     localhost = InetAddress.getLocalHost().getHostAddress();
   }
