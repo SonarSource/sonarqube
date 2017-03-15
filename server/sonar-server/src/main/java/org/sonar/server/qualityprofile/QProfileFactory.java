@@ -36,7 +36,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.ws.QProfileReference;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
