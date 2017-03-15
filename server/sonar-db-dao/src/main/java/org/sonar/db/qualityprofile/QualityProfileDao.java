@@ -63,8 +63,8 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
-  public List<QualityProfileDto> selectAll(DbSession session) {
-    return mapper(session).selectAll();
+  public List<QualityProfileDto> selectAll(DbSession session, OrganizationDto organization) {
+    return mapper(session).selectAll(organization.getUuid());
   }
 
   public void insert(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
@@ -102,8 +102,8 @@ public class QualityProfileDao implements Dao {
     mapper.delete(profileId);
   }
 
-  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, mapper(session)::selectDefaultProfiles);
+  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
+    return executeLargeInputs(languageKeys, chunk -> mapper(session).selectDefaultProfiles(organization.getUuid(), chunk));
   }
 
   @CheckForNull
@@ -116,8 +116,8 @@ public class QualityProfileDao implements Dao {
     return mapper(session).selectByProjectAndLanguage(projectKey, language);
   }
 
-  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, String projectKey, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(projectKey, input));
+  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, String projectKey, Collection<String> languageKeys) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), projectKey, input));
   }
 
   public List<QualityProfileDto> selectByLanguage(DbSession dbSession, String language) {

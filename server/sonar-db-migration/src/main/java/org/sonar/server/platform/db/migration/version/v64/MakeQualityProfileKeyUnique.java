@@ -17,25 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v64;
 
-import org.junit.Test;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import java.sql.SQLException;
 
-public class DbVersion64Test {
-  private DbVersion64 underTest = new DbVersion64();
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-  @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1600);
+public class MakeQualityProfileKeyUnique extends DdlChange {
+
+  public MakeQualityProfileKeyUnique(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 9);
+  @Override
+  public void execute(DdlChange.Context context) throws SQLException {
+    context.execute(
+      new CreateIndexBuilder(getDialect())
+      .setTable("rules_profiles")
+      .setName("uniq_qprof_key")
+      .addColumn(
+        newVarcharColumnDefBuilder()
+        .setColumnName("kee")
+        .setLimit(255)
+        .build())
+      .setUnique(true)
+      .build());
   }
-
 }
