@@ -27,6 +27,8 @@ exports[`test should display loading 1`] = `
         Foo
       </Link>
     </h2>
+    <SearchableFilterFooter
+      hideWhenNoTags={true} />
   </div>
   <div
     className="boxed-group-inner" />
