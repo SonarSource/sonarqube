@@ -1174,7 +1174,7 @@ public class ProjectMeasuresIndexTest {
 
     List<String> result = underTest.searchTags("off", 10);
 
-    assertThat(result).containsExactly("offshore", "official", "Madhoff");
+    assertThat(result).containsOnly("offshore", "official", "Madhoff");
   }
 
   @Test
@@ -1190,6 +1190,21 @@ public class ProjectMeasuresIndexTest {
     List<String> result = underTest.searchTags(null, 10);
 
     assertThat(result).containsOnly("offshore", "official", "Madhoff", "finance", "marketing", "java", "javascript");
+  }
+
+  @Test
+  public void search_tags_in_lexical_order() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 10);
+
+    assertThat(result).containsExactly("Madhoff", "finance", "java", "javascript", "marketing", "official", "offshore");
   }
 
   @Test

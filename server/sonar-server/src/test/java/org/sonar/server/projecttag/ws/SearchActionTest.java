@@ -88,7 +88,16 @@ public class SearchActionTest {
 
     SearchResponse result = call("off", 2);
 
-    assertThat(result.getTagsList()).containsOnly("offshore", "playoff");
+    assertThat(result.getTagsList()).containsOnly("offshore", "official");
+  }
+
+  @Test
+  public void search_in_lexical_order() {
+    index(newDoc().setTags(newArrayList("offshore", "official", "Playoff")));
+
+    SearchResponse result = call(null, null);
+
+    assertThat(result.getTagsList()).containsExactly("Playoff", "official", "offshore");
   }
 
   @Test

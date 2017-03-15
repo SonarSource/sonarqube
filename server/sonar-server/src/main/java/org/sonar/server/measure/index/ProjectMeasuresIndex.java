@@ -315,7 +315,8 @@ public class ProjectMeasuresIndex extends BaseIndex {
     TermsBuilder tagFacet = AggregationBuilders.terms(FIELD_TAGS)
       .field(FIELD_TAGS)
       .size(pageSize)
-      .minDocCount(1);
+      .minDocCount(1)
+      .order(Terms.Order.term(true));
     if (textQuery != null) {
       tagFacet.include(".*" + escapeSpecialRegexChars(textQuery) + ".*");
     }
