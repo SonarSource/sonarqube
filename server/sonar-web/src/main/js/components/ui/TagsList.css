@@ -1,0 +1,29 @@
+.tags-list {
+  padding-left: 6px;
+}
+
+.tags-list i {
+  padding-left: 4px;
+}
+
+.tags-list i::before {
+  font-size: 12px;
+}
+
+.tags-list span {
+  font-size: 11px;
+  padding-left: 4px;
+  opacity: 0.6;
+  display: inline-block;
+  max-width: 220px;
+  vertical-align: text-top;
+  margin-top: 2px;
+}
+
+.single-line {
+  vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-top: 0;
+}
