@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -30,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -45,9 +43,10 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -64,46 +63,45 @@ public class RegisterQualityProfiles {
   private final RuleActivator ruleActivator;
   private final Languages languages;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final QProfileWsSupport qProfileWsSupport;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   /**
    * To be kept when no ProfileDefinition are injected
    */
-  public RegisterQualityProfiles(DbClient dbClient,
-    QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer,
-    QProfileWsSupport qProfileWsSupport) {
-    this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer, qProfileWsSupport);
+  public RegisterQualityProfiles(DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+    Languages languages, ActiveRuleIndexer activeRuleIndexer, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer, defaultOrganizationProvider);
   }
 
-  public RegisterQualityProfiles(DbClient dbClient,
-    QProfileFactory profileFactory, RuleActivator ruleActivator,
-    List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer, QProfileWsSupport qProfileWsSupport) {
+  public RegisterQualityProfiles(DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+    List<ProfileDefinition> definitions,
+    Languages languages, ActiveRuleIndexer activeRuleIndexer, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
     this.definitions = definitions;
     this.languages = languages;
     this.activeRuleIndexer = activeRuleIndexer;
-    this.qProfileWsSupport = qProfileWsSupport;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public void start() {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       List<ActiveRuleChange> changes = new ArrayList<>();
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
+      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+      OrganizationDto organization = dbClient.organizationDao()
+        .selectByUuid(session, defaultOrganizationUuid)
+        .orElseThrow(() -> new IllegalStateException(String.format("Cannot load default organization '%s'", defaultOrganizationUuid)));
       for (String language : profilesByLanguage.keySet()) {
         List<RulesProfile> defs = profilesByLanguage.get(language);
         if (verifyLanguage(language, defs)) {
-          changes.addAll(registerProfilesForLanguage(session, language, defs));
+          changes.addAll(registerProfilesForLanguage(session, organization, defs, language));
         }
       }
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
-
-    } finally {
-      session.close();
     }
   }
 
@@ -123,29 +121,29 @@ public class RegisterQualityProfiles {
     return true;
   }
 
-  private List<ActiveRuleChange> registerProfilesForLanguage(DbSession session, String language, List<RulesProfile> defs) {
+  private List<ActiveRuleChange> registerProfilesForLanguage(DbSession session, OrganizationDto organization, List<RulesProfile> defs, String language) {
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(defs).entrySet()) {
       String name = entry.getKey();
       QProfileName profileName = new QProfileName(language, name);
       if (shouldRegister(profileName, session)) {
-        changes.addAll(register(profileName, entry.getValue(), session));
+        changes.addAll(register(organization, entry.getValue(), session, profileName));
       }
     }
-    setDefault(language, defs, session);
+    setDefault(organization, defs, session, language);
     session.commit();
     return changes;
   }
 
-  private List<ActiveRuleChange> register(QProfileName name, Collection<RulesProfile> profiles, DbSession session) {
+  private List<ActiveRuleChange> register(OrganizationDto organization, Collection<RulesProfile> profiles, DbSession session, QProfileName name) {
     LOGGER.info("Register profile " + name);
 
     List<ActiveRuleChange> changes = new ArrayList<>();
-    QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), session);
+    QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), session);
     if (profileDto != null) {
       changes.addAll(profileFactory.delete(session, profileDto.getKey(), true));
     }
-    profileFactory.create(session, qProfileWsSupport.getDefaultOrganization(session), name);
+    profileFactory.create(session, organization, name);
     for (RulesProfile profile : profiles) {
       for (org.sonar.api.rules.ActiveRule activeRule : profile.getActiveRules()) {
         RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
@@ -164,13 +162,13 @@ public class RegisterQualityProfiles {
     return changes;
   }
 
-  private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
-    QualityProfileDto currentDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, language);
+  private void setDefault(OrganizationDto organization, List<RulesProfile> profileDefs, DbSession session, String language) {
+    QualityProfileDto currentDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, organization, language);
 
     if (currentDefault == null) {
       String defaultProfileName = nameOfDefaultProfile(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
-      QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().selectByNameAndLanguage(defaultProfileName, language, session);
+      QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, defaultProfileName, language, session);
       if (newDefaultProfile == null) {
         // Must not happen, we just registered it
         throw new IllegalStateException("Could not find declared default profile '%s' for language '%s'");
@@ -197,12 +195,7 @@ public class RegisterQualityProfiles {
   }
 
   private static Map<String, Collection<RulesProfile>> profilesByName(List<RulesProfile> profiles) {
-    return Multimaps.index(profiles, new Function<RulesProfile, String>() {
-      @Override
-      public String apply(@Nullable RulesProfile profile) {
-        return profile != null ? profile.getName() : null;
-      }
-    }).asMap();
+    return Multimaps.index(profiles, profile -> profile != null ? profile.getName() : null).asMap();
   }
 
   private static String nameOfDefaultProfile(List<RulesProfile> profiles) {
