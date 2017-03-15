@@ -1,7 +1,7 @@
 {
   "profiles": [
     {
-      "key": "sonar-way-cs-12345",
+      "key": "AU-TpxcA-iU5OvuD2FL3",
       "name": "Sonar way",
       "language": "cs",
       "languageName": "C#",
@@ -13,7 +13,7 @@
       "lastUsed": "2016-12-01T19:10:03+0100"
     },
     {
-      "key": "my-bu-profile-java-34567",
+      "key": "AU-TpxcA-iU5OvuD2FL1",
       "name": "My BU Profile",
       "language": "java",
       "languageName": "Java",
@@ -29,7 +29,7 @@
       "userUpdatedAt": "2016-06-28T21:57:01+0200"
     },
     {
-      "key": "my-company-profile-java-23456",
+      "key": "iU5OvuD2FLz",
       "name": "My Company Profile",
       "language": "java",
       "languageName": "Java",
@@ -41,7 +41,7 @@
       "userUpdatedAt": "2016-06-29T21:57:01+0200"
     },
     {
-      "key": "sonar-way-python-01234",
+      "key": "AU-TpxcB-iU5OvuD2FL7",
       "name": "Sonar way",
       "language": "py",
       "languageName": "Python",

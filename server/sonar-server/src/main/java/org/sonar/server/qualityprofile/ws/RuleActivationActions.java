@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.RuleActivation;
@@ -91,7 +92,7 @@ public class RuleActivationActions {
     action.createParam(PROFILE_KEY)
       .setDescription("Key of Quality profile, can be obtained through <code>api/profiles/list</code>")
       .setRequired(true)
-      .setExampleValue("java-sonar-way-80423");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(RULE_KEY)
       .setDescription("Key of the rule")

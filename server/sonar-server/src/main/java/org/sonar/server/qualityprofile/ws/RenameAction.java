@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -61,20 +62,20 @@ public class RenameAction implements QProfileWsAction {
   @Override
   public void define(WebService.NewController controller) {
     NewAction setDefault = controller.createAction("rename")
-      .setSince("5.2")
-      .setDescription("Rename a quality profile. Require Administer Quality Profiles permission.")
-      .setPost(true)
-      .setHandler(this);
+        .setSince("5.2")
+        .setDescription("Rename a quality profile. Require Administer Quality Profiles permission.")
+        .setPost(true)
+        .setHandler(this);
 
     setDefault.createParam(PARAM_PROFILE_NAME)
-      .setDescription("The new name for the quality profile.")
-      .setExampleValue("My Sonar way")
-      .setRequired(true);
+        .setDescription("The new name for the quality profile.")
+        .setExampleValue("My Sonar way")
+        .setRequired(true);
 
     setDefault.createParam(PARAM_PROFILE_KEY)
-      .setDescription("The key of a quality profile.")
-      .setExampleValue("sonar-way-js-12345")
-      .setRequired(true);
+        .setDescription("The key of a quality profile.")
+        .setExampleValue(Uuids.UUID_EXAMPLE_01)
+        .setRequired(true);
   }
 
   @Override
@@ -93,19 +94,19 @@ public class RenameAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityProfileDto qualityProfile = ofNullable(dbClient.qualityProfileDao().selectByKey(dbSession, profileKey))
-        .orElseThrow(() -> new NotFoundException("Quality profile not found: " + profileKey));
+          .orElseThrow(() -> new NotFoundException("Quality profile not found: " + profileKey));
 
       String organizationUuid = qualityProfile.getOrganizationUuid();
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organizationUuid);
 
       if (!Objects.equals(newName, qualityProfile.getName())) {
         OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-          .orElseThrow(() -> new IllegalStateException("No organization found for uuid " + organizationUuid));
+            .orElseThrow(() -> new IllegalStateException("No organization found for uuid " + organizationUuid));
         String language = qualityProfile.getLanguage();
         ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(organization, newName, language, dbSession))
-          .ifPresent(found -> {
-            throw BadRequestException.create(format("Quality profile already exists: %s", newName));
-          });
+            .ifPresent(found -> {
+              throw BadRequestException.create(format("Quality profile already exists: %s", newName));
+            });
 
         qualityProfile.setName(newName);
         dbClient.qualityProfileDao().update(dbSession, qualityProfile);
