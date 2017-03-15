@@ -25,16 +25,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @ServerSide
 public class QProfileCopier {
@@ -53,38 +54,34 @@ public class QProfileCopier {
     this.qProfileWsSupport = qProfileWsSupport;
   }
 
-  public QualityProfileDto copyToName(String fromProfileKey, String toName) {
-    QualityProfileDto to = prepareTarget(fromProfileKey, toName);
+  public QualityProfileDto copyToName(DbSession dbSession, String fromKey, String toName) {
+    QualityProfileDto from = db.qualityProfileDao().selectOrFailByKey(dbSession, fromKey);
+    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, from.getOrganizationUuid())
+      .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + from.getOrganizationUuid() + "] does not exist"));
+    QualityProfileDto to = prepareTarget(dbSession, organization, from, toName);
     File backupFile = temp.newFile();
     try {
-      backup(fromProfileKey, backupFile);
-      restore(backupFile, QProfileName.createFor(to.getLanguage(), to.getName()));
+      backup(dbSession, from, backupFile);
+      restore(dbSession, backupFile, organization, to.getName());
       return to;
     } finally {
       org.sonar.core.util.FileUtils.deleteQuietly(backupFile);
     }
   }
 
-  private QualityProfileDto prepareTarget(String fromProfileKey, String toName) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      QualityProfileDto fromProfile = db.qualityProfileDao().selectOrFailByKey(dbSession, fromProfileKey);
-      QProfileName toProfileName = new QProfileName(fromProfile.getLanguage(), toName);
-      verify(fromProfile, toProfileName);
-      QualityProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(toProfileName.getName(), toProfileName.getLanguage(), dbSession);
-      if (toProfile == null) {
-        // Do not delegate creation to QProfileBackuper because we need to keep
-        // the parent-child association, if exists.
-        toProfile = factory.create(dbSession, qProfileWsSupport.getDefaultOrganization(dbSession), toProfileName);
-        toProfile.setParentKee(fromProfile.getParentKee());
-        db.qualityProfileDao().update(dbSession, toProfile);
-        dbSession.commit();
-      }
-      return toProfile;
-
-    } finally {
-      dbSession.close();
+  private QualityProfileDto prepareTarget(DbSession dbSession, OrganizationDto organization, QualityProfileDto from, String toName) {
+    QProfileName toProfileName = new QProfileName(from.getLanguage(), toName);
+    verify(from, toProfileName);
+    QualityProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(organization, toProfileName.getName(), toProfileName.getLanguage(), dbSession);
+    if (toProfile == null) {
+      // Do not delegate creation to QProfileBackuper because we need to keep
+      // the parent-child association, if exists.
+      toProfile = factory.create(dbSession, organization, toProfileName);
+      toProfile.setParentKee(from.getParentKee());
+      db.qualityProfileDao().update(dbSession, toProfile);
+      dbSession.commit();
     }
+    return toProfile;
   }
 
   private void verify(QualityProfileDto fromProfile, QProfileName toProfileName) {
@@ -99,27 +96,19 @@ public class QProfileCopier {
     }
   }
 
-  private void backup(String profileKey, File backupFile) {
-    Writer writer = null;
-    try {
-      writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile), StandardCharsets.UTF_8);
-      backuper.backup(profileKey, writer);
+  private void backup(DbSession dbSession, QualityProfileDto profile, File backupFile) {
+    try (Writer writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile), UTF_8)) {
+      backuper.backup(dbSession, profile, writer);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to open temporary backup file: " + backupFile, e);
-    } finally {
-      IOUtils.closeQuietly(writer);
     }
   }
 
-  private void restore(File backupFile, QProfileName profileName) {
-    Reader reader = null;
-    try {
-      reader = new InputStreamReader(FileUtils.openInputStream(backupFile), StandardCharsets.UTF_8);
-      backuper.restore(reader, profileName);
+  private void restore(DbSession dbSession, File backupFile, OrganizationDto org, String profileName) {
+    try (Reader reader = new InputStreamReader(FileUtils.openInputStream(backupFile), UTF_8)) {
+      backuper.restore(dbSession, reader, org, profileName);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temporary backup file: " + backupFile, e);
-    } finally {
-      IOUtils.closeQuietly(reader);
     }
   }
 }

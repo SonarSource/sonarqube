@@ -23,7 +23,6 @@ import java.io.Reader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
@@ -31,7 +30,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbTester;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -47,19 +45,16 @@ import static org.mockito.Mockito.mock;
 public class QProfilesWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
 
   private WebService.Controller controller;
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSessionRule, defaultOrganizationProvider);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(mock(DbClient.class), userSessionRule, defaultOrganizationProvider);
 
   @Before
   public void setUp() {
     QProfileService profileService = mock(QProfileService.class);
-    I18n i18n = mock(I18n.class);
     DbClient dbClient = mock(DbClient.class);
 
     Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);
@@ -74,18 +69,14 @@ public class QProfilesWsTest {
       new RemoveProjectAction(projectAssociationParameters, null, null, dbClient),
       new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
-      new RestoreBuiltInAction(null, languages, wsSupport),
       new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
-      new BackupAction(dbClient, null, null, languages),
-      new RestoreAction(null, languages, wsSupport),
       new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),
       new ChangeParentAction(dbClient, null, null, languages, wsSupport),
       new CompareAction(null, null, languages),
-      new CopyAction(null, languages, wsSupport),
       new DeleteAction(languages, null, null, userSessionRule, wsSupport),
-      new ExportAction(null, null, mock(QProfileExporters.class), languages, wsSupport),
+      new CopyAction(dbClient, null, languages, wsSupport),
       new ExportersAction(),
       new InheritanceAction(null, null, null, null, languages),
       new RenameAction(null, wsSupport, dbClient, userSessionRule))).controller(QProfilesWs.API_ENDPOINT);
@@ -113,15 +104,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(23);
-  }
-
-  @Test
-  public void define_restore_built_action() {
-    WebService.Action restoreProfiles = controller.action("restore_built_in");
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.isPost()).isTrue();
-    assertThat(restoreProfiles.params()).hasSize(1);
+    assertThat(controller.actions()).isNotEmpty();
   }
 
   @Test
@@ -184,22 +167,6 @@ public class QProfilesWsTest {
     assertThat(projects.isPost()).isFalse();
     assertThat(projects.params()).hasSize(5);
     assertThat(projects.responseExampleAsString()).isNotEmpty();
-  }
-
-  @Test
-  public void define_backup_action() {
-    WebService.Action backup = controller.action("backup");
-    assertThat(backup).isNotNull();
-    assertThat(backup.isPost()).isFalse();
-    assertThat(backup.params()).hasSize(3);
-  }
-
-  @Test
-  public void define_restore_action() {
-    WebService.Action restore = controller.action("restore");
-    assertThat(restore).isNotNull();
-    assertThat(restore.isPost()).isTrue();
-    assertThat(restore.params()).hasSize(1);
   }
 
   @Test
@@ -283,15 +250,6 @@ public class QProfilesWsTest {
     assertThat(delete.isPost()).isTrue();
     assertThat(delete.params()).hasSize(4).extracting("key").containsOnly(
       "organization", "profileKey", "language", "profileName");
-  }
-
-  @Test
-  public void define_export_action() {
-    WebService.Action export = controller.action("export");
-    assertThat(export).isNotNull();
-    assertThat(export.isPost()).isFalse();
-    assertThat(export.params()).hasSize(2).extracting("key").containsOnly(
-      "language", "name");
   }
 
   @Test

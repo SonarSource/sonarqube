@@ -19,19 +19,31 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.Collection;
-import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
-public interface QProfileReset {
-  /**
-   * Restore the built-in profiles provided by plugins for the specified language.
-   * Missing profiles are created and existing ones are updated.
-   */
-  void resetLanguage(DbSession dbSession, OrganizationDto organization, String language);
+import static java.util.Objects.requireNonNull;
 
-  /**
-   * Reset the profile, which is created if it does not exist
-   */
-  QProfileRestoreSummary reset(DbSession dbSession, OrganizationDto organization, QProfileName profileName, Collection<RuleActivation> activations);
+public final class QProfileRestoreSummary {
+  private final OrganizationDto organization;
+  private final QualityProfileDto profile;
+  private final BulkChangeResult ruleChanges;
+
+  public QProfileRestoreSummary(OrganizationDto organization, QualityProfileDto profile, BulkChangeResult ruleChanges) {
+    this.organization = requireNonNull(organization);
+    this.profile = requireNonNull(profile);
+    this.ruleChanges = requireNonNull(ruleChanges);
+  }
+
+  public OrganizationDto getOrganization() {
+    return organization;
+  }
+
+  public QualityProfileDto getProfile() {
+    return profile;
+  }
+
+  public BulkChangeResult getRuleChanges() {
+    return ruleChanges;
+  }
 }
