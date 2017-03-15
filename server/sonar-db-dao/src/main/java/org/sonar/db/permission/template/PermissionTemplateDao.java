@@ -178,6 +178,10 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
+  public void deleteUserPermissionsByOrganization(DbSession dbSession, String organizationUuid, int userId) {
+    mapper(dbSession).deleteUserPermissionsByOrganization(organizationUuid, userId);
+  }
+
   public void insertGroupPermission(DbSession session, long templateId, @Nullable Integer groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
