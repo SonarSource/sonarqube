@@ -70,7 +70,7 @@ export default class Component extends React.Component {
 
     let componentAction = null;
 
-    if (!component.refKey) {
+    if (!component.refKey || component.qualifier === 'SVW') {
       switch (component.qualifier) {
         case 'FIL':
         case 'UTS':

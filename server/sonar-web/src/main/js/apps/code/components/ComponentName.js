@@ -58,7 +58,7 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
 
   let inner = null;
 
-  if (component.refKey) {
+  if (component.refKey && component.qualifier !== 'SVW') {
     inner = (
         <Link to={{ pathname: '/dashboard', query: { id: component.refKey } }} className="link-with-icon">
           <QualifierIcon qualifier={component.qualifier}/>
