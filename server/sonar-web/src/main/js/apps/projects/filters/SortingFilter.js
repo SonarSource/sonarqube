@@ -32,8 +32,7 @@ export default class SortingFilter extends React.PureComponent {
     sortDesc: React.PropTypes.oneOf(['left', 'right']),
     leftText: React.PropTypes.string,
     rightText: React.PropTypes.string
-  }
-
+  };
   static defaultProps = {
     sortDesc: 'left',
     leftText: translate('worst'),
@@ -72,19 +71,23 @@ export default class SortingFilter extends React.PureComponent {
     const { leftText, rightText } = this.props;
 
     return (
-        <div className="projects-facet-sort">
-          <span>{translate('projects.sort_list')}</span>
-          <div className="spacer-left button-group">
-            <Link
-              onClick={this.blurLink}
-              className={this.getLinkClass('left')}
-              to={this.getLinkPath('left')}>{leftText}</Link>
-            <Link
-              onClick={this.blurLink}
-              className={this.getLinkClass('right')}
-              to={this.getLinkPath('right')}>{rightText}</Link>
-          </div>
+      <div className="projects-facet-sort">
+        <span>{translate('projects.sort_list')}</span>
+        <div className="spacer-left button-group">
+          <Link
+            onClick={this.blurLink}
+            className={this.getLinkClass('left')}
+            to={this.getLinkPath('left')}>
+            {leftText}
+          </Link>
+          <Link
+            onClick={this.blurLink}
+            className={this.getLinkClass('right')}
+            to={this.getLinkPath('right')}>
+            {rightText}
+          </Link>
         </div>
+      </div>
     );
   }
 }

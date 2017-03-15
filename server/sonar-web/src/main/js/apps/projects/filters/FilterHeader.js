@@ -17,11 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
-import IssuesFilter from './IssuesFilter';
 
-export default class ReliabilityFilter extends React.Component {
+type Props = {
+  name: string,
+  children?: {}
+};
+
+export default class FilterHeader extends React.PureComponent {
+  props: Props;
+
   render () {
-    return <IssuesFilter {...this.props} name="Reliability" property="reliability"/>;
+    return (
+      <div className="search-navigator-facet-header projects-facet-header">
+        {this.props.name}
+        {this.props.children}
+      </div>
+    );
   }
 }

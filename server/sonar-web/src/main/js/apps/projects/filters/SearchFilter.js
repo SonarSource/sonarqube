@@ -43,7 +43,10 @@ export default class SearchFilter extends React.PureComponent {
   }
 
   componentWillReceiveProps (nextProps: Props) {
-    if (this.props.query.search === this.state.userQuery && nextProps.query.search !== this.props.query.search) {
+    if (
+      this.props.query.search === this.state.userQuery &&
+      nextProps.query.search !== this.props.query.search
+    ) {
       this.setState({
         userQuery: nextProps.query.search || ''
       });

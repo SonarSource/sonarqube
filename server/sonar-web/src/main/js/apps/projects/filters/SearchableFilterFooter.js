@@ -46,16 +46,18 @@ export default class SearchableFilterFooter extends React.PureComponent {
 
   render () {
     return (
-      <Select
-        onChange={this.handleOptionChange}
-        className="input-super-large"
-        placeholder={translate('search_verb')}
-        clearable={false}
-        searchable={true}
-        onInputChange={this.props.onInputChange}
-        onOpen={this.props.onOpen}
-        isLoading={this.props.isLoading}
-        options={this.props.options}/>
+      <div className="search-navigator-facet-footer projects-facet-footer">
+        <Select
+          onChange={this.handleOptionChange}
+          className="input-super-large"
+          placeholder={translate('search_verb')}
+          clearable={false}
+          searchable={true}
+          onInputChange={this.props.onInputChange}
+          onOpen={this.props.onOpen}
+          isLoading={this.props.isLoading}
+          options={this.props.options}/>
+      </div>
     );
   }
 }

@@ -22,19 +22,20 @@ import React from 'react';
 import debounce from 'lodash/debounce';
 import difference from 'lodash/difference';
 import sortBy from 'lodash/sortBy';
-import FilterContainer from './FilterContainer';
+import Filter from './Filter';
+import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { searchProjectTags } from '../../../api/components';
 
 type Props = {
   query: {},
-  isFavorite?: boolean,
-  organization?: {},
+  router: { push: ({ pathname: string, query?: {} }) => void },
   value?: Array<string>,
   facet?: {},
+  isFavorite?: boolean,
+  organization?: {},
   maxFacetValue?: number,
-  router: { push: ({ pathname: string, query?: {}}) => void },
 };
 
 type State = {
@@ -62,37 +63,13 @@ export default class TagsFilter extends React.PureComponent {
 
   renderOption = (option: string) => <SearchableFilterOption optionKey={option}/>;
 
-  renderFooter = () => (
-    <SearchableFilterFooter
-      property={this.property}
-      query={this.props.query}
-      options={this.getSearchOptions()}
-      isLoading={this.state.isLoading}
-      onOpen={this.handleSearch}
-      onInputChange={this.handleSearch}
-      isFavorite={this.props.isFavorite}
-      organization={this.props.organization}
-      router={this.props.router}/>
-  );
-
-  getSearchOptions = () => {
-    const { facet } = this.props;
-    const { tags } = this.state;
+  getSearchOptions (facet: {}, tags: Array<string>) {
     let tagsCopy = [...tags];
     if (facet) {
       tagsCopy = difference(tagsCopy, Object.keys(facet));
     }
     return tagsCopy.map(tag => ({ label: tag, value: tag }));
-  };
-
-  getSortedOptions (facet: {}) {
-    if (!facet) {
-      return [];
-    }
-    return sortBy(Object.keys(facet), [option => -facet[option]]);
   }
-
-  getFacetValueForOption = (facet: {}, option: string) => facet[option];
 
   handleSearch = (search?: string) => {
     if (search !== this.state.search) {
@@ -104,23 +81,39 @@ export default class TagsFilter extends React.PureComponent {
     }
   };
 
-  renderName = () => 'Tags';
+  getSortedOptions (facet: {} = {}) {
+    return sortBy(Object.keys(facet), [option => -facet[option]]);
+  }
+
+  getFacetValueForOption = (facet: {}, option: string) => facet[option];
 
   render () {
     return (
-      <FilterContainer
+      <Filter
         property={this.property}
-        getOptions={this.getSortedOptions}
-        renderName={this.renderName}
-        renderOption={this.renderOption}
-        renderFooter={this.renderFooter}
-        getFacetValueForOption={this.getFacetValueForOption}
+        options={this.getSortedOptions(this.props.facet)}
         query={this.props.query}
+        renderOption={this.renderOption}
+        value={this.props.value}
+        facet={this.props.facet}
+        maxFacetValue={this.props.maxFacetValue}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
-        // we need to pass the tags and isLoading so the footer is correctly updated if it changes
-        tags={this.state.tags}
-        isLoading={this.state.isLoading}/>
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={<FilterHeader name="Tags"/>}
+        footer={
+          <SearchableFilterFooter
+            property={this.property}
+            query={this.props.query}
+            options={this.getSearchOptions(this.props.facet, this.state.tags)}
+            isLoading={this.state.isLoading}
+            onOpen={this.handleSearch}
+            onInputChange={this.handleSearch}
+            isFavorite={this.props.isFavorite}
+            organization={this.props.organization}
+            router={this.props.router}/>
+        }/>
     );
   }
 }

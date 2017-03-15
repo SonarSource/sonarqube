@@ -22,6 +22,7 @@ import React from 'react';
 import difference from 'lodash/difference';
 import sortBy from 'lodash/sortBy';
 import Filter from './Filter';
+import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { getLanguageByKey } from '../../../store/languages/reducer';
@@ -29,7 +30,7 @@ import { getLanguageByKey } from '../../../store/languages/reducer';
 type Props = {
   query: {},
   languages: {},
-  router: { push: ({ pathname: string, query?: {}}) => void },
+  router: { push: ({ pathname: string, query?: {} }) => void },
   value?: Array<string>,
   facet?: {},
   isFavorite?: boolean,
@@ -48,53 +49,44 @@ export default class LanguagesFilter extends React.PureComponent {
       option={getLanguageByKey(this.props.languages, option)}/>
   );
 
-  renderFooter = () => (
-    <SearchableFilterFooter
-      property={this.property}
-      query={this.props.query}
-      options={this.getSearchOptions()}
-      isFavorite={this.props.isFavorite}
-      organization={this.props.organization}
-      router={this.props.router}/>
-  );
-
-  getSearchOptions = () => {
-    const { facet, languages } = this.props;
+  getSearchOptions (facet: {}, languages: {}) {
     let languageKeys = Object.keys(languages);
     if (facet) {
       languageKeys = difference(languageKeys, Object.keys(facet));
     }
     return languageKeys.map(key => ({ label: languages[key].name, value: key }));
-  };
+  }
 
-  getSortedOptions (facet: {}) {
-    if (!facet) {
-      return [];
-    }
+  getSortedOptions (facet: {} = {}) {
     return sortBy(Object.keys(facet), [option => -facet[option]]);
   }
 
-  getFacetValueForOption = (facet: {}, option: string) => facet[option];
-
-  renderName = () => 'Languages';
+  getFacetValueForOption = (facet: {} = {}, option: string) => facet[option];
 
   render () {
     return (
       <Filter
         property={this.property}
-        getOptions={this.getSortedOptions}
-        renderName={this.renderName}
-        renderOption={this.renderOption}
-        renderFooter={this.renderFooter}
-        getFacetValueForOption={this.getFacetValueForOption}
+        options={this.getSortedOptions(this.props.facet)}
         query={this.props.query}
+        renderOption={this.renderOption}
         value={this.props.value}
         facet={this.props.facet}
         maxFacetValue={this.props.maxFacetValue}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
-        // we need to pass the languages so the footer is correctly updated if it changes
-        languages={this.props.languages}/>
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={<FilterHeader name="Languages"/>}
+        footer={
+          <SearchableFilterFooter
+            property={this.property}
+            query={this.props.query}
+            options={this.getSearchOptions(this.props.facet, this.props.languages)}
+            isFavorite={this.props.isFavorite}
+            organization={this.props.organization}
+            router={this.props.router}/>
+        }/>
     );
   }
 }
