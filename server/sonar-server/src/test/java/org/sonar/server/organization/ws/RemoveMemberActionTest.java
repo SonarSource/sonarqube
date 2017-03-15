@@ -32,6 +32,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
@@ -142,6 +144,23 @@ public class RemoveMemberActionTest {
     assertProjectPermissionsOfUser(user, project);
     assertProjectPermissionsOfUser(user, anotherProject, CODEVIEWER, USER);
     assertProjectPermissionsOfUser(anotherUser, project, CODEVIEWER, USER);
+  }
+
+  @Test
+  public void remove_template_permissions() {
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto anotherUser = db.users().insertUser();
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate(anotherOrganization);
+    String permission = "PERMISSION";
+    db.permissionTemplates().addUserToTemplate(template.getId(), user.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getId(), anotherUser.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getId(), user.getId(), permission);
+
+    call(organization.getKey(), user.getLogin());
+
+    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(anotherUser.getId());
+    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(user.getId());
   }
 
   @Test

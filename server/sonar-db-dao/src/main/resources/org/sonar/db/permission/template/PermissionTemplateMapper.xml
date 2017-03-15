@@ -58,6 +58,13 @@
     AND permission_reference = #{permission}
   </delete>
 
+  <delete id="deleteUserPermissionsByOrganization" parameterType="map">
+    delete from perm_templates_users
+    where
+    user_id = #{userId,jdbcType=INTEGER}
+    and template_id in (select id from permission_templates where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
+  </delete>
+
   <delete id="deleteGroupPermissionsByTemplateId" parameterType="long">
     delete from
       perm_templates_groups
