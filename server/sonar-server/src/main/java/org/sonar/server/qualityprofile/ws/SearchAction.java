@@ -58,7 +58,8 @@ public class SearchAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
 
-    QProfileWsSupport.createOrganizationParam(action);
+    QProfileWsSupport.createOrganizationParam(action)
+      .setSince("6.4");
 
     action
       .createParam(PARAM_LANGUAGE)
