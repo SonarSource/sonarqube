@@ -35,6 +35,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileRestoreSummary;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -92,34 +93,35 @@ public class RestoreAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, organizationKey);
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
 
-      BulkChangeResult result = backuper.restore(dbSession, reader, organization, null);
-      writeResponse(response.newJsonWriter(), result);
+      QProfileRestoreSummary summary = backuper.restore(dbSession, reader, organization, null);
+      writeResponse(response.newJsonWriter(), summary);
     } finally {
       IOUtils.closeQuietly(reader);
       IOUtils.closeQuietly(backup);
     }
   }
 
-  private void writeResponse(JsonWriter json, BulkChangeResult result) {
-    QualityProfileDto profile = result.profile();
-    if (profile != null) {
-      String languageKey = profile.getLanguage();
-      Language language = languages.get(languageKey);
+  private void writeResponse(JsonWriter json, QProfileRestoreSummary summary) {
+    QualityProfileDto profile = summary.getProfile();
+    String languageKey = profile.getLanguage();
+    Language language = languages.get(languageKey);
 
-      JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
-      jsonProfile
-        .prop("key", profile.getKey())
-        .prop("name", profile.getName())
-        .prop("language", languageKey)
-        .prop("isDefault", false)
-        .prop("isInherited", false);
-      if (language != null) {
-        jsonProfile.prop("languageName", language.getName());
-      }
-      jsonProfile.endObject();
+    JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
+    jsonProfile
+      .prop("organization", summary.getOrganization().getKey())
+      .prop("key", profile.getKey())
+      .prop("name", profile.getName())
+      .prop("language", languageKey)
+      .prop("isDefault", false)
+      .prop("isInherited", false);
+    if (language != null) {
+      jsonProfile.prop("languageName", language.getName());
     }
-    json.prop("ruleSuccesses", result.countSucceeded());
-    json.prop("ruleFailures", result.countFailed());
+    jsonProfile.endObject();
+
+    BulkChangeResult ruleChanges = summary.getRuleChanges();
+    json.prop("ruleSuccesses", ruleChanges.countSucceeded());
+    json.prop("ruleFailures", ruleChanges.countFailed());
     json.endObject().close();
   }
 }

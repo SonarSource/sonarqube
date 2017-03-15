@@ -96,7 +96,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public BulkChangeResult restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
+  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
     try {
       String profileLang = null;
       String profileName = null;

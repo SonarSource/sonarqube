@@ -37,6 +37,6 @@ public interface QProfileBackuper {
    * Restore a profile backup in the specified organization. The parameter {@code overriddenProfileName}
    * is the name of the profile to be used. If null then name is loaded from backup.
    */
-  BulkChangeResult restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName);
+  QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName);
 
 }

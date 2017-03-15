@@ -107,9 +107,10 @@ public class QProfileReset {
   /**
    * Reset the profile, which is created if it does not exist
    */
-  BulkChangeResult reset(DbSession dbSession, OrganizationDto organization, QProfileName profileName, Collection<RuleActivation> activations) {
+  QProfileRestoreSummary reset(DbSession dbSession, OrganizationDto organization, QProfileName profileName, Collection<RuleActivation> activations) {
     QualityProfileDto profile = factory.getOrCreate(dbSession, organization, profileName);
-    return doReset(dbSession, profile, activations);
+    BulkChangeResult ruleChanges = doReset(dbSession, profile, activations);
+    return new QProfileRestoreSummary(organization, profile, ruleChanges);
   }
 
   /**
@@ -118,7 +119,7 @@ public class QProfileReset {
    */
   private BulkChangeResult doReset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations) {
     Preconditions.checkNotNull(profile.getId(), "Quality profile must be persisted");
-    BulkChangeResult result = new BulkChangeResult(profile);
+    BulkChangeResult result = new BulkChangeResult();
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
     // Keep reference to all the activated rules before backup restore
     for (ActiveRuleDto activeRuleDto : db.activeRuleDao().selectByProfileKey(dbSession, profile.getKee())) {
