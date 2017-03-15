@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -50,20 +51,20 @@ public class CopyAction implements QProfileWsAction {
   @Override
   public void define(WebService.NewController controller) {
     NewAction setDefault = controller.createAction("copy")
-      .setSince("5.2")
-      .setDescription("Copy a quality profile. Require Administer Quality Profiles permission.")
-      .setPost(true)
-      .setHandler(this);
+        .setSince("5.2")
+        .setDescription("Copy a quality profile. Require Administer Quality Profiles permission.")
+        .setPost(true)
+        .setHandler(this);
 
     setDefault.createParam(PARAM_PROFILE_NAME)
-      .setDescription("The name for the new quality profile.")
-      .setExampleValue("My Sonar way")
-      .setRequired(true);
+        .setDescription("The name for the new quality profile.")
+        .setExampleValue("My Sonar way")
+        .setRequired(true);
 
     setDefault.createParam(PARAM_PROFILE_KEY)
-      .setDescription("The key of a quality profile.")
-      .setExampleValue("sonar-way-js-12345")
-      .setRequired(true);
+        .setDescription("The key of a quality profile.")
+        .setExampleValue(Uuids.UUID_EXAMPLE_01)
+        .setRequired(true);
   }
 
   @Override
@@ -80,15 +81,15 @@ public class CopyAction implements QProfileWsAction {
       Language language = languages.get(copiedProfile.getLanguage());
       String parentKey = copiedProfile.getParentKee();
       response.newJsonWriter()
-        .beginObject()
-        .prop("key", copiedProfile.getKey())
-        .prop("name", copiedProfile.getName())
-        .prop("language", languageKey)
-        .prop("languageName", language == null ? null : language.getName())
-        .prop("isDefault", copiedProfile.isDefault())
-        .prop("isInherited", parentKey != null)
-        .prop("parentKey", parentKey)
-        .endObject().close();
+          .beginObject()
+          .prop("key", copiedProfile.getKey())
+          .prop("name", copiedProfile.getName())
+          .prop("language", languageKey)
+          .prop("languageName", language == null ? null : language.getName())
+          .prop("isDefault", copiedProfile.isDefault())
+          .prop("isInherited", parentKey != null)
+          .prop("parentKey", parentKey)
+          .endObject().close();
     }
   }
 }

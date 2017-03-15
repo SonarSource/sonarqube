@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -67,7 +68,7 @@ public class ChangeParentAction implements QProfileWsAction {
       .setDescription("The key of the new parent profile. If this parameter is set, parentName must not be set. " +
         "If both are left empty, the inheritance link with current parent profile (if any) is broken, which deactivates all rules " +
         "which come from the parent and are not overridden. Require Administer Quality Profiles permission.")
-      .setExampleValue("sonar-way-java-12345");
+      .setExampleValue(Uuids.UUID_EXAMPLE_02);
     inheritance.createParam(PARAM_PARENT_NAME)
       .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
       .setExampleValue("Sonar way");
