@@ -36,7 +36,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.ws.QProfileReference;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
@@ -132,33 +131,6 @@ public class QProfileFactory {
 
   public List<QualityProfileDto> getDefaults(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
     return db.qualityProfileDao().selectDefaultProfiles(session, organization, languageKeys);
-  }
-
-  public void setDefault(String profileKey) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      setDefault(dbSession, profileKey);
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  void setDefault(DbSession dbSession, String profileKey) {
-    checkRequest(StringUtils.isNotBlank(profileKey), "Profile key must be set");
-    QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
-    if (profile == null) {
-      throw new NotFoundException("Quality profile not found: " + profileKey);
-    }
-    setDefault(dbSession, profile);
-    dbSession.commit();
-  }
-
-  private void setDefault(DbSession session, QualityProfileDto profile) {
-    QualityProfileDto previousDefault = db.qualityProfileDao().selectDefaultProfile(session, profile.getLanguage());
-    if (previousDefault != null) {
-      db.qualityProfileDao().update(session, previousDefault.setDefault(false));
-    }
-    db.qualityProfileDao().update(session, profile.setDefault(true));
   }
 
   /**
