@@ -68,7 +68,8 @@ public class SetDefaultAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, qualityProfile.getOrganizationUuid())
-        .orElseThrow(() -> new IllegalStateException(format("Cannot find organization '%s' for quality profile '%s'", qualityProfile.getOrganizationUuid(), qualityProfile.getKee())));
+        .orElseThrow(() -> new IllegalStateException(
+          format("Cannot find organization '%s' for quality profile '%s'", qualityProfile.getOrganizationUuid(), qualityProfile.getKee())));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, qualityProfile.getOrganizationUuid());
       setDefault(dbSession, organization, qualityProfile);
       dbSession.commit();
