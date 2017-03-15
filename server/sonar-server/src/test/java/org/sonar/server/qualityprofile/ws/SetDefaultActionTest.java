@@ -143,10 +143,8 @@ public class SetDefaultActionTest {
 
   @Test
   public void should_not_change_other_organizations() throws Exception {
-    OrganizationDto organization1 = OrganizationTesting.newOrganizationDto();
-    db.organizations().insert(organization1);
-    OrganizationDto organization2 = OrganizationTesting.newOrganizationDto();
-    db.organizations().insert(organization2);
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
 
     userSessionRule
       .logIn()
