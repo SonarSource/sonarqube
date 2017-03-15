@@ -95,7 +95,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
     createTemplateProjectKeyPatternParameter(action);
     createTemplateDescriptionParameter(action);
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override

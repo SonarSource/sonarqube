@@ -76,7 +76,7 @@ public class RemoveUserAction implements PermissionsWsAction {
     createPermissionParameter(action);
     createUserLoginParameter(action);
     createProjectParameters(action);
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override
