@@ -36,7 +36,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -154,7 +153,7 @@ public class SearchDataLoader {
 
     profileFactory.getByNameAndLanguages(dbSession, organization, profileName, languageKeys)
       .forEach(qualityProfile -> qualityProfiles
-        .put(qualityProfile.getLanguage(), qualityProfileDtoToQProfile(qualityProfile, organization)));
+        .put(qualityProfile.getLanguage(), QProfile.from(qualityProfile, organization)));
     return difference(languageKeys, qualityProfiles.keySet());
   }
 
@@ -166,7 +165,7 @@ public class SearchDataLoader {
 
     ComponentDto project = getProject(moduleKey, dbSession);
     profileFactory.getByProjectAndLanguages(dbSession, organization, project.getKey(), languageKeys)
-            .forEach(qualityProfile -> qualityProfiles.put(qualityProfile.getLanguage(), qualityProfileDtoToQProfile(qualityProfile, organization)));
+            .forEach(qualityProfile -> qualityProfiles.put(qualityProfile.getLanguage(), QProfile.from(qualityProfile, organization)));
     return difference(languageKeys, qualityProfiles.keySet());
   }
 
@@ -201,7 +200,7 @@ public class SearchDataLoader {
 
   private List<QProfile> findDefaultProfiles(final DbSession dbSession, OrganizationDto organization, Set<String> languageKeys) {
     return profileFactory.getDefaults(dbSession, organization, languageKeys).stream()
-      .map(result -> qualityProfileDtoToQProfile(result, organization))
+      .map(result -> QProfile.from(result, organization))
       .collect(Collectors.toList());
   }
 
@@ -232,17 +231,5 @@ public class SearchDataLoader {
 
   private static boolean hasLanguage(SearchWsRequest request) {
     return request.getLanguage() != null;
-  }
-
-  public static QProfile qualityProfileDtoToQProfile(QualityProfileDto input, OrganizationDto organization) {
-    return new QProfile()
-      .setOrganization(organization)
-      .setKey(input.getKey())
-      .setName(input.getName())
-      .setLanguage(input.getLanguage())
-      .setDefault(input.isDefault())
-      .setRulesUpdatedAt(input.getRulesUpdatedAt())
-      .setLastUsed(input.getLastUsed())
-      .setUserUpdatedAt(input.getUserUpdatedAt());
   }
 }
