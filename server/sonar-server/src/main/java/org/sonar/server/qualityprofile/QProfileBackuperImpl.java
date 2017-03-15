@@ -96,7 +96,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public BulkChangeResult restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
+  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
     try {
       String profileLang = null;
       String profileName = null;
@@ -129,7 +129,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     }
   }
 
-  private List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor) throws XMLStreamException {
+  private static List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor) throws XMLStreamException {
     List<RuleActivation> activations = Lists.newArrayList();
     Set<RuleKey> activatedKeys = Sets.newHashSet();
     List<RuleKey> duplicatedKeys = Lists.newArrayList();

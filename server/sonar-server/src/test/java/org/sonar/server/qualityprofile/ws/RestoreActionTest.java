@@ -41,6 +41,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileRestoreSummary;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -91,11 +92,12 @@ public class RestoreActionTest {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
     TestResponse response = restore("<backup/>", null);
 
-    assertThat(backuper.restoredOrganization.getUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
+    assertThat(backuper.restoredSummary.getOrganization().getUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
-    assertThat(backuper.restoredProfile.getName()).isEqualTo("the-name-in-backup");
+    assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
     JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
       "  \"profile\": {" +
+      "    \"organization\": \"" + db.getDefaultOrganization().getKey() + "\"," +
       "    \"name\": \"the-name-in-backup\"," +
       "    \"language\": \"xoo\"," +
       "    \"languageName\": \"Xoo\"," +
@@ -113,11 +115,12 @@ public class RestoreActionTest {
     logInAsQProfileAdministrator(org);
     TestResponse response = restore("<backup/>", org.getKey());
 
-    assertThat(backuper.restoredOrganization.getUuid()).isEqualTo(org.getUuid());
+    assertThat(backuper.restoredSummary.getOrganization().getUuid()).isEqualTo(org.getUuid());
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
-    assertThat(backuper.restoredProfile.getName()).isEqualTo("the-name-in-backup");
+    assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
     JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
       "  \"profile\": {" +
+      "    \"organization\": \"" + org.getKey() + "\"," +
       "    \"name\": \"the-name-in-backup\"," +
       "    \"language\": \"xoo\"," +
       "    \"languageName\": \"Xoo\"," +
@@ -129,6 +132,7 @@ public class RestoreActionTest {
       "}");
 
   }
+
   @Test
   public void throw_IAE_if_backup_is_missing() throws Exception {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
@@ -201,8 +205,7 @@ public class RestoreActionTest {
   private static class TestBackuper implements QProfileBackuper {
 
     private String restoredBackup;
-    private OrganizationDto restoredOrganization;
-    private QualityProfileDto restoredProfile;
+    private QProfileRestoreSummary restoredSummary;
 
     @Override
     public void backup(DbSession dbSession, QualityProfileDto profile, Writer backupWriter) {
@@ -210,21 +213,21 @@ public class RestoreActionTest {
     }
 
     @Override
-    public BulkChangeResult restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
-      if (restoredProfile != null) {
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
+      if (restoredSummary != null) {
         throw new IllegalStateException("Already restored");
       }
       try {
-        this.restoredBackup = IOUtils.toString(backup);
+        restoredBackup = IOUtils.toString(backup);
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
-      this.restoredOrganization = organization;
-      restoredProfile = QualityProfileDto.createFor("P1")
+      QualityProfileDto profile = QualityProfileDto.createFor("P1")
         .setDefault(false)
         .setLanguage("xoo")
         .setName(overriddenProfileName != null ? overriddenProfileName : "the-name-in-backup");
-      return new BulkChangeResult(restoredProfile);
+      restoredSummary = new QProfileRestoreSummary(organization, profile, new BulkChangeResult());
+      return restoredSummary;
     }
   }
 }
