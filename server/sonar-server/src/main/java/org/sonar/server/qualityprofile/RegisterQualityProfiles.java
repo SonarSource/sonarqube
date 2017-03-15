@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -30,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -49,7 +47,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -66,28 +63,25 @@ public class RegisterQualityProfiles {
   private final RuleActivator ruleActivator;
   private final Languages languages;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final QProfileWsSupport qProfileWsSupport;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   /**
    * To be kept when no ProfileDefinition are injected
    */
-  public RegisterQualityProfiles(DbClient dbClient,
-    QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer,
-    QProfileWsSupport qProfileWsSupport, DefaultOrganizationProvider defaultOrganizationProvider) {
-    this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer, qProfileWsSupport, defaultOrganizationProvider);
+  public RegisterQualityProfiles(DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+    Languages languages, ActiveRuleIndexer activeRuleIndexer, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer, defaultOrganizationProvider);
   }
 
-  public RegisterQualityProfiles(DbClient dbClient,
-    QProfileFactory profileFactory, RuleActivator ruleActivator,
-    List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer, QProfileWsSupport qProfileWsSupport, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public RegisterQualityProfiles(DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+    List<ProfileDefinition> definitions,
+    Languages languages, ActiveRuleIndexer activeRuleIndexer, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
     this.definitions = definitions;
     this.languages = languages;
     this.activeRuleIndexer = activeRuleIndexer;
-    this.qProfileWsSupport = qProfileWsSupport;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
@@ -201,12 +195,7 @@ public class RegisterQualityProfiles {
   }
 
   private static Map<String, Collection<RulesProfile>> profilesByName(List<RulesProfile> profiles) {
-    return Multimaps.index(profiles, new Function<RulesProfile, String>() {
-      @Override
-      public String apply(@Nullable RulesProfile profile) {
-        return profile != null ? profile.getName() : null;
-      }
-    }).asMap();
+    return Multimaps.index(profiles, profile -> profile != null ? profile.getName() : null).asMap();
   }
 
   private static String nameOfDefaultProfile(List<RulesProfile> profiles) {
