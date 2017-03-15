@@ -32,3 +32,13 @@ exports[`test render code 1`] = `
     selectedIssue="issue-1" />
 </td>
 `;
+
+exports[`test should handle empty location message 1`] = `
+<div
+  className="source-line-issue-locations">
+  <a
+    className="source-viewer-issue-location issue-location-message selected"
+    href="#"
+    onClick={[Function]} />
+</div>
+`;

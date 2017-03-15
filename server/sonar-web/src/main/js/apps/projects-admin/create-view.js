@@ -43,7 +43,7 @@ export default ModalForm.extend({
     const data = {
       name: this.$('#create-project-name').val(),
       branch: this.$('#create-project-branch').val(),
-      key: this.$('#create-project-key').val()
+      project: this.$('#create-project-key').val()
     };
     if (this.options.organization) {
       data.organization = this.options.organization.key;

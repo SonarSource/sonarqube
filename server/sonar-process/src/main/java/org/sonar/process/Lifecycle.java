@@ -23,11 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +47,7 @@ public class Lifecycle {
 
   private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
 
-  private final List<LifecycleListener> listeners;
   private State state = INIT;
-
-  public Lifecycle(LifecycleListener... listeners) {
-    this.listeners = Arrays.stream(listeners).filter(Objects::nonNull).collect(Collectors.toList());
-  }
 
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
@@ -90,7 +82,6 @@ public class Lifecycle {
     if (TRANSITIONS.get(currentState).contains(to)) {
       this.state = to;
       res = true;
-      listeners.forEach(listener -> listener.successfulTransition(currentState, to));
     }
     LOG.trace("tryToMoveTo from {} to {} => {}", currentState, to, res);
     return res;
@@ -111,12 +102,5 @@ public class Lifecycle {
   @Override
   public int hashCode() {
     return state.hashCode();
-  }
-
-  public interface LifecycleListener {
-    /**
-     * Called when a transition from state {@code from} to state {@code to} was successful.
-     */
-    void successfulTransition(State from, State to);
   }
 }

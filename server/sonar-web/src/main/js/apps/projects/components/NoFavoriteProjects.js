@@ -28,7 +28,7 @@ export default class NoFavoriteProjects extends React.Component {
           <h3>{translate('projects.no_favorite_projects')}</h3>
           <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
           <p className="big-spacer-top">
-            <Link to="/projects" className="button">{translate('projects.explore_projects')}</Link>
+            <Link to="/projects/all" className="button">{translate('projects.explore_projects')}</Link>
           </p>
         </div>
     );

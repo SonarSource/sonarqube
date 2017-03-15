@@ -35,18 +35,23 @@ export function getGhosts (data?: Object) {
   return getJSON(url, data);
 }
 
-export function deleteComponents (data?: Object) {
+export function deleteComponents (data: { projects: string, organization?: string }) {
   const url = '/api/projects/bulk_delete';
   return post(url, data);
 }
 
-export function deleteProject (key: string) {
+export function deleteProject (project: string) {
   const url = '/api/projects/delete';
-  const data = { key };
+  const data = { project };
   return post(url, data);
 }
 
-export function createProject (data?: Object) {
+export function createProject (data: {
+  branch?: string,
+  name: string,
+  project: string,
+  organization?: string
+}) {
   const url = '/api/projects/create';
   return postJSON(url, data);
 }
@@ -80,9 +85,9 @@ export function getComponent (componentKey: string, metrics: Array<string> = [])
   return getJSON(url, data).then(r => r.component);
 }
 
-export function getTree (baseComponentKey: string, options?: Object = {}) {
+export function getTree (component: string, options?: Object = {}) {
   const url = '/api/components/tree';
-  const data = Object.assign({}, options, { baseComponentKey });
+  const data = { ...options, component };
   return getJSON(url, data);
 }
 
@@ -92,10 +97,9 @@ export function getParents ({ id, key }: { id: string, key: string }) {
   return getJSON(url, data).then(r => r.ancestors);
 }
 
-export function getBreadcrumbs ({ id, key }: { id: string, key: string }) {
+export function getBreadcrumbs (component: string) {
   const url = '/api/components/show';
-  const data = id ? { id } : { key };
-  return getJSON(url, data).then(r => {
+  return getJSON(url, { component }).then(r => {
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
   });

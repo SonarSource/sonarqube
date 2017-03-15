@@ -19,9 +19,11 @@
  */
 import React from 'react';
 import sortBy from 'lodash/sortBy';
-import FilterContainer from './FilterContainer';
-import LanguageFilterOption from './LanguageFilterOption';
-import LanguageFilterFooter from './LanguageFilterFooter';
+import {
+  FilterContainer,
+  LanguageFilterFooterContainer,
+  LanguageFilterOptionContainer
+} from './containers';
 
 export default class LanguageFilter extends React.PureComponent {
   static propTypes = {
@@ -33,7 +35,7 @@ export default class LanguageFilter extends React.PureComponent {
   property = 'languages';
 
   renderOption = option => {
-    return <LanguageFilterOption languageKey={option}/>;
+    return <LanguageFilterOptionContainer languageKey={option}/>;
   };
 
   getSortedOptions (facet) {
@@ -41,7 +43,7 @@ export default class LanguageFilter extends React.PureComponent {
   }
 
   renderFooter = () => (
-    <LanguageFilterFooter
+    <LanguageFilterFooterContainer
       property={this.property}
       query={this.props.query}
       isFavorite={this.props.isFavorite}

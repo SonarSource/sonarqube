@@ -23,23 +23,65 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import AllProjectsContainer from './AllProjectsContainer';
 import { getCurrentUser } from '../../../store/rootReducer';
-import { shouldRedirectToFavorite } from '../utils';
+import { isFavoriteSet, isAllSet } from '../utils';
+import { searchProjects } from '../../../api/components';
+
+type Props = {
+  currentUser: { isLoggedIn: boolean },
+  location: { query: {} },
+  router: { replace: (path: string) => void }
+};
+
+type State = {
+  shouldBeRedirected?: boolean
+};
 
 class DefaultPageSelector extends React.PureComponent {
-  props: {
-    currentUser: { isLoggedIn: boolean },
-    location: {},
-    router: { replace: (path: string) => void }
-  };
+  props: Props;
+  state: State;
+
+  constructor (props: Props) {
+    super(props);
+    this.state = {};
+  }
 
   componentDidMount () {
-    if (shouldRedirectToFavorite(this.props.currentUser)) {
+    this.defineIfShouldBeRedirected();
+  }
+
+  componentDidUpdate (prevProps: Props) {
+    if (prevProps.location !== this.props.location) {
+      this.defineIfShouldBeRedirected();
+    } else if (this.state.shouldBeRedirected === true) {
       this.props.router.replace('/projects/favorite');
     }
   }
 
+  defineIfShouldBeRedirected () {
+    if (Object.keys(this.props.location.query).length > 0) {
+      // show ALL projects when there are some filters
+      this.setState({ shouldBeRedirected: false });
+    } else if (!this.props.currentUser.isLoggedIn) {
+      // show ALL projects if user is anonymous
+      this.setState({ shouldBeRedirected: false });
+    } else if (isFavoriteSet()) {
+      // show FAVORITE projects if "favorite" setting is explicitly set
+      this.setState({ shouldBeRedirected: true });
+    } else if (isAllSet()) {
+      // show ALL projects if "all" setting is explicitly set
+      this.setState({ shouldBeRedirected: false });
+    } else {
+      // otherwise, request favorites
+      this.setState({ shouldBeRedirected: undefined });
+      searchProjects({ filter: 'isFavorite', ps: 1 }).then(r => {
+        // show FAVORITE projects if there are any
+        this.setState({ shouldBeRedirected: r.paging.total > 0 });
+      });
+    }
+  }
+
   render () {
-    if (shouldRedirectToFavorite(this.props.currentUser)) {
+    if (this.state.shouldBeRedirected == null || this.state.shouldBeRedirected === true) {
       return null;
     } else {
       return (

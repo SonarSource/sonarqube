@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import FilterContainer from './FilterContainer';
+import { FilterContainer } from './containers';
 import SortingFilter from './SortingFilter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
@@ -74,6 +74,7 @@ export default class CoverageFilter extends React.PureComponent {
         renderName={this.renderName}
         renderOption={this.renderOption}
         renderSort={this.renderSort}
+        highlightUnder={1}
         getFacetValueForOption={this.getFacetValueForOption}
         query={this.props.query}
         isFavorite={this.props.isFavorite}

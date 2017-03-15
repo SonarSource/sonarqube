@@ -17,50 +17,60 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import Action from './Action';
+import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { getActionKey } from '../utils';
+import type { Domain as DomainType } from '../../../api/web-api';
 
-export default function Domain ({ domain, showInternal, showOnlyDeprecated, searchQuery }) {
-  const filteredActions = domain.actions
-      .filter(action => {
-        return showInternal || !action.internal;
-      })
-      .filter(action => {
-        return !showOnlyDeprecated || (showOnlyDeprecated && action.deprecatedSince);
-      })
-      .filter(action => {
-        const actionKey = getActionKey(domain.path, action.key);
-        return actionKey.indexOf(searchQuery) !== -1;
-      });
+type Props = {
+  domain: DomainType,
+  showDeprecated: boolean,
+  showInternal: boolean,
+  searchQuery: string
+};
 
-  return (
+export default class Domain extends React.PureComponent {
+  props: Props;
+
+  render () {
+    const { domain, showInternal, showDeprecated, searchQuery } = this.props;
+    const filteredActions = domain.actions
+      .filter(action => showInternal || !action.internal)
+      .filter(action => showDeprecated || !action.deprecatedSince)
+      .filter(action => getActionKey(domain.path, action.key).indexOf(searchQuery) !== -1);
+
+    return (
       <div className="web-api-domain">
         <header className="web-api-domain-header">
           <h2 className="web-api-domain-title">{domain.path}</h2>
 
-          {domain.internal && (
-              <span className="spacer-left">
-                <InternalBadge/>
-              </span>
-          )}
+          {domain.deprecated &&
+            <span className="spacer-left">
+              <DeprecatedBadge/>
+            </span>}
+
+          {domain.internal &&
+            <span className="spacer-left">
+              <InternalBadge/>
+            </span>}
         </header>
 
-        {domain.description && (
-            <p className="web-api-domain-description">{domain.description}</p>
-        )}
+        {domain.description && <p className="web-api-domain-description">{domain.description}</p>}
 
         <div className="web-api-domain-actions">
           {filteredActions.map(action => (
-              <Action
-                  key={getActionKey(domain.path, action.key)}
-                  action={action}
-                  domain={domain}
-                  location={location}
-                  showInternal={showInternal}/>
+            <Action
+              key={getActionKey(domain.path, action.key)}
+              action={action}
+              domain={domain}
+              showDeprecated={showDeprecated}
+              showInternal={showInternal}/>
           ))}
         </div>
       </div>
-  );
+    );
+  }
 }

@@ -25,13 +25,11 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;

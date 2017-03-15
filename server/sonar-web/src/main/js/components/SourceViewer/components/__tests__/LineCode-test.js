@@ -48,3 +48,30 @@ it('render code', () => {
   );
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should handle empty location message', () => {
+  const line = {
+    line: 3,
+    code: '<span class="k">class</span>'
+  };
+  const issueLocations = [{ from: 0, to: 5, line: 3 }];
+  const secondaryIssueLocations = [{ from: 6, to: 9, line: 3 }];
+  const secondaryIssueLocationMessages = [{ flowIndex: 0, locationIndex: 0 }];
+  const selectedIssueLocation = { from: 6, to: 9, line: 3, flowIndex: 0, locationIndex: 0 };
+  const wrapper = shallow(
+    <LineCode
+      highlightedSymbol="sym1"
+      issueKeys={['issue-1', 'issue-2']}
+      issueLocations={issueLocations}
+      line={line}
+      onIssueSelect={jest.fn()}
+      onSelectLocation={jest.fn()}
+      onSymbolClick={jest.fn()}
+      secondaryIssueLocations={secondaryIssueLocations}
+      secondaryIssueLocationMessages={secondaryIssueLocationMessages}
+      selectedIssue="issue-1"
+      selectedIssueLocation={selectedIssueLocation}
+      showIssues={true}/>
+  );
+  expect(wrapper.find('.source-line-issue-locations')).toMatchSnapshot();
+});
