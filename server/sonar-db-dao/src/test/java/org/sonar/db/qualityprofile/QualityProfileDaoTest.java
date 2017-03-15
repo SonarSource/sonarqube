@@ -144,6 +144,7 @@ public class QualityProfileDaoTest {
     assertThat(java).isNotNull();
     assertThat(java.getKey()).isEqualTo("java_sonar_way");
 
+    assertThat(underTest.selectDefaultProfile(dbTester.getSession(), dbTester.organizations().insert(), "java")).isNull();
     assertThat(underTest.selectDefaultProfile(dbTester.getSession(), organization, "js")).isNull();
   }
 
