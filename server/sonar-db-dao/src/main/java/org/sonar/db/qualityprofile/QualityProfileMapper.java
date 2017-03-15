@@ -35,7 +35,7 @@ public interface QualityProfileMapper {
   List<QualityProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
-  QualityProfileDto selectDefaultProfile(@Param("language") String language);
+  QualityProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
   List<QualityProfileDto> selectDefaultProfiles(@Param("organizationUuid") String organizationUuid, @Param("languages") List<String> languages);
 

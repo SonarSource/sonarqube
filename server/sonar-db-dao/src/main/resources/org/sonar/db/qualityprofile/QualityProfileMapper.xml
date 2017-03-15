@@ -132,10 +132,9 @@
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      p.is_default=${_true}
-      AND p.language=#{language}
-    </where>
+    WHERE p.is_default=${_true}
+    AND p.language=#{language, jdbcType=VARCHAR}
+    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectDefaultProfiles" parameterType="map" resultType="QualityProfile">

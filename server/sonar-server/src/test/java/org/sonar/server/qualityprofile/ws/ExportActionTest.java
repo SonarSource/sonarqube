@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.io.IOException;
 import java.io.Writer;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,9 +33,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileTesting;
@@ -55,10 +58,17 @@ public class ExportActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private QProfileBackuper backuper = mock(QProfileBackuper.class);
+  private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, null, TestDefaultOrganizationProvider.from(db));
+  private OrganizationDto organization;
+
+  @Before
+  public void before() {
+    organization = db.getDefaultOrganization();
+  }
 
   @Test
   public void export_without_format() throws Exception {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
+    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1(organization));
 
     doAnswer(invocation -> {
       invocation.getArgumentAt(2, Writer.class).write("As exported by SQ !");
@@ -73,10 +83,14 @@ public class ExportActionTest {
 
   @Test
   public void export_with_format() throws Exception {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
+    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1(organization));
 
-    String result = newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest().setParam("language", profile.getLanguage()).setParam("name", profile.getName())
-      .setParam("exporterKey", "polop").execute()
+    String result = newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest()
+      .setParam("language", profile.getLanguage())
+      .setParam("name", profile.getName())
+      .setParam("exporterKey", "polop")
+      .setParam("organization", organization.getKey())
+      .execute()
       .getInput();
 
     assertThat(result).isEqualTo("Profile " + profile.getName() + " exported by polop");
@@ -84,7 +98,7 @@ public class ExportActionTest {
 
   @Test
   public void export_default_profile() throws Exception {
-    db.qualityProfiles().insertQualityProfiles(QProfileTesting.newXooP1("org-123"), QProfileTesting.newXooP2("org-123").setName("SonarWay").setDefault(true));
+    db.qualityProfiles().insertQualityProfiles(QProfileTesting.newXooP1(organization), QProfileTesting.newXooP2(organization).setName("SonarWay").setDefault(true));
 
     String result = newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest().setParam("language", "xoo").setParam("exporterKey", "polop").execute().getInput();
 
@@ -99,7 +113,7 @@ public class ExportActionTest {
 
   @Test
   public void fail_on_unknown_exporter() throws Exception {
-    db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
+    db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1(organization));
 
     expectedException.expect(IllegalArgumentException.class);
     newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest().setParam("language", "xoo").setParam("exporterKey", "unknown").execute();
@@ -107,7 +121,7 @@ public class ExportActionTest {
 
   @Test
   public void does_not_fail_when_no_exporters() throws Exception {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1("org-123"));
+    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QProfileTesting.newXooP1(organization));
 
     newWsActionTester().newRequest().setParam("language", "xoo").setParam("name", profile.getName()).execute();
   }
@@ -123,7 +137,7 @@ public class ExportActionTest {
 
   private WsActionTester newWsActionTester(ProfileExporter... profileExporters) {
     QProfileExporters exporters = new QProfileExporters(dbClient, null, null, profileExporters, null);
-    return new WsActionTester(new ExportAction(dbClient, backuper, exporters, LanguageTesting.newLanguages("xoo")));
+    return new WsActionTester(new ExportAction(dbClient, backuper, exporters, LanguageTesting.newLanguages("xoo"), qProfileWsSupport));
   }
 
   private static ProfileExporter

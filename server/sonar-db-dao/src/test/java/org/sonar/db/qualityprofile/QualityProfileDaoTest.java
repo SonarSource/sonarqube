@@ -140,11 +140,12 @@ public class QualityProfileDaoTest {
   public void get_default_profile() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    QualityProfileDto java = underTest.selectDefaultProfile(dbTester.getSession(), "java");
+    QualityProfileDto java = underTest.selectDefaultProfile(dbTester.getSession(), organization, "java");
     assertThat(java).isNotNull();
     assertThat(java.getKey()).isEqualTo("java_sonar_way");
 
-    assertThat(underTest.selectDefaultProfile(dbTester.getSession(), "js")).isNull();
+    assertThat(underTest.selectDefaultProfile(dbTester.getSession(), dbTester.organizations().insert(), "java")).isNull();
+    assertThat(underTest.selectDefaultProfile(dbTester.getSession(), organization, "js")).isNull();
   }
 
   @Test
