@@ -13,6 +13,15 @@
   <artifactId>sonar-process-monitor</artifactId>
   <name>SonarQube :: Process Monitor</name>
 
+  <properties>
+    <!--
+     version as stored in JAR and displayed in webapp. It is
+     overridden on Travis when replacing SNAPSHOT version by
+     build unique version, for instance "6.3.0.12345".
+     -->
+    <buildVersion>${project.version}</buildVersion>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -31,7 +40,6 @@
       <groupId>com.hazelcast</groupId>
       <artifactId>hazelcast</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -60,4 +68,14 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <!-- Used to resolve variables in file sonarqube-version.txt -->
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
 </project>

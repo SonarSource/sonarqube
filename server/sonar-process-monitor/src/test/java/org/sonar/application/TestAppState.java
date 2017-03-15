@@ -71,6 +71,11 @@ public class TestAppState implements AppState {
   }
 
   @Override
+  public void registerSonarQubeVersion(String sonarqubeVersion) {
+    // nothing to do
+  }
+
+  @Override
   public void close() {
     // nothing to do
   }

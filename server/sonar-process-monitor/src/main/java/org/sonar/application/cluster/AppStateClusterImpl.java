@@ -38,14 +38,16 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.sonar.application.config.AppSettings;
 import org.sonar.application.AppState;
 import org.sonar.application.AppStateListener;
+import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
 
 public class AppStateClusterImpl implements AppState {
-  static final String OPERATIONAL_PROCESSES = "operational_processes";
-  private static final String LEADER = "leader";
+  static final String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
+  static final String LEADER = "LEADER";
+
+  static final String SONARQUBE_VERSION = "SONARQUBE_VERSION";
 
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
@@ -73,7 +75,9 @@ public class AppStateClusterImpl implements AppState {
 
     // Configure the network instance
     NetworkConfig netConfig = hzConfig.getNetworkConfig();
-    netConfig.setPort(clusterProperties.getPort());
+    netConfig
+      .setPort(clusterProperties.getPort())
+      .setReuseAddress(true);
 
     if (!clusterProperties.getNetworkInterfaces().isEmpty()) {
       netConfig.getInterfaces()
@@ -168,6 +172,30 @@ public class AppStateClusterImpl implements AppState {
           }
         });
       hzInstance.shutdown();
+    }
+  }
+
+  @Override
+  public void registerSonarQubeVersion(String sonarqubeVersion) {
+    IAtomicReference<String> sqVersion = hzInstance.getAtomicReference(SONARQUBE_VERSION);
+    if (sqVersion.get() == null) {
+      ILock lock = hzInstance.getLock(SONARQUBE_VERSION);
+      lock.lock();
+      try {
+        if (sqVersion.get() == null) {
+          sqVersion.set(sonarqubeVersion);
+        }
+      } finally {
+        lock.unlock();
+      }
+    }
+
+    String clusterVersion = sqVersion.get();
+    if (!sqVersion.get().equals(sonarqubeVersion)) {
+      hzInstance.shutdown();
+      throw new IllegalStateException(
+        String.format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion)
+      );
     }
   }
 

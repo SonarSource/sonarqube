@@ -61,6 +61,11 @@ public class AppStateImpl implements AppState {
   }
 
   @Override
+  public void registerSonarQubeVersion(String sonarqubeVersion) {
+    // Nothing to do on non clustered version
+  }
+
+  @Override
   public void close() {
     // nothing to do
   }

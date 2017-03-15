@@ -40,6 +40,8 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.application.cluster.AppStateClusterImpl.OPERATIONAL_PROCESSES;
+import static org.sonar.application.cluster.AppStateClusterImpl.SONARQUBE_VERSION;
+import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
 
 public class AppStateClusterImplTest {
 
@@ -95,7 +97,7 @@ public class AppStateClusterImplTest {
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       appStateCluster.addListener(listener);
 
-      HazelcastInstance hzInstance = HazelcastHelper.createHazelcastClient(appStateCluster);
+      HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
       String uuid = UUID.randomUUID().toString();
       ReplicatedMap<ClusterProcess, Boolean> replicatedMap = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
       // process is not up yet --> no events are sent to listeners
@@ -113,6 +115,41 @@ public class AppStateClusterImplTest {
       verifyNoMoreInteractions(listener);
 
       hzInstance.shutdown();
+    }
+  }
+
+  @Test
+  public void registerSonarQubeVersion_publishes_version_on_first_call() {
+    TestAppSettings settings = newClusterSettings();
+
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+      appStateCluster.registerSonarQubeVersion("6.4.1.5");
+
+      HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
+      assertThat(hzInstance.getAtomicReference(SONARQUBE_VERSION).get())
+        .isNotNull()
+        .isInstanceOf(String.class)
+        .isEqualTo("6.4.1.5");
+    }
+  }
+
+  @Test
+  public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
+    // Now launch an instance that try to be part of the hzInstance cluster
+    TestAppSettings settings = new TestAppSettings();
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+
+
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+      // Register first version
+      appStateCluster.registerSonarQubeVersion("1.0.0");
+
+      expectedException.expect(IllegalStateException.class);
+      expectedException.expectMessage("The local version 2.0.0 is not the same as the cluster 1.0.0");
+
+      // Registering a second different version must trigger an exception
+      appStateCluster.registerSonarQubeVersion("2.0.0");
     }
   }
 
