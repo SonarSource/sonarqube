@@ -272,7 +272,7 @@ public class QualityProfileDaoTest {
   public void select_by_project_key_and_languages() {
     dbTester.prepareDbUnit(getClass(), "projects.xml");
 
-    OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid("org1");
+    OrganizationDto organization = dbTester.organizations().insert(OrganizationTesting.newOrganizationDto().setUuid("org1"));
     List<QualityProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "org.codehaus.sonar:sonar", singletonList("java"));
     assertThat(dto).extracting("id").containsOnly(1);
 
