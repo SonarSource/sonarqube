@@ -110,7 +110,9 @@ public class CompareAction implements QProfileWsAction {
       QualityProfileDto right = dbClient.qualityProfileDao().selectByKey(dbSession, rightKey);
       checkArgument(right != null, "Could not find right profile '%s'", rightKey);
 
-      checkArgument(Objects.equals(left.getOrganizationUuid(), right.getOrganizationUuid()), "Cannot compare quality profiles of different organizations. Quality profile left with key '%s' belongs to organization '%s', quality profile right with key '%s' belongs to organization '%s'.", leftKey, left.getOrganizationUuid(), rightKey, right.getOrganizationUuid());
+      checkArgument(Objects.equals(left.getOrganizationUuid(), right.getOrganizationUuid()),
+        "Cannot compare quality profiles of different organizations. Quality profile left with key '%s' belongs to organization '%s', " +
+          "quality profile right with key '%s' belongs to organization '%s'.", leftKey, left.getOrganizationUuid(), rightKey, right.getOrganizationUuid());
 
       QProfileComparisonResult result = comparator.compare(dbSession, left, right);
 
