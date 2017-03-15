@@ -22,7 +22,7 @@ import React from 'react';
 import debounce from 'lodash/debounce';
 import difference from 'lodash/difference';
 import sortBy from 'lodash/sortBy';
-import Filter from './Filter';
+import FilterContainer from './FilterContainer';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { searchProjectTags } from '../../../api/components';
@@ -34,7 +34,7 @@ type Props = {
   value?: Array<string>,
   facet?: {},
   maxFacetValue?: number,
-  router: { push: (path: string, query?: {}) => void }
+  router: { push: ({ pathname: string, query?: {}}) => void },
 };
 
 type State = {
@@ -66,10 +66,8 @@ export default class TagsFilter extends React.PureComponent {
     <SearchableFilterFooter
       property={this.property}
       query={this.props.query}
-      value={this.props.value}
-      options={this.state.tags}
+      options={this.getSearchOptions()}
       isLoading={this.state.isLoading}
-      getOptions={this.getSearchOptions}
       onOpen={this.handleSearch}
       onInputChange={this.handleSearch}
       isFavorite={this.props.isFavorite}
@@ -110,7 +108,7 @@ export default class TagsFilter extends React.PureComponent {
 
   render () {
     return (
-      <Filter
+      <FilterContainer
         property={this.property}
         getOptions={this.getSortedOptions}
         renderName={this.renderName}
@@ -118,9 +116,6 @@ export default class TagsFilter extends React.PureComponent {
         renderFooter={this.renderFooter}
         getFacetValueForOption={this.getFacetValueForOption}
         query={this.props.query}
-        value={this.props.value}
-        facet={this.props.facet}
-        maxFacetValue={this.props.maxFacetValue}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         // we need to pass the tags and isLoading so the footer is correctly updated if it changes

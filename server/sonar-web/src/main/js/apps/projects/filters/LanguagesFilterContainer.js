@@ -19,39 +19,17 @@
  */
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import Filter from './Filter';
 import LanguagesFilter from './LanguagesFilter';
-import TagsFilter from './TagsFilter';
 import {
   getProjectsAppFacetByProperty,
   getProjectsAppMaxFacetValue,
   getLanguages
 } from '../../../store/rootReducer';
 
-export const FilterContainer = (function () {
-  const mapStateToProps = (state, ownProps) => ({
-    value: ownProps.query[ownProps.property],
-    facet: getProjectsAppFacetByProperty(state, ownProps.property),
-    maxFacetValue: getProjectsAppMaxFacetValue(state)
-  });
-  return connect(mapStateToProps)(Filter);
-})();
-
-export const LanguagesFilterContainer = (function () {
-  const mapStateToProps = (state, ownProps) => ({
-    languages: getLanguages(state),
-    value: ownProps.query['languages'],
-    facet: getProjectsAppFacetByProperty(state, 'languages'),
-    maxFacetValue: getProjectsAppMaxFacetValue(state)
-  });
-  return connect(mapStateToProps)(withRouter(LanguagesFilter));
-})();
-
-export const TagsFilterContainer = (function () {
-  const mapStateToProps = (state, ownProps) => ({
-    value: ownProps.query['tags'],
-    facet: getProjectsAppFacetByProperty(state, 'tags'),
-    maxFacetValue: getProjectsAppMaxFacetValue(state)
-  });
-  return connect(mapStateToProps)(withRouter(TagsFilter));
-})();
+const mapStateToProps = (state, ownProps) => ({
+  languages: getLanguages(state),
+  value: ownProps.query['languages'],
+  facet: getProjectsAppFacetByProperty(state, 'languages'),
+  maxFacetValue: getProjectsAppMaxFacetValue(state)
+});
+export default connect(mapStateToProps)(withRouter(LanguagesFilter));

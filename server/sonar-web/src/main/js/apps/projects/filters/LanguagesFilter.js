@@ -29,7 +29,7 @@ import { getLanguageByKey } from '../../../store/languages/reducer';
 type Props = {
   query: {},
   languages: {},
-  router: { push: (path: string, query?: {}) => void },
+  router: { push: ({ pathname: string, query?: {}}) => void },
   value?: Array<string>,
   facet?: {},
   isFavorite?: boolean,
@@ -52,10 +52,7 @@ export default class LanguagesFilter extends React.PureComponent {
     <SearchableFilterFooter
       property={this.property}
       query={this.props.query}
-      value={this.props.value}
-      facet={this.props.facet}
-      options={this.props.languages}
-      getOptions={this.getSearchOptions}
+      options={this.getSearchOptions()}
       isFavorite={this.props.isFavorite}
       organization={this.props.organization}
       router={this.props.router}/>

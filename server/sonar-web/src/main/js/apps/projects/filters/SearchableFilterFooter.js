@@ -26,23 +26,22 @@ import { translate } from '../../../helpers/l10n';
 type Props = {
   property: string,
   query: {},
-  options: {} | [],
-  getOptions: () => [{ label: string, value: string }],
+  options: [{ label: string, value: string }],
+  router: { push: ({ pathname: string, query?: {}}) => void },
   onInputChange?: (string) => void,
   onOpen?: (void) => void,
-  value?: Array<string>,
-  facet?: {},
-  router?: { push: (path: string, query?: {}) => void },
-  isLoading?: boolean
+  isLoading?: boolean,
+  isFavorite?: boolean,
+  organization?: {}
 };
 
 export default class SearchableFilterFooter extends React.PureComponent {
   props: Props;
 
   handleOptionChange: ({ value: string }) => void = ({ value }) => {
-    const urlOptions = (this.props.value || []).concat(value).join(',');
+    const urlOptions = (this.props.query[this.props.property] || []).concat(value).join(',');
     const path = getFilterUrl(this.props, { [this.props.property]: urlOptions });
-    this.props.router && this.props.router.push(path);
+    this.props.router.push(path);
   };
 
   render () {
@@ -56,7 +55,7 @@ export default class SearchableFilterFooter extends React.PureComponent {
         onInputChange={this.props.onInputChange}
         onOpen={this.props.onOpen}
         isLoading={this.props.isLoading}
-        options={this.props.getOptions()}/>
+        options={this.props.options}/>
     );
   }
 }
