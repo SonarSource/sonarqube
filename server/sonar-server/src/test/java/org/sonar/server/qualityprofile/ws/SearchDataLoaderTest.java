@@ -25,18 +25,16 @@ import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
-import static org.junit.Assert.*;
-
 public class SearchDataLoaderTest {
 
   @Rule
-  public ExpectedException thrown= ExpectedException.none();
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void name_and_default_query_is_valid() throws Exception {
     SearchWsRequest request = new SearchWsRequest()
-            .setProfileName("bla")
-            .setDefaults(true);
+      .setProfileName("bla")
+      .setDefaults(true);
 
     SearchDataLoader.validateRequest(request);
   }
@@ -44,8 +42,8 @@ public class SearchDataLoaderTest {
   @Test
   public void name_and_component_query_is_valid() throws Exception {
     SearchWsRequest request = new SearchWsRequest()
-            .setProfileName("bla")
-            .setProjectKey("blubb");
+      .setProfileName("bla")
+      .setProjectKey("blubb");
 
     SearchDataLoader.validateRequest(request);
   }
@@ -56,7 +54,7 @@ public class SearchDataLoaderTest {
     thrown.expectMessage("The name parameter requires either projectKey or defaults to be set.");
 
     SearchWsRequest request = new SearchWsRequest()
-            .setProfileName("bla");
+      .setProfileName("bla");
 
     SearchDataLoader.validateRequest(request);
   }
@@ -67,8 +65,8 @@ public class SearchDataLoaderTest {
     thrown.expectMessage("The default parameter cannot be provided at the same time than the component key.");
 
     SearchWsRequest request = new SearchWsRequest()
-            .setDefaults(true)
-            .setProjectKey("blubb");
+      .setDefaults(true)
+      .setProjectKey("blubb");
 
     SearchDataLoader.validateRequest(request);
   }
@@ -79,8 +77,8 @@ public class SearchDataLoaderTest {
     thrown.expectMessage("The language parameter cannot be provided at the same time than the component key or profile name.");
 
     SearchWsRequest request = new SearchWsRequest()
-            .setLanguage("xoo")
-            .setProjectKey("bla");
+      .setLanguage("xoo")
+      .setProjectKey("bla");
 
     SearchDataLoader.validateRequest(request);
   }
@@ -91,10 +89,9 @@ public class SearchDataLoaderTest {
     thrown.expectMessage("The language parameter cannot be provided at the same time than the component key or profile name.");
 
     SearchWsRequest request = new SearchWsRequest()
-            .setLanguage("xoo")
-            .setProfileName("bla");
+      .setLanguage("xoo")
+      .setProfileName("bla");
 
     SearchDataLoader.validateRequest(request);
   }
-
 }
