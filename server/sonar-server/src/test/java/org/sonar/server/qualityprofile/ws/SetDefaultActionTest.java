@@ -174,6 +174,19 @@ public class SetDefaultActionTest {
   }
 
   @Test
+  public void fail_if_parameter_profile_key_is_combined_with_parameter_organization() throws Exception {
+    userSessionRule.logIn();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("When providing a quality profile key, neither of organization/language/name must be set");
+
+    tester.newRequest().setMethod("POST")
+      .setParam("profileKey", xoo2Profile.getKee())
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
+
+  @Test
   public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
     userSessionRule.logIn();
 

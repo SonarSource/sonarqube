@@ -174,6 +174,7 @@ public class QProfilesWsTest {
     assertThat(setDefault).isNotNull();
     assertThat(setDefault.isPost()).isTrue();
     assertThat(setDefault.params()).hasSize(4);
+    assertThat(setDefault.param("organization").since()).isEqualTo("6.4");
   }
 
   @Test
