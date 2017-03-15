@@ -33,9 +33,14 @@ public class DbVersion64 implements DbVersion {
       .add(1602, "Add RULES_PROFILES.ORGANIZATION_UUID", AddQualityProfileOrganizationUuid.class)
       .add(1603, "Set RULES_PROFILES.ORGANIZATION_UUID to default", SetQualityProfileOrganizationUuidToDefault.class)
       .add(1604, "Make RULES_PROFILES.ORGANIZATION_UUID not nullable", MakeQualityProfileOrganizationUuidNotNullable.class)
+
       .add(1605, "Drop unique index on RULES_PROFILES.KEE", DropUniqueIndexOnQualityProfileKey.class)
       .add(1606, "Make RULES_PROFILES.ORGANIZATION_UUID and KEE unique", MakeQualityProfileOrganizationUuidAndKeyUnique.class)
+
       .add(1607, "Create ORGANIZATION_MEMBERS table", CreateOrganizationMembersTable.class)
-      .add(1608, "Populate ORGANIZATION_MEMBERS table", PopulateOrganizationMembersTable.class);
+      .add(1608, "Populate ORGANIZATION_MEMBERS table", PopulateOrganizationMembersTable.class)
+
+      .add(1609, "Drop unique index on RULES_PROFILES.ORGANIZATION_UUID and KEE", DropUniqueIndexOnQualityProfileOrganizationUuidAndKey.class)
+      .add(1610, "Make RULES_PROFILES.KEE unique", MakeQualityProfileKeyUnique.class);
   }
 }

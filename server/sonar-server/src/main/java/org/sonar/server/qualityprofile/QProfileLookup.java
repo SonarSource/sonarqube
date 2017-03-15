@@ -19,17 +19,18 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.core.util.stream.Collectors.toList;
+
 import java.util.List;
+
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
 public class QProfileLookup {
@@ -40,12 +41,12 @@ public class QProfileLookup {
     this.db = db;
   }
 
-  public List<QProfile> allProfiles(DbSession dbSession) {
-    return toQProfiles(db.qualityProfileDao().selectAll(dbSession));
+  public List<QProfile> allProfiles(DbSession dbSession, OrganizationDto organization) {
+    return toQProfiles(db.qualityProfileDao().selectAll(dbSession, organization), organization);
   }
 
-  public List<QProfile> profiles(DbSession dbSession, String language) {
-    return toQProfiles(db.qualityProfileDao().selectByLanguage(dbSession, language));
+  public List<QProfile> profiles(DbSession dbSession, String language, OrganizationDto organization) {
+    return toQProfiles(db.qualityProfileDao().selectByLanguage(dbSession, language), organization);
   }
 
   @CheckForNull
@@ -53,7 +54,7 @@ public class QProfileLookup {
     try (DbSession dbSession = db.openSession(false)) {
       QualityProfileDto dto = findQualityProfile(name, language, dbSession);
       if (dto != null) {
-        return QProfile.from(dto);
+        return QProfile.from(dto, null);
       }
       return null;
     }
@@ -61,7 +62,7 @@ public class QProfileLookup {
 
   public List<QProfile> ancestors(QualityProfileDto profile, DbSession session) {
     List<QProfile> ancestors = newArrayList();
-    incrementAncestors(QProfile.from(profile), ancestors, session);
+    incrementAncestors(QProfile.from(profile, null), ancestors, session);
     return ancestors;
   }
 
@@ -71,27 +72,18 @@ public class QProfileLookup {
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : " + profile.id());
       }
-      QProfile parent = QProfile.from(parentDto);
+      QProfile parent = QProfile.from(parentDto, null);
       ancestors.add(parent);
       incrementAncestors(parent, ancestors, session);
     }
   }
 
-  private static List<QProfile> toQProfiles(List<QualityProfileDto> dtos) {
-    return newArrayList(Iterables.transform(dtos, ToQProfile.INSTANCE));
+  private static List<QProfile> toQProfiles(List<QualityProfileDto> dtos, OrganizationDto organization) {
+    return dtos.stream().map(dto -> QProfile.from(dto, organization)).collect(toList(dtos.size()));
   }
 
   @CheckForNull
   private QualityProfileDto findQualityProfile(String name, String language, DbSession session) {
     return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
-  }
-
-  private enum ToQProfile implements Function<QualityProfileDto, QProfile> {
-    INSTANCE;
-
-    @Override
-    public QProfile apply(@Nonnull QualityProfileDto input) {
-      return QProfile.from(input);
-    }
   }
 }

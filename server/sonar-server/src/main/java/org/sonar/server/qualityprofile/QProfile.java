@@ -23,11 +23,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
 public class QProfile {
 
   private int id;
+  private OrganizationDto organization;
   private String key;
   private String name;
   private String language;
@@ -51,6 +53,15 @@ public class QProfile {
   @Deprecated
   QProfile setId(int id) {
     this.id = id;
+    return this;
+  }
+
+  public OrganizationDto organization() {
+    return organization;
+  }
+
+  public QProfile setOrganization(OrganizationDto organization) {
+    this.organization = organization;
     return this;
   }
 
@@ -133,9 +144,10 @@ public class QProfile {
     return this;
   }
 
-  public static QProfile from(QualityProfileDto dto) {
+  public static QProfile from(QualityProfileDto dto, OrganizationDto organization) {
     return new QProfile()
       .setId(dto.getId())
+      .setOrganization(organization)
       .setKey(dto.getKey())
       .setName(dto.getName())
       .setLanguage(dto.getLanguage())
