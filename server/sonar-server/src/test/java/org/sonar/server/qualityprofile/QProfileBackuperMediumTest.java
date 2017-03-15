@@ -46,6 +46,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -392,7 +393,7 @@ public class QProfileBackuperMediumTest {
 
     dbSession.clearCache();
     assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(0);
-    List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession);
+    List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(tester, db, dbSession));
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
   }
