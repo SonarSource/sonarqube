@@ -19,10 +19,14 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
+import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
 public class QualityProfileDbTester {
   private final DbClient dbClient;
@@ -31,6 +35,21 @@ public class QualityProfileDbTester {
   public QualityProfileDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
+  }
+
+  /**
+   * Create a profile with random field values on the specified organization.
+   */
+  public QualityProfileDto insert(OrganizationDto organization, Consumer<QualityProfileDto>... consumers) {
+    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+      // default is not randomized yet in QualityProfileTesting
+      .setDefault(RandomUtils.nextBoolean())
+      .setOrganizationUuid(organization.getUuid());
+    Arrays.stream(consumers).forEach(c -> c.accept(profile));
+
+    dbClient.qualityProfileDao().insert(dbSession, profile);
+    dbSession.commit();
+    return profile;
   }
 
   public void insertQualityProfiles(QualityProfileDto qualityProfile, QualityProfileDto... qualityProfiles) {
