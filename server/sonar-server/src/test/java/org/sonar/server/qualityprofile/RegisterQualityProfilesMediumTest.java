@@ -42,7 +42,6 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.Platform;
@@ -124,6 +123,7 @@ public class RegisterQualityProfilesMediumTest {
     tester.start();
     DbClient dbClient = dbClient();
     dbSession = dbClient.openSession(false);
+    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient, dbSession);
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
@@ -132,7 +132,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(profile).isNotNull();
 
     // Check Default Profile
-    verifyDefaultProfile("xoo", "Basic");
+    verifyDefaultProfile(organization, "xoo", "Basic");
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
@@ -181,17 +181,21 @@ public class RegisterQualityProfilesMediumTest {
   @Test
   public void mark_profile_as_default() {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
-
     tester.start();
-    verifyDefaultProfile("xoo", "two");
+    dbSession = dbClient().openSession(false);
+
+    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient(), dbSession);
+    verifyDefaultProfile(organization, "xoo", "two");
   }
 
   @Test
   public void use_sonar_way_as_default_profile_if_none_are_marked_as_default() {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
-
     tester.start();
-    verifyDefaultProfile("xoo", "Sonar way");
+    dbSession = dbClient().openSession(false);
+
+    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient(), dbSession);
+    verifyDefaultProfile(organization, "xoo", "Sonar way");
   }
 
   @Test
@@ -201,20 +205,20 @@ public class RegisterQualityProfilesMediumTest {
     dbSession = dbClient().openSession(false);
 
     DefaultOrganizationProvider defaultOrganizationProvider = tester.get(DefaultOrganizationProvider.class);
-    OrganizationDto organization = dbClient().organizationDao().selectByUuid(dbSession, defaultOrganizationProvider.get().getUuid()).get();
+    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient(), dbSession);
 
     QualityProfileDao dao = dbClient().qualityProfileDao();
-    dao.update(dbSession, dao.selectDefaultProfile(dbSession, "xoo")
+    dao.update(dbSession, dao.selectDefaultProfile(dbSession, organization,"xoo")
       .setDefault(false));
     dao.update(dbSession, dao.selectByNameAndLanguage(organization, "two", "xoo", dbSession)
       .setDefault(true));
     dbSession.commit();
 
-    verifyDefaultProfile("xoo", "two");
+    verifyDefaultProfile(organization, "xoo", "two");
 
     tester.get(Platform.class).restart();
     // restart must keep "two" as default profile, even if "one" is marked as it
-    verifyDefaultProfile("xoo", "two");
+    verifyDefaultProfile(organization, "xoo", "two");
   }
 
   /**
@@ -237,9 +241,9 @@ public class RegisterQualityProfilesMediumTest {
     // do not fail
   }
 
-  private void verifyDefaultProfile(String language, String name) {
+  private void verifyDefaultProfile(OrganizationDto organization, String language, String name) {
     dbSession = dbClient().openSession(false);
-    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, language);
+    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
     assertThat(defaultProfile).isNotNull();
     assertThat(defaultProfile.getName()).isEqualTo(name);
   }

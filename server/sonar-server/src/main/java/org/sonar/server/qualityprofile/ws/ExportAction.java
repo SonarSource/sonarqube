@@ -38,6 +38,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
@@ -59,12 +60,14 @@ public class ExportAction implements QProfileWsAction {
   private final QProfileExporters exporters;
 
   private final Languages languages;
+  private final QProfileWsSupport qProfileWsSupport;
 
-  public ExportAction(DbClient dbClient, QProfileBackuper backuper, QProfileExporters exporters, Languages languages) {
+  public ExportAction(DbClient dbClient, QProfileBackuper backuper, QProfileExporters exporters, Languages languages, QProfileWsSupport qProfileWsSupport) {
     this.dbClient = dbClient;
     this.backuper = backuper;
     this.exporters = exporters;
     this.languages = languages;
+    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
@@ -127,8 +130,9 @@ public class ExportAction implements QProfileWsAction {
 
   private QualityProfileDto getProfile(@Nullable String name, String language) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = name == null ? dbClient.qualityProfileDao().selectDefaultProfile(dbSession, language)
-        : dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, dbSession);
+      OrganizationDto organization = qProfileWsSupport.getDefaultOrganization(dbSession);
+      QualityProfileDto profile = name == null ? dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, language)
+        : dbClient.qualityProfileDao().selectByNameAndLanguage(organization, name, language, dbSession);
       return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
     }
   }

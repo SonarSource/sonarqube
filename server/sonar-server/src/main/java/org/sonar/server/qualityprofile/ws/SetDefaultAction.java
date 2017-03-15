@@ -26,9 +26,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class SetDefaultAction implements QProfileWsAction {
@@ -65,15 +67,18 @@ public class SetDefaultAction implements QProfileWsAction {
     QProfileReference reference = QProfileReference.from(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, qualityProfile.getOrganizationUuid())
+        .orElseThrow(() -> new IllegalStateException(
+          format("Cannot find organization '%s' for quality profile '%s'", qualityProfile.getOrganizationUuid(), qualityProfile.getKee())));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, qualityProfile.getOrganizationUuid());
-      setDefault(dbSession, qualityProfile);
+      setDefault(dbSession, organization, qualityProfile);
       dbSession.commit();
     }
     response.noContent();
   }
 
-  public void setDefault(DbSession session, QualityProfileDto qualityProfile) {
-    QualityProfileDto previousDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, qualityProfile.getLanguage());
+  public void setDefault(DbSession session, OrganizationDto organization, QualityProfileDto qualityProfile) {
+    QualityProfileDto previousDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, organization, qualityProfile.getLanguage());
     if (previousDefault != null) {
       dbClient.qualityProfileDao().update(session, previousDefault.setDefault(false));
     }

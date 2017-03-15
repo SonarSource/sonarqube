@@ -107,8 +107,8 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectDefaultProfile(DbSession session, String language) {
-    return mapper(session).selectDefaultProfile(language);
+  public QualityProfileDto selectDefaultProfile(DbSession session, OrganizationDto organization, String language) {
+    return mapper(session).selectDefaultProfile(organization.getUuid(), language);
   }
 
   @CheckForNull
