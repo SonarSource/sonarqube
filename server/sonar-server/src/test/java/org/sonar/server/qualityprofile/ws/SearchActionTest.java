@@ -21,7 +21,10 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +40,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -70,6 +74,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+
 
 public class SearchActionTest {
 
@@ -293,59 +298,21 @@ public class SearchActionTest {
   }
   @Test
   public void search_default_profile_by_profile_name_and_org() {
-    OrganizationDto org1 = db.organizations().insert();
-    QualityProfileDto profile1 = QualityProfileDto.createFor("ORG1-SONAR-XOO1")
-      .setOrganizationUuid(org1.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar Xoo1 way")
-      .setDefault(false);
-    QualityProfileDto profile2 = QualityProfileDto.createFor("ORG1-SONAR-XOO2")
-      .setOrganizationUuid(org1.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar Xoo2 way")
-      .setDefault(false);
-    QualityProfileDto profile3 = QualityProfileDto.createFor("ORG1-MYWAY-XOO1")
-      .setOrganizationUuid(org1.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("My Xoo1 way")
-      .setDefault(true);
-    QualityProfileDto profile4 = QualityProfileDto.createFor("ORG1-MYWAY-XOO2")
-      .setOrganizationUuid(org1.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("My Xoo2 way")
-      .setDefault(true);
-    OrganizationDto org2 = db.organizations().insert();
-    QualityProfileDto profile5 = QualityProfileDto.createFor("ORG2-SONAR-XOO1")
-      .setOrganizationUuid(org2.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar Xoo1 way")
-      .setDefault(false);
-    QualityProfileDto profile6 = QualityProfileDto.createFor("ORG2-SONAR-XOO2")
-      .setOrganizationUuid(org2.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar Xoo2 way")
-      .setDefault(false);
-    QualityProfileDto profile7 = QualityProfileDto.createFor("ORG2-MYWAY-XOO1")
-      .setOrganizationUuid(org2.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("My Xoo1 way")
-      .setDefault(true);
-    QualityProfileDto profile8 = QualityProfileDto.createFor("ORG2-MYWAY-XOO2")
-      .setOrganizationUuid(org2.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("My Xoo2 way")
-      .setDefault(true);
-    db.qualityProfiles().insertQualityProfiles(profile1, profile2, profile3, profile4, profile5, profile6);
+    List<QualityProfileDto> profiles = new ArrayList<>();
+    for (String orgKey : Arrays.asList("ORG1", "ORG2")) {
+      OrganizationDto org = db.organizations().insert(OrganizationTesting.newOrganizationDto().setKey(orgKey));
+      profiles.add(createProfile("A", xoo1, org, "MATCH", false));
+      profiles.add(createProfile("B", xoo2, org, "NOMATCH", false));
+      profiles.add(createProfile("C", xoo1, org, "NOMATCH", true));
+      profiles.add(createProfile("D", xoo2, org, "NOMATCH", true));
+    }
 
-    SearchWsRequest request = new SearchWsRequest().setDefaults(true).setProfileName("Sonar Xoo1 way").setOrganizationKey(org1.getKey());
+    profiles.forEach(db.qualityProfiles()::insertQualityProfile);
+
+    SearchWsRequest request = new SearchWsRequest()
+      .setDefaults(true)
+      .setProfileName("MATCH")
+      .setOrganizationKey("ORG1");
     QualityProfiles.SearchWsResponse response = underTest.doHandle(request);
 
     assertThat(response.getProfilesList())
@@ -353,14 +320,18 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(
 
         // name match for xoo1
-        "ORG1-SONAR-XOO1",
+        "ORG1-A",
 
         // default for xoo2
-        "ORG1-MYWAY-XOO2"
-      );
-    assertThat(response.getProfilesList())
-      .extracting(QualityProfiles.SearchWsResponse.QualityProfile::getOrganization)
-      .containsOnly(org1.getKey());
+        "ORG1-D");
+  }
+
+  private QualityProfileDto createProfile(String keySuffix, Language language, OrganizationDto org, String name, boolean isDefault) {
+    return QualityProfileDto.createFor(org.getKey() + "-" + keySuffix)
+      .setOrganizationUuid(org.getUuid())
+      .setLanguage(language.getKey())
+      .setName(name)
+      .setDefault(isDefault);
   }
 
   private SearchWsResponse call(TestRequest request) {
