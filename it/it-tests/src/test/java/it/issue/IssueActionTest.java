@@ -189,7 +189,7 @@ public class IssueActionTest extends AbstractIssueTest {
       issuesService.assign(new AssignRequest(randomIssue.getKey(), "unknown"));
       fail();
     } catch (org.sonarqube.ws.client.HttpException ex) {
-      assertThat(ex.code()).isEqualTo(400);
+      assertThat(ex.code()).isEqualTo(404);
     }
   }
 
