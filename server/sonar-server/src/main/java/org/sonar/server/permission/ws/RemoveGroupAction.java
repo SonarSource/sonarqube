@@ -73,7 +73,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setHandler(this);
 
     createPermissionParameter(action);
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setSince("6.2");
     createGroupNameParameter(action);
     createGroupIdParameter(action);
     createProjectParameters(action);

@@ -91,7 +91,7 @@ public class UsersAction implements PermissionsWsAction {
         "When this parameter is not set, only users having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
       .setExampleValue("eri");
 
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setSince("6.2");
     createPermissionParameter(action).setRequired(false);
     createProjectParameters(action);
   }
