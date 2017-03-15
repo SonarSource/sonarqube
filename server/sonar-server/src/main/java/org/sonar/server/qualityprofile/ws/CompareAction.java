@@ -37,6 +37,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -90,12 +91,12 @@ public class CompareAction implements QProfileWsAction {
 
     compare.createParam(PARAM_LEFT_KEY)
       .setDescription("A profile key.")
-      .setExampleValue("java-sonar-way-12345")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01)
       .setRequired(true);
 
     compare.createParam(PARAM_RIGHT_KEY)
       .setDescription("Another profile key.")
-      .setExampleValue("java-sonar-way-with-findbugs-23456")
+      .setExampleValue(Uuids.UUID_EXAMPLE_02)
       .setRequired(true);
   }
 

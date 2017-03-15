@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.qualityprofile.ws.QProfileReference;
 import org.sonar.server.util.LanguageParamUtils;
 
@@ -147,7 +148,7 @@ public class QProfileRef {
   public static void defineParams(WebService.NewAction action, Languages languages) {
     action.createParam(PARAM_PROFILE_KEY)
       .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")
-      .setExampleValue("sonar-way-java-12345");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
     action.createParam(PARAM_PROFILE_NAME)
       .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
       .setExampleValue("Sonar way");
