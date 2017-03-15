@@ -29,7 +29,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -45,8 +44,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
-public class AddProjectActionTest {
-
+public class RemoveProjectActionTest {
   private static final String LANGUAGE_1 = "xoo";
   private static final String LANGUAGE_2 = "foo";
 
@@ -60,7 +58,7 @@ public class AddProjectActionTest {
   private DbClient dbClient = db.getDbClient();
   private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
-  private AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, new ComponentFinder(dbClient), wsSupport);
+  private RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages, new ComponentFinder(dbClient), wsSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -80,103 +78,45 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void add_project_on_profile_of_default_organization() {
-    logInAsProfileAdmin(db.getDefaultOrganization());
+  public void remove_profile_from_project_in_default_organization() {
+    logInAsProfileAdmin();
+
+    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    QualityProfileDto profileLang1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
+    QualityProfileDto profileLang2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_2));
+    db.qualityProfiles().associateProjectWithQualityProfile(project, profileLang1);
+    db.qualityProfiles().associateProjectWithQualityProfile(project, profileLang2);
+
+    TestResponse response = call(project, profileLang1);
+    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+
+    assertProjectIsNotAssociatedToProfile(project, profileLang1);
+    assertProjectIsAssociatedToProfile(project, profileLang2);
+  }
+
+  @Test
+  public void removal_does_not_fail_if_profile_is_not_associated_to_project() {
+    logInAsProfileAdmin();
+
     ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     TestResponse response = call(project, profile);
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
-    assertProjectIsAssociatedToProfile(project, profile);
+    assertProjectIsNotAssociatedToProfile(project, profile);
   }
 
   @Test
-  public void add_project_on_profile_of_specified_organization() {
-    OrganizationDto org1 = db.organizations().insert();
-    logInAsProfileAdmin(org1);
-    ComponentDto project = db.components().insertProject(org1);
-    QualityProfileDto profile = db.qualityProfiles().insert(org1, p -> p.setLanguage(LANGUAGE_1));
-
-    TestResponse response = call(org1, project, profile);
-    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-
-    assertProjectIsAssociatedToProfile(project, profile);
-  }
-
-  @Test
-  public void throw_IAE_if_profile_and_project_are_in_different_organizations() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    logInAsProfileAdmin(org1);
-    ComponentDto project = db.components().insertProject(org1);
-    QualityProfileDto profileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(LANGUAGE_1));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Project and Quality profile must have same organization");
-
-    call(org2, project, profileInOrg2);
-
-    assertProjectIsNotAssociatedToProfile(project, profileInOrg2);
-  }
-
-  @Test
-  public void throw_NotFoundException_if_profile_is_not_found_in_specified_organization() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    logInAsProfileAdmin(org1);
-    ComponentDto project = db.components().insertProject(org1);
-    QualityProfileDto profileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(LANGUAGE_1));
-
-    expectedException.expect(NotFoundException.class);
-    expectedException
-      .expectMessage("Quality Profile for language '" + LANGUAGE_1 + "' and name '" + profileInOrg2.getName() + "' does not exist in organization '" + org1.getKey() + "'");
-
-    call(org1, project, profileInOrg2);
-
-    assertProjectIsNotAssociatedToProfile(project, profileInOrg2);
-  }
-
-  @Test
-  public void change_association_in_default_organization() throws Exception {
-    logInAsProfileAdmin(db.getDefaultOrganization());
-
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
-    // two profiles on same language
-    QualityProfileDto profile1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
-    QualityProfileDto profile2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
-    db.qualityProfiles().associateProjectWithQualityProfile(project, profile1);
-
-    call(project, profile2);
-
-    assertProjectIsNotAssociatedToProfile(project, profile1);
-    assertProjectIsAssociatedToProfile(project, profile2);
-  }
-
-  @Test
-  public void changing_association_does_not_change_other_language_associations() throws Exception {
-    logInAsProfileAdmin(db.getDefaultOrganization());
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
-    QualityProfileDto profile1Language1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
-    QualityProfileDto profile2Language2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_2));
-    QualityProfileDto profile3Language1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
-    db.qualityProfiles().associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
-
-    call(project, profile3Language1);
-
-    assertProjectIsAssociatedToProfile(project, profile3Language1);
-    assertProjectIsAssociatedToProfile(project, profile2Language2);
-  }
-
-  @Test
-  public void project_administrator_can_change_profile() throws Exception {
+  public void project_administrator_can_remove_profile() throws Exception {
     ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    db.qualityProfiles().associateProjectWithQualityProfile(project, profile);
     userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     call(project, profile);
 
-    assertProjectIsAssociatedToProfile(project, profile);
+    assertProjectIsNotAssociatedToProfile(project, profile);
   }
 
   @Test
@@ -205,7 +145,7 @@ public class AddProjectActionTest {
 
   @Test
   public void throw_NotFoundException_if_project_does_not_exist() {
-    logInAsProfileAdmin(db.getDefaultOrganization());
+    logInAsProfileAdmin();
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -219,7 +159,7 @@ public class AddProjectActionTest {
 
   @Test
   public void throw_NotFoundException_if_profile_does_not_exist() {
-    logInAsProfileAdmin(db.getDefaultOrganization());
+    logInAsProfileAdmin();
     ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -241,23 +181,14 @@ public class AddProjectActionTest {
     assertThat(loaded == null || !loaded.getKey().equals(profile.getKey())).isTrue();
   }
 
-  private void logInAsProfileAdmin(OrganizationDto organization) {
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+  private void logInAsProfileAdmin() {
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
   }
 
   private TestResponse call(ComponentDto project, QualityProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
       .setParam("projectUuid", project.uuid())
       .setParam("profileKey", qualityProfile.getKey());
-    return request.execute();
-  }
-
-  private TestResponse call(OrganizationDto organization, ComponentDto project, QualityProfileDto qualityProfile) {
-    TestRequest request = tester.newRequest()
-      .setParam("organization", organization.getKey())
-      .setParam("projectUuid", project.uuid())
-      .setParam("language", qualityProfile.getLanguage())
-      .setParam("profileName", qualityProfile.getName());
     return request.execute();
   }
 }

@@ -41,8 +41,6 @@ public class QProfilesWsModule extends Module {
       ImportersAction.class,
       InheritanceAction.class,
       QProfilesWs.class,
-      ProjectAssociationFinder.class,
-      ProjectAssociationParameters.class,
       ProjectsAction.class,
       RenameAction.class,
       RemoveProjectAction.class,

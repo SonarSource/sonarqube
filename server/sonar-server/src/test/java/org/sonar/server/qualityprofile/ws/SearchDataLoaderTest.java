@@ -29,8 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -39,11 +37,9 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
@@ -55,7 +51,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-
 public class SearchDataLoaderTest {
 
   @Rule
@@ -66,7 +61,6 @@ public class SearchDataLoaderTest {
 
   private Languages languages;
   private QProfileLookup profileLookup;
-  private QProfileFactory profileFactory;
   private ComponentFinder componentFinder;
   private ActiveRuleIndex activeRuleIndex;
   private QProfileWsSupport qProfileWsSupport;
@@ -80,23 +74,20 @@ public class SearchDataLoaderTest {
     profileLookup = new QProfileLookup(dbClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     qProfileWsSupport = new QProfileWsSupport(dbClient, null, defaultOrganizationProvider);
-    profileFactory = new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), new AlwaysIncreasingSystem2());
     componentFinder = mock(ComponentFinder.class);
   }
 
   @Test
   public void find_no_profiles_if_database_is_empty() throws Exception {
     assertThat(findProfiles(
-      new SearchWsRequest()
-    )).isEmpty();
+      new SearchWsRequest())).isEmpty();
   }
 
   @Test
   public void findAll_in_default_organization() throws Exception {
     insertQualityProfile(dbTester.getDefaultOrganization());
     assertThat(findProfiles(
-      new SearchWsRequest()
-    )).hasSize(1);
+      new SearchWsRequest())).hasSize(1);
   }
 
   @Test
@@ -104,8 +95,7 @@ public class SearchDataLoaderTest {
     insertQualityProfile(organization);
     assertThat(findProfiles(
       new SearchWsRequest()
-        .setOrganizationKey(organization.getKey())
-    )).hasSize(1);
+        .setOrganizationKey(organization.getKey()))).hasSize(1);
   }
 
   @Test
@@ -114,8 +104,7 @@ public class SearchDataLoaderTest {
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setDefaults(true)
-    )).hasSize(1);
+        .setDefaults(true))).hasSize(1);
   }
 
   @Test
@@ -125,8 +114,7 @@ public class SearchDataLoaderTest {
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setProjectKey(project1.getKey())
-    )).hasSize(1);
+        .setProjectKey(project1.getKey()))).hasSize(1);
   }
 
   @Test
@@ -135,17 +123,15 @@ public class SearchDataLoaderTest {
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setLanguage(qualityProfile.getLanguage())
-    )).hasSize(1);
+        .setLanguage(qualityProfile.getLanguage()))).hasSize(1);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setLanguage("other language")
-    )).hasSize(0);
+        .setLanguage("other language"))).hasSize(0);
   }
 
   private List<QProfile> findProfiles(SearchWsRequest request) {
-    return new SearchDataLoader(languages, profileLookup, profileFactory, dbTester.getDbClient(), componentFinder, qProfileWsSupport)
+    return new SearchDataLoader(languages, profileLookup, dbTester.getDbClient(), componentFinder, qProfileWsSupport)
       .findProfiles(dbTester.getSession(), request);
   }
 
