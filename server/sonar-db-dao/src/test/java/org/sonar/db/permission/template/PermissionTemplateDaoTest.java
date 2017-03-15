@@ -333,6 +333,25 @@ public class PermissionTemplateDaoTest {
     verifyTemplateIdsInDb();
   }
 
+  @Test
+  public void delete_user_permissions_by_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate(anotherOrganization);
+    String permission = "PERMISSION";
+    db.permissionTemplates().addUserToTemplate(template.getId(), user.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getId(), anotherUser.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getId(), user.getId(), permission);
+
+    underTest.deleteUserPermissionsByOrganization(dbSession, organization.getUuid(), user.getId());
+
+    assertThat(underTest.selectUserPermissionsByTemplateId(dbSession, template.getId())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(anotherUser.getId());
+    assertThat(underTest.selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(user.getId());
+  }
+
   private PermissionTemplateDto createTemplate(OrganizationDto organization) {
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();

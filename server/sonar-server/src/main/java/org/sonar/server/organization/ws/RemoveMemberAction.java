@@ -80,19 +80,22 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     String login = request.mandatoryParam(PARAM_LOGIN);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "Organization '%s' is not found",
-        organizationKey);
+      OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+        "Organization '%s' is not found", organizationKey);
+      String organizationUuid = organization.getUuid();
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "User '%s' is not found", login);
+      int userId = user.getId();
 
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
-      OrganizationMemberDto organizationMember = dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
+      OrganizationMemberDto organizationMember = dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)
         .orElseThrow(() -> BadRequestException.create(format("User '%s' is not a member of organization '%s'", user.getLogin(), organization.getKey())));
 
-      dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organization.getUuid(), user.getId());
-      dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organization.getUuid(), user.getId());
-      dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organization.getUuid(), user.getId());
-      dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organization.getUuid(), user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
+      dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
+      dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
+      dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
+      dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
+      dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
 
       dbClient.organizationMemberDao().delete(dbSession, organizationMember.getOrganizationUuid(), organizationMember.getUserId());
       dbSession.commit();
