@@ -81,7 +81,9 @@ public class AddUserAction implements PermissionsWsAction {
     createPermissionParameter(action);
     createUserLoginParameter(action);
     createProjectParameters(action);
-    createOrganizationParameter(action).setDescription("Key of organization, cannot be used at the same time with %s and %s", PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
+    createOrganizationParameter(action)
+      .setSince("6.2")
+      .setDescription("Key of organization, cannot be used at the same time with %s and %s", PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
   }
 
   @Override

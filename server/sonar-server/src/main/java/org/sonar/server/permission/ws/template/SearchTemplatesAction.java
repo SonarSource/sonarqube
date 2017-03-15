@@ -118,7 +118,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       .addSearchQuery("defau", "permission template names")
       .setHandler(this);
 
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override

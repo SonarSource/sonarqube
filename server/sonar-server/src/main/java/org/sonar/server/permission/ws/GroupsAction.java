@@ -86,7 +86,7 @@ public class GroupsAction implements PermissionsWsAction {
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
       .setHandler(this);
 
-    createOrganizationParameter(action);
+    createOrganizationParameter(action).setSince("6.2");
     createPermissionParameter(action).setRequired(false);
     createProjectParameters(action);
   }
