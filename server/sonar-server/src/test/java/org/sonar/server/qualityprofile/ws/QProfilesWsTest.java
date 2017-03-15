@@ -173,7 +173,8 @@ public class QProfilesWsTest {
     WebService.Action setDefault = controller.action("set_default");
     assertThat(setDefault).isNotNull();
     assertThat(setDefault.isPost()).isTrue();
-    assertThat(setDefault.params()).hasSize(3);
+    assertThat(setDefault.params()).hasSize(4);
+    assertThat(setDefault.param("organization").since()).isEqualTo("6.4");
   }
 
   @Test

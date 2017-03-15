@@ -24,31 +24,24 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.util.LanguageParamUtils;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class SetDefaultAction implements QProfileWsAction {
 
-  private static final String PARAM_LANGUAGE = "language";
-  private static final String PARAM_PROFILE_NAME = "profileName";
-  private static final String PARAM_PROFILE_KEY = "profileKey";
-
   private final Languages languages;
-  private final QProfileLookup profileLookup;
-  private final QProfileFactory profileFactory;
+  private final DbClient dbClient;
+  private final UserSession userSession;
   private final QProfileWsSupport qProfileWsSupport;
 
-  public SetDefaultAction(Languages languages, QProfileLookup profileLookup, QProfileFactory profileFactory,
-    QProfileWsSupport qProfileWsSupport) {
+  public SetDefaultAction(Languages languages, DbClient dbClient, UserSession userSession, QProfileWsSupport qProfileWsSupport) {
     this.languages = languages;
-    this.profileLookup = profileLookup;
-    this.profileFactory = profileFactory;
+    this.dbClient = dbClient;
+    this.userSession = userSession;
     this.qProfileWsSupport = qProfileWsSupport;
   }
 
@@ -60,45 +53,30 @@ public class SetDefaultAction implements QProfileWsAction {
       .setPost(true)
       .setHandler(this);
 
-    setDefault.createParam(PARAM_LANGUAGE)
-      .setDescription("The key of a language supported by the platform. If specified, profileName must be set to select the default profile for the selected language.")
-      .setExampleValue("js")
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+    QProfileWsSupport.createOrganizationParam(setDefault)
+      .setSince("6.4");
 
-    setDefault.createParam(PARAM_PROFILE_NAME)
-      .setDescription("The name of a quality profile. If specified, language must be set. The matching profile will be used as default for the selected language.")
-      .setExampleValue("Sonar way");
-
-    setDefault.createParam(PARAM_PROFILE_KEY)
-      .setDescription("The key of a quality profile. If specified, language and profileName must not be set. The matching profile will be used as default for its language.")
-      .setExampleValue("sonar-way-js-12345");
+    QProfileReference.defineParams(setDefault, languages);
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-    qProfileWsSupport.checkQProfileAdminPermission();
-
-    String language = request.param(PARAM_LANGUAGE);
-    String profileName = request.param(PARAM_PROFILE_NAME);
-    String profileKey = request.param(PARAM_PROFILE_KEY);
-
-    checkArgument(
-      (!isEmpty(language) && !isEmpty(profileName)) ^ !isEmpty(profileKey), "Either profileKey or profileName + language must be set");
-
-    if (profileKey == null) {
-      profileKey = getProfileKeyFromLanguageAndName(language, profileName);
+  public void handle(Request request, Response response) {
+    userSession.checkLoggedIn();
+    QProfileReference reference = QProfileReference.from(request);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, qualityProfile.getOrganizationUuid());
+      setDefault(dbSession, qualityProfile);
+      dbSession.commit();
     }
-
-    profileFactory.setDefault(profileKey);
-
     response.noContent();
   }
 
-  private String getProfileKeyFromLanguageAndName(String language, String profileName) {
-    QProfile profile = profileLookup.profile(profileName, language);
-    if (profile == null) {
-      throw new NotFoundException(String.format("Unable to find a profile for language '%s' with name '%s'", language, profileName));
+  public void setDefault(DbSession session, QualityProfileDto qualityProfile) {
+    QualityProfileDto previousDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, qualityProfile.getLanguage());
+    if (previousDefault != null) {
+      dbClient.qualityProfileDao().update(session, previousDefault.setDefault(false));
     }
-    return profile.key();
+    dbClient.qualityProfileDao().update(session, qualityProfile.setDefault(true));
   }
 }

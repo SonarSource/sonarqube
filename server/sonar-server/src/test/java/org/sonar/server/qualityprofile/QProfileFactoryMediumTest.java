@@ -33,11 +33,11 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -66,7 +66,7 @@ public class QProfileFactoryMediumTest {
   private ActiveRuleIndexer activeRuleIndexer;
   private RuleIndexer ruleIndexer;
   private QProfileFactory factory;
-  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
+  private OrganizationDto organization;
 
   @Before
   public void before() {
@@ -76,6 +76,8 @@ public class QProfileFactoryMediumTest {
     factory = tester.get(QProfileFactory.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     ruleIndexer = tester.get(RuleIndexer.class);
+    organization = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(dbSession, organization);
   }
 
   @After
@@ -182,7 +184,7 @@ public class QProfileFactoryMediumTest {
     activeRuleIndexer.index(changes);
 
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(tester, db, dbSession))).isEmpty();
+    assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).isEmpty();
     assertThat(db.activeRuleDao().selectAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().selectAllParams(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).isEmpty();
@@ -192,43 +194,48 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void do_not_delete_default_profile() {
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(organization));
-    factory.setDefault(dbSession, XOO_P1_KEY);
+    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setDefault(true);
+    db.qualityProfileDao().insert(dbSession, profile);
+
     dbSession.commit();
-    dbSession.clearCache();
 
     try {
-      List<ActiveRuleChange> changes = factory.delete(dbSession, XOO_P1_KEY, false);
+      List<ActiveRuleChange> changes = factory.delete(dbSession, profile.getKey(), false);
       dbSession.commit();
       activeRuleIndexer.index(changes);
       fail();
     } catch (BadRequestException e) {
-      assertThat(e).hasMessage("The profile marked as default can not be deleted: XOO_P1");
+      assertThat(e).hasMessage("The profile marked as default can not be deleted: " + profile.getKey());
       assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(1);
     }
   }
 
   @Test
   public void do_not_delete_if_default_descendant() {
-    db.qualityProfileDao().insert(dbSession,
-      QProfileTesting.newXooP1(organization),
-      QProfileTesting.newXooP2(organization),
-      QProfileTesting.newXooP3(organization));
+    QualityProfileDto parent = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid());
+    QualityProfileDto childNonDefault = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid());
+    QualityProfileDto childDefault = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setDefault(true);
+    db.qualityProfileDao().insert(dbSession, parent, childNonDefault, childDefault);
 
-    List<ActiveRuleChange> changes = tester.get(RuleActivator.class).setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
-    changes.addAll(tester.get(RuleActivator.class).setParent(dbSession, XOO_P3_KEY, XOO_P1_KEY));
-    factory.setDefault(dbSession, XOO_P3_KEY);
+    List<ActiveRuleChange> changes = tester.get(RuleActivator.class).setParent(dbSession, childNonDefault.getKey(), parent.getKey());
+    changes.addAll(tester.get(RuleActivator.class).setParent(dbSession, childDefault.getKey(), parent.getKey()));
     dbSession.commit();
     dbSession.clearCache();
     activeRuleIndexer.index(changes);
 
     try {
-      changes = factory.delete(dbSession, XOO_P1_KEY, false);
+      changes = factory.delete(dbSession, parent.getKey(), false);
       dbSession.commit();
       activeRuleIndexer.index(changes);
       fail();
     } catch (BadRequestException e) {
-      assertThat(e).hasMessage("The profile marked as default can not be deleted: XOO_P3");
+      assertThat(e).hasMessage("The profile marked as default can not be deleted: " + childDefault.getKey());
       assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(3);
     }
   }
@@ -241,28 +248,6 @@ public class QProfileFactoryMediumTest {
     List<ActiveRuleChange> changes = factory.delete(dbSession, XOO_P1_KEY, false);
     dbSession.commit();
     activeRuleIndexer.index(changes);
-  }
-
-  @Test
-  public void set_default_profile() {
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
-    dbSession.commit();
-    dbSession.clearCache();
-
-    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P1_KEY).isDefault()).isFalse();
-
-    factory.setDefault(XOO_P1_KEY);
-    dbSession.clearCache();
-
-    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P1_KEY).isDefault()).isTrue();
-  }
-
-  @Test
-  public void fail_if_unknown_profile_to_be_set_as_default() {
-    thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Quality profile not found: " + XOO_P1_KEY);
-
-    factory.setDefault(XOO_P1_KEY);
   }
 
   private void initRules() {
