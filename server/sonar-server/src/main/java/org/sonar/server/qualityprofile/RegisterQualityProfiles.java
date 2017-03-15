@@ -73,8 +73,8 @@ public class RegisterQualityProfiles {
    * To be kept when no ProfileDefinition are injected
    */
   public RegisterQualityProfiles(DbClient dbClient,
-                                 QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer,
-                                 QProfileWsSupport qProfileWsSupport, DefaultOrganizationProvider defaultOrganizationProvider) {
+    QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer,
+    QProfileWsSupport qProfileWsSupport, DefaultOrganizationProvider defaultOrganizationProvider) {
     this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer, qProfileWsSupport, defaultOrganizationProvider);
   }
 
