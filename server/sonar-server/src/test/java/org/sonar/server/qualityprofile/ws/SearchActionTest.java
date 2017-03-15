@@ -198,7 +198,7 @@ public class SearchActionTest {
   @Test
   public void search_for_project_qp() {
     long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
-    OrganizationDto org = db.getDbClient().organizationDao().selectByKey(db.getSession(), defaultOrganizationProvider.get().getKey()).get();
+    OrganizationDto org = db.getDefaultOrganization();
     QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
       .setOrganizationUuid(org.getUuid())
       .setLanguage(xoo1.getKey())
