@@ -17,25 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v64;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import java.sql.SQLException;
 
-public class DbVersion64Test {
-  private DbVersion64 underTest = new DbVersion64();
+public class MakeQualityProfileKeyUniqueTest {
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeQualityProfileKeyUniqueTest.class, "initial.sql");
+
+  public MakeQualityProfileKeyUnique underTest = new MakeQualityProfileKeyUnique(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1600);
+  public void test() throws SQLException {
+    underTest.execute();
+    db.assertUniqueIndex("rules_profiles", "uniq_qprof_key", "kee");
   }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 9);
-  }
-
 }

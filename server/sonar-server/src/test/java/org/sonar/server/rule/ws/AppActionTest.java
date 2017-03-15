@@ -61,8 +61,8 @@ public class AppActionTest {
 
     userSessionRule.addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
 
-    QualityProfileDto profile1 = QProfileTesting.newXooP1("org-123");
-    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY);
+    QualityProfileDto profile1 = QProfileTesting.newXooP1(db.getDefaultOrganization());
+    QualityProfileDto profile2 = QProfileTesting.newXooP2(db.getDefaultOrganization()).setParentKee(QProfileTesting.XOO_P1_KEY);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile2);
     db.commit();

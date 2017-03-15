@@ -30,6 +30,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
@@ -44,6 +46,8 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+
+import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 
 public class InheritanceActionMediumTest {
 
@@ -61,6 +65,8 @@ public class InheritanceActionMediumTest {
   RuleIndexer ruleIndexer;
   ActiveRuleIndexer activeRuleIndexer;
 
+  private OrganizationDto organization;
+
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
@@ -70,6 +76,7 @@ public class InheritanceActionMediumTest {
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
 
     wsTester = new WsTester(tester.get(QProfilesWs.class));
+    organization = getDefaultOrganization(tester, db, session);
   }
 
   @After
@@ -111,7 +118,7 @@ public class InheritanceActionMediumTest {
     setParent(buWide, forProject2);
     overrideActiveRuleSeverity(rule2, forProject2, Severity.CRITICAL);
 
-    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", buWide.getKee())
+    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", buWide.getKee()).setParam("organization", organization.getKey())
       .execute().assertJson(getClass(), "inheritance-buWide.json");
   }
 
@@ -129,7 +136,7 @@ public class InheritanceActionMediumTest {
   }
 
   private QualityProfileDto createProfile(String lang, String name, String key) {
-    QualityProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, name), key);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto(organization, new QProfileName(lang, name), key);
     db.qualityProfileDao().insert(session, profile);
     session.commit();
     return profile;

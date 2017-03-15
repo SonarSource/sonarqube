@@ -21,7 +21,10 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +40,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -47,11 +51,14 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,8 +71,10 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+
 
 public class SearchActionTest {
 
@@ -73,6 +82,8 @@ public class SearchActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
   QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
@@ -81,11 +92,13 @@ public class SearchActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
+  private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
   private Language xoo1;
   private Language xoo2;
 
   private WsActionTester ws;
+  private SearchAction underTest;
 
   @Before
   public void setUp() {
@@ -93,14 +106,15 @@ public class SearchActionTest {
     xoo2 = LanguageTesting.newLanguage("xoo2");
 
     Languages languages = new Languages(xoo1, xoo2);
-    ws = new WsActionTester(new SearchAction(
+    underTest = new SearchAction(
       new SearchDataLoader(
         languages,
         new QProfileLookup(dbClient),
         new QProfileFactory(dbClient),
         dbClient,
-        new ComponentFinder(dbClient), activeRuleIndex),
-      languages));
+        new ComponentFinder(dbClient), activeRuleIndex, qProfileWsSupport),
+      languages);
+    ws = new WsActionTester(underTest);
   }
 
   @Test
@@ -112,7 +126,7 @@ public class SearchActionTest {
       "sonar-way-xoo1-12345", 1L,
       "my-sonar-way-xoo2-34567", 2L));
 
-    OrganizationDto organizationDto = db.organizations().insert();
+    OrganizationDto organizationDto = getDefaultOrganization();
     String organizationUuid = organizationDto.getUuid();
     qualityProfileDao.insert(dbSession,
       QualityProfileDto.createFor("sonar-way-xoo1-12345")
@@ -154,6 +168,7 @@ public class SearchActionTest {
   public void search_map_dates() {
     long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
     qualityProfileDb.insertQualityProfiles(newQualityProfileDto()
+      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setLanguage(xoo1.getKey())
       .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
       .setLastUsed(time)
@@ -183,7 +198,7 @@ public class SearchActionTest {
   @Test
   public void search_for_project_qp() {
     long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
-    OrganizationDto org = db.organizations().insert();
+    OrganizationDto org = db.getDefaultOrganization();
     QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
       .setOrganizationUuid(org.getUuid())
       .setLanguage(xoo1.getKey())
@@ -260,16 +275,19 @@ public class SearchActionTest {
       .setOrganizationUuid(org.getUuid())
       .setLanguage(xoo2.getKey())
       .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar way");
+      .setName("Sonar way")
+      .setDefault(true);
     QualityProfileDto anotherQualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-45678")
       .setOrganizationUuid(org.getUuid())
       .setLanguage(xoo1.getKey())
       .setRulesUpdatedAtAsDate(new Date())
-      .setName("Another way");
+      .setName("Another way")
+      .setDefault(true);
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     ComponentDto project = componentDb.insertComponent(newProjectDto(org, "project-uuid"));
 
     String result = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(PARAM_PROJECT_KEY, project.key())
       .setParam(PARAM_PROFILE_NAME, "Sonar way")
       .execute().getInput();
@@ -277,6 +295,43 @@ public class SearchActionTest {
     assertThat(result)
       .contains("sonar-way-xoo1-12345", "sonar-way-xoo2-12345")
       .doesNotContain("sonar-way-xoo1-45678");
+  }
+  @Test
+  public void search_default_profile_by_profile_name_and_org() {
+    List<QualityProfileDto> profiles = new ArrayList<>();
+    for (String orgKey : Arrays.asList("ORG1", "ORG2")) {
+      OrganizationDto org = db.organizations().insert(OrganizationTesting.newOrganizationDto().setKey(orgKey));
+      profiles.add(createProfile("A", xoo1, org, "MATCH", false));
+      profiles.add(createProfile("B", xoo2, org, "NOMATCH", false));
+      profiles.add(createProfile("C", xoo1, org, "NOMATCH", true));
+      profiles.add(createProfile("D", xoo2, org, "NOMATCH", true));
+    }
+
+    profiles.forEach(db.qualityProfiles()::insertQualityProfile);
+
+    SearchWsRequest request = new SearchWsRequest()
+      .setDefaults(true)
+      .setProfileName("MATCH")
+      .setOrganizationKey("ORG1");
+    QualityProfiles.SearchWsResponse response = underTest.doHandle(request);
+
+    assertThat(response.getProfilesList())
+      .extracting(QualityProfiles.SearchWsResponse.QualityProfile::getKey)
+      .containsExactlyInAnyOrder(
+
+        // name match for xoo1
+        "ORG1-A",
+
+        // default for xoo2
+        "ORG1-D");
+  }
+
+  private QualityProfileDto createProfile(String keySuffix, Language language, OrganizationDto org, String name, boolean isDefault) {
+    return QualityProfileDto.createFor(org.getKey() + "-" + keySuffix)
+      .setOrganizationUuid(org.getUuid())
+      .setLanguage(language.getKey())
+      .setName(name)
+      .setDefault(isDefault);
   }
 
   private SearchWsResponse call(TestRequest request) {
@@ -287,5 +342,9 @@ public class SearchActionTest {
     } catch (IOException e) {
       throw propagate(e);
     }
+  }
+
+  private OrganizationDto getDefaultOrganization() {
+    return qProfileWsSupport.getOrganizationByKey(db.getSession(), defaultOrganizationProvider.get().getKey());
   }
 }

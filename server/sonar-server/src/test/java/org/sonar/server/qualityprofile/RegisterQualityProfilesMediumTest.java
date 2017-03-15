@@ -41,6 +41,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.index.RuleIndex;
@@ -50,6 +51,7 @@ import org.sonar.server.tester.ServerTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 
 // TODO replace this MediumTest by DbTester and EsTester
 public class RegisterQualityProfilesMediumTest {
@@ -71,16 +73,17 @@ public class RegisterQualityProfilesMediumTest {
   public void register_existing_profile_definitions() {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
-    dbSession = dbClient().openSession(false);
+    DbClient dbClient = dbClient();
+    dbSession = dbClient.openSession(false);
 
     // Check Profile in DB
-    QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession)).hasSize(1);
+    QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
+    assertThat(qualityProfileDao.selectAll(dbSession, getDefaultOrganization(tester, dbClient, dbSession))).hasSize(1);
     QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage("Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     // Check ActiveRules in DB
-    ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
+    ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
     assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
@@ -117,11 +120,12 @@ public class RegisterQualityProfilesMediumTest {
   public void register_profile_definitions() {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
-    dbSession = dbClient().openSession(false);
+    DbClient dbClient = dbClient();
+    dbSession = dbClient.openSession(false);
 
     // Check Profile in DB
-    QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession)).hasSize(1);
+    QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
+    assertThat(qualityProfileDao.selectAll(dbSession, getDefaultOrganization(tester, dbClient, dbSession))).hasSize(1);
     QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage("Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
@@ -129,7 +133,7 @@ public class RegisterQualityProfilesMediumTest {
     verifyDefaultProfile("xoo", "Basic");
 
     // Check ActiveRules in DB
-    ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
+    ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
     assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
@@ -153,11 +157,12 @@ public class RegisterQualityProfilesMediumTest {
     // xoo language is not installed
     tester = new ServerTester().withEsIndexes().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
+    DbClient dbClient = dbClient();
     dbSession = dbClient().openSession(false);
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession)).hasSize(0);
+    assertThat(qualityProfileDao.selectAll(dbSession, getDefaultOrganization(tester, dbClient(), dbSession))).hasSize(0);
   }
 
   @Test

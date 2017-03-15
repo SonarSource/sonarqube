@@ -26,7 +26,9 @@ import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.FacetValue;
 
@@ -35,17 +37,25 @@ public class QProfileLoader {
 
   private final DbClient dbClient;
   private final ActiveRuleIndex activeRuleIndex;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileLoader(DbClient dbClient, ActiveRuleIndex activeRuleIndex) {
+  public QProfileLoader(DbClient dbClient, ActiveRuleIndex activeRuleIndex, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.activeRuleIndex = activeRuleIndex;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<String> keys = dbClient.qualityProfileDao().selectAll(dbSession).stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
+      List<String> keys = dbClient.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(dbSession)).stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
       return activeRuleIndex.getStatsByProfileKeys(keys);
     }
   }
 
+  private OrganizationDto getDefaultOrganization(DbSession dbSession) {
+    String defaultOrganizationKey = defaultOrganizationProvider.get().getKey();
+    return dbClient.organizationDao()
+      .selectByKey(dbSession, defaultOrganizationKey)
+      .orElseThrow(() -> new IllegalStateException("Cannot find default organization with key "+defaultOrganizationKey));
+  }
 }
