@@ -240,7 +240,7 @@ public class RegisterQualityProfiles {
   }
 
   private void registerPerQualityProfile(DbSession session, QualityProfile qualityProfile, List<ActiveRuleChange> changes) {
-    LOGGER.debug("Register profile {}", qualityProfile.getQProfileName());
+    LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
 
     List<OrganizationDto> organizationDtos;
     while (!(organizationDtos = getOrganizationsWithoutQP(session, qualityProfile)).isEmpty()) {
@@ -254,7 +254,7 @@ public class RegisterQualityProfiles {
   }
 
   private void registerPerQualityProfileAndOrganization(DbSession session, QualityProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
-    LOGGER.info("Register profile {} for organization {}", qualityProfile.getQProfileName(), organization.getKey());
+    LOGGER.debug("Register profile {} for organization {}", qualityProfile.getQProfileName(), organization.getKey());
 
     QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, qualityProfile.getName(), qualityProfile.getLanguage(), session);
     if (profileDto != null) {
