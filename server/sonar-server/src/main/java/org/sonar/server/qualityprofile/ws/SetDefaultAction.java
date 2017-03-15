@@ -53,7 +53,7 @@ public class SetDefaultAction implements QProfileWsAction {
       .setPost(true)
       .setHandler(this);
 
-    qProfileWsSupport.createOrganizationParam(setDefault)
+    QProfileWsSupport.createOrganizationParam(setDefault)
       .setSince("6.4");
 
     QProfileReference.defineParams(setDefault, languages);
