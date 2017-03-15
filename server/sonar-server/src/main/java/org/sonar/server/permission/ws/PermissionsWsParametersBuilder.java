@@ -82,7 +82,6 @@ public class PermissionsWsParametersBuilder {
     return action.createParam(PARAM_ORGANIZATION)
       .setDescription("Key of organization, used when group name is set")
       .setExampleValue("my-org")
-      .setSince("6.2")
       .setInternal(true);
   }
 
