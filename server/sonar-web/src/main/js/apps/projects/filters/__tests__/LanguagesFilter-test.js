@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import LanguagesFilter from '../LanguagesFilter';
 
 const languages = {
@@ -51,7 +51,7 @@ const languagesFacet = { java: 39, cs: 4, js: 1 };
 const fakeRouter = { push: () => {} };
 
 it('should render the languages without the ones in the facet', () => {
-  const wrapper = mount(
+  const wrapper = shallow(
     <LanguagesFilter
       query={{ languages: null }}
       languages={languages}
@@ -59,18 +59,18 @@ it('should render the languages without the ones in the facet', () => {
       facet={languagesFacet}/>
   );
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Select').props().options.length).toBe(3);
-  expect(wrapper.find('Link').length).toBe(3);
 });
 
 it('should render the languages facet with the selected languages', () => {
-  const wrapper = mount(
+  const wrapper = shallow(
     <LanguagesFilter
       query={{ languages: ['java', 'cs'] }}
       value={['java', 'cs']}
       languages={languages}
       router={fakeRouter}
-      facet={languagesFacet}/>
+      facet={languagesFacet}
+      isFavorite={true}/>
   );
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
 });

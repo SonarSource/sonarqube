@@ -1,5 +1,5 @@
 exports[`test should render the tags facet with the selected tags 1`] = `
-<TagsFilter
+<Filter
   facet={
     Object {
       "csharp": 1,
@@ -7,6 +7,44 @@ exports[`test should render the tags facet with the selected tags 1`] = `
       "sonar": 3,
     }
   }
+  footer={
+    <SearchableFilterFooter
+      isFavorite={true}
+      isLoading={false}
+      onInputChange={[Function]}
+      onOpen={[Function]}
+      options={Array []}
+      property="tags"
+      query={
+        Object {
+          "tags": Array [
+            "lang",
+            "sonar",
+          ],
+        }
+      }
+      router={
+        Object {
+          "push": [Function],
+        }
+      } />
+  }
+  getFacetValueForOption={[Function]}
+  halfWidth={false}
+  header={
+    <FilterHeader
+      name="Tags" />
+  }
+  highlightUnder={1}
+  isFavorite={true}
+  options={
+    Array [
+      "lang",
+      "sonar",
+      "csharp",
+    ]
+  }
+  property="tags"
   query={
     Object {
       "tags": Array [
@@ -15,39 +53,99 @@ exports[`test should render the tags facet with the selected tags 1`] = `
       ],
     }
   }
-  router={
-    Object {
-      "push": [Function],
-    }
-  }
-  tags={
-    Array [
-      "lang",
-      "sonar",
-      "csharp",
-      "dotnet",
-      "it",
-      "net",
-    ]
-  }
+  renderOption={[Function]}
   value={
     Array [
       "lang",
       "sonar",
     ]
-  }>
-  <Filter
-    facet={
-      Object {
-        "csharp": 1,
-        "lang": 4,
-        "sonar": 3,
-      }
-    }
-    getFacetValueForOption={[Function]}
-    getOptions={[Function]}
-    halfWidth={false}
+  } />
+`;
+
+exports[`test should render the tags facet with the selected tags 2`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="tags">
+  <FilterHeader
+    name="Tags" />
+  <div
+    className="search-navigator-facet-list">
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key="lang"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "tags": "sonar",
+          },
+        }
+      }>
+      <span
+        className="facet-name">
+        <SearchableFilterOption
+          optionKey="lang" />
+      </span>
+      <span
+        className="facet-stat">
+        4
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key="sonar"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "tags": "lang",
+          },
+        }
+      }>
+      <span
+        className="facet-name">
+        <SearchableFilterOption
+          optionKey="sonar" />
+      </span>
+      <span
+        className="facet-stat">
+        3
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key="csharp"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "tags": "lang,sonar,csharp",
+          },
+        }
+      }>
+      <span
+        className="facet-name">
+        <SearchableFilterOption
+          optionKey="csharp" />
+      </span>
+      <span
+        className="facet-stat">
+        1
+      </span>
+    </Link>
+  </div>
+  <SearchableFilterFooter
+    isFavorite={true}
     isLoading={false}
+    onInputChange={[Function]}
+    onOpen={[Function]}
+    options={Array []}
     property="tags"
     query={
       Object {
@@ -57,283 +155,16 @@ exports[`test should render the tags facet with the selected tags 1`] = `
         ],
       }
     }
-    renderFooter={[Function]}
-    renderName={[Function]}
-    renderOption={[Function]}
-    tags={Array []}
-    value={
-      Array [
-        "lang",
-        "sonar",
-      ]
-    }>
-    <div
-      className="search-navigator-facet-box"
-      data-key="tags">
-      <div
-        className="search-navigator-facet-header projects-facet-header">
-        Tags
-      </div>
-      <div
-        className="search-navigator-facet-list">
-        <Link
-          className="facet search-navigator-facet projects-facet active"
-          data-key="lang"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/projects",
-              "query": Object {
-                "tags": "sonar",
-              },
-            }
-          }>
-          <a
-            className="facet search-navigator-facet projects-facet active"
-            data-key="lang"
-            onClick={[Function]}
-            style={Object {}}>
-            <span
-              className="facet-name">
-              <SearchableFilterOption
-                optionKey="lang">
-                <span>
-                  lang
-                </span>
-              </SearchableFilterOption>
-            </span>
-            <span
-              className="facet-stat">
-              4
-            </span>
-          </a>
-        </Link>
-        <Link
-          className="facet search-navigator-facet projects-facet active"
-          data-key="sonar"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/projects",
-              "query": Object {
-                "tags": "lang",
-              },
-            }
-          }>
-          <a
-            className="facet search-navigator-facet projects-facet active"
-            data-key="sonar"
-            onClick={[Function]}
-            style={Object {}}>
-            <span
-              className="facet-name">
-              <SearchableFilterOption
-                optionKey="sonar">
-                <span>
-                  sonar
-                </span>
-              </SearchableFilterOption>
-            </span>
-            <span
-              className="facet-stat">
-              3
-            </span>
-          </a>
-        </Link>
-        <Link
-          className="facet search-navigator-facet projects-facet"
-          data-key="csharp"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/projects",
-              "query": Object {
-                "tags": "lang,sonar,csharp",
-              },
-            }
-          }>
-          <a
-            className="facet search-navigator-facet projects-facet"
-            data-key="csharp"
-            onClick={[Function]}
-            style={Object {}}>
-            <span
-              className="facet-name">
-              <SearchableFilterOption
-                optionKey="csharp">
-                <span>
-                  csharp
-                </span>
-              </SearchableFilterOption>
-            </span>
-            <span
-              className="facet-stat">
-              1
-            </span>
-          </a>
-        </Link>
-      </div>
-      <div
-        className="search-navigator-facet-footer projects-facet-footer">
-        <SearchableFilterFooter
-          getOptions={[Function]}
-          isLoading={false}
-          onInputChange={[Function]}
-          onOpen={[Function]}
-          options={Array []}
-          property="tags"
-          query={
-            Object {
-              "tags": Array [
-                "lang",
-                "sonar",
-              ],
-            }
-          }
-          router={
-            Object {
-              "push": [Function],
-            }
-          }
-          value={
-            Array [
-              "lang",
-              "sonar",
-            ]
-          }>
-          <Select
-            addLabelText="Add \"{label}\"?"
-            arrowRenderer={[Function]}
-            autosize={true}
-            backspaceRemoves={true}
-            backspaceToRemoveMessage="Press backspace to remove {label}"
-            className="input-super-large"
-            clearAllText="Clear all"
-            clearValueText="Clear value"
-            clearable={false}
-            delimiter=","
-            disabled={false}
-            escapeClearsValue={true}
-            filterOptions={[Function]}
-            ignoreAccents={true}
-            ignoreCase={true}
-            inputProps={Object {}}
-            isLoading={false}
-            joinValues={false}
-            labelKey="label"
-            matchPos="any"
-            matchProp="any"
-            menuBuffer={0}
-            menuRenderer={[Function]}
-            multi={false}
-            noResultsText="No results found"
-            onBlurResetsInput={true}
-            onChange={[Function]}
-            onCloseResetsInput={true}
-            onInputChange={[Function]}
-            onOpen={[Function]}
-            openAfterFocus={false}
-            optionComponent={[Function]}
-            options={Array []}
-            pageSize={5}
-            placeholder="search_verb"
-            required={false}
-            scrollMenuIntoView={true}
-            searchable={true}
-            simpleValue={false}
-            tabSelectsValue={true}
-            valueComponent={[Function]}
-            valueKey="value">
-            <div
-              className="Select input-super-large Select--single is-searchable">
-              <div
-                className="Select-control"
-                onKeyDown={[Function]}
-                onMouseDown={[Function]}
-                onTouchEnd={[Function]}
-                onTouchMove={[Function]}
-                onTouchStart={[Function]}>
-                <span
-                  className="Select-multi-value-wrapper"
-                  id="react-select-3--value">
-                  <div
-                    className="Select-placeholder">
-                    search_verb
-                  </div>
-                  <AutosizeInput
-                    aria-activedescendant="react-select-3--value"
-                    aria-expanded="false"
-                    aria-haspopup="false"
-                    aria-owns=""
-                    className="Select-input"
-                    minWidth="5px"
-                    onBlur={[Function]}
-                    onChange={[Function]}
-                    onFocus={[Function]}
-                    required={false}
-                    role="combobox"
-                    value="">
-                    <div
-                      className="Select-input"
-                      style={
-                        Object {
-                          "display": "inline-block",
-                        }
-                      }>
-                      <input
-                        aria-activedescendant="react-select-3--value"
-                        aria-expanded="false"
-                        aria-haspopup="false"
-                        aria-owns=""
-                        onBlur={[Function]}
-                        onChange={[Function]}
-                        onFocus={[Function]}
-                        required={false}
-                        role="combobox"
-                        style={
-                          Object {
-                            "boxSizing": "content-box",
-                            "width": "5pxpx",
-                          }
-                        }
-                        value="" />
-                      <div
-                        style={
-                          Object {
-                            "height": 0,
-                            "left": 0,
-                            "overflow": "scroll",
-                            "position": "absolute",
-                            "top": 0,
-                            "visibility": "hidden",
-                            "whiteSpace": "pre",
-                          }
-                        } />
-                    </div>
-                  </AutosizeInput>
-                </span>
-                <span
-                  className="Select-arrow-zone"
-                  onMouseDown={[Function]}>
-                  <span
-                    className="Select-arrow"
-                    onMouseDown={[Function]} />
-                </span>
-              </div>
-            </div>
-          </Select>
-        </SearchableFilterFooter>
-      </div>
-    </div>
-  </Filter>
-</TagsFilter>
+    router={
+      Object {
+        "push": [Function],
+      }
+    } />
+</div>
 `;
 
 exports[`test should render the tags without the ones in the facet 1`] = `
-<TagsFilter
+<Filter
   facet={
     Object {
       "csharp": 1,
@@ -341,290 +172,108 @@ exports[`test should render the tags without the ones in the facet 1`] = `
       "sonar": 3,
     }
   }
+  footer={
+    <SearchableFilterFooter
+      isLoading={false}
+      onInputChange={[Function]}
+      onOpen={[Function]}
+      options={Array []}
+      property="tags"
+      query={
+        Object {
+          "tags": null,
+        }
+      }
+      router={
+        Object {
+          "push": [Function],
+        }
+      } />
+  }
+  getFacetValueForOption={[Function]}
+  halfWidth={false}
+  header={
+    <FilterHeader
+      name="Tags" />
+  }
+  highlightUnder={1}
+  options={
+    Array [
+      "lang",
+      "sonar",
+      "csharp",
+    ]
+  }
+  property="tags"
   query={
     Object {
       "tags": null,
     }
   }
-  router={
+  renderOption={[Function]} />
+`;
+
+exports[`test should render the tags without the ones in the facet 2`] = `
+<Filter
+  facet={
     Object {
-      "push": [Function],
+      "csharp": 1,
+      "lang": 4,
+      "sonar": 3,
     }
-  }>
-  <Filter
-    facet={
-      Object {
-        "csharp": 1,
-        "lang": 4,
-        "sonar": 3,
+  }
+  footer={
+    <SearchableFilterFooter
+      isLoading={false}
+      onInputChange={[Function]}
+      onOpen={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "dotnet",
+            "value": "dotnet",
+          },
+          Object {
+            "label": "it",
+            "value": "it",
+          },
+          Object {
+            "label": "net",
+            "value": "net",
+          },
+        ]
       }
-    }
-    getFacetValueForOption={[Function]}
-    getOptions={[Function]}
-    halfWidth={false}
-    isLoading={false}
-    property="tags"
-    query={
-      Object {
-        "tags": null,
+      property="tags"
+      query={
+        Object {
+          "tags": null,
+        }
       }
+      router={
+        Object {
+          "push": [Function],
+        }
+      } />
+  }
+  getFacetValueForOption={[Function]}
+  halfWidth={false}
+  header={
+    <FilterHeader
+      name="Tags" />
+  }
+  highlightUnder={1}
+  options={
+    Array [
+      "lang",
+      "sonar",
+      "csharp",
+    ]
+  }
+  property="tags"
+  query={
+    Object {
+      "tags": null,
     }
-    renderFooter={[Function]}
-    renderName={[Function]}
-    renderOption={[Function]}
-    tags={Array []}>
-    <div
-      className="search-navigator-facet-box"
-      data-key="tags">
-      <div
-        className="search-navigator-facet-header projects-facet-header">
-        Tags
-      </div>
-      <div
-        className="search-navigator-facet-list">
-        <Link
-          className="facet search-navigator-facet projects-facet"
-          data-key="lang"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/projects",
-              "query": Object {
-                "tags": "lang",
-              },
-            }
-          }>
-          <a
-            className="facet search-navigator-facet projects-facet"
-            data-key="lang"
-            onClick={[Function]}
-            style={Object {}}>
-            <span
-              className="facet-name">
-              <SearchableFilterOption
-                optionKey="lang">
-                <span>
-                  lang
-                </span>
-              </SearchableFilterOption>
-            </span>
-            <span
-              className="facet-stat">
-              4
-            </span>
-          </a>
-        </Link>
-        <Link
-          className="facet search-navigator-facet projects-facet"
-          data-key="sonar"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/projects",
-              "query": Object {
-                "tags": "sonar",
-              },
-            }
-          }>
-          <a
-            className="facet search-navigator-facet projects-facet"
-            data-key="sonar"
-            onClick={[Function]}
-            style={Object {}}>
-            <span
-              className="facet-name">
-              <SearchableFilterOption
-                optionKey="sonar">
-                <span>
-                  sonar
-                </span>
-              </SearchableFilterOption>
-            </span>
-            <span
-              className="facet-stat">
-              3
-            </span>
-          </a>
-        </Link>
-        <Link
-          className="facet search-navigator-facet projects-facet"
-          data-key="csharp"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/projects",
-              "query": Object {
-                "tags": "csharp",
-              },
-            }
-          }>
-          <a
-            className="facet search-navigator-facet projects-facet"
-            data-key="csharp"
-            onClick={[Function]}
-            style={Object {}}>
-            <span
-              className="facet-name">
-              <SearchableFilterOption
-                optionKey="csharp">
-                <span>
-                  csharp
-                </span>
-              </SearchableFilterOption>
-            </span>
-            <span
-              className="facet-stat">
-              1
-            </span>
-          </a>
-        </Link>
-      </div>
-      <div
-        className="search-navigator-facet-footer projects-facet-footer">
-        <SearchableFilterFooter
-          getOptions={[Function]}
-          isLoading={false}
-          onInputChange={[Function]}
-          onOpen={[Function]}
-          options={Array []}
-          property="tags"
-          query={
-            Object {
-              "tags": null,
-            }
-          }
-          router={
-            Object {
-              "push": [Function],
-            }
-          }>
-          <Select
-            addLabelText="Add \"{label}\"?"
-            arrowRenderer={[Function]}
-            autosize={true}
-            backspaceRemoves={true}
-            backspaceToRemoveMessage="Press backspace to remove {label}"
-            className="input-super-large"
-            clearAllText="Clear all"
-            clearValueText="Clear value"
-            clearable={false}
-            delimiter=","
-            disabled={false}
-            escapeClearsValue={true}
-            filterOptions={[Function]}
-            ignoreAccents={true}
-            ignoreCase={true}
-            inputProps={Object {}}
-            isLoading={false}
-            joinValues={false}
-            labelKey="label"
-            matchPos="any"
-            matchProp="any"
-            menuBuffer={0}
-            menuRenderer={[Function]}
-            multi={false}
-            noResultsText="No results found"
-            onBlurResetsInput={true}
-            onChange={[Function]}
-            onCloseResetsInput={true}
-            onInputChange={[Function]}
-            onOpen={[Function]}
-            openAfterFocus={false}
-            optionComponent={[Function]}
-            options={Array []}
-            pageSize={5}
-            placeholder="search_verb"
-            required={false}
-            scrollMenuIntoView={true}
-            searchable={true}
-            simpleValue={false}
-            tabSelectsValue={true}
-            valueComponent={[Function]}
-            valueKey="value">
-            <div
-              className="Select input-super-large Select--single is-searchable">
-              <div
-                className="Select-control"
-                onKeyDown={[Function]}
-                onMouseDown={[Function]}
-                onTouchEnd={[Function]}
-                onTouchMove={[Function]}
-                onTouchStart={[Function]}>
-                <span
-                  className="Select-multi-value-wrapper"
-                  id="react-select-2--value">
-                  <div
-                    className="Select-placeholder">
-                    search_verb
-                  </div>
-                  <AutosizeInput
-                    aria-activedescendant="react-select-2--value"
-                    aria-expanded="false"
-                    aria-haspopup="false"
-                    aria-owns=""
-                    className="Select-input"
-                    minWidth="5px"
-                    onBlur={[Function]}
-                    onChange={[Function]}
-                    onFocus={[Function]}
-                    required={false}
-                    role="combobox"
-                    value="">
-                    <div
-                      className="Select-input"
-                      style={
-                        Object {
-                          "display": "inline-block",
-                        }
-                      }>
-                      <input
-                        aria-activedescendant="react-select-2--value"
-                        aria-expanded="false"
-                        aria-haspopup="false"
-                        aria-owns=""
-                        onBlur={[Function]}
-                        onChange={[Function]}
-                        onFocus={[Function]}
-                        required={false}
-                        role="combobox"
-                        style={
-                          Object {
-                            "boxSizing": "content-box",
-                            "width": "5pxpx",
-                          }
-                        }
-                        value="" />
-                      <div
-                        style={
-                          Object {
-                            "height": 0,
-                            "left": 0,
-                            "overflow": "scroll",
-                            "position": "absolute",
-                            "top": 0,
-                            "visibility": "hidden",
-                            "whiteSpace": "pre",
-                          }
-                        } />
-                    </div>
-                  </AutosizeInput>
-                </span>
-                <span
-                  className="Select-arrow-zone"
-                  onMouseDown={[Function]}>
-                  <span
-                    className="Select-arrow"
-                    onMouseDown={[Function]} />
-                </span>
-              </div>
-            </div>
-          </Select>
-        </SearchableFilterFooter>
-      </div>
-    </div>
-  </Filter>
-</TagsFilter>
+  }
+  renderOption={[Function]} />
 `;

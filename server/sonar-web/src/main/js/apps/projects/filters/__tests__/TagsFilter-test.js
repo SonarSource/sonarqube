@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import TagsFilter from '../TagsFilter';
 
 const tags = ['lang', 'sonar', 'csharp', 'dotnet', 'it', 'net'];
@@ -26,25 +26,26 @@ const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
 const fakeRouter = { push: () => {} };
 
 it('should render the tags without the ones in the facet', () => {
-  const wrapper = mount(
+  const wrapper = shallow(
     <TagsFilter
       query={{ tags: null }}
       router={fakeRouter}
       facet={tagsFacet}/>
   );
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Link').length).toBe(3);
   wrapper.setState({ tags });
-  expect(wrapper.find('Select').props().options.length).toBe(3);
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should render the tags facet with the selected tags', () => {
-  const wrapper = mount(
+  const wrapper = shallow(
     <TagsFilter
       query={{ tags: ['lang', 'sonar'] }}
       value={['lang', 'sonar']}
       router={fakeRouter}
-      facet={tagsFacet}/>
+      facet={tagsFacet}
+      isFavorite={true}/>
   );
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
 });

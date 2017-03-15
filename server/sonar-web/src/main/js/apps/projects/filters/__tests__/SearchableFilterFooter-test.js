@@ -19,62 +19,27 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import difference from 'lodash/difference';
 import SearchableFilterFooter from '../SearchableFilterFooter';
 
-const languages = {
-  java: {
-    key: 'java',
-    name: 'Java'
-  },
-  cs: {
-    key: 'cs',
-    name: 'C#'
-  },
-  js: {
-    key: 'js',
-    name: 'JavaScript'
-  },
-  flex: {
-    key: 'flex',
-    name: 'Flex'
-  },
-  php: {
-    key: 'php',
-    name: 'PHP'
-  },
-  py: {
-    key: 'py',
-    name: 'Python'
-  }
-};
-const tags = ['lang', 'sonar', 'csharp', 'dotnet', 'it', 'net'];
-const languagesFacet = { java: 39, cs: 4, js: 1 };
-const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
-const getLanguageOptions = () => {
-  let languageKeys = Object.keys(languages);
-  if (languagesFacet) {
-    languageKeys = difference(languageKeys, Object.keys(languagesFacet));
-  }
-  return languageKeys.map(key => ({ label: languages[key].name, value: key }));
-};
-
-const getTagOptions = () => {
-  let tagsCopy = [...tags];
-  if (tagsFacet) {
-    tagsCopy = difference(tagsCopy, Object.keys(tagsFacet));
-  }
-  return tagsCopy.map(tag => ({ label: tag, value: tag }));
-};
+const languageOptions = [
+  { label: 'Flex', value: 'flex' },
+  { label: 'PHP', value: 'php' },
+  { label: 'Python', value: 'py' }
+];
+const tagOptions = [
+  { label: 'lang', value: 'lang' },
+  { label: 'sonar', value: 'sonar' },
+  { label: 'csharp', value: 'csharp' }
+];
+const fakeRouter = { push: () => {} };
 
 it('should render the languages without the ones in the facet', () => {
   const wrapper = shallow(
     <SearchableFilterFooter
       property="languages"
       query={{ languages: null }}
-      facet={languagesFacet}
-      options={languages}
-      getOptions={getLanguageOptions}/>
+      options={languageOptions}
+      router={fakeRouter}/>
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Select').props().options.length).toBe(3);
@@ -84,10 +49,9 @@ it('should render the tags without the ones in the facet', () => {
   const wrapper = shallow(
     <SearchableFilterFooter
       property="tags"
-      query={{ tags: null }}
-      facet={tagsFacet}
-      options={tags}
-      getOptions={getTagOptions}/>
+      query={{ tags: ['java'] }}
+      options={tagOptions}
+      isFavorite={true}/>
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Select').props().options.length).toBe(3);
