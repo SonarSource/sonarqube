@@ -21,12 +21,9 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
@@ -147,10 +144,6 @@ public class QProfileFactory {
 
   // ------------- DEFAULT PROFILE
 
-  public List<QualityProfileDto> getDefaults(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
-    return db.qualityProfileDao().selectDefaultProfiles(session, organization, languageKeys);
-  }
-
   /**
    * @deprecated replaced by {@link org.sonar.server.qualityprofile.ws.QProfileWsSupport#getProfile(DbSession, QProfileReference)}
    */
@@ -172,19 +165,6 @@ public class QProfileFactory {
     QualityProfileDto profile;
     profile = db.qualityProfileDao().selectByNameAndLanguage(profileName, language, dbSession);
     return checkFound(profile, "Unable to find a profile for language '%s' with name '%s'", language, profileName);
-  }
-
-  @CheckForNull
-  public QualityProfileDto getByProjectAndLanguage(DbSession session, String projectKey, String language) {
-    return db.qualityProfileDao().selectByProjectAndLanguage(session, projectKey, language);
-  }
-
-  public List<QualityProfileDto> getByProjectAndLanguages(DbSession session, OrganizationDto organization, String projectKey, Set<String> languageKeys) {
-    return db.qualityProfileDao().selectByProjectAndLanguages(session, organization, projectKey, languageKeys);
-  }
-
-  public List<QualityProfileDto> getByNameAndLanguages(DbSession session, OrganizationDto organization, String name, Collection<String> languages) {
-    return db.qualityProfileDao().selectByNameAndLanguages(organization, name, languages, session);
   }
 
   private static void checkNotDefault(QualityProfileDto p) {
