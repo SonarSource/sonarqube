@@ -36,6 +36,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -67,9 +68,9 @@ public class QProfileResetMediumTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbClient db;
-  DbSession dbSession;
-  QProfileReset reset;
+  private DbClient db;
+  private DbSession dbSession;
+  private QProfileReset reset;
 
   @Before
   public void before() {
@@ -139,7 +140,8 @@ public class QProfileResetMediumTest {
     assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
     assertThat(activeRuleParamDtos.get(0).getValue()).isEqualTo("false");
 
-    reset.resetLanguage(dbSession, ServerTester.Xoo.KEY);
+    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()).get();
+    reset.resetLanguage(dbSession, organization, ServerTester.Xoo.KEY);
     dbSession.commit();
 
     // Severity and parameter value come back to origin after reset
@@ -188,7 +190,8 @@ public class QProfileResetMediumTest {
       }
     }, defProfile);
 
-    reset.resetLanguage(dbSession, ServerTester.Xoo.KEY);
+    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()).get();
+    reset.resetLanguage(dbSession, organization, ServerTester.Xoo.KEY);
 
     // Parameter value come back to origin after reset
     ActiveRuleDto activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);

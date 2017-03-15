@@ -69,7 +69,6 @@ public class QProfilesWsTest {
       new RemoveProjectAction(projectAssociationParameters, null, null, dbClient),
       new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
-      new RestoreBuiltInAction(dbClient, null, languages, wsSupport),
       new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
@@ -107,14 +106,6 @@ public class QProfilesWsTest {
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).isNotEmpty();
-  }
-
-  @Test
-  public void define_restore_built_action() {
-    WebService.Action restoreProfiles = controller.action("restore_built_in");
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.isPost()).isTrue();
-    assertThat(restoreProfiles.params()).hasSize(1);
   }
 
   @Test
