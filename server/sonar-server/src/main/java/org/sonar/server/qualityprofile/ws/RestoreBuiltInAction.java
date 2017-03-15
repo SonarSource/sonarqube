@@ -25,47 +25,57 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.qualityprofile.QProfileReset;
+import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 public class RestoreBuiltInAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final QProfileReset reset;
   private final Languages languages;
+  private final UserSession userSession;
   private final QProfileWsSupport qProfileWsSupport;
 
-  public RestoreBuiltInAction(DbClient dbClient, QProfileReset reset, Languages languages, QProfileWsSupport qProfileWsSupport) {
+  public RestoreBuiltInAction(DbClient dbClient, QProfileReset reset, Languages languages, UserSession userSession, QProfileWsSupport qProfileWsSupport) {
     this.dbClient = dbClient;
     this.reset = reset;
     this.languages = languages;
+    this.userSession = userSession;
     this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction restoreDefault = controller.createAction("restore_built_in")
+    WebService.NewAction action = controller.createAction("restore_built_in")
       .setDescription("Restore built-in profiles from the definitions declared by plugins. " +
         "Missing profiles are created, existing ones are updated.")
       .setSince("4.4")
       .setPost(true)
       .setHandler(this);
-    restoreDefault.createParam("language")
+    action.createParam("language")
       .setDescription("Restore the built-in profiles defined for this language")
       .setExampleValue(getExampleValue(languages))
       .setPossibleValues(getLanguageKeys(languages))
       .setRequired(true);
+
+    QProfileWsSupport.createOrganizationParam(action).setSince("6.4");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    qProfileWsSupport.checkQProfileAdminPermission();
+    userSession.checkLoggedIn();
 
-    String language = request.mandatoryParam("language");
     try (DbSession dbSession = dbClient.openSession(false)) {
-      reset.resetLanguage(dbSession, language);
+      OrganizationDto organization = qProfileWsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+
+      reset.resetLanguage(dbSession, organization, request.mandatoryParam("language"));
     }
     response.noContent();
   }
