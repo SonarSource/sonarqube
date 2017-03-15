@@ -19,36 +19,40 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.qualityprofile.QProfileProjectOperations;
-import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
+import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
 
 public class AddProjectAction implements QProfileWsAction {
 
-  private final ProjectAssociationParameters projectAssociationParameters;
-  private final ProjectAssociationFinder projectAssociationFinder;
-  private final QProfileProjectOperations profileProjectOperations;
   private final DbClient dbClient;
+  private final UserSession userSession;
+  private final Languages languages;
+  private final ComponentFinder componentFinder;
+  private final QProfileWsSupport wsSupport;
 
-  public AddProjectAction(ProjectAssociationParameters projectAssociationParameters, QProfileProjectOperations profileProjectOperations,
-    ProjectAssociationFinder projectAssociationFinder, DbClient dbClient) {
-    this.projectAssociationParameters = projectAssociationParameters;
-    this.profileProjectOperations = profileProjectOperations;
-    this.projectAssociationFinder = projectAssociationFinder;
+  public AddProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
+    this.languages = languages;
+    this.componentFinder = componentFinder;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -56,31 +60,59 @@ public class AddProjectAction implements QProfileWsAction {
     NewAction action = controller.createAction(ACTION_ADD_PROJECT)
       .setSince("5.2")
       .setDescription("Associate a project with a quality profile.")
+      .setPost(true)
       .setHandler(this);
-    projectAssociationParameters.addParameters(action);
+
+    QProfileReference.defineParams(action, languages);
+    QProfileWsSupport.createOrganizationParam(action).setSince("6.4");
+
+    action.createParam(PARAM_PROJECT_UUID)
+      .setDescription("A project UUID. Either this parameter, or projectKey must be set.")
+      .setExampleValue("69e57151-be0d-4157-adff-c06741d88879");
+    action.createParam(PARAM_PROJECT_KEY)
+      .setDescription("A project key. Either this parameter, or projectUuid must be set.")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    AddProjectRequest addProjectRequest = toWsRequest(request);
+    // fail fast if not logged in
+    userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String profileKey = projectAssociationFinder.getProfileKey(addProjectRequest.getLanguage(), addProjectRequest.getProfileName(), addProjectRequest.getProfileKey());
-      ComponentDto project = projectAssociationFinder.getProject(dbSession, addProjectRequest.getProjectKey(), addProjectRequest.getProjectUuid());
-      profileProjectOperations.addProject(dbSession, profileKey, project);
+      ComponentDto project = loadProject(dbSession, request);
+      QualityProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
+
+      if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
+        throw new IllegalArgumentException("Project and Quality profile must have same organization");
+      }
+
+      QualityProfileDto currentProfile = dbClient.qualityProfileDao().selectByProjectAndLanguage(dbSession, project.key(), profile.getLanguage());
+      if (currentProfile == null) {
+        // project uses the default profile
+        dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKey(), dbSession);
+        dbSession.commit();
+      } else if (!profile.getKey().equals(currentProfile.getKey())) {
+        dbClient.qualityProfileDao().updateProjectProfileAssociation(project.uuid(), profile.getKey(), currentProfile.getKey(), dbSession);
+        dbSession.commit();
+      }
     }
 
     response.noContent();
   }
 
-  private static AddProjectRequest toWsRequest(Request request) {
-    return AddProjectRequest.builder()
-      .setLanguage(request.param(PARAM_LANGUAGE))
-      .setProfileName(request.param(PARAM_PROFILE_NAME))
-      .setProfileKey(request.param(PARAM_PROFILE_KEY))
-      .setProjectKey(request.param(PARAM_PROJECT_KEY))
-      .setProjectUuid(request.param(PARAM_PROJECT_UUID))
-      .build();
+  private ComponentDto loadProject(DbSession dbSession, Request request) {
+    String projectKey = request.param(PARAM_PROJECT_KEY);
+    String projectUuid = request.param(PARAM_PROJECT_UUID);
+    ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ComponentFinder.ParamNames.PROJECT_UUID_AND_KEY);
+    checkAdministrator(project);
+    return project;
   }
 
+  private void checkAdministrator(ComponentDto project) {
+    if (!userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid()) &&
+      !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
+      throw new ForbiddenException("Insufficient privileges");
+    }
+  }
 }

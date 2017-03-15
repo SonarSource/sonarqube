@@ -19,18 +19,15 @@
  */
 package org.sonar.server.qualityprofile;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.core.util.stream.Collectors.toList;
-
 import java.util.List;
-
-import javax.annotation.CheckForNull;
-
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.core.util.stream.Collectors.toList;
 
 @ServerSide
 public class QProfileLookup {
@@ -47,17 +44,6 @@ public class QProfileLookup {
 
   public List<QProfile> profiles(DbSession dbSession, String language, OrganizationDto organization) {
     return toQProfiles(db.qualityProfileDao().selectByLanguage(dbSession, language), organization);
-  }
-
-  @CheckForNull
-  public QProfile profile(String name, String language) {
-    try (DbSession dbSession = db.openSession(false)) {
-      QualityProfileDto dto = findQualityProfile(name, language, dbSession);
-      if (dto != null) {
-        return QProfile.from(dto, null);
-      }
-      return null;
-    }
   }
 
   public List<QProfile> ancestors(QualityProfileDto profile, DbSession session) {
@@ -82,8 +68,4 @@ public class QProfileLookup {
     return dtos.stream().map(dto -> QProfile.from(dto, organization)).collect(toList(dtos.size()));
   }
 
-  @CheckForNull
-  private QualityProfileDto findQualityProfile(String name, String language, DbSession session) {
-    return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
-  }
 }
