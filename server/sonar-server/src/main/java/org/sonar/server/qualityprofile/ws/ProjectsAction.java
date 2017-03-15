@@ -38,6 +38,7 @@ import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
@@ -73,7 +74,7 @@ public class ProjectsAction implements QProfileWsAction {
     projects.createParam(PARAM_KEY)
       .setDescription("A quality profile key.")
       .setRequired(true)
-      .setExampleValue("sonar-way-java-12345");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
     projects.addSelectionModeParam();
     projects.createParam(PARAM_QUERY)
       .setDescription("If specified, return only projects whose name match the query.");

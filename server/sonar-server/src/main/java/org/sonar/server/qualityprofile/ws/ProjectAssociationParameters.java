@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.util.LanguageParamUtils;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -48,7 +49,7 @@ public class ProjectAssociationParameters {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_PROFILE_KEY)
       .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")
-      .setExampleValue("sonar-way-java-12345");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
     action.createParam(PARAM_PROFILE_NAME)
       .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
       .setExampleValue("Soanr way");
