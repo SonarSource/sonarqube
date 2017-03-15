@@ -35,6 +35,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -43,6 +44,7 @@ import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -196,11 +198,16 @@ public class RegisterQualityProfilesMediumTest {
   public void do_not_reset_default_profile_if_still_valid() {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
     tester.start();
-
-    QualityProfileDao profileDao = dbClient().qualityProfileDao();
     dbSession = dbClient().openSession(false);
-    QualityProfileDto profileTwo = profileDao.selectByNameAndLanguage("two", "xoo", dbSession);
-    tester.get(QProfileFactory.class).setDefault(dbSession, profileTwo.getKee());
+
+    DefaultOrganizationProvider defaultOrganizationProvider = tester.get(DefaultOrganizationProvider.class);
+    OrganizationDto organization = dbClient().organizationDao().selectByUuid(dbSession, defaultOrganizationProvider.get().getUuid()).get();
+
+    QualityProfileDao dao = dbClient().qualityProfileDao();
+    dao.update(dbSession, dao.selectDefaultProfile(dbSession, "xoo")
+      .setDefault(false));
+    dao.update(dbSession, dao.selectByNameAndLanguage(organization, "two", "xoo", dbSession)
+      .setDefault(true));
     dbSession.commit();
 
     verifyDefaultProfile("xoo", "two");
