@@ -89,7 +89,6 @@ public class MeasureDao implements Dao {
         componentUuids -> {
           MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
           mapper(dbSession).selectByQueryOnComponents(pageQuery, resultHandler);
-          return null;
         });
     }
     if (query.isOnProjects()) {
@@ -98,7 +97,6 @@ public class MeasureDao implements Dao {
         projectUuids -> {
           MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
           mapper(dbSession).selectByQueryOnProjects(pageQuery, resultHandler);
-          return null;
         });
     }
     mapper(dbSession).selectByQueryOnSingleComponent(query, resultHandler);
