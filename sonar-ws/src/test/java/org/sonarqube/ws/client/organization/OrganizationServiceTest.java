@@ -44,4 +44,15 @@ public class OrganizationServiceTest {
       .hasParam("login", "login-1")
       .andNoOtherParam();
   }
+
+  @Test
+  public void remove_member() {
+    underTest.removeMember("O1", "login-1");
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("remove_member")
+      .hasParam("organization", "O1")
+      .hasParam("login", "login-1")
+      .andNoOtherParam();
+  }
 }
