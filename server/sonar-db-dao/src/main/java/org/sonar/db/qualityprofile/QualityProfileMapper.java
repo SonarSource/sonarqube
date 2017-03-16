@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
@@ -31,6 +32,8 @@ public interface QualityProfileMapper {
   void update(QualityProfileDto dto);
 
   void delete(int id);
+
+  void deleteByKeys(@Param("profileKeys") Collection<String> profileKeys);
 
   List<QualityProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
@@ -79,6 +82,8 @@ public interface QualityProfileMapper {
   void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 
   void deleteAllProjectProfileAssociation(@Param("profileKey") String profileKey);
+
+  void deleteProjectAssociationByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
 
   List<ProjectQprofileAssociationDto> selectSelectedProjects(@Param("profileKey") String profileKey, @Param("nameQuery") String nameQuery);
 

@@ -45,11 +45,13 @@ import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -65,7 +67,8 @@ public class CopyActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public JUnitTempFolder tempDir = new JUnitTempFolder();
-  private QProfileFactory profileFactory = new QProfileFactory(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE);
+  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private QProfileFactory profileFactory = new QProfileFactory(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE, activeRuleIndexer);
   private TestBackuper backuper = new TestBackuper();
   private QProfileCopier profileCopier = new QProfileCopier(db.getDbClient(), profileFactory, backuper, tempDir);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);

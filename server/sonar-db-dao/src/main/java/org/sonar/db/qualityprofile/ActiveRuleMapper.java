@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
@@ -30,6 +31,8 @@ public interface ActiveRuleMapper {
   void update(ActiveRuleDto dto);
 
   void delete(int activeRuleId);
+
+  void deleteByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
 
   ActiveRuleDto selectByKey(@Param("profileKey") String profileKey, @Param("repository") String repository, @Param("rule") String rule);
 
@@ -48,6 +51,8 @@ public interface ActiveRuleMapper {
   void updateParameter(ActiveRuleParamDto dto);
 
   void deleteParameters(int activeRuleId);
+
+  void deleteParametersByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
 
   void deleteParameter(int activeRuleParamId);
 

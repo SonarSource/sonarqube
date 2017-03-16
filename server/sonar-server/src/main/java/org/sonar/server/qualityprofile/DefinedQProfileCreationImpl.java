@@ -43,7 +43,7 @@ public class DefinedQProfileCreationImpl implements DefinedQProfileCreation {
   public void create(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
     QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, qualityProfile.getName(), qualityProfile.getLanguage(), session);
     if (profileDto != null) {
-      changes.addAll(profileFactory.delete(session, profileDto.getKey(), true));
+      changes.addAll(profileFactory.deleteTree(session, profileDto.getKey(), true));
     }
     QualityProfileDto newQProfileDto = profileFactory.create(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
     for (org.sonar.api.rules.ActiveRule activeRule : qualityProfile.getActiveRules()) {

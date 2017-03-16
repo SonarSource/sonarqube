@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Iterators;
-import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -83,20 +82,33 @@ public class ActiveRuleIndexerTest {
   }
 
   @Test
-  public void delete_profile() throws Exception {
+  public void deleteByProfileKeys_deletes_documents_associated_to_specified_profile() throws Exception {
     indexActiveRules(
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)),
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)),
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3)));
-
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
 
-    indexer.deleteProfile(QUALITY_PROFILE_KEY1);
+    indexer.deleteByProfileKeys(asList(QUALITY_PROFILE_KEY1));
 
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(
       ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2).toString(),
       ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3).toString());
+  }
+
+  @Test
+  public void deleteByProfileKeys_deletes_documents_associated_to_multiple_profiles() throws Exception {
+    indexActiveRules(
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)),
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)),
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3)));
+    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
+
+    indexer.deleteByProfileKeys(asList(QUALITY_PROFILE_KEY1, QUALITY_PROFILE_KEY2));
+
+    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).isEmpty();
   }
 
   @Test
@@ -114,7 +126,7 @@ public class ActiveRuleIndexerTest {
 
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
 
-    indexer.index(Arrays.asList(
+    indexer.index(asList(
       ActiveRuleChange.createFor(ACTIVATED, activeRuleKey1),
       ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey2),
       ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey3)));

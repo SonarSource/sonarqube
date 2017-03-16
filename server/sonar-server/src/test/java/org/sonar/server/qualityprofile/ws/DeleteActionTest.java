@@ -44,6 +44,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -68,6 +69,7 @@ public class DeleteActionTest {
   private Language xoo2;
   private WsTester tester;
   private DbSession session = dbTester.getSession();
+  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
 
   @Before
   public void setUp() {
@@ -79,7 +81,7 @@ public class DeleteActionTest {
       mock(BulkRuleActivationActions.class),
       new DeleteAction(
         new Languages(xoo1, xoo2),
-        new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE),
+        new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer),
         dbClient,
         userSessionRule,
         new QProfileWsSupport(dbClient, userSessionRule, TestDefaultOrganizationProvider.from(dbTester)))));
