@@ -33,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.tester.UserSessionRule;
@@ -69,7 +68,7 @@ public class QProfilesWsTest {
       new RemoveProjectAction(projectAssociationParameters, null, null, dbClient),
       new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
-      new SearchAction(null, languages),
+      new SearchAction(null, languages, null, dbClient),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
       new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),

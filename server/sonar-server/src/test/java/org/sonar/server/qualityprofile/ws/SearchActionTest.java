@@ -45,7 +45,9 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -80,16 +82,16 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class SearchActionTest {
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+  private QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
@@ -113,8 +115,10 @@ public class SearchActionTest {
         new QProfileLookup(dbClient),
         new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE),
         dbClient,
-        new ComponentFinder(dbClient), activeRuleIndex, qProfileWsSupport),
-      languages);
+        new ComponentFinder(dbClient), qProfileWsSupport),
+      languages,
+      activeRuleIndex,
+      dbClient);
     ws = new WsActionTester(underTest);
   }
 
@@ -327,12 +331,97 @@ public class SearchActionTest {
         "ORG1-D");
   }
 
+
+  @Test
+  public void name_and_default_query_is_valid() throws Exception {
+    minimalValidSetup();
+
+    SearchWsRequest request = new SearchWsRequest()
+      .setProfileName("bla")
+      .setDefaults(true);
+
+    assertThat(findProfiles(request).getProfilesList()).isNotNull();
+  }
+
+  @Test
+  public void name_and_component_query_is_valid() throws Exception {
+    minimalValidSetup();
+    ComponentDto project = db.components().insertProject();
+
+    SearchWsRequest request = new SearchWsRequest()
+      .setProfileName("bla")
+      .setProjectKey(project.key());
+
+    assertThat(findProfiles(request).getProfilesList()).isNotNull();
+  }
+
+  @Test
+  public void name_requires_either_component_or_defaults() throws Exception {
+    SearchWsRequest request = new SearchWsRequest()
+      .setProfileName("bla");
+
+    thrown.expect(BadRequestException.class);
+    thrown.expectMessage("The name parameter requires either projectKey or defaults to be set.");
+
+    findProfiles(request);
+  }
+
+  @Test
+  public void default_and_component_cannot_be_set_at_same_time() throws Exception {
+    SearchWsRequest request = new SearchWsRequest()
+      .setDefaults(true)
+      .setProjectKey("blubb");
+
+    thrown.expect(BadRequestException.class);
+    thrown.expectMessage("The default parameter cannot be provided at the same time than the component key.");
+
+    findProfiles(request);
+  }
+
+  @Test
+  public void language_and_component_cannot_be_set_at_same_time() throws Exception {
+    SearchWsRequest request = new SearchWsRequest()
+      .setLanguage("xoo")
+      .setProjectKey("bla");
+
+    thrown.expect(BadRequestException.class);
+    thrown.expectMessage("The language parameter cannot be provided at the same time than the component key or profile name.");
+
+    findProfiles(request);
+  }
+
+  @Test
+  public void language_and_name_cannot_be_set_at_same_time() throws Exception {
+    SearchWsRequest request = new SearchWsRequest()
+      .setLanguage("xoo")
+      .setProfileName("bla");
+
+    thrown.expect(BadRequestException.class);
+    thrown.expectMessage("The language parameter cannot be provided at the same time than the component key or profile name.");
+
+    findProfiles(request);
+  }
+
+  private void minimalValidSetup() {
+    for (Language language : Arrays.asList(xoo1, xoo2)) {
+      db.qualityProfiles().insertQualityProfile(
+        QualityProfileTesting.newQualityProfileDto()
+          .setOrganizationUuid(getDefaultOrganization().getUuid())
+          .setLanguage(language.getKey())
+          .setDefault(true));
+    }
+  }
+
   private QualityProfileDto createProfile(String keySuffix, Language language, OrganizationDto org, String name, boolean isDefault) {
     return QualityProfileDto.createFor(org.getKey() + "-" + keySuffix)
       .setOrganizationUuid(org.getUuid())
       .setLanguage(language.getKey())
       .setName(name)
       .setDefault(isDefault);
+  }
+
+  private SearchWsResponse findProfiles(SearchWsRequest request) {
+    return underTest.doHandle(request);
   }
 
   private SearchWsResponse call(TestRequest request) {
@@ -346,6 +435,6 @@ public class SearchActionTest {
   }
 
   private OrganizationDto getDefaultOrganization() {
-    return qProfileWsSupport.getOrganizationByKey(db.getSession(), defaultOrganizationProvider.get().getKey());
+    return db.getDefaultOrganization();
   }
 }
