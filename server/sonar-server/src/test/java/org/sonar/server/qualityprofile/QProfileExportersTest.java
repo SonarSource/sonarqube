@@ -70,7 +70,6 @@ public class QProfileExportersTest {
   DbClient db;
   DbSession dbSession;
   QProfileExporters exporters;
-  QProfileLoader loader;
   ActiveRuleIndexer activeRuleIndexer;
 
   @Before
@@ -78,7 +77,6 @@ public class QProfileExportersTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     exporters = tester.get(QProfileExporters.class);
-    loader = tester.get(QProfileLoader.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
   }
 
