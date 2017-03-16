@@ -197,19 +197,19 @@ public class BulkChangeAction implements IssuesWsAction {
     return bulkChangeData -> {
       BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
       IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
-      
+
       List<DefaultIssue> items = bulkChangeData.issues.stream()
         .filter(bulkChange(issueChangeContext, bulkChangeData, result))
         .collect(Collectors.toList());
       issueStorage.save(items);
-      items.stream().forEach(sendNotification(issueChangeContext, bulkChangeData));
+      items.forEach(sendNotification(issueChangeContext, bulkChangeData));
       return result;
     };
   }
 
   private Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
     return issue -> {
-      ActionContext actionContext = new ActionContext(issue, issueChangeContext);
+      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.projectsByUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
       return result.success.contains(issue.key());
@@ -260,10 +260,12 @@ public class BulkChangeAction implements IssuesWsAction {
   public static class ActionContext implements Action.Context {
     private final DefaultIssue issue;
     private final IssueChangeContext changeContext;
+    private final ComponentDto project;
 
-    public ActionContext(DefaultIssue issue, IssueChangeContext changeContext) {
+    public ActionContext(DefaultIssue issue, IssueChangeContext changeContext, ComponentDto project) {
       this.issue = issue;
       this.changeContext = changeContext;
+      this.project = project;
     }
 
     @Override
@@ -274,6 +276,11 @@ public class BulkChangeAction implements IssuesWsAction {
     @Override
     public IssueChangeContext issueChangeContext() {
       return changeContext;
+    }
+
+    @Override
+    public ComponentDto project() {
+      return project;
     }
   }
 

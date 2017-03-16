@@ -20,7 +20,10 @@
 package org.sonar.server.issue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
@@ -38,30 +41,26 @@ public class AssignAction extends Action {
 
   public static final String ASSIGN_KEY = "assign";
   public static final String ASSIGNEE_PARAMETER = "assignee";
-  public static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
+  private static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
+  private static final String ASSIGNEE_ORGANIZATIONS = "assigneeOrganizationUuids";
 
   private final DbClient dbClient;
-  private final IssueFieldsSetter issueUpdater;
+  private final IssueFieldsSetter issueFieldsSetter;
 
-  public AssignAction(DbClient dbClient, IssueFieldsSetter issueUpdater) {
+  public AssignAction(DbClient dbClient, IssueFieldsSetter issueFieldsSetter) {
     super(ASSIGN_KEY);
     this.dbClient = dbClient;
-    this.issueUpdater = issueUpdater;
+    this.issueFieldsSetter = issueFieldsSetter;
     super.setConditions(new IsUnResolved());
   }
 
   @Override
   public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
-    String assignee = getAssigneeValue(properties);
-    properties.put(VERIFIED_ASSIGNEE, isNullOrEmpty(assignee) ? null : getUser(assignee));
+    String assigneeLogin = getAssigneeValue(properties);
+    UserDto assignee = isNullOrEmpty(assigneeLogin) ? null : getUser(assigneeLogin);
+    properties.put(VERIFIED_ASSIGNEE, assignee);
+    properties.put(ASSIGNEE_ORGANIZATIONS, loadUserOrganizations(assignee));
     return true;
-  }
-
-  @Override
-  public boolean execute(Map<String, Object> properties, Context context) {
-    checkArgument(properties.containsKey(VERIFIED_ASSIGNEE), "Assignee is missing from the execution parameters");
-    UserDto assignee = (UserDto) properties.get(VERIFIED_ASSIGNEE);
-    return issueUpdater.assign(context.issue(), assignee, context.issueChangeContext());
   }
 
   private static String getAssigneeValue(Map<String, Object> properties) {
@@ -70,7 +69,27 @@ public class AssignAction extends Action {
 
   private UserDto getUser(String assigneeKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return checkFound(dbClient.userDao().selectByLogin(dbSession, assigneeKey), "Unknown user: %s", assigneeKey);
+      return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, assigneeKey), "Unknown user: %s", assigneeKey);
     }
+  }
+
+  private Set<String> loadUserOrganizations(@Nullable UserDto assignee) {
+    if (assignee == null) {
+      return Collections.emptySet();
+    }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, assignee.getId());
+    }
+  }
+
+  @Override
+  public boolean execute(Map<String, Object> properties, Context context) {
+    checkArgument(properties.containsKey(VERIFIED_ASSIGNEE), "Assignee is missing from the execution parameters");
+    UserDto assignee = (UserDto) properties.get(VERIFIED_ASSIGNEE);
+    return isAssigneeMemberOfIssueOrganization(assignee, properties, context) && issueFieldsSetter.assign(context.issue(), assignee, context.issueChangeContext());
+  }
+
+  private static boolean isAssigneeMemberOfIssueOrganization(@Nullable UserDto assignee, Map<String, Object> properties, Context context) {
+    return assignee == null || ((Set<String>) properties.get(ASSIGNEE_ORGANIZATIONS)).contains(context.project().getOrganizationUuid());
   }
 }
