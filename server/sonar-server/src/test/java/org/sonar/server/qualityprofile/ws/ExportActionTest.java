@@ -259,5 +259,10 @@ public class ExportActionTest {
     public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile) {
+      throw new UnsupportedOperationException();
+    }
   }
 }
