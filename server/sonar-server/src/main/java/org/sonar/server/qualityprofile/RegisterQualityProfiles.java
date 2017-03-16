@@ -90,6 +90,7 @@ public class RegisterQualityProfiles {
     LOGGER.debug("Register profile {} for organization {}", qualityProfile.getQProfileName(), organization.getKey());
 
     definedQProfileCreation.create(session, qualityProfile, organization, changes);
+    session.commit();
   }
 
 }
