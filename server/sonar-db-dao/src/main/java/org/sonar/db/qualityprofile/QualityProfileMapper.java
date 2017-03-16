@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.sonar.db.component.ComponentDto;
 
 public interface QualityProfileMapper {
 
@@ -66,7 +65,7 @@ public interface QualityProfileMapper {
 
   // PROJECTS
 
-  List<ComponentDto> selectProjects(@Param("profileName") String profileName, @Param("language") String language);
+  List<String> selectUuidsOfAssociatedProjects(@Param("profileKey") String profileKey);
 
   List<QualityProfileProjectCount> countProjectsByProfile();
 
