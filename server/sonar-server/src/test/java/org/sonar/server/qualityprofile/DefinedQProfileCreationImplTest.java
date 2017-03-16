@@ -96,6 +96,7 @@ public class DefinedQProfileCreationImplTest {
     mockForSingleQPInsert(uuid, date);
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    dbSession.commit();
 
     QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, "foo1");
     assertThat(dto.getId()).isNotNull();
@@ -124,6 +125,7 @@ public class DefinedQProfileCreationImplTest {
     mockForSingleQPInsert();
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    dbSession.commit();
 
     assertThat(getPersistedQP(organization, FOO_LANGUAGE, "foo1").isDefault()).isTrue();
     assertThat(activeRuleChanges).isEmpty();
@@ -143,6 +145,7 @@ public class DefinedQProfileCreationImplTest {
             .setOrganizationUuid(organization.getUuid()));
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    dbSession.commit();
 
     QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, "foo1");
     assertThat(dto.getId()).isNotEqualTo(existing.getId());
@@ -169,6 +172,7 @@ public class DefinedQProfileCreationImplTest {
     mockForSingleQPInsert();
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    dbSession.commit();
 
     assertThat(callLogs)
       .hasSize(5);
@@ -187,6 +191,7 @@ public class DefinedQProfileCreationImplTest {
     mockForSingleQPInsert();
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    dbSession.commit();
 
     assertThat(callLogs)
       .hasSize(1);
@@ -214,6 +219,7 @@ public class DefinedQProfileCreationImplTest {
     mockForSingleQPInsert();
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    dbSession.commit();
 
     assertThat(callLogs)
       .extracting(CallLog::getRuleActivation)
@@ -240,6 +246,7 @@ public class DefinedQProfileCreationImplTest {
     mockForSingleQPInsert();
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    dbSession.commit();
 
     Set<Map.Entry<String, String>> parameters = callLogs.get(0).getRuleActivation().getParameters().entrySet();
     assertThat(parameters)
