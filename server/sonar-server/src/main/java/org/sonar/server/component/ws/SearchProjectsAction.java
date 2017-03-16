@@ -115,6 +115,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("the organization to search projects in")
       .setRequired(false)
+      .setInternal(true)
       .setSince("6.3");
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
