@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -31,12 +32,14 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileRef;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.FacetValue;
 
@@ -46,16 +49,19 @@ public class InheritanceAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final QProfileLookup profileLookup;
-  private final QProfileLoader profileLoader;
+  private final ActiveRuleIndex activeRuleIndex;
   private final QProfileFactory profileFactory;
   private final Languages languages;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public InheritanceAction(DbClient dbClient, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, Languages languages) {
+  public InheritanceAction(DbClient dbClient, QProfileLookup profileLookup, ActiveRuleIndex activeRuleIndex, QProfileFactory profileFactory, Languages languages,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.profileLookup = profileLookup;
-    this.profileLoader = profileLoader;
+    this.activeRuleIndex = activeRuleIndex;
     this.profileFactory = profileFactory;
     this.languages = languages;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -71,16 +77,23 @@ public class InheritanceAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
       List<QProfile> ancestors = profileLookup.ancestors(profile, dbSession);
       List<QualityProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKey());
-      Map<String, Multimap<String, FacetValue>> profileStats = profileLoader.getAllProfileStats();
+      Map<String, Multimap<String, FacetValue>> profileStats = getAllProfileStats();
 
       writeResponse(response.newJsonWriter(), profile, ancestors, children, profileStats);
-    } finally {
-      dbSession.close();
+    }
+  }
+
+  public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+      OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
+        .orElseThrow(() -> new IllegalStateException(String.format("Cannot find default organization by uuid '%s'", defaultOrganizationUuid)));
+      List<String> keys = dbClient.qualityProfileDao().selectAll(dbSession, defaultOrganization).stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
+      return activeRuleIndex.getStatsByProfileKeys(keys);
     }
   }
 
