@@ -17,6 +17,12 @@
     and om.user_id = #{userId, jdbcType=INTEGER}
   </select>
 
+  <select id="selectOrganizationUuidsByUser" resultType="String">
+    select om.organization_uuid as "organizationUuid"
+    from organization_members om
+    where om.user_id = #{userId, jdbcType=INTEGER}
+  </select>
+
   <insert id="insert" parameterType="OrganizationMember" useGeneratedKeys="false">
     insert into organization_members
     (

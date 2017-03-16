@@ -57,6 +57,18 @@ public class OrganizationMemberDaoTest {
   }
 
   @Test
+  public void select_organization_uudis_by_user_id() {
+    OrganizationDto organizationDto1 = db.organizations().insert();
+    OrganizationDto organizationDto2 = db.organizations().insert();
+    OrganizationDto organizationDto3 = db.organizations().insert();
+    underTest.insert(dbSession, create(organizationDto1.getUuid(), 512));
+    underTest.insert(dbSession, create(organizationDto2.getUuid(), 512));
+
+    assertThat(underTest.selectOrganizationUuidsByUser(dbSession, 512)).containsOnly(organizationDto1.getUuid(), organizationDto2.getUuid());
+    assertThat(underTest.selectOrganizationUuidsByUser(dbSession, 123)).isEmpty();
+  }
+
+  @Test
   public void insert() {
     underTest.insert(dbSession, create("O_1", 256));
 
