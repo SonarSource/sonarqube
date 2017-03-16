@@ -106,10 +106,6 @@ public class OrganizationDao implements Dao {
     return getMapper(dbSession).deleteByUuid(uuid);
   }
 
-  public int deleteByKey(DbSession dbSession, String key) {
-    return getMapper(dbSession).deleteByKey(key);
-  }
-
   private static void checkDto(OrganizationDto organization) {
     requireNonNull(organization, "OrganizationDto can't be null");
   }

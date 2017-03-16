@@ -683,42 +683,6 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void deleteByKey_does_not_fail_on_empty_table() {
-    assertThat(underTest.deleteByKey(dbSession, "key")).isEqualTo(0);
-    dbSession.commit();
-  }
-
-  @Test
-  public void deleteByKey_does_not_fail_on_non_existing_row() {
-    insertOrganization(ORGANIZATION_DTO_1);
-
-    assertThat(underTest.deleteByKey(dbSession, "key")).isEqualTo(0);
-    dbSession.commit();
-  }
-
-  @Test
-  public void deleteByUuid_deletes_row_with_specified_key() {
-    insertOrganization(ORGANIZATION_DTO_1);
-    String anotherKey = "key";
-    insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid").setKey(anotherKey));
-
-    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(2);
-    assertThat(underTest.deleteByKey(dbSession, anotherKey)).isEqualTo(1);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKey(dbSession, anotherKey)).isEmpty();
-    assertThat(underTest.selectByKey(dbSession, ORGANIZATION_DTO_1.getKey())).isNotEmpty();
-    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(1);
-
-    assertThat(underTest.deleteByKey(dbSession, anotherKey)).isEqualTo(0);
-    assertThat(underTest.deleteByKey(dbSession, ORGANIZATION_DTO_1.getKey())).isEqualTo(1);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKey(dbSession, ORGANIZATION_DTO_1.getKey())).isEmpty();
-    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(0);
-  }
-
-  @Test
   public void selectByPermission_returns_organization_when_user_has_ADMIN_user_permission_on_some_organization() {
     UserDto user = dbTester.users().insertUser();
     OrganizationDto organization1 = dbTester.organizations().insert();
