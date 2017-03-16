@@ -33,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.tester.UserSessionRule;
@@ -76,7 +75,6 @@ public class QProfilesWsTest {
       new ChangeParentAction(dbClient, null, null, languages, wsSupport),
       new CompareAction(null, null, languages),
       new DeleteAction(languages, null, null, userSessionRule, wsSupport),
-      new CopyAction(dbClient, null, languages, wsSupport),
       new ExportersAction(),
       new InheritanceAction(null, null, null, null, languages),
       new RenameAction(null, wsSupport, dbClient, userSessionRule))).controller(QProfilesWs.API_ENDPOINT);
@@ -232,15 +230,6 @@ public class QProfilesWsTest {
     assertThat(compare.params()).hasSize(2).extracting("key").containsOnly(
       "leftKey", "rightKey");
     assertThat(compare.responseExampleAsString()).isNotEmpty();
-  }
-
-  @Test
-  public void define_copy_action() {
-    WebService.Action copy = controller.action("copy");
-    assertThat(copy).isNotNull();
-    assertThat(copy.isPost()).isTrue();
-    assertThat(copy.params()).hasSize(2).extracting("key").containsOnly(
-      "fromKey", "toName");
   }
 
   @Test
