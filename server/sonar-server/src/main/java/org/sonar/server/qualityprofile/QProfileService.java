@@ -87,6 +87,7 @@ public class QProfileService {
   }
 
   private void verifyAdminPermission() {
+    // FIXME check for the permission of the appropriate organization, not the default one
     userSession
       .checkLoggedIn()
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());

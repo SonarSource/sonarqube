@@ -53,7 +53,7 @@ import static com.google.common.base.Preconditions.checkState;
  * In both cases, one can define user session behavior which should apply on all tests directly on the property, eg.:
  * <pre>
  * {@literal @}Rule
- * public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setOrganizationPermissions(OrganizationPermissions.SYSTEM_ADMIN);
+ * public UserSessionRule userSession = UserSessionRule.standalone().login("admin").setOrganizationPermissions(OrganizationPermissions.SYSTEM_ADMIN);
  * </pre>
  * </p>
  * <p>
@@ -63,7 +63,7 @@ import static com.google.common.base.Preconditions.checkState;
  * <pre>
  * {@literal @}Test
  * public void test_method() {
- *   userSessionRule.standalone();
+ *   userSession.standalone();
  *   {@literal [...]}
  * }
  * </pre>
