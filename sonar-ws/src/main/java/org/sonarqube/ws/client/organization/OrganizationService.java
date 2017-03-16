@@ -38,6 +38,7 @@ public class OrganizationService extends BaseService {
 
   public SearchWsResponse search(SearchWsRequest request) {
     GetRequest get = new GetRequest(path("search"))
+      .setParam("organizations", inlineMultipleParamValue(request.getOrganizations()))
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize());
 
