@@ -97,13 +97,9 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   }
 
   private void tryToStartAll() {
-    try {
-      tryToStartEs();
-      tryToStartWeb();
-      tryToStartCe();
-    } catch (RuntimeException e) {
-      terminate();
-    }
+    tryToStartEs();
+    tryToStartWeb();
+    tryToStartCe();
   }
 
   private void tryToStartEs() {
