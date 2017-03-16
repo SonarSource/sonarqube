@@ -24,22 +24,20 @@ import { ComponentType, MeasuresListType, PeriodsListType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
 
-function parseQualityGateDetails (rawDetails) {
+function parseQualityGateDetails(rawDetails) {
   return JSON.parse(rawDetails);
 }
 
-function isProject (component) {
+function isProject(component) {
   return component.qualifier === 'TRK';
 }
 
 const QualityGate = ({ component, measures, periods }) => {
-  const statusMeasure =
-      measures.find(measure => measure.metric.key === 'alert_status');
-  const detailsMeasure =
-      measures.find(measure => measure.metric.key === 'quality_gate_details');
+  const statusMeasure = measures.find(measure => measure.metric.key === 'alert_status');
+  const detailsMeasure = measures.find(measure => measure.metric.key === 'quality_gate_details');
 
   if (!statusMeasure) {
-    return isProject(component) ? <EmptyQualityGate/> : null;
+    return isProject(component) ? <EmptyQualityGate /> : null;
   }
 
   const level = statusMeasure.value;
@@ -50,19 +48,15 @@ const QualityGate = ({ component, measures, periods }) => {
   }
 
   return (
-      <div className="overview-quality-gate" id="overview-quality-gate">
-        <h2 className="overview-title">
-          {translate('overview.quality_gate')}
-          <Level level={level}/>
-        </h2>
+    <div className="overview-quality-gate" id="overview-quality-gate">
+      <h2 className="overview-title">
+        {translate('overview.quality_gate')}
+        <Level level={level} />
+      </h2>
 
-        {conditions.length > 0 && (
-            <QualityGateConditions
-                component={component}
-                periods={periods}
-                conditions={conditions}/>
-        )}
-      </div>
+      {conditions.length > 0 &&
+        <QualityGateConditions component={component} periods={periods} conditions={conditions} />}
+    </div>
   );
 };
 
@@ -73,4 +67,3 @@ QualityGate.propTypes = {
 };
 
 export default QualityGate;
-

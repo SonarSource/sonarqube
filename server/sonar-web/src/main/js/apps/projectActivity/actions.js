@@ -30,58 +30,67 @@ import {
 import { onFail } from '../../store/rootActions';
 import { getProjectActivity } from '../../store/rootReducer';
 
-const rejectOnFail = (dispatch: Function) => (error: Object) => {
-  onFail(dispatch)(error);
-  return Promise.reject();
-};
+const rejectOnFail = (dispatch: Function) =>
+  (error: Object) => {
+    onFail(dispatch)(error);
+    return Promise.reject();
+  };
 
-export const fetchProjectActivity = (project: string, filter: ?string) => (dispatch: Function): void => {
-  api.getProjectActivity(project, { category: filter }).then(
-    ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
-    onFail(dispatch)
-  );
-};
-
-export const fetchMoreProjectActivity = (project: string, filter: ?string) =>
-    (dispatch: Function, getState: Function): void => {
-      const projectActivity = getProjectActivity(getState());
-      const { pageIndex } = getPaging(projectActivity, project);
-
-      api.getProjectActivity(project, { category: filter, pageIndex: pageIndex + 1 }).then(
+export const fetchProjectActivity = (project: string, filter: ?string) =>
+  (dispatch: Function): void => {
+    api
+      .getProjectActivity(project, { category: filter })
+      .then(
         ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
         onFail(dispatch)
       );
-    };
+  };
+
+export const fetchMoreProjectActivity = (project: string, filter: ?string) =>
+  (dispatch: Function, getState: Function): void => {
+    const projectActivity = getProjectActivity(getState());
+    const { pageIndex } = getPaging(projectActivity, project);
+
+    api
+      .getProjectActivity(project, { category: filter, pageIndex: pageIndex + 1 })
+      .then(
+        ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
+        onFail(dispatch)
+      );
+  };
 
 export const addCustomEvent = (analysis: string, name: string, category?: string) =>
-    (dispatch: Function): Promise<*> => {
-      return api.createEvent(analysis, name, category).then(
+  (dispatch: Function): Promise<*> => {
+    return api
+      .createEvent(analysis, name, category)
+      .then(
         ({ analysis, ...event }) => dispatch(addEvent(analysis, event)),
         rejectOnFail(dispatch)
       );
-    };
+  };
 
-export const deleteEvent = (analysis: string, event: string) => (dispatch: Function): Promise<*> => {
-  return api.deleteEvent(event).then(
-    () => dispatch(deleteEventAction(analysis, event)),
-    rejectOnFail(dispatch)
-  );
-};
+export const deleteEvent = (analysis: string, event: string) =>
+  (dispatch: Function): Promise<*> => {
+    return api
+      .deleteEvent(event)
+      .then(() => dispatch(deleteEventAction(analysis, event)), rejectOnFail(dispatch));
+  };
 
-export const addVersion = (analysis: string, version: string) => (dispatch: Function): Promise<*> => {
-  return dispatch(addCustomEvent(analysis, version, 'VERSION'));
-};
+export const addVersion = (analysis: string, version: string) =>
+  (dispatch: Function): Promise<*> => {
+    return dispatch(addCustomEvent(analysis, version, 'VERSION'));
+  };
 
-export const changeEvent = (event: string, name: string) => (dispatch: Function): Promise<*> => {
-  return api.changeEvent(event, name).then(
-    () => dispatch(changeEventAction(event, { name })),
-    rejectOnFail(dispatch)
-  );
-};
+export const changeEvent = (event: string, name: string) =>
+  (dispatch: Function): Promise<*> => {
+    return api
+      .changeEvent(event, name)
+      .then(() => dispatch(changeEventAction(event, { name })), rejectOnFail(dispatch));
+  };
 
-export const deleteAnalysis = (project: string, analysis: string) => (dispatch: Function): Promise<*> => {
-  return api.deleteAnalysis(analysis).then(
-    () => dispatch(deleteAnalysisAction(project, analysis)),
-    rejectOnFail(dispatch)
-  );
-};
+export const deleteAnalysis = (project: string, analysis: string) =>
+  (dispatch: Function): Promise<*> => {
+    return api
+      .deleteAnalysis(analysis)
+      .then(() => dispatch(deleteAnalysisAction(project, analysis)), rejectOnFail(dispatch));
+  };

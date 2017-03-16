@@ -56,9 +56,8 @@ type RawIssue = {
   textRange?: TextRange
 };
 
-export const sortBySeverity = (issues: Array<*>) => (
-  sortBy(issues, issue => SEVERITIES.indexOf(issue.severity))
-);
+export const sortBySeverity = (issues: Array<*>) =>
+  sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
 
 const injectRelational = (
   issue: RawIssue | Comment,
@@ -98,14 +97,16 @@ const prepareClosed = (issue: RawIssue) => {
 };
 
 const ensureTextRange = (issue: RawIssue) => {
-  return issue.line && !issue.textRange ? {
-    textRange: {
-      startLine: issue.line,
-      endLine: issue.line,
-      startOffset: 0,
-      endOffset: 999999
-    }
-  } : {};
+  return issue.line && !issue.textRange
+    ? {
+        textRange: {
+          startLine: issue.line,
+          endLine: issue.line,
+          startOffset: 0,
+          endOffset: 999999
+        }
+      }
+    : {};
 };
 
 export const parseIssueFromResponse = (

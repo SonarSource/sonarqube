@@ -32,9 +32,7 @@ import {
 import Details from '../components/Details';
 import { getQualityGatesAppState } from '../../../store/rootReducer';
 
-const mapStateToProps = state => (
-    getQualityGatesAppState(state)
-);
+const mapStateToProps = state => getQualityGatesAppState(state);
 
 const mapDispatchToProps = dispatch => ({
   onShow: qualityGate => dispatch(showQualityGate(qualityGate)),
@@ -44,11 +42,9 @@ const mapDispatchToProps = dispatch => ({
   onSetAsDefault: qualityGate => dispatch(setQualityGateAsDefault(qualityGate)),
   onUnsetAsDefault: qualityGate => dispatch(unsetQualityGateAsDefault(qualityGate)),
   onAddCondition: metric => dispatch(addCondition(metric)),
-  onSaveCondition: (oldCondition, newCondition) => dispatch(saveCondition(oldCondition, newCondition)),
+  onSaveCondition: (oldCondition, newCondition) =>
+    dispatch(saveCondition(oldCondition, newCondition)),
   onDeleteCondition: condition => dispatch(deleteCondition(condition))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Details);
+export default connect(mapStateToProps, mapDispatchToProps)(Details);

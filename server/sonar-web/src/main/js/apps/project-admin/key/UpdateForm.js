@@ -29,7 +29,7 @@ export default class UpdateForm extends React.Component {
 
   state = { newKey: null };
 
-  handleSubmit (e) {
+  handleSubmit(e) {
     e.preventDefault();
 
     const newKey = this.refs.newKey.value;
@@ -41,46 +41,48 @@ export default class UpdateForm extends React.Component {
     }).render();
   }
 
-  handleChange (e) {
+  handleChange(e) {
     const newKey = e.target.value;
     this.setState({ newKey });
   }
 
-  handleReset (e) {
+  handleReset(e) {
     e.preventDefault();
     this.setState({ newKey: null });
   }
 
-  render () {
-    const value = this.state.newKey != null ?
-        this.state.newKey :
-        this.props.component.key;
+  render() {
+    const value = this.state.newKey != null ? this.state.newKey : this.props.component.key;
 
     const hasChanged = value !== this.props.component.key;
 
     return (
-        <form onSubmit={this.handleSubmit.bind(this)}>
-          <input
-              ref="newKey"
-              id="update-key-new-key"
-              className="input-super-large"
-              value={value}
-              type="text"
-              placeholder={translate('update_key.new_key')}
-              required={true}
-              onChange={this.handleChange.bind(this)}/>
+      <form onSubmit={this.handleSubmit.bind(this)}>
+        <input
+          ref="newKey"
+          id="update-key-new-key"
+          className="input-super-large"
+          value={value}
+          type="text"
+          placeholder={translate('update_key.new_key')}
+          required={true}
+          onChange={this.handleChange.bind(this)}
+        />
 
-          <div className="spacer-top">
-            <button id="update-key-submit" disabled={!hasChanged}>
-              {translate('update_verb')}
-            </button>
-            {' '}
-            <button id="update-key-reset" disabled={!hasChanged}
-                    onClick={this.handleReset.bind(this)}>
-              {translate('reset_verb')}
-            </button>
-          </div>
-        </form>
+        <div className="spacer-top">
+          <button id="update-key-submit" disabled={!hasChanged}>
+            {translate('update_verb')}
+          </button>
+          {' '}
+          <button
+            id="update-key-reset"
+            disabled={!hasChanged}
+            onClick={this.handleReset.bind(this)}
+          >
+            {translate('reset_verb')}
+          </button>
+        </div>
+      </form>
     );
   }
 }

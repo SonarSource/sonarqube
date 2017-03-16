@@ -19,7 +19,10 @@
  */
 import * as licenses from '../../../../api/licenses';
 import { parseError } from '../../../code/utils';
-import { addGlobalSuccessMessage, addGlobalErrorMessage } from '../../../../store/globalMessages/duck';
+import {
+  addGlobalSuccessMessage,
+  addGlobalErrorMessage
+} from '../../../../store/globalMessages/duck';
 import { translate } from '../../../../helpers/l10n';
 import { isLicenseFromListInvalid, isLicenseInvalid } from '../../licenses/licenseUtils';
 
@@ -30,13 +33,16 @@ const receiveLicenses = licenses => ({
   licenses
 });
 
-const handleError = dispatch => error => {
-  parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
-  return Promise.reject();
-};
+const handleError = dispatch =>
+  error => {
+    parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
+    return Promise.reject();
+  };
 
-export const fetchLicenses = () => dispatch => {
-  return licenses.getLicenses()
+export const fetchLicenses = () =>
+  dispatch => {
+    return licenses
+      .getLicenses()
       .then(licenses => {
         dispatch(receiveLicenses(licenses));
         /* eslint import/namespace: 0 */
@@ -46,12 +52,13 @@ export const fetchLicenses = () => dispatch => {
         }
       })
       .catch(handleError(dispatch));
-};
+  };
 
-export const setLicense = (key, value) => dispatch => {
-  const request = value ? licenses.setLicense(key, value) : licenses.resetLicense(key);
+export const setLicense = (key, value) =>
+  dispatch => {
+    const request = value ? licenses.setLicense(key, value) : licenses.resetLicense(key);
 
-  return request
+    return request
       .then(() => {
         licenses.getLicenses().then(licenses => {
           dispatch(receiveLicenses(licenses));
@@ -63,4 +70,4 @@ export const setLicense = (key, value) => dispatch => {
         });
       })
       .catch(handleError(dispatch));
-};
+  };

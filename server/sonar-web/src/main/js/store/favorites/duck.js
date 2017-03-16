@@ -86,6 +86,4 @@ export default (state: State = [], action: Action): State => {
   return state;
 };
 
-export const isFavorite = (state: State, componentKey: string) => (
-    state.includes(componentKey)
-);
+export const isFavorite = (state: State, componentKey: string) => state.includes(componentKey);

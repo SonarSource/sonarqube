@@ -22,6 +22,6 @@ import React from 'react';
 import Level from '../Level';
 
 it('should render', () => {
-  const rating = shallow(<Level level="ERROR"/>);
+  const rating = shallow(<Level level="ERROR" />);
   expect(rating.is('.level-ERROR')).toBe(true);
 });

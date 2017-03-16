@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RECEIVE_COMPONENT_MEASURE, RECEIVE_COMPONENT_MEASURES, RECEIVE_COMPONENTS_MEASURES } from './actions';
+import {
+  RECEIVE_COMPONENT_MEASURE,
+  RECEIVE_COMPONENT_MEASURES,
+  RECEIVE_COMPONENTS_MEASURES
+} from './actions';
 
 const byMetricKey = (state = {}, action = {}) => {
   if (action.type === RECEIVE_COMPONENT_MEASURE) {
@@ -60,6 +64,4 @@ export const getComponentMeasure = (state, componentKey, metricKey) => {
   return component && component[metricKey];
 };
 
-export const getComponentMeasures = (state, componentKey) => (
-    state[componentKey]
-);
+export const getComponentMeasures = (state, componentKey) => state[componentKey];

@@ -79,16 +79,16 @@ export type DeleteAnalysisAction = {
 };
 
 export type Action =
-    ReceiveProjectActivityAction |
-        AddEventAction |
-        DeleteEventAction |
-        ChangeEventAction |
-        DeleteAnalysisAction;
+  | ReceiveProjectActivityAction
+  | AddEventAction
+  | DeleteEventAction
+  | ChangeEventAction
+  | DeleteAnalysisAction;
 
 export const receiveProjectActivity = (
-    project: string,
-    analyses: Array<Analysis>,
-    paging: Paging
+  project: string,
+  analyses: Array<Analysis>,
+  paging: Paging
 ): ReceiveProjectActivityAction => ({
   type: 'RECEIVE_PROJECT_ACTIVITY',
   project,
@@ -125,14 +125,12 @@ type State = {
   analysesByProject: AnalysesByProjectState,
   events: EventsState,
   filter: string,
-  paging: PagingState,
+  paging: PagingState
 };
 
 export default combineReducers({ analyses, analysesByProject, events, paging });
 
-const getEvent = (state: State, key: string): Event => (
-    fromEvents.getEvent(state.events, key)
-);
+const getEvent = (state: State, key: string): Event => fromEvents.getEvent(state.events, key);
 
 const getAnalysis = (state: State, key: string) => {
   const analysis = fromAnalyses.getAnalysis(state.analyses, key);
@@ -140,9 +138,7 @@ const getAnalysis = (state: State, key: string) => {
   return { ...analysis, events };
 };
 
-export const getAnalyses = (state: State, project: string) => (
-    state.analysesByProject[project] && state.analysesByProject[project].map(key => getAnalysis(state, key))
-);
-export const getPaging = (state: State, project: string) => (
-    state.paging[project]
-);
+export const getAnalyses = (state: State, project: string) =>
+  state.analysesByProject[project] &&
+  state.analysesByProject[project].map(key => getAnalysis(state, key));
+export const getPaging = (state: State, project: string) => state.paging[project];

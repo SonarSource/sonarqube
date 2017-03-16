@@ -21,24 +21,23 @@ import React from 'react';
 import CreateView from '../views/create-view';
 import { translate } from '../../../helpers/l10n';
 
-export default function ListHeader ({ canEdit, onAdd }) {
-  function handleAddClick (e) {
+export default function ListHeader({ canEdit, onAdd }) {
+  function handleAddClick(e) {
     e.preventDefault();
     new CreateView({ onAdd }).render();
   }
 
   return (
-      <div>
-        <h1 className="page-title">{translate('quality_gates.page')}</h1>
-        {canEdit && (
-            <div className="page-actions">
-              <div className="button-group">
-                <button id="quality-gate-add" onClick={handleAddClick}>
-                  {translate('create')}
-                </button>
-              </div>
-            </div>
-        )}
-      </div>
+    <div>
+      <h1 className="page-title">{translate('quality_gates.page')}</h1>
+      {canEdit &&
+        <div className="page-actions">
+          <div className="button-group">
+            <button id="quality-gate-add" onClick={handleAddClick}>
+              {translate('create')}
+            </button>
+          </div>
+        </div>}
+    </div>
   );
 }

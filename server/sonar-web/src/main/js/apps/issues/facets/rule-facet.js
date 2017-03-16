@@ -21,7 +21,7 @@ import CustomValuesFacet from './custom-values-facet';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
-  prepareSearch () {
+  prepareSearch() {
     let url = window.baseUrl + '/api/rules/search?f=name,langName';
     const languages = this.options.app.state.get('query').languages;
     if (languages != null) {
@@ -31,23 +31,23 @@ export default CustomValuesFacet.extend({
       placeholder: translate('search_verb'),
       minimumInputLength: 2,
       allowClear: false,
-      formatNoMatches () {
+      formatNoMatches() {
         return translate('select2.noMatches');
       },
-      formatSearching () {
+      formatSearching() {
         return translate('select2.searching');
       },
-      formatInputTooShort () {
+      formatInputTooShort() {
         return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: {
         url,
         quietMillis: 300,
-        data (term, page) {
+        data(term, page) {
           return { q: term, p: page };
         },
-        results (data) {
+        results(data) {
           const results = data.rules.map(rule => {
             const lang = rule.langName || translate('manual');
             return {
@@ -64,7 +64,7 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  getValuesWithLabels () {
+  getValuesWithLabels() {
     const values = this.model.getValues();
     const rules = this.options.app.facets.rules;
     values.forEach(v => {
@@ -86,7 +86,7 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())

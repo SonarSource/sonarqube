@@ -20,15 +20,16 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function DeprecatedBadge ({ since }) {
+export default function DeprecatedBadge({ since }) {
   const label = since ? `deprecated since ${since}` : 'deprecated';
 
   return (
-      <span
-          className="badge badge-warning"
-          title={translate('api_documentation.deprecation_tooltip')}
-          data-toggle="tooltip">
-        {label}
-      </span>
+    <span
+      className="badge badge-warning"
+      title={translate('api_documentation.deprecation_tooltip')}
+      data-toggle="tooltip"
+    >
+      {label}
+    </span>
   );
 }

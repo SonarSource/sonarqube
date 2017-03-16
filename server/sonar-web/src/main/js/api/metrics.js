@@ -19,7 +19,7 @@
  */
 import { getJSON } from '../helpers/request';
 
-export function getMetrics () {
+export function getMetrics() {
   const url = '/api/metrics/search';
   const data = { ps: 9999 };
   return getJSON(url, data).then(r => r.metrics);

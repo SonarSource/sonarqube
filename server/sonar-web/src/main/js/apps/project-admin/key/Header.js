@@ -21,16 +21,16 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default class Header extends React.Component {
-  render () {
+  render() {
     return (
-        <header className="page-header">
-          <h1 className="page-title">
-            {translate('update_key.page')}
-          </h1>
-          <div className="page-description">
-            {translate('update_key.page.description')}
-          </div>
-        </header>
+      <header className="page-header">
+        <h1 className="page-title">
+          {translate('update_key.page')}
+        </h1>
+        <div className="page-description">
+          {translate('update_key.page.description')}
+        </div>
+      </header>
     );
   }
 }

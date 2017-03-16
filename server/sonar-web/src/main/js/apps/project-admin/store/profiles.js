@@ -32,8 +32,6 @@ const profiles = (state = {}, action = {}) => {
 
 export default profiles;
 
-export const getAllProfiles = state =>
-    values(state);
+export const getAllProfiles = state => values(state);
 
-export const getProfile = (state, key) =>
-    state[key];
+export const getProfile = (state, key) => state[key];

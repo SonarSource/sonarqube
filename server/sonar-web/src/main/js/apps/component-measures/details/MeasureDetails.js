@@ -33,50 +33,52 @@ export default class MeasureDetails extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadData();
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.params.metricKey !== this.props.params.metricKey) {
       this.loadData();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  metricExists (): boolean {
+  metricExists(): boolean {
     const { metrics } = this.props;
     const { metricKey } = this.props.params;
     const metric = metrics.find(metric => metric.key === metricKey);
     return !!metric;
   }
 
-  loadData () {
+  loadData() {
     if (this.metricExists()) {
       this.setState({ loading: true });
       const periodIndex = this.props.location.query.period || 1;
       const onLoaded = () => this.mounted && this.setState({ loading: false });
-      this.props.fetchMeasure(this.props.params.metricKey, Number(periodIndex)).then(onLoaded, onLoaded);
+      this.props
+        .fetchMeasure(this.props.params.metricKey, Number(periodIndex))
+        .then(onLoaded, onLoaded);
     }
   }
 
-  render () {
+  render() {
     if (!this.metricExists()) {
-      return <MetricNotFound/>;
+      return <MetricNotFound />;
     }
 
     if (this.state.loading) {
-      return <Spinner/>;
+      return <Spinner />;
     }
 
     const { component, metric, secondaryMeasure, measure, periods, children } = this.props;
 
     if (!measure) {
-      return <MetricNotFound/>;
+      return <MetricNotFound />;
     }
 
     const { tab } = this.props.params;
@@ -85,43 +87,48 @@ export default class MeasureDetails extends React.Component {
     const periodDate = getPeriodDate(period);
 
     return (
-        <section id="component-measures-details" className="page page-container page-limited">
-          <div className="note">
-            <IndexLink
-                to={{ pathname: '/component_measures', query: { id: component.key } }}
-                id="component-measures-back-to-all-measures"
-                className="text-muted">
-              {translate('component_measures.all_measures')}
-            </IndexLink>
-            {!!metric.domain && (
-                <span>
-                  {' / '}
-                  <Link
-                      to={{ pathname: `/component_measures/domain/${metric.domain}`, query: { id: component.key } }}
-                      className="text-muted">
-                    {translateWithParameters('component_measures.domain_measures', metric.domain)}
-                  </Link>
-                </span>
-            )}
-          </div>
+      <section id="component-measures-details" className="page page-container page-limited">
+        <div className="note">
+          <IndexLink
+            to={{ pathname: '/component_measures', query: { id: component.key } }}
+            id="component-measures-back-to-all-measures"
+            className="text-muted"
+          >
+            {translate('component_measures.all_measures')}
+          </IndexLink>
+          {!!metric.domain &&
+            <span>
+              {' / '}
+              <Link
+                to={{
+                  pathname: `/component_measures/domain/${metric.domain}`,
+                  query: { id: component.key }
+                }}
+                className="text-muted"
+              >
+                {translateWithParameters('component_measures.domain_measures', metric.domain)}
+              </Link>
+            </span>}
+        </div>
 
-          <MeasureDetailsHeader
-              measure={measure}
-              metric={metric}
-              secondaryMeasure={secondaryMeasure}
-              leakPeriod={period}/>
+        <MeasureDetailsHeader
+          measure={measure}
+          metric={metric}
+          secondaryMeasure={secondaryMeasure}
+          leakPeriod={period}
+        />
 
-          {measure && (
-              <MeasureDrilldown
-                  component={component}
-                  metric={metric}
-                  tab={tab}
-                  leakPeriod={period}
-                  leakPeriodDate={periodDate}>
-                {children}
-              </MeasureDrilldown>
-          )}
-        </section>
+        {measure &&
+          <MeasureDrilldown
+            component={component}
+            metric={metric}
+            tab={tab}
+            leakPeriod={period}
+            leakPeriodDate={periodDate}
+          >
+            {children}
+          </MeasureDrilldown>}
+      </section>
     );
   }
 }

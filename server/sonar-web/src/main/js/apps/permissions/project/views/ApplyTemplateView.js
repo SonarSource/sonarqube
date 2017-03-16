@@ -18,31 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import ModalForm from '../../../../components/common/modal-form';
-import {
-    applyTemplateToProject,
-    getPermissionTemplates
-} from '../../../../api/permissions';
+import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
 import Template from '../templates/ApplyTemplateTemplate.hbs';
 
 export default ModalForm.extend({
   template: Template,
 
-  initialize () {
+  initialize() {
     this.loadPermissionTemplates();
     this.done = false;
   },
 
-  loadPermissionTemplates () {
-    const request = this.options.organization ?
-        getPermissionTemplates(this.options.organization.key) :
-        getPermissionTemplates();
+  loadPermissionTemplates() {
+    const request = this.options.organization
+      ? getPermissionTemplates(this.options.organization.key)
+      : getPermissionTemplates();
     return request.then(r => {
       this.permissionTemplates = r.permissionTemplates;
       this.render();
     });
   },
 
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('#project-permissions-template').select2({
       width: '250px',
@@ -50,7 +47,7 @@ export default ModalForm.extend({
     });
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     const permissionTemplate = this.$('#project-permissions-template').val();
     this.disableForm();
@@ -62,19 +59,21 @@ export default ModalForm.extend({
     if (this.options.organization) {
       data.organization = this.options.organization.key;
     }
-    applyTemplateToProject(data).then(() => {
-      this.trigger('done');
-      this.done = true;
-      this.render();
-    }).catch(function (e) {
-      e.response.json().then(r => {
-        this.showErrors(r.errors, r.warnings);
-        this.enableForm();
+    applyTemplateToProject(data)
+      .then(() => {
+        this.trigger('done');
+        this.done = true;
+        this.render();
+      })
+      .catch(function(e) {
+        e.response.json().then(r => {
+          this.showErrors(r.errors, r.warnings);
+          this.enableForm();
+        });
       });
-    });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       permissionTemplates: this.permissionTemplates,
       project: this.options.project,

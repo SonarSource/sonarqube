@@ -36,27 +36,27 @@ const Process = Backbone.Model.extend({
     state: 'ok'
   },
 
-  timeout () {
+  timeout() {
     this.set({
       state: 'timeout',
       message: 'Still Working...'
     });
   },
 
-  finish (options) {
+  finish(options) {
     const finalOptions = { force: false, ...options };
     if (this.get('state') !== 'failed' || finalOptions.force) {
       this.trigger('destroy', this, this.collection, finalOptions);
     }
   },
 
-  fail (message) {
+  fail(message) {
     const that = this;
     let msg = message || translate('process.fail');
     if (msg === 'process.fail') {
       // no translation
       msg = 'An error happened, some parts of the page might not render correctly. ' +
-          'Please contact the administrator if you keep on experiencing this error.';
+        'Please contact the administrator if you keep on experiencing this error.';
     }
     clearInterval(this.get('timer'));
     this.set({
@@ -64,9 +64,12 @@ const Process = Backbone.Model.extend({
       message: msg
     });
     this.set('state', 'failed');
-    setTimeout(() => {
-      that.finish({ force: true });
-    }, 5000);
+    setTimeout(
+      () => {
+        that.finish({ force: true });
+      },
+      5000
+    );
   }
 });
 
@@ -79,28 +82,28 @@ const ProcessesView = Marionette.ItemView.extend({
   className: 'processes-container',
 
   collectionEvents: {
-    'all': 'render'
+    all: 'render'
   },
 
-  render () {
+  render() {
     const failed = this.collection.findWhere({ state: 'failed' });
     const timeout = this.collection.findWhere({ state: 'timeout' });
     let el;
     this.$el.empty();
     if (failed != null) {
       el = $('<li></li>')
-          .html(failed.get('message'))
-          .addClass('process-spinner process-spinner-failed shown');
-      const close = $('<button></button>').html('<i class="icon-close"></i>').addClass('process-spinner-close');
+        .html(failed.get('message'))
+        .addClass('process-spinner process-spinner-failed shown');
+      const close = $('<button></button>')
+        .html('<i class="icon-close"></i>')
+        .addClass('process-spinner-close');
       close.appendTo(el);
       close.on('click', () => {
         failed.finish({ force: true });
       });
       el.appendTo(this.$el);
     } else if (timeout != null) {
-      el = $('<li></li>')
-          .html(timeout.get('message'))
-          .addClass('process-spinner shown');
+      el = $('<li></li>').html(timeout.get('message')).addClass('process-spinner shown');
       el.appendTo(this.$el);
     }
     return this;
@@ -116,13 +119,16 @@ const processesView = new ProcessesView({
  * Add background process
  * @returns {number}
  */
-function addBackgroundProcess () {
+function addBackgroundProcess() {
   const uid = uniqueId('process');
   const process = new Process({
     id: uid,
-    timer: setTimeout(() => {
-      process.timeout();
-    }, defaults.timeout)
+    timer: setTimeout(
+      () => {
+        process.timeout();
+      },
+      defaults.timeout
+    )
   });
   processes.add(process);
   return uid;
@@ -132,7 +138,7 @@ function addBackgroundProcess () {
  * Finish background process
  * @param {number} uid
  */
-function finishBackgroundProcess (uid) {
+function finishBackgroundProcess(uid) {
   const process = processes.get(uid);
   if (process != null) {
     process.finish();
@@ -144,7 +150,7 @@ function finishBackgroundProcess (uid) {
  * @param {number} uid
  * @param {string} message
  */
-function failBackgroundProcess (uid, message) {
+function failBackgroundProcess(uid, message) {
   const process = processes.get(uid);
   if (process != null) {
     process.fail(message);
@@ -155,7 +161,7 @@ function failBackgroundProcess (uid, message) {
  * Handle ajax error
  * @param jqXHR
  */
-function handleAjaxError (jqXHR) {
+function handleAjaxError(jqXHR) {
   if (jqXHR != null && jqXHR.processId != null) {
     let message = null;
     if (jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
@@ -165,18 +171,18 @@ function handleAjaxError (jqXHR) {
   }
 }
 
-function handleNotAuthenticatedError () {
+function handleNotAuthenticatedError() {
   // workaround cyclic dependencies
   const handleRequiredAuthentication = require('./handleRequiredAuthentication').default;
   handleRequiredAuthentication();
 }
 
 $.ajaxSetup({
-  beforeSend (jqXHR) {
+  beforeSend(jqXHR) {
     jqXHR.setRequestHeader(getCSRFTokenName(), getCSRFTokenValue());
     jqXHR.processId = addBackgroundProcess();
   },
-  complete (jqXHR) {
+  complete(jqXHR) {
     if (jqXHR.processId != null) {
       finishBackgroundProcess(jqXHR.processId);
     }

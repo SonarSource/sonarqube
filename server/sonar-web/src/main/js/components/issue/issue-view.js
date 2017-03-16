@@ -36,16 +36,16 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'notifyAndRender',
-    'transition': 'onTransition'
+    change: 'notifyAndRender',
+    transition: 'onTransition'
   },
 
-  className () {
+  className() {
     const hasCheckbox = this.options.onCheck != null;
     return hasCheckbox ? 'issue issue-with-checkbox' : 'issue';
   },
 
-  events () {
+  events() {
     return {
       'click': 'handleClick',
       'click .js-issue-comment': 'onComment',
@@ -67,7 +67,7 @@ export default Marionette.ItemView.extend({
     };
   },
 
-  notifyAndRender () {
+  notifyAndRender() {
     const { onIssueChange } = this.options;
     if (onIssueChange) {
       onIssueChange(this.model.toJSON());
@@ -79,19 +79,19 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  onRender () {
+  onRender() {
     this.$el.attr('data-key', this.model.get('key'));
   },
 
-  disableControls () {
+  disableControls() {
     this.$(':input').prop('disabled', true);
   },
 
-  enableControls () {
+  enableControls() {
     this.$(':input').prop('disabled', false);
   },
 
-  resetIssue (options) {
+  resetIssue(options) {
     const that = this;
     const key = this.model.get('key');
     const componentUuid = this.model.get('componentUuid');
@@ -99,29 +99,31 @@ export default Marionette.ItemView.extend({
     return this.model.fetch(options).done(() => that.trigger('reset'));
   },
 
-  showChangeLog (e) {
+  showChangeLog(e) {
     e.preventDefault();
     e.stopPropagation();
     const that = this;
     const t = $(e.currentTarget);
     const changeLog = new ChangeLog();
-    return changeLog.fetch({
-      data: { issue: this.model.get('key') }
-    }).done(() => {
-      if (that.popup) {
-        that.popup.destroy();
-      }
-      that.popup = new ChangeLogView({
-        triggerEl: t,
-        bottomRight: true,
-        collection: changeLog,
-        issue: that.model
+    return changeLog
+      .fetch({
+        data: { issue: this.model.get('key') }
+      })
+      .done(() => {
+        if (that.popup) {
+          that.popup.destroy();
+        }
+        that.popup = new ChangeLogView({
+          triggerEl: t,
+          bottomRight: true,
+          collection: changeLog,
+          issue: that.model
+        });
+        that.popup.render();
       });
-      that.popup.render();
-    });
   },
 
-  updateAfterAction (response) {
+  updateAfterAction(response) {
     if (this.popup) {
       this.popup.destroy();
     }
@@ -130,12 +132,12 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  onComment (e) {
+  onComment(e) {
     e.stopPropagation();
     this.comment();
   },
 
-  comment (options) {
+  comment(options) {
     $('body').click();
     this.popup = new CommentFormView({
       triggerEl: this.$('.js-issue-comment'),
@@ -147,7 +149,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  editComment (e) {
+  editComment(e) {
     e.stopPropagation();
     $('body').click();
     const commentEl = $(e.currentTarget).closest('.issue-comment');
@@ -163,7 +165,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  deleteComment (e) {
+  deleteComment(e) {
     e.stopPropagation();
     $('body').click();
     const commentEl = $(e.currentTarget).closest('.issue-comment');
@@ -182,7 +184,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  transition (e) {
+  transition(e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new TransitionsFormView({
@@ -194,7 +196,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  setSeverity (e) {
+  setSeverity(e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new SetSeverityFormView({
@@ -205,7 +207,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  setType (e) {
+  setType(e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new SetTypeFormView({
@@ -216,7 +218,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  assign (e) {
+  assign(e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new AssignFormView({
@@ -227,7 +229,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  assignToMe () {
+  assignToMe() {
     const view = new AssignFormView({
       model: this.model,
       triggerEl: $('body')
@@ -237,7 +239,7 @@ export default Marionette.ItemView.extend({
     view.destroy();
   },
 
-  showRule (e) {
+  showRule(e) {
     e.preventDefault();
     e.stopPropagation();
     const ruleKey = this.model.get('rule');
@@ -246,14 +248,15 @@ export default Marionette.ItemView.extend({
     Workspace.openRule({ key: ruleKey });
   },
 
-  action (action) {
+  action(action) {
     this.disableControls();
-    return this.model.customAction(action)
-        .done(r => this.updateAfterAction(r))
-        .fail(() => this.enableControls());
+    return this.model
+      .customAction(action)
+      .done(r => this.updateAfterAction(r))
+      .fail(() => this.enableControls());
   },
 
-  editTags (e) {
+  editTags(e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new TagsFormView({
@@ -264,25 +267,25 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  showLocations () {
+  showLocations() {
     this.model.trigger('locations', this.model);
   },
 
-  select () {
+  select() {
     this.$el.addClass('selected');
   },
 
-  unselect () {
+  unselect() {
     this.$el.removeClass('selected');
   },
 
-  onTransition (transition) {
+  onTransition(transition) {
     if (transition === 'falsepositive' || transition === 'wontfix') {
       this.comment({ fromTransition: true });
     }
   },
 
-  handleClick (e) {
+  handleClick(e) {
     e.preventDefault();
     const { onClick } = this.options;
     if (onClick) {
@@ -290,19 +293,19 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  filterSimilarIssues (e) {
+  filterSimilarIssues(e) {
     this.options.onFilterClick(e);
   },
 
-  onIssueCheck (e) {
+  onIssueCheck(e) {
     this.options.onCheck(e);
   },
 
-  onPermalinkClick (e) {
+  onPermalinkClick(e) {
     e.stopPropagation();
   },
 
-  serializeData () {
+  serializeData() {
     const issueKey = encodeURIComponent(this.model.get('key'));
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),

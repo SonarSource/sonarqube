@@ -33,13 +33,14 @@ export default class CoverageFilter extends React.PureComponent {
 
   property = 'coverage';
 
-  renderOption (option, selected) {
+  renderOption(option, selected) {
     return (
       <span>
         <CoverageRating
           value={getCoverageRatingAverageValue(option)}
           size="small"
-          muted={!selected}/>
+          muted={!selected}
+        />
         <span className="spacer-left">
           {getCoverageRatingLabel(option)}
         </span>
@@ -47,12 +48,12 @@ export default class CoverageFilter extends React.PureComponent {
     );
   }
 
-  getFacetValueForOption (facet, option) {
+  getFacetValueForOption(facet, option) {
     const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
     return facet[map[option - 1]];
   }
 
-  render () {
+  render() {
     return (
       <FilterContainer
         property={this.property}
@@ -70,9 +71,11 @@ export default class CoverageFilter extends React.PureComponent {
               query={this.props.query}
               isFavorite={this.props.isFavorite}
               organization={this.props.organization}
-              sortDesc="right"/>
+              sortDesc="right"
+            />
           </FilterHeader>
-        }/>
+        }
+      />
     );
   }
 }

@@ -21,7 +21,7 @@
 import React from 'react';
 
 export default class MarkdownHelp extends React.Component {
-  render () {
+  render() {
     return (
         <div className="page page-limited">
           <h2 className="spacer-bottom">Markdown Syntax</h2>
@@ -50,7 +50,7 @@ export default class MarkdownHelp extends React.Component {
                 </td>
               </tr>
               <tr>
-                <td className="text-top">* first item<br/>
+                <td className="text-top">* first item<br />
                   * second item
                 </td>
                 <td className="markdown">
@@ -61,7 +61,7 @@ export default class MarkdownHelp extends React.Component {
                 </td>
               </tr>
               <tr>
-                <td className="text-top">1. first item<br/>
+                <td className="text-top">1. first item<br />
                   1. second item
                 </td>
                 <td className="markdown text-top">
@@ -73,12 +73,12 @@ export default class MarkdownHelp extends React.Component {
               </tr>
               <tr>
                 <td className="text-top">
-                  = Heading Level 1<br/>
-                  == Heading Level 2<br/>
-                  === Heading Level 3<br/>
-                  ==== Heading Level 4<br/>
-                  ===== Heading Level 5<br/>
-                  ====== Heading Level 6<br/>
+                  = Heading Level 1<br />
+                  == Heading Level 2<br />
+                  === Heading Level 3<br />
+                  ==== Heading Level 4<br />
+                  ===== Heading Level 5<br />
+                  ====== Heading Level 6<br />
                 </td>
                 <td className="markdown text-top">
                   <h1>Heading Level 1</h1>
@@ -95,11 +95,11 @@ export default class MarkdownHelp extends React.Component {
               </tr>
               <tr>
                 <td className="text-top">
-                  ``<br/>
-                  // code on multiple lines<br/>
-                  {'public void foo() {'}<br/>
-                  &nbsp;&nbsp;{'// do some logic here'}<br/>
-                  {'}'}<br/>
+                  ``<br />
+                  // code on multiple lines<br />
+                  {'public void foo() {'}<br />
+                  &nbsp;&nbsp;{'// do some logic here'}<br />
+                  {'}'}<br />
                   ``
                 </td>
                 <td className="markdown text-top">
@@ -113,14 +113,14 @@ export default class MarkdownHelp extends React.Component {
               </tr>
               <tr>
                 <td className="text-top">
-                  Standard text<br/>
-                  &gt; Blockquoted text<br/>
-                  &gt; that spans multiple lines<br/>
+                  Standard text<br />
+                  &gt; Blockquoted text<br />
+                  &gt; that spans multiple lines<br />
                 </td>
                 <td className="markdown text-top">
                   <p>Standard text</p>
-                  <blockquote>Blockquoted text<br/>
-                    that spans multiple lines<br/></blockquote>
+                  <blockquote>Blockquoted text<br />
+                    that spans multiple lines<br /></blockquote>
                 </td>
               </tr>
             </tbody>

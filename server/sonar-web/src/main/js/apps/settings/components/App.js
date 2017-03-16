@@ -44,7 +44,7 @@ class App extends React.Component {
   props: Props;
   state: State = { loaded: false };
 
-  componentDidMount () {
+  componentDidMount() {
     document.querySelector('html').classList.add('dashboard-page');
     const componentKey = this.props.component ? this.props.component.key : null;
     this.props.fetchSettings(componentKey).then(() => {
@@ -52,22 +52,22 @@ class App extends React.Component {
     });
   }
 
-  shouldComponentUpdate (nextProps: Props, nextState: ?{}) {
+  shouldComponentUpdate(nextProps: Props, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.component !== this.props.component) {
       const componentKey = this.props.component ? this.props.component.key : null;
       this.props.fetchSettings(componentKey);
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  render () {
+  render() {
     if (!this.state.loaded) {
       return null;
     }
@@ -76,26 +76,23 @@ class App extends React.Component {
     const selectedCategory = query.category || this.props.defaultCategory;
 
     return (
-        <div id="settings-page" className="page page-limited">
-          <PageHeader component={this.props.component}/>
-          <div className="settings-layout">
-            <div className="settings-side">
-              <AllCategoriesList
-                  component={this.props.component}
-                  selectedCategory={selectedCategory}
-                  defaultCategory={this.props.defaultCategory}/>
-            </div>
-            <div className="settings-main">
-              <CategoryDefinitionsList
-                  component={this.props.component}
-                  category={selectedCategory}/>
+      <div id="settings-page" className="page page-limited">
+        <PageHeader component={this.props.component} />
+        <div className="settings-layout">
+          <div className="settings-side">
+            <AllCategoriesList
+              component={this.props.component}
+              selectedCategory={selectedCategory}
+              defaultCategory={this.props.defaultCategory}
+            />
+          </div>
+          <div className="settings-main">
+            <CategoryDefinitionsList component={this.props.component} category={selectedCategory} />
 
-              {selectedCategory === 'exclusions' && (
-                  <WildcardsHelp/>
-              )}
-            </div>
+            {selectedCategory === 'exclusions' && <WildcardsHelp />}
           </div>
         </div>
+      </div>
     );
   }
 }
@@ -104,8 +101,4 @@ const mapStateToProps = state => ({
   defaultCategory: getSettingsAppDefaultCategory(state)
 });
 
-export default connect(
-  mapStateToProps,
-    { fetchSettings }
-)(App);
-
+export default connect(mapStateToProps, { fetchSettings })(App);

@@ -23,41 +23,34 @@ import Projects from './Projects';
 import { translate } from '../../../helpers/l10n';
 
 export default class DetailsContent extends Component {
-  render () {
+  render() {
     const { gate, canEdit, metrics } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
     const conditions = gate.conditions || [];
 
-    const defaultMessage = canEdit ?
-        translate('quality_gates.projects_for_default.edit') :
-        translate('quality_gates.projects_for_default');
+    const defaultMessage = canEdit
+      ? translate('quality_gates.projects_for_default.edit')
+      : translate('quality_gates.projects_for_default');
 
     return (
-        <div
-            ref="container"
-            className="search-navigator-workspace-details">
-          <Conditions
-              qualityGate={gate}
-              conditions={conditions}
-              metrics={metrics}
-              edit={canEdit}
-              onAddCondition={onAddCondition}
-              onSaveCondition={onSaveCondition}
-              onDeleteCondition={onDeleteCondition}/>
+      <div ref="container" className="search-navigator-workspace-details">
+        <Conditions
+          qualityGate={gate}
+          conditions={conditions}
+          metrics={metrics}
+          edit={canEdit}
+          onAddCondition={onAddCondition}
+          onSaveCondition={onSaveCondition}
+          onDeleteCondition={onDeleteCondition}
+        />
 
-          <div id="quality-gate-projects" className="quality-gate-section">
-            <h3 className="spacer-bottom">
-              {translate('quality_gates.projects')}
-            </h3>
-            {gate.isDefault ? (
-                defaultMessage
-            ) : (
-                <Projects
-                    qualityGate={gate}
-                    edit={canEdit}/>
-            )}
-          </div>
+        <div id="quality-gate-projects" className="quality-gate-section">
+          <h3 className="spacer-bottom">
+            {translate('quality_gates.projects')}
+          </h3>
+          {gate.isDefault ? defaultMessage : <Projects qualityGate={gate} edit={canEdit} />}
         </div>
+      </div>
     );
   }
 }

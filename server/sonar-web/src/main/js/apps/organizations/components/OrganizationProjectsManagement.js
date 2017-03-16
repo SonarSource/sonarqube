@@ -29,10 +29,8 @@ class OrganizationProjectsManagement extends React.Component {
     organization: Organization
   };
 
-  render () {
-    return (
-        <AppContainer organization={this.props.organization}/>
-    );
+  render() {
+    return <AppContainer organization={this.props.organization} />;
   }
 }
 

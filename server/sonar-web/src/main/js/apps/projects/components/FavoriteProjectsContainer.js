@@ -27,7 +27,4 @@ const mapStateToProps = state => ({
   isFavorite: true
 });
 
-export default connect(
-  mapStateToProps,
-    { fetchProjects }
-)(AllProjects);
+export default connect(mapStateToProps, { fetchProjects })(AllProjects);

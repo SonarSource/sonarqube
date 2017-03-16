@@ -22,17 +22,18 @@ import { translate } from '../../../helpers/l10n';
 
 const MetaKey = ({ component }) => {
   return (
-      <div className="overview-meta-card">
-        <h4 className="overview-meta-header">
-          {translate('key')}
-        </h4>
-        <input
-            className="overview-key"
-            type="text"
-            value={component.key}
-            readOnly={true}
-            onClick={e => e.target.select()}/>
-      </div>
+    <div className="overview-meta-card">
+      <h4 className="overview-meta-header">
+        {translate('key')}
+      </h4>
+      <input
+        className="overview-key"
+        type="text"
+        value={component.key}
+        readOnly={true}
+        onClick={e => e.target.select()}
+      />
+    </div>
   );
 };
 

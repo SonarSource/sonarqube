@@ -25,6 +25,4 @@ const mapStateToProps = state => ({
   user: getCurrentUser(state)
 });
 
-export default connect(
-  mapStateToProps
-)(FavoriteFilter);
+export default connect(mapStateToProps)(FavoriteFilter);

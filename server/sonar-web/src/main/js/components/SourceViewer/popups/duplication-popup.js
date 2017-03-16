@@ -30,7 +30,7 @@ export default Popup.extend({
     'click a[data-key]': 'goToFile'
   },
 
-  goToFile (e) {
+  goToFile(e) {
     e.stopPropagation();
     const key = $(e.currentTarget).data('key');
     const line = $(e.currentTarget).data('line');
@@ -38,7 +38,7 @@ export default Popup.extend({
     Workspace.openComponent({ key, line });
   },
 
-  serializeData () {
+  serializeData() {
     const that = this;
     const groupedBlocks = groupBy(this.options.blocks, '_ref');
     let duplications = Object.keys(groupedBlocks).map(fileRef => {

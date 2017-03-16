@@ -35,7 +35,7 @@ type Props = {
 export default class Domain extends React.PureComponent {
   props: Props;
 
-  render () {
+  render() {
     const { domain, showInternal, showDeprecated, searchQuery } = this.props;
     const filteredActions = domain.actions
       .filter(action => showInternal || !action.internal)
@@ -49,12 +49,12 @@ export default class Domain extends React.PureComponent {
 
           {domain.deprecated &&
             <span className="spacer-left">
-              <DeprecatedBadge/>
+              <DeprecatedBadge />
             </span>}
 
           {domain.internal &&
             <span className="spacer-left">
-              <InternalBadge/>
+              <InternalBadge />
             </span>}
         </header>
 
@@ -67,7 +67,8 @@ export default class Domain extends React.PureComponent {
               action={action}
               domain={domain}
               showDeprecated={showDeprecated}
-              showInternal={showInternal}/>
+              showInternal={showInternal}
+            />
           ))}
         </div>
       </div>

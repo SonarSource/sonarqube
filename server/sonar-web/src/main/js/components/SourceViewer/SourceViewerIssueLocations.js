@@ -49,24 +49,24 @@ export default class SourceViewerIssueLocations extends React.Component {
   rootNode: HTMLElement;
   state: State;
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = { fixed: true, locationBlink: false };
     this.handleScroll = throttle(this.handleScroll, 50);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.bindShortcuts();
     this.listenScroll();
   }
 
-  componentWillReceiveProps (nextProps: Props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.selectedLocation !== this.props.selectedLocation) {
       this.setState({ locationBlink: false });
     }
   }
 
-  componentDidUpdate (prevProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (
       prevProps.selectedLocation !== this.props.selectedLocation &&
       this.props.selectedLocation != null
@@ -75,24 +75,24 @@ export default class SourceViewerIssueLocations extends React.Component {
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.unbindShortcuts();
     this.unlistenScroll();
   }
 
-  bindShortcuts () {
+  bindShortcuts() {
     document.addEventListener('keydown', this.handleKeyPress);
   }
 
-  unbindShortcuts () {
+  unbindShortcuts() {
     document.removeEventListener('keydown', this.handleKeyPress);
   }
 
-  listenScroll () {
+  listenScroll() {
     window.addEventListener('scroll', this.handleScroll);
   }
 
-  unlistenScroll () {
+  unlistenScroll() {
     window.removeEventListener('scroll', this.handleScroll);
   }
 
@@ -128,7 +128,7 @@ export default class SourceViewerIssueLocations extends React.Component {
     this.props.onResize(height);
   };
 
-  scrollToLocation () {
+  scrollToLocation() {
     const { selectedLocation } = this.props;
     if (selectedLocation != null) {
       const key = `${selectedLocation.flowIndex}-${selectedLocation.locationIndex}`;
@@ -139,7 +139,7 @@ export default class SourceViewerIssueLocations extends React.Component {
     }
   }
 
-  handleSelectPrev () {
+  handleSelectPrev() {
     const { issue, selectedLocation } = this.props;
     if (!selectedLocation) {
       if (issue.flows.length > 0) {
@@ -163,7 +163,7 @@ export default class SourceViewerIssueLocations extends React.Component {
     }
   }
 
-  handleSelectNext () {
+  handleSelectNext() {
     const { issue, selectedLocation } = this.props;
     if (!selectedLocation) {
       if (issue.flows.length > 0) {
@@ -207,11 +207,11 @@ export default class SourceViewerIssueLocations extends React.Component {
     }
   };
 
-  reverseLocations (locations: Array<*>) {
+  reverseLocations(locations: Array<*>) {
     return [...locations].reverse();
   }
 
-  isLocationSelected (flowIndex: number, locationIndex: number) {
+  isLocationSelected(flowIndex: number, locationIndex: number) {
     const { selectedLocation } = this.props;
     if (selectedLocation == null) {
       return false;
@@ -221,7 +221,7 @@ export default class SourceViewerIssueLocations extends React.Component {
     }
   }
 
-  handleLocationClick (flowIndex: number, locationIndex: number, e: SyntheticInputEvent) {
+  handleLocationClick(flowIndex: number, locationIndex: number, e: SyntheticInputEvent) {
     e.preventDefault();
     this.props.onSelectLocation(flowIndex, locationIndex);
   }
@@ -251,7 +251,8 @@ export default class SourceViewerIssueLocations extends React.Component {
             this,
             flowIndex,
             locations.length - locationIndex - 1
-          )}>
+          )}
+        >
           {displayIndex && <strong>{locationIndex + 1}: </strong>}
           {location.msg}
         </a>
@@ -259,7 +260,7 @@ export default class SourceViewerIssueLocations extends React.Component {
     );
   };
 
-  render () {
+  render() {
     const { flows } = this.props.issue;
     const { height } = this.props;
 
@@ -271,12 +272,14 @@ export default class SourceViewerIssueLocations extends React.Component {
           <div
             ref={node => this.rootNode = node}
             className="source-issue-locations"
-            style={{ width, height }}>
+            style={{ width, height }}
+          >
             <div
               ref={node => this.fixedNode = node}
               className={className}
-              style={{ width, height }}>
-              <header className="source-issue-locations-header"/>
+              style={{ width, height }}
+            >
+              <header className="source-issue-locations-header" />
               <div className="source-issue-locations-shortcuts">
                 <span className="shortcut-button">Alt</span>
                 {' + '}
@@ -289,18 +292,17 @@ export default class SourceViewerIssueLocations extends React.Component {
               <ul
                 ref={node => this.node = node}
                 className="source-issue-locations-list"
-                style={{ height: height - 15 }}>
+                style={{ height: height - 15 }}
+              >
                 {flows.map(
                   (flow, flowIndex) =>
                     flow.locations != null &&
-                    this.reverseLocations(
-                      flow.locations
-                    ).map((location, locationIndex) =>
+                    this.reverseLocations(flow.locations).map((location, locationIndex) =>
                       this.renderLocation(location, flowIndex, locationIndex, flow.locations || []))
                 )}
               </ul>
               <DraggableCore axis="y" onDrag={this.handleDrag} offsetParent={document.body}>
-                <div className="workspace-viewer-resize"/>
+                <div className="workspace-viewer-resize" />
               </DraggableCore>
             </div>
           </div>

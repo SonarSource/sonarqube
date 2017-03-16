@@ -54,16 +54,16 @@ class CreateOrganizationForm extends React.Component {
     url: ''
   };
 
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.changeAvatarImage = debounce(this.changeAvatarImage, 500);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
@@ -110,127 +110,138 @@ class CreateOrganizationForm extends React.Component {
       Object.assign(organization, { url: this.state.url });
     }
     this.setState({ loading: true });
-    this.props.createOrganization(organization).then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props
+      .createOrganization(organization)
+      .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
-  render () {
+  render() {
     return (
-        <Modal isOpen={true}
-               contentLabel="modal form"
-               className="modal"
-               overlayClassName="modal-overlay"
-               onRequestClose={this.closeForm}>
-          <header className="modal-head">
-            <h2>{translate('my_account.create_organization')}</h2>
-          </header>
+      <Modal
+        isOpen={true}
+        contentLabel="modal form"
+        className="modal"
+        overlayClassName="modal-overlay"
+        onRequestClose={this.closeForm}
+      >
+        <header className="modal-head">
+          <h2>{translate('my_account.create_organization')}</h2>
+        </header>
 
-          <form onSubmit={this.handleSubmit}>
-            <div className="modal-body">
-              <div className="modal-field">
-                <label htmlFor="organization-name">
-                  {translate('organization.name')}
-                  <em className="mandatory">*</em>
-                </label>
-                <input id="organization-name"
-                       autoFocus={true}
-                       name="name"
-                       required={true}
-                       type="text"
-                       minLength="2"
-                       maxLength="64"
-                       value={this.state.name}
-                       disabled={this.state.loading}
-                       onChange={e => this.setState({ name: e.target.value })}/>
-                <div className="modal-field-description">
-                  {translate('organization.name.description')}
-                </div>
-              </div>
-              <div className="modal-field">
-                <label htmlFor="organization-key">
-                  {translate('organization.key')}
-                </label>
-                <input id="organization-key"
-                       name="key"
-                       type="text"
-                       minLength="2"
-                       maxLength="64"
-                       value={this.state.key}
-                       disabled={this.state.loading}
-                       onChange={e => this.setState({ key: e.target.value })}/>
-                <div className="modal-field-description">
-                  {translate('organization.key.description')}
-                </div>
-              </div>
-              <div className="modal-field">
-                <label htmlFor="organization-avatar">
-                  {translate('organization.avatar')}
-                </label>
-                <input id="organization-avatar"
-                       name="avatar"
-                       type="text"
-                       maxLength="256"
-                       value={this.state.avatar}
-                       disabled={this.state.loading}
-                       onChange={this.handleAvatarInputChange}/>
-                <div className="modal-field-description">
-                  {translate('organization.avatar.description')}
-                </div>
-                {!!this.state.avatarImage && (
-                    <div className="spacer-top spacer-bottom">
-                      <div className="little-spacer-bottom">
-                        {translate('organization.avatar.preview')}
-                        {':'}
-                      </div>
-                      <img src={this.state.avatarImage} alt="" height={30}/>
-                    </div>
-                )}
-              </div>
-              <div className="modal-field">
-                <label htmlFor="organization-description">
-                  {translate('description')}
-                </label>
-                <textarea id="organization-description"
-                          name="description"
-                          rows="3"
-                          maxLength="256"
-                          value={this.state.description}
-                          disabled={this.state.loading}
-                          onChange={e => this.setState({ description: e.target.value })}/>
-                <div className="modal-field-description">
-                  {translate('organization.description.description')}
-                </div>
-              </div>
-              <div className="modal-field">
-                <label htmlFor="organization-url">
-                  {translate('organization.url')}
-                </label>
-                <input id="organization-url"
-                       name="url"
-                       type="text"
-                       maxLength="256"
-                       value={this.state.url}
-                       disabled={this.state.loading}
-                       onChange={e => this.setState({ url: e.target.value })}/>
-                <div className="modal-field-description">
-                  {translate('organization.url.description')}
-                </div>
+        <form onSubmit={this.handleSubmit}>
+          <div className="modal-body">
+            <div className="modal-field">
+              <label htmlFor="organization-name">
+                {translate('organization.name')}
+                <em className="mandatory">*</em>
+              </label>
+              <input
+                id="organization-name"
+                autoFocus={true}
+                name="name"
+                required={true}
+                type="text"
+                minLength="2"
+                maxLength="64"
+                value={this.state.name}
+                disabled={this.state.loading}
+                onChange={e => this.setState({ name: e.target.value })}
+              />
+              <div className="modal-field-description">
+                {translate('organization.name.description')}
               </div>
             </div>
+            <div className="modal-field">
+              <label htmlFor="organization-key">
+                {translate('organization.key')}
+              </label>
+              <input
+                id="organization-key"
+                name="key"
+                type="text"
+                minLength="2"
+                maxLength="64"
+                value={this.state.key}
+                disabled={this.state.loading}
+                onChange={e => this.setState({ key: e.target.value })}
+              />
+              <div className="modal-field-description">
+                {translate('organization.key.description')}
+              </div>
+            </div>
+            <div className="modal-field">
+              <label htmlFor="organization-avatar">
+                {translate('organization.avatar')}
+              </label>
+              <input
+                id="organization-avatar"
+                name="avatar"
+                type="text"
+                maxLength="256"
+                value={this.state.avatar}
+                disabled={this.state.loading}
+                onChange={this.handleAvatarInputChange}
+              />
+              <div className="modal-field-description">
+                {translate('organization.avatar.description')}
+              </div>
+              {!!this.state.avatarImage &&
+                <div className="spacer-top spacer-bottom">
+                  <div className="little-spacer-bottom">
+                    {translate('organization.avatar.preview')}
+                    {':'}
+                  </div>
+                  <img src={this.state.avatarImage} alt="" height={30} />
+                </div>}
+            </div>
+            <div className="modal-field">
+              <label htmlFor="organization-description">
+                {translate('description')}
+              </label>
+              <textarea
+                id="organization-description"
+                name="description"
+                rows="3"
+                maxLength="256"
+                value={this.state.description}
+                disabled={this.state.loading}
+                onChange={e => this.setState({ description: e.target.value })}
+              />
+              <div className="modal-field-description">
+                {translate('organization.description.description')}
+              </div>
+            </div>
+            <div className="modal-field">
+              <label htmlFor="organization-url">
+                {translate('organization.url')}
+              </label>
+              <input
+                id="organization-url"
+                name="url"
+                type="text"
+                maxLength="256"
+                value={this.state.url}
+                disabled={this.state.loading}
+                onChange={e => this.setState({ url: e.target.value })}
+              />
+              <div className="modal-field-description">
+                {translate('organization.url.description')}
+              </div>
+            </div>
+          </div>
 
-            <footer className="modal-foot">
-              {this.state.processing ? (
-                      <i className="spinner"/>
-                  ) : (
-                      <div>
-                        <button type="submit">{translate('create')}</button>
-                        <button type="reset" className="button-link" onClick={this.closeForm}>
-                          {translate('cancel')}
-                        </button>
-                      </div>
-                  )}
-            </footer>
-          </form>
-        </Modal>
+          <footer className="modal-foot">
+            {this.state.processing
+              ? <i className="spinner" />
+              : <div>
+                  <button type="submit">{translate('create')}</button>
+                  <button type="reset" className="button-link" onClick={this.closeForm}>
+                    {translate('cancel')}
+                  </button>
+                </div>}
+          </footer>
+        </form>
+      </Modal>
     );
   }
 }

@@ -61,18 +61,18 @@ export default class LineCode extends React.PureComponent {
   state: State;
   symbols: NodeList<HTMLElement>;
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       tokens: splitByTokens(props.line.code || '')
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.attachEvents();
   }
 
-  componentWillReceiveProps (nextProps: Props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.line.code !== this.props.line.code) {
       this.setState({
         tokens: splitByTokens(nextProps.line.code || '')
@@ -80,26 +80,26 @@ export default class LineCode extends React.PureComponent {
     }
   }
 
-  componentWillUpdate () {
+  componentWillUpdate() {
     this.detachEvents();
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.attachEvents();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.detachEvents();
   }
 
-  attachEvents () {
+  attachEvents() {
     this.symbols = this.codeNode.querySelectorAll('.sym');
     for (const symbol of this.symbols) {
       symbol.addEventListener('click', this.handleSymbolClick);
     }
   }
 
-  detachEvents () {
+  detachEvents() {
     if (this.symbols) {
       for (const symbol of this.symbols) {
         symbol.removeEventListener('click', this.handleSymbolClick);
@@ -124,7 +124,7 @@ export default class LineCode extends React.PureComponent {
     this.props.onLocationSelect(flowIndex, locationIndex);
   };
 
-  isSecondaryIssueLocationSelected (location: IndexedIssueLocation | IndexedIssueLocationMessage) {
+  isSecondaryIssueLocationSelected(location: IndexedIssueLocation | IndexedIssueLocationMessage) {
     const { selectedIssueLocation } = this.props;
     if (selectedIssueLocation == null) {
       return false;
@@ -148,14 +148,15 @@ export default class LineCode extends React.PureComponent {
         className={className}
         title={location.msg}
         onClick={e =>
-          this.handleLocationMessageClick(e, location.flowIndex, location.locationIndex)}>
+          this.handleLocationMessageClick(e, location.flowIndex, location.locationIndex)}
+      >
         {location.index && <strong>{location.index}: </strong>}
         {location.msg ? limitString(location.msg) : ''}
       </a>
     );
   };
 
-  renderSecondaryIssueLocationMessages (locations: Array<IndexedIssueLocationMessage>) {
+  renderSecondaryIssueLocationMessages(locations: Array<IndexedIssueLocationMessage>) {
     return (
       <div className="source-line-issue-locations">
         {locations.map(this.renderSecondaryIssueLocationMessage)}
@@ -163,7 +164,7 @@ export default class LineCode extends React.PureComponent {
     );
   }
 
-  render () {
+  render() {
     const {
       highlightedSymbol,
       issueKeys,
@@ -207,7 +208,7 @@ export default class LineCode extends React.PureComponent {
     return (
       <td className={className} data-line-number={line.line}>
         <div className="source-line-code-inner">
-          <pre ref={node => this.codeNode = node} dangerouslySetInnerHTML={{ __html: finalCode }}/>
+          <pre ref={node => this.codeNode = node} dangerouslySetInnerHTML={{ __html: finalCode }} />
           {secondaryIssueLocationMessages != null &&
             secondaryIssueLocationMessages.length > 0 &&
             this.renderSecondaryIssueLocationMessages(secondaryIssueLocationMessages)}
@@ -217,7 +218,8 @@ export default class LineCode extends React.PureComponent {
           <LineIssuesList
             issueKeys={issueKeys}
             onIssueClick={onIssueSelect}
-            selectedIssue={selectedIssue}/>}
+            selectedIssue={selectedIssue}
+          />}
       </td>
     );
   }

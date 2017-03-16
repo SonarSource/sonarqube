@@ -44,7 +44,8 @@ it('render code', () => {
       secondaryIssueLocationMessages={secondaryIssueLocationMessages}
       selectedIssue="issue-1"
       selectedIssueLocation={selectedIssueLocation}
-      showIssues={true}/>
+      showIssues={true}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
@@ -71,7 +72,8 @@ it('should handle empty location message', () => {
       secondaryIssueLocationMessages={secondaryIssueLocationMessages}
       selectedIssue="issue-1"
       selectedIssueLocation={selectedIssueLocation}
-      showIssues={true}/>
+      showIssues={true}
+    />
   );
   expect(wrapper.find('.source-line-issue-locations')).toMatchSnapshot();
 });

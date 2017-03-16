@@ -25,7 +25,7 @@ export default class BulkUpdateForm extends React.Component {
     onSubmit: React.PropTypes.func.isRequired
   };
 
-  handleSubmit (e) {
+  handleSubmit(e) {
     e.preventDefault();
     this.refs.submit.blur();
 
@@ -35,41 +35,40 @@ export default class BulkUpdateForm extends React.Component {
     this.props.onSubmit(replace, by);
   }
 
-  render () {
+  render() {
     return (
-        <form onSubmit={this.handleSubmit.bind(this)}>
-          <div className="modal-field">
-            <label htmlFor="bulk-update-replace">
-              {translate('update_key.replace')}
-            </label>
-            <input
-                ref="replace"
-                id="bulk-update-replace"
-                name="replace"
-                type="text"
-                placeholder={translate('update_key.replace_example')}
-                required={true}/>
-          </div>
+      <form onSubmit={this.handleSubmit.bind(this)}>
+        <div className="modal-field">
+          <label htmlFor="bulk-update-replace">
+            {translate('update_key.replace')}
+          </label>
+          <input
+            ref="replace"
+            id="bulk-update-replace"
+            name="replace"
+            type="text"
+            placeholder={translate('update_key.replace_example')}
+            required={true}
+          />
+        </div>
 
-          <div className="modal-field">
-            <label htmlFor="bulk-update-by">
-              {translate('update_key.by')}
-            </label>
-            <input
-                ref="by"
-                id="bulk-update-by"
-                name="by"
-                type="text"
-                placeholder={translate('update_key.by_example')}
-                required={true}/>
-            <button
-                ref="submit"
-                id="bulk-update-see-results"
-                className="big-spacer-left">
-              {translate('update_key.see_results')}
-            </button>
-          </div>
-        </form>
+        <div className="modal-field">
+          <label htmlFor="bulk-update-by">
+            {translate('update_key.by')}
+          </label>
+          <input
+            ref="by"
+            id="bulk-update-by"
+            name="by"
+            type="text"
+            placeholder={translate('update_key.by_example')}
+            required={true}
+          />
+          <button ref="submit" id="bulk-update-see-results" className="big-spacer-left">
+            {translate('update_key.see_results')}
+          </button>
+        </div>
+      </form>
     );
   }
 }

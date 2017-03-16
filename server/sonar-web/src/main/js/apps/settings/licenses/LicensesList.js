@@ -28,34 +28,36 @@ export default class LicensesList extends React.Component {
     fetchLicenses: React.PropTypes.func.isRequired
   };
 
-  componentDidMount () {
-    this.props.fetchLicenses().catch(() => { /* do nothing */ });
+  componentDidMount() {
+    this.props.fetchLicenses().catch(() => {
+      /* do nothing */
+    });
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  render () {
+  render() {
     return (
-        <table className="data zebra zebra-hover" style={{ tableLayout: 'fixed' }}>
-          <thead>
-            <tr>
-              <th width={40}>&nbsp;</th>
-              <th>{translate('licenses.list.product')}</th>
-              <th width={150}>{translate('licenses.list.organization')}</th>
-              <th width={150}>{translate('licenses.list.expiration')}</th>
-              <th width={150}>{translate('licenses.list.type')}</th>
-              <th width={150}>{translate('licenses.list.server')}</th>
-              <th width={80}>&nbsp;</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.licenses.map(licenseKey => (
-                <LicenseRowContainer key={licenseKey} licenseKey={licenseKey}/>
-            ))}
-          </tbody>
-        </table>
+      <table className="data zebra zebra-hover" style={{ tableLayout: 'fixed' }}>
+        <thead>
+          <tr>
+            <th width={40}>&nbsp;</th>
+            <th>{translate('licenses.list.product')}</th>
+            <th width={150}>{translate('licenses.list.organization')}</th>
+            <th width={150}>{translate('licenses.list.expiration')}</th>
+            <th width={150}>{translate('licenses.list.type')}</th>
+            <th width={150}>{translate('licenses.list.server')}</th>
+            <th width={80}>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.props.licenses.map(licenseKey => (
+            <LicenseRowContainer key={licenseKey} licenseKey={licenseKey} />
+          ))}
+        </tbody>
+      </table>
     );
   }
 }

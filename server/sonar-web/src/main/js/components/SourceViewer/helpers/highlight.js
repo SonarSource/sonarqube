@@ -118,6 +118,6 @@ export const highlightIssueLocations = (
 
 export const generateHTML = (tokens: Tokens): string => {
   return tokens
-      .map(token => `<span class="${token.className}">${escapeHtml(token.text)}</span>`)
-      .join('');
+    .map(token => `<span class="${token.className}">${escapeHtml(token.text)}</span>`)
+    .join('');
 };

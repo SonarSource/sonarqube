@@ -24,7 +24,7 @@ export default Marionette.LayoutView.extend({
   className: 'workspace-viewer',
 
   modelEvents: {
-    'destroy': 'destroy'
+    destroy: 'destroy'
   },
 
   regions: {
@@ -32,24 +32,23 @@ export default Marionette.LayoutView.extend({
     viewerRegion: '.workspace-viewer-container'
   },
 
-  onRender () {
+  onRender() {
     this.showHeader();
     this.$('.workspace-viewer-container').isolatedScroll();
   },
 
-  onViewerMinimize () {
+  onViewerMinimize() {
     this.trigger('viewerMinimize');
   },
 
-  onViewerClose () {
+  onViewerClose() {
     this.trigger('viewerClose', this.model);
   },
 
-  showHeader () {
+  showHeader() {
     const headerView = new HeaderView({ model: this.model });
     this.listenTo(headerView, 'viewerMinimize', this.onViewerMinimize);
     this.listenTo(headerView, 'viewerClose', this.onViewerClose);
     this.headerRegion.show(headerView);
   }
 });
-

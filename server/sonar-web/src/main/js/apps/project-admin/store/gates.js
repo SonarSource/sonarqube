@@ -32,8 +32,6 @@ const gates = (state = {}, action = {}) => {
 
 export default gates;
 
-export const getAllGates = state =>
-    values(state);
+export const getAllGates = state => values(state);
 
-export const getGate = (state, id) =>
-    state[id];
+export const getGate = (state, id) => state[id];

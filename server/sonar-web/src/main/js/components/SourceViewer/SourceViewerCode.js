@@ -76,19 +76,19 @@ export default class SourceViewerCode extends React.PureComponent {
     symbolsByLine: { [number]: Array<string> }
   };
 
-  getDuplicationsForLine (line: SourceLine) {
+  getDuplicationsForLine(line: SourceLine) {
     return this.props.duplicationsByLine[line.line] || EMPTY_ARRAY;
   }
 
-  getIssuesForLine (line: SourceLine): Array<string> {
+  getIssuesForLine(line: SourceLine): Array<string> {
     return this.props.issuesByLine[line.line] || EMPTY_ARRAY;
   }
 
-  getIssueLocationsForLine (line: SourceLine) {
+  getIssueLocationsForLine(line: SourceLine) {
     return this.props.issueLocationsByLine[line.line] || EMPTY_ARRAY;
   }
 
-  getSecondaryIssueLocationsForLine (line: SourceLine, issueKey: string) {
+  getSecondaryIssueLocationsForLine(line: SourceLine, issueKey: string) {
     const index = this.props.issueSecondaryLocationsByIssueByLine;
     if (index[issueKey] == null) {
       return EMPTY_ARRAY;
@@ -96,7 +96,7 @@ export default class SourceViewerCode extends React.PureComponent {
     return index[issueKey][line.line] || EMPTY_ARRAY;
   }
 
-  getSecondaryIssueLocationMessagesForLine (line: SourceLine, issueKey: string) {
+  getSecondaryIssueLocationMessagesForLine(line: SourceLine, issueKey: string) {
     return this.props.issueSecondaryLocationMessagesByIssueByLine[issueKey][line.line] ||
       EMPTY_ARRAY;
   }
@@ -176,11 +176,12 @@ export default class SourceViewerCode extends React.PureComponent {
         secondaryIssueLocations={secondaryIssueLocations}
         secondaryIssueLocationMessages={secondaryIssueLocationMessages}
         selectedIssue={optimizedSelectedIssue}
-        selectedIssueLocation={optimizedSelectedIssueLocation}/>
+        selectedIssueLocation={optimizedSelectedIssueLocation}
+      />
     );
   };
 
-  render () {
+  render() {
     const { sources } = this.props;
 
     const hasCoverage = sources.some(s => s.coverageStatus != null);
@@ -196,14 +197,15 @@ export default class SourceViewerCode extends React.PureComponent {
           <div className="source-viewer-more-code">
             {this.props.loadingSourcesBefore
               ? <div className="js-component-viewer-loading-before">
-                  <i className="spinner"/>
+                  <i className="spinner" />
                   <span className="note spacer-left">
                     {translate('source_viewer.loading_more_code')}
                   </span>
                 </div>
               : <button
                   className="js-component-viewer-source-before"
-                  onClick={this.props.loadSourcesBefore}>
+                  onClick={this.props.loadSourcesBefore}
+                >
                   {translate('source_viewer.load_more_code')}
                 </button>}
           </div>}
@@ -235,14 +237,15 @@ export default class SourceViewerCode extends React.PureComponent {
           <div className="source-viewer-more-code">
             {this.props.loadingSourcesAfter
               ? <div className="js-component-viewer-loading-after">
-                  <i className="spinner"/>
+                  <i className="spinner" />
                   <span className="note spacer-left">
                     {translate('source_viewer.loading_more_code')}
                   </span>
                 </div>
               : <button
                   className="js-component-viewer-source-after"
-                  onClick={this.props.loadSourcesAfter}>
+                  onClick={this.props.loadSourcesAfter}
+                >
                   {translate('source_viewer.load_more_code')}
                 </button>}
           </div>}

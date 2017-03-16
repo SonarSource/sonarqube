@@ -34,11 +34,10 @@ type IssuesResponse = {
   users?: Array<*>
 };
 
-export const searchIssues = (query: {}): Promise<IssuesResponse> => (
-    getJSON('/api/issues/search', query)
-);
+export const searchIssues = (query: {}): Promise<IssuesResponse> =>
+  getJSON('/api/issues/search', query);
 
-export function getFacets (query: {}, facets: Array<string>): Promise<*> {
+export function getFacets(query: {}, facets: Array<string>): Promise<*> {
   const data = {
     ...query,
     facets: facets.join(),
@@ -50,53 +49,47 @@ export function getFacets (query: {}, facets: Array<string>): Promise<*> {
   });
 }
 
-export function getFacet (query: {}, facet: string): Promise<*> {
+export function getFacet(query: {}, facet: string): Promise<*> {
   return getFacets(query, [facet]).then(r => {
     return { facet: r.facets[0].values, response: r.response };
   });
 }
 
-export function getSeverities (query: {}): Promise<*> {
+export function getSeverities(query: {}): Promise<*> {
   return getFacet(query, 'severities').then(r => r.facet);
 }
 
-export function getTags (query: {}): Promise<*> {
+export function getTags(query: {}): Promise<*> {
   return getFacet(query, 'tags').then(r => r.facet);
 }
 
-export function extractAssignees (
-    facet: Array<{ val: string }>,
-    response: IssuesResponse
-) {
+export function extractAssignees(facet: Array<{ val: string }>, response: IssuesResponse) {
   return facet.map(item => {
     const user = response.users ? response.users.find(user => user.login = item.val) : null;
     return { ...item, user };
   });
 }
 
-export function getAssignees (query: {}): Promise<*> {
+export function getAssignees(query: {}): Promise<*> {
   return getFacet(query, 'assignees').then(r => extractAssignees(r.facet, r.response));
 }
 
-export function getIssuesCount (query: {}): Promise<*> {
+export function getIssuesCount(query: {}): Promise<*> {
   const data = { ...query, ps: 1, facetMode: 'effort' };
   return searchIssues(data).then(r => {
     return { issues: r.paging.total, debt: r.debtTotal };
   });
 }
 
-export const searchIssueTags = (ps: number = 500) => (
-    getJSON('/api/issues/tags', { ps })
-);
+export const searchIssueTags = (ps: number = 500) => getJSON('/api/issues/tags', { ps });
 
-export function getIssueFilters () {
+export function getIssueFilters() {
   const url = '/api/issue_filters/search';
   return getJSON(url).then(r => r.issueFilters);
 }
 
-export const bulkChangeIssues = (issueKeys: Array<string>, query: {}) => (
-    post('/api/issues/bulk_change', {
-      issues: issueKeys.join(),
-      ...query
-    })
-);
+export const bulkChangeIssues = (issueKeys: Array<string>, query: {}) =>
+  post('/api/issues/bulk_change', {
+    issues: issueKeys.join(),
+    ...query
+  });

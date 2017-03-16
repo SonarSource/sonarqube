@@ -24,8 +24,8 @@ import { UnconnectedOrganizationPage } from '../OrganizationPage';
 it('smoke test', () => {
   const wrapper = shallow(
     <UnconnectedOrganizationPage>
-        <div>hello</div>
-      </UnconnectedOrganizationPage>
+      <div>hello</div>
+    </UnconnectedOrganizationPage>
   );
   expect(wrapper).toMatchSnapshot();
 
@@ -37,8 +37,8 @@ it('smoke test', () => {
 it('not found', () => {
   const wrapper = shallow(
     <UnconnectedOrganizationPage>
-        <div>hello</div>
-      </UnconnectedOrganizationPage>
+      <div>hello</div>
+    </UnconnectedOrganizationPage>
   );
   wrapper.setState({ loading: false });
   expect(wrapper).toMatchSnapshot();

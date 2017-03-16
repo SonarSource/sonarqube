@@ -21,7 +21,7 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default class ChangelogEmpty extends React.Component {
-  render () {
+  render() {
     return (
       <div className="big-spacer-top">
         {translate('no_results')}

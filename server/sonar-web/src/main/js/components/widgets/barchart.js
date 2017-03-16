@@ -21,13 +21,13 @@ import $ from 'jquery';
 import moment from 'moment';
 import d3 from 'd3';
 
-function trans (left, top) {
+function trans(left, top) {
   return `translate(${left}, ${top})`;
 }
 
 const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ssZZ';
 
-const defaults = function () {
+const defaults = function() {
   return {
     height: 140,
     color: '#1f77b4',
@@ -47,8 +47,8 @@ const defaults = function () {
  * ]
  */
 
-$.fn.barchart = function (data) {
-  $(this).each(function () {
+$.fn.barchart = function(data) {
+  $(this).each(function() {
     const options = { ...defaults(), ...$(this).data() };
     Object.assign(options, {
       width: options.width || $(this).width(),
@@ -56,17 +56,15 @@ $.fn.barchart = function (data) {
     });
 
     const container = d3.select(this);
-    const svg = container.append('svg')
-        .attr('width', options.width + 2)
-        .attr('height', options.height + 2)
-        .classed('sonar-d3', true);
-    const plot = svg.append('g')
-        .classed('plot', true);
-    const xScale = d3.scale.ordinal()
-        .domain(data.map((d, i) => i));
+    const svg = container
+      .append('svg')
+      .attr('width', options.width + 2)
+      .attr('height', options.height + 2)
+      .classed('sonar-d3', true);
+    const plot = svg.append('g').classed('plot', true);
+    const xScale = d3.scale.ordinal().domain(data.map((d, i) => i));
     const yScaleMax = d3.max(data, d => d.count);
-    const yScale = d3.scale.linear()
-        .domain([0, yScaleMax]);
+    const yScale = d3.scale.linear().domain([0, yScaleMax]);
 
     Object.assign(options, {
       availableWidth: options.width - options.marginLeft - options.marginRight,
@@ -81,52 +79,56 @@ $.fn.barchart = function (data) {
     const bars = plot.selectAll('g').data(data);
 
     if (barWidth > 0) {
-      const barsEnter = bars.enter()
-          .append('g')
-          .attr('transform', (d, i) => (
-              trans(xScale(i), Math.ceil(options.availableHeight - yScale(d.count)))
-          ));
+      const barsEnter = bars
+        .enter()
+        .append('g')
+        .attr('transform', (d, i) =>
+          trans(xScale(i), Math.ceil(options.availableHeight - yScale(d.count))));
 
-      barsEnter.append('rect')
-          .style('fill', options.color)
-          .attr('width', barWidth)
-          .attr('height', d => Math.floor(yScale(d.count)))
-          .style('cursor', 'pointer')
-          .attr('data-period-start', d => moment(d.val).format(DATE_FORMAT))
-          .attr('data-period-end', (d, i) => {
-            const ending = i < data.length - 1 ? moment(data[i + 1].val) : options.endDate;
-            if (ending) {
-              return ending.format(DATE_FORMAT);
-            } else {
-              return '';
-            }
-          })
-          .attr('title', (d, i) => {
-            const beginning = moment(d.val);
-            const ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
-            if (ending) {
-              const isSameDay = ending.diff(beginning, 'days') <= 1;
-              return d.text + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
-            } else {
-              return d.text + '<br>' + beginning.format('LL');
-            }
-          })
-          .attr('data-placement', 'bottom')
-          .attr('data-toggle', 'tooltip');
-
+      barsEnter
+        .append('rect')
+        .style('fill', options.color)
+        .attr('width', barWidth)
+        .attr('height', d => Math.floor(yScale(d.count)))
+        .style('cursor', 'pointer')
+        .attr('data-period-start', d => moment(d.val).format(DATE_FORMAT))
+        .attr('data-period-end', (d, i) => {
+          const ending = i < data.length - 1 ? moment(data[i + 1].val) : options.endDate;
+          if (ending) {
+            return ending.format(DATE_FORMAT);
+          } else {
+            return '';
+          }
+        })
+        .attr('title', (d, i) => {
+          const beginning = moment(d.val);
+          const ending = i < data.length - 1
+            ? moment(data[i + 1].val).subtract(1, 'days')
+            : options.endDate;
+          if (ending) {
+            const isSameDay = ending.diff(beginning, 'days') <= 1;
+            return d.text +
+              '<br>' +
+              beginning.format('LL') +
+              (isSameDay ? '' : ' – ' + ending.format('LL'));
+          } else {
+            return d.text + '<br>' + beginning.format('LL');
+          }
+        })
+        .attr('data-placement', 'bottom')
+        .attr('data-toggle', 'tooltip');
       const maxValue = d3.max(data, d => d.count);
       let isValueShown = false;
-
-      barsEnter.append('text')
-          .classed('subtitle', true)
-          .attr('transform', trans(barWidth / 2, -4))
-          .style('text-anchor', 'middle')
-          .text(d => {
-            const text = !isValueShown && d.count === maxValue ? d.text : '';
-            isValueShown = d.count === maxValue;
-            return text;
-          });
-
+      barsEnter
+        .append('text')
+        .classed('subtitle', true)
+        .attr('transform', trans(barWidth / 2, -4))
+        .style('text-anchor', 'middle')
+        .text(d => {
+          const text = !isValueShown && d.count === maxValue ? d.text : '';
+          isValueShown = d.count === maxValue;
+          return text;
+        });
       $(this).find('[data-toggle=tooltip]').tooltip({ container: 'body', html: true });
     }
   });

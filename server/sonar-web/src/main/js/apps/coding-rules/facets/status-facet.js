@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 export default BaseFacet.extend({
   statuses: ['READY', 'DEPRECATED', 'BETA'],
 
-  getValues () {
+  getValues() {
     const values = this.model.getValues();
     return values.map(value => ({
       ...value,
@@ -32,12 +32,12 @@ export default BaseFacet.extend({
     }));
   },
 
-  sortValues (values) {
+  sortValues(values) {
     const order = this.statuses;
     return sortBy(values, v => order.indexOf(v.val));
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValues())

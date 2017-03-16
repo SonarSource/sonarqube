@@ -21,11 +21,11 @@ import React from 'react';
 import init from '../init';
 
 export default class GroupsAppContainer extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     init(this.refs.container);
   }
 
-  render () {
-    return <div ref="container"/>;
+  render() {
+    return <div ref="container" />;
   }
 }

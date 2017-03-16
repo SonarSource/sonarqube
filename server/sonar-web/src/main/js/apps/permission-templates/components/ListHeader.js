@@ -24,25 +24,22 @@ export default class ListHeader extends React.Component {
     permissions: React.PropTypes.array.isRequired
   };
 
-  render () {
+  render() {
     const cells = this.props.permissions.map(p => (
-        <th key={p.key} className="permission-column">
-          {p.name}
-          <i
-              className="icon-help little-spacer-left"
-              title={p.description}
-              data-toggle="tooltip"/>
-        </th>
+      <th key={p.key} className="permission-column">
+        {p.name}
+        <i className="icon-help little-spacer-left" title={p.description} data-toggle="tooltip" />
+      </th>
     ));
 
     return (
-        <thead>
+      <thead>
         <tr>
           <th>&nbsp;</th>
           {cells}
           <th className="thin nowrap text-right">&nbsp;</th>
         </tr>
-        </thead>
+      </thead>
     );
   }
 }

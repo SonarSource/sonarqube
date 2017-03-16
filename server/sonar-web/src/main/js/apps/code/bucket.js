@@ -21,31 +21,31 @@ let bucket = {};
 let childrenBucket = {};
 let breadcrumbsBucket = {};
 
-export function addComponent (component) {
+export function addComponent(component) {
   bucket[component.key] = component;
 }
 
-export function getComponent (componentKey) {
+export function getComponent(componentKey) {
   return bucket[componentKey];
 }
 
-export function addComponentChildren (componentKey, children, total, page) {
+export function addComponentChildren(componentKey, children, total, page) {
   childrenBucket[componentKey] = { children, total, page };
 }
 
-export function getComponentChildren (componentKey) {
+export function getComponentChildren(componentKey) {
   return childrenBucket[componentKey];
 }
 
-export function addComponentBreadcrumbs (componentKey, breadcrumbs) {
+export function addComponentBreadcrumbs(componentKey, breadcrumbs) {
   breadcrumbsBucket[componentKey] = breadcrumbs;
 }
 
-export function getComponentBreadcrumbs (componentKey) {
+export function getComponentBreadcrumbs(componentKey) {
   return breadcrumbsBucket[componentKey];
 }
 
-export function clearBucket () {
+export function clearBucket() {
   bucket = {};
   childrenBucket = {};
   breadcrumbsBucket = {};

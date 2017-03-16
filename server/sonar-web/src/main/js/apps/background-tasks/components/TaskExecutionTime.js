@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import { formatDuration } from '../utils';
 import { Task } from '../types';
 
 const TaskExecutionTime = ({ task }: { task: Task }) => {
   return (
-      <td className="thin nowrap text-right">
-        {formatDuration(task.executionTimeMs)}
-      </td>
+    <td className="thin nowrap text-right">
+      {formatDuration(task.executionTimeMs)}
+    </td>
   );
 };
 

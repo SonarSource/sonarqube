@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (list, options) {
+module.exports = function(list, options) {
   if (list && list.length > 1) {
     return list.slice(1).reduce((prev, current) => prev + options.fn(current), '');
   } else {

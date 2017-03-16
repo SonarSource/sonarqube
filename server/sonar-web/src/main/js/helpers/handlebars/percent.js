@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (value, total) {
+module.exports = function(value, total) {
   if (total > 0) {
-    return '' + ((value || 0) / total * 100) + '%';
+    return '' + (value || 0) / total * 100 + '%';
   } else {
     return '0%';
   }

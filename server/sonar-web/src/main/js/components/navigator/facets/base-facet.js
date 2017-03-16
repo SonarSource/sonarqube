@@ -24,20 +24,20 @@ export default Marionette.ItemView.extend({
   className: 'search-navigator-facet-box',
   forbiddenClassName: 'search-navigator-facet-box-forbidden',
 
-  modelEvents () {
+  modelEvents() {
     return {
-      'change': 'render'
+      change: 'render'
     };
   },
 
-  events () {
+  events() {
     return {
       'click .js-facet-toggle': 'toggle',
       'click .js-facet': 'toggleFacet'
     };
   },
 
-  onRender () {
+  onRender() {
     this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
     this.$el.attr('data-property', this.model.get('property'));
     const that = this;
@@ -53,19 +53,22 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  toggle () {
+  toggle() {
     if (!this.isForbidden()) {
       this.options.app.controller.toggleFacet(this.model.id);
     }
   },
 
-  getValue () {
-    return this.$('.js-facet.active').map(function () {
-      return $(this).data('value');
-    }).get().join();
+  getValue() {
+    return this.$('.js-facet.active')
+      .map(function() {
+        return $(this).data('value');
+      })
+      .get()
+      .join();
   },
 
-  toggleFacet (e) {
+  toggleFacet(e) {
     $(e.currentTarget).toggleClass('active');
     const property = this.model.get('property');
     const obj = {};
@@ -73,27 +76,27 @@ export default Marionette.ItemView.extend({
     this.options.app.state.updateFilter(obj);
   },
 
-  disable () {
+  disable() {
     const property = this.model.get('property');
     const obj = {};
     obj[property] = null;
     this.options.app.state.updateFilter(obj);
   },
 
-  forbid () {
+  forbid() {
     this.options.app.controller.disableFacet(this.model.id);
     this.$el.addClass(this.forbiddenClassName);
   },
 
-  allow () {
+  allow() {
     this.$el.removeClass(this.forbiddenClassName);
   },
 
-  isForbidden () {
+  isForbidden() {
     return this.$el.hasClass(this.forbiddenClassName);
   },
 
-  sortValues (values) {
+  sortValues(values) {
     return values.slice().sort((left, right) => {
       if (left.count !== right.count) {
         return right.count - left.count;
@@ -110,11 +113,10 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.model.getValues())
     };
   }
 });
-

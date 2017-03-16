@@ -25,40 +25,40 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import WithStore from '../../../components/shared/WithStore';
 
 export default Marionette.ItemView.extend({
-  template () {
+  template() {
     return '<div></div>';
   },
 
-  initialize (options) {
+  initialize(options) {
     this.handleLoadIssues = this.handleLoadIssues.bind(this);
     this.scrollToBaseIssue = this.scrollToBaseIssue.bind(this);
     this.selectIssue = this.selectIssue.bind(this);
     this.listenTo(options.app.state, 'change:selectedIndex', this.select);
   },
 
-  onRender () {
+  onRender() {
     this.showViewer();
   },
 
-  onDestroy () {
+  onDestroy() {
     this.unbindShortcuts();
     unmountComponentAtNode(this.el);
   },
 
-  handleLoadIssues (component: string) {
+  handleLoadIssues(component: string) {
     // TODO fromLine: number, toLine: number
     const issues = this.options.app.list.toJSON().filter(issue => issue.componentKey === component);
     return Promise.resolve(issues);
   },
 
-  showViewer (onLoaded) {
+  showViewer(onLoaded) {
     if (!this.baseIssue) {
       return;
     }
 
     const componentKey = this.baseIssue.get('component');
 
-    render((
+    render(
       <WithStore>
         <SourceViewer
           aroundLine={this.baseIssue.get('line')}
@@ -67,19 +67,21 @@ export default Marionette.ItemView.extend({
           loadIssues={this.handleLoadIssues}
           onLoaded={onLoaded}
           onIssueSelect={this.selectIssue}
-          selectedIssue={this.baseIssue.get('key')}/>
-      </WithStore>
-    ), this.el);
+          selectedIssue={this.baseIssue.get('key')}
+        />
+      </WithStore>,
+      this.el
+    );
   },
 
-  openFileByIssue (issue) {
+  openFileByIssue(issue) {
     this.baseIssue = issue;
     this.selectedIssue = issue.get('key');
     this.showViewer(this.scrollToBaseIssue);
     this.bindShortcuts();
   },
 
-  bindShortcuts () {
+  bindShortcuts() {
     key('up', 'componentViewer', () => {
       this.options.app.controller.selectPrev();
       return false;
@@ -94,11 +96,11 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  unbindShortcuts () {
+  unbindShortcuts() {
     key.deleteScope('componentViewer');
   },
 
-  select () {
+  select() {
     const selected = this.options.app.state.get('selectedIndex');
     const selectedIssue = this.options.app.list.at(selected);
 
@@ -111,21 +113,20 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  scrollToLine (line) {
+  scrollToLine(line) {
     const row = this.$(`[data-line-number=${line}]`);
     const topOffset = $(window).height() / 2 - 60;
     const goal = row.length > 0 ? row.offset().top - topOffset : 0;
     $(window).scrollTop(goal);
   },
 
-  selectIssue (issueKey) {
+  selectIssue(issueKey) {
     const issue = this.options.app.list.find(model => model.get('key') === issueKey);
     const index = this.options.app.list.indexOf(issue);
     this.options.app.state.set({ selectedIndex: index });
   },
 
-  scrollToBaseIssue () {
+  scrollToBaseIssue() {
     this.scrollToLine(this.baseIssue.get('line'));
   }
 });
-

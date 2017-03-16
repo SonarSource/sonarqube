@@ -30,10 +30,6 @@ const reducer = (state = {}, action = {}) => {
 
 export default reducer;
 
-export const getLanguages = state => (
-    state
-);
+export const getLanguages = state => state;
 
-export const getLanguageByKey = (state, key) => (
-    state[key]
-);
+export const getLanguageByKey = (state, key) => state[key];

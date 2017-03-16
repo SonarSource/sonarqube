@@ -39,7 +39,7 @@ export default class PageSidebar extends React.PureComponent {
     organization: React.PropTypes.object
   };
 
-  render () {
+  render() {
     const isFiltered = Object.keys(this.props.query).some(key => this.props.query[key] != null);
 
     const basePathName = this.props.organization
@@ -49,7 +49,7 @@ export default class PageSidebar extends React.PureComponent {
 
     return (
       <div className="search-navigator-facets-list">
-        <FavoriteFilterContainer/>
+        <FavoriteFilterContainer />
 
         <div className="projects-facets-header clearfix">
           {isFiltered &&
@@ -63,45 +63,55 @@ export default class PageSidebar extends React.PureComponent {
           <SearchFilterContainer
             query={this.props.query}
             isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+            organization={this.props.organization}
+          />
         </div>
 
         <QualityGateFilter
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <ReliabilityFilter
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <SecurityFilter
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <MaintainabilityFilter
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <CoverageFilter
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <DuplicationsFilter
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <SizeFilter
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <LanguagesFilterContainer
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
         <TagsFilterContainer
           query={this.props.query}
           isFavorite={this.props.isFavorite}
-          organization={this.props.organization}/>
+          organization={this.props.organization}
+        />
       </div>
     );
   }

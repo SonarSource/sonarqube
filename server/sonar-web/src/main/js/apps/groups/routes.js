@@ -22,6 +22,4 @@ import { IndexRoute } from 'react-router';
 import GroupsAppContainer from './components/GroupsAppContainer';
 import forSingleOrganization from '../organizations/forSingleOrganization';
 
-export default (
-    <IndexRoute component={forSingleOrganization(GroupsAppContainer)}/>
-);
+export default <IndexRoute component={forSingleOrganization(GroupsAppContainer)} />;

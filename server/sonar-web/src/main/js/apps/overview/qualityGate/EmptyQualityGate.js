@@ -22,14 +22,14 @@ import { translate } from '../../../helpers/l10n';
 
 const EmptyQualityGate = () => {
   return (
-      <div className="overview-quality-gate">
-        <h2 className="overview-title">
-          {translate('overview.quality_gate')}
-        </h2>
-        <p className="overview-quality-gate-warning">
-          {translate('overview.you_should_define_quality_gate')}
-        </p>
-      </div>
+    <div className="overview-quality-gate">
+      <h2 className="overview-title">
+        {translate('overview.quality_gate')}
+      </h2>
+      <p className="overview-quality-gate-warning">
+        {translate('overview.you_should_define_quality_gate')}
+      </p>
+    </div>
   );
 };
 

@@ -31,16 +31,11 @@ class GlobalAdminPageExtension extends React.Component {
       extensionKey: string,
       pluginKey: string
     }
-  }
-
-  render () {
+  };
+  render() {
     const { extensionKey, pluginKey } = this.props.params;
     const extension = this.props.adminPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
-    return extension ? (
-            <Extension extension={extension}/>
-        ) : (
-            <ExtensionNotFound/>
-        );
+    return extension ? <Extension extension={extension} /> : <ExtensionNotFound />;
   }
 }
 

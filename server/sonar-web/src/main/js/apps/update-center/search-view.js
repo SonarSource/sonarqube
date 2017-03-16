@@ -34,38 +34,38 @@ export default Marionette.ItemView.extend({
   },
 
   collectionEvents: {
-    'filter': 'onFilter'
+    filter: 'onFilter'
   },
 
-  initialize () {
+  initialize() {
     this._bufferedValue = null;
     this.search = debounce(this.search, 50);
     this.listenTo(this.options.state, 'change', this.render);
   },
 
-  onRender () {
+  onRender() {
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFilterChange () {
+  onFilterChange() {
     const value = this.$('[name="update-center-filter"]:checked').val();
     this.filter(value);
   },
 
-  filter (value) {
+  filter(value) {
     this.options.router.navigate(value, { trigger: true });
   },
 
-  onFormSubmit (e) {
+  onFormSubmit(e) {
     e.preventDefault();
     this.debouncedOnKeyUp();
   },
 
-  onKeyUp () {
+  onKeyUp() {
     const q = this.getQuery();
     if (q === this._bufferedValue) {
       return;
@@ -74,32 +74,34 @@ export default Marionette.ItemView.extend({
     this.search(q);
   },
 
-  getQuery () {
+  getQuery() {
     return this.$('#update-center-search-query').val();
   },
 
-  search (q) {
+  search(q) {
     this.collection.search(q);
   },
 
-  focusSearch () {
+  focusSearch() {
     const that = this;
-    setTimeout(() => {
-      that.$('#update-center-search-query').focus();
-    }, 0);
+    setTimeout(
+      () => {
+        that.$('#update-center-search-query').focus();
+      },
+      0
+    );
   },
 
-  onFilter (model) {
+  onFilter(model) {
     const q = model.get('category');
     this.$('#update-center-search-query').val(q);
     this.search(q);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       state: this.options.state.toJSON()
     };
   }
 });
-

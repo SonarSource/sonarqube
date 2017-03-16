@@ -38,7 +38,7 @@ type Props = {
 export default class Menu extends React.PureComponent {
   props: Props;
 
-  render () {
+  render() {
     const { domains, showInternal, showDeprecated, searchQuery, splat } = this.props;
     const filteredDomains = (domains || [])
       .map(domain => {
@@ -60,11 +60,12 @@ export default class Menu extends React.PureComponent {
                 className={classNames('list-group-item', {
                   active: isDomainPathActive(domain.path, splat)
                 })}
-                to={'/web_api/' + domain.path}>
+                to={'/web_api/' + domain.path}
+              >
                 <h3 className="list-group-item-heading">
                   {domain.path}
-                  {domain.deprecated && <DeprecatedBadge/>}
-                  {domain.internal && <InternalBadge/>}
+                  {domain.deprecated && <DeprecatedBadge />}
+                  {domain.internal && <InternalBadge />}
                 </h3>
                 <p className="list-group-item-text">
                   {domain.description}

@@ -20,12 +20,11 @@
 import BaseFacet from './base-facet';
 
 export default BaseFacet.extend({
-
-  getLabelsSource () {
+  getLabelsSource() {
     return [];
   },
 
-  getValues () {
+  getValues() {
     const that = this;
     const labels = that.getLabelsSource();
     return this.model.getValues().map(item => {
@@ -33,7 +32,7 @@ export default BaseFacet.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.getValues()

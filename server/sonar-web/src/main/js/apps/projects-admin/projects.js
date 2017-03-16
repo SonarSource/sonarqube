@@ -33,11 +33,11 @@ export default class Projects extends React.Component {
     organization: React.PropTypes.object
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.renderProject = this.renderProject.bind(this);
   }
 
-  onProjectCheck (project, checked) {
+  onProjectCheck(project, checked) {
     if (checked) {
       this.props.onProjectSelected(project);
     } else {
@@ -45,7 +45,7 @@ export default class Projects extends React.Component {
     }
   }
 
-  onApplyTemplateClick (project, e) {
+  onApplyTemplateClick(project, e) {
     e.preventDefault();
     e.target.blur();
     new ApplyTemplateView({
@@ -54,64 +54,66 @@ export default class Projects extends React.Component {
     }).render();
   }
 
-  isProjectSelected (project) {
+  isProjectSelected(project) {
     return this.props.selection.indexOf(project.key) !== -1;
   }
 
-  renderProject (project) {
+  renderProject(project) {
     const permissionsUrl = getComponentPermissionsUrl(project.key);
 
     return (
-        <tr key={project.key}>
-          <td className="thin">
-            <Checkbox
-                checked={this.isProjectSelected(project)}
-                onCheck={this.onProjectCheck.bind(this, project)}/>
-          </td>
-          <td className="nowrap">
-            <Link to={{ pathname: '/dashboard', query: { id: project.key } }} className="link-with-icon">
-              <QualifierIcon qualifier={project.qualifier}/>
+      <tr key={project.key}>
+        <td className="thin">
+          <Checkbox
+            checked={this.isProjectSelected(project)}
+            onCheck={this.onProjectCheck.bind(this, project)}
+          />
+        </td>
+        <td className="nowrap">
+          <Link
+            to={{ pathname: '/dashboard', query: { id: project.key } }}
+            className="link-with-icon"
+          >
+            <QualifierIcon qualifier={project.qualifier} />
+            {' '}
+            <span>{project.name}</span>
+          </Link>
+        </td>
+        <td className="nowrap">
+          <span className="note">{project.key}</span>
+        </td>
+        <td className="thin nowrap">
+          <div className="dropdown">
+            <button className="dropdown-toggle" data-toggle="dropdown">
+              {translate('actions')}
               {' '}
-              <span>{project.name}</span>
-            </Link>
-          </td>
-          <td className="nowrap">
-            <span className="note">{project.key}</span>
-          </td>
-          <td className="thin nowrap">
-            <div className="dropdown">
-              <button className="dropdown-toggle" data-toggle="dropdown">
-                {translate('actions')}
-                {' '}
-                <i className="icon-dropdown"/>
-              </button>
-              <ul className="dropdown-menu dropdown-menu-right">
-                <li>
-                  <Link to={permissionsUrl}>
-                    {translate('edit_permissions')}
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" onClick={this.onApplyTemplateClick.bind(this, project)}>
-                    {translate('projects_role.apply_template')}
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </td>
-        </tr>
+              <i className="icon-dropdown" />
+            </button>
+            <ul className="dropdown-menu dropdown-menu-right">
+              <li>
+                <Link to={permissionsUrl}>
+                  {translate('edit_permissions')}
+                </Link>
+              </li>
+              <li>
+                <a href="#" onClick={this.onApplyTemplateClick.bind(this, project)}>
+                  {translate('projects_role.apply_template')}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </td>
+      </tr>
     );
   }
 
-  render () {
-    const className = classNames('data', 'zebra',
-        { 'new-loading': !this.props.ready }
-    );
+  render() {
+    const className = classNames('data', 'zebra', { 'new-loading': !this.props.ready });
 
     return (
-        <table className={className}>
-          <tbody>{this.props.projects.map(this.renderProject)}</tbody>
-        </table>
+      <table className={className}>
+        <tbody>{this.props.projects.map(this.renderProject)}</tbody>
+      </table>
     );
   }
 }

@@ -45,56 +45,58 @@ class UserOrganizations extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
-    Promise.all([this.props.fetchMyOrganizations(), this.props.fetchIfAnyoneCanCreateOrganizations()]).then(() => {
+    Promise.all([
+      this.props.fetchMyOrganizations(),
+      this.props.fetchIfAnyoneCanCreateOrganizations()
+    ]).then(() => {
       if (this.mounted) {
         this.setState({ loading: false });
       }
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  render () {
+  render() {
     const title = translate('my_account.organizations') + ' - ' + translate('my_account.page');
 
-    const anyoneCanCreate = this.props.anyoneCanCreate != null && this.props.anyoneCanCreate.value === 'true';
+    const anyoneCanCreate = this.props.anyoneCanCreate != null &&
+      this.props.anyoneCanCreate.value === 'true';
 
-    const canCreateOrganizations = !this.state.loading && (anyoneCanCreate || isUserAdmin(this.props.currentUser));
+    const canCreateOrganizations = !this.state.loading &&
+      (anyoneCanCreate || isUserAdmin(this.props.currentUser));
 
     return (
-        <div className="account-body account-container">
-          <Helmet title={title} titleTemplate="%s - SonarQube"/>
+      <div className="account-body account-container">
+        <Helmet title={title} titleTemplate="%s - SonarQube" />
 
-          <header className="page-header">
-            <h2 className="page-title">{translate('my_account.organizations')}</h2>
-            {canCreateOrganizations && (
-                <div className="page-actions">
-                  <Link to="/account/organizations/create" className="button">{translate('create')}</Link>
-                </div>
-            )}
-            {this.props.organizations.length > 0 ? (
-                <div className="page-description">
-                  {translate('my_account.organizations.description')}
-                </div>
-            ) : (
-                <div className="page-description">
-                  {translate('my_account.organizations.no_results')}
-                </div>
-            )}
-          </header>
+        <header className="page-header">
+          <h2 className="page-title">{translate('my_account.organizations')}</h2>
+          {canCreateOrganizations &&
+            <div className="page-actions">
+              <Link to="/account/organizations/create" className="button">
+                {translate('create')}
+              </Link>
+            </div>}
+          {this.props.organizations.length > 0
+            ? <div className="page-description">
+                {translate('my_account.organizations.description')}
+              </div>
+            : <div className="page-description">
+                {translate('my_account.organizations.no_results')}
+              </div>}
+        </header>
 
-          {this.state.loading ? (
-              <i className="spinner"/>
-          ) : (
-              <OrganizationsList organizations={this.props.organizations}/>
-          )}
+        {this.state.loading
+          ? <i className="spinner" />
+          : <OrganizationsList organizations={this.props.organizations} />}
 
-          {this.props.children}
-        </div>
+        {this.props.children}
+      </div>
     );
   }
 }

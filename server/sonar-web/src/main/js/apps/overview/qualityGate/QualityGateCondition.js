@@ -55,7 +55,7 @@ export default class QualityGateCondition extends React.Component {
     }
   };
 
-  getIssuesUrl (sinceLeakPeriod: boolean, customQuery: {}) {
+  getIssuesUrl(sinceLeakPeriod: boolean, customQuery: {}) {
     const query: Object = {
       resolved: 'false',
       ...customQuery
@@ -66,11 +66,11 @@ export default class QualityGateCondition extends React.Component {
     return getComponentIssuesUrl(this.props.component.key, query);
   }
 
-  getUrlForCodeSmells (sinceLeakPeriod: boolean) {
+  getUrlForCodeSmells(sinceLeakPeriod: boolean) {
     return this.getIssuesUrl(sinceLeakPeriod, { types: 'CODE_SMELL' });
   }
 
-  getUrlForBugsOrVulnerabilities (type: string, sinceLeakPeriod: boolean) {
+  getUrlForBugsOrVulnerabilities(type: string, sinceLeakPeriod: boolean) {
     const RATING_TO_SEVERITIES_MAPPING = {
       '1': 'BLOCKER,CRITICAL,MAJOR,MINOR',
       '2': 'BLOCKER,CRITICAL,MAJOR',
@@ -87,13 +87,13 @@ export default class QualityGateCondition extends React.Component {
     });
   }
 
-  getUrlForType (type: string, sinceLeakPeriod: boolean) {
-    return type === 'CODE_SMELL' ?
-        this.getUrlForCodeSmells(sinceLeakPeriod) :
-        this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
+  getUrlForType(type: string, sinceLeakPeriod: boolean) {
+    return type === 'CODE_SMELL'
+      ? this.getUrlForCodeSmells(sinceLeakPeriod)
+      : this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
   }
 
-  wrapWithLink (children: Object) {
+  wrapWithLink(children: Object) {
     const { component, periods, condition } = this.props;
 
     const period = getPeriod(periods, condition.period);
@@ -102,37 +102,36 @@ export default class QualityGateCondition extends React.Component {
     const className = classNames(
       'overview-quality-gate-condition',
       'overview-quality-gate-condition-' + condition.level.toLowerCase(),
-        { 'overview-quality-gate-condition-leak': period != null }
+      { 'overview-quality-gate-condition-leak': period != null }
     );
 
     const metricKey = condition.measure.metric.key;
 
     const RATING_METRICS_MAPPING = {
-      'reliability_rating': ['BUG', false],
-      'new_reliability_rating': ['BUG', true],
-      'security_rating': ['VULNERABILITY', false],
-      'new_security_rating': ['VULNERABILITY', true],
-      'sqale_rating': ['CODE_SMELL', false],
-      'new_sqale_rating': ['CODE_SMELL', true]
+      reliability_rating: ['BUG', false],
+      new_reliability_rating: ['BUG', true],
+      security_rating: ['VULNERABILITY', false],
+      new_security_rating: ['VULNERABILITY', true],
+      sqale_rating: ['CODE_SMELL', false],
+      new_sqale_rating: ['CODE_SMELL', true]
     };
 
-    return RATING_METRICS_MAPPING[metricKey] ? (
-            <Link to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])} className={className}>
-              {children}
-            </Link>
-        ) : (
-            <DrilldownLink
-                className={className}
-                component={component.key}
-                metric={condition.measure.metric.key}
-                period={condition.period}
-                periodDate={periodDate}>
-              {children}
-            </DrilldownLink>
-        );
+    return RATING_METRICS_MAPPING[metricKey]
+      ? <Link to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])} className={className}>
+          {children}
+        </Link>
+      : <DrilldownLink
+          className={className}
+          component={component.key}
+          metric={condition.measure.metric.key}
+          period={condition.period}
+          periodDate={periodDate}
+        >
+          {children}
+        </DrilldownLink>;
   }
 
-  render () {
+  render() {
     const { periods, condition } = this.props;
 
     const { measure } = condition;
@@ -141,40 +140,36 @@ export default class QualityGateCondition extends React.Component {
     const isRating = metric.type === 'RATING';
     const isDiff = isDiffMetric(metric.key);
 
-    const threshold = condition.level === 'ERROR' ?
-        condition.error :
-        condition.warning;
+    const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
 
-    const actual = condition.period ?
-        getPeriodValue(measure, condition.period) :
-        measure.value;
+    const actual = condition.period ? getPeriodValue(measure, condition.period) : measure.value;
     const period = getPeriod(periods, condition.period);
 
-    const operator = isRating ?
-        translate('quality_gates.operator', condition.op, 'rating') :
-        translate('quality_gates.operator', condition.op);
+    const operator = isRating
+      ? translate('quality_gates.operator', condition.op, 'rating')
+      : translate('quality_gates.operator', condition.op);
 
     return this.wrapWithLink(
       <div className="overview-quality-gate-condition-container">
-          <div className="overview-quality-gate-condition-value">
-            <Measure measure={{ value: actual, leak: actual }} metric={metric}/>
-          </div>
+        <div className="overview-quality-gate-condition-value">
+          <Measure measure={{ value: actual, leak: actual }} metric={metric} />
+        </div>
 
-          <div>
-            <div className="overview-quality-gate-condition-metric">
-              <IssueTypeIcon query={metric.key} className="little-spacer-right"/>
-              {metric.name}
-            </div>
-            {!isDiff && period != null && (
-                <div className="overview-quality-gate-condition-period">
-                  {translate('quality_gates.conditions.leak')}
-                </div>
-            )}
-            <div className="overview-quality-gate-threshold">
-              {operator} {formatMeasure(threshold, metric.type)}
-            </div>
+        <div>
+          <div className="overview-quality-gate-condition-metric">
+            <IssueTypeIcon query={metric.key} className="little-spacer-right" />
+            {metric.name}
+          </div>
+          {!isDiff &&
+            period != null &&
+            <div className="overview-quality-gate-condition-period">
+              {translate('quality_gates.conditions.leak')}
+            </div>}
+          <div className="overview-quality-gate-threshold">
+            {operator} {formatMeasure(threshold, metric.type)}
           </div>
         </div>
+      </div>
     );
   }
 }

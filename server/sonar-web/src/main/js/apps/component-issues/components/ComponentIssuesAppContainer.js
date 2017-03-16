@@ -23,23 +23,23 @@ import init from '../init';
 import { getComponent, getCurrentUser } from '../../../store/rootReducer';
 
 class ComponentIssuesAppContainer extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     this.stop = init(this.refs.container, this.props.component, this.props.currentUser);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.stop();
   }
 
-  render () {
+  render() {
     // placing container inside div is required,
     // because when backbone.marionette's layout is destroyed,
     // it also destroys the root element,
     // but react wants it to be there to unmount it
     return (
-        <div>
-          <div ref="container"/>
-        </div>
+      <div>
+        <div ref="container" />
+      </div>
     );
   }
 }

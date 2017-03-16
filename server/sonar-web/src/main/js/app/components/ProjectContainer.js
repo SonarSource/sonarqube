@@ -39,19 +39,18 @@ class ProjectContainer extends React.Component {
       qualifier: string
     },
     fetchProject: (string) => Promise<*>
-  }
-
-  componentDidMount () {
+  };
+  componentDidMount() {
     this.fetchProject();
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.location.query.id !== this.props.location.query.id) {
       this.fetchProject();
     }
   }
 
-  fetchProject () {
+  fetchProject() {
     this.props.fetchProject(this.props.location.query.id).catch(e => {
       if (e.response.status === 403) {
         handleRequiredAuthorization();
@@ -61,7 +60,7 @@ class ProjectContainer extends React.Component {
     });
   }
 
-  render () {
+  render() {
     // check `breadcrumbs` to be sure that /api/navigation/component has been already called
     if (!this.props.project || this.props.project.breadcrumbs == null) {
       return null;
@@ -73,12 +72,10 @@ class ProjectContainer extends React.Component {
     const configuration = this.props.project.configuration || {};
 
     return (
-        <div>
-          {!isFile && (
-              <ComponentNav component={this.props.project} conf={configuration}/>
-          )}
-          {this.props.children}
-        </div>
+      <div>
+        {!isFile && <ComponentNav component={this.props.project} conf={configuration} />}
+        {this.props.children}
+      </div>
     );
   }
 }

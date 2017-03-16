@@ -40,16 +40,16 @@ class DefaultPageSelector extends React.PureComponent {
   props: Props;
   state: State;
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = {};
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.defineIfShouldBeRedirected();
   }
 
-  componentDidUpdate (prevProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.location !== this.props.location) {
       this.defineIfShouldBeRedirected();
     } else if (this.state.shouldBeRedirected === true) {
@@ -57,7 +57,7 @@ class DefaultPageSelector extends React.PureComponent {
     }
   }
 
-  defineIfShouldBeRedirected () {
+  defineIfShouldBeRedirected() {
     if (Object.keys(this.props.location.query).length > 0) {
       // show ALL projects when there are some filters
       this.setState({ shouldBeRedirected: false });
@@ -80,7 +80,7 @@ class DefaultPageSelector extends React.PureComponent {
     }
   }
 
-  render () {
+  render() {
     if (this.state.shouldBeRedirected == null || this.state.shouldBeRedirected === true) {
       return null;
     } else {
@@ -88,7 +88,8 @@ class DefaultPageSelector extends React.PureComponent {
         <AllProjectsContainer
           isFavorite={false}
           location={this.props.location}
-          user={this.props.currentUser}/>
+          user={this.props.currentUser}
+        />
       );
     }
   }

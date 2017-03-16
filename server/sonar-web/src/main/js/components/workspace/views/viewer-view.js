@@ -28,12 +28,12 @@ import WithStore from '../../shared/WithStore';
 export default BaseView.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     BaseView.prototype.onRender.apply(this, arguments);
     this.showViewer();
   },
 
-  scrollToLine (line) {
+  scrollToLine(line) {
     const row = this.$el.find(`.source-line[data-line-number="${line}"]`);
     if (row.length > 0) {
       const sourceViewer = this.$el.find('.source-viewer');
@@ -48,12 +48,12 @@ export default BaseView.extend({
     }
   },
 
-  showViewer () {
+  showViewer() {
     const { key, line } = this.model.toJSON();
 
     const el = document.querySelector(this.viewerRegion.el);
 
-    render((
+    render(
       <WithStore>
         <SourceViewer
           component={key}
@@ -64,8 +64,10 @@ export default BaseView.extend({
             if (line) {
               this.scrollToLine(line);
             }
-          }}/>
-      </WithStore>
-    ), el);
+          }}
+        />
+      </WithStore>,
+      el
+    );
   }
 });

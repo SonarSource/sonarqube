@@ -25,6 +25,6 @@ export default () => {
   const returnTo = window.location.pathname + window.location.search + window.location.hash;
   history.replace({
     pathname: '/sessions/new',
-    query: { 'return_to': returnTo }
+    query: { return_to: returnTo }
   });
 };

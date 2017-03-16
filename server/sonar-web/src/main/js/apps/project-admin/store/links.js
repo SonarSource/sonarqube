@@ -40,5 +40,4 @@ const links = (state = {}, action = {}) => {
 
 export default links;
 
-export const getLink = (state, id) =>
-    state[id];
+export const getLink = (state, id) => state[id];

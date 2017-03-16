@@ -24,29 +24,28 @@ import Template from '../templates/issue-set-severity-form.hbs';
 export default ActionOptionsView.extend({
   template: Template,
 
-  getTransition () {
+  getTransition() {
     return this.model.get('severity');
   },
 
-  selectInitialOption () {
+  selectInitialOption() {
     return this.makeActive(this.getOptions().filter(`[data-value="${this.getTransition()}"]`));
   },
 
-  selectOption (e) {
+  selectOption(e) {
     const severity = $(e.currentTarget).data('value');
     this.submit(severity);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  submit (severity) {
+  submit(severity) {
     return this.model.setSeverity(severity);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ActionOptionsView.prototype.serializeData.apply(this, arguments),
       items: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
     };
   }
 });
-

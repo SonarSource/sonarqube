@@ -24,9 +24,8 @@ import Template from '../templates/facets/issues-type-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  sortValues (values) {
+  sortValues(values) {
     const order = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
     return sortBy(values, v => order.indexOf(v.val));
   }
 });
-

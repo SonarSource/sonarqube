@@ -29,18 +29,21 @@ export default Marionette.ItemView.extend({
     'click #start-migration': 'startMigration'
   },
 
-  initialize () {
+  initialize() {
     this.requestOptions = {
       type: 'GET',
       url: window.baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
     };
-    this.pollingInternal = setInterval(() => {
-      this.refresh();
-    }, 5000);
+    this.pollingInternal = setInterval(
+      () => {
+        this.refresh();
+      },
+      5000
+    );
     this.wasStarting = false;
   },
 
-  refresh () {
+  refresh() {
     return Backbone.ajax(this.requestOptions).done(r => {
       if (r.status === 'STARTING') {
         this.wasStarting = true;
@@ -59,11 +62,11 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  stopPolling () {
+  stopPolling() {
     clearInterval(this.pollingInternal);
   },
 
-  startMigration () {
+  startMigration() {
     Backbone.ajax({
       url: window.baseUrl + '/api/system/migrate_db',
       type: 'POST'
@@ -73,21 +76,26 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  onRender () {
-    $('.page-simple').toggleClass('panel-warning', this.model.get('state') === 'MIGRATION_REQUIRED');
+  onRender() {
+    $('.page-simple').toggleClass(
+      'panel-warning',
+      this.model.get('state') === 'MIGRATION_REQUIRED'
+    );
   },
 
-  goHome () {
-    setInterval(() => {
-      window.location = window.baseUrl + '/';
-    }, 2500);
+  goHome() {
+    setInterval(
+      () => {
+        window.location = window.baseUrl + '/';
+      },
+      2500
+    );
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       setup: this.options.setup
     };
   }
 });
-

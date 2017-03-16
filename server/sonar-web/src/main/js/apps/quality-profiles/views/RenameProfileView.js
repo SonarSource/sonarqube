@@ -24,28 +24,27 @@ import { renameProfile } from '../../../api/quality-profiles';
 export default ModalFormView.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     const name = this.$('#rename-profile-name').val();
     renameProfile(this.options.profile.key, name)
-        .then(profile => {
-          this.destroy();
-          this.trigger('done', profile);
-        })
-        .catch(e => {
-          if (e.response.status === 400) {
-            this.enableForm();
-            e.response.json().then(r => this.showErrors(r.errors, r.warnings));
-          }
-        });
+      .then(profile => {
+        this.destroy();
+        this.trigger('done', profile);
+      })
+      .catch(e => {
+        if (e.response.status === 400) {
+          this.enableForm();
+          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+        }
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return this.options.profile;
   }
 });
-

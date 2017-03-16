@@ -34,27 +34,27 @@ export default class Home extends React.Component {
     refresh: React.PropTypes.func.isRequired
   };
 
-  render () {
+  render() {
     return (
-        <div className="page page-limited">
-          <Helmet
-              title={translate('permission_templates.page')}
-              titleTemplate="SonarQube - %s"/>
+      <div className="page page-limited">
+        <Helmet title={translate('permission_templates.page')} titleTemplate="SonarQube - %s" />
 
-          <Header
-              organization={this.props.organization}
-              ready={this.props.ready}
-              refresh={this.props.refresh}/>
+        <Header
+          organization={this.props.organization}
+          ready={this.props.ready}
+          refresh={this.props.refresh}
+        />
 
-          <TooltipsContainer>
-            <List
-                organization={this.props.organization}
-                permissionTemplates={this.props.permissionTemplates}
-                permissions={this.props.permissions}
-                topQualifiers={this.props.topQualifiers}
-                refresh={this.props.refresh}/>
-          </TooltipsContainer>
-        </div>
+        <TooltipsContainer>
+          <List
+            organization={this.props.organization}
+            permissionTemplates={this.props.permissionTemplates}
+            permissions={this.props.permissions}
+            topQualifiers={this.props.topQualifiers}
+            refresh={this.props.refresh}
+          />
+        </TooltipsContainer>
+      </div>
     );
   }
 }

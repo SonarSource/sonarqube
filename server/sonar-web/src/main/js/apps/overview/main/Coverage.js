@@ -26,170 +26,158 @@ import { translate } from '../../../helpers/l10n';
 import CoverageRating from '../../../components/ui/CoverageRating';
 
 class Coverage extends React.Component {
-  getCoverage () {
+  getCoverage() {
     const { measures } = this.props;
     const { value } = measures.find(measure => measure.metric.key === 'coverage');
     return Number(value);
   }
 
-  getNewCoverageMeasure () {
+  getNewCoverageMeasure() {
     const { measures } = this.props;
     return measures.find(measure => measure.metric.key === 'new_coverage');
   }
 
-  getNewLinesToCover () {
+  getNewLinesToCover() {
     const { measures } = this.props;
     return measures.find(measure => measure.metric.key === 'new_lines_to_cover');
   }
 
-  renderHeader () {
-    return this.props.renderHeader(
-      'Coverage',
-      translate('metric.coverage.name'));
+  renderHeader() {
+    return this.props.renderHeader('Coverage', translate('metric.coverage.name'));
   }
 
-  renderTimeline (range) {
+  renderTimeline(range) {
     return this.props.renderTimeline('coverage', range);
   }
 
-  renderTests () {
+  renderTests() {
     return this.props.renderMeasure('tests');
   }
 
-  renderCoverage () {
+  renderCoverage() {
     const { component } = this.props;
     const metric = 'coverage';
     const coverage = this.getCoverage();
 
     return (
-        <div className="overview-domain-measure">
-          <div className="display-inline-block text-middle big-spacer-right">
-            <CoverageRating value={coverage} size="big"/>
+      <div className="overview-domain-measure">
+        <div className="display-inline-block text-middle big-spacer-right">
+          <CoverageRating value={coverage} size="big" />
+        </div>
+
+        <div className="display-inline-block text-middle">
+          <div className="overview-domain-measure-value">
+            <DrilldownLink component={component.key} metric={metric}>
+              <span className="js-overview-main-coverage">
+                {formatMeasure(coverage, 'PERCENT')}
+              </span>
+            </DrilldownLink>
           </div>
 
-          <div className="display-inline-block text-middle">
-            <div className="overview-domain-measure-value">
-              <DrilldownLink component={component.key} metric={metric}>
-                <span className="js-overview-main-coverage">
-                  {formatMeasure(coverage, 'PERCENT')}
-                </span>
-              </DrilldownLink>
-            </div>
-
-            <div className="overview-domain-measure-label">
-              {getMetricName('coverage')}
-            </div>
+          <div className="overview-domain-measure-label">
+            {getMetricName('coverage')}
           </div>
         </div>
+      </div>
     );
   }
 
-  renderNewCoverage () {
+  renderNewCoverage() {
     const { component, leakPeriod } = this.props;
     const newCoverageMeasure = this.getNewCoverageMeasure();
     const newLinesToCover = this.getNewLinesToCover();
 
-    const newCoverageValue = newCoverageMeasure ?
-        getPeriodValue(newCoverageMeasure, leakPeriod.index) : null;
-    const newLinesToCoverValue = newLinesToCover ?
-        getPeriodValue(newLinesToCover, leakPeriod.index) : null;
+    const newCoverageValue = newCoverageMeasure
+      ? getPeriodValue(newCoverageMeasure, leakPeriod.index)
+      : null;
+    const newLinesToCoverValue = newLinesToCover
+      ? getPeriodValue(newLinesToCover, leakPeriod.index)
+      : null;
 
-    const formattedValue = newCoverageValue != null ? (
-        <div>
+    const formattedValue = newCoverageValue != null
+      ? <div>
           <DrilldownLink
-              component={component.key}
-              metric={newCoverageMeasure.metric.key}
-              period={leakPeriod.index}>
+            component={component.key}
+            metric={newCoverageMeasure.metric.key}
+            period={leakPeriod.index}
+          >
             <span className="js-overview-main-new-coverage">
               {formatMeasure(newCoverageValue, 'PERCENT')}
             </span>
           </DrilldownLink>
         </div>
-    ) : (
-        <span>—</span>
-    );
-
-    const label = (newLinesToCoverValue != null && newLinesToCoverValue > 0) ? (
-        <div className="overview-domain-measure-label">
+      : <span>—</span>;
+    const label = newLinesToCoverValue != null && newLinesToCoverValue > 0
+      ? <div className="overview-domain-measure-label">
           {translate('overview.coverage_on')}
-          <br/>
+          <br />
           <DrilldownLink
-              className="spacer-right overview-domain-secondary-measure-value"
-              component={component.key}
-              metric={newLinesToCover.metric.key}
-              period={leakPeriod.index}>
+            className="spacer-right overview-domain-secondary-measure-value"
+            component={component.key}
+            metric={newLinesToCover.metric.key}
+            period={leakPeriod.index}
+          >
             <span className="js-overview-main-new-coverage">
               {formatMeasure(newLinesToCoverValue, 'SHORT_INT')}
             </span>
           </DrilldownLink>
           {getMetricName('new_lines_to_cover')}
         </div>
-    ) : (
-        <div className="overview-domain-measure-label">
+      : <div className="overview-domain-measure-label">
           {getMetricName('new_coverage')}
-        </div>
-    );
-
+        </div>;
     return (
-        <div className="overview-domain-measure">
-          <div className="overview-domain-measure-value">
-            {formattedValue}
-          </div>
-          {label}
+      <div className="overview-domain-measure">
+        <div className="overview-domain-measure-value">
+          {formattedValue}
         </div>
+        {label}
+      </div>
     );
   }
-
-  renderNutshell () {
+  renderNutshell() {
     return (
-        <div className="overview-domain-nutshell">
-          <div className="overview-domain-measures">
-            {this.renderCoverage()}
-            {this.renderTests()}
-          </div>
-
-          {this.renderTimeline('before')}
+      <div className="overview-domain-nutshell">
+        <div className="overview-domain-measures">
+          {this.renderCoverage()}
+          {this.renderTests()}
         </div>
+
+        {this.renderTimeline('before')}
+      </div>
     );
   }
-
-  renderLeak () {
+  renderLeak() {
     const { leakPeriod } = this.props;
-
     if (leakPeriod == null) {
       return null;
     }
-
     return (
-        <div className="overview-domain-leak">
-          <div className="overview-domain-measures">
-            {this.renderNewCoverage()}
-          </div>
-
-          {this.renderTimeline('after')}
+      <div className="overview-domain-leak">
+        <div className="overview-domain-measures">
+          {this.renderNewCoverage()}
         </div>
+
+        {this.renderTimeline('after')}
+      </div>
     );
   }
-
-  render () {
+  render() {
     const { measures } = this.props;
     const coverageMeasure = measures.find(measure => measure.metric.key === 'coverage');
-
     if (coverageMeasure == null) {
       return null;
     }
-
     return (
-        <div className="overview-card">
-          {this.renderHeader()}
+      <div className="overview-card">
+        {this.renderHeader()}
 
-          <div className="overview-domain-panel">
-            {this.renderNutshell()}
-            {this.renderLeak()}
-          </div>
+        <div className="overview-domain-panel">
+          {this.renderNutshell()}
+          {this.renderLeak()}
         </div>
+      </div>
     );
   }
 }
-
 export default enhance(Coverage);

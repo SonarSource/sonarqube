@@ -32,31 +32,31 @@ export default class ProjectActivityPageHeader extends React.Component {
 
   handleChange = (option: null | { value: string }) => {
     this.props.changeFilter(option && option.value);
-  }
-
-  render () {
+  };
+  render() {
     const selectOptions = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'].map(category => ({
       label: translate('event.category', category),
       value: category
     }));
 
     return (
-        <header className="page-header">
-          <div className="page-actions">
-            <Select
-                className="input-medium"
-                placeholder={translate('filter_verb') + '...'}
-                clearable={true}
-                searchable={false}
-                value={this.props.filter}
-                options={selectOptions}
-                onChange={this.handleChange}/>
-          </div>
+      <header className="page-header">
+        <div className="page-actions">
+          <Select
+            className="input-medium"
+            placeholder={translate('filter_verb') + '...'}
+            clearable={true}
+            searchable={false}
+            value={this.props.filter}
+            options={selectOptions}
+            onChange={this.handleChange}
+          />
+        </div>
 
-          <div className="page-description">
-            {translate('project_activity.page.description')}
-          </div>
-        </header>
+        <div className="page-description">
+          {translate('project_activity.page.description')}
+        </div>
+      </header>
     );
   }
 }

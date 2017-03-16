@@ -31,21 +31,21 @@ export default class Input extends React.Component {
     onChange: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  render () {
+  render() {
     const { definition } = this.props.setting;
 
     if (definition.multiValues) {
-      return <MultiValueInput {...this.props}/>;
+      return <MultiValueInput {...this.props} />;
     }
 
     if (definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput {...this.props}/>;
+      return <PropertySetInput {...this.props} />;
     }
 
-    return <PrimitiveInput {...this.props}/>;
+    return <PrimitiveInput {...this.props} />;
   }
 }

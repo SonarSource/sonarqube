@@ -65,10 +65,10 @@ export const removeNotification = (notification: Notification): RemoveNotificati
 });
 
 export const receiveNotifications = (
-    notifications: NotificationsState,
-    channels: ChannelsState,
-    globalTypes: TypesState,
-    perProjectTypes: TypesState
+  notifications: NotificationsState,
+  channels: ChannelsState,
+  globalTypes: TypesState,
+  perProjectTypes: TypesState
 ): ReceiveNotificationsAction => ({
   type: 'RECEIVE_NOTIFICATIONS',
   notifications,
@@ -78,14 +78,14 @@ export const receiveNotifications = (
 });
 
 const onAddNotification = (state: NotificationsState, notification: Notification) => {
-  const isNotificationsEqual = (a: Notification, b: Notification) => (
-      a.channel === b.channel && a.type === b.type && a.project === b.project
-  );
+  const isNotificationsEqual = (a: Notification, b: Notification) =>
+    a.channel === b.channel && a.type === b.type && a.project === b.project;
   return uniqWith([...state, notification], isNotificationsEqual);
 };
 
 const onRemoveNotification = (state: NotificationsState, notification: Notification) => {
-  return state.filter(n =>
+  return state.filter(
+    n =>
       n.channel !== notification.channel ||
       n.type !== notification.type ||
       n.project !== notification.project
@@ -142,24 +142,21 @@ type State = {
 
 export default combineReducers({ notifications, channels, globalTypes, perProjectTypes });
 
-export const getGlobal = (state: State): NotificationsState => (
-    state.notifications.filter(n => !n.project)
-);
+export const getGlobal = (state: State): NotificationsState =>
+  state.notifications.filter(n => !n.project);
 
-export const getProjects = (state: State): Array<string> => (
-    uniqBy(
-      state.notifications.filter(n => n.project).map(n => ({
-        key: n.project,
-        name: n.projectName,
-        organization: n.organization
-      })),
-      project => project.key
-    )
-);
+export const getProjects = (state: State): Array<string> =>
+  uniqBy(
+    state.notifications.filter(n => n.project).map(n => ({
+      key: n.project,
+      name: n.projectName,
+      organization: n.organization
+    })),
+    project => project.key
+  );
 
-export const getForProject = (state: State, project: string): NotificationsState => (
-    state.notifications.filter(n => n.project === project)
-);
+export const getForProject = (state: State, project: string): NotificationsState =>
+  state.notifications.filter(n => n.project === project);
 
 export const getChannels = (state: State): ChannelsState => state.channels;
 

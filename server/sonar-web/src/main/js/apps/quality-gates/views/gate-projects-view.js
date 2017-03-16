@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 export default Marionette.ItemView.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     const { qualityGate } = this.options;
 
     new window.SelectList({
@@ -33,7 +33,7 @@ export default Marionette.ItemView.extend({
       width: '100%',
       readOnly: !this.options.edit,
       focusSearch: false,
-      format (item) {
+      format(item) {
         return item.name;
       },
       searchUrl: window.baseUrl + '/api/qualitygates/search?gateId=' + qualityGate.id,
@@ -57,7 +57,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canEdit: this.options.edit

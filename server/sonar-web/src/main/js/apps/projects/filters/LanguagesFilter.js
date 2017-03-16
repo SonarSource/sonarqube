@@ -46,10 +46,11 @@ export default class LanguagesFilter extends React.PureComponent {
   renderOption = (option: string) => (
     <SearchableFilterOption
       optionKey={option}
-      option={getLanguageByKey(this.props.languages, option)}/>
+      option={getLanguageByKey(this.props.languages, option)}
+    />
   );
 
-  getSearchOptions (facet: {}, languages: {}) {
+  getSearchOptions(facet: {}, languages: {}) {
     let languageKeys = Object.keys(languages);
     if (facet) {
       languageKeys = difference(languageKeys, Object.keys(facet));
@@ -57,13 +58,13 @@ export default class LanguagesFilter extends React.PureComponent {
     return languageKeys.map(key => ({ label: languages[key].name, value: key }));
   }
 
-  getSortedOptions (facet: {} = {}) {
+  getSortedOptions(facet: {} = {}) {
     return sortBy(Object.keys(facet), [option => -facet[option], option => option]);
   }
 
   getFacetValueForOption = (facet: {} = {}, option: string) => facet[option];
 
-  render () {
+  render() {
     return (
       <Filter
         property={this.property}
@@ -77,7 +78,7 @@ export default class LanguagesFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={<FilterHeader name="Languages"/>}
+        header={<FilterHeader name="Languages" />}
         footer={
           <SearchableFilterFooter
             property={this.property}
@@ -85,8 +86,10 @@ export default class LanguagesFilter extends React.PureComponent {
             options={this.getSearchOptions(this.props.facet, this.props.languages)}
             isFavorite={this.props.isFavorite}
             organization={this.props.organization}
-            router={this.props.router}/>
-        }/>
+            router={this.props.router}
+          />
+        }
+      />
     );
   }
 }

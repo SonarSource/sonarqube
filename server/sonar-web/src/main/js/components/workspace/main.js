@@ -25,7 +25,7 @@ import ViewerView from './views/viewer-view';
 import RuleView from './views/rule-view';
 
 let instance = null;
-const Workspace = function () {
+const Workspace = function() {
   if (instance != null) {
     throw new Error('Cannot instantiate more than one Workspace, use Workspace.getInstance()');
   }
@@ -33,7 +33,7 @@ const Workspace = function () {
 };
 
 Workspace.prototype = {
-  initialize () {
+  initialize() {
     const that = this;
 
     this.items = new Items();
@@ -49,17 +49,17 @@ Workspace.prototype = {
     });
   },
 
-  save () {
+  save() {
     this.items.save();
   },
 
-  addComponent (model) {
+  addComponent(model) {
     const m = this.items.add2(model);
     this.save();
     return m;
   },
 
-  open (options) {
+  open(options) {
     const model = typeof options.toJSON === 'function' ? options : new Item(options);
     if (!model.isValid()) {
       throw new Error(model.validationError);
@@ -73,15 +73,15 @@ Workspace.prototype = {
     }
   },
 
-  openComponent (options) {
-    return this.open({ ...options, '__type__': 'component' });
+  openComponent(options) {
+    return this.open({ ...options, __type__: 'component' });
   },
 
-  openRule (options) {
-    return this.open({ ...options, '__type__': 'rule' });
+  openRule(options) {
+    return this.open({ ...options, __type__: 'rule' });
   },
 
-  showViewer (Viewer, model) {
+  showViewer(Viewer, model) {
     const that = this;
     if (this.viewerView != null) {
       this.viewerView.model.trigger('hideViewer');
@@ -91,41 +91,43 @@ Workspace.prototype = {
     model.trigger('showViewer');
     this.viewerView = new Viewer({ model });
     this.viewerView
-        .on('viewerMinimize', () => {
-          model.trigger('hideViewer');
-          that.closeComponentViewer();
-        })
-        .on('viewerClose', m => {
-          that.closeComponentViewer();
-          m.destroy();
-        });
+      .on('viewerMinimize', () => {
+        model.trigger('hideViewer');
+        that.closeComponentViewer();
+      })
+      .on('viewerClose', m => {
+        that.closeComponentViewer();
+        m.destroy();
+      });
     this.viewerView.$el.appendTo(document.body);
     this.viewerView.render();
   },
 
-  showComponentViewer (model) {
+  showComponentViewer(model) {
     this.showViewer(ViewerView, model);
   },
 
-  closeComponentViewer () {
+  closeComponentViewer() {
     if (this.viewerView != null) {
       this.viewerView.destroy();
       $('.with-workspace').removeClass('with-workspace');
     }
   },
 
-  showRule (model) {
+  showRule(model) {
     const that = this;
-    this.fetchRule(model).done(() => {
-      model.set({ exist: true });
-      that.showViewer(RuleView, model);
-    }).fail(() => {
-      model.set({ exist: false });
-      that.showViewer(RuleView, model);
-    });
+    this.fetchRule(model)
+      .done(() => {
+        model.set({ exist: true });
+        that.showViewer(RuleView, model);
+      })
+      .fail(() => {
+        model.set({ exist: false });
+        that.showViewer(RuleView, model);
+      });
   },
 
-  fetchRule (model) {
+  fetchRule(model) {
     const url = window.baseUrl + '/api/rules/show';
     const options = { key: model.get('key') };
     return $.get(url, options).done(r => {
@@ -134,7 +136,7 @@ Workspace.prototype = {
   }
 };
 
-Workspace.getInstance = function () {
+Workspace.getInstance = function() {
   if (instance == null) {
     instance = new Workspace();
   }

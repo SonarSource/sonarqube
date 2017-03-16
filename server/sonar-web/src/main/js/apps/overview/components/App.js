@@ -38,7 +38,7 @@ class App extends React.Component {
   props: Props;
   state: Object;
 
-  componentDidMount () {
+  componentDidMount() {
     if (['VW', 'SVW'].includes(this.props.component.qualifier)) {
       this.props.router.replace({
         pathname: '/view',
@@ -47,30 +47,26 @@ class App extends React.Component {
     }
   }
 
-  shouldComponentUpdate (nextProps: Props) {
+  shouldComponentUpdate(nextProps: Props) {
     return shallowCompare(this, nextProps);
   }
 
-  render () {
+  render() {
     const { component } = this.props;
 
     if (['FIL', 'UTS'].includes(component.qualifier)) {
       return (
-          <div className="page">
-            <SourceViewer component={component.key}/>
-          </div>
+        <div className="page">
+          <SourceViewer component={component.key} />
+        </div>
       );
     }
 
     if (!component.snapshotDate) {
-      return <EmptyOverview {...this.props}/>;
+      return <EmptyOverview {...this.props} />;
     }
 
-    return (
-        <OverviewApp
-            {...this.props}
-            leakPeriodIndex="1"/>
-    );
+    return <OverviewApp {...this.props} leakPeriodIndex="1" />;
   }
 }
 

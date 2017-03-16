@@ -39,23 +39,26 @@ export default PopupView.extend({
     'click @ui.submitButton': 'submit'
   },
 
-  onRender () {
+  onRender() {
     const that = this;
     PopupView.prototype.onRender.apply(this, arguments);
-    setTimeout(() => {
-      that.ui.textarea.focus();
-    }, 100);
+    setTimeout(
+      () => {
+        that.ui.textarea.focus();
+      },
+      100
+    );
   },
 
-  toggleSubmit () {
+  toggleSubmit() {
     this.ui.submitButton.prop('disabled', this.ui.textarea.val().length === 0);
   },
 
-  onClick (e) {
+  onClick(e) {
     e.stopPropagation();
   },
 
-  onKeydown (e) {
+  onKeydown(e) {
     if (e.keyCode === 27) {
       this.destroy();
     }
@@ -64,19 +67,19 @@ export default PopupView.extend({
     }
   },
 
-  cancel () {
+  cancel() {
     this.options.detailView.updateAfterAction();
   },
 
-  disableForm () {
+  disableForm() {
     this.$(':input').prop('disabled', true);
   },
 
-  enableForm () {
+  enableForm() {
     this.$(':input').prop('disabled', false);
   },
 
-  submit () {
+  submit() {
     const text = this.ui.textarea.val();
 
     if (!text.length) {
@@ -94,15 +97,13 @@ export default PopupView.extend({
     }
     this.disableForm();
     this.options.detailView.disableControls();
-    $.post(url, data)
-        .done(r => this.options.detailView.updateAfterAction(r))
-        .fail(() => {
-          this.enableForm();
-          this.options.detailView.enableControls();
-        });
+    $.post(url, data).done(r => this.options.detailView.updateAfterAction(r)).fail(() => {
+      this.enableForm();
+      this.options.detailView.enableControls();
+    });
   },
 
-  serializeData () {
+  serializeData() {
     const options = { fromTransition: false, ...this.options.additionalOptions };
     return {
       ...PopupView.prototype.serializeData.apply(this, arguments),
@@ -110,4 +111,3 @@ export default PopupView.extend({
     };
   }
 });
-

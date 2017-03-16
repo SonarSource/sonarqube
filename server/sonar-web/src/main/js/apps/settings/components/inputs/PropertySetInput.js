@@ -28,15 +28,15 @@ export default class PropertySetInput extends React.Component {
     onChange: React.PropTypes.func.isRequired
   };
 
-  ensureValue () {
+  ensureValue() {
     return this.props.value || [];
   }
 
-  getFieldName (field) {
+  getFieldName(field) {
     return getUniqueName(this.props.setting.definition, field.key);
   }
 
-  handleDeleteValue (e, index) {
+  handleDeleteValue(e, index) {
     e.preventDefault();
     e.target.blur();
 
@@ -45,7 +45,7 @@ export default class PropertySetInput extends React.Component {
     this.props.onChange(newValue);
   }
 
-  handleInputChange (index, fieldKey, value) {
+  handleInputChange(index, fieldKey, value) {
     const emptyValue = getEmptyValue(this.props.setting.definition)[0];
     const newValue = [...this.ensureValue()];
     const newFields = { ...emptyValue, ...newValue[index], [fieldKey]: value };
@@ -53,58 +53,63 @@ export default class PropertySetInput extends React.Component {
     return this.props.onChange(newValue);
   }
 
-  renderFields (fieldValues, index, isLast) {
+  renderFields(fieldValues, index, isLast) {
     const { setting } = this.props;
 
     return (
-        <tr key={index}>
-          {setting.definition.fields.map(field => (
-              <td key={field.key}>
-                <PrimitiveInput
-                    name={this.getFieldName(field)}
-                    setting={{ definition: field, value: fieldValues[field.key] }}
-                    value={fieldValues[field.key]}
-                    onChange={this.handleInputChange.bind(this, index, field.key)}/>
-              </td>
-          ))}
-          <td className="thin nowrap">
-            {!isLast && (
-                <button className="js-remove-value button-link" onClick={e => this.handleDeleteValue(e, index)}>
-                  <i className="icon-delete"/>
-                </button>
-            )}
+      <tr key={index}>
+        {setting.definition.fields.map(field => (
+          <td key={field.key}>
+            <PrimitiveInput
+              name={this.getFieldName(field)}
+              setting={{ definition: field, value: fieldValues[field.key] }}
+              value={fieldValues[field.key]}
+              onChange={this.handleInputChange.bind(this, index, field.key)}
+            />
           </td>
-        </tr>
+        ))}
+        <td className="thin nowrap">
+          {!isLast &&
+            <button
+              className="js-remove-value button-link"
+              onClick={e => this.handleDeleteValue(e, index)}
+            >
+              <i className="icon-delete" />
+            </button>}
+        </td>
+      </tr>
     );
   }
 
-  render () {
+  render() {
     const { setting } = this.props;
 
     const displayedValue = [...this.ensureValue(), ...getEmptyValue(this.props.setting.definition)];
 
     return (
-        <div>
-          <table className="data zebra-hover no-outer-padding" style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
-            <thead>
-              <tr>
-                {setting.definition.fields.map(field => (
-                    <th key={field.key}>
-                      {field.name}
-                      {field.description != null && (
-                          <span className="spacer-top small">{field.description}</span>
-                      )}
-                    </th>
-                ))}
-                <th>&nbsp;</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedValue.map((fieldValues, index) =>
-                  this.renderFields(fieldValues, index, index === displayedValue.length - 1))}
-            </tbody>
-          </table>
-        </div>
+      <div>
+        <table
+          className="data zebra-hover no-outer-padding"
+          style={{ width: 'auto', minWidth: 480, marginTop: -12 }}
+        >
+          <thead>
+            <tr>
+              {setting.definition.fields.map(field => (
+                <th key={field.key}>
+                  {field.name}
+                  {field.description != null &&
+                    <span className="spacer-top small">{field.description}</span>}
+                </th>
+              ))}
+              <th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayedValue.map((fieldValues, index) =>
+              this.renderFields(fieldValues, index, index === displayedValue.length - 1))}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

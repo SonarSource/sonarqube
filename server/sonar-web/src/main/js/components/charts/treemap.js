@@ -24,12 +24,9 @@ import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 import { translate } from '../../helpers/l10n';
 
-const SIZE_SCALE = d3.scale.linear()
-    .domain([3, 15])
-    .range([11, 18])
-    .clamp(true);
+const SIZE_SCALE = d3.scale.linear().domain([3, 15]).range([11, 18]).clamp(true);
 
-function mostCommitPrefix (strings) {
+function mostCommitPrefix(strings) {
   const sortedStrings = strings.slice(0).sort();
   const firstString = sortedStrings[0];
   const firstStringLength = firstString.length;
@@ -55,7 +52,7 @@ export const TreemapRect = React.createClass({
     onClick: React.PropTypes.func
   },
 
-  renderLink () {
+  renderLink() {
     if (!this.props.link) {
       return null;
     }
@@ -65,16 +62,18 @@ export const TreemapRect = React.createClass({
     }
 
     return (
-        <a onClick={e => e.stopPropagation()}
-           className="treemap-link"
-           href={this.props.link}
-           style={{ fontSize: 12 }}>
-          <span className="icon-link"/>
-        </a>
+      <a
+        onClick={e => e.stopPropagation()}
+        className="treemap-link"
+        href={this.props.link}
+        style={{ fontSize: 12 }}
+      >
+        <span className="icon-link" />
+      </a>
     );
   },
 
-  render () {
+  render() {
     let tooltipAttrs = {};
     if (this.props.tooltip) {
       tooltipAttrs = {
@@ -95,17 +94,19 @@ export const TreemapRect = React.createClass({
     const isTextVisible = this.props.width >= 40 && this.props.height >= 40;
     /* eslint-disable jsx-a11y/onclick-has-focus, jsx-a11y/onclick-has-role */
     return (
+      <div
+        className="treemap-cell"
+        {...tooltipAttrs}
+        style={cellStyles}
+        onClick={this.props.onClick}
+      >
         <div
-            className="treemap-cell"
-            {...tooltipAttrs}
-            style={cellStyles}
-            onClick={this.props.onClick}>
-          <div
-              className="treemap-inner"
-              dangerouslySetInnerHTML={{ __html: this.props.label }}
-              style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible' : 'hidden' }}/>
-          {this.renderLink()}
-        </div>
+          className="treemap-inner"
+          dangerouslySetInnerHTML={{ __html: this.props.label }}
+          style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible' : 'hidden' }}
+        />
+        {this.renderLink()}
+      </div>
     );
   }
 });
@@ -119,22 +120,25 @@ export const Treemap = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getInitialState () {
+  getInitialState() {
     return { width: this.props.width, height: this.props.height };
   },
 
-  renderWhenNoData () {
+  renderWhenNoData() {
     return (
-        <div className="sonar-d3">
-          <div className="treemap-container" style={{ width: this.state.width, height: this.state.height }}>
-            {translate('no_data')}
-          </div>
-          <TreemapBreadcrumbs {...this.props}/>
+      <div className="sonar-d3">
+        <div
+          className="treemap-container"
+          style={{ width: this.state.width, height: this.state.height }}
+        >
+          {translate('no_data')}
         </div>
+        <TreemapBreadcrumbs {...this.props} />
+      </div>
     );
   },
 
-  render () {
+  render() {
     if (!this.state.width || !this.state.height) {
       return <div>&nbsp;</div>;
     }
@@ -143,15 +147,16 @@ export const Treemap = React.createClass({
       return this.renderWhenNoData();
     }
 
-    const treemap = d3.layout.treemap()
-        .round(true)
-        .value(d => d.size)
-        .sort((a, b) => a.value - b.value)
-        .size([this.state.width, this.state.height]);
+    const treemap = d3.layout
+      .treemap()
+      .round(true)
+      .value(d => d.size)
+      .sort((a, b) => a.value - b.value)
+      .size([this.state.width, this.state.height]);
     const nodes = treemap
-        .nodes({ children: this.props.items })
-        .filter(d => !d.children)
-        .filter(d => !!d.dx && !!d.dy);
+      .nodes({ children: this.props.items })
+      .filter(d => !d.children)
+      .filter(d => !!d.dx && !!d.dy);
 
     const prefix = mostCommitPrefix(this.props.items.map(item => item.label));
     const prefixLength = prefix.length;
@@ -159,30 +164,36 @@ export const Treemap = React.createClass({
     const rectangles = nodes.map(node => {
       const key = node.label;
       const label = prefixLength ? `${prefix}<br>${node.label.substr(prefixLength)}` : node.label;
-      const onClick = this.props.canBeClicked(node) ? () => this.props.onRectangleClick(node) : null;
+      const onClick = this.props.canBeClicked(node)
+        ? () => this.props.onRectangleClick(node)
+        : null;
       return (
-          <TreemapRect
-              key={key}
-              x={node.x}
-              y={node.y}
-              width={node.dx}
-              height={node.dy}
-              fill={node.color}
-              label={label}
-              prefix={prefix}
-              tooltip={node.tooltip}
-              link={node.link}
-              onClick={onClick}/>
+        <TreemapRect
+          key={key}
+          x={node.x}
+          y={node.y}
+          width={node.dx}
+          height={node.dy}
+          fill={node.color}
+          label={label}
+          prefix={prefix}
+          tooltip={node.tooltip}
+          link={node.link}
+          onClick={onClick}
+        />
       );
     });
 
     return (
-        <div className="sonar-d3">
-          <div className="treemap-container" style={{ width: this.state.width, height: this.state.height }}>
-            {rectangles}
-          </div>
-          <TreemapBreadcrumbs {...this.props}/>
+      <div className="sonar-d3">
+        <div
+          className="treemap-container"
+          style={{ width: this.state.width, height: this.state.height }}
+        >
+          {rectangles}
         </div>
+        <TreemapBreadcrumbs {...this.props} />
+      </div>
     );
   }
 });

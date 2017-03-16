@@ -26,46 +26,46 @@ import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
 export default Marionette.ItemView.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       'submit .js-generate-token-form': 'onGenerateTokenFormSubmit',
       'submit .js-revoke-token-form': 'onRevokeTokenFormSubmit'
     };
   },
 
-  initialize () {
+  initialize() {
     this.tokens = null;
     this.newToken = null;
     this.errors = [];
     this.requestTokens();
   },
 
-  requestTokens () {
+  requestTokens() {
     return getTokens(this.model.id).then(tokens => {
       this.tokens = tokens;
       this.render();
     });
   },
 
-  onGenerateTokenFormSubmit (e) {
+  onGenerateTokenFormSubmit(e) {
     e.preventDefault();
     this.errors = [];
     this.newToken = null;
     const tokenName = this.$('.js-generate-token-form input').val();
     generateToken(this.model.id, tokenName)
-        .then(response => {
-          this.newToken = response;
-          this.requestTokens();
-        })
-        .catch(error => {
-          error.response.json().then(response => {
-            this.errors = response.errors;
-            this.render();
-          });
+      .then(response => {
+        this.newToken = response;
+        this.requestTokens();
+      })
+      .catch(error => {
+        error.response.json().then(response => {
+          this.errors = response.errors;
+          this.render();
         });
+      });
   },
 
-  onRevokeTokenFormSubmit (e) {
+  onRevokeTokenFormSubmit(e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
     const token = this.tokens.find(token => token.name === `${tokenName}`);
@@ -79,19 +79,21 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  onRender () {
+  onRender() {
     const copyButton = this.$('.js-copy-to-clipboard');
     if (copyButton.length) {
       const clipboard = new Clipboard(copyButton.get(0));
       clipboard.on('success', () => {
-        copyButton.tooltip({ title: 'Copied!', placement: 'bottom', trigger: 'manual' }).tooltip('show');
+        copyButton
+          .tooltip({ title: 'Copied!', placement: 'bottom', trigger: 'manual' })
+          .tooltip('show');
         setTimeout(() => copyButton.tooltip('hide'), 1000);
       });
     }
     this.newToken = null;
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       tokens: this.tokens,
@@ -99,5 +101,4 @@ export default Marionette.ItemView.extend({
       errors: this.errors
     };
   }
-
 });

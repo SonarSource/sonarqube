@@ -22,9 +22,9 @@ import { translate } from '../../../../helpers/l10n';
 
 const EmptyComponentsList = () => {
   return (
-      <div className="note">
-        {translate('no_results')}
-      </div>
+    <div className="note">
+      {translate('no_results')}
+    </div>
   );
 };
 

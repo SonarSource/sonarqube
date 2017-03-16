@@ -32,7 +32,7 @@ import FacetsView from './facets-view';
 import HeaderView from './HeaderView';
 
 const App = new Marionette.Application();
-const init = function ({ el, user }) {
+const init = function({ el, user }) {
   this.state = new State({ user, canBulkChange: user.isLoggedIn });
   this.list = new Issues();
   this.facets = new Facets();
@@ -76,7 +76,7 @@ App.on('start', el => {
   init.call(App, el);
 });
 
-export default function (el, user) {
+export default function(el, user) {
   App.start({ el, user });
 
   return () => {
@@ -85,4 +85,3 @@ export default function (el, user) {
     $('#footer').removeClass('search-navigator-footer');
   };
 }
-

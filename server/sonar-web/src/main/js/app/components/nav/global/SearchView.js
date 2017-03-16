@@ -31,7 +31,10 @@ import { translate } from '../../../../helpers/l10n';
 import { isUserAdmin } from '../../../../helpers/users';
 import { getFavorites } from '../../../../api/favorites';
 import { getSuggestions } from '../../../../api/components';
-import { getOrganization, areThereCustomOrganizations } from '../../../../store/organizations/utils';
+import {
+  getOrganization,
+  areThereCustomOrganizations
+} from '../../../../store/organizations/utils';
 
 type Finding = {
   name: string,
@@ -45,19 +48,19 @@ const SearchItemView = Marionette.ItemView.extend({
   tagName: 'li',
   template: SearchItemTemplate,
 
-  select () {
+  select() {
     this.$el.addClass('active');
   },
 
-  deselect () {
+  deselect() {
     this.$el.removeClass('active');
   },
 
-  submit () {
+  submit() {
     this.$('a')[0].click();
   },
 
-  onRender () {
+  onRender() {
     this.$('[data-toggle="tooltip"]').tooltip({
       container: 'body',
       html: true,
@@ -66,11 +69,11 @@ const SearchItemView = Marionette.ItemView.extend({
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       index: this.options.index
@@ -105,7 +108,7 @@ export default Marionette.LayoutView.extend({
     'keyup .js-search-input': 'onKeyUp'
   },
 
-  initialize () {
+  initialize() {
     this.results = new Backbone.Collection();
     this.favorite = [];
     if (this.model.get('currentUser').isLoggedIn) {
@@ -121,15 +124,18 @@ export default Marionette.LayoutView.extend({
     this._bufferedValue = '';
   },
 
-  onRender () {
+  onRender() {
     const that = this;
     this.resultsRegion.show(this.resultsView);
-    setTimeout(() => {
-      that.$('.js-search-input').focus();
-    }, 0);
+    setTimeout(
+      () => {
+        that.$('.js-search-input').focus();
+      },
+      0
+    );
   },
 
-  onKeyDown (e) {
+  onKeyDown(e) {
     if (e.keyCode === 38) {
       this.resultsView.selectPrev();
       return false;
@@ -149,7 +155,7 @@ export default Marionette.LayoutView.extend({
     }
   },
 
-  onKeyUp () {
+  onKeyUp() {
     const value = this.$('.js-search-input').val();
     if (value === this._bufferedValue) {
       return;
@@ -158,18 +164,21 @@ export default Marionette.LayoutView.extend({
     this.searchRequest = this.debouncedSearch(value);
   },
 
-  onSubmit () {
+  onSubmit() {
     return false;
   },
 
-  fetchFavorite (): Promise<*> {
+  fetchFavorite(): Promise<*> {
     const customOrganizations = areThereCustomOrganizations();
     return getFavorites().then(r => {
       this.favorite = r.favorites.map(f => {
         const showOrganization = customOrganizations && f.organization != null;
         const organization = showOrganization ? getOrganization(f.organization) : null;
         return {
-          url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
+          url: window.baseUrl +
+            '/dashboard/index?id=' +
+            encodeURIComponent(f.key) +
+            window.dashboardParameters(true),
           name: f.name,
           icon: 'favorite',
           organization
@@ -179,12 +188,14 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  resetResultsToDefault () {
+  resetResultsToDefault() {
     const recentHistory = RecentHistory.get();
     const customOrganizations = areThereCustomOrganizations();
     const history = recentHistory.map((historyItem, index) => {
-      const url = window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
-          window.dashboardParameters(true);
+      const url = window.baseUrl +
+        '/dashboard/index?id=' +
+        encodeURIComponent(historyItem.key) +
+        window.dashboardParameters(true);
       const showOrganization = customOrganizations && historyItem.organization != null;
       // $FlowFixMe flow doesn't check the above condition on `historyItem.organization != null`
       const organization = showOrganization ? getOrganization(historyItem.organization) : null;
@@ -202,7 +213,7 @@ export default Marionette.LayoutView.extend({
     this.results.reset([].concat(history, favorite));
   },
 
-  search (q) {
+  search(q) {
     if (q.length < 2) {
       this.resetResultsToDefault();
       return;
@@ -219,8 +230,9 @@ export default Marionette.LayoutView.extend({
       const collection = [];
       r.results.forEach(({ items, q }) => {
         items.forEach((item, index) => {
-          const showOrganization = customOrganizations && item.organization != null &&
-              SHOW_ORGANIZATION_FOR_QUALIFIERS.includes(q);
+          const showOrganization = customOrganizations &&
+            item.organization != null &&
+            SHOW_ORGANIZATION_FOR_QUALIFIERS.includes(q);
           const organization = showOrganization ? getOrganization(item.organization) : null;
           collection.push({
             ...item,
@@ -240,10 +252,13 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  getNavigationFindings (q) {
+  getNavigationFindings(q) {
     const DEFAULT_ITEMS = [
       { name: translate('issues.page'), url: window.baseUrl + '/issues/search' },
-      { name: translate('layout.measures'), url: window.baseUrl + '/measures/search?qualifiers[]=TRK' },
+      {
+        name: translate('layout.measures'),
+        url: window.baseUrl + '/measures/search?qualifiers[]=TRK'
+      },
       { name: translate('coding_rules.page'), url: window.baseUrl + '/coding_rules' },
       { name: translate('quality_profiles.page'), url: window.baseUrl + '/profiles' },
       { name: translate('quality_gates.page'), url: window.baseUrl + '/quality_gates' }
@@ -261,10 +276,13 @@ export default Marionette.LayoutView.extend({
     return findings.slice(0, 6);
   },
 
-  getGlobalDashboardFindings (q) {
+  getGlobalDashboardFindings(q) {
     const dashboards = this.model.get('globalDashboards') || [];
     const items = dashboards.map(d => {
-      return { name: d.name, url: window.baseUrl + '/dashboard/index?did=' + encodeURIComponent(d.key) };
+      return {
+        name: d.name,
+        url: window.baseUrl + '/dashboard/index?did=' + encodeURIComponent(d.key)
+      };
     });
     const findings = items.filter(f => {
       return f.name.match(new RegExp(q, 'i'));
@@ -275,7 +293,7 @@ export default Marionette.LayoutView.extend({
     return findings.slice(0, 6);
   },
 
-  getFavoriteFindings (q) {
+  getFavoriteFindings(q) {
     const findings = this.favorite.filter(f => {
       return f.name.match(new RegExp(q, 'i'));
     });

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export const SET_STATE = 'qualityGates/SET_STATE';
-export function setState (nextState) {
+export function setState(nextState) {
   return {
     type: SET_STATE,
     nextState
@@ -26,7 +26,7 @@ export function setState (nextState) {
 }
 
 export const ADD = 'qualityGates/ADD';
-export function addQualityGate (qualityGate) {
+export function addQualityGate(qualityGate) {
   return {
     type: ADD,
     qualityGate
@@ -34,7 +34,7 @@ export function addQualityGate (qualityGate) {
 }
 
 export const DELETE = 'qualityGates/DELETE';
-export function deleteQualityGate (qualityGate) {
+export function deleteQualityGate(qualityGate) {
   return {
     type: DELETE,
     qualityGate
@@ -42,7 +42,7 @@ export function deleteQualityGate (qualityGate) {
 }
 
 export const SHOW = 'qualityGates/SHOW';
-export function showQualityGate (qualityGate) {
+export function showQualityGate(qualityGate) {
   return {
     type: SHOW,
     qualityGate
@@ -50,7 +50,7 @@ export function showQualityGate (qualityGate) {
 }
 
 export const RENAME = 'qualityGates/RENAME';
-export function renameQualityGate (qualityGate, newName) {
+export function renameQualityGate(qualityGate, newName) {
   return {
     type: RENAME,
     qualityGate,
@@ -59,7 +59,7 @@ export function renameQualityGate (qualityGate, newName) {
 }
 
 export const COPY = 'qualityGates/COPY';
-export function copyQualityGate (qualityGate) {
+export function copyQualityGate(qualityGate) {
   return {
     type: COPY,
     qualityGate
@@ -67,7 +67,7 @@ export function copyQualityGate (qualityGate) {
 }
 
 export const SET_AS_DEFAULT = 'SET_AS_DEFAULT';
-export function setQualityGateAsDefault (qualityGate) {
+export function setQualityGateAsDefault(qualityGate) {
   return {
     type: SET_AS_DEFAULT,
     qualityGate
@@ -75,7 +75,7 @@ export function setQualityGateAsDefault (qualityGate) {
 }
 
 export const UNSET_AS_DEFAULT = 'qualityGates/UNSET_AS_DEFAULT';
-export function unsetQualityGateAsDefault (qualityGate) {
+export function unsetQualityGateAsDefault(qualityGate) {
   return {
     type: UNSET_AS_DEFAULT,
     qualityGate
@@ -83,7 +83,7 @@ export function unsetQualityGateAsDefault (qualityGate) {
 }
 
 export const ADD_CONDITION = 'qualityGates/ADD_CONDITION';
-export function addCondition (metric) {
+export function addCondition(metric) {
   return {
     type: ADD_CONDITION,
     metric
@@ -91,7 +91,7 @@ export function addCondition (metric) {
 }
 
 export const SAVE_CONDITION = 'qualityGates/SAVE_CONDITION';
-export function saveCondition (oldCondition, newCondition) {
+export function saveCondition(oldCondition, newCondition) {
   return {
     type: SAVE_CONDITION,
     oldCondition,
@@ -100,7 +100,7 @@ export function saveCondition (oldCondition, newCondition) {
 }
 
 export const DELETE_CONDITION = 'qualityGates/DELETE_CONDITION';
-export function deleteCondition (condition) {
+export function deleteCondition(condition) {
   return {
     type: DELETE_CONDITION,
     condition

@@ -35,18 +35,18 @@ class SearchFilterContainer extends React.Component {
   handleSearch: (userQuery?: string) => void;
   props: Props;
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  handleSearch (userQuery?: string) {
+  handleSearch(userQuery?: string) {
     const path = getFilterUrl(this.props, { search: userQuery || null });
     this.props.router.push(path);
   }
 
-  render () {
-    return <SearchFilter query={this.props.query} handleSearch={this.handleSearch}/>;
+  render() {
+    return <SearchFilter query={this.props.query} handleSearch={this.handleSearch} />;
   }
 }
 

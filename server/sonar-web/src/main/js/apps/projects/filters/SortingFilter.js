@@ -39,7 +39,7 @@ export default class SortingFilter extends React.PureComponent {
     rightText: translate('best')
   };
 
-  isSortActive (side) {
+  isSortActive(side) {
     const { sort } = this.props.query;
     if (sort && sort[0] === '-') {
       return sort.substr(1) === this.props.property && side === this.props.sortDesc;
@@ -48,13 +48,13 @@ export default class SortingFilter extends React.PureComponent {
     }
   }
 
-  getLinkClass (side) {
+  getLinkClass(side) {
     return classNames('button button-small button-grey', {
       'button-active': this.isSortActive(side)
     });
   }
 
-  getLinkPath (side) {
+  getLinkPath(side) {
     if (this.isSortActive(side)) {
       return getFilterUrl(this.props, { sort: null });
     }
@@ -63,11 +63,11 @@ export default class SortingFilter extends React.PureComponent {
     });
   }
 
-  blurLink (event) {
+  blurLink(event) {
     event.target.blur();
   }
 
-  render () {
+  render() {
     const { leftText, rightText } = this.props;
 
     return (
@@ -77,13 +77,15 @@ export default class SortingFilter extends React.PureComponent {
           <Link
             onClick={this.blurLink}
             className={this.getLinkClass('left')}
-            to={this.getLinkPath('left')}>
+            to={this.getLinkPath('left')}
+          >
             {leftText}
           </Link>
           <Link
             onClick={this.blurLink}
             className={this.getLinkClass('right')}
-            to={this.getLinkPath('right')}>
+            to={this.getLinkPath('right')}
+          >
             {rightText}
           </Link>
         </div>

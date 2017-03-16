@@ -22,29 +22,17 @@ import { shallow } from 'enzyme';
 import SearchFilter from '../SearchFilter';
 
 it('should render correctly without any search query', () => {
-  const wrapper = shallow(
-    <SearchFilter
-        handleSearch={() => {}}
-        query={{ search: null }}/>
-  );
+  const wrapper = shallow(<SearchFilter handleSearch={() => {}} query={{ search: null }} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render with a search query', () => {
-  const wrapper = shallow(
-    <SearchFilter
-        handleSearch={() => {}}
-        query={{ search: 'foo' }}/>
-  );
+  const wrapper = shallow(<SearchFilter handleSearch={() => {}} query={{ search: 'foo' }} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display a help message when there is less than 2 characters', () => {
-  const wrapper = shallow(
-    <SearchFilter
-        handleSearch={() => {}}
-        query={{ search: 'a' }}/>
-  );
+  const wrapper = shallow(<SearchFilter handleSearch={() => {}} query={{ search: 'a' }} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ userQuery: 'foo' });
   expect(wrapper).toMatchSnapshot();

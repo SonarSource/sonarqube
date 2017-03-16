@@ -38,51 +38,56 @@ export default class ProfileActions extends React.Component {
     router: React.PropTypes.object
   };
 
-  handleRenameClick (e) {
+  handleRenameClick(e) {
     e.preventDefault();
     new RenameProfileView({
       profile: this.props.profile
-    }).on('done', () => {
-      this.props.updateProfiles();
-    }).render();
+    })
+      .on('done', () => {
+        this.props.updateProfiles();
+      })
+      .render();
   }
 
-  handleCopyClick (e) {
+  handleCopyClick(e) {
     e.preventDefault();
     new CopyProfileView({
       profile: this.props.profile
-    }).on('done', profile => {
-      this.props.updateProfiles().then(() => {
-        this.context.router.push({
-          pathname: '/profiles/show',
-          query: { key: profile.key }
+    })
+      .on('done', profile => {
+        this.props.updateProfiles().then(() => {
+          this.context.router.push({
+            pathname: '/profiles/show',
+            query: { key: profile.key }
+          });
         });
-      });
-    }).render();
+      })
+      .render();
   }
 
-  handleSetDefaultClick (e) {
+  handleSetDefaultClick(e) {
     e.preventDefault();
-    setDefaultProfile(this.props.profile.key)
-        .then(this.props.updateProfiles);
+    setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles);
   }
 
-  handleDeleteClick (e) {
+  handleDeleteClick(e) {
     e.preventDefault();
     new DeleteProfileView({
       profile: this.props.profile
-    }).on('done', () => {
-      this.context.router.replace('/profiles');
-      this.props.updateProfiles();
-    }).render();
+    })
+      .on('done', () => {
+        this.context.router.replace('/profiles');
+        this.props.updateProfiles();
+      })
+      .render();
   }
 
-  render () {
+  render() {
     const { profile, canAdmin } = this.props;
 
     const backupUrl = window.baseUrl +
-        '/api/qualityprofiles/backup?profileKey=' +
-        encodeURIComponent(profile.key);
+      '/api/qualityprofiles/backup?profileKey=' +
+      encodeURIComponent(profile.key);
 
     const activateMoreUrl = getRulesUrl({
       qprofile: profile.key,
@@ -90,63 +95,57 @@ export default class ProfileActions extends React.Component {
     });
 
     return (
-        <ul className="dropdown-menu dropdown-menu-right">
-          {canAdmin && (
-              <li>
-                <Link to={activateMoreUrl}>
-                  {translate('quality_profiles.activate_more_rules')}
-                </Link>
-              </li>
-          )}
+      <ul className="dropdown-menu dropdown-menu-right">
+        {canAdmin &&
           <li>
-            <a id="quality-profile-backup" href={backupUrl}>
-              {translate('backup_verb')}
-            </a>
-          </li>
-          <li>
-            <Link
-                to={{ pathname: '/profiles/compare', query: { key: profile.key } }}
-                id="quality-profile-compare">
-              {translate('compare')}
+            <Link to={activateMoreUrl}>
+              {translate('quality_profiles.activate_more_rules')}
             </Link>
-          </li>
-          {canAdmin && (
-              <li>
-                <a id="quality-profile-copy"
-                   href="#"
-                   onClick={this.handleCopyClick.bind(this)}>
-                  {translate('copy')}
-                </a>
-              </li>
-          )}
-          {canAdmin && (
-              <li>
-                <a id="quality-profile-rename"
-                   href="#"
-                   onClick={this.handleRenameClick.bind(this)}>
-                  {translate('rename')}
-                </a>
-              </li>
-          )}
-          {canAdmin && !profile.isDefault && (
-              <li>
-                <a id="quality-profile-set-as-default"
-                   href="#"
-                   onClick={this.handleSetDefaultClick.bind(this)}>
-                  {translate('set_as_default')}
-                </a>
-              </li>
-          )}
-          {canAdmin && !profile.isDefault && (
-              <li>
-                <a id="quality-profile-delete"
-                   href="#"
-                   onClick={this.handleDeleteClick.bind(this)}>
-                  {translate('delete')}
-                </a>
-              </li>
-          )}
-        </ul>
+          </li>}
+        <li>
+          <a id="quality-profile-backup" href={backupUrl}>
+            {translate('backup_verb')}
+          </a>
+        </li>
+        <li>
+          <Link
+            to={{ pathname: '/profiles/compare', query: { key: profile.key } }}
+            id="quality-profile-compare"
+          >
+            {translate('compare')}
+          </Link>
+        </li>
+        {canAdmin &&
+          <li>
+            <a id="quality-profile-copy" href="#" onClick={this.handleCopyClick.bind(this)}>
+              {translate('copy')}
+            </a>
+          </li>}
+        {canAdmin &&
+          <li>
+            <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick.bind(this)}>
+              {translate('rename')}
+            </a>
+          </li>}
+        {canAdmin &&
+          !profile.isDefault &&
+          <li>
+            <a
+              id="quality-profile-set-as-default"
+              href="#"
+              onClick={this.handleSetDefaultClick.bind(this)}
+            >
+              {translate('set_as_default')}
+            </a>
+          </li>}
+        {canAdmin &&
+          !profile.isDefault &&
+          <li>
+            <a id="quality-profile-delete" href="#" onClick={this.handleDeleteClick.bind(this)}>
+              {translate('delete')}
+            </a>
+          </li>}
+      </ul>
     );
   }
 }

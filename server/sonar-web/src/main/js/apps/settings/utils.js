@@ -18,41 +18,46 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, hasMessage } from '../../helpers/l10n';
-import { TYPE_PROPERTY_SET, TYPE_BOOLEAN, TYPE_SINGLE_SELECT_LIST, TYPE_PASSWORD } from './constants';
+import {
+  TYPE_PROPERTY_SET,
+  TYPE_BOOLEAN,
+  TYPE_SINGLE_SELECT_LIST,
+  TYPE_PASSWORD
+} from './constants';
 
 export const DEFAULT_CATEGORY = 'general';
 
-export function getPropertyName (definition) {
+export function getPropertyName(definition) {
   const key = `property.${definition.key}.name`;
   return hasMessage(key) ? translate(key) : definition.name;
 }
 
-export function getPropertyDescription (definition) {
+export function getPropertyDescription(definition) {
   const key = `property.${definition.key}.description`;
   return hasMessage(key) ? translate(key) : definition.description;
 }
 
-export function getCategoryName (category) {
+export function getCategoryName(category) {
   const key = `property.category.${category}`;
   return hasMessage(key) ? translate(key) : category;
 }
 
-export function getSubCategoryName (category, subCategory) {
+export function getSubCategoryName(category, subCategory) {
   const key = `property.category.${category}.${subCategory}`;
   return hasMessage(key) ? translate(key) : getCategoryName(subCategory);
 }
 
-export function getSubCategoryDescription (category, subCategory) {
+export function getSubCategoryDescription(category, subCategory) {
   const key = `property.category.${category}.${subCategory}.description`;
   return hasMessage(key) ? translate(key) : null;
 }
 
-export function getUniqueName (definition, index = null) {
+export function getUniqueName(definition, index = null) {
   const indexSuffix = index != null ? `[${index}]` : '';
   return `settings[${definition.key}]${indexSuffix}`;
 }
 
-export function getSettingValue (setting) {
+export function getSettingValue(setting) {
   if (setting.definition.multiValues) {
     return setting.values;
   } else if (setting.definition.type === TYPE_PROPERTY_SET) {
@@ -62,7 +67,7 @@ export function getSettingValue (setting) {
   }
 }
 
-export function isEmptyValue (definition, value) {
+export function isEmptyValue(definition, value) {
   if (value == null) {
     return true;
   } else if (definition.type === TYPE_BOOLEAN) {
@@ -72,7 +77,7 @@ export function isEmptyValue (definition, value) {
   }
 }
 
-export function getEmptyValue (definition) {
+export function getEmptyValue(definition) {
   if (definition.multiValues) {
     return [getEmptyValue({ ...definition, multiValues: false })];
   }
@@ -90,11 +95,11 @@ export function getEmptyValue (definition) {
   return '';
 }
 
-export function isDefaultOrInherited (setting) {
+export function isDefaultOrInherited(setting) {
   return !!setting.default || !!setting.inherited;
 }
 
-function getParentValue (setting) {
+function getParentValue(setting) {
   if (setting.definition.multiValues) {
     return setting.parentValues;
   } else if (setting.definition.type === TYPE_PROPERTY_SET) {
@@ -109,7 +114,7 @@ function getParentValue (setting) {
  * @param setting
  * @returns {string}
  */
-export function getDefaultValue (setting) {
+export function getDefaultValue(setting) {
   const parentValue = getParentValue(setting);
 
   if (parentValue == null) {
@@ -117,15 +122,13 @@ export function getDefaultValue (setting) {
   }
 
   if (setting.definition.multiValues) {
-    return parentValue.length > 0 ?
-        parentValue.join(', ') :
-        translate('settings.default.no_value');
+    return parentValue.length > 0 ? parentValue.join(', ') : translate('settings.default.no_value');
   }
 
   if (setting.definition.type === TYPE_PROPERTY_SET) {
-    return parentValue.length > 0 ?
-        translate('settings.default.complex_value') :
-        translate('settings.default.no_value');
+    return parentValue.length > 0
+      ? translate('settings.default.complex_value')
+      : translate('settings.default.no_value');
   }
 
   if (setting.definition.type === TYPE_PASSWORD) {

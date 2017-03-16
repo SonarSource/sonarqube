@@ -50,7 +50,7 @@ const VIEW_METRICS = [
 
 const PAGE_SIZE = 100;
 
-function requestChildren (componentKey, metrics, page) {
+function requestChildren(componentKey, metrics, page) {
   return getChildren(componentKey, metrics, { p: page, ps: PAGE_SIZE }).then(r => {
     if (r.paging.total > r.paging.pageSize * r.paging.pageIndex) {
       return requestChildren(componentKey, metrics, page + 1).then(moreComponents => {
@@ -61,13 +61,15 @@ function requestChildren (componentKey, metrics, page) {
   });
 }
 
-function requestAllChildren (componentKey, metrics) {
+function requestAllChildren(componentKey, metrics) {
   return requestChildren(componentKey, metrics, 1);
 }
 
-function expandRootDir (metrics) {
-  return function ({ components, total, ...other }) {
-    const rootDir = components.find(component => component.qualifier === 'DIR' && component.name === '/');
+function expandRootDir(metrics) {
+  return function({ components, total, ...other }) {
+    const rootDir = components.find(
+      component => component.qualifier === 'DIR' && component.name === '/'
+    );
     if (rootDir) {
       return requestAllChildren(rootDir.key, metrics).then(rootDirComponents => {
         const nextComponents = without([...rootDirComponents, ...components], rootDir);
@@ -80,7 +82,7 @@ function expandRootDir (metrics) {
   };
 }
 
-function prepareChildren (r) {
+function prepareChildren(r) {
   return {
     components: r.components,
     total: r.paging.total,
@@ -89,17 +91,17 @@ function prepareChildren (r) {
   };
 }
 
-function skipRootDir (breadcrumbs) {
+function skipRootDir(breadcrumbs) {
   return breadcrumbs.filter(component => {
     return !(component.qualifier === 'DIR' && component.name === '/');
   });
 }
 
-function storeChildrenBase (children) {
+function storeChildrenBase(children) {
   children.forEach(addComponent);
 }
 
-function storeChildrenBreadcrumbs (parentComponentKey, children) {
+function storeChildrenBreadcrumbs(parentComponentKey, children) {
   const parentBreadcrumbs = getComponentBreadcrumbs(parentComponentKey);
   if (parentBreadcrumbs) {
     children.forEach(child => {
@@ -109,7 +111,7 @@ function storeChildrenBreadcrumbs (parentComponentKey, children) {
   }
 }
 
-function getMetrics (isView) {
+function getMetrics(isView) {
   return isView ? VIEW_METRICS : METRICS;
 }
 
@@ -118,7 +120,7 @@ function getMetrics (isView) {
  * @param {boolean} isView
  * @returns {Promise}
  */
-function retrieveComponentBase (componentKey, isView) {
+function retrieveComponentBase(componentKey, isView) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
@@ -137,7 +139,7 @@ function retrieveComponentBase (componentKey, isView) {
  * @param {boolean} isView
  * @returns {Promise}
  */
-export function retrieveComponentChildren (componentKey, isView) {
+export function retrieveComponentChildren(componentKey, isView) {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
@@ -150,28 +152,26 @@ export function retrieveComponentChildren (componentKey, isView) {
   const metrics = getMetrics(isView);
 
   return getChildren(componentKey, metrics, { ps: PAGE_SIZE, s: 'qualifier,name' })
-      .then(prepareChildren)
-      .then(expandRootDir(metrics))
-      .then(r => {
-        addComponentChildren(componentKey, r.components, r.total, r.page);
-        storeChildrenBase(r.components);
-        storeChildrenBreadcrumbs(componentKey, r.components);
-        return r;
-      });
+    .then(prepareChildren)
+    .then(expandRootDir(metrics))
+    .then(r => {
+      addComponentChildren(componentKey, r.components, r.total, r.page);
+      storeChildrenBase(r.components);
+      storeChildrenBreadcrumbs(componentKey, r.components);
+      return r;
+    });
 }
 
-function retrieveComponentBreadcrumbs (componentKey) {
+function retrieveComponentBreadcrumbs(componentKey) {
   const existing = getComponentBreadcrumbs(componentKey);
   if (existing) {
     return Promise.resolve(existing);
   }
 
-  return getBreadcrumbs(componentKey)
-      .then(skipRootDir)
-      .then(breadcrumbs => {
-        addComponentBreadcrumbs(componentKey, breadcrumbs);
-        return breadcrumbs;
-      });
+  return getBreadcrumbs(componentKey).then(skipRootDir).then(breadcrumbs => {
+    addComponentBreadcrumbs(componentKey, breadcrumbs);
+    return breadcrumbs;
+  });
 }
 
 /**
@@ -179,7 +179,7 @@ function retrieveComponentBreadcrumbs (componentKey) {
  * @param {boolean} isView
  * @returns {Promise}
  */
-export function retrieveComponent (componentKey, isView) {
+export function retrieveComponent(componentKey, isView) {
   return Promise.all([
     retrieveComponentBase(componentKey, isView),
     retrieveComponentChildren(componentKey, isView),
@@ -195,18 +195,18 @@ export function retrieveComponent (componentKey, isView) {
   });
 }
 
-export function loadMoreChildren (componentKey, page, isView) {
+export function loadMoreChildren(componentKey, page, isView) {
   const metrics = getMetrics(isView);
 
   return getChildren(componentKey, metrics, { ps: PAGE_SIZE, p: page })
-      .then(prepareChildren)
-      .then(expandRootDir(metrics))
-      .then(r => {
-        addComponentChildren(componentKey, r.components, r.total, r.page);
-        storeChildrenBase(r.components);
-        storeChildrenBreadcrumbs(componentKey, r.components);
-        return r;
-      });
+    .then(prepareChildren)
+    .then(expandRootDir(metrics))
+    .then(r => {
+      addComponentChildren(componentKey, r.components, r.total, r.page);
+      storeChildrenBase(r.components);
+      storeChildrenBreadcrumbs(componentKey, r.components);
+      return r;
+    });
 }
 
 /**
@@ -214,13 +214,14 @@ export function loadMoreChildren (componentKey, page, isView) {
  * @param {Error} error
  * @returns {Promise}
  */
-export function parseError (error) {
+export function parseError(error) {
   const DEFAULT_MESSAGE = translate('default_error_message');
 
   try {
-    return error.response.json()
-        .then(r => r.errors.map(error => error.msg).join('. '))
-        .catch(() => DEFAULT_MESSAGE);
+    return error.response
+      .json()
+      .then(r => r.errors.map(error => error.msg).join('. '))
+      .catch(() => DEFAULT_MESSAGE);
   } catch (ex) {
     return Promise.resolve(DEFAULT_MESSAGE);
   }

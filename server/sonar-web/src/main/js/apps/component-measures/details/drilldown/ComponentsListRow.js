@@ -40,23 +40,23 @@ const ComponentsListRow = ({ component, otherMetrics, isSelected, metric, onClic
   });
 
   return (
-      <tr>
-        <ComponentCell
-            component={component}
-            isSelected={isSelected}
-            onClick={handleClick.bind(this, component)}/>
+    <tr>
+      <ComponentCell
+        component={component}
+        isSelected={isSelected}
+        onClick={handleClick.bind(this, component)}
+      />
 
+      <MeasureCell component={component} metric={metric} />
+
+      {otherMeasures.map(measure => (
         <MeasureCell
-            component={component}
-            metric={metric}/>
-
-        {otherMeasures.map(measure => (
-            <MeasureCell
-                key={measure.metric.key}
-                component={replaceMeasure(component, measure)}
-                metric={measure.metric}/>
-        ))}
-      </tr>
+          key={measure.metric.key}
+          component={replaceMeasure(component, measure)}
+          metric={measure.metric}
+        />
+      ))}
+    </tr>
   );
 };
 

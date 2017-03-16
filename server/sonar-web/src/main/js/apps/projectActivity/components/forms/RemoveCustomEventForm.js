@@ -24,10 +24,11 @@ import RemoveEventForm from './RemoveEventForm';
 import { deleteEvent } from '../../actions';
 
 const RemoveCustomEventForm = props => (
-    <RemoveEventForm
-        {...props}
-        removeEventButtonText="project_activity.remove_custom_event"
-        removeEventQuestion="project_activity.remove_custom_event.question"/>
+  <RemoveEventForm
+    {...props}
+    removeEventButtonText="project_activity.remove_custom_event"
+    removeEventQuestion="project_activity.remove_custom_event.question"
+  />
 );
 
 const mapStateToProps = null;

@@ -21,22 +21,19 @@ import React, { Component } from 'react';
 import ListHeader from './ListHeader';
 import List from './List';
 import {
-    fetchQualityGatesAppDetails,
-    fetchQualityGates as fetchQualityGatesAPI
+  fetchQualityGatesAppDetails,
+  fetchQualityGates as fetchQualityGatesAPI
 } from '../../../api/quality-gates';
 
 export default class QualityGatesApp extends Component {
   state = {};
 
-  componentDidMount () {
+  componentDidMount() {
     this.fetchQualityGates();
   }
 
-  fetchQualityGates () {
-    Promise.all([
-      fetchQualityGatesAppDetails(),
-      fetchQualityGatesAPI()
-    ]).then(responses => {
+  fetchQualityGates() {
+    Promise.all([fetchQualityGatesAppDetails(), fetchQualityGatesAPI()]).then(responses => {
       const [details, qualityGates] = responses;
       const { updateStore } = this.props;
 
@@ -44,7 +41,7 @@ export default class QualityGatesApp extends Component {
     });
   }
 
-  handleAdd (qualityGate) {
+  handleAdd(qualityGate) {
     const { addQualityGate } = this.props;
     const { router } = this.context;
 
@@ -52,24 +49,22 @@ export default class QualityGatesApp extends Component {
     router.push(`/quality_gates/show/${qualityGate.id}`);
   }
 
-  render () {
+  render() {
     const { children, qualityGates, edit } = this.props;
 
     return (
-        <div className="search-navigator sticky search-navigator-extended-view">
-          <div className="search-navigator-side search-navigator-side-light" style={{ top: 30 }}>
-            <div className="search-navigator-filters">
-              <ListHeader
-                  canEdit={edit}
-                  onAdd={this.handleAdd.bind(this)}/>
-            </div>
-            <div className="quality-gates-results panel">
-              {qualityGates && <List qualityGates={qualityGates}/>}
-            </div>
+      <div className="search-navigator sticky search-navigator-extended-view">
+        <div className="search-navigator-side search-navigator-side-light" style={{ top: 30 }}>
+          <div className="search-navigator-filters">
+            <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />
           </div>
-
-          {!!qualityGates && children}
+          <div className="quality-gates-results panel">
+            {qualityGates && <List qualityGates={qualityGates} />}
+          </div>
         </div>
+
+        {!!qualityGates && children}
+      </div>
     );
   }
 }

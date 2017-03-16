@@ -22,11 +22,7 @@ import { shallow } from 'enzyme';
 import SortingFilter from '../SortingFilter';
 
 it('should render with default parameters and empty query', () => {
-  const wrapper = shallow(
-    <SortingFilter
-        property="foo"
-        query={{}}/>
-  );
+  const wrapper = shallow(<SortingFilter property="foo" query={{}} />);
   expect(wrapper).toMatchSnapshot();
   const sortingFilter = wrapper.instance();
   expect(sortingFilter.isSortActive('left')).toBeFalsy();
@@ -35,22 +31,14 @@ it('should render with default parameters and empty query', () => {
 
 it('should render with custom parameters', () => {
   const wrapper = shallow(
-    <SortingFilter
-        property="foo"
-        query={{}}
-        sortDesc="right"
-        leftText="worst"
-        rightText="best"/>
+    <SortingFilter property="foo" query={{}} sortDesc="right" leftText="worst" rightText="best" />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render correctly with matching query', () => {
   const wrapper = shallow(
-    <SortingFilter
-      property="foo"
-      query={{ sort: '-foo', languages: 'php,cpp' }}
-      sortDesc="right"/>
+    <SortingFilter property="foo" query={{ sort: '-foo', languages: 'php,cpp' }} sortDesc="right" />
   );
   expect(wrapper).toMatchSnapshot();
   const sortingFilter = wrapper.instance();
@@ -59,11 +47,7 @@ it('should render correctly with matching query', () => {
 });
 
 it('should render correctly with no matching query', () => {
-  const wrapper = shallow(
-    <SortingFilter
-      property="foo"
-      query={{ sort: 'bar' }}/>
-  );
+  const wrapper = shallow(<SortingFilter property="foo" query={{ sort: 'bar' }} />);
   expect(wrapper).toMatchSnapshot();
   const sortingFilter = wrapper.instance();
   expect(sortingFilter.isSortActive('left')).toBeFalsy();

@@ -23,7 +23,7 @@ import Rule from './rule';
 export default Backbone.Collection.extend({
   model: Rule,
 
-  parseRules (r) {
+  parseRules(r) {
     let rules = r.rules;
     const profiles = r.qProfiles || [];
 
@@ -45,13 +45,13 @@ export default Backbone.Collection.extend({
     return rules;
   },
 
-  setIndex () {
+  setIndex() {
     this.forEach((rule, index) => {
       rule.set({ index });
     });
   },
 
-  addExtraAttributes (repositories) {
+  addExtraAttributes(repositories) {
     this.models.forEach(model => {
       model.addExtraAttributes(repositories);
     });

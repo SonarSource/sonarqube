@@ -34,60 +34,62 @@ import FiltersView from './filters-view';
 
 const App = new Marionette.Application();
 
-App.on('start', function (el) {
-  $.get(window.baseUrl + '/api/rules/app').done(r => {
-    App.canWrite = r.canWrite;
-    App.qualityProfiles = sortBy(r.qualityprofiles, ['name', 'lang']);
-    App.languages = { ...r.languages, none: 'None' };
-    App.qualityProfiles.forEach(profile => {
-      profile.language = App.languages[profile.lang];
+App.on('start', function(el) {
+  $.get(window.baseUrl + '/api/rules/app')
+    .done(r => {
+      App.canWrite = r.canWrite;
+      App.qualityProfiles = sortBy(r.qualityprofiles, ['name', 'lang']);
+      App.languages = { ...r.languages, none: 'None' };
+      App.qualityProfiles.forEach(profile => {
+        profile.language = App.languages[profile.lang];
+      });
+      App.repositories = r.repositories;
+      App.statuses = r.statuses;
+    })
+    .done(() => {
+      this.layout = new Layout({ el });
+      this.layout.render();
+      $('#footer').addClass('search-navigator-footer');
+
+      this.state = new State();
+      this.list = new Rules();
+      this.facets = new Facets();
+
+      this.controller = new Controller({ app: this });
+
+      this.workspaceListView = new WorkspaceListView({
+        app: this,
+        collection: this.list
+      });
+      this.layout.workspaceListRegion.show(this.workspaceListView);
+      this.workspaceListView.bindScrollEvents();
+
+      this.workspaceHeaderView = new WorkspaceHeaderView({
+        app: this,
+        collection: this.list
+      });
+      this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
+
+      this.facetsView = new FacetsView({
+        app: this,
+        collection: this.facets
+      });
+      this.layout.facetsRegion.show(this.facetsView);
+
+      this.filtersView = new FiltersView({
+        app: this
+      });
+      this.layout.filtersRegion.show(this.filtersView);
+
+      key.setScope('list');
+      this.router = new Router({
+        app: this
+      });
+      Backbone.history.start();
     });
-    App.repositories = r.repositories;
-    App.statuses = r.statuses;
-  }).done(() => {
-    this.layout = new Layout({ el });
-    this.layout.render();
-    $('#footer').addClass('search-navigator-footer');
-
-    this.state = new State();
-    this.list = new Rules();
-    this.facets = new Facets();
-
-    this.controller = new Controller({ app: this });
-
-    this.workspaceListView = new WorkspaceListView({
-      app: this,
-      collection: this.list
-    });
-    this.layout.workspaceListRegion.show(this.workspaceListView);
-    this.workspaceListView.bindScrollEvents();
-
-    this.workspaceHeaderView = new WorkspaceHeaderView({
-      app: this,
-      collection: this.list
-    });
-    this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
-
-    this.facetsView = new FacetsView({
-      app: this,
-      collection: this.facets
-    });
-    this.layout.facetsRegion.show(this.facetsView);
-
-    this.filtersView = new FiltersView({
-      app: this
-    });
-    this.layout.filtersRegion.show(this.filtersView);
-
-    key.setScope('list');
-    this.router = new Router({
-      app: this
-    });
-    Backbone.history.start();
-  });
 });
 
-export default function (el) {
+export default function(el) {
   App.start(el);
 
   return () => {

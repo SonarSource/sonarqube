@@ -20,20 +20,18 @@
 import ModalForm from '../../components/common/modal-form';
 
 export default ModalForm.extend({
-
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy () {
+  onDestroy() {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   }
-
 });

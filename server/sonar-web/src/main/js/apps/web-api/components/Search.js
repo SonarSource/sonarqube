@@ -41,41 +41,42 @@ export default class Search extends React.PureComponent {
   props: Props;
   state: State;
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = { query: '' };
     this.actuallySearch = debounce(this.actuallySearch.bind(this), 250);
   }
 
-  handleSearch (e: SyntheticInputEvent) {
+  handleSearch(e: SyntheticInputEvent) {
     const { value } = e.target;
     this.setState({ query: value });
     this.actuallySearch();
   }
 
-  actuallySearch () {
+  actuallySearch() {
     const { onSearch } = this.props;
     onSearch(this.state.query);
   }
 
-  render () {
+  render() {
     const { showInternal, showDeprecated, onToggleInternal, onToggleDeprecated } = this.props;
 
     return (
       <div className="web-api-search">
         <div>
-          <i className="icon-search"/>
+          <i className="icon-search" />
           <input
             className="spacer-left input-large"
             type="search"
             value={this.state.query}
             placeholder={translate('search_verb')}
-            onChange={this.handleSearch.bind(this)}/>
+            onChange={this.handleSearch.bind(this)}
+          />
         </div>
 
         <TooltipsContainer>
           <div className="big-spacer-top">
-            <Checkbox checked={showInternal} onCheck={onToggleInternal}/>
+            <Checkbox checked={showInternal} onCheck={onToggleInternal} />
             {' '}
             <span
               style={{ cursor: 'pointer' }}
@@ -83,19 +84,21 @@ export default class Search extends React.PureComponent {
               tabIndex="0"
               role="checkbox"
               aria-checked={showInternal ? 'true' : 'false'}
-              onClick={onToggleInternal}>
+              onClick={onToggleInternal}
+            >
               Show Internal API
             </span>
             <i
               className="icon-help spacer-left"
               title={translate('api_documentation.internal_tooltip')}
-              data-toggle="tooltip"/>
+              data-toggle="tooltip"
+            />
           </div>
         </TooltipsContainer>
 
         <TooltipsContainer>
           <div className="spacer-top">
-            <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated}/>
+            <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated} />
             {' '}
             <span
               style={{ cursor: 'pointer' }}
@@ -103,13 +106,15 @@ export default class Search extends React.PureComponent {
               tabIndex="0"
               role="checkbox"
               aria-checked={showDeprecated ? 'true' : 'false'}
-              onClick={onToggleDeprecated}>
+              onClick={onToggleDeprecated}
+            >
               Show Deprecated API
             </span>
             <i
               className="icon-help spacer-left"
               title={translate('api_documentation.deprecation_tooltip')}
-              data-toggle="tooltip"/>
+              data-toggle="tooltip"
+            />
           </div>
         </TooltipsContainer>
       </div>

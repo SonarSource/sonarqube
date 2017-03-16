@@ -25,31 +25,30 @@ export default ModalFormView.extend({
   template: Template,
 
   modelEvents: {
-    'destroy': 'destroy'
+    destroy: 'destroy'
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     deleteProfile(this.options.profile.key)
-        .then(() => {
-          this.destroy();
-          this.trigger('done');
-        })
-        .catch(e => {
-          if (e.response.status === 400) {
-            this.enableForm();
-            e.response.json().then(r => this.showErrors(r.errors, r.warnings));
-          }
-        });
+      .then(() => {
+        this.destroy();
+        this.trigger('done');
+      })
+      .catch(e => {
+        if (e.response.status === 400) {
+          this.enableForm();
+          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+        }
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return this.options.profile;
   }
 });
-

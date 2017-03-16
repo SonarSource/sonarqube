@@ -39,11 +39,11 @@ type Props = {
 export default class CategoriesList extends React.Component {
   rops: Props;
 
-  shouldComponentUpdate (nextProps: Props, nextState: ?{}) {
+  shouldComponentUpdate(nextProps: Props, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  renderLink (category: Category) {
+  renderLink(category: Category) {
     const query = {};
 
     if (category.key !== this.props.defaultCategory) {
@@ -54,29 +54,34 @@ export default class CategoriesList extends React.Component {
       query.id = this.props.component.key;
     }
 
-    const className = category.key.toLowerCase() === this.props.selectedCategory.toLowerCase() ? 'active' : '';
+    const className = category.key.toLowerCase() === this.props.selectedCategory.toLowerCase()
+      ? 'active'
+      : '';
 
     const pathname = this.props.component ? '/project/settings' : '/settings';
 
     return (
-        <IndexLink to={{ pathname, query }} className={className} title={category.name}>
-          {category.name}
-        </IndexLink>
+      <IndexLink to={{ pathname, query }} className={className} title={category.name}>
+        {category.name}
+      </IndexLink>
     );
   }
 
-  render () {
-    const categoriesWithName = this.props.categories.map(key => ({ key, name: getCategoryName(key) }));
+  render() {
+    const categoriesWithName = this.props.categories.map(key => ({
+      key,
+      name: getCategoryName(key)
+    }));
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
 
     return (
-        <ul className="settings-menu">
-          {sortedCategories.map(category => (
-              <li key={category.key}>
-                {this.renderLink(category)}
-              </li>
-          ))}
-        </ul>
+      <ul className="settings-menu">
+        {sortedCategories.map(category => (
+          <li key={category.key}>
+            {this.renderLink(category)}
+          </li>
+        ))}
+      </ul>
     );
   }
 }

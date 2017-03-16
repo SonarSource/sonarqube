@@ -28,21 +28,21 @@ export default class Defaults extends React.Component {
     permissionTemplate: PermissionTemplateType.isRequired
   };
 
-  render () {
-    const qualifiersToDisplay = this.props.organization && !this.props.organization.isDefault ?
-        ['TRK'] :
-        this.props.permissionTemplate.defaultFor;
+  render() {
+    const qualifiersToDisplay = this.props.organization && !this.props.organization.isDefault
+      ? ['TRK']
+      : this.props.permissionTemplate.defaultFor;
 
     const qualifiers = sortBy(qualifiersToDisplay)
-        .map(qualifier => translate('qualifiers', qualifier))
-        .join(', ');
+      .map(qualifier => translate('qualifiers', qualifier))
+      .join(', ');
 
     return (
-        <div>
-          <span className="badge spacer-right">
-            {translate('default')} for {qualifiers}
-          </span>
-        </div>
+      <div>
+        <span className="badge spacer-right">
+          {translate('default')} for {qualifiers}
+        </span>
+      </div>
     );
   }
 }

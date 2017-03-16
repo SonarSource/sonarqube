@@ -23,35 +23,34 @@ import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 
 const Components = ({ rootComponent, baseComponent, components, selected }) => (
-    <table className="data zebra">
-      <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent}/>
-      {baseComponent && (
-          <tbody>
-            <Component
-                key={baseComponent.key}
-                rootComponent={rootComponent}
-                component={baseComponent}/>
-            <tr className="blank">
-              <td colSpan="8">&nbsp;</td>
-            </tr>
-          </tbody>
-      )}
+  <table className="data zebra">
+    <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent} />
+    {baseComponent &&
       <tbody>
-        {components.length ? (
-            components.map((component, index, list) => (
-                <Component
-                    key={component.key}
-                    rootComponent={rootComponent}
-                    component={component}
-                    selected={component === selected}
-                    previous={index > 0 ? list[index - 1] : null}
-                    canBrowse={true}/>
-            ))
-        ) : (
-            <ComponentsEmpty/>
-        )}
-      </tbody>
-    </table>
+        <Component
+          key={baseComponent.key}
+          rootComponent={rootComponent}
+          component={baseComponent}
+        />
+        <tr className="blank">
+          <td colSpan="8">&nbsp;</td>
+        </tr>
+      </tbody>}
+    <tbody>
+      {components.length
+        ? components.map((component, index, list) => (
+            <Component
+              key={component.key}
+              rootComponent={rootComponent}
+              component={component}
+              selected={component === selected}
+              previous={index > 0 ? list[index - 1] : null}
+              canBrowse={true}
+            />
+          ))
+        : <ComponentsEmpty />}
+    </tbody>
+  </table>
 );
 
 export default Components;

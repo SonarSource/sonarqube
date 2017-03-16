@@ -28,10 +28,7 @@ const profilesByProject = (state = {}, action = {}) => {
 
   if (action.type === SET_PROJECT_PROFILE) {
     const profileKeys = state[action.projectKey];
-    const nextProfileKeys = [
-      ...without(profileKeys, action.oldProfileKey),
-      action.newProfileKey
-    ];
+    const nextProfileKeys = [...without(profileKeys, action.oldProfileKey), action.newProfileKey];
     return { ...state, [action.projectKey]: nextProfileKeys };
   }
 
@@ -40,5 +37,4 @@ const profilesByProject = (state = {}, action = {}) => {
 
 export default profilesByProject;
 
-export const getProfiles = (state, projectKey) =>
-    state[projectKey] || [];
+export const getProfiles = (state, projectKey) => state[projectKey] || [];

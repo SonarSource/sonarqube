@@ -19,7 +19,10 @@
  */
 import { connect } from 'react-redux';
 import MeasureTreemap from './MeasureTreemap';
-import { getMeasuresAppDetailsMetric, getMeasuresAppComponent } from '../../../../store/rootReducer';
+import {
+  getMeasuresAppDetailsMetric,
+  getMeasuresAppComponent
+} from '../../../../store/rootReducer';
 
 const mapStateToProps = state => {
   return {
@@ -32,7 +35,4 @@ const mapDispatchToProps = () => {
   return {};
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MeasureTreemap);
+export default connect(mapStateToProps, mapDispatchToProps)(MeasureTreemap);

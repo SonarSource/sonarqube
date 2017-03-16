@@ -24,48 +24,50 @@ import Template from './templates/metrics-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     const that = this;
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
-    this.$('#create-metric-domain').select2({
-      width: '250px',
-      createSearchChoice (term) {
-        return { id: term, text: '+' + term };
-      },
-      createSearchChoicePosition: 'top',
-      initSelection (element, callback) {
-        const value = $(element).val();
-        callback({ id: value, text: value });
-      },
-      query (options) {
-        const items = that.options.domains.filter(d => d.toLowerCase().indexOf(options.term.toLowerCase()) !== -1);
-        const results = items.map(item => {
-          return { id: item, text: item };
-        });
-        options.callback({ results, more: false });
-      }
-    }).select2('val', this.model && this.model.get('domain'));
+    this.$('#create-metric-domain')
+      .select2({
+        width: '250px',
+        createSearchChoice(term) {
+          return { id: term, text: '+' + term };
+        },
+        createSearchChoicePosition: 'top',
+        initSelection(element, callback) {
+          const value = $(element).val();
+          callback({ id: value, text: value });
+        },
+        query(options) {
+          const items = that.options.domains.filter(
+            d => d.toLowerCase().indexOf(options.term.toLowerCase()) !== -1
+          );
+          const results = items.map(item => {
+            return { id: item, text: item };
+          });
+          options.callback({ results, more: false });
+        }
+      })
+      .select2('val', this.model && this.model.get('domain'));
     this.$('#create-metric-type').select2({ width: '250px' });
   },
 
-  onDestroy () {
+  onDestroy() {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ModalForm.prototype.serializeData.apply(this, arguments),
       domains: this.options.domains,
       types: this.options.types
     };
   }
-
 });
-

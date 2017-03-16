@@ -28,39 +28,37 @@ export default class NameCell extends React.Component {
     permissionTemplate: PermissionTemplateType.isRequired
   };
 
-  render () {
+  render() {
     const { permissionTemplate: t, organization } = this.props;
 
-    const pathname = organization ?
-        `/organizations/${organization.key}/permission_templates` :
-        '/permission_templates';
+    const pathname = organization
+      ? `/organizations/${organization.key}/permission_templates`
+      : '/permission_templates';
 
     return (
-        <td>
-          <Link to={{ pathname, query: { id: t.id } }}>
-            <strong className="js-name">{t.name}</strong>
-          </Link>
+      <td>
+        <Link to={{ pathname, query: { id: t.id } }}>
+          <strong className="js-name">{t.name}</strong>
+        </Link>
 
-          {t.defaultFor.length > 0 && (
-              <div className="spacer-top js-defaults">
-                <Defaults
-                    permissionTemplate={this.props.permissionTemplate}
-                    organization={organization}/>
-              </div>
-          )}
+        {t.defaultFor.length > 0 &&
+          <div className="spacer-top js-defaults">
+            <Defaults
+              permissionTemplate={this.props.permissionTemplate}
+              organization={organization}
+            />
+          </div>}
 
-          {!!t.description && (
-              <div className="spacer-top js-description">
-                {t.description}
-              </div>
-          )}
+        {!!t.description &&
+          <div className="spacer-top js-description">
+            {t.description}
+          </div>}
 
-          {!!t.projectKeyPattern && (
-              <div className="spacer-top js-project-key-pattern">
-                Project Key Pattern: <code>{t.projectKeyPattern}</code>
-              </div>
-          )}
-        </td>
+        {!!t.projectKeyPattern &&
+          <div className="spacer-top js-project-key-pattern">
+            Project Key Pattern: <code>{t.projectKeyPattern}</code>
+          </div>}
+      </td>
     );
   }
 }

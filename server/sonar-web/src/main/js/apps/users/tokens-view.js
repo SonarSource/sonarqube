@@ -26,7 +26,7 @@ import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
 export default Modal.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...Modal.prototype.events.apply(this, arguments),
       'submit .js-generate-token-form': 'onGenerateTokenFormSubmit',
@@ -34,7 +34,7 @@ export default Modal.extend({
     };
   },
 
-  initialize () {
+  initialize() {
     Modal.prototype.initialize.apply(this, arguments);
     this.tokens = null;
     this.newToken = null;
@@ -42,32 +42,32 @@ export default Modal.extend({
     this.requestTokens();
   },
 
-  requestTokens () {
+  requestTokens() {
     return getTokens(this.model.id).then(tokens => {
       this.tokens = tokens;
       this.render();
     });
   },
 
-  onGenerateTokenFormSubmit (e) {
+  onGenerateTokenFormSubmit(e) {
     e.preventDefault();
     this.errors = [];
     this.newToken = null;
     const tokenName = this.$('.js-generate-token-form input').val();
     generateToken(this.model.id, tokenName)
-        .then(response => {
-          this.newToken = response;
-          this.requestTokens();
-        })
-        .catch(error => {
-          error.response.json().then(response => {
-            this.errors = response.errors;
-            this.render();
-          });
+      .then(response => {
+        this.newToken = response;
+        this.requestTokens();
+      })
+      .catch(error => {
+        error.response.json().then(response => {
+          this.errors = response.errors;
+          this.render();
         });
+      });
   },
 
-  onRevokeTokenFormSubmit (e) {
+  onRevokeTokenFormSubmit(e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
     const token = this.tokens.find(t => t.name === `${tokenName}`);
@@ -81,25 +81,27 @@ export default Modal.extend({
     }
   },
 
-  onRender () {
+  onRender() {
     Modal.prototype.onRender.apply(this, arguments);
     const copyButton = this.$('.js-copy-to-clipboard');
     if (copyButton.length) {
       const clipboard = new Clipboard(copyButton.get(0));
       clipboard.on('success', () => {
-        copyButton.tooltip({ title: 'Copied!', placement: 'bottom', trigger: 'manual' }).tooltip('show');
+        copyButton
+          .tooltip({ title: 'Copied!', placement: 'bottom', trigger: 'manual' })
+          .tooltip('show');
         setTimeout(() => copyButton.tooltip('hide'), 1000);
       });
     }
     this.newToken = null;
   },
 
-  onDestroy () {
+  onDestroy() {
     this.model.collection.refresh();
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Modal.prototype.serializeData.apply(this, arguments),
       tokens: this.tokens,
@@ -107,5 +109,4 @@ export default Modal.extend({
       errors: this.errors
     };
   }
-
 });

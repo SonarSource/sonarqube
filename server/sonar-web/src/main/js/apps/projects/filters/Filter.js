@@ -51,18 +51,18 @@ export default class Filter extends React.PureComponent {
     halfWidth: false
   };
 
-  isSelected (option) {
+  isSelected(option) {
     const { value } = this.props;
     return Array.isArray(value) ? value.includes(option) : option === value;
   }
 
-  highlightUnder (option) {
+  highlightUnder(option) {
     return this.props.highlightUnder != null &&
       option !== null &&
       option > this.props.highlightUnder;
   }
 
-  getPath (option) {
+  getPath(option) {
     const { property, value } = this.props;
     let urlOption;
 
@@ -78,7 +78,7 @@ export default class Filter extends React.PureComponent {
     return getFilterUrl(this.props, { [property]: urlOption });
   }
 
-  renderOptionBar (facetValue) {
+  renderOptionBar(facetValue) {
     if (facetValue == null || !this.props.maxFacetValue) {
       return null;
     }
@@ -86,12 +86,13 @@ export default class Filter extends React.PureComponent {
       <div className="projects-facet-bar">
         <div
           className="projects-facet-bar-inner"
-          style={{ width: facetValue / this.props.maxFacetValue * 60 }}/>
+          style={{ width: facetValue / this.props.maxFacetValue * 60 }}
+        />
       </div>
     );
   }
 
-  renderOption (option) {
+  renderOption(option) {
     const { facet, getFacetValueForOption, value } = this.props;
     const className = classNames(
       'facet',
@@ -126,7 +127,7 @@ export default class Filter extends React.PureComponent {
     );
   }
 
-  renderOptions () {
+  renderOptions() {
     const { options } = this.props;
     if (options && options.length > 0) {
       return (
@@ -143,7 +144,7 @@ export default class Filter extends React.PureComponent {
     }
   }
 
-  render () {
+  render() {
     return (
       <div className="search-navigator-facet-box" data-key={this.props.property}>
         {this.props.header}

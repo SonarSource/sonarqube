@@ -26,13 +26,14 @@ import { saveAll } from './utils';
 
 export default (
   <Route component={App}>
-    <IndexRoute component={DefaultPageSelector}/>
+    <IndexRoute component={DefaultPageSelector} />
     <Route
       path="all"
       onEnter={(_, replace) => {
         saveAll();
         replace('/projects');
-      }}/>
-    <Route path="favorite" component={FavoriteProjectsContainer}/>
+      }}
+    />
+    <Route path="favorite" component={FavoriteProjectsContainer} />
   </Route>
 );

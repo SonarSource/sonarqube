@@ -39,7 +39,7 @@ export default class ProjectCard extends React.PureComponent {
     }
   };
 
-  render () {
+  render() {
     const { project } = this.props;
 
     if (project == null) {
@@ -58,17 +58,17 @@ export default class ProjectCard extends React.PureComponent {
       <div data-key={project.key} className={className}>
         {displayQualityGate &&
           <div className="boxed-group-actions">
-            <ProjectCardQualityGate status={this.props.measures['alert_status']}/>
+            <ProjectCardQualityGate status={this.props.measures['alert_status']} />
           </div>}
 
         <div className="boxed-group-header">
           {project.isFavorite != null &&
-            <FavoriteContainer className="spacer-right" componentKey={project.key}/>}
+            <FavoriteContainer className="spacer-right" componentKey={project.key} />}
           <h2 className="project-card-name">
             {this.props.organization == null &&
               project.organization != null &&
               <span className="text-normal">
-                <Organization organizationKey={project.organization}/>
+                <Organization organizationKey={project.organization} />
               </span>}
             <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
               {project.name}
@@ -78,7 +78,7 @@ export default class ProjectCard extends React.PureComponent {
 
         {isProjectAnalyzed
           ? <div className="boxed-group-inner">
-              {areProjectMeasuresLoaded && <ProjectCardMeasures measures={this.props.measures}/>}
+              {areProjectMeasuresLoaded && <ProjectCardMeasures measures={this.props.measures} />}
             </div>
           : <div className="boxed-group-inner">
               <div className="note project-card-not-analyzed">

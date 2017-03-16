@@ -34,41 +34,40 @@ export default class ListFooter extends React.PureComponent {
     ready: true
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleLoadMore = this.handleLoadMore.bind(this);
   }
 
-  canLoadMore () {
+  canLoadMore() {
     return typeof this.props.loadMore === 'function';
   }
 
-  handleLoadMore (e) {
+  handleLoadMore(e) {
     e.preventDefault();
     e.target.blur();
     this.props.loadMore();
   }
 
-  render () {
+  render() {
     const hasMore = this.props.total > this.props.count;
     const loadMoreLink = (
-        <a className="spacer-left" href="#" onClick={this.handleLoadMore}>
-          {translate('show_more')}
-        </a>
-
+      <a className="spacer-left" href="#" onClick={this.handleLoadMore}>
+        {translate('show_more')}
+      </a>
     );
     const className = classNames('spacer-top note text-center', {
       'new-loading': !this.props.ready
     });
 
     return (
-        <footer className={className}>
-          {translateWithParameters(
-            'x_of_y_shown',
-            formatMeasure(this.props.count, 'INT'),
-            formatMeasure(this.props.total, 'INT')
-          )}
-          {this.canLoadMore() && hasMore ? loadMoreLink : null}
-        </footer>
+      <footer className={className}>
+        {translateWithParameters(
+          'x_of_y_shown',
+          formatMeasure(this.props.count, 'INT'),
+          formatMeasure(this.props.total, 'INT')
+        )}
+        {this.canLoadMore() && hasMore ? loadMoreLink : null}
+      </footer>
     );
   }
 }

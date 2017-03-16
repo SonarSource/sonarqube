@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import $ from 'jquery';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { DATE_FORMAT } from '../constants';
 
 export default class DateFilter extends Component {
-  componentDidMount () {
+  componentDidMount() {
     this.attachDatePicker();
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.attachDatePicker();
   }
 
-  attachDatePicker () {
+  attachDatePicker() {
     const opts = {
       dateFormat: 'yy-mm-dd',
       changeMonth: true,
@@ -45,7 +45,7 @@ export default class DateFilter extends Component {
     }
   }
 
-  handleChange () {
+  handleChange() {
     const date = {};
     const minDateRaw = this.refs.minDate.value;
     const maxDateRaw = this.refs.maxDate.value;
@@ -63,27 +63,29 @@ export default class DateFilter extends Component {
     this.props.onChange(date);
   }
 
-  render () {
+  render() {
     const { minSubmittedAt, maxExecutedAt } = this.props;
 
     return (
-        <div>
-          <input
-              className="input-small"
-              value={minSubmittedAt}
-              onChange={() => true}
-              ref="minDate"
-              type="text"
-              placeholder="From"/>
-          {' '}
-          <input
-              className="input-small"
-              value={maxExecutedAt}
-              onChange={() => true}
-              ref="maxDate"
-              type="text"
-              placeholder="To"/>
-        </div>
+      <div>
+        <input
+          className="input-small"
+          value={minSubmittedAt}
+          onChange={() => true}
+          ref="minDate"
+          type="text"
+          placeholder="From"
+        />
+        {' '}
+        <input
+          className="input-small"
+          value={maxExecutedAt}
+          onChange={() => true}
+          ref="maxDate"
+          type="text"
+          placeholder="To"
+        />
+      </div>
     );
   }
 }

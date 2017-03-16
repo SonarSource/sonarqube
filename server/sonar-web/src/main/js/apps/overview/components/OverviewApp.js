@@ -76,12 +76,7 @@ const METRICS = [
   'new_lines'
 ];
 
-const HISTORY_METRICS_LIST = [
-  'sqale_index',
-  'duplicated_lines_density',
-  'ncloc',
-  'coverage'
-];
+const HISTORY_METRICS_LIST = ['sqale_index', 'duplicated_lines_density', 'ncloc', 'coverage'];
 
 export default class OverviewApp extends React.Component {
   static propTypes = {
@@ -92,37 +87,33 @@ export default class OverviewApp extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     document.querySelector('html').classList.add('dashboard-page');
-    this.loadMeasures(this.props.component)
-        .then(() => this.loadHistory(this.props.component));
+    this.loadMeasures(this.props.component).then(() => this.loadHistory(this.props.component));
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (this.props.component !== nextProps.component) {
-      this.loadMeasures(nextProps.component)
-          .then(() => this.loadHistory(nextProps.component));
+      this.loadMeasures(nextProps.component).then(() => this.loadHistory(nextProps.component));
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  loadMeasures (component) {
+  loadMeasures(component) {
     this.setState({ loading: true });
 
-    return getMeasuresAndMeta(
-      component.key,
-      METRICS,
-        { additionalFields: 'metrics,periods' }
-    ).then(r => {
+    return getMeasuresAndMeta(component.key, METRICS, {
+      additionalFields: 'metrics,periods'
+    }).then(r => {
       if (this.mounted) {
         this.setState({
           loading: false,
@@ -133,7 +124,7 @@ export default class OverviewApp extends React.Component {
     });
   }
 
-  loadHistory (component) {
+  loadHistory(component) {
     return getTimeMachineData(component.key, HISTORY_METRICS_LIST).then(r => {
       if (this.mounted) {
         const history = {};
@@ -150,15 +141,15 @@ export default class OverviewApp extends React.Component {
     });
   }
 
-  renderLoading () {
+  renderLoading() {
     return (
-        <div className="text-center">
-          <i className="spinner spinner-margin"/>
-        </div>
+      <div className="text-center">
+        <i className="spinner spinner-margin" />
+      </div>
     );
   }
 
-  render () {
+  render() {
     const { component } = this.props;
     const { loading, measures, periods, history, historyStartDate } = this.state;
 
@@ -170,29 +161,26 @@ export default class OverviewApp extends React.Component {
     const domainProps = { component, measures, leakPeriod, history, historyStartDate };
 
     return (
-        <div className="page page-limited">
-          <div className="overview page-with-sidebar">
-            <div className="overview-main page-main">
-              <QualityGate
-                  component={component}
-                  measures={measures}
-                  periods={periods}/>
+      <div className="page page-limited">
+        <div className="overview page-with-sidebar">
+          <div className="overview-main page-main">
+            <QualityGate component={component} measures={measures} periods={periods} />
 
-              <TooltipsContainer>
-                <div className="overview-domains-list">
-                  <BugsAndVulnerabilities {...domainProps}/>
-                  <CodeSmells {...domainProps}/>
-                  <Coverage {...domainProps}/>
-                  <Duplications {...domainProps}/>
-                </div>
-              </TooltipsContainer>
-            </div>
+            <TooltipsContainer>
+              <div className="overview-domains-list">
+                <BugsAndVulnerabilities {...domainProps} />
+                <CodeSmells {...domainProps} />
+                <Coverage {...domainProps} />
+                <Duplications {...domainProps} />
+              </div>
+            </TooltipsContainer>
+          </div>
 
-            <div className="page-sidebar-fixed">
-              <Meta component={component} measures={measures}/>
-            </div>
+          <div className="page-sidebar-fixed">
+            <Meta component={component} measures={measures} />
           </div>
         </div>
+      </div>
     );
   }
 }

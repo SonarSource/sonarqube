@@ -56,7 +56,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onStart: (rootComponent, metric, periodIndex) => dispatch(start(rootComponent, metric, periodIndex)),
+    onStart: (rootComponent, metric, periodIndex) =>
+      dispatch(start(rootComponent, metric, periodIndex)),
     onDrilldown: component => dispatch(drilldown(component)),
     onUseBreadcrumbs: component => dispatch(useBreadcrumbs(component)),
     onFetchMore: () => dispatch(fetchMore()),
@@ -66,7 +67,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TreeView);
+export default connect(mapStateToProps, mapDispatchToProps)(TreeView);

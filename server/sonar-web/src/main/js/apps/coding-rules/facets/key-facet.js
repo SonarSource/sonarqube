@@ -23,15 +23,15 @@ import Template from '../templates/facets/coding-rules-key-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     this.$el.toggleClass('hidden', !this.options.app.state.get('query').rule_key);
   },
 
-  disable () {
+  disable() {
     this.options.app.state.updateFilter({ rule_key: null });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       key: this.options.app.state.get('query').rule_key

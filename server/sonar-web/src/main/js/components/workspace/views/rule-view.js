@@ -25,16 +25,16 @@ import Template from '../templates/workspace-rule.hbs';
 export default BaseView.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     BaseView.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.LayoutView.prototype.serializeData.apply(this, arguments),
       allTags: union(this.model.get('sysTags'), this.model.get('tags'))

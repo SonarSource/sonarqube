@@ -20,9 +20,7 @@
 // @flow
 import { getJSON, post } from '../helpers/request';
 
-export const getActivity = (data?: Object): Promise<*> => (
-    getJSON('/api/ce/activity', data)
-);
+export const getActivity = (data?: Object): Promise<*> => getJSON('/api/ce/activity', data);
 
 export const getStatus = (componentId?: string): Promise<*> => {
   const data = {};
@@ -32,22 +30,15 @@ export const getStatus = (componentId?: string): Promise<*> => {
   return getJSON('/api/ce/activity_status', data);
 };
 
-export const getTask = (id: string, additionalFields?: Array<string>): Promise<*> => (
-    getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task)
-);
+export const getTask = (id: string, additionalFields?: Array<string>): Promise<*> =>
+  getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);
 
-export const cancelTask = (id: string): Promise<*> => (
-    post('/api/ce/cancel', { id }).then(() => getTask(id), () => getTask(id))
-);
+export const cancelTask = (id: string): Promise<*> =>
+  post('/api/ce/cancel', { id }).then(() => getTask(id), () => getTask(id));
 
-export const cancelAllTasks = (): Promise<*> => (
-    post('/api/ce/cancel_all')
-);
+export const cancelAllTasks = (): Promise<*> => post('/api/ce/cancel_all');
 
-export const getTasksForComponent = (componentId: string): Promise<*> => (
-    getJSON('/api/ce/component', { componentId })
-);
+export const getTasksForComponent = (componentId: string): Promise<*> =>
+  getJSON('/api/ce/component', { componentId });
 
-export const getTypes = (): Promise<*> => (
-    getJSON('/api/ce/task_types').then(r => r.taskTypes)
-);
+export const getTypes = (): Promise<*> => getJSON('/api/ce/task_types').then(r => r.taskTypes);

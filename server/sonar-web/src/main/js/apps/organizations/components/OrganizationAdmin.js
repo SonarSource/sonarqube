@@ -26,28 +26,28 @@ import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthor
 class OrganizationAdmin extends React.Component {
   props: {
     children: Object,
-    organization: { canAdmin: boolean },
+    organization: { canAdmin: boolean }
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.checkPermissions();
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.checkPermissions();
   }
 
-  isOrganizationAdmin () {
+  isOrganizationAdmin() {
     return this.props.organization.canAdmin;
   }
 
-  checkPermissions () {
+  checkPermissions() {
     if (!this.isOrganizationAdmin()) {
       handleRequiredAuthorization();
     }
   }
 
-  render () {
+  render() {
     if (!this.isOrganizationAdmin()) {
       return null;
     }

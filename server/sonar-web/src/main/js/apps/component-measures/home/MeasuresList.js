@@ -25,24 +25,27 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
 const MeasuresList = ({ measures, component, className = 'domain-measures' }) => {
   return (
-      <ul className={className}>
-        {measures.map(measure => (
-            <li
-                key={measure.metric.key}
-                id={`measure-${measure.metric.key}`}>
-              <Link to={{ pathname: `/component_measures/metric/${measure.metric.key}`, query: { id: component.key } }}>
-                <div className="domain-measures-name">
-                  <IssueTypeIcon query={measure.metric.key} className="little-spacer-right"/>
-                  <span id={`measure-${measure.metric.key}-name`}>
-                    {getLocalizedMetricName(measure.metric)}
-                  </span>
-                </div>
+    <ul className={className}>
+      {measures.map(measure => (
+        <li key={measure.metric.key} id={`measure-${measure.metric.key}`}>
+          <Link
+            to={{
+              pathname: `/component_measures/metric/${measure.metric.key}`,
+              query: { id: component.key }
+            }}
+          >
+            <div className="domain-measures-name">
+              <IssueTypeIcon query={measure.metric.key} className="little-spacer-right" />
+              <span id={`measure-${measure.metric.key}-name`}>
+                {getLocalizedMetricName(measure.metric)}
+              </span>
+            </div>
 
-                <MeasureListValue measure={measure}/>
-              </Link>
-            </li>
-        ))}
-      </ul>
+            <MeasureListValue measure={measure} />
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 };
 

@@ -48,7 +48,7 @@ class Projects extends React.Component {
     addedProjects: []
   };
 
-  componentWillReceiveProps (nextProps: Props) {
+  componentWillReceiveProps(nextProps: Props) {
     // remove all projects from `this.state.addedProjects` that already exist in `nextProps.projects`
     const nextAddedProjects = differenceBy(
       this.state.addedProjects,
@@ -63,13 +63,12 @@ class Projects extends React.Component {
 
   renderOption = option => {
     return (
-        <span>
-          <Organization organizationKey={option.organization} link={false}/>
-          <strong>{option.label}</strong>
-        </span>
+      <span>
+        <Organization organizationKey={option.organization} link={false} />
+        <strong>{option.label}</strong>
+      </span>
     );
-  }
-
+  };
   loadOptions = (query, cb) => {
     if (query.length < 2) {
       cb(null, { options: [] });
@@ -77,62 +76,65 @@ class Projects extends React.Component {
     }
 
     getSuggestions(query)
-        .then(r => {
-          const projects = r.results.find(domain => domain.q === 'TRK');
-          return projects ? projects.items : [];
-        })
-        .then(projects => projects.map(project => ({
+      .then(r => {
+        const projects = r.results.find(domain => domain.q === 'TRK');
+        return projects ? projects.items : [];
+      })
+      .then(projects =>
+        projects.map(project => ({
           value: project.key,
           label: project.name,
           organization: project.organization
         })))
-        .then(options => {
-          cb(null, { options });
-        });
+      .then(options => {
+        cb(null, { options });
+      });
   };
 
   handleAddProject = selected => {
-    const project = { key: selected.value, name: selected.label, organization: selected.organization };
+    const project = {
+      key: selected.value,
+      name: selected.label,
+      organization: selected.organization
+    };
     this.setState({
       addedProjects: [...this.state.addedProjects, project]
     });
   };
 
-  render () {
+  render() {
     const allProjects = [...this.props.projects, ...this.state.addedProjects];
 
     return (
-        <section>
-          <h2 className="spacer-bottom">
-            {translate('my_profile.per_project_notifications.title')}
-          </h2>
+      <section>
+        <h2 className="spacer-bottom">
+          {translate('my_profile.per_project_notifications.title')}
+        </h2>
 
-          {allProjects.length === 0 && (
-              <div className="note">
-                {translate('my_account.no_project_notifications')}
-              </div>
-          )}
+        {allProjects.length === 0 &&
+          <div className="note">
+            {translate('my_account.no_project_notifications')}
+          </div>}
 
-          {allProjects.map(project => (
-              <ProjectNotifications key={project.key} project={project}/>
-          ))}
+        {allProjects.map(project => <ProjectNotifications key={project.key} project={project} />)}
 
-          <div className="spacer-top panel bg-muted">
-            <span className="text-middle spacer-right">
-              Set notifications for:
-            </span>
-            <Select.Async
-                autoload={false}
-                cache={false}
-                name="new_project"
-                style={{ width: '300px' }}
-                loadOptions={this.loadOptions}
-                minimumInput={2}
-                optionRenderer={this.renderOption}
-                onChange={this.handleAddProject}
-                placeholder="Search Project"/>
-          </div>
-        </section>
+        <div className="spacer-top panel bg-muted">
+          <span className="text-middle spacer-right">
+            Set notifications for:
+          </span>
+          <Select.Async
+            autoload={false}
+            cache={false}
+            name="new_project"
+            style={{ width: '300px' }}
+            loadOptions={this.loadOptions}
+            minimumInput={2}
+            optionRenderer={this.renderOption}
+            onChange={this.handleAddProject}
+            placeholder="Search Project"
+          />
+        </div>
+      </section>
     );
   }
 }

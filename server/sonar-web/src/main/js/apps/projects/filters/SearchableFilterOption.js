@@ -26,7 +26,7 @@ export default class SearchableFilterOption extends React.PureComponent {
     option: React.PropTypes.object
   };
 
-  render () {
+  render() {
     const optionName = this.props.option ? this.props.option.name : this.props.optionKey;
     return <span>{this.props.optionKey !== '<null>' ? optionName : translate('unknown')}</span>;
   }

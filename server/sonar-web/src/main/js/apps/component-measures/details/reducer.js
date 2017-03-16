@@ -27,16 +27,20 @@ const initialState = {
   periods: undefined
 };
 
-export default function appReducer (state = initialState, action = {}) {
+export default function appReducer(state = initialState, action = {}) {
   switch (action.type) {
     case DISPLAY_HOME:
       return initialState;
     case REQUEST_MEASURE:
       return { ...state, metric: action.metric };
     case RECEIVE_MEASURE:
-      return { ...state, measure: action.measure, secondaryMeasure: action.secondaryMeasure, periods: action.periods };
+      return {
+        ...state,
+        measure: action.measure,
+        secondaryMeasure: action.secondaryMeasure,
+        periods: action.periods
+      };
     default:
       return state;
   }
 }
-

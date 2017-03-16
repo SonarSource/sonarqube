@@ -24,10 +24,7 @@ export default State.extend({
     page: 1,
     maxResultsReached: false,
     query: {},
-    facets: [
-      'types',
-      'languages'
-    ],
+    facets: ['types', 'languages'],
     allFacets: [
       'q',
       'rule_key',

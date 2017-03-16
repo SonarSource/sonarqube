@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- // @flow
+// @flow
 import { getJSON, post, postJSON } from '../helpers/request';
 
 const PAGE_SIZE = 100;
 
-export function grantPermissionToUser (
-    projectKey: string | null,
-    login: string,
-    permission: string,
-    organization?: string
+export function grantPermissionToUser(
+  projectKey: string | null,
+  login: string,
+  permission: string,
+  organization?: string
 ) {
   const url = '/api/permissions/add_user';
   const data: Object = { login, permission };
@@ -39,11 +39,11 @@ export function grantPermissionToUser (
   return post(url, data);
 }
 
-export function revokePermissionFromUser (
-    projectKey: string | null,
-    login: string,
-    permission: string,
-    organization?: string
+export function revokePermissionFromUser(
+  projectKey: string | null,
+  login: string,
+  permission: string,
+  organization?: string
 ) {
   const url = '/api/permissions/remove_user';
   const data: Object = { login, permission };
@@ -56,11 +56,11 @@ export function revokePermissionFromUser (
   return post(url, data);
 }
 
-export function grantPermissionToGroup (
-    projectKey: string | null,
-    groupName: string,
-    permission: string,
-    organization?: string
+export function grantPermissionToGroup(
+  projectKey: string | null,
+  groupName: string,
+  permission: string,
+  organization?: string
 ) {
   const url = '/api/permissions/add_group';
   const data: Object = { groupName, permission };
@@ -73,11 +73,11 @@ export function grantPermissionToGroup (
   return post(url, data);
 }
 
-export function revokePermissionFromGroup (
-    projectKey: string | null,
-    groupName: string,
-    permission: string,
-    organization?: string
+export function revokePermissionFromGroup(
+  projectKey: string | null,
+  groupName: string,
+  permission: string,
+  organization?: string
 ) {
   const url = '/api/permissions/remove_group';
   const data: Object = { groupName, permission };
@@ -94,22 +94,19 @@ export function revokePermissionFromGroup (
  * Get list of permission templates
  * @returns {Promise}
  */
-export function getPermissionTemplates (organization?: string) {
+export function getPermissionTemplates(organization?: string) {
   const url = '/api/permissions/search_templates';
   return organization ? getJSON(url, { organization }) : getJSON(url);
 }
 
-export const createPermissionTemplate = (data: Object) => (
-    postJSON('/api/permissions/create_template', data)
-);
+export const createPermissionTemplate = (data: Object) =>
+  postJSON('/api/permissions/create_template', data);
 
-export const updatePermissionTemplate = (data: Object) => (
-    post('/api/permissions/update_template', data)
-);
+export const updatePermissionTemplate = (data: Object) =>
+  post('/api/permissions/update_template', data);
 
-export const deletePermissionTemplate = (data: Object) => (
-    post('/api/permissions/delete_template', data)
-);
+export const deletePermissionTemplate = (data: Object) =>
+  post('/api/permissions/delete_template', data);
 
 /**
  * Set default permission template for a given qualifier
@@ -117,61 +114,69 @@ export const deletePermissionTemplate = (data: Object) => (
  * @param {string} qualifier
  * @returns {Promise}
  */
-export function setDefaultPermissionTemplate (templateId: string, qualifier: string) {
+export function setDefaultPermissionTemplate(templateId: string, qualifier: string) {
   const url = '/api/permissions/set_default_template';
   const data = { templateId, qualifier };
   return post(url, data);
 }
 
-export function applyTemplateToProject (data: Object) {
+export function applyTemplateToProject(data: Object) {
   const url = '/api/permissions/apply_template';
   return post(url, data);
 }
 
-export function bulkApplyTemplate (data: Object) {
+export function bulkApplyTemplate(data: Object) {
   const url = '/api/permissions/bulk_apply_template';
   return post(url, data);
 }
 
-export function grantTemplatePermissionToUser (templateId: string, login: string, permission: string) {
+export function grantTemplatePermissionToUser(
+  templateId: string,
+  login: string,
+  permission: string
+) {
   const url = '/api/permissions/add_user_to_template';
   const data = { templateId, login, permission };
   return post(url, data);
 }
 
-export function revokeTemplatePermissionFromUser (templateId: string, login: string, permission: string) {
+export function revokeTemplatePermissionFromUser(
+  templateId: string,
+  login: string,
+  permission: string
+) {
   const url = '/api/permissions/remove_user_from_template';
   const data = { templateId, login, permission };
   return post(url, data);
 }
 
-export function grantTemplatePermissionToGroup (data: Object) {
+export function grantTemplatePermissionToGroup(data: Object) {
   const url = '/api/permissions/add_group_to_template';
   return post(url, data);
 }
 
-export function revokeTemplatePermissionFromGroup (data: Object) {
+export function revokeTemplatePermissionFromGroup(data: Object) {
   const url = '/api/permissions/remove_group_from_template';
   return post(url, data);
 }
 
-export function addProjectCreatorToTemplate (templateId: string, permission: string) {
+export function addProjectCreatorToTemplate(templateId: string, permission: string) {
   const url = '/api/permissions/add_project_creator_to_template';
   const data = { templateId, permission };
   return post(url, data);
 }
 
-export function removeProjectCreatorFromTemplate (templateId: string, permission: string) {
+export function removeProjectCreatorFromTemplate(templateId: string, permission: string) {
   const url = '/api/permissions/remove_project_creator_from_template';
   const data = { templateId, permission };
   return post(url, data);
 }
 
-export function getPermissionsUsersForComponent (
-    projectKey: string,
-    query?: string,
-    permission?: string,
-    organization?: string
+export function getPermissionsUsersForComponent(
+  projectKey: string,
+  query?: string,
+  permission?: string,
+  organization?: string
 ) {
   const url = '/api/permissions/users';
   const data: Object = { projectKey, ps: PAGE_SIZE };
@@ -187,11 +192,11 @@ export function getPermissionsUsersForComponent (
   return getJSON(url, data).then(r => r.users);
 }
 
-export function getPermissionsGroupsForComponent (
-    projectKey: string,
-    query: string = '',
-    permission?: string,
-    organization?: string
+export function getPermissionsGroupsForComponent(
+  projectKey: string,
+  query: string = '',
+  permission?: string,
+  organization?: string
 ) {
   const url = '/api/permissions/groups';
   const data: Object = { projectKey, ps: PAGE_SIZE };
@@ -207,10 +212,10 @@ export function getPermissionsGroupsForComponent (
   return getJSON(url, data).then(r => r.groups);
 }
 
-export function getGlobalPermissionsUsers (
-    query?: string,
-    permission?: string,
-    organization?: string
+export function getGlobalPermissionsUsers(
+  query?: string,
+  permission?: string,
+  organization?: string
 ) {
   const url = '/api/permissions/users';
   const data: Object = { ps: PAGE_SIZE };
@@ -226,10 +231,10 @@ export function getGlobalPermissionsUsers (
   return getJSON(url, data).then(r => r.users);
 }
 
-export function getGlobalPermissionsGroups (
-    query?: string,
-    permission?: string,
-    organization?: string
+export function getGlobalPermissionsGroups(
+  query?: string,
+  permission?: string,
+  organization?: string
 ) {
   const url = '/api/permissions/groups';
   const data: Object = { ps: PAGE_SIZE };
@@ -245,11 +250,11 @@ export function getGlobalPermissionsGroups (
   return getJSON(url, data).then(r => r.groups);
 }
 
-export function getPermissionTemplateUsers (
-    templateId: string,
-    query?: string,
-    permission?: string,
-    organization?: string
+export function getPermissionTemplateUsers(
+  templateId: string,
+  query?: string,
+  permission?: string,
+  organization?: string
 ) {
   const url = '/api/permissions/template_users';
   const data: Object = { templateId, ps: PAGE_SIZE };
@@ -265,11 +270,11 @@ export function getPermissionTemplateUsers (
   return getJSON(url, data).then(r => r.users);
 }
 
-export function getPermissionTemplateGroups (
-    templateId: string,
-    query?: string,
-    permission?: string,
-    organization?: string
+export function getPermissionTemplateGroups(
+  templateId: string,
+  query?: string,
+  permission?: string,
+  organization?: string
 ) {
   const url = '/api/permissions/template_groups';
   const data: Object = { templateId, ps: PAGE_SIZE };

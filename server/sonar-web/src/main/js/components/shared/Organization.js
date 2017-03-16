@@ -24,17 +24,14 @@ import { getOrganizationByKey, areThereCustomOrganizations } from '../../store/r
 import OrganizationLink from '../ui/OrganizationLink';
 
 type OwnProps = {
-  organizationKey: string,
+  organizationKey: string
 };
 
 type Props = {
   link?: boolean,
   organizationKey: string,
-  organization: null | {
-    key: string,
-    name: string
-  },
-  shouldBeDisplayed: boolean,
+  organization: { key: string, name: string } | null,
+  shouldBeDisplayed: boolean
 };
 
 class Organization extends React.Component {
@@ -44,7 +41,7 @@ class Organization extends React.Component {
     link: true
   };
 
-  render () {
+  render() {
     const { organization, shouldBeDisplayed } = this.props;
 
     if (!shouldBeDisplayed || !organization) {
@@ -52,14 +49,12 @@ class Organization extends React.Component {
     }
 
     return (
-        <span>
-          {this.props.link ? (
-              <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
-          ) : (
-              organization.name
-          )}
-          <span className="slash-separator"/>
-        </span>
+      <span>
+        {this.props.link
+          ? <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+          : organization.name}
+        <span className="slash-separator" />
+      </span>
     );
   }
 }

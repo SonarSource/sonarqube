@@ -45,32 +45,36 @@ class App extends React.Component {
     }
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
 
-    this.props.fetchCurrentUser()
-        .then(() => Promise.all([
+    this.props
+      .fetchCurrentUser()
+      .then(() =>
+        Promise.all([
           this.props.fetchAppState(),
           this.props.fetchOrganizations(),
           this.props.fetchLanguages()
         ]))
-        .then(this.finishLoading, this.finishLoading);
+      .then(this.finishLoading, this.finishLoading);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  render () {
+  render() {
     if (this.state.loading) {
-      return <GlobalLoading/>;
+      return <GlobalLoading />;
     }
 
     return this.props.children;
   }
 }
 
-export default connect(
-  null,
-    { fetchAppState, fetchCurrentUser, fetchLanguages, fetchOrganizations }
-)(App);
+export default connect(null, {
+  fetchAppState,
+  fetchCurrentUser,
+  fetchLanguages,
+  fetchOrganizations
+})(App);

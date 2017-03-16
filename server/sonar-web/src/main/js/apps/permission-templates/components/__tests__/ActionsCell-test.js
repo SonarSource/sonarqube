@@ -28,13 +28,14 @@ const SAMPLE = {
   defaultFor: []
 };
 
-function renderActionsCell (props) {
+function renderActionsCell(props) {
   return shallow(
     <ActionsCell
-          permissionTemplate={SAMPLE}
-          topQualifiers={['TRK', 'VW']}
-          refresh={() => true}
-          {...props}/>
+      permissionTemplate={SAMPLE}
+      topQualifiers={['TRK', 'VW']}
+      refresh={() => true}
+      {...props}
+    />
   );
 }
 

@@ -24,7 +24,7 @@ import { addCustomEvent } from '../../actions';
 import AddEventForm from './AddEventForm';
 
 const AddCustomEventForm = props => (
-    <AddEventForm {...props} addEventButtonText="project_activity.add_custom_event"/>
+  <AddEventForm {...props} addEventButtonText="project_activity.add_custom_event" />
 );
 
 const mapStateToProps = null;

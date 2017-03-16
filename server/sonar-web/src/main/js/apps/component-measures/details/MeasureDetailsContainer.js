@@ -42,7 +42,4 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = { fetchMeasure };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MeasureDetails);
+export default connect(mapStateToProps, mapDispatchToProps)(MeasureDetails);

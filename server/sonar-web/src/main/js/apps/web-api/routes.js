@@ -22,6 +22,6 @@ import { IndexRoute, Route } from 'react-router';
 import WebApiApp from './components/WebApiApp';
 
 export default [
-  <IndexRoute key="index" component={WebApiApp}/>,
-  <Route key="splat" path="**" component={WebApiApp}/>
+  <IndexRoute key="index" component={WebApiApp} />,
+  <Route key="splat" path="**" component={WebApiApp} />
 ];

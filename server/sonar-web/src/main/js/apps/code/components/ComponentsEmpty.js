@@ -21,14 +21,12 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 const ComponentsEmpty = () => (
-    <tr>
-      <td colSpan="2">
-        {translate('no_results')}
-      </td>
-      <td colSpan="6">
-        &nbsp;
-      </td>
-    </tr>
+  <tr>
+    <td colSpan="2">
+      {translate('no_results')}
+    </td>
+    <td colSpan="6" />
+  </tr>
 );
 
 export default ComponentsEmpty;

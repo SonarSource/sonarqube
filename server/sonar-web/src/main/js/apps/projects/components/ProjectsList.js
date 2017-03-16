@@ -31,17 +31,17 @@ export default class ProjectsList extends React.PureComponent {
     organization: React.PropTypes.object
   };
 
-  renderNoProjects () {
+  renderNoProjects() {
     if (this.props.isFavorite && !this.props.isFiltered) {
-      return <NoFavoriteProjects/>;
+      return <NoFavoriteProjects />;
     } else if (!this.props.isFiltered) {
-      return <EmptyInstance/>;
+      return <EmptyInstance />;
     } else {
-      return <NoProjects/>;
+      return <NoProjects />;
     }
   }
 
-  render () {
+  render() {
     const { projects } = this.props;
 
     if (projects == null) {
@@ -49,18 +49,17 @@ export default class ProjectsList extends React.PureComponent {
     }
 
     return (
-        <div className="projects-list">
-          {projects.length > 0 ? (
-              projects.map(projectKey => (
-                  <ProjectCardContainer
-                      key={projectKey}
-                      projectKey={projectKey}
-                      organization={this.props.organization}/>
-              ))
-          ) : (
-              this.renderNoProjects()
-          )}
-        </div>
+      <div className="projects-list">
+        {projects.length > 0
+          ? projects.map(projectKey => (
+              <ProjectCardContainer
+                key={projectKey}
+                projectKey={projectKey}
+                organization={this.props.organization}
+              />
+            ))
+          : this.renderNoProjects()}
+      </div>
     );
   }
 }

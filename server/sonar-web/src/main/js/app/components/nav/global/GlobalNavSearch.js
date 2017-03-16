@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import SearchView from './SearchView';
 import { getCurrentUser } from '../../../../store/rootReducer';
 
-function contains (root, node) {
+function contains(root, node) {
   while (node) {
     if (node === root) {
       return true;
@@ -36,7 +36,7 @@ function contains (root, node) {
 class GlobalNavSearch extends React.Component {
   state = { open: false };
 
-  componentDidMount () {
+  componentDidMount() {
     key('s', () => {
       const isModalOpen = document.querySelector('html').classList.contains('modal-open');
       if (!isModalOpen) {
@@ -46,7 +46,7 @@ class GlobalNavSearch extends React.Component {
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.closeSearch();
     key.unbind('s');
   }
@@ -92,15 +92,18 @@ class GlobalNavSearch extends React.Component {
     }
   };
 
-  render () {
+  render() {
     const dropdownClassName = 'dropdown' + (this.state.open ? ' open' : '');
     return (
-        <li ref="dropdown" className={dropdownClassName}>
-          <a className="navbar-search-dropdown" href="#" onClick={this.onClick}>
-            <i className="icon-search navbar-icon"/>&nbsp;<i className="icon-dropdown"/>
-          </a>
-          <div ref="container" className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"/>
-        </li>
+      <li ref="dropdown" className={dropdownClassName}>
+        <a className="navbar-search-dropdown" href="#" onClick={this.onClick}>
+          <i className="icon-search navbar-icon" />&nbsp;<i className="icon-dropdown" />
+        </a>
+        <div
+          ref="container"
+          className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"
+        />
+      </li>
     );
   }
 }

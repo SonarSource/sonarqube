@@ -35,7 +35,7 @@ type Props = {
   facet?: {},
   isFavorite?: boolean,
   organization?: {},
-  maxFacetValue?: number,
+  maxFacetValue?: number
 };
 
 type State = {
@@ -56,14 +56,14 @@ export default class TagsFilter extends React.PureComponent {
   };
   property = 'tags';
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  renderOption = (option: string) => <SearchableFilterOption optionKey={option}/>;
+  renderOption = (option: string) => <SearchableFilterOption optionKey={option} />;
 
-  getSearchOptions (facet: {}, tags: Array<string>) {
+  getSearchOptions(facet: {}, tags: Array<string>) {
     let tagsCopy = [...tags];
     if (facet) {
       tagsCopy = difference(tagsCopy, Object.keys(facet));
@@ -81,13 +81,13 @@ export default class TagsFilter extends React.PureComponent {
     }
   };
 
-  getSortedOptions (facet: {} = {}) {
+  getSortedOptions(facet: {} = {}) {
     return sortBy(Object.keys(facet), [option => -facet[option], option => option]);
   }
 
   getFacetValueForOption = (facet: {}, option: string) => facet[option];
 
-  render () {
+  render() {
     return (
       <Filter
         property={this.property}
@@ -101,7 +101,7 @@ export default class TagsFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={<FilterHeader name="Tags"/>}
+        header={<FilterHeader name="Tags" />}
         footer={
           <SearchableFilterFooter
             property={this.property}
@@ -112,8 +112,10 @@ export default class TagsFilter extends React.PureComponent {
             onInputChange={this.handleSearch}
             isFavorite={this.props.isFavorite}
             organization={this.props.organization}
-            router={this.props.router}/>
-        }/>
+            router={this.props.router}
+          />
+        }
+      />
     );
   }
 }

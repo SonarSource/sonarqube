@@ -45,11 +45,11 @@ class RemoveAnalysisForm extends React.Component {
     processing: false
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
@@ -80,51 +80,52 @@ class RemoveAnalysisForm extends React.Component {
   handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.deleteAnalysis(this.props.project, this.props.analysis.key)
-        .then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props
+      .deleteAnalysis(this.props.project, this.props.analysis.key)
+      .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
-  renderModal () {
+  renderModal() {
     return (
-        <Modal isOpen={true}
-               contentLabel="modal form"
-               className="modal"
-               overlayClassName="modal-overlay"
-               onRequestClose={this.closeForm}>
+      <Modal
+        isOpen={true}
+        contentLabel="modal form"
+        className="modal"
+        overlayClassName="modal-overlay"
+        onRequestClose={this.closeForm}
+      >
 
-          <header className="modal-head">
-            <h2>{translate('project_activity.delete_analysis')}</h2>
-          </header>
+        <header className="modal-head">
+          <h2>{translate('project_activity.delete_analysis')}</h2>
+        </header>
 
-          <form onSubmit={this.handleSubmit}>
-            <div className="modal-body">
-              {translate('project_activity.delete_analysis.question')}
-            </div>
+        <form onSubmit={this.handleSubmit}>
+          <div className="modal-body">
+            {translate('project_activity.delete_analysis.question')}
+          </div>
 
-            <footer className="modal-foot">
-              {this.state.processing ? (
-                      <i className="spinner"/>
-                  ) : (
-                      <div>
-                        <button type="submit" className="button-red">{translate('delete')}</button>
-                        <button type="reset" className="button-link" onClick={this.closeForm}>
-                          {translate('cancel')}
-                        </button>
-                      </div>
-                  )}
-            </footer>
-          </form>
+          <footer className="modal-foot">
+            {this.state.processing
+              ? <i className="spinner" />
+              : <div>
+                  <button type="submit" className="button-red">{translate('delete')}</button>
+                  <button type="reset" className="button-link" onClick={this.closeForm}>
+                    {translate('cancel')}
+                  </button>
+                </div>}
+          </footer>
+        </form>
 
-        </Modal>
+      </Modal>
     );
   }
 
-  render () {
+  render() {
     return (
-        <button className="js-delete-analysis button-small button-red" onClick={this.openForm}>
-          {translate('delete')}
-          {this.state.open && this.renderModal()}
-        </button>
+      <button className="js-delete-analysis button-small button-red" onClick={this.openForm}>
+        {translate('delete')}
+        {this.state.open && this.renderModal()}
+      </button>
     );
   }
 }

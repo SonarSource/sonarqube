@@ -24,7 +24,7 @@ import Template from '../templates/facets/coding-rules-template-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     BaseFacet.prototype.onRender.apply(this, arguments);
     const value = this.options.app.state.get('query').is_template;
     if (value != null) {
@@ -32,7 +32,7 @@ export default BaseFacet.extend({
     }
   },
 
-  toggleFacet (e) {
+  toggleFacet(e) {
     $(e.currentTarget).toggleClass('active');
     const property = this.model.get('property');
     const obj = {};
@@ -43,5 +43,4 @@ export default BaseFacet.extend({
     }
     this.options.app.state.updateFilter(obj);
   }
-
 });

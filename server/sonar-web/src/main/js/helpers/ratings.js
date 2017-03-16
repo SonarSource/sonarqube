@@ -29,33 +29,26 @@ export const getCoverageRatingLabel = rating => {
   const mapping = ['≥ 80%', '< 80%', '< 70%', '< 50%', '< 30%'];
   return mapping[rating - 1];
 };
-
 export const getCoverageRatingAverageValue = rating => {
   checkNumberRating(rating);
   const mapping = [90, 75, 60, 40, 15];
   return mapping[rating - 1];
 };
-
 export const getDuplicationsRatingLabel = rating => {
   checkNumberRating(rating);
-
   const mapping = ['< 3%', '≥ 3%', '> 5%', '> 10%', '> 20%'];
   return mapping[rating - 1];
 };
-
 export const getDuplicationsRatingAverageValue = rating => {
   checkNumberRating(rating);
   const mapping = [1.5, 4, 7.5, 15, 30];
   return mapping[rating - 1];
 };
-
 export const getSizeRatingLabel = rating => {
   checkNumberRating(rating);
-
   const mapping = ['< 1k', '≥ 1k', '> 10k', '> 100k', '> 500k'];
   return mapping[rating - 1];
 };
-
 export const getSizeRatingAverageValue = rating => {
   checkNumberRating(rating);
   const mapping = [500, 5000, 50000, 250000, 750000];

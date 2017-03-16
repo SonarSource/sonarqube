@@ -25,20 +25,20 @@ import ParameterChange from '../ParameterChange';
 
 it('should render changes', () => {
   const changes = { severity: 'BLOCKER', foo: 'bar' };
-  const output = shallow(<ChangesList changes={changes}/>);
+  const output = shallow(<ChangesList changes={changes} />);
   expect(output.find('li').length).toBe(2);
 });
 
 it('should render severity change', () => {
   const changes = { severity: 'BLOCKER' };
-  const output = shallow(<ChangesList changes={changes}/>).find(SeverityChange);
+  const output = shallow(<ChangesList changes={changes} />).find(SeverityChange);
   expect(output.length).toBe(1);
   expect(output.prop('severity')).toBe('BLOCKER');
 });
 
 it('should render parameter change', () => {
   const changes = { foo: 'bar' };
-  const output = shallow(<ChangesList changes={changes}/>).find(ParameterChange);
+  const output = shallow(<ChangesList changes={changes} />).find(ParameterChange);
   expect(output.length).toBe(1);
   expect(output.prop('name')).toBe('foo');
   expect(output.prop('value')).toBe('bar');

@@ -27,28 +27,28 @@ export default class Password extends Component {
     errors: null
   };
 
-  handleSuccessfulChange () {
+  handleSuccessfulChange() {
     this.refs.oldPassword.value = '';
     this.refs.password.value = '';
     this.refs.passwordConfirmation.value = '';
     this.setState({ success: true, errors: null });
   }
 
-  handleFailedChange (e) {
+  handleFailedChange(e) {
     e.response.json().then(r => {
       this.refs.oldPassword.focus();
       this.setErrors(r.errors.map(e => e.msg));
     });
   }
 
-  setErrors (errors) {
+  setErrors(errors) {
     this.setState({
       success: false,
       errors
     });
   }
 
-  handleChangePassword (e) {
+  handleChangePassword(e) {
     e.preventDefault();
 
     const { user } = this.props;
@@ -61,77 +61,77 @@ export default class Password extends Component {
       this.setErrors([translate('user.password_doesnt_match_confirmation')]);
     } else {
       changePassword(user.login, password, oldPassword)
-          .then(this.handleSuccessfulChange.bind(this))
-          .catch(this.handleFailedChange.bind(this));
+        .then(this.handleSuccessfulChange.bind(this))
+        .catch(this.handleFailedChange.bind(this));
     }
   }
 
-  render () {
+  render() {
     const { success, errors } = this.state;
 
     return (
-        <section>
-          <h2 className="spacer-bottom">
-            {translate('my_profile.password.title')}
-          </h2>
+      <section>
+        <h2 className="spacer-bottom">
+          {translate('my_profile.password.title')}
+        </h2>
 
-          <form onSubmit={this.handleChangePassword.bind(this)}>
-            {success && (
-                <div className="alert alert-success">
-                  {translate('my_profile.password.changed')}
-                </div>
-            )}
+        <form onSubmit={this.handleChangePassword.bind(this)}>
+          {success &&
+            <div className="alert alert-success">
+              {translate('my_profile.password.changed')}
+            </div>}
 
-            {errors && errors.map((e, i) => (
-                <div key={i} className="alert alert-danger">{e}</div>
-            ))}
+          {errors && errors.map((e, i) => <div key={i} className="alert alert-danger">{e}</div>)}
 
-            <div className="modal-field">
-              <label htmlFor="old_password">
-                {translate('my_profile.password.old')}
-                <em className="mandatory">*</em>
-              </label>
-              <input
-                  ref="oldPassword"
-                  autoComplete="off"
-                  id="old_password"
-                  name="old_password"
-                  required={true}
-                  type="password"/>
-            </div>
-            <div className="modal-field">
-              <label htmlFor="password">
-                {translate('my_profile.password.new')}
-                <em className="mandatory">*</em>
-              </label>
-              <input
-                  ref="password"
-                  autoComplete="off"
-                  id="password"
-                  name="password"
-                  required={true}
-                  type="password"/>
-            </div>
-            <div className="modal-field">
-              <label htmlFor="password_confirmation">
-                {translate('my_profile.password.confirm')}
-                <em className="mandatory">*</em>
-              </label>
-              <input
-                  ref="passwordConfirmation"
-                  autoComplete="off"
-                  id="password_confirmation"
-                  name="password_confirmation"
-                  required={true}
-                  type="password"/>
-            </div>
-            <div className="modal-field">
-              <button id="change-password" type="submit">
-                {translate('my_profile.password.submit')}
-              </button>
-            </div>
-          </form>
-        </section>
+          <div className="modal-field">
+            <label htmlFor="old_password">
+              {translate('my_profile.password.old')}
+              <em className="mandatory">*</em>
+            </label>
+            <input
+              ref="oldPassword"
+              autoComplete="off"
+              id="old_password"
+              name="old_password"
+              required={true}
+              type="password"
+            />
+          </div>
+          <div className="modal-field">
+            <label htmlFor="password">
+              {translate('my_profile.password.new')}
+              <em className="mandatory">*</em>
+            </label>
+            <input
+              ref="password"
+              autoComplete="off"
+              id="password"
+              name="password"
+              required={true}
+              type="password"
+            />
+          </div>
+          <div className="modal-field">
+            <label htmlFor="password_confirmation">
+              {translate('my_profile.password.confirm')}
+              <em className="mandatory">*</em>
+            </label>
+            <input
+              ref="passwordConfirmation"
+              autoComplete="off"
+              id="password_confirmation"
+              name="password_confirmation"
+              required={true}
+              type="password"
+            />
+          </div>
+          <div className="modal-field">
+            <button id="change-password" type="submit">
+              {translate('my_profile.password.submit')}
+            </button>
+          </div>
+        </form>
+      </section>
     );
   }
 }

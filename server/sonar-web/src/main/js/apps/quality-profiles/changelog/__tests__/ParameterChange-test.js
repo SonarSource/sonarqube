@@ -22,7 +22,7 @@ import React from 'react';
 import ParameterChange from '../ParameterChange';
 
 it('should render different messages', () => {
-  const first = shallow(<ParameterChange name="foo"/>);
-  const second = shallow(<ParameterChange name="foo" value="bar"/>);
+  const first = shallow(<ParameterChange name="foo" />);
+  const second = shallow(<ParameterChange name="foo" value="bar" />);
   expect(first.text()).not.toBe(second.text());
 });

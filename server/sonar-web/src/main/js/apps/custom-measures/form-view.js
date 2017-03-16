@@ -24,13 +24,13 @@ import Template from './templates/custom-measures-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  initialize () {
+  initialize() {
     this.metrics = new Metrics();
     this.listenTo(this.metrics, 'reset', this.render);
     this.metrics.fetch({ reset: true });
   },
 
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     this.$('#create-custom-measure-metric').select2({
@@ -39,22 +39,22 @@ export default ModalForm.extend({
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  getAvailableMetrics () {
+  getAvailableMetrics() {
     const takenMetrics = this.collection.getTakenMetrics();
     return this.metrics.toJSON().filter(metric => takenMetrics.indexOf(metric.id) === -1);
   },
 
-  serializeData () {
+  serializeData() {
     const metrics = this.getAvailableMetrics();
     const isNew = !this.model;
     return {
@@ -64,4 +64,3 @@ export default ModalForm.extend({
     };
   }
 });
-

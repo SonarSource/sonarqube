@@ -35,13 +35,13 @@ export const Bubble = React.createClass({
     link: React.PropTypes.any
   },
 
-  handleClick () {
+  handleClick() {
     if (this.props.onClick) {
       this.props.onClick(this.props.link);
     }
   },
 
-  render () {
+  render() {
     let tooltipAttrs = {};
     if (this.props.tooltip) {
       tooltipAttrs = {
@@ -50,9 +50,13 @@ export const Bubble = React.createClass({
       };
     }
     return (
-        <circle onClick={this.handleClick} className="bubble-chart-bubble"
-                r={this.props.r} {...tooltipAttrs}
-                transform={`translate(${this.props.x}, ${this.props.y})`}/>
+      <circle
+        onClick={this.handleClick}
+        className="bubble-chart-bubble"
+        r={this.props.r}
+        {...tooltipAttrs}
+        transform={`translate(${this.props.x}, ${this.props.y})`}
+      />
     );
   }
 });
@@ -74,7 +78,7 @@ export const BubbleChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps () {
+  getDefaultProps() {
     return {
       sizeRange: [5, 45],
       displayXGrid: true,
@@ -87,11 +91,11 @@ export const BubbleChart = React.createClass({
     };
   },
 
-  getInitialState () {
+  getInitialState() {
     return { width: this.props.width, height: this.props.height };
   },
 
-  getXRange (xScale, sizeScale, availableWidth) {
+  getXRange(xScale, sizeScale, availableWidth) {
     const minX = d3.min(this.props.items, d => xScale(d.x) - sizeScale(d.size));
     const maxX = d3.max(this.props.items, d => xScale(d.x) + sizeScale(d.size));
     const dMinX = minX < 0 ? xScale.range()[0] - minX : xScale.range()[0];
@@ -99,7 +103,7 @@ export const BubbleChart = React.createClass({
     return [dMinX, availableWidth - dMaxX];
   },
 
-  getYRange (yScale, sizeScale, availableHeight) {
+  getYRange(yScale, sizeScale, availableHeight) {
     const minY = d3.min(this.props.items, d => yScale(d.y) - sizeScale(d.size));
     const maxY = d3.max(this.props.items, d => yScale(d.y) + sizeScale(d.size));
     const dMinY = minY < 0 ? yScale.range()[1] - minY : yScale.range()[1];
@@ -107,14 +111,14 @@ export const BubbleChart = React.createClass({
     return [availableHeight - dMaxY, dMinY];
   },
 
-  getTicks (scale, format) {
+  getTicks(scale, format) {
     const ticks = scale.ticks(TICKS_COUNT).map(tick => format(tick));
     const uniqueTicksCount = uniq(ticks).length;
     const ticksCount = uniqueTicksCount < TICKS_COUNT ? uniqueTicksCount - 1 : TICKS_COUNT;
     return scale.ticks(ticksCount);
   },
 
-  renderXGrid (ticks, xScale, yScale) {
+  renderXGrid(ticks, xScale, yScale) {
     if (!this.props.displayXGrid) {
       return null;
     }
@@ -123,21 +127,13 @@ export const BubbleChart = React.createClass({
       const x = xScale(tick);
       const y1 = yScale.range()[0];
       const y2 = yScale.range()[1];
-      return (
-          <line
-              key={index}
-              x1={x}
-              x2={x}
-              y1={y1}
-              y2={y2}
-              className="bubble-chart-grid"/>
-      );
+      return <line key={index} x1={x} x2={x} y1={y1} y2={y2} className="bubble-chart-grid" />;
     });
 
     return <g ref="xGrid">{lines}</g>;
   },
 
-  renderYGrid (ticks, xScale, yScale) {
+  renderYGrid(ticks, xScale, yScale) {
     if (!this.props.displayYGrid) {
       return null;
     }
@@ -146,21 +142,13 @@ export const BubbleChart = React.createClass({
       const y = yScale(tick);
       const x1 = xScale.range()[0];
       const x2 = xScale.range()[1];
-      return (
-          <line
-              key={index}
-              x1={x1}
-              x2={x2}
-              y1={y}
-              y2={y}
-              className="bubble-chart-grid"/>
-      );
+      return <line key={index} x1={x1} x2={x2} y1={y} y2={y} className="bubble-chart-grid" />;
     });
 
     return <g ref="yGrid">{lines}</g>;
   },
 
-  renderXTicks (xTicks, xScale, yScale) {
+  renderXTicks(xTicks, xScale, yScale) {
     if (!this.props.displayXTicks) {
       return null;
     }
@@ -170,21 +158,16 @@ export const BubbleChart = React.createClass({
       const y = yScale.range()[0];
       const innerText = this.props.formatXTick(tick);
       return (
-          <text
-              key={index}
-              className="bubble-chart-tick"
-              x={x}
-              y={y}
-              dy="1.5em">
-            {innerText}
-          </text>
+        <text key={index} className="bubble-chart-tick" x={x} y={y} dy="1.5em">
+          {innerText}
+        </text>
       );
     });
 
     return <g>{ticks}</g>;
   },
 
-  renderYTicks (yTicks, xScale, yScale) {
+  renderYTicks(yTicks, xScale, yScale) {
     if (!this.props.displayYTicks) {
       return null;
     }
@@ -194,40 +177,44 @@ export const BubbleChart = React.createClass({
       const y = yScale(tick);
       const innerText = this.props.formatYTick(tick);
       return (
-          <text
-              key={index}
-              className="bubble-chart-tick bubble-chart-tick-y"
-              x={x}
-              y={y}
-              dx="-0.5em"
-              dy="0.3em">
-            {innerText}
-          </text>
+        <text
+          key={index}
+          className="bubble-chart-tick bubble-chart-tick-y"
+          x={x}
+          y={y}
+          dx="-0.5em"
+          dy="0.3em"
+        >
+          {innerText}
+        </text>
       );
     });
 
     return <g>{ticks}</g>;
   },
 
-  render () {
+  render() {
     if (!this.state.width || !this.state.height) {
-      return <div/>;
+      return <div />;
     }
 
     const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    const xScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.x)])
-        .range([0, availableWidth])
-        .nice();
-    const yScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.y)])
-        .range([availableHeight, 0])
-        .nice();
-    const sizeScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.size)])
-        .range(this.props.sizeRange);
+    const xScale = d3.scale
+      .linear()
+      .domain([0, d3.max(this.props.items, d => d.x)])
+      .range([0, availableWidth])
+      .nice();
+    const yScale = d3.scale
+      .linear()
+      .domain([0, d3.max(this.props.items, d => d.y)])
+      .range([availableHeight, 0])
+      .nice();
+    const sizeScale = d3.scale
+      .linear()
+      .domain([0, d3.max(this.props.items, d => d.size)])
+      .range(this.props.sizeRange);
 
     const xScaleOriginal = xScale.copy();
     const yScaleOriginal = yScale.copy();
@@ -235,31 +222,33 @@ export const BubbleChart = React.createClass({
     xScale.range(this.getXRange(xScale, sizeScale, availableWidth));
     yScale.range(this.getYRange(yScale, sizeScale, availableHeight));
 
-    const bubbles = sortBy(this.props.items, b => -b.size)
-        .map((item, index) => {
-          return (
-              <Bubble
-                  key={index}
-                  link={item.link}
-                  tooltip={item.tooltip}
-                  x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}
-                  onClick={this.props.onBubbleClick}/>
-          );
-        });
+    const bubbles = sortBy(this.props.items, b => -b.size).map((item, index) => {
+      return (
+        <Bubble
+          key={index}
+          link={item.link}
+          tooltip={item.tooltip}
+          x={xScale(item.x)}
+          y={yScale(item.y)}
+          r={sizeScale(item.size)}
+          onClick={this.props.onBubbleClick}
+        />
+      );
+    });
 
     const xTicks = this.getTicks(xScale, this.props.formatXTick);
     const yTicks = this.getTicks(yScale, this.props.formatYTick);
 
     return (
-        <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
-          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-            {this.renderXGrid(xTicks, xScale, yScale)}
-            {this.renderXTicks(xTicks, xScale, yScaleOriginal)}
-            {this.renderYGrid(yTicks, xScale, yScale)}
-            {this.renderYTicks(yTicks, xScaleOriginal, yScale)}
-            {bubbles}
-          </g>
-        </svg>
+      <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
+        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+          {this.renderXGrid(xTicks, xScale, yScale)}
+          {this.renderXTicks(xTicks, xScale, yScaleOriginal)}
+          {this.renderYGrid(yTicks, xScale, yScale)}
+          {this.renderYTicks(yTicks, xScaleOriginal, yScale)}
+          {bubbles}
+        </g>
+      </svg>
     );
   }
 });

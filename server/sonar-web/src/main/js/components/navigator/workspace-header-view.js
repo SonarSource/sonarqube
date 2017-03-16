@@ -20,15 +20,14 @@
 import Marionette from 'backbone.marionette';
 
 export default Marionette.ItemView.extend({
-
-  collectionEvents () {
+  collectionEvents() {
     return {
-      'all': 'shouldRender',
-      'limitReached': 'flashPagination'
+      all: 'shouldRender',
+      limitReached: 'flashPagination'
     };
   },
 
-  events () {
+  events() {
     return {
       'click .js-bulk-change': 'onBulkChangeClick',
       'click .js-reload': 'reload',
@@ -37,62 +36,62 @@ export default Marionette.ItemView.extend({
     };
   },
 
-  initialize (options) {
+  initialize(options) {
     this.listenTo(options.app.state, 'change', this.render);
   },
 
-  onRender () {
+  onRender() {
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onBeforeRender () {
+  onBeforeRender() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onBulkChangeClick (e) {
+  onBulkChangeClick(e) {
     e.preventDefault();
     this.bulkChange();
   },
 
-  bulkChange () {
+  bulkChange() {},
 
-  },
-
-  shouldRender (event) {
+  shouldRender(event) {
     if (event !== 'limitReached') {
       this.render();
     }
   },
 
-  reload () {
+  reload() {
     this.options.app.controller.fetchList();
   },
 
-  selectNext () {
+  selectNext() {
     this.options.app.controller.selectNext();
   },
 
-  selectPrev () {
+  selectPrev() {
     this.options.app.controller.selectPrev();
   },
 
-  flashPagination () {
+  flashPagination() {
     const flashElement = this.$('.search-navigator-header-pagination');
     flashElement.addClass('in');
-    setTimeout(() => {
-      flashElement.removeClass('in');
-    }, 2000);
+    setTimeout(
+      () => {
+        flashElement.removeClass('in');
+      },
+      2000
+    );
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       state: this.options.app.state.toJSON()
     };
   }
 });
-

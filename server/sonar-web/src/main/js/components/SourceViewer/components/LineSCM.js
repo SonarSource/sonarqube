@@ -35,7 +35,7 @@ export default class LineSCM extends React.PureComponent {
     this.props.onClick(this.props.line, e.target);
   };
 
-  isSCMChanged (s: SourceLine, p?: SourceLine) {
+  isSCMChanged(s: SourceLine, p?: SourceLine) {
     let changed = true;
     if (p != null && s.scmAuthor != null && p.scmAuthor != null) {
       changed = s.scmAuthor !== p.scmAuthor || s.scmDate !== p.scmDate;
@@ -43,7 +43,7 @@ export default class LineSCM extends React.PureComponent {
     return changed;
   }
 
-  render () {
+  render() {
     const { line, previousLine } = this.props;
     const clickable = !!line.line;
     return (
@@ -52,9 +52,10 @@ export default class LineSCM extends React.PureComponent {
         data-line-number={line.line}
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
-        onClick={clickable ? this.handleClick : undefined}>
+        onClick={clickable ? this.handleClick : undefined}
+      >
         {this.isSCMChanged(line, previousLine) &&
-          <div className="source-line-scm-inner" data-author={line.scmAuthor}/>}
+          <div className="source-line-scm-inner" data-author={line.scmAuthor} />}
       </td>
     );
   }

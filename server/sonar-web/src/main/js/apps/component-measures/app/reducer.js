@@ -23,7 +23,7 @@ const initialState = {
   metrics: undefined
 };
 
-export default function appReducer (state = initialState, action = {}) {
+export default function appReducer(state = initialState, action = {}) {
   switch (action.type) {
     case RECEIVE_METRICS:
       return { ...state, metrics: action.metrics };
@@ -33,4 +33,3 @@ export default function appReducer (state = initialState, action = {}) {
       return state;
   }
 }
-

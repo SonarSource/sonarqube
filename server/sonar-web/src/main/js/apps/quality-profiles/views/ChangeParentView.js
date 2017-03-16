@@ -24,7 +24,7 @@ import { changeProfileParent } from '../../../api/quality-profiles';
 export default ModalFormView.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('select').select2({
       allowClear: false,
@@ -33,35 +33,35 @@ export default ModalFormView.extend({
     });
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     let parent = this.$('#change-profile-parent').val();
     if (parent === '#none') {
       parent = '';
     }
     changeProfileParent(this.options.profile.key, parent)
-        .then(() => {
-          this.destroy();
-          this.trigger('done');
-        })
-        .catch(e => {
-          if (e.response.status === 400) {
-            this.enableForm();
-            e.response.json().then(r => this.showErrors(r.errors, r.warnings));
-          }
-        });
+      .then(() => {
+        this.destroy();
+        this.trigger('done');
+      })
+      .catch(e => {
+        if (e.response.status === 400) {
+          this.enableForm();
+          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+        }
+      });
   },
 
-  serializeData () {
+  serializeData() {
     const { profile } = this.options;
-    const profiles = this.options.profiles
-        .filter(p => p !== profile && p.language === profile.language);
+    const profiles = this.options.profiles.filter(
+      p => p !== profile && p.language === profile.language
+    );
     return { ...profile, profiles };
   }
 });
-

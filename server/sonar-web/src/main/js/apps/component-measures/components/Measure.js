@@ -30,27 +30,27 @@ export default class Measure extends React.Component {
     metric: React.PropTypes.object
   };
 
-  renderRating (measure, metric) {
+  renderRating(measure, metric) {
     const value = isDiffMetric(metric) ? measure.leak : measure.value;
     const tooltip = getRatingTooltip(metric.key, value);
-    const rating = <Rating value={value}/>;
+    const rating = <Rating value={value} />;
 
     if (tooltip) {
       return (
-          <TooltipsContainer>
-            <span>
-              <span title={tooltip} data-toggle="tooltip">
-                {rating}
-              </span>
+        <TooltipsContainer>
+          <span>
+            <span title={tooltip} data-toggle="tooltip">
+              {rating}
             </span>
-          </TooltipsContainer>
+          </span>
+        </TooltipsContainer>
       );
     }
 
     return rating;
   }
 
-  render () {
+  render() {
     const { measure, metric } = this.props;
     const finalMetric = metric || measure.metric;
 
@@ -59,17 +59,17 @@ export default class Measure extends React.Component {
     }
 
     if (finalMetric.type === 'LEVEL') {
-      return <Level level={measure.value}/>;
+      return <Level level={measure.value} />;
     }
 
-    const formattedValue = isDiffMetric(finalMetric) ?
-        formatLeak(measure.leak, finalMetric) :
-        formatMeasure(measure.value, finalMetric.type);
+    const formattedValue = isDiffMetric(finalMetric)
+      ? formatLeak(measure.leak, finalMetric)
+      : formatMeasure(measure.value, finalMetric.type);
 
     return (
-        <span>
-          {formattedValue != null ? formattedValue : '–'}
-        </span>
+      <span>
+        {formattedValue != null ? formattedValue : '–'}
+      </span>
     );
   }
 }

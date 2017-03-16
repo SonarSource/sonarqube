@@ -19,7 +19,13 @@
  */
 import { connect } from 'react-redux';
 import ListView from './ListView';
-import { fetchList, fetchMore, selectComponent, selectNext, selectPrevious } from '../../store/listViewActions';
+import {
+  fetchList,
+  fetchMore,
+  selectComponent,
+  selectNext,
+  selectPrevious
+} from '../../store/listViewActions';
 import {
   getMeasuresAppListComponents,
   getMeasuresAppListSelected,
@@ -46,7 +52,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onFetchList: (baseComponent, metric, periodIndex) => dispatch(fetchList(baseComponent, metric, periodIndex)),
+    onFetchList: (baseComponent, metric, periodIndex) =>
+      dispatch(fetchList(baseComponent, metric, periodIndex)),
     onFetchMore: periodIndex => dispatch(fetchMore(periodIndex)),
     onSelect: component => dispatch(selectComponent(component)),
     onSelectNext: component => dispatch(selectNext(component)),
@@ -54,7 +61,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ListView);
+export default connect(mapStateToProps, mapDispatchToProps)(ListView);

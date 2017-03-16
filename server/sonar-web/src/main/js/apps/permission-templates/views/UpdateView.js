@@ -22,7 +22,7 @@ import { updatePermissionTemplate } from '../../../api/permissions';
 import { parseError } from '../../code/utils';
 
 export default FormView.extend({
-  sendRequest () {
+  sendRequest() {
     this.disableForm();
     updatePermissionTemplate({
       id: this.model.id,

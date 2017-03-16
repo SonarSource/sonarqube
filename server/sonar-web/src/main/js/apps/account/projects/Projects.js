@@ -31,39 +31,36 @@ export default class Projects extends React.Component {
     loadMore: React.PropTypes.func.isRequired
   };
 
-  render () {
+  render() {
     const { projects } = this.props;
 
     return (
-        <div id="account-projects">
-          {projects.length === 0 ? (
-              <div className="js-no-results">
-                {translate('my_account.projects.no_results')}
-              </div>
-          ) : (
-              <p>
-                {translate('my_account.projects.description')}
-              </p>
-          )}
+      <div id="account-projects">
+        {projects.length === 0
+          ? <div className="js-no-results">
+              {translate('my_account.projects.no_results')}
+            </div>
+          : <p>
+              {translate('my_account.projects.description')}
+            </p>}
 
-          {projects.length > 0 && (
-              <ul className="account-projects-list">
-                {projects.map(project => (
-                    <li key={project.key}>
-                      <ProjectCard project={project}/>
-                    </li>
-                ))}
-              </ul>
-          )}
+        {projects.length > 0 &&
+          <ul className="account-projects-list">
+            {projects.map(project => (
+              <li key={project.key}>
+                <ProjectCard project={project} />
+              </li>
+            ))}
+          </ul>}
 
-          {projects.length > 0 && (
-              <ListFooter
-                  count={projects.length}
-                  total={this.props.total}
-                  ready={!this.props.loading}
-                  loadMore={this.props.loadMore}/>
-          )}
-        </div>
+        {projects.length > 0 &&
+          <ListFooter
+            count={projects.length}
+            total={this.props.total}
+            ready={!this.props.loading}
+            loadMore={this.props.loadMore}
+          />}
+      </div>
     );
   }
 }

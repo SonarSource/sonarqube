@@ -21,6 +21,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import AboutApp from './components/AboutApp';
 
-export default (
-    <IndexRoute component={AboutApp}/>
-);
+export default <IndexRoute component={AboutApp} />;

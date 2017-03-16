@@ -27,11 +27,11 @@ import ShortcutsHelpView from './ShortcutsHelpView';
 import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
 
 class GlobalNav extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
@@ -53,25 +53,25 @@ class GlobalNav extends React.Component {
     new ShortcutsHelpView().render();
   };
 
-  render () {
+  render() {
     return (
-        <nav className="navbar navbar-global page-container" id="global-navigation">
-          <div className="container">
-            <GlobalNavBranding/>
+      <nav className="navbar navbar-global page-container" id="global-navigation">
+        <div className="container">
+          <GlobalNavBranding />
 
-            <GlobalNavMenu {...this.props}/>
+          <GlobalNavMenu {...this.props} />
 
-            <ul className="nav navbar-nav navbar-right">
-              <GlobalNavUser {...this.props}/>
-              <GlobalNavSearch {...this.props}/>
-              <li>
-                <a onClick={this.openHelp} href="#">
-                  <i className="icon-help navbar-icon"/>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
+          <ul className="nav navbar-nav navbar-right">
+            <GlobalNavUser {...this.props} />
+            <GlobalNavSearch {...this.props} />
+            <li>
+              <a onClick={this.openHelp} href="#">
+                <i className="icon-help navbar-icon" />
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
     );
   }
 }

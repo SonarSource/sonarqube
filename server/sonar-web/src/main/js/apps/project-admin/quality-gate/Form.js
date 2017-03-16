@@ -34,26 +34,26 @@ export default class Form extends React.Component {
     loading: false
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleChange = this.handleChange.bind(this);
     this.renderGateName = this.renderGateName.bind(this);
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.gate !== this.props.gate) {
       this.stopLoading();
     }
   }
 
-  stopLoading () {
+  stopLoading() {
     this.setState({ loading: false });
   }
 
-  handleChange (option) {
+  handleChange(option) {
     const { gate } = this.props;
 
     const isSet = gate == null && option.value != null;
@@ -67,21 +67,21 @@ export default class Form extends React.Component {
     }
   }
 
-  renderGateName (gateOption) {
+  renderGateName(gateOption) {
     if (gateOption.isDefault) {
       return (
-          <span>
-            <strong>{translate('default')}</strong>
-            {': '}
-            {gateOption.label}
-          </span>
+        <span>
+          <strong>{translate('default')}</strong>
+          {': '}
+          {gateOption.label}
+        </span>
       );
     }
 
     return gateOption.label;
   }
 
-  renderSelect () {
+  renderSelect() {
     const { gate, allGates } = this.props;
 
     const options = allGates.map(gate => ({
@@ -99,25 +99,26 @@ export default class Form extends React.Component {
     }
 
     return (
-        <Select
-            options={options}
-            valueRenderer={this.renderGateName}
-            optionRenderer={this.renderGateName}
-            value={gate && gate.id}
-            clearable={false}
-            placeholder={translate('none')}
-            style={{ width: 300 }}
-            disabled={this.state.loading}
-            onChange={this.handleChange.bind(this)}/>
+      <Select
+        options={options}
+        valueRenderer={this.renderGateName}
+        optionRenderer={this.renderGateName}
+        value={gate && gate.id}
+        clearable={false}
+        placeholder={translate('none')}
+        style={{ width: 300 }}
+        disabled={this.state.loading}
+        onChange={this.handleChange.bind(this)}
+      />
     );
   }
 
-  render () {
+  render() {
     return (
-        <div>
-          {this.renderSelect()}
-          {this.state.loading && <i className="spinner spacer-left"/>}
-        </div>
+      <div>
+        {this.renderSelect()}
+        {this.state.loading && <i className="spinner spacer-left" />}
+      </div>
     );
   }
 }

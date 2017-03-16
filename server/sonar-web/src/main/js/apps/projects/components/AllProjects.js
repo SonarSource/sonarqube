@@ -35,28 +35,28 @@ export default class AllProjects extends React.Component {
     query: {}
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.handleQueryChange();
     document.getElementById('footer').classList.add('search-navigator-footer');
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.location.query !== this.props.location.query) {
       this.handleQueryChange();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     document.getElementById('footer').classList.remove('search-navigator-footer');
   }
 
-  handleQueryChange () {
+  handleQueryChange() {
     const query = parseUrlQuery(this.props.location.query);
     this.setState({ query });
     this.props.fetchProjects(query, this.props.isFavorite, this.props.organization);
   }
 
-  render () {
+  render() {
     const isFiltered = Object.keys(this.state.query).some(key => this.state.query[key] != null);
 
     return (
@@ -66,19 +66,22 @@ export default class AllProjects extends React.Component {
             <PageSidebar
               query={this.state.query}
               isFavorite={this.props.isFavorite}
-              organization={this.props.organization}/>
+              organization={this.props.organization}
+            />
           </div>
         </aside>
         <div className="page-main">
-          <PageHeaderContainer/>
+          <PageHeaderContainer />
           <ProjectsListContainer
             isFavorite={this.props.isFavorite}
             isFiltered={isFiltered}
-            organization={this.props.organization}/>
+            organization={this.props.organization}
+          />
           <ProjectsListFooterContainer
             query={this.state.query}
             isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+            organization={this.props.organization}
+          />
         </div>
       </div>
     );

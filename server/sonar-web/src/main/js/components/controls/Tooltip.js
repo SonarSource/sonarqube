@@ -30,12 +30,9 @@ export default class Tooltip extends React.PureComponent {
     placement: 'bottom'
   };
 
-  render () {
+  render() {
     return (
-      <TooltipCore
-        destroyTooltipOnHide={true}
-        placement={this.props.placement}
-        {...this.props}/>
+      <TooltipCore destroyTooltipOnHide={true} placement={this.props.placement} {...this.props} />
     );
   }
 }

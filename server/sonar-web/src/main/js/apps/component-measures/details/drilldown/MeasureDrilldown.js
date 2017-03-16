@@ -28,79 +28,86 @@ import { hasHistory, hasBubbleChart, hasTreemap } from '../../utils';
 import { translate } from '../../../../helpers/l10n';
 
 export default class MeasureDrilldown extends React.Component {
-  render () {
+  render() {
     const { children, component, metric, ...other } = this.props;
 
     const child = React.cloneElement(children, { ...other });
 
     return (
-        <div className="measure-details-drilldown">
-          <ul className="measure-details-drilldown-mode">
-            {component.qualifier !== 'DEV' && (
-                <li>
-                  <Link
-                      activeClassName="active"
-                      to={{ pathname: `/component_measures/metric/${metric.key}/list`, query: { id: component.key } }}>
-                    <IconList/>
-                    {translate('component_measures.tab.list')}
-                  </Link>
-                </li>
-            )}
-
+      <div className="measure-details-drilldown">
+        <ul className="measure-details-drilldown-mode">
+          {component.qualifier !== 'DEV' &&
             <li>
               <Link
-                  activeClassName="active"
-                  to={{ pathname: `/component_measures/metric/${metric.key}/tree`, query: { id: component.key } }}>
-                <IconTree/>
-                {translate('component_measures.tab.tree')}
+                activeClassName="active"
+                to={{
+                  pathname: `/component_measures/metric/${metric.key}/list`,
+                  query: { id: component.key }
+                }}
+              >
+                <IconList />
+                {translate('component_measures.tab.list')}
               </Link>
-            </li>
+            </li>}
 
-            {hasBubbleChart(metric.key) && (
-                <li>
-                  <Link
-                      activeClassName="active"
-                      to={{
-                        pathname: `/component_measures/metric/${metric.key}/bubbles`,
-                        query: { id: component.key }
-                      }}>
-                    <IconBubbles/>
-                    {translate('component_measures.tab.bubbles')}
-                  </Link>
-                </li>
-            )}
+          <li>
+            <Link
+              activeClassName="active"
+              to={{
+                pathname: `/component_measures/metric/${metric.key}/tree`,
+                query: { id: component.key }
+              }}
+            >
+              <IconTree />
+              {translate('component_measures.tab.tree')}
+            </Link>
+          </li>
 
-            {hasTreemap(metric) && (
-                <li>
-                  <Link
-                      activeClassName="active"
-                      to={{
-                        pathname: `/component_measures/metric/${metric.key}/treemap`,
-                        query: { id: component.key }
-                      }}>
-                    <IconTreemap/>
-                    {translate('component_measures.tab.treemap')}
-                  </Link>
-                </li>
-            )}
+          {hasBubbleChart(metric.key) &&
+            <li>
+              <Link
+                activeClassName="active"
+                to={{
+                  pathname: `/component_measures/metric/${metric.key}/bubbles`,
+                  query: { id: component.key }
+                }}
+              >
+                <IconBubbles />
+                {translate('component_measures.tab.bubbles')}
+              </Link>
+            </li>}
 
-            {hasHistory(metric.key) && (
-                <li>
-                  <Link
-                      activeClassName="active"
-                      to={{
-                        pathname: `/component_measures/metric/${metric.key}/history`,
-                        query: { id: component.key }
-                      }}>
-                    <IconHistory/>
-                    {translate('component_measures.tab.history')}
-                  </Link>
-                </li>
-            )}
-          </ul>
+          {hasTreemap(metric) &&
+            <li>
+              <Link
+                activeClassName="active"
+                to={{
+                  pathname: `/component_measures/metric/${metric.key}/treemap`,
+                  query: { id: component.key }
+                }}
+              >
+                <IconTreemap />
+                {translate('component_measures.tab.treemap')}
+              </Link>
+            </li>}
 
-          {child}
-        </div>
+          {hasHistory(metric.key) &&
+            <li>
+              <Link
+                activeClassName="active"
+                to={{
+                  pathname: `/component_measures/metric/${metric.key}/history`,
+                  query: { id: component.key }
+                }}
+              >
+                <IconHistory />
+                {translate('component_measures.tab.history')}
+              </Link>
+            </li>}
+        </ul>
+
+        {child}
+      </div>
     );
   }
 }

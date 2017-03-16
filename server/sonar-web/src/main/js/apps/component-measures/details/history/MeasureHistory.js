@@ -36,28 +36,25 @@ export default class MeasureHistory extends React.Component {
     fetching: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.fetchHistory();
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.metric !== this.props.metric) {
       this.fetchHistory();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchHistory () {
+  fetchHistory() {
     const { metric } = this.props;
 
-    Promise.all([
-      this.fetchTimeMachineData(metric.key),
-      this.fetchEvents()
-    ]).then(responses => {
+    Promise.all([this.fetchTimeMachineData(metric.key), this.fetchEvents()]).then(responses => {
       if (this.mounted) {
         this.setState({
           snapshots: responses[0],
@@ -68,7 +65,7 @@ export default class MeasureHistory extends React.Component {
     });
   }
 
-  fetchTimeMachineData (currentMetric, comparisonMetric) {
+  fetchTimeMachineData(currentMetric, comparisonMetric) {
     const metricsToRequest = [currentMetric];
 
     if (comparisonMetric) {
@@ -86,12 +83,14 @@ export default class MeasureHistory extends React.Component {
     });
   }
 
-  fetchEvents () {
+  fetchEvents() {
     if (this.props.component.qualifier !== 'TRK') {
       return Promise.resolve([]);
     }
 
-    return getProjectActivity(this.props.component.key, { category: 'VERSION' }).then(({ analyses }) => {
+    return getProjectActivity(this.props.component.key, { category: 'VERSION' }).then(({
+      analyses
+    }) => {
       const events = analyses.map(analysis => {
         const version = analysis.events.find(event => event.category === 'VERSION');
         return { version: version.name, date: moment(analysis.date).toDate() };
@@ -101,7 +100,7 @@ export default class MeasureHistory extends React.Component {
     });
   }
 
-  renderLineChart (snapshots, metric) {
+  renderLineChart(snapshots, metric) {
     if (!metric) {
       return null;
     }
@@ -121,48 +120,50 @@ export default class MeasureHistory extends React.Component {
     const formatYTick = tick => formatMeasure(tick, getShortType(metric.type));
 
     return (
-        <div style={{ height: HEIGHT }}>
-          <Timeline key={metric.key}
-                    data={data}
-                    metricType={metric.type}
-                    events={this.state.events}
-                    height={HEIGHT}
-                    interpolate="linear"
-                    formatValue={formatValue}
-                    formatYTick={formatYTick}
-                    leakPeriodDate={this.props.leakPeriodDate}
-                    padding={[25, 25, 25, 60]}/>
-        </div>
+      <div style={{ height: HEIGHT }}>
+        <Timeline
+          key={metric.key}
+          data={data}
+          metricType={metric.type}
+          events={this.state.events}
+          height={HEIGHT}
+          interpolate="linear"
+          formatValue={formatValue}
+          formatYTick={formatYTick}
+          leakPeriodDate={this.props.leakPeriodDate}
+          padding={[25, 25, 25, 60]}
+        />
+      </div>
     );
   }
 
-  render () {
+  render() {
     const { fetching, snapshots } = this.state;
 
     if (fetching) {
       return (
-          <div className="measure-details-history">
-            <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
-              <Spinner/>
-            </div>
+        <div className="measure-details-history">
+          <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
+            <Spinner />
           </div>
+        </div>
       );
     }
 
     if (!snapshots || snapshots.length < 2) {
       return (
-          <div className="measure-details-history">
-            <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
-              {translate('component_measures.no_history')}
-            </div>
+        <div className="measure-details-history">
+          <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
+            {translate('component_measures.no_history')}
           </div>
+        </div>
       );
     }
 
     return (
-        <div className="measure-details-history">
-          {this.renderLineChart(this.state.snapshots, this.props.metric)}
-        </div>
+      <div className="measure-details-history">
+        {this.renderLineChart(this.state.snapshots, this.props.metric)}
+      </div>
     );
   }
 }

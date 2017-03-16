@@ -19,32 +19,33 @@
  */
 import { getJSON, post } from '../helpers/request';
 
-export function setLogLevel (level) {
+export function setLogLevel(level) {
   const url = '/api/system/change_log_level';
   const data = { level };
   return post(url, data);
 }
 
-export function getSystemInfo () {
+export function getSystemInfo() {
   const url = '/api/system/info';
   return getJSON(url);
 }
 
-export function getSystemStatus () {
+export function getSystemStatus() {
   const url = '/api/system/status';
   return getJSON(url);
 }
 
-export function restart () {
+export function restart() {
   const url = '/api/system/restart';
   return post(url);
 }
 
 const POLLING_INTERVAL = 2000;
 
-function pollStatus (cb) {
-  setTimeout(() => {
-    getSystemStatus()
+function pollStatus(cb) {
+  setTimeout(
+    () => {
+      getSystemStatus()
         .then(r => {
           if (r.status === 'UP') {
             cb();
@@ -53,13 +54,15 @@ function pollStatus (cb) {
           }
         })
         .catch(() => pollStatus(cb));
-  }, POLLING_INTERVAL);
+    },
+    POLLING_INTERVAL
+  );
 }
 
-function promiseStatus () {
+function promiseStatus() {
   return new Promise(resolve => pollStatus(resolve));
 }
 
-export function restartAndWait () {
+export function restartAndWait() {
   return restart().then(promiseStatus);
 }

@@ -27,20 +27,20 @@ const BASE = { id: 'id', key: 'key', name: 'name', links: [] };
 
 it('should render key and name', () => {
   const project = { ...BASE };
-  const output = shallow(<ProjectCard project={project}/>);
+  const output = shallow(<ProjectCard project={project} />);
   expect(output.find('.account-project-key').text()).toBe('key');
   expect(output.find('.account-project-name').find(Link).prop('children')).toBe('name');
 });
 
 it('should render description', () => {
   const project = { ...BASE, description: 'bla' };
-  const output = shallow(<ProjectCard project={project}/>);
+  const output = shallow(<ProjectCard project={project} />);
   expect(output.find('.account-project-description').text()).toBe('bla');
 });
 
 it('should not render optional fields', () => {
   const project = { ...BASE };
-  const output = shallow(<ProjectCard project={project}/>);
+  const output = shallow(<ProjectCard project={project} />);
   expect(output.find('.account-project-description').length).toBe(0);
   expect(output.find('.account-project-quality-gate').length).toBe(0);
   expect(output.find('.account-project-links').length).toBe(0);
@@ -48,21 +48,23 @@ it('should not render optional fields', () => {
 
 it('should render analysis date', () => {
   const project = { ...BASE, lastAnalysisDate: '2016-05-17' };
-  const output = shallow(<ProjectCard project={project}/>);
-  expect(output.find('.account-project-analysis').text()).toContain('my_account.projects.analyzed_x');
+  const output = shallow(<ProjectCard project={project} />);
+  expect(output.find('.account-project-analysis').text()).toContain(
+    'my_account.projects.analyzed_x'
+  );
 });
 
 it('should not render analysis date', () => {
   const project = { ...BASE };
-  const output = shallow(<ProjectCard project={project}/>);
-  expect(output.find('.account-project-analysis').text()).toContain('my_account.projects.never_analyzed');
+  const output = shallow(<ProjectCard project={project} />);
+  expect(output.find('.account-project-analysis').text()).toContain(
+    'my_account.projects.never_analyzed'
+  );
 });
 
 it('should render quality gate status', () => {
   const project = { ...BASE, qualityGate: 'ERROR' };
-  const output = shallow(
-    <ProjectCard project={project}/>
-  );
+  const output = shallow(<ProjectCard project={project} />);
   expect(output.find('.account-project-quality-gate').find(Level).prop('level')).toBe('ERROR');
 });
 
@@ -71,6 +73,6 @@ it('should render links', () => {
     ...BASE,
     links: [{ name: 'n', type: 't', href: 'h' }]
   };
-  const output = shallow(<ProjectCard project={project}/>);
+  const output = shallow(<ProjectCard project={project} />);
   expect(output.find('.account-project-links').find('li').length).toBe(1);
 });

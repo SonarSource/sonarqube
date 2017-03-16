@@ -61,11 +61,11 @@ type DeleteOrganizationAction = {
 };
 
 type Action =
-    ReceiveOrganizationsAction |
-        ReceiveMyOrganizationsAction |
-        CreateOrganizationAction |
-        UpdateOrganizationAction |
-        DeleteOrganizationAction;
+  | ReceiveOrganizationsAction
+  | ReceiveMyOrganizationsAction
+  | CreateOrganizationAction
+  | UpdateOrganizationAction
+  | DeleteOrganizationAction;
 
 type ByKeyState = {
   [key: string]: Organization
@@ -78,12 +78,16 @@ type State = {
   my: MyState
 };
 
-export const receiveOrganizations = (organizations: Array<Organization>): ReceiveOrganizationsAction => ({
+export const receiveOrganizations = (
+  organizations: Array<Organization>
+): ReceiveOrganizationsAction => ({
   type: 'RECEIVE_ORGANIZATIONS',
   organizations
 });
 
-export const receiveMyOrganizations = (organizations: Array<Organization>): ReceiveMyOrganizationsAction => ({
+export const receiveMyOrganizations = (
+  organizations: Array<Organization>
+): ReceiveMyOrganizationsAction => ({
   type: 'RECEIVE_MY_ORGANIZATIONS',
   organizations
 });
@@ -153,14 +157,10 @@ const my = (state: MyState = [], action: Action) => {
 
 export default combineReducers({ byKey, my });
 
-export const getOrganizationByKey = (state: State, key: string): Organization => (
-    state.byKey[key]
-);
+export const getOrganizationByKey = (state: State, key: string): Organization => state.byKey[key];
 
-export const getMyOrganizations = (state: State): Array<Organization> => (
-    state.my.map(key => getOrganizationByKey(state, key))
-);
+export const getMyOrganizations = (state: State): Array<Organization> =>
+  state.my.map(key => getOrganizationByKey(state, key));
 
-export const areThereCustomOrganizations = (state: State): boolean => (
-    Object.keys(state.byKey).length > 1
-);
+export const areThereCustomOrganizations = (state: State): boolean =>
+  Object.keys(state.byKey).length > 1;

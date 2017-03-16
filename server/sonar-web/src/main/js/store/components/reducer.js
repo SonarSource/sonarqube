@@ -42,6 +42,4 @@ const keys = (state = [], action = {}) => {
 
 export default combineReducers({ byKey, keys });
 
-export const getComponent = (state, key) => (
-    state.byKey[key]
-);
+export const getComponent = (state, key) => state.byKey[key];

@@ -21,6 +21,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import UsersAppContainer from './components/UsersAppContainer';
 
-export default (
-    <IndexRoute component={UsersAppContainer}/>
-);
+export default <IndexRoute component={UsersAppContainer} />;

@@ -24,19 +24,19 @@ export default Popup.extend({
   template: Template,
 
   events: {
-    'click': 'onClick'
+    click: 'onClick'
   },
 
-  onRender () {
+  onRender() {
     Popup.prototype.onRender.apply(this, arguments);
     this.$('.bubble-popup-container').isolatedScroll();
   },
 
-  onClick (e) {
+  onClick(e) {
     e.stopPropagation();
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Popup.prototype.serializeData.apply(this, arguments),
       line: this.options.line

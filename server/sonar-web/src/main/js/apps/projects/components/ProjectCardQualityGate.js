@@ -26,7 +26,7 @@ export default class ProjectCardQualityGate extends React.PureComponent {
     status: React.PropTypes.string
   };
 
-  render () {
+  render() {
     const { status } = this.props;
 
     if (!status) {
@@ -34,15 +34,15 @@ export default class ProjectCardQualityGate extends React.PureComponent {
     }
 
     return (
-        <div className="project-card-measure project-card-quality-gate">
-          <div className="project-card-measure-inner">
-            <span className="small spacer-right">
-              {translate('overview.quality_gate')}
-              {':'}
-            </span>
-            <Level level={status} small={true}/>
-          </div>
+      <div className="project-card-measure project-card-quality-gate">
+        <div className="project-card-measure-inner">
+          <span className="small spacer-right">
+            {translate('overview.quality_gate')}
+            {':'}
+          </span>
+          <Level level={status} small={true} />
         </div>
+      </div>
     );
   }
 }

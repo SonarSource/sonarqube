@@ -31,11 +31,12 @@ it('should render list of ProjectCards', () => {
 
   const output = shallow(
     <Projects
-          projects={projects}
-          total={5}
-          loading={false}
-          search={() => true}
-          loadMore={() => true}/>
+      projects={projects}
+      total={5}
+      loading={false}
+      search={() => true}
+      loadMore={() => true}
+    />
   );
 
   expect(output.find(ProjectCard).length).toBe(2);
@@ -50,11 +51,12 @@ it('should render ListFooter', () => {
 
   const footer = shallow(
     <Projects
-          projects={projects}
-          total={5}
-          loading={false}
-          search={() => true}
-          loadMore={loadMore}/>
+      projects={projects}
+      total={5}
+      loading={false}
+      search={() => true}
+      loadMore={loadMore}
+    />
   ).find(ListFooter);
 
   expect(footer.length).toBe(1);
@@ -65,12 +67,7 @@ it('should render ListFooter', () => {
 
 it('should render when no results', () => {
   const output = shallow(
-    <Projects
-          projects={[]}
-          total={0}
-          loading={false}
-          search={() => true}
-          loadMore={() => true}/>
+    <Projects projects={[]} total={0} loading={false} search={() => true} loadMore={() => true} />
   );
 
   expect(output.find('.js-no-results').length).toBe(1);

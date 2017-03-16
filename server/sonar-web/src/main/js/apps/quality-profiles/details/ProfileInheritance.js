@@ -35,26 +35,26 @@ export default class ProfileInheritance extends React.Component {
     loading: true
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleChangeParent = this.handleChangeParent.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadData();
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.profile !== this.props.profile) {
       this.loadData();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadData () {
+  loadData() {
     getProfileInheritance(this.props.profile.key).then(r => {
       if (this.mounted) {
         const { ancestors, children } = r;
@@ -68,66 +68,67 @@ export default class ProfileInheritance extends React.Component {
     });
   }
 
-  handleChangeParent (e) {
+  handleChangeParent(e) {
     e.preventDefault();
     new ChangeParentView({
       profile: this.props.profile,
       profiles: this.props.profiles
-    }).on('done', () => {
-      this.props.updateProfiles();
-    }).render();
+    })
+      .on('done', () => {
+        this.props.updateProfiles();
+      })
+      .render();
   }
 
-  render () {
+  render() {
     const highlightCurrent = !this.state.loading &&
-        (this.state.ancestors.length > 0 || this.state.children.length > 0);
+      (this.state.ancestors.length > 0 || this.state.children.length > 0);
     const currentClassName = classNames('js-inheritance-current', {
       selected: highlightCurrent
     });
 
     return (
-        <div className="quality-profile-inheritance">
-          <header className="big-spacer-bottom clearfix">
-            <h2 className="pull-left">
-              {translate('quality_profiles.profile_inheritance')}
-            </h2>
-            {this.props.canAdmin && (
-                <button
-                    className="pull-right js-change-parent"
-                    onClick={this.handleChangeParent}>
-                  {translate('quality_profiles.change_parent')}
-                </button>
-            )}
-          </header>
+      <div className="quality-profile-inheritance">
+        <header className="big-spacer-bottom clearfix">
+          <h2 className="pull-left">
+            {translate('quality_profiles.profile_inheritance')}
+          </h2>
+          {this.props.canAdmin &&
+            <button className="pull-right js-change-parent" onClick={this.handleChangeParent}>
+              {translate('quality_profiles.change_parent')}
+            </button>}
+        </header>
 
-          {!this.state.loading && (
-              <table className="data zebra">
-                <tbody>
-                  {this.state.ancestors.map((ancestor, index) => (
-                      <ProfileInheritanceBox
-                          key={ancestor.key}
-                          profile={ancestor}
-                          depth={index}
-                          className="js-inheritance-ancestor"/>
-                  ))}
+        {!this.state.loading &&
+          <table className="data zebra">
+            <tbody>
+              {this.state.ancestors.map((ancestor, index) => (
+                <ProfileInheritanceBox
+                  key={ancestor.key}
+                  profile={ancestor}
+                  depth={index}
+                  className="js-inheritance-ancestor"
+                />
+              ))}
 
-                  <ProfileInheritanceBox
-                      profile={this.state.profile}
-                      depth={this.state.ancestors.length}
-                      displayLink={false}
-                      className={currentClassName}/>
+              <ProfileInheritanceBox
+                profile={this.state.profile}
+                depth={this.state.ancestors.length}
+                displayLink={false}
+                className={currentClassName}
+              />
 
-                  {this.state.children.map(child => (
-                      <ProfileInheritanceBox
-                          key={child.key}
-                          profile={child}
-                          depth={this.state.ancestors.length + 1}
-                          className="js-inheritance-child"/>
-                  ))}
-                </tbody>
-              </table>
-          )}
-        </div>
+              {this.state.children.map(child => (
+                <ProfileInheritanceBox
+                  key={child.key}
+                  profile={child}
+                  depth={this.state.ancestors.length + 1}
+                  className="js-inheritance-child"
+                />
+              ))}
+            </tbody>
+          </table>}
+      </div>
     );
   }
 }

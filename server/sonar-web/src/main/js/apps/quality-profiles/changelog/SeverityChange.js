@@ -26,13 +26,13 @@ export default class SeverityChange extends React.Component {
     severity: React.PropTypes.string.isRequired
   };
 
-  render () {
+  render() {
     return (
-        <div>
-          {translate('quality_profiles.severity_set_to')}
-          {' '}
-          <SeverityHelper severity={this.props.severity}/>
-        </div>
+      <div>
+        {translate('quality_profiles.severity_set_to')}
+        {' '}
+        <SeverityHelper severity={this.props.severity} />
+      </div>
     );
   }
 }

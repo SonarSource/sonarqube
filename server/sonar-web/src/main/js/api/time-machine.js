@@ -35,11 +35,14 @@ type Response = {
   }
 };
 
-export const getTimeMachineData = (component: string, metrics: Array<string>, other?: {}): Promise<Response> => (
-    getJSON('/api/measures/search_history', {
-      component,
-      metrics: metrics.join(),
-      ps: 1000,
-      ...other
-    })
-);
+export const getTimeMachineData = (
+  component: string,
+  metrics: Array<string>,
+  other?: {}
+): Promise<Response> =>
+  getJSON('/api/measures/search_history', {
+    component,
+    metrics: metrics.join(),
+    ps: 1000,
+    ...other
+  });

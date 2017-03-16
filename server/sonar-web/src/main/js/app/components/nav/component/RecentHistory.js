@@ -29,7 +29,7 @@ type History = Array<{
 }>;
 
 export default class RecentHistory {
-  static get (): History {
+  static get(): History {
     let history = localStorage.getItem(STORAGE_KEY);
     if (history == null) {
       history = [];
@@ -44,15 +44,20 @@ export default class RecentHistory {
     return history;
   }
 
-  static set (newHistory: History): void {
+  static set(newHistory: History): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
   }
 
-  static clear (): void {
+  static clear(): void {
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  static add (componentKey: string, componentName: string, icon: string, organization?: string): void {
+  static add(
+    componentKey: string,
+    componentName: string,
+    icon: string,
+    organization?: string
+  ): void {
     const sonarHistory = RecentHistory.get();
     const newEntry = { key: componentKey, name: componentName, icon, organization };
     let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
@@ -61,7 +66,7 @@ export default class RecentHistory {
     RecentHistory.set(newHistory);
   }
 
-  static remove (componentKey: string): void {
+  static remove(componentKey: string): void {
     const history = RecentHistory.get();
     const newHistory = history.filter(entry => entry.key !== componentKey);
     RecentHistory.set(newHistory);

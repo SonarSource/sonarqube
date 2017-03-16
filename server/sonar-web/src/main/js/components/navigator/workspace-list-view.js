@@ -24,56 +24,55 @@ import Marionette from 'backbone.marionette';
 const BOTTOM_OFFSET = 60;
 
 export default Marionette.CompositeView.extend({
-
   ui: {
     loadMore: '.js-more',
     lastElementReached: '.js-last-element-reached'
   },
 
-  childViewOptions () {
+  childViewOptions() {
     return {
       app: this.options.app
     };
   },
 
   collectionEvents: {
-    'reset': 'scrollToTop'
+    reset: 'scrollToTop'
   },
 
-  initialize (options) {
+  initialize(options) {
     this.loadMoreThrottled = throttle(this.loadMore, 1000, { trailing: false });
     this.listenTo(options.app.state, 'change:maxResultsReached', this.toggleLoadMore);
     this.listenTo(options.app.state, 'change:selectedIndex', this.scrollTo);
     this.bindShortcuts();
   },
 
-  onDestroy () {
+  onDestroy() {
     this.unbindScrollEvents();
     this.unbindShortcuts();
   },
 
-  onRender () {
+  onRender() {
     this.toggleLoadMore();
   },
 
-  toggleLoadMore () {
+  toggleLoadMore() {
     const maxResultsReached = this.options.app.state.get('maxResultsReached');
     this.ui.loadMore.toggle(!maxResultsReached);
     this.ui.lastElementReached.toggle(maxResultsReached);
   },
 
-  bindScrollEvents () {
+  bindScrollEvents() {
     const that = this;
     $(window).on('scroll.workspace-list-view', () => {
       that.onScroll();
     });
   },
 
-  unbindScrollEvents () {
+  unbindScrollEvents() {
     $(window).off('scroll.workspace-list-view');
   },
 
-  bindShortcuts () {
+  bindShortcuts() {
     const that = this;
     key('up', 'list', () => {
       that.options.app.controller.selectPrev();
@@ -86,12 +85,12 @@ export default Marionette.CompositeView.extend({
     });
   },
 
-  unbindShortcuts () {
+  unbindShortcuts() {
     key.unbind('up', 'list');
     key.unbind('down', 'list');
   },
 
-  loadMore () {
+  loadMore() {
     if (!this.options.app.state.get('maxResultsReached')) {
       const that = this;
       this.unbindScrollEvents();
@@ -101,17 +100,17 @@ export default Marionette.CompositeView.extend({
     }
   },
 
-  onScroll () {
+  onScroll() {
     if ($(window).scrollTop() + $(window).height() >= this.ui.loadMore.offset().top) {
       this.loadMoreThrottled();
     }
   },
 
-  scrollToTop () {
+  scrollToTop() {
     this.$el.scrollParent().scrollTop(0);
   },
 
-  scrollTo () {
+  scrollTo() {
     const selected = this.collection.at(this.options.app.state.get('selectedIndex'));
     if (selected == null) {
       return;
@@ -119,7 +118,9 @@ export default Marionette.CompositeView.extend({
     const selectedView = this.children.findByModel(selected);
     const parentTopOffset = this.$el.offset().top;
     const viewTop = selectedView.$el.offset().top - parentTopOffset;
-    const viewBottom = selectedView.$el.offset().top + selectedView.$el.outerHeight() + BOTTOM_OFFSET;
+    const viewBottom = selectedView.$el.offset().top +
+      selectedView.$el.outerHeight() +
+      BOTTOM_OFFSET;
     const windowTop = $(window).scrollTop();
     const windowBottom = windowTop + $(window).height();
     if (viewTop < windowTop) {
@@ -129,6 +130,4 @@ export default Marionette.CompositeView.extend({
       $(window).scrollTop($(window).scrollTop() - windowBottom + viewBottom);
     }
   }
-
 });
-

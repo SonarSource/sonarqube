@@ -22,6 +22,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import ProjectActivityApp from './components/ProjectActivityApp';
 
-export default (
-    <IndexRoute component={ProjectActivityApp}/>
-);
+export default <IndexRoute component={ProjectActivityApp} />;

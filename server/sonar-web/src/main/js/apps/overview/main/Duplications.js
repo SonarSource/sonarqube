@@ -26,155 +26,144 @@ import { translate } from '../../../helpers/l10n';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 
 class Duplications extends React.Component {
-  renderHeader () {
-    return this.props.renderHeader(
-      'Duplications',
-      translate('overview.domain.duplications'));
+  renderHeader() {
+    return this.props.renderHeader('Duplications', translate('overview.domain.duplications'));
   }
 
-  renderTimeline (range) {
+  renderTimeline(range) {
     return this.props.renderTimeline('duplicated_lines_density', range);
   }
 
-  renderDuplicatedBlocks () {
+  renderDuplicatedBlocks() {
     return this.props.renderMeasure('duplicated_blocks');
   }
 
-  renderDuplications () {
+  renderDuplications() {
     const { component, measures } = this.props;
     const measure = measures.find(measure => measure.metric.key === 'duplicated_lines_density');
     const duplications = Number(measure.value);
 
     return (
-        <div className="overview-domain-measure">
-          <div className="display-inline-block text-middle big-spacer-right">
-            <DuplicationsRating value={duplications} size="big"/>
+      <div className="overview-domain-measure">
+        <div className="display-inline-block text-middle big-spacer-right">
+          <DuplicationsRating value={duplications} size="big" />
+        </div>
+
+        <div className="display-inline-block text-middle">
+          <div className="overview-domain-measure-value">
+            <DrilldownLink component={component.key} metric="duplicated_lines_density">
+              {formatMeasure(duplications, 'PERCENT')}
+            </DrilldownLink>
           </div>
 
-          <div className="display-inline-block text-middle">
-            <div className="overview-domain-measure-value">
-              <DrilldownLink component={component.key} metric="duplicated_lines_density">
-                {formatMeasure(duplications, 'PERCENT')}
-              </DrilldownLink>
-            </div>
-
-            <div className="overview-domain-measure-label">
-              {getMetricName('duplications')}
-            </div>
+          <div className="overview-domain-measure-label">
+            {getMetricName('duplications')}
           </div>
         </div>
+      </div>
     );
   }
 
-  renderNewDuplications () {
+  renderNewDuplications() {
     const { component, measures, leakPeriod } = this.props;
-    const newDuplicationsMeasure = measures
-        .find(measure => measure.metric.key === 'new_duplicated_lines_density');
-    const newLinesMeasure = measures
-        .find(measure => measure.metric.key === 'new_lines');
+    const newDuplicationsMeasure = measures.find(
+      measure => measure.metric.key === 'new_duplicated_lines_density'
+    );
+    const newLinesMeasure = measures.find(measure => measure.metric.key === 'new_lines');
 
-    const newDuplicationsValue = newDuplicationsMeasure ?
-        getPeriodValue(newDuplicationsMeasure, leakPeriod.index) : null;
-    const newLinesValue = newLinesMeasure ?
-        getPeriodValue(newLinesMeasure, leakPeriod.index) : null;
+    const newDuplicationsValue = newDuplicationsMeasure
+      ? getPeriodValue(newDuplicationsMeasure, leakPeriod.index)
+      : null;
+    const newLinesValue = newLinesMeasure
+      ? getPeriodValue(newLinesMeasure, leakPeriod.index)
+      : null;
 
-    const formattedValue = newDuplicationsValue != null ? (
-        <div>
+    const formattedValue = newDuplicationsValue != null
+      ? <div>
           <DrilldownLink
-              component={component.key}
-              metric={newDuplicationsMeasure.metric.key}
-              period={leakPeriod.index}>
+            component={component.key}
+            metric={newDuplicationsMeasure.metric.key}
+            period={leakPeriod.index}
+          >
             <span className="js-overview-main-new-duplications">
               {formatMeasure(newDuplicationsValue, 'PERCENT')}
             </span>
           </DrilldownLink>
         </div>
-    ) : (
-        <span>—</span>
-    );
-
-    const label = (newLinesValue != null && newLinesValue > 0) ? (
-        <div className="overview-domain-measure-label">
+      : <span>—</span>;
+    const label = newLinesValue != null && newLinesValue > 0
+      ? <div className="overview-domain-measure-label">
           {translate('overview.duplications_on')}
-          <br/>
+          <br />
           <DrilldownLink
-              className="spacer-right overview-domain-secondary-measure-value"
-              component={component.key}
-              metric={newLinesMeasure.metric.key}
-              period={leakPeriod.index}>
+            className="spacer-right overview-domain-secondary-measure-value"
+            component={component.key}
+            metric={newLinesMeasure.metric.key}
+            period={leakPeriod.index}
+          >
             <span className="js-overview-main-new-lines">
               {formatMeasure(newLinesValue, 'SHORT_INT')}
             </span>
           </DrilldownLink>
           {getMetricName('new_lines')}
         </div>
-    ) : (
-        <div className="overview-domain-measure-label">
+      : <div className="overview-domain-measure-label">
           {getMetricName('new_duplications')}
-        </div>
-    );
-
+        </div>;
     return (
-        <div className="overview-domain-measure">
-          <div className="overview-domain-measure-value">
-            {formattedValue}
-          </div>
-          {label}
+      <div className="overview-domain-measure">
+        <div className="overview-domain-measure-value">
+          {formattedValue}
         </div>
+        {label}
+      </div>
     );
   }
-
-  renderNutshell () {
+  renderNutshell() {
     return (
-        <div className="overview-domain-nutshell">
-          <div className="overview-domain-measures">
-            {this.renderDuplications()}
-            {this.renderDuplicatedBlocks()}
-          </div>
-
-          {this.renderTimeline('before')}
+      <div className="overview-domain-nutshell">
+        <div className="overview-domain-measures">
+          {this.renderDuplications()}
+          {this.renderDuplicatedBlocks()}
         </div>
+
+        {this.renderTimeline('before')}
+      </div>
     );
   }
-
-  renderLeak () {
+  renderLeak() {
     const { leakPeriod } = this.props;
-
     if (leakPeriod == null) {
       return null;
     }
-
     return (
-        <div className="overview-domain-leak">
-          <div className="overview-domain-measures">
-            {this.renderNewDuplications()}
-          </div>
-
-          {this.renderTimeline('after')}
+      <div className="overview-domain-leak">
+        <div className="overview-domain-measures">
+          {this.renderNewDuplications()}
         </div>
+
+        {this.renderTimeline('after')}
+      </div>
     );
   }
-
-  render () {
+  render() {
     const { measures } = this.props;
-    const duplications =
-        measures.find(measure => measure.metric.key === 'duplicated_lines_density');
-
+    const duplications = measures.find(
+      measure => measure.metric.key === 'duplicated_lines_density'
+    );
     if (duplications == null) {
       return null;
     }
-
     return (
-        <div className="overview-card">
-          {this.renderHeader()}
+      <div className="overview-card">
+        {this.renderHeader()}
 
-          <div className="overview-domain-panel">
-            {this.renderNutshell()}
-            {this.renderLeak()}
-          </div>
+        <div className="overview-domain-panel">
+          {this.renderNutshell()}
+          {this.renderLeak()}
         </div>
+      </div>
     );
   }
 }
-
 export default enhance(Duplications);

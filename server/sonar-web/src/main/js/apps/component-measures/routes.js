@@ -32,18 +32,18 @@ import { checkHistoryExistence } from './hooks';
 import './styles.css';
 
 export default (
-    <Route component={AppContainer}>
-      <Route component={HomeContainer}>
-        <IndexRoute component={AllMeasuresContainer}/>
-        <Route path="domain/:domainName" component={DomainMeasuresContainer}/>
-      </Route>
-
-      <Route path="metric/:metricKey" component={MeasureDetailsContainer}>
-        <IndexRedirect to="list"/>
-        <Route path="list" component={ListViewContainer}/>
-        <Route path="tree" component={TreeViewContainer}/>
-        <Route path="history" component={MeasureHistoryContainer} onEnter={checkHistoryExistence}/>
-        <Route path="treemap" component={MeasureTreemapContainer}/>
-      </Route>
+  <Route component={AppContainer}>
+    <Route component={HomeContainer}>
+      <IndexRoute component={AllMeasuresContainer} />
+      <Route path="domain/:domainName" component={DomainMeasuresContainer} />
     </Route>
+
+    <Route path="metric/:metricKey" component={MeasureDetailsContainer}>
+      <IndexRedirect to="list" />
+      <Route path="list" component={ListViewContainer} />
+      <Route path="tree" component={TreeViewContainer} />
+      <Route path="history" component={MeasureHistoryContainer} onEnter={checkHistoryExistence} />
+      <Route path="treemap" component={MeasureTreemapContainer} />
+    </Route>
+  </Route>
 );

@@ -23,10 +23,9 @@ import { connect } from 'react-redux';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 import { getSettingsAppSettingsForCategory } from '../../../store/rootReducer';
 
-
 class CategoryDefinitionsList extends React.Component {
-  render () {
-    return <SubCategoryDefinitionsList {...this.props}/>;
+  render() {
+    return <SubCategoryDefinitionsList {...this.props} />;
   }
 }
 
@@ -34,6 +33,4 @@ const mapStateToProps = (state, ownProps) => ({
   settings: getSettingsAppSettingsForCategory(state, ownProps.category)
 });
 
-export default connect(
-  mapStateToProps
-)(CategoryDefinitionsList);
+export default connect(mapStateToProps)(CategoryDefinitionsList);

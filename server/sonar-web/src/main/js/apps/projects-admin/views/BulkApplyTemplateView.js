@@ -19,31 +19,31 @@
  */
 import ModalForm from '../../../components/common/modal-form';
 import {
-    applyTemplateToProject,
-    bulkApplyTemplate,
-    getPermissionTemplates
+  applyTemplateToProject,
+  bulkApplyTemplate,
+  getPermissionTemplates
 } from '../../../api/permissions';
 import Template from '../templates/BulkApplyTemplateTemplate.hbs';
 
 export default ModalForm.extend({
   template: Template,
 
-  initialize () {
+  initialize() {
     this.loadPermissionTemplates();
     this.done = false;
   },
 
-  loadPermissionTemplates () {
-    const request = this.options.organization ?
-        getPermissionTemplates(this.options.organization.key) :
-        getPermissionTemplates();
+  loadPermissionTemplates() {
+    const request = this.options.organization
+      ? getPermissionTemplates(this.options.organization.key)
+      : getPermissionTemplates();
     return request.then(r => {
       this.permissionTemplates = r.permissionTemplates;
       this.render();
     });
   },
 
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('#project-permissions-template').select2({
       width: '250px',
@@ -51,7 +51,7 @@ export default ModalForm.extend({
     });
   },
 
-  bulkApplyToAll (permissionTemplate) {
+  bulkApplyToAll(permissionTemplate) {
     const data = { templateId: permissionTemplate };
 
     if (this.options.query) {
@@ -69,7 +69,7 @@ export default ModalForm.extend({
     return bulkApplyTemplate(data);
   },
 
-  bulkApplyToSelected (permissionTemplate) {
+  bulkApplyToSelected(permissionTemplate) {
     const { selection } = this.options;
     let lastRequest = Promise.resolve();
 
@@ -84,29 +84,31 @@ export default ModalForm.extend({
     return lastRequest;
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     const permissionTemplate = this.$('#project-permissions-template').val();
     const applyTo = this.$('[name="apply-to"]:checked').val();
     this.disableForm();
 
-    const request = applyTo === 'all' ?
-        this.bulkApplyToAll(permissionTemplate) :
-        this.bulkApplyToSelected(permissionTemplate);
+    const request = applyTo === 'all'
+      ? this.bulkApplyToAll(permissionTemplate)
+      : this.bulkApplyToSelected(permissionTemplate);
 
-    request.then(() => {
-      this.trigger('done');
-      this.done = true;
-      this.render();
-    }).catch(e => {
-      e.response.json().then(r => {
-        this.showErrors(r.errors, r.warnings);
-        this.enableForm();
+    request
+      .then(() => {
+        this.trigger('done');
+        this.done = true;
+        this.render();
+      })
+      .catch(e => {
+        e.response.json().then(r => {
+          this.showErrors(r.errors, r.warnings);
+          this.enableForm();
+        });
       });
-    });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       permissionTemplates: this.permissionTemplates,
       selection: this.options.selection,

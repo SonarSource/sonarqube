@@ -84,6 +84,4 @@ export default (state: State = {}, action: Action): State => {
   }
 };
 
-export const getAnalysis = (state: State, key: string): Analysis => (
-    state[key]
-);
+export const getAnalysis = (state: State, key: string): Analysis => state[key];

@@ -22,18 +22,9 @@ import React from 'react';
 import RadioToggle from '../RadioToggle';
 import { change } from '../../../helpers/testUtils';
 
-function getSample (props) {
-  const options = [
-    { value: 'one', label: 'first' },
-    { value: 'two', label: 'second' }
-  ];
-  return (
-      <RadioToggle
-          options={options}
-          name="sample"
-          onCheck={() => true}
-          {...props}/>
-  );
+function getSample(props) {
+  const options = [{ value: 'one', label: 'first' }, { value: 'two', label: 'second' }];
+  return <RadioToggle options={options} name="sample" onCheck={() => true} {...props} />;
 }
 
 it('should render', () => {

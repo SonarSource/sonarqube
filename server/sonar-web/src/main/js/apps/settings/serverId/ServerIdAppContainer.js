@@ -21,7 +21,4 @@ import { connect } from 'react-redux';
 import ServerIdApp from './ServerIdApp';
 import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages/duck';
 
-export default connect(
-  () => ({}),
-    { addGlobalErrorMessage, closeAllGlobalMessages }
-)(ServerIdApp);
+export default connect(() => ({}), { addGlobalErrorMessage, closeAllGlobalMessages })(ServerIdApp);

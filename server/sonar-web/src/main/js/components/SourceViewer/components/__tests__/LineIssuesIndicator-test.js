@@ -26,7 +26,7 @@ it('render highest severity', () => {
   const line = { line: 3 };
   const issues = [{ severity: 'MINOR' }, { severity: 'CRITICAL' }];
   const onClick = jest.fn();
-  const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper);
@@ -41,6 +41,6 @@ it('no issues', () => {
   const line = { line: 3 };
   const issues = [];
   const onClick = jest.fn();
-  const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
 });

@@ -21,6 +21,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import CodingRulesAppContainer from './components/CodingRulesAppContainer';
 
-export default (
-    <IndexRoute component={CodingRulesAppContainer}/>
-);
+export default <IndexRoute component={CodingRulesAppContainer} />;

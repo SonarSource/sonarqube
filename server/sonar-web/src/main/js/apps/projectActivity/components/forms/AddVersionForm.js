@@ -24,7 +24,7 @@ import { addVersion } from '../../actions';
 import AddEventForm from './AddEventForm';
 
 const AddVersionForm = props => (
-    <AddEventForm {...props} addEventButtonText="project_activity.add_version"/>
+  <AddEventForm {...props} addEventButtonText="project_activity.add_version" />
 );
 
 const mapStateToProps = null;

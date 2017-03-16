@@ -37,141 +37,133 @@ export default class ComparisonResults extends React.Component {
     modified: React.PropTypes.array.isRequired
   };
 
-  renderRule (rule, severity) {
+  renderRule(rule, severity) {
     return (
-        <div>
-          <SeverityIcon severity={severity}/>
-          {' '}
-          <Link to={getRulesUrl({ 'rule_key': rule.key })}>
-            {rule.name}
-          </Link>
-        </div>
+      <div>
+        <SeverityIcon severity={severity} />
+        {' '}
+        <Link to={getRulesUrl({ rule_key: rule.key })}>
+          {rule.name}
+        </Link>
+      </div>
     );
   }
 
-  renderParameters (params) {
+  renderParameters(params) {
     if (!params) {
       return null;
     }
     return (
-        <ul>
-          {Object.keys(params).map(key => (
-              <li key={key} className="spacer-top">
-                <code>{key}{': '}{params[key]}</code>
-              </li>
-          ))}
-        </ul>
+      <ul>
+        {Object.keys(params).map(key => (
+          <li key={key} className="spacer-top">
+            <code>{key}{': '}{params[key]}</code>
+          </li>
+        ))}
+      </ul>
     );
   }
 
-  renderLeft () {
+  renderLeft() {
     if (this.props.inLeft.length === 0) {
       return null;
     }
     const header = (
-        <tr key="left-header">
-          <td>
-            <h6>
-              {translateWithParameters(
-                'quality_profiles.x_rules_only_in',
-                this.props.inLeft.length
-              )}
-              {' '}
-              {this.props.left.name}
-            </h6>
-          </td>
-          <td>&nbsp;</td>
-        </tr>
+      <tr key="left-header">
+        <td>
+          <h6>
+            {translateWithParameters('quality_profiles.x_rules_only_in', this.props.inLeft.length)}
+            {' '}
+            {this.props.left.name}
+          </h6>
+        </td>
+        <td>&nbsp;</td>
+      </tr>
     );
     const rows = this.props.inLeft.map(rule => (
-        <tr key={`left-${rule.key}`} className="js-comparison-in-left">
-          <td>{this.renderRule(rule, rule.severity)}</td>
-          <td>&nbsp;</td>
-        </tr>
+      <tr key={`left-${rule.key}`} className="js-comparison-in-left">
+        <td>{this.renderRule(rule, rule.severity)}</td>
+        <td>&nbsp;</td>
+      </tr>
     ));
     return [header, ...rows];
   }
 
-  renderRight () {
+  renderRight() {
     if (this.props.inRight.length === 0) {
       return null;
     }
     const header = (
-        <tr key="right-header">
-          <td>&nbsp;</td>
-          <td>
-            <h6>
-              {translateWithParameters(
-                'quality_profiles.x_rules_only_in',
-                this.props.inRight.length
-              )}
-              {' '}
-              {this.props.right.name}
-            </h6>
-          </td>
-        </tr>
+      <tr key="right-header">
+        <td>&nbsp;</td>
+        <td>
+          <h6>
+            {translateWithParameters('quality_profiles.x_rules_only_in', this.props.inRight.length)}
+            {' '}
+            {this.props.right.name}
+          </h6>
+        </td>
+      </tr>
     );
     const rows = this.props.inRight.map(rule => (
-        <tr key={`right-${rule.key}`}
-            className="js-comparison-in-right">
-          <td>&nbsp;</td>
-          <td>{this.renderRule(rule, rule.severity)}</td>
-        </tr>
+      <tr key={`right-${rule.key}`} className="js-comparison-in-right">
+        <td>&nbsp;</td>
+        <td>{this.renderRule(rule, rule.severity)}</td>
+      </tr>
     ));
     return [header, ...rows];
   }
 
-  renderModified () {
+  renderModified() {
     if (this.props.modified.length === 0) {
       return null;
     }
     const header = (
-        <tr key="modified-header">
-          <td colSpan="2" className="text-center">
-            <h6>
-              {translateWithParameters(
-                'quality_profiles.x_rules_have_different_configuration',
-                this.props.modified.length
-              )}
-            </h6>
-          </td>
-        </tr>
+      <tr key="modified-header">
+        <td colSpan="2" className="text-center">
+          <h6>
+            {translateWithParameters(
+              'quality_profiles.x_rules_have_different_configuration',
+              this.props.modified.length
+            )}
+          </h6>
+        </td>
+      </tr>
     );
     const secondHeader = (
-        <tr key="modified-second-header">
-          <td><h6>{this.props.left.name}</h6></td>
-          <td><h6>{this.props.right.name}</h6></td>
-        </tr>
+      <tr key="modified-second-header">
+        <td><h6>{this.props.left.name}</h6></td>
+        <td><h6>{this.props.right.name}</h6></td>
+      </tr>
     );
     const rows = this.props.modified.map(rule => (
-        <tr key={`modified-${rule.key}`}
-            className="js-comparison-modified">
-          <td>
-            {this.renderRule(rule, rule.left.severity)}
-            {this.renderParameters(rule.left.params)}
-          </td>
-          <td>
-            {this.renderRule(rule, rule.right.severity)}
-            {this.renderParameters(rule.right.params)}
-          </td>
-        </tr>
+      <tr key={`modified-${rule.key}`} className="js-comparison-modified">
+        <td>
+          {this.renderRule(rule, rule.left.severity)}
+          {this.renderParameters(rule.left.params)}
+        </td>
+        <td>
+          {this.renderRule(rule, rule.right.severity)}
+          {this.renderParameters(rule.right.params)}
+        </td>
+      </tr>
     ));
     return [header, secondHeader, ...rows];
   }
 
-  render () {
+  render() {
     if (!this.props.inLeft.length && !this.props.inRight.length && !this.props.modified.length) {
-      return <ComparisonEmpty/>;
+      return <ComparisonEmpty />;
     }
 
     return (
-        <table className="data zebra quality-profile-comparison-table">
-          <tbody>
-            {this.renderLeft()}
-            {this.renderRight()}
-            {this.renderModified()}
-          </tbody>
-        </table>
+      <table className="data zebra quality-profile-comparison-table">
+        <tbody>
+          {this.renderLeft()}
+          {this.renderRight()}
+          {this.renderModified()}
+        </tbody>
+      </table>
     );
   }
 }

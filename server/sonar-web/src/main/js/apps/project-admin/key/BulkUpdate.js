@@ -25,9 +25,9 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { bulkChangeKey } from '../../../api/components';
 import { parseError } from '../../code/utils';
 import {
-    addGlobalErrorMessage,
-    addGlobalSuccessMessage,
-    closeAllGlobalMessages
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage,
+  closeAllGlobalMessages
 } from '../../../store/globalMessages/duck';
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/nav/component/RecentHistory';
@@ -46,54 +46,57 @@ class BulkUpdate extends React.Component {
     newComponentKey: null
   };
 
-  handleSubmit (replace, by) {
+  handleSubmit(replace, by) {
     this.loadResults(replace, by);
   }
 
-  handleConfirm () {
+  handleConfirm() {
     this.setState({ updating: true });
 
     const { component } = this.props;
     const { replace, by } = this.state;
 
-    bulkChangeKey(component.key, replace, by).then(r => {
-      const result = r.keys.find(result => result.key === component.key);
-      const newComponentKey = result != null ? result.newKey : component.key;
+    bulkChangeKey(component.key, replace, by)
+      .then(r => {
+        const result = r.keys.find(result => result.key === component.key);
+        const newComponentKey = result != null ? result.newKey : component.key;
 
-      if (newComponentKey !== component.key) {
-        RecentHistory.remove(component.key);
-      }
+        if (newComponentKey !== component.key) {
+          RecentHistory.remove(component.key);
+        }
 
-      this.props.addGlobalSuccessMessage(
-        translate('update_key.key_updated.reload'));
-      this.setState({ updating: false });
-      reloadUpdateKeyPage(newComponentKey);
-    }).catch(e => {
-      this.setState({ updating: false });
-      parseError(e).then(message => this.props.addGlobalErrorMessage(message));
-    });
+        this.props.addGlobalSuccessMessage(translate('update_key.key_updated.reload'));
+        this.setState({ updating: false });
+        reloadUpdateKeyPage(newComponentKey);
+      })
+      .catch(e => {
+        this.setState({ updating: false });
+        parseError(e).then(message => this.props.addGlobalErrorMessage(message));
+      });
   }
 
-  loadResults (replace, by) {
+  loadResults(replace, by) {
     const { component } = this.props;
-    bulkChangeKey(component.key, replace, by, true).then(r => {
-      this.setState({ results: r.keys, replace, by });
-      this.props.closeAllGlobalMessages();
-    }).catch(e => {
-      this.setState({ results: null });
-      parseError(e).then(message => this.props.addGlobalErrorMessage(message));
-    });
+    bulkChangeKey(component.key, replace, by, true)
+      .then(r => {
+        this.setState({ results: r.keys, replace, by });
+        this.props.closeAllGlobalMessages();
+      })
+      .catch(e => {
+        this.setState({ results: null });
+        parseError(e).then(message => this.props.addGlobalErrorMessage(message));
+      });
   }
 
-  renderUpdating () {
+  renderUpdating() {
     return (
-        <div id="project-key-bulk-update">
-          <i className="spinner"/>
-        </div>
+      <div id="project-key-bulk-update">
+        <i className="spinner" />
+      </div>
     );
   }
 
-  render () {
+  render() {
     const { component } = this.props;
     const { updating, updated } = this.state;
     const { results, replace, by } = this.state;
@@ -107,38 +110,36 @@ class BulkUpdate extends React.Component {
     }
 
     return (
-        <div id="project-key-bulk-update">
-          <header className="big-spacer-bottom">
-            <div className="spacer-bottom">
-              {translate('update_key.bulk_change_description')}
-            </div>
-            <div>
-              {translateWithParameters(
-                'update_key.current_key_for_project_x_is_x',
-                component.name,
-                component.key
-              )}
-            </div>
-          </header>
+      <div id="project-key-bulk-update">
+        <header className="big-spacer-bottom">
+          <div className="spacer-bottom">
+            {translate('update_key.bulk_change_description')}
+          </div>
+          <div>
+            {translateWithParameters(
+              'update_key.current_key_for_project_x_is_x',
+              component.name,
+              component.key
+            )}
+          </div>
+        </header>
 
-          <BulkUpdateForm onSubmit={this.handleSubmit.bind(this)}/>
+        <BulkUpdateForm onSubmit={this.handleSubmit.bind(this)} />
 
-          {results != null && (
-              <BulkUpdateResults
-                  results={results}
-                  replace={replace}
-                  by={by}
-                  onConfirm={this.handleConfirm.bind(this)}/>
-          )}
-        </div>
+        {results != null &&
+          <BulkUpdateResults
+            results={results}
+            replace={replace}
+            by={by}
+            onConfirm={this.handleConfirm.bind(this)}
+          />}
+      </div>
     );
   }
 }
 
-export default connect(
-  null, {
-    addGlobalErrorMessage,
-    addGlobalSuccessMessage,
-    closeAllGlobalMessages
-  }
-)(BulkUpdate);
+export default connect(null, {
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage,
+  closeAllGlobalMessages
+})(BulkUpdate);

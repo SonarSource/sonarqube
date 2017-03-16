@@ -24,29 +24,29 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
   idAttribute: 'login',
 
-  urlRoot () {
+  urlRoot() {
     return window.baseUrl + '/api/users';
   },
 
-  defaults () {
+  defaults() {
     return {
       groups: [],
       scmAccounts: []
     };
   },
 
-  toQuery () {
+  toQuery() {
     const data = { ...this.toJSON(), scmAccount: this.get('scmAccounts') };
     delete data.scmAccounts;
     return data;
   },
 
-  isNew () {
+  isNew() {
     // server never sends a password
     return this.has('password');
   },
 
-  sync (method, model, options) {
+  sync(method, model, options) {
     const opts = options || {};
     if (method === 'create') {
       defaults(opts, {
@@ -74,7 +74,7 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   },
 
-  changePassword (oldPassword, password, options) {
+  changePassword(oldPassword, password, options) {
     const data = {
       login: this.id,
       password
@@ -90,4 +90,3 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   }
 });
-

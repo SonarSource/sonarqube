@@ -25,25 +25,25 @@ import { areThereCustomOrganizations, getOrganization } from '../../../store/org
 export default CustomValuesFacet.extend({
   template: Template,
 
-  getUrl () {
+  getUrl() {
     return window.baseUrl + '/api/components/search';
   },
 
-  prepareSearchForViews () {
+  prepareSearchForViews() {
     const contextId = this.options.app.state.get('contextComponentUuid');
     return {
       url: window.baseUrl + '/api/components/tree',
-      data (term, page) {
+      data(term, page) {
         return { q: term, p: page, qualifiers: 'TRK', baseComponentId: contextId };
       }
     };
   },
 
-  prepareAjaxSearch () {
+  prepareAjaxSearch() {
     const options = {
       quietMillis: 300,
       url: this.getUrl(),
-      data (term, page) {
+      data(term, page) {
         return { q: term, p: page, qualifiers: 'TRK' };
       },
       results: r => ({
@@ -61,18 +61,18 @@ export default CustomValuesFacet.extend({
     return options;
   },
 
-  prepareSearch () {
+  prepareSearch() {
     return this.$('.js-custom-value').select2({
       placeholder: translate('search_verb'),
       minimumInputLength: 3,
       allowClear: false,
-      formatNoMatches () {
+      formatNoMatches() {
         return translate('select2.noMatches');
       },
-      formatSearching () {
+      formatSearching() {
         return translate('select2.searching');
       },
-      formatInputTooShort () {
+      formatInputTooShort() {
         return translateWithParameters('select2.tooShort', 3);
       },
       width: '100%',
@@ -80,7 +80,7 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  getValuesWithLabels () {
+  getValuesWithLabels() {
     const values = this.model.getValues();
     const projects = this.options.app.facets.components;
     const displayOrganizations = areThereCustomOrganizations();
@@ -92,8 +92,9 @@ export default CustomValuesFacet.extend({
         const project = projects.find(p => p.uuid === uuid);
         if (project != null) {
           label = project.longName;
-          organization = displayOrganizations && project.organization ?
-              getOrganization(project.organization) : null;
+          organization = displayOrganizations && project.organization
+            ? getOrganization(project.organization)
+            : null;
         }
       }
       v.label = label;
@@ -102,7 +103,7 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())

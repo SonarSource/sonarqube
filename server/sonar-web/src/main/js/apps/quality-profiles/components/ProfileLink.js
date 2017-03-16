@@ -25,16 +25,17 @@ export default class ProfileLink extends React.Component {
     profileKey: React.PropTypes.string.isRequired
   };
 
-  render () {
+  render() {
     const { profileKey, children, ...other } = this.props;
     const query = { key: profileKey };
     return (
-        <Link
-            to={{ pathname: '/profiles/show', query }}
-            activeClassName="link-no-underline"
-            {...other}>
-          {children}
-        </Link>
+      <Link
+        to={{ pathname: '/profiles/show', query }}
+        activeClassName="link-no-underline"
+        {...other}
+      >
+        {children}
+      </Link>
     );
   }
 }

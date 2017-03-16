@@ -27,27 +27,27 @@ export default Marionette.CompositeView.extend({
   template: Template,
 
   collectionEvents: {
-    'request': 'showLoading',
-    'sync': 'hideLoading'
+    request: 'showLoading',
+    sync: 'hideLoading'
   },
 
-  showLoading () {
+  showLoading() {
     this.$el.addClass('new-loading');
   },
 
-  hideLoading () {
+  hideLoading() {
     this.$el.removeClass('new-loading');
 
     const query = this.collection.q || '';
-    const shouldHideAnyone = this.collection.organization || !'anyone'.includes(query.toLowerCase());
+    const shouldHideAnyone = this.collection.organization ||
+      !'anyone'.includes(query.toLowerCase());
     this.$('.js-anyone').toggleClass('hidden', shouldHideAnyone);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.CompositeView.prototype.serializeData.apply(this, arguments),
       organization: this.collection.organization
     };
   }
 });
-

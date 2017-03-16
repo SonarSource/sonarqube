@@ -25,15 +25,15 @@ import Template from '../templates/facets/issues-resolution-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     BaseFacet.prototype.onRender.apply(this, arguments);
     const value = this.options.app.state.get('query').resolved;
-    if ((value != null) && (!value || value === 'false')) {
+    if (value != null && (!value || value === 'false')) {
       this.$('.js-facet').filter('[data-unresolved]').addClass('active');
     }
   },
 
-  toggleFacet (e) {
+  toggleFacet(e) {
     const unresolved = $(e.currentTarget).is('[data-unresolved]');
     $(e.currentTarget).toggleClass('active');
     if (unresolved) {
@@ -51,16 +51,15 @@ export default BaseFacet.extend({
     }
   },
 
-  disable () {
+  disable() {
     return this.options.app.state.updateFilter({
       resolved: null,
       resolutions: null
     });
   },
 
-  sortValues (values) {
+  sortValues(values) {
     const order = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
     return sortBy(values, v => order.indexOf(v.val));
   }
 });
-

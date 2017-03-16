@@ -34,33 +34,30 @@ const ListHeader = props => {
   };
 
   return (
-      <header className="measure-details-viewer-header">
-        {breadcrumbs != null && breadcrumbs.length > 1 && (
-            <div className="measure-details-header-container">
-              <Breadcrumbs
-                  breadcrumbs={breadcrumbs}
-                  metric={metric}
-                  onBrowse={onBrowse}/>
-            </div>
-        )}
+    <header className="measure-details-viewer-header">
+      {breadcrumbs != null &&
+        breadcrumbs.length > 1 &&
+        <div className="measure-details-header-container">
+          <Breadcrumbs breadcrumbs={breadcrumbs} metric={metric} onBrowse={onBrowse} />
+        </div>}
 
-        {selectedIndex != null && selectedIndex !== -1 && (
-            <div className="pull-right">
-              <span className="note spacer-right">
-                {translateWithParameters('component_measures.x_of_y', selectedIndex + 1, componentsCount)}
-              </span>
+      {selectedIndex != null &&
+        selectedIndex !== -1 &&
+        <div className="pull-right">
+          <span className="note spacer-right">
+            {translateWithParameters(
+              'component_measures.x_of_y',
+              selectedIndex + 1,
+              componentsCount
+            )}
+          </span>
 
-              <div className="button-group">
-                {hasPrevious && (
-                    <button onClick={blur(onSelectPrevious)}>&lt;</button>
-                )}
-                {hasNext && (
-                    <button onClick={blur(onSelectNext)}>&gt;</button>
-                )}
-              </div>
-            </div>
-        )}
-      </header>
+          <div className="button-group">
+            {hasPrevious && <button onClick={blur(onSelectPrevious)}>&lt;</button>}
+            {hasNext && <button onClick={blur(onSelectNext)}>&gt;</button>}
+          </div>
+        </div>}
+    </header>
   );
 };
 

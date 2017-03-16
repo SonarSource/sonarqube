@@ -36,7 +36,7 @@ export default class FavoriteFilter extends React.PureComponent {
     }
   };
 
-  render () {
+  render() {
     if (!this.props.user.isLoggedIn) {
       return null;
     }
@@ -57,7 +57,8 @@ export default class FavoriteFilter extends React.PureComponent {
             to={pathnameForFavorite}
             className="button"
             activeClassName="button-active"
-            onClick={this.handleSaveFavorite}>
+            onClick={this.handleSaveFavorite}
+          >
             {translate('my_favorites')}
           </Link>
           <IndexLink
@@ -65,7 +66,8 @@ export default class FavoriteFilter extends React.PureComponent {
             to={pathnameForAll}
             className="button"
             activeClassName="button-active"
-            onClick={this.handleSaveAll}>
+            onClick={this.handleSaveAll}
+          >
             {translate('all')}
           </IndexLink>
         </div>

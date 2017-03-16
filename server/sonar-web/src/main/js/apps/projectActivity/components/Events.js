@@ -31,26 +31,27 @@ export default class Events extends React.Component {
     canAdmin: boolean
   };
 
-  render () {
+  render() {
     const sortedEvents: Array<EventType> = sortBy(
       this.props.events,
-        // versions first
+      // versions first
       (event: EventType) => event.category === 'VERSION' ? 0 : 1,
-        // then the rest sorted by category
+      // then the rest sorted by category
       'category'
     );
 
     return (
-        <div className="project-activity-events">
-          {sortedEvents.map(event => (
-              <Event
-                  key={event.key}
-                  analysis={this.props.analysis}
-                  event={event}
-                  isFirst={this.props.isFirst}
-                  canAdmin={this.props.canAdmin}/>
-          ))}
-        </div>
+      <div className="project-activity-events">
+        {sortedEvents.map(event => (
+          <Event
+            key={event.key}
+            analysis={this.props.analysis}
+            event={event}
+            isFirst={this.props.isFirst}
+            canAdmin={this.props.canAdmin}
+          />
+        ))}
+      </div>
     );
   }
 }

@@ -98,7 +98,10 @@ describe('Model', () => {
       const spy = jest.fn();
       issue._action = spy;
       issue.plan('plan');
-      expect(spy).toBeCalledWith({ data: { plan: 'plan', issue: 'issue-key' }, url: '/api/issues/plan' });
+      expect(spy).toBeCalledWith({
+        data: { plan: 'plan', issue: 'issue-key' },
+        url: '/api/issues/plan'
+      });
     });
 
     it('should unplan', () => {
@@ -106,7 +109,10 @@ describe('Model', () => {
       const spy = jest.fn();
       issue._action = spy;
       issue.plan();
-      expect(spy).toBeCalledWith({ data: { plan: undefined, issue: 'issue-key' }, url: '/api/issues/plan' });
+      expect(spy).toBeCalledWith({
+        data: { plan: undefined, issue: 'issue-key' },
+        url: '/api/issues/plan'
+      });
     });
 
     it('should set severity', () => {
@@ -123,7 +129,9 @@ describe('Model', () => {
 
   describe('#getLinearLocations', () => {
     it('should return single line location', () => {
-      const issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 10 } });
+      const issue = new Issue({
+        textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 10 }
+      });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(1);
 
@@ -133,7 +141,9 @@ describe('Model', () => {
     });
 
     it('should return location not from 0', () => {
-      const issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 5, endOffset: 10 } });
+      const issue = new Issue({
+        textRange: { startLine: 1, endLine: 1, startOffset: 5, endOffset: 10 }
+      });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(1);
 
@@ -143,7 +153,9 @@ describe('Model', () => {
     });
 
     it('should return 2-lines location', () => {
-      const issue = new Issue({ textRange: { startLine: 2, endLine: 3, startOffset: 5, endOffset: 10 } });
+      const issue = new Issue({
+        textRange: { startLine: 2, endLine: 3, startOffset: 5, endOffset: 10 }
+      });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(2);
 
@@ -157,7 +169,9 @@ describe('Model', () => {
     });
 
     it('should return 3-lines location', () => {
-      const issue = new Issue({ textRange: { startLine: 4, endLine: 6, startOffset: 5, endOffset: 10 } });
+      const issue = new Issue({
+        textRange: { startLine: 4, endLine: 6, startOffset: 5, endOffset: 10 }
+      });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(3);
 

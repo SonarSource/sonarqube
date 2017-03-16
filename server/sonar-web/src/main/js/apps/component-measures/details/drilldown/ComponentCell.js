@@ -25,7 +25,7 @@ import { getComponentUrl } from '../../../../helpers/urls';
 
 const ComponentCell = ({ component, isSelected, onClick }) => {
   const linkClassName = classNames('link-no-underline', {
-    'selected': isSelected
+    selected: isSelected
   });
 
   const handleClick = e => {
@@ -48,41 +48,46 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
   }
 
   const inner = (
-      <span title={component.refKey || component.key}>
-        <QualifierIcon qualifier={component.qualifier}/>
-        &nbsp;
-        {head.length > 0 && (
-            <span className="note">{head}/</span>
-        )}
-        <span>{tail}</span>
-      </span>
+    <span title={component.refKey || component.key}>
+      <QualifierIcon qualifier={component.qualifier} />
+      &nbsp;
+      {head.length > 0 && <span className="note">{head}/</span>}
+      <span>{tail}</span>
+    </span>
   );
 
   return (
-      <td style={{ maxWidth: 0 }}>
-        <div style={{ maxWidth: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {(component.refId == null || component.qualifier === 'DEV_PRJ') ? (
-              <a
-                  id={'component-measures-component-link-' + component.key}
-                  className={linkClassName}
-                  href={getComponentUrl(component.key)}
-                  onClick={handleClick}>
-                {inner}
-              </a>
-          ) : (
-              <a
-                  id={'component-measures-component-link-' + component.key}
-                  className={linkClassName}
-                  href={getComponentUrl(component.refKey || component.key)}>
-                <span className="big-spacer-right">
-                  <i className="icon-detach"/>
-                </span>
+    <td style={{ maxWidth: 0 }}>
+      <div
+        style={{
+          maxWidth: '100%',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}
+      >
+        {component.refId == null || component.qualifier === 'DEV_PRJ'
+          ? <a
+              id={'component-measures-component-link-' + component.key}
+              className={linkClassName}
+              href={getComponentUrl(component.key)}
+              onClick={handleClick}
+            >
+              {inner}
+            </a>
+          : <a
+              id={'component-measures-component-link-' + component.key}
+              className={linkClassName}
+              href={getComponentUrl(component.refKey || component.key)}
+            >
+              <span className="big-spacer-right">
+                <i className="icon-detach" />
+              </span>
 
-                {inner}
-              </a>
-          )}
-        </div>
-      </td>
+              {inner}
+            </a>}
+      </div>
+    </td>
   );
 };
 

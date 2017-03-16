@@ -67,7 +67,7 @@ export default class SourceViewerHeader extends React.PureComponent {
     Workspace.openComponent({ key });
   };
 
-  render () {
+  render() {
     const {
       key,
       measures,
@@ -90,25 +90,25 @@ export default class SourceViewerHeader extends React.PureComponent {
           <div className="component-name">
             <div className="component-name-parent">
               <Link to={getProjectUrl(project)} className="link-with-icon">
-                <QualifierIcon qualifier="TRK"/> <span>{projectName}</span>
+                <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
               </Link>
             </div>
 
             {subProject != null &&
               <div className="component-name-parent">
                 <Link to={getProjectUrl(subProject)} className="link-with-icon">
-                  <QualifierIcon qualifier="BRC"/> <span>{subProjectName}</span>
+                  <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
                 </Link>
               </div>}
 
             <div className="component-name-path">
-              <QualifierIcon qualifier={q}/>
+              <QualifierIcon qualifier={q} />
               {' '}
               <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
 
               {this.props.component.canMarkAsFavorite &&
-                <FavoriteContainer className="component-name-favorite" componentKey={key}/>}
+                <FavoriteContainer className="component-name-favorite" componentKey={key} />}
             </div>
           </div>
         </div>
@@ -117,7 +117,8 @@ export default class SourceViewerHeader extends React.PureComponent {
           <a
             className="js-actions icon-list dropdown-toggle"
             data-toggle="dropdown"
-            title={translate('component_viewer.more_actions')}/>
+            title={translate('component_viewer.more_actions')}
+          />
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
               <a className="js-measures" href="#" onClick={this.showMeasures}>
@@ -169,10 +170,11 @@ export default class SourceViewerHeader extends React.PureComponent {
               <Link
                 to={getIssuesUrl({ resolved: 'false', componentKeys: key })}
                 className="source-viewer-header-external-link"
-                target="_blank">
+                target="_blank"
+              >
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
                 {' '}
-                <i className="icon-detach"/>
+                <i className="icon-detach" />
               </Link>
             </span>
             <span className="source-viewer-header-measure-label">

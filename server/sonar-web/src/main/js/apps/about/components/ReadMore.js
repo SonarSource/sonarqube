@@ -25,13 +25,13 @@ export default class ReadMore extends React.Component {
     link: React.PropTypes.string.isRequired
   };
 
-  render () {
+  render() {
     return (
-        <div className="big-spacer-top">
-          <a className="about-page-link-more" href={this.props.link} target="_blank">
-            <span>{translate('about_page.read_more')}</span>
-          </a>
-        </div>
+      <div className="big-spacer-top">
+        <a className="about-page-link-more" href={this.props.link} target="_blank">
+          <span>{translate('about_page.read_more')}</span>
+        </a>
+      </div>
     );
   }
 }

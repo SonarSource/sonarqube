@@ -23,7 +23,11 @@ import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
 import Form from './Form';
 import { fetchProjectGate, setProjectGate } from '../store/actions';
-import { getProjectAdminAllGates, getProjectAdminProjectGate, getComponent } from '../../../store/rootReducer';
+import {
+  getProjectAdminAllGates,
+  getProjectAdminProjectGate,
+  getComponent
+} from '../../../store/rootReducer';
 
 class QualityGate extends React.Component {
   static propTypes = {
@@ -32,27 +36,28 @@ class QualityGate extends React.Component {
     gate: React.PropTypes.object
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.fetchProjectGate(this.props.component.key);
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleChangeGate (oldId, newId) {
+  handleChangeGate(oldId, newId) {
     this.props.setProjectGate(this.props.component.key, oldId, newId);
   }
 
-  render () {
+  render() {
     return (
-        <div id="project-quality-gate" className="page page-limited">
-          <Header/>
-          <Form
-              allGates={this.props.allGates}
-              gate={this.props.gate}
-              onChange={this.handleChangeGate.bind(this)}/>
-        </div>
+      <div id="project-quality-gate" className="page page-limited">
+        <Header />
+        <Form
+          allGates={this.props.allGates}
+          gate={this.props.gate}
+          onChange={this.handleChangeGate.bind(this)}
+        />
+      </div>
     );
   }
 }
@@ -63,7 +68,4 @@ const mapStateToProps = (state, ownProps) => ({
   gate: getProjectAdminProjectGate(state, ownProps.location.query.id)
 });
 
-export default connect(
-  mapStateToProps,
-    { fetchProjectGate, setProjectGate }
-)(QualityGate);
+export default connect(mapStateToProps, { fetchProjectGate, setProjectGate })(QualityGate);

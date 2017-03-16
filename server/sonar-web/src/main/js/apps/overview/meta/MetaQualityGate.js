@@ -24,24 +24,23 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 
 const MetaQualityGate = ({ gate }) => {
   return (
-      <div className="overview-meta-card">
-        <h4 className="overview-meta-header">
-          {translate('overview.quality_gate')}
-        </h4>
+    <div className="overview-meta-card">
+      <h4 className="overview-meta-header">
+        {translate('overview.quality_gate')}
+      </h4>
 
-        <ul className="overview-meta-list">
-          <li>
-            {gate.isDefault && (
-                <span className="note spacer-right">
-                  {'(' + translate('default') + ')'}
-                </span>
-            )}
-            <Link to={getQualityGateUrl(gate.key)}>
-              {gate.name}
-            </Link>
-          </li>
-        </ul>
-      </div>
+      <ul className="overview-meta-list">
+        <li>
+          {gate.isDefault &&
+            <span className="note spacer-right">
+              {'(' + translate('default') + ')'}
+            </span>}
+          <Link to={getQualityGateUrl(gate.key)}>
+            {gate.name}
+          </Link>
+        </li>
+      </ul>
+    </div>
   );
 };
 

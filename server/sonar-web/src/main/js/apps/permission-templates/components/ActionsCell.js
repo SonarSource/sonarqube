@@ -45,7 +45,7 @@ export default class ActionsCell extends React.Component {
     router: React.PropTypes.object
   };
 
-  handleUpdateClick (e) {
+  handleUpdateClick(e) {
     e.preventDefault();
     new UpdateView({
       model: new Backbone.Model(this.props.permissionTemplate),
@@ -53,142 +53,137 @@ export default class ActionsCell extends React.Component {
     }).render();
   }
 
-  handleDeleteClick (e) {
+  handleDeleteClick(e) {
     e.preventDefault();
     new DeleteView({
       model: new Backbone.Model(this.props.permissionTemplate)
-    }).on('done', () => {
-      const pathname = this.props.organization ?
-          `/organizations/${this.props.organization.key}/permission_templates` :
-          '/permission_templates';
-      this.context.router.replace(pathname);
-      this.props.refresh();
-    }).render();
+    })
+      .on('done', () => {
+        const pathname = this.props.organization
+          ? `/organizations/${this.props.organization.key}/permission_templates`
+          : '/permission_templates';
+        this.context.router.replace(pathname);
+        this.props.refresh();
+      })
+      .render();
   }
 
-  setDefault (qualifier, e) {
+  setDefault(qualifier, e) {
     e.preventDefault();
-    setDefaultPermissionTemplate(
-      this.props.permissionTemplate.id,
-      qualifier
-    ).then(this.props.refresh);
+    setDefaultPermissionTemplate(this.props.permissionTemplate.id, qualifier).then(
+      this.props.refresh
+    );
   }
 
-  getAvailableQualifiers () {
-    const topQualifiers = this.props.organization && !this.props.organization.isDefault ?
-        ['TRK'] :
-        this.props.topQualifiers;
+  getAvailableQualifiers() {
+    const topQualifiers = this.props.organization && !this.props.organization.isDefault
+      ? ['TRK']
+      : this.props.topQualifiers;
     return difference(topQualifiers, this.props.permissionTemplate.defaultFor);
   }
 
-  renderDropdownIcon (icon) {
+  renderDropdownIcon(icon) {
     const style = {
       display: 'inline-block',
       width: 16,
       marginRight: 4,
       textAlign: 'center'
     };
-    return (
-        <div style={style}>{icon}</div>
-    );
+    return <div style={style}>{icon}</div>;
   }
 
-  renderSetDefaultsControl () {
+  renderSetDefaultsControl() {
     const availableQualifiers = this.getAvailableQualifiers();
 
     if (availableQualifiers.length === 0) {
       return null;
     }
 
-    return this.props.topQualifiers.length === 1 ?
-        this.renderIfSingleTopQualifier(availableQualifiers) :
-        this.renderIfMultipleTopQualifiers(availableQualifiers);
+    return this.props.topQualifiers.length === 1
+      ? this.renderIfSingleTopQualifier(availableQualifiers)
+      : this.renderIfMultipleTopQualifiers(availableQualifiers);
   }
 
-  renderSetDefaultLink (qualifier, child) {
+  renderSetDefaultLink(qualifier, child) {
     return (
-        <li key={qualifier}>
-          <a href="#"
-             className="js-set-default"
-             data-qualifier={qualifier}
-             onClick={this.setDefault.bind(this, qualifier)}>
-            {this.renderDropdownIcon(<i className="icon-check"/>)}
-            {child}
-          </a>
-        </li>
+      <li key={qualifier}>
+        <a
+          href="#"
+          className="js-set-default"
+          data-qualifier={qualifier}
+          onClick={this.setDefault.bind(this, qualifier)}
+        >
+          {this.renderDropdownIcon(<i className="icon-check" />)}
+          {child}
+        </a>
+      </li>
     );
   }
 
-  renderIfSingleTopQualifier (availableQualifiers) {
-    return availableQualifiers.map(qualifier => (
-        this.renderSetDefaultLink(qualifier, (
-          <span>{translate('permission_templates.set_default')}</span>
-        )))
-    );
+  renderIfSingleTopQualifier(availableQualifiers) {
+    return availableQualifiers.map(qualifier =>
+      this.renderSetDefaultLink(
+        qualifier,
+        <span>{translate('permission_templates.set_default')}</span>
+      ));
   }
 
-  renderIfMultipleTopQualifiers (availableQualifiers) {
-    return availableQualifiers.map(qualifier => (
-        this.renderSetDefaultLink(qualifier, (
-          <span>
-              {translate('permission_templates.set_default_for')}
-              {' '}
-              <QualifierIcon qualifier={qualifier}/>
-              {' '}
-              {translate('qualifiers', qualifier)}
-            </span>
-        )))
-    );
+  renderIfMultipleTopQualifiers(availableQualifiers) {
+    return availableQualifiers.map(qualifier =>
+      this.renderSetDefaultLink(
+        qualifier,
+        <span>
+          {translate('permission_templates.set_default_for')}
+          {' '}
+          <QualifierIcon qualifier={qualifier} />
+          {' '}
+          {translate('qualifiers', qualifier)}
+        </span>
+      ));
   }
 
-  render () {
+  render() {
     const { permissionTemplate: t, organization } = this.props;
 
-    const pathname = organization ?
-        `/organizations/${organization.key}/permission_templates` :
-        '/permission_templates';
+    const pathname = organization
+      ? `/organizations/${organization.key}/permission_templates`
+      : '/permission_templates';
 
     return (
-        <div className="dropdown">
-          <button className="dropdown-toggle" data-toggle="dropdown">
-            {translate('actions')}
-            {' '}
-            <i className="icon-dropdown"/>
-          </button>
+      <div className="dropdown">
+        <button className="dropdown-toggle" data-toggle="dropdown">
+          {translate('actions')}
+          {' '}
+          <i className="icon-dropdown" />
+        </button>
 
-          <ul className="dropdown-menu dropdown-menu-right">
-            {this.renderSetDefaultsControl()}
+        <ul className="dropdown-menu dropdown-menu-right">
+          {this.renderSetDefaultsControl()}
 
-            {!this.props.fromDetails && (
-                <li>
-                  <Link to={{ pathname, query: { id: t.id } }}>
-                    {this.renderDropdownIcon(<i className="icon-edit"/>)}
-                    Edit Permissions
-                  </Link>
-                </li>
-            )}
-
+          {!this.props.fromDetails &&
             <li>
-              <a href="#"
-                 className="js-update"
-                 onClick={this.handleUpdateClick.bind(this)}>
-                {this.renderDropdownIcon(<i className="icon-edit"/>)}
-                Update Details
-              </a>
-            </li>
+              <Link to={{ pathname, query: { id: t.id } }}>
+                {this.renderDropdownIcon(<i className="icon-edit" />)}
+                Edit Permissions
+              </Link>
+            </li>}
 
-            {t.defaultFor.length === 0 && (
-                <li>
-                  <a href="#"
-                     className="js-delete"
-                     onClick={this.handleDeleteClick.bind(this)}>
-                    {this.renderDropdownIcon(<i className="icon-delete"/>)}
-                    {translate('delete')}
-                  </a>
-                </li>
-            )}
-          </ul>
-        </div>
+          <li>
+            <a href="#" className="js-update" onClick={this.handleUpdateClick.bind(this)}>
+              {this.renderDropdownIcon(<i className="icon-edit" />)}
+              Update Details
+            </a>
+          </li>
+
+          {t.defaultFor.length === 0 &&
+            <li>
+              <a href="#" className="js-delete" onClick={this.handleDeleteClick.bind(this)}>
+                {this.renderDropdownIcon(<i className="icon-delete" />)}
+                {translate('delete')}
+              </a>
+            </li>}
+        </ul>
+      </div>
     );
   }
 }

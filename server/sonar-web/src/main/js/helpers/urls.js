@@ -22,11 +22,11 @@
  * @param {string} componentKey
  * @returns {string}
  */
-export function getComponentUrl (componentKey) {
+export function getComponentUrl(componentKey) {
   return window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
 }
 
-export function getProjectUrl (key) {
+export function getProjectUrl(key) {
   return {
     pathname: '/dashboard',
     query: { id: key }
@@ -38,10 +38,10 @@ export function getProjectUrl (key) {
  * @param {object} query
  * @returns {string}
  */
-export function getIssuesUrl (query) {
-  const serializedQuery = Object.keys(query).map(criterion => (
-      `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
-  )).join('|');
+export function getIssuesUrl(query) {
+  const serializedQuery = Object.keys(query)
+    .map(criterion => `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`)
+    .join('|');
 
   // return a string (not { pathname }) to help react-router's Link handle this properly
   return '/issues#' + serializedQuery;
@@ -53,10 +53,10 @@ export function getIssuesUrl (query) {
  * @param {object} query
  * @returns {string}
  */
-export function getComponentIssuesUrl (componentKey, query) {
-  const serializedQuery = Object.keys(query).map(criterion => (
-      `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
-  )).join('|');
+export function getComponentIssuesUrl(componentKey, query) {
+  const serializedQuery = Object.keys(query)
+    .map(criterion => `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`)
+    .join('|');
 
   // return a string (not { pathname }) to help react-router's Link handle this properly
   return '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
@@ -68,7 +68,7 @@ export function getComponentIssuesUrl (componentKey, query) {
  * @param {string} metric
  * @returns {Object}
  */
-export function getComponentDrilldownUrl (componentKey, metric) {
+export function getComponentDrilldownUrl(componentKey, metric) {
   return {
     pathname: `/component_measures/metric/${metric}`,
     query: { id: componentKey }
@@ -80,7 +80,7 @@ export function getComponentDrilldownUrl (componentKey, metric) {
  * @param {string} componentKey
  * @returns {Object}
  */
-export function getComponentPermissionsUrl (componentKey) {
+export function getComponentPermissionsUrl(componentKey) {
   return {
     pathname: '/project_roles',
     query: { id: componentKey }
@@ -92,7 +92,7 @@ export function getComponentPermissionsUrl (componentKey) {
  * @param {string} key
  * @returns {Object}
  */
-export function getQualityProfileUrl (key) {
+export function getQualityProfileUrl(key) {
   return {
     pathname: '/profiles/show',
     query: { key }
@@ -104,7 +104,7 @@ export function getQualityProfileUrl (key) {
  * @param {string} key
  * @returns {Object}
  */
-export function getQualityGateUrl (key) {
+export function getQualityGateUrl(key) {
   return {
     pathname: '/quality_gates/show/' + encodeURIComponent(key)
   };
@@ -115,12 +115,11 @@ export function getQualityGateUrl (key) {
  * @param {object} query
  * @returns {string}
  */
-export function getRulesUrl (query) {
+export function getRulesUrl(query) {
   if (query) {
-    const serializedQuery = Object.keys(query).map(criterion => (
-        `${encodeURIComponent(criterion)}=${encodeURIComponent(
-          query[criterion])}`
-    )).join('|');
+    const serializedQuery = Object.keys(query)
+      .map(criterion => `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`)
+      .join('|');
 
     // return a string (not { pathname }) to help react-router's Link handle this properly
     return '/coding_rules#' + serializedQuery;
@@ -134,7 +133,7 @@ export function getRulesUrl (query) {
  * @param {object} query
  * @returns {string}
  */
-export function getDeprecatedActiveRulesUrl (query = {}) {
+export function getDeprecatedActiveRulesUrl(query = {}) {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery });
 }

@@ -28,7 +28,7 @@ type Props = {
 export default class FilterHeader extends React.PureComponent {
   props: Props;
 
-  render () {
+  render() {
     return (
       <div className="search-navigator-facet-header projects-facet-header">
         {this.props.name}

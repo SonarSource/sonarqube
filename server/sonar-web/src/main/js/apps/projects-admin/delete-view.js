@@ -23,10 +23,9 @@ import Template from './templates/projects-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.options.deleteProjects();
     this.destroy();
   }
 });
-

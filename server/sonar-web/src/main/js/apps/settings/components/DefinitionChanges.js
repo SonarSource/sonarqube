@@ -28,33 +28,36 @@ export default class DefinitionChanges extends React.Component {
     onCancel: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps: {}, nextState: ?{}) {
+  shouldComponentUpdate(nextProps: {}, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleSaveClick (e: Object) {
+  handleSaveClick(e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onSave();
   }
 
-  handleCancelChange (e: Object) {
+  handleCancelChange(e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onCancel();
   }
 
-  render () {
+  render() {
     return (
-        <div className="settings-definition-changes">
-          <button className="js-save-changes button-success" onClick={e => this.handleSaveClick(e)}>
-            {translate('save')}
-          </button>
+      <div className="settings-definition-changes">
+        <button className="js-save-changes button-success" onClick={e => this.handleSaveClick(e)}>
+          {translate('save')}
+        </button>
 
-          <button className="js-cancel-changes big-spacer-left button-link" onClick={e => this.handleCancelChange(e)}>
-            {translate('cancel')}
-          </button>
-        </div>
+        <button
+          className="js-cancel-changes big-spacer-left button-link"
+          onClick={e => this.handleCancelChange(e)}
+        >
+          {translate('cancel')}
+        </button>
+      </div>
     );
   }
 }

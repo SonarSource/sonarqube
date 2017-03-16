@@ -25,7 +25,7 @@ import { getLocalizedMetricName } from '../../../../helpers/l10n';
 
 const ComponentsList = ({ components, metrics, selected, metric, onClick }) => {
   if (!components.length) {
-    return <EmptyComponentsList/>;
+    return <EmptyComponentsList />;
   }
 
   const otherMetrics = (complementary[metric.key] || []).map(metric => {
@@ -33,35 +33,35 @@ const ComponentsList = ({ components, metrics, selected, metric, onClick }) => {
   });
 
   return (
-      <table className="data zebra zebra-hover">
-        {otherMetrics.length > 0 && (
-            <thead>
-              <tr>
-                <th>&nbsp;</th>
-                <th className="text-right">
-                  <span className="small">{getLocalizedMetricName(metric)}</span>
-                </th>
-                {otherMetrics.map(metric => (
-                    <th key={metric.key} className="text-right">
-                      <span className="small">{getLocalizedMetricName(metric)}</span>
-                    </th>
-                ))}
-              </tr>
-            </thead>
-        )}
+    <table className="data zebra zebra-hover">
+      {otherMetrics.length > 0 &&
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th className="text-right">
+              <span className="small">{getLocalizedMetricName(metric)}</span>
+            </th>
+            {otherMetrics.map(metric => (
+              <th key={metric.key} className="text-right">
+                <span className="small">{getLocalizedMetricName(metric)}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>}
 
-        <tbody>
-          {components.map(component => (
-              <ComponentsListRow
-                  key={component.id}
-                  component={component}
-                  otherMetrics={otherMetrics}
-                  isSelected={component === selected}
-                  metric={metric}
-                  onClick={onClick}/>
-          ))}
-        </tbody>
-      </table>
+      <tbody>
+        {components.map(component => (
+          <ComponentsListRow
+            key={component.id}
+            component={component}
+            otherMetrics={otherMetrics}
+            isSelected={component === selected}
+            metric={metric}
+            onClick={onClick}
+          />
+        ))}
+      </tbody>
+    </table>
   );
 };
 

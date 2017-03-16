@@ -31,4 +31,3 @@ export default (state: State = {}, action: ReceiveProjectActivityAction): State 
 
   return state;
 };
-

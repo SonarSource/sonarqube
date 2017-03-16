@@ -30,7 +30,7 @@ const RULES_LIMIT = 10;
 
 const PERIOD_START_MOMENT = moment().subtract(1, 'year');
 
-function parseRules (r) {
+function parseRules(r) {
   const { rules, actives } = r;
   return rules.map(rule => {
     const activations = actives[rule.key];
@@ -41,22 +41,22 @@ function parseRules (r) {
 export default class EvolutionRules extends React.Component {
   state = {};
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadLatestRules();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadLatestRules () {
+  loadLatestRules() {
     const data = {
-      'available_since': PERIOD_START_MOMENT.format('YYYY-MM-DD'),
-      's': 'createdAt',
-      'asc': false,
-      'ps': RULES_LIMIT,
-      'f': 'name,langName,actives'
+      available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD'),
+      s: 'createdAt',
+      asc: false,
+      ps: RULES_LIMIT,
+      f: 'name,langName,actives'
     };
 
     searchRules(data).then(r => {
@@ -69,58 +69,55 @@ export default class EvolutionRules extends React.Component {
     });
   }
 
-  render () {
+  render() {
     if (!this.state.latestRulesTotal) {
       return null;
     }
 
     const newRulesUrl = getRulesUrl({
-      'available_since': PERIOD_START_MOMENT.format('YYYY-MM-DD')
+      available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD')
     });
 
     return (
-        <div className="quality-profile-box quality-profiles-evolution-rules">
-          <div className="clearfix">
-            <strong className="pull-left">
-              {translate('quality_profiles.latest_new_rules')}
-            </strong>
-          </div>
-          <ul>
-            {this.state.latestRules.map(rule => (
-                <li key={rule.key} className="spacer-top">
-                  <div className="text-ellipsis">
-                    <Link to={getRulesUrl({ 'rule_key': rule.key })} className="link-no-underline">
-                      {' '}
-                      {rule.name}
-                    </Link>
-                    <div className="note">
-                      {rule.activations ? (
-                          translateWithParameters(
-                            'quality_profiles.latest_new_rules.activated',
-                            rule.langName,
-                            rule.activations
-                          )
-                      ) : (
-                          translateWithParameters(
-                            'quality_profiles.latest_new_rules.not_activated',
-                            rule.langName
-                          )
-                      )}
-                    </div>
-                  </div>
-                </li>
-            ))}
-          </ul>
-          {this.state.latestRulesTotal > RULES_LIMIT && (
-              <div className="spacer-top">
-                <Link to={newRulesUrl} className="small">
-                  {translate('see_all')}
-                  {' '}
-                  {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT')}
-                </Link>
-              </div>
-          )}
+      <div className="quality-profile-box quality-profiles-evolution-rules">
+        <div className="clearfix">
+          <strong className="pull-left">
+            {translate('quality_profiles.latest_new_rules')}
+          </strong>
         </div>
+        <ul>
+          {this.state.latestRules.map(rule => (
+            <li key={rule.key} className="spacer-top">
+              <div className="text-ellipsis">
+                <Link to={getRulesUrl({ rule_key: rule.key })} className="link-no-underline">
+                  {' '}
+                  {rule.name}
+                </Link>
+                <div className="note">
+                  {rule.activations
+                    ? translateWithParameters(
+                        'quality_profiles.latest_new_rules.activated',
+                        rule.langName,
+                        rule.activations
+                      )
+                    : translateWithParameters(
+                        'quality_profiles.latest_new_rules.not_activated',
+                        rule.langName
+                      )}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {this.state.latestRulesTotal > RULES_LIMIT &&
+          <div className="spacer-top">
+            <Link to={newRulesUrl} className="small">
+              {translate('see_all')}
+              {' '}
+              {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT')}
+            </Link>
+          </div>}
+      </div>
     );
   }
 }

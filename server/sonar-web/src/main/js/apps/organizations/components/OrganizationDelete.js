@@ -60,63 +60,65 @@ class OrganizationDelete extends React.Component {
     this.setState({ deleting: false });
   };
 
-  renderModal () {
+  renderModal() {
     return (
-        <Modal isOpen={true}
-               contentLabel="modal form"
-               className="modal"
-               overlayClassName="modal-overlay"
-               onRequestClose={this.handleCloseModal}>
+      <Modal
+        isOpen={true}
+        contentLabel="modal form"
+        className="modal"
+        overlayClassName="modal-overlay"
+        onRequestClose={this.handleCloseModal}
+      >
 
-          <header className="modal-head">
-            <h2>{translate('organization.delete')}</h2>
-          </header>
+        <header className="modal-head">
+          <h2>{translate('organization.delete')}</h2>
+        </header>
 
-          <form onSubmit={this.handleSubmit}>
-            <div className="modal-body">
-              {translate('organization.delete.question')}
-            </div>
+        <form onSubmit={this.handleSubmit}>
+          <div className="modal-body">
+            {translate('organization.delete.question')}
+          </div>
 
-            <footer className="modal-foot">
-              {this.state.loading ? (
-                      <i className="spinner"/>
-                  ) : (
-                      <div>
-                        <button type="submit" className="button-red">{translate('delete')}</button>
-                        <button type="reset" className="button-link" onClick={this.handleCloseModal}>
-                          {translate('cancel')}
-                        </button>
-                      </div>
-                  )}
-            </footer>
-          </form>
+          <footer className="modal-foot">
+            {this.state.loading
+              ? <i className="spinner" />
+              : <div>
+                  <button type="submit" className="button-red">{translate('delete')}</button>
+                  <button type="reset" className="button-link" onClick={this.handleCloseModal}>
+                    {translate('cancel')}
+                  </button>
+                </div>}
+          </footer>
+        </form>
 
-        </Modal>
+      </Modal>
     );
   }
 
-  render () {
+  render() {
     return (
-        <div className="page page-limited">
-          <Helmet
-              title={`${translate('organization.delete')} - ${this.props.organization.name}`}
-              titleTemplate="%s - SonarQube"/>
+      <div className="page page-limited">
+        <Helmet
+          title={`${translate('organization.delete')} - ${this.props.organization.name}`}
+          titleTemplate="%s - SonarQube"
+        />
 
-          <header className="page-header">
-            <h1 className="page-title">{translate('organization.delete')}</h1>
-            <div className="page-description">{translate('organization.delete.description')}</div>
-          </header>
+        <header className="page-header">
+          <h1 className="page-title">{translate('organization.delete')}</h1>
+          <div className="page-description">{translate('organization.delete.description')}</div>
+        </header>
 
-          <div>
-            <button
-                className="button-red"
-                disabled={this.state.loading || this.state.deleting}
-                onClick={this.handleOpenModal}>
-              {translate('delete')}
-            </button>
-            {this.state.deleting && this.renderModal()}
-          </div>
+        <div>
+          <button
+            className="button-red"
+            disabled={this.state.loading || this.state.deleting}
+            onClick={this.handleOpenModal}
+          >
+            {translate('delete')}
+          </button>
+          {this.state.deleting && this.renderModal()}
         </div>
+      </div>
     );
   }
 }

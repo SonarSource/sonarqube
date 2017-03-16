@@ -27,18 +27,17 @@ type Profiles = Array<{
   parentKey?: string
 }>;
 
-export function sortProfiles (profiles: Profiles) {
+export function sortProfiles(profiles: Profiles) {
   const result = [];
   const sorted = sortBy(profiles, 'name');
 
-  function retrieveChildren (parent) {
-    return sorted.filter(p => (
-        (parent == null && p.parentKey == null) ||
-        (parent != null && p.parentKey === parent.key)
-    ));
+  function retrieveChildren(parent) {
+    return sorted.filter(
+      p => (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
+    );
   }
 
-  function putProfile (profile = null, depth = 0) {
+  function putProfile(profile = null, depth = 0) {
     const children = retrieveChildren(profile);
 
     if (profile != null) {
@@ -53,7 +52,7 @@ export function sortProfiles (profiles: Profiles) {
   return result;
 }
 
-export function createFakeProfile (overrides: {}) {
+export function createFakeProfile(overrides: {}) {
   return {
     key: 'key',
     name: 'name',
@@ -68,6 +67,6 @@ export function createFakeProfile (overrides: {}) {
   };
 }
 
-export function isStagnant (profile: { userUpdatedAt: string }) {
+export function isStagnant(profile: { userUpdatedAt: string }) {
   return moment().diff(moment(profile.userUpdatedAt), 'years') >= 1;
 }

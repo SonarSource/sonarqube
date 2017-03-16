@@ -61,22 +61,21 @@ export default State.extend({
       'createdAt'
     ],
     transform: {
-      'resolved': 'resolutions',
-      'assigned': 'assignees',
-      'createdBefore': 'createdAt',
-      'createdAfter': 'createdAt',
-      'sinceLeakPeriod': 'createdAt',
-      'createdInLast': 'createdAt'
+      resolved: 'resolutions',
+      assigned: 'assignees',
+      createdBefore: 'createdAt',
+      createdAfter: 'createdAt',
+      sinceLeakPeriod: 'createdAt',
+      createdInLast: 'createdAt'
     }
   },
 
-  getFacetMode () {
+  getFacetMode() {
     const query = this.get('query');
     return query.facetMode || 'count';
   },
 
-  toJSON () {
+  toJSON() {
     return { facetMode: this.getFacetMode(), ...this.attributes };
   }
 });
-

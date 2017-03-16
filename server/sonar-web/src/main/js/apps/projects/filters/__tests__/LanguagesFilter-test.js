@@ -56,7 +56,8 @@ it('should render the languages without the ones in the facet', () => {
       query={{ languages: null }}
       languages={languages}
       router={fakeRouter}
-      facet={languagesFacet}/>
+      facet={languagesFacet}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
@@ -69,7 +70,8 @@ it('should render the languages facet with the selected languages', () => {
       languages={languages}
       router={fakeRouter}
       facet={languagesFacet}
-      isFavorite={true}/>
+      isFavorite={true}
+    />
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Filter').shallow()).toMatchSnapshot();

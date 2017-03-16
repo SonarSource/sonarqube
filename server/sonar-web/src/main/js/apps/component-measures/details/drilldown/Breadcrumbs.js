@@ -21,16 +21,17 @@ import React from 'react';
 import Breadcrumb from './Breadcrumb';
 
 const Breadcrumbs = ({ breadcrumbs, metric, onBrowse }) => (
-    <ul className="component-measures-breadcrumbs">
-      {breadcrumbs.map((component, index) => (
-          <li key={component.key}>
-            <Breadcrumb
-                component={component}
-                metric={metric}
-                onBrowse={index + 1 < breadcrumbs.length ? onBrowse : null}/>
-          </li>
-      ))}
-    </ul>
+  <ul className="component-measures-breadcrumbs">
+    {breadcrumbs.map((component, index) => (
+      <li key={component.key}>
+        <Breadcrumb
+          component={component}
+          metric={metric}
+          onBrowse={index + 1 < breadcrumbs.length ? onBrowse : null}
+        />
+      </li>
+    ))}
+  </ul>
 );
 
 export default Breadcrumbs;

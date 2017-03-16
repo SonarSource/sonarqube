@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import { STATUSES } from './../constants';
 import PendingIcon from '../../../components/shared/pending-icon';
@@ -29,19 +29,25 @@ const TaskStatus = ({ task }: { task: Task }) => {
 
   switch (task.status) {
     case STATUSES.PENDING:
-      inner = <PendingIcon/>;
+      inner = <PendingIcon />;
       break;
     case STATUSES.IN_PROGRESS:
-      inner = <i className="spinner"/>;
+      inner = <i className="spinner" />;
       break;
     case STATUSES.SUCCESS:
-      inner = <span className="badge badge-success">{translate('background_task.status.SUCCESS')}</span>;
+      inner = (
+        <span className="badge badge-success">{translate('background_task.status.SUCCESS')}</span>
+      );
       break;
     case STATUSES.FAILED:
-      inner = <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>;
+      inner = (
+        <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
+      );
       break;
     case STATUSES.CANCELED:
-      inner = <span className="badge badge-muted">{translate('background_task.status.CANCELED')}</span>;
+      inner = (
+        <span className="badge badge-muted">{translate('background_task.status.CANCELED')}</span>
+      );
       break;
     default:
       inner = '';

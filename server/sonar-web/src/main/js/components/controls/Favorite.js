@@ -28,15 +28,16 @@ export default class Favorite extends React.Component {
     className: React.PropTypes.string
   };
 
-  render () {
+  render() {
     const { favorite, component, ...other } = this.props;
 
     return (
-        <FavoriteBase
-            {...other}
-            favorite={favorite}
-            addFavorite={() => addFavorite(component)}
-            removeFavorite={() => removeFavorite(component)}/>
+      <FavoriteBase
+        {...other}
+        favorite={favorite}
+        addFavorite={() => addFavorite(component)}
+        removeFavorite={() => removeFavorite(component)}
+      />
     );
   }
 }

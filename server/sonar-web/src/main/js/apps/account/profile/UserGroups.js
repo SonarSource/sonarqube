@@ -25,20 +25,20 @@ export default class UserGroups extends React.Component {
     groups: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
   };
 
-  render () {
+  render() {
     const { groups } = this.props;
 
     return (
-        <div>
-          <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
-          <ul id="groups">
-            {groups.map(group => (
-                <li key={group} className="little-spacer-bottom" title={group}>
-                  {group}
-                </li>
-            ))}
-          </ul>
-        </div>
+      <div>
+        <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
+        <ul id="groups">
+          {groups.map(group => (
+            <li key={group} className="little-spacer-bottom" title={group}>
+              {group}
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 }

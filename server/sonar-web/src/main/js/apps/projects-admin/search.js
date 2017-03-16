@@ -30,17 +30,17 @@ export default React.createClass({
     onSearch: React.PropTypes.func.isRequired
   },
 
-  onSubmit (e) {
+  onSubmit(e) {
     e.preventDefault();
     this.search();
   },
 
-  search () {
+  search() {
     const q = this.refs.input.value;
     this.props.onSearch(q);
   },
 
-  getTypeOptions () {
+  getTypeOptions() {
     return [
       { value: TYPE.ALL, label: 'All' },
       { value: TYPE.PROVISIONED, label: 'Provisioned' },
@@ -48,33 +48,28 @@ export default React.createClass({
     ];
   },
 
-  getQualifierOptions () {
+  getQualifierOptions() {
     const options = this.props.topLevelQualifiers.map(q => {
       return { value: q, label: translate('qualifiers', q) };
     });
     return sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
   },
 
-  renderCheckbox () {
+  renderCheckbox() {
     const isAllChecked = this.props.projects.length > 0 &&
-            this.props.selection.length === this.props.projects.length;
+      this.props.selection.length === this.props.projects.length;
     const thirdState = this.props.projects.length > 0 &&
-            this.props.selection.length > 0 &&
-            this.props.selection.length < this.props.projects.length;
+      this.props.selection.length > 0 &&
+      this.props.selection.length < this.props.projects.length;
     const checked = isAllChecked || thirdState;
-    return (
-        <Checkbox
-            checked={checked}
-            thirdState={thirdState}
-            onCheck={this.onCheck}/>
-    );
+    return <Checkbox checked={checked} thirdState={thirdState} onCheck={this.onCheck} />;
   },
 
-  renderSpinner () {
-    return <i className="spinner"/>;
+  renderSpinner() {
+    return <i className="spinner" />;
   },
 
-  onCheck (checked) {
+  onCheck(checked) {
     if (checked) {
       this.props.onAllSelected();
     } else {
@@ -82,41 +77,46 @@ export default React.createClass({
     }
   },
 
-  renderGhostsDescription () {
+  renderGhostsDescription() {
     if (this.props.type !== TYPE.GHOSTS || !this.props.ready) {
       return null;
     }
-    return <div className="spacer-top alert alert-info">{translate('bulk_deletion.ghosts.description')}</div>;
+    return (
+      <div className="spacer-top alert alert-info">
+        {translate('bulk_deletion.ghosts.description')}
+      </div>
+    );
   },
 
-  deleteProjects () {
+  deleteProjects() {
     new DeleteView({
       deleteProjects: this.props.deleteProjects
     }).render();
   },
 
-  renderQualifierFilter () {
+  renderQualifierFilter() {
     const options = this.getQualifierOptions();
     if (options.length < 2) {
       return null;
     }
     return (
-        <td className="thin nowrap text-middle">
-          <RadioToggle
-              options={this.getQualifierOptions()}
-              value={this.props.qualifiers}
-              name="projects-qualifier"
-              onCheck={this.props.onQualifierChanged}/>
-        </td>
+      <td className="thin nowrap text-middle">
+        <RadioToggle
+          options={this.getQualifierOptions()}
+          value={this.props.qualifiers}
+          name="projects-qualifier"
+          onCheck={this.props.onQualifierChanged}
+        />
+      </td>
     );
   },
 
-  render () {
+  render() {
     const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
     return (
-        <div className="panel panel-vertical bordered-bottom spacer-bottom">
-          <table className="data">
-            <tbody>
+      <div className="panel panel-vertical bordered-bottom spacer-bottom">
+        <table className="data">
+          <tbody>
             <tr>
               <td className="thin text-middle">
                 {this.props.ready ? this.renderCheckbox() : this.renderSpinner()}
@@ -124,34 +124,41 @@ export default React.createClass({
               {this.renderQualifierFilter()}
               <td className="thin nowrap text-middle">
                 <RadioToggle
-                    options={this.getTypeOptions()}
-                    value={this.props.type}
-                    name="projects-type"
-                    onCheck={this.props.onTypeChanged}/>
+                  options={this.getTypeOptions()}
+                  value={this.props.type}
+                  name="projects-type"
+                  onCheck={this.props.onTypeChanged}
+                />
               </td>
               <td className="text-middle">
                 <form onSubmit={this.onSubmit} className="search-box">
                   <button className="search-box-submit button-clean">
-                    <i className="icon-search"/>
+                    <i className="icon-search" />
                   </button>
-                  <input onChange={this.search}
-                         value={this.props.query}
-                         ref="input"
-                         className="search-box-input"
-                         type="search"
-                         placeholder="Search"/>
+                  <input
+                    onChange={this.search}
+                    value={this.props.query}
+                    ref="input"
+                    className="search-box-input"
+                    type="search"
+                    placeholder="Search"
+                  />
                 </form>
               </td>
               <td className="thin text-middle">
-                <button onClick={this.deleteProjects} className="button-red"
-                        disabled={!isSomethingSelected}>Delete
+                <button
+                  onClick={this.deleteProjects}
+                  className="button-red"
+                  disabled={!isSomethingSelected}
+                >
+                  Delete
                 </button>
               </td>
             </tr>
-            </tbody>
-          </table>
-          {this.renderGhostsDescription()}
-        </div>
+          </tbody>
+        </table>
+        {this.renderGhostsDescription()}
+      </div>
     );
   }
 });

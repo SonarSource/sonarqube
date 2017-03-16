@@ -28,12 +28,12 @@ export default Marionette.ItemView.extend({
     'click #metrics-create': 'onCreateClick'
   },
 
-  onCreateClick (e) {
+  onCreateClick(e) {
     e.preventDefault();
     this.createMetric();
   },
 
-  createMetric () {
+  createMetric() {
     new CreateView({
       collection: this.collection,
       domains: this.options.domains,
@@ -42,4 +42,3 @@ export default Marionette.ItemView.extend({
     }).render();
   }
 });
-

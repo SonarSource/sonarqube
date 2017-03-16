@@ -31,38 +31,32 @@ export default class TaskComponent extends React.Component {
     types: Array<string>
   };
 
-  render () {
+  render() {
     const { task, types } = this.props;
 
     if (!task.componentKey) {
       return (
-          <td>
-            <span className="note">{task.id}</span>
-            {types.length > 1 && (
-                <TaskType task={task}/>
-            )}
-          </td>
+        <td>
+          <span className="note">{task.id}</span>
+          {types.length > 1 && <TaskType task={task} />}
+        </td>
       );
     }
 
     return (
-        <td>
-          <span className="little-spacer-right">
-            <QualifierIcon qualifier={task.componentQualifier}/>
-          </span>
+      <td>
+        <span className="little-spacer-right">
+          <QualifierIcon qualifier={task.componentQualifier} />
+        </span>
 
-          {task.organization != null && (
-              <Organization organizationKey={task.organization}/>
-          )}
+        {task.organization != null && <Organization organizationKey={task.organization} />}
 
-          <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }}>
-            {task.componentName}
-          </Link>
+        <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }}>
+          {task.componentName}
+        </Link>
 
-          {types.length > 1 && (
-              <TaskType task={task}/>
-          )}
-        </td>
+        {types.length > 1 && <TaskType task={task} />}
+      </td>
     );
   }
 }

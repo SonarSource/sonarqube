@@ -34,89 +34,92 @@ export default class HoldersList extends React.Component {
     onToggleGroup: React.PropTypes.func.isRequired
   };
 
-  handlePermissionClick (permission, e) {
+  handlePermissionClick(permission, e) {
     e.preventDefault();
     e.target.blur();
     this.props.onSelectPermission(permission);
   }
 
-  renderTableHeader () {
+  renderTableHeader() {
     const { selectedPermission } = this.props;
     const cells = this.props.permissions.map(p => (
-        <th key={p.key}
-            className="permission-column text-center"
-            style={{
-              backgroundColor: p.key === selectedPermission ? '#d9edf7' :
-                  'transparent'
-            }}>
-          <div className="permission-column-inner">
-            <a href="#"
-               title={`Filter by "${p.name}" permission`}
-               data-toggle="tooltip"
-               onClick={this.handlePermissionClick.bind(this, p.key)}>
-              {p.name}
-            </a>
-            <i className="icon-help little-spacer-left"
-               title={p.description}
-               data-toggle="tooltip"/>
-          </div>
-        </th>
+      <th
+        key={p.key}
+        className="permission-column text-center"
+        style={{
+          backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent'
+        }}
+      >
+        <div className="permission-column-inner">
+          <a
+            href="#"
+            title={`Filter by "${p.name}" permission`}
+            data-toggle="tooltip"
+            onClick={this.handlePermissionClick.bind(this, p.key)}
+          >
+            {p.name}
+          </a>
+          <i className="icon-help little-spacer-left" title={p.description} data-toggle="tooltip" />
+        </div>
+      </th>
     ));
     return (
-        <thead>
-          <tr>
-            <td className="nowrap bordered-bottom">
-              {this.props.children}
-            </td>
-            {cells}
-          </tr>
-        </thead>
+      <thead>
+        <tr>
+          <td className="nowrap bordered-bottom">
+            {this.props.children}
+          </td>
+          {cells}
+        </tr>
+      </thead>
     );
   }
 
-  renderEmpty () {
+  renderEmpty() {
     const columns = this.props.permissions.length + 1;
     return (
-        <tr>
-          <td colSpan={columns}>
-            {translate('no_results_search')}
-          </td>
-        </tr>
+      <tr>
+        <td colSpan={columns}>
+          {translate('no_results_search')}
+        </td>
+      </tr>
     );
   }
 
-  render () {
+  render() {
     const users = this.props.users.map(user => (
-        <UserHolder
-            key={'user-' + user.login}
-            user={user}
-            permissions={user.permissions}
-            selectedPermission={this.props.selectedPermission}
-            permissionsOrder={this.props.permissions}
-            onToggle={this.props.onToggleUser}/>
+      <UserHolder
+        key={'user-' + user.login}
+        user={user}
+        permissions={user.permissions}
+        selectedPermission={this.props.selectedPermission}
+        permissionsOrder={this.props.permissions}
+        onToggle={this.props.onToggleUser}
+      />
     ));
 
     const groups = this.props.groups.map(group => (
-        <GroupHolder
-            key={'group-' + group.id}
-            group={group}
-            permissions={group.permissions}
-            selectedPermission={this.props.selectedPermission}
-            permissionsOrder={this.props.permissions}
-            onToggle={this.props.onToggleGroup}/>
+      <GroupHolder
+        key={'group-' + group.id}
+        group={group}
+        permissions={group.permissions}
+        selectedPermission={this.props.selectedPermission}
+        permissionsOrder={this.props.permissions}
+        onToggle={this.props.onToggleGroup}
+      />
     ));
 
     return (
-        <TooltipsContainer>
-          <table className="data zebra permissions-table">
-            {this.renderTableHeader()}
-            <tbody>
-              {users.length === 0 && groups.length === 0 && this.renderEmpty()}
-              {users}
-              {groups}
-            </tbody>
-          </table>
-        </TooltipsContainer>
+      <TooltipsContainer>
+        <table className="data zebra permissions-table">
+          {this.renderTableHeader()}
+          <tbody>
+            {users.length === 0 && groups.length === 0 && this.renderEmpty()}
+            {users}
+            {groups}
+          </tbody>
+        </table>
+      </TooltipsContainer>
     );
   }
 }

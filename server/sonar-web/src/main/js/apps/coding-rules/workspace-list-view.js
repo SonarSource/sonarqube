@@ -28,7 +28,7 @@ export default WorkspaceListView.extend({
   childViewContainer: '.js-list',
   emptyView: WorkspaceListEmptyView,
 
-  bindShortcuts () {
+  bindShortcuts() {
     WorkspaceListView.prototype.bindShortcuts.apply(this, arguments);
     const that = this;
     key('right', 'list', () => {
@@ -45,4 +45,3 @@ export default WorkspaceListView.extend({
     });
   }
 });
-

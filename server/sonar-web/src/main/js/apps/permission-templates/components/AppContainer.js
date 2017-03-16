@@ -26,6 +26,4 @@ const mapStateToProps = state => ({
   topQualifiers: getRootQualifiers(getAppState(state))
 });
 
-export default connect(
-  mapStateToProps
-)(App);
+export default connect(mapStateToProps)(App);

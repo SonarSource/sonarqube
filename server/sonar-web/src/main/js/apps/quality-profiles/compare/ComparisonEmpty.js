@@ -21,7 +21,7 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default class ComparisonEmpty extends React.Component {
-  render () {
+  render() {
     return (
       <div className="big-spacer-top">
         {translate('quality_profile.empty_comparison')}

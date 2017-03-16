@@ -25,11 +25,7 @@ import Toggle from '../../../../../components/controls/Toggle';
 it('should render Toggle', () => {
   const onChange = jest.fn();
   const toggle = shallow(
-    <InputForBoolean
-          name="foo"
-          value={true}
-          isDefault={false}
-          onChange={onChange}/>
+    <InputForBoolean name="foo" value={true} isDefault={false} onChange={onChange} />
   ).find(Toggle);
   expect(toggle.length).toBe(1);
   expect(toggle.prop('name')).toBe('foo');
@@ -39,12 +35,7 @@ it('should render Toggle', () => {
 
 it('should render Toggle without value', () => {
   const onChange = jest.fn();
-  const input = shallow(
-    <InputForBoolean
-          name="foo"
-          isDefault={false}
-          onChange={onChange}/>
-  );
+  const input = shallow(<InputForBoolean name="foo" isDefault={false} onChange={onChange} />);
   const toggle = input.find(Toggle);
   expect(toggle.length).toBe(1);
   expect(toggle.prop('name')).toBe('foo');
@@ -56,11 +47,7 @@ it('should render Toggle without value', () => {
 it('should call onChange', () => {
   const onChange = jest.fn();
   const input = shallow(
-    <InputForBoolean
-          name="foo"
-          value={true}
-          isDefault={false}
-          onChange={onChange}/>
+    <InputForBoolean name="foo" value={true} isDefault={false} onChange={onChange} />
   );
   const toggle = input.find(Toggle);
   expect(toggle.length).toBe(1);

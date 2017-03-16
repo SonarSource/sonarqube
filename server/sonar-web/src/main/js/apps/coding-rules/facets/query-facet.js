@@ -23,7 +23,7 @@ import Template from '../templates/facets/coding-rules-query-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...BaseFacet.prototype.events.apply(this, arguments),
       'submit form': 'onFormSubmit',
@@ -31,7 +31,7 @@ export default BaseFacet.extend({
     };
   },
 
-  onRender () {
+  onRender() {
     this.$el.attr('data-property', this.model.get('property'));
     const query = this.options.app.state.get('query');
     const value = query.q;
@@ -40,16 +40,16 @@ export default BaseFacet.extend({
     }
   },
 
-  onFormSubmit (e) {
+  onFormSubmit(e) {
     e.preventDefault();
     this.applyFacet();
   },
 
-  onInputSearch () {
+  onInputSearch() {
     this.applyFacet();
   },
 
-  applyFacet () {
+  applyFacet() {
     const obj = {};
     const property = this.model.get('property');
     const value = this.$('input').val();

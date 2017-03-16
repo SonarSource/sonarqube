@@ -31,41 +31,42 @@ export default class Table extends React.Component {
     onChangeProfile: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  renderHeader () {
+  renderHeader() {
     // keep one empty cell for the spinner
     return (
-        <thead>
-          <tr>
-            <th className="thin nowrap">{translate('language')}</th>
-            <th className="thin nowrap">{translate('quality_profile')}</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
+      <thead>
+        <tr>
+          <th className="thin nowrap">{translate('language')}</th>
+          <th className="thin nowrap">{translate('quality_profile')}</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
     );
   }
 
-  render () {
+  render() {
     const profilesByLanguage = groupBy(this.props.allProfiles, 'language');
     const orderedProfiles = orderBy(this.props.profiles, 'languageName');
 
     // set key to language to avoid destroying of component
     const profileRows = orderedProfiles.map(profile => (
-        <ProfileRow
-            key={profile.language}
-            profile={profile}
-            possibleProfiles={profilesByLanguage[profile.language]}
-            onChangeProfile={this.props.onChangeProfile}/>
+      <ProfileRow
+        key={profile.language}
+        profile={profile}
+        possibleProfiles={profilesByLanguage[profile.language]}
+        onChangeProfile={this.props.onChangeProfile}
+      />
     ));
 
     return (
-        <table className="data zebra">
-          {this.renderHeader()}
-          <tbody>{profileRows}</tbody>
-        </table>
+      <table className="data zebra">
+        {this.renderHeader()}
+        <tbody>{profileRows}</tbody>
+      </table>
     );
   }
 }

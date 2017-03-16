@@ -26,7 +26,7 @@ export const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin', '
  * @param {Array} permissions
  * @returns {Array}
  */
-export function sortPermissions (permissions) {
+export function sortPermissions(permissions) {
   return sortBy(permissions, p => PERMISSIONS_ORDER.indexOf(p.key));
 }
 
@@ -36,12 +36,14 @@ export function sortPermissions (permissions) {
  * @param {Array} basePermissions
  * @returns {Array}
  */
-export function mergePermissionsToTemplates (permissionTemplates, basePermissions) {
+export function mergePermissionsToTemplates(permissionTemplates, basePermissions) {
   return permissionTemplates.map(permissionTemplate => {
     // it's important to keep the order of the permission template's permissions
     // the same as the order of base permissions
     const permissions = basePermissions.map(basePermission => {
-      const projectPermission = permissionTemplate.permissions.find(p => p.key === basePermission.key);
+      const projectPermission = permissionTemplate.permissions.find(
+        p => p.key === basePermission.key
+      );
       return { usersCount: 0, groupsCount: 0, ...basePermission, ...projectPermission };
     });
 
@@ -55,7 +57,7 @@ export function mergePermissionsToTemplates (permissionTemplates, basePermission
  * @param {Array} defaultTemplates
  * @returns {Array}
  */
-export function mergeDefaultsToTemplates (permissionTemplates, defaultTemplates = []) {
+export function mergeDefaultsToTemplates(permissionTemplates, defaultTemplates = []) {
   return permissionTemplates.map(permissionTemplate => {
     const defaultFor = [];
 

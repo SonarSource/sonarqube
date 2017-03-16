@@ -29,33 +29,33 @@ export default class DefinitionDefaults extends React.Component {
     onReset: React.PropTypes.func.isRequired
   };
 
-  handleReset (e: Object) {
+  handleReset(e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onReset();
   }
 
-  render () {
+  render() {
     const { setting, isDefault } = this.props;
     const { definition } = setting;
 
     const isExplicitlySet = !isDefault && !isEmptyValue(definition, getSettingValue(setting));
 
     return (
-        <div>
-          {isDefault && (
-              <div className="spacer-top note" style={{ lineHeight: '24px' }}>
-                {translate('settings._default')}
-              </div>
-          )}
+      <div>
+        {isDefault &&
+          <div className="spacer-top note" style={{ lineHeight: '24px' }}>
+            {translate('settings._default')}
+          </div>}
 
-          {isExplicitlySet && (
-              <div className="spacer-top nowrap">
-                <button onClick={e => this.handleReset(e)}>{translate('reset_verb')}</button>
-                <span className="spacer-left note">{translate('default')}{': '}{getDefaultValue(setting)}</span>
-              </div>
-          )}
-        </div>
+        {isExplicitlySet &&
+          <div className="spacer-top nowrap">
+            <button onClick={e => this.handleReset(e)}>{translate('reset_verb')}</button>
+            <span className="spacer-left note">
+              {translate('default')}{': '}{getDefaultValue(setting)}
+            </span>
+          </div>}
+      </div>
     );
   }
 }

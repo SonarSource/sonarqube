@@ -20,10 +20,10 @@
 export const START_FETCHING = 'measuresApp/status/START_FETCHING';
 export const STOP_FETCHING = 'measuresApp/status/STOP_FETCHING';
 
-export function startFetching () {
+export function startFetching() {
   return { type: START_FETCHING };
 }
 
-export function stopFetching () {
+export function stopFetching() {
   return { type: STOP_FETCHING };
 }

@@ -24,19 +24,17 @@ const ComponentMeasure = ({ component, metricKey, metricType }) => {
   const isProject = component.qualifier === 'TRK';
   const isReleasability = metricKey === 'releasability_rating';
 
-  const finalMetricKey = (isProject && isReleasability) ? 'alert_status' : metricKey;
-  const finalMetricType = (isProject && isReleasability) ? 'LEVEL' : metricType;
+  const finalMetricKey = isProject && isReleasability ? 'alert_status' : metricKey;
+  const finalMetricType = isProject && isReleasability ? 'LEVEL' : metricType;
 
   const measure = Array.isArray(component.measures) &&
-      component.measures.find(measure => measure.metric === finalMetricKey);
+    component.measures.find(measure => measure.metric === finalMetricKey);
 
   if (!measure) {
-    return <span/>;
+    return <span />;
   }
 
-  return (
-      <Measure measure={measure} metric={{ key: finalMetricKey, type: finalMetricType }}/>
-  );
+  return <Measure measure={measure} metric={{ key: finalMetricKey, type: finalMetricType }} />;
 };
 
 export default ComponentMeasure;

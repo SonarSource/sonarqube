@@ -41,26 +41,16 @@ import {
   getPermissionsAppSelectedPermission
 } from '../../../../store/rootReducer';
 
-const PERMISSIONS_ORDER = [
-  'admin',
-  'profileadmin',
-  'gateadmin',
-  'scan',
-  'provisioning'
-];
+const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provisioning'];
 
-const PERMISSIONS_FOR_CUSTOM_ORG = [
-  'admin',
-  'scan',
-  'provisioning'
-];
+const PERMISSIONS_FOR_CUSTOM_ORG = ['admin', 'scan', 'provisioning'];
 
 class AllHoldersList extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     this.props.loadHolders();
   }
 
-  handleToggleUser (user, permission) {
+  handleToggleUser(user, permission) {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
@@ -70,7 +60,7 @@ class AllHoldersList extends React.Component {
     }
   }
 
-  handleToggleGroup (group, permission) {
+  handleToggleGroup(group, permission) {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
@@ -80,10 +70,10 @@ class AllHoldersList extends React.Component {
     }
   }
 
-  render () {
-    const order = (this.props.organization && !this.props.organization.isDefault) ?
-        PERMISSIONS_FOR_CUSTOM_ORG :
-        PERMISSIONS_ORDER;
+  render() {
+    const order = this.props.organization && !this.props.organization.isDefault
+      ? PERMISSIONS_FOR_CUSTOM_ORG
+      : PERMISSIONS_ORDER;
 
     const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
 
@@ -94,22 +84,24 @@ class AllHoldersList extends React.Component {
     }));
 
     return (
-        <HoldersList
-            permissions={permissions}
-            selectedPermission={this.props.selectedPermission}
-            users={this.props.users}
-            groups={this.props.groups}
-            onSelectPermission={this.props.onSelectPermission}
-            onToggleUser={this.handleToggleUser.bind(this)}
-            onToggleGroup={this.handleToggleGroup.bind(this)}>
+      <HoldersList
+        permissions={permissions}
+        selectedPermission={this.props.selectedPermission}
+        users={this.props.users}
+        groups={this.props.groups}
+        onSelectPermission={this.props.onSelectPermission}
+        onToggleUser={this.handleToggleUser.bind(this)}
+        onToggleGroup={this.handleToggleGroup.bind(this)}
+      >
 
-          <SearchForm
-              query={this.props.query}
-              filter={this.props.filter}
-              onSearch={this.props.onSearch}
-              onFilter={this.props.onFilter}/>
+        <SearchForm
+          query={this.props.query}
+          filter={this.props.filter}
+          onSearch={this.props.onSearch}
+          onFilter={this.props.onFilter}
+        />
 
-        </HoldersList>
+      </HoldersList>
     );
   }
 }
@@ -134,17 +126,14 @@ const mapDispatchToProps = (dispatch, ownProps: OwnProps) => {
     onFilter: filter => dispatch(updateFilter(filter, organizationKey)),
     onSelectPermission: permission => dispatch(selectPermission(permission, organizationKey)),
     grantPermissionToUser: (login, permission) =>
-        dispatch(grantToUser(login, permission, organizationKey)),
+      dispatch(grantToUser(login, permission, organizationKey)),
     revokePermissionFromUser: (login, permission) =>
-        dispatch(revokeFromUser(login, permission, organizationKey)),
+      dispatch(revokeFromUser(login, permission, organizationKey)),
     grantPermissionToGroup: (groupName, permission) =>
-        dispatch(grantToGroup(groupName, permission, organizationKey)),
+      dispatch(grantToGroup(groupName, permission, organizationKey)),
     revokePermissionFromGroup: (groupName, permission) =>
-        dispatch(revokeFromGroup(groupName, permission, organizationKey))
+      dispatch(revokeFromGroup(groupName, permission, organizationKey))
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AllHoldersList);
+export default connect(mapStateToProps, mapDispatchToProps)(AllHoldersList);

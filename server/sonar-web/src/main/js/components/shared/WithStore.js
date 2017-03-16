@@ -29,16 +29,16 @@ export default class WithStore extends React.Component {
     store: React.PropTypes.object
   };
 
-  constructor (props: { children: Object }) {
+  constructor(props: { children: Object }) {
     super(props);
     this.store = getStore();
   }
 
-  getChildContext () {
+  getChildContext() {
     return { store: this.store };
   }
 
-  render () {
+  render() {
     return this.props.children;
   }
 }

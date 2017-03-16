@@ -30,7 +30,7 @@ import { getLocalizedMetricName, translateWithParameters } from '../../../../hel
 const HEIGHT = 500;
 const BUBBLES_LIMIT = 500;
 
-function getMeasure (component, metric) {
+function getMeasure(component, metric) {
   return Number(component.measures[metric]) || 0;
 }
 
@@ -40,30 +40,30 @@ export default class BubbleChart extends React.Component {
     files: []
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.updateMetrics(this.props);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.fetchFiles();
   }
 
-  componentWillUpdate (nextProps) {
+  componentWillUpdate(nextProps) {
     this.updateMetrics(nextProps);
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.domainName !== this.props.domainName) {
       this.fetchFiles();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  updateMetrics (props) {
+  updateMetrics(props) {
     const { metrics, domainName } = props;
     const conf = bubbles[domainName];
     this.xMetric = metrics.find(m => m.key === conf.x);
@@ -71,7 +71,7 @@ export default class BubbleChart extends React.Component {
     this.sizeMetric = metrics.find(m => m.key === conf.size);
   }
 
-  fetchFiles () {
+  fetchFiles() {
     const { component } = this.props;
     const metrics = [this.xMetric.key, this.yMetric.key, this.sizeMetric.key];
     const options = {
@@ -105,7 +105,7 @@ export default class BubbleChart extends React.Component {
     });
   }
 
-  getTooltip (component) {
+  getTooltip(component) {
     const inner = [
       component.name,
       `${this.xMetric.name}: ${formatMeasure(getMeasure(component, this.xMetric.key), this.xMetric.type)}`,
@@ -116,7 +116,7 @@ export default class BubbleChart extends React.Component {
     return `<div class="text-left">${inner}</div>`;
   }
 
-  handleBubbleClick (component) {
+  handleBubbleClick(component) {
     if (['FIL', 'UTS'].includes(component.qualifier)) {
       Workspace.openComponent({ key: component.key });
     } else {
@@ -124,7 +124,7 @@ export default class BubbleChart extends React.Component {
     }
   }
 
-  renderBubbleChart () {
+  renderBubbleChart() {
     const items = this.state.files.map(file => {
       return {
         x: getMeasure(file, this.xMetric.key),
@@ -139,45 +139,49 @@ export default class BubbleChart extends React.Component {
     const formatYTick = tick => formatMeasure(tick, this.yMetric.type);
 
     return (
-        <OriginalBubbleChart
-            items={items}
-            height={HEIGHT}
-            padding={[25, 60, 50, 60]}
-            formatXTick={formatXTick}
-            formatYTick={formatYTick}
-            onBubbleClick={this.handleBubbleClick.bind(this)}/>
+      <OriginalBubbleChart
+        items={items}
+        height={HEIGHT}
+        padding={[25, 60, 50, 60]}
+        formatXTick={formatXTick}
+        formatYTick={formatYTick}
+        onBubbleClick={this.handleBubbleClick.bind(this)}
+      />
     );
   }
 
-  render () {
+  render() {
     const { fetching } = this.state;
 
     if (fetching) {
       return (
-          <div className="measure-details-bubble-chart">
-            <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
-              <Spinner/>
-            </div>
+        <div className="measure-details-bubble-chart">
+          <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
+            <Spinner />
           </div>
+        </div>
       );
     }
 
     return (
-        <div className="measure-details-bubble-chart">
-          <div>
-            {this.renderBubbleChart()}
-          </div>
-
-          <div className="measure-details-bubble-chart-axis x">
-            {getLocalizedMetricName(this.xMetric)}
-          </div>
-          <div className="measure-details-bubble-chart-axis y">
-            {getLocalizedMetricName(this.yMetric)}
-          </div>
-          <div className="measure-details-bubble-chart-axis size">
-            {translateWithParameters('component_measures.legend.size_x', getLocalizedMetricName(this.sizeMetric))}
-          </div>
+      <div className="measure-details-bubble-chart">
+        <div>
+          {this.renderBubbleChart()}
         </div>
+
+        <div className="measure-details-bubble-chart-axis x">
+          {getLocalizedMetricName(this.xMetric)}
+        </div>
+        <div className="measure-details-bubble-chart-axis y">
+          {getLocalizedMetricName(this.yMetric)}
+        </div>
+        <div className="measure-details-bubble-chart-axis size">
+          {translateWithParameters(
+            'component_measures.legend.size_x',
+            getLocalizedMetricName(this.sizeMetric)
+          )}
+        </div>
+      </div>
     );
   }
 }

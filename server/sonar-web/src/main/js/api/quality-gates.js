@@ -19,86 +19,87 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 
-export function fetchQualityGatesAppDetails () {
+export function fetchQualityGatesAppDetails() {
   const url = '/api/qualitygates/app';
 
   return getJSON(url);
 }
 
-export function fetchQualityGates () {
+export function fetchQualityGates() {
   const url = '/api/qualitygates/list';
 
-  return getJSON(url).then(r => r.qualitygates.map(qualityGate => {
-    return {
-      ...qualityGate,
-      isDefault: qualityGate.id === r.default
-    };
-  }));
+  return getJSON(url).then(r =>
+    r.qualitygates.map(qualityGate => {
+      return {
+        ...qualityGate,
+        isDefault: qualityGate.id === r.default
+      };
+    }));
 }
 
-export function fetchQualityGate (id) {
+export function fetchQualityGate(id) {
   const url = '/api/qualitygates/show';
   return getJSON(url, { id });
 }
 
-export function createQualityGate (name) {
+export function createQualityGate(name) {
   const url = '/api/qualitygates/create';
   return postJSON(url, { name });
 }
 
-export function deleteQualityGate (id) {
+export function deleteQualityGate(id) {
   const url = '/api/qualitygates/destroy';
   return post(url, { id });
 }
 
-export function renameQualityGate (id, name) {
+export function renameQualityGate(id, name) {
   const url = '/api/qualitygates/rename';
   return post(url, { id, name });
 }
 
-export function copyQualityGate (id, name) {
+export function copyQualityGate(id, name) {
   const url = '/api/qualitygates/copy';
   return postJSON(url, { id, name });
 }
 
-export function setQualityGateAsDefault (id) {
+export function setQualityGateAsDefault(id) {
   const url = '/api/qualitygates/set_as_default';
   return post(url, { id });
 }
 
-export function unsetQualityGateAsDefault (id) {
+export function unsetQualityGateAsDefault(id) {
   const url = '/api/qualitygates/unset_default';
   return post(url, { id });
 }
 
-export function createCondition (gateId, condition) {
+export function createCondition(gateId, condition) {
   const url = '/api/qualitygates/create_condition';
   return postJSON(url, { ...condition, gateId });
 }
 
-export function updateCondition (condition) {
+export function updateCondition(condition) {
   const url = '/api/qualitygates/update_condition';
   return postJSON(url, { ...condition });
 }
 
-export function deleteCondition (id) {
+export function deleteCondition(id) {
   const url = '/api/qualitygates/delete_condition';
   return post(url, { id });
 }
 
-export function getGateForProject (projectKey) {
+export function getGateForProject(projectKey) {
   const url = '/api/qualitygates/get_by_project';
   const data = { projectKey };
   return getJSON(url, data).then(r => r.qualityGate);
 }
 
-export function associateGateWithProject (gateId, projectKey) {
+export function associateGateWithProject(gateId, projectKey) {
   const url = '/api/qualitygates/select';
   const data = { gateId, projectKey };
   return post(url, data);
 }
 
-export function dissociateGateWithProject (gateId, projectKey) {
+export function dissociateGateWithProject(gateId, projectKey) {
   const url = '/api/qualitygates/deselect';
   const data = { gateId, projectKey };
   return post(url, data);

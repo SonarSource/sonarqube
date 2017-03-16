@@ -19,6 +19,6 @@
  */
 import { translate } from '../../../helpers/l10n';
 
-export function getMetricName (metricKey) {
+export function getMetricName(metricKey) {
   return translate('overview.metric', metricKey);
 }

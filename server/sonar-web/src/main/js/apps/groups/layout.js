@@ -30,4 +30,3 @@ export default Marionette.LayoutView.extend({
     listFooterRegion: '#groups-list-footer'
   }
 });
-

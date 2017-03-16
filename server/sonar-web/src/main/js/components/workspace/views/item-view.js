@@ -26,9 +26,9 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render',
-    'showViewer': 'onViewerShow',
-    'hideViewer': 'onViewerHide'
+    change: 'render',
+    showViewer: 'onViewerShow',
+    hideViewer: 'onViewerHide'
   },
 
   events: {
@@ -36,23 +36,22 @@ export default Marionette.ItemView.extend({
     'click .js-close': 'onCloseClick'
   },
 
-  onClick (e) {
+  onClick(e) {
     e.preventDefault();
     this.options.collectionView.trigger('click', this.model);
   },
 
-  onCloseClick (e) {
+  onCloseClick(e) {
     e.preventDefault();
     e.stopPropagation();
     this.model.destroy();
   },
 
-  onViewerShow () {
+  onViewerShow() {
     this.$el.addClass('hidden');
   },
 
-  onViewerHide () {
+  onViewerHide() {
     this.$el.removeClass('hidden');
   }
 });
-

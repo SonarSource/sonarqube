@@ -27,7 +27,7 @@ export default Marionette.CompositeView.extend({
   childView: CustomRuleView,
   childViewContainer: '#coding-rules-detail-custom-rules',
 
-  childViewOptions () {
+  childViewOptions() {
     return {
       app: this.options.app,
       templateRule: this.model
@@ -35,25 +35,25 @@ export default Marionette.CompositeView.extend({
   },
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   events: {
     'click .js-create-custom-rule': 'createCustomRule'
   },
 
-  onRender () {
+  onRender() {
     this.$el.toggleClass('hidden', !this.model.get('isTemplate'));
   },
 
-  createCustomRule () {
+  createCustomRule() {
     new CustomRuleCreationView({
       app: this.options.app,
       templateRule: this.model
     }).render();
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite

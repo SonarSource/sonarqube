@@ -20,11 +20,11 @@
 import React from 'react';
 
 export default React.createClass({
-  render () {
+  render() {
     if (!this.props.qualifier) {
       return null;
     }
     const className = 'icon-qualifier-' + this.props.qualifier.toLowerCase();
-    return <i className={className}/>;
+    return <i className={className} />;
   }
 });

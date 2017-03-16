@@ -25,40 +25,41 @@ export default class UserExternalIdentity extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.fetchIdentityProviders();
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.user !== this.props.user) {
       this.this.fetchIdentityProviders();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchIdentityProviders () {
+  fetchIdentityProviders() {
     this.setState({ loading: true });
     getIdentityProviders()
-        .then(r => r.identityProviders)
-        .then(providers => {
-          if (this.mounted) {
-            const identityProvider = providers
-                .find(provider => provider.key === this.props.user.externalProvider);
-            this.setState({ loading: false, identityProvider });
-          }
-        })
-        .catch(() => {
-          if (this.mounted) {
-            this.setState({ loading: false });
-          }
-        });
+      .then(r => r.identityProviders)
+      .then(providers => {
+        if (this.mounted) {
+          const identityProvider = providers.find(
+            provider => provider.key === this.props.user.externalProvider
+          );
+          this.setState({ loading: false, identityProvider });
+        }
+      })
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      });
   }
 
-  render () {
+  render() {
     const { user } = this.props;
     const { loading, identityProvider } = this.state;
 
@@ -68,19 +69,26 @@ export default class UserExternalIdentity extends React.Component {
 
     if (!identityProvider) {
       return (
-          <div>
-            {user.externalProvider}{': '}{user.externalIdentity}
-          </div>
+        <div>
+          {user.externalProvider}{': '}{user.externalIdentity}
+        </div>
       );
     }
 
     return (
-        <div className="identity-provider"
-             style={{ backgroundColor: identityProvider.backgroundColor }}>
-          <img src={window.baseUrl + identityProvider.iconPath} width="14" height="14" alt={identityProvider.name}/>
-          {' '}
-          {user.externalIdentity}
-        </div>
+      <div
+        className="identity-provider"
+        style={{ backgroundColor: identityProvider.backgroundColor }}
+      >
+        <img
+          src={window.baseUrl + identityProvider.iconPath}
+          width="14"
+          height="14"
+          alt={identityProvider.name}
+        />
+        {' '}
+        {user.externalIdentity}
+      </div>
     );
   }
 }

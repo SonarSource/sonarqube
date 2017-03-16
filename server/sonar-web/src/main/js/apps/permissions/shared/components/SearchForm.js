@@ -29,26 +29,26 @@ export default class SearchForm extends React.Component {
     onFilter: React.PropTypes.func
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
   }
 
-  handleSubmit (e) {
+  handleSubmit(e) {
     e.preventDefault();
     this.handleSearch();
   }
 
-  handleSearch () {
+  handleSearch() {
     const { value } = this.refs.searchInput;
     this.props.onSearch(value);
   }
 
-  handleFilter (filter) {
+  handleFilter(filter) {
     this.props.onFilter(filter);
   }
 
-  render () {
+  render() {
     const { query, filter } = this.props;
 
     const filterOptions = [
@@ -58,38 +58,41 @@ export default class SearchForm extends React.Component {
     ];
 
     return (
-        <div>
+      <div>
 
-          <RadioToggle
-              value={filter}
-              options={filterOptions}
-              name="users-or-groups"
-              onCheck={this.handleFilter.bind(this)}/>
+        <RadioToggle
+          value={filter}
+          options={filterOptions}
+          name="users-or-groups"
+          onCheck={this.handleFilter.bind(this)}
+        />
 
-          <form
-              className="search-box display-inline-block text-middle big-spacer-left"
-              onSubmit={this.handleSubmit}>
-            <button className="search-box-submit button-clean">
-              <i className="icon-search"/>
-            </button>
-            <input
-                ref="searchInput"
-                value={query}
-                className="search-box-input"
-                style={{ width: 100 }}
-                type="search"
-                placeholder={translate('search_verb')}
-                onChange={this.handleSearch.bind(this)}/>
-            {query.length > 0 && query.length < 3 && (
-                <div className="search-box-input-note tooltip bottom fade in">
-                  <div className="tooltip-inner">
-                    {translateWithParameters('select2.tooShort', 3)}
-                  </div>
-                  <div className="tooltip-arrow" style={{ left: 23 }}/>
-                </div>
-            )}
-          </form>
-        </div>
+        <form
+          className="search-box display-inline-block text-middle big-spacer-left"
+          onSubmit={this.handleSubmit}
+        >
+          <button className="search-box-submit button-clean">
+            <i className="icon-search" />
+          </button>
+          <input
+            ref="searchInput"
+            value={query}
+            className="search-box-input"
+            style={{ width: 100 }}
+            type="search"
+            placeholder={translate('search_verb')}
+            onChange={this.handleSearch.bind(this)}
+          />
+          {query.length > 0 &&
+            query.length < 3 &&
+            <div className="search-box-input-note tooltip bottom fade in">
+              <div className="tooltip-inner">
+                {translateWithParameters('select2.tooShort', 3)}
+              </div>
+              <div className="tooltip-arrow" style={{ left: 23 }} />
+            </div>}
+        </form>
+      </div>
     );
   }
 }

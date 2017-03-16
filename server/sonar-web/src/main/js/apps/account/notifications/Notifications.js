@@ -31,27 +31,27 @@ class Notifications extends React.Component {
     fetchNotifications: () => void
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.fetchNotifications();
   }
 
-  render () {
+  render() {
     const title = translate('my_account.page') + ' - ' + translate('my_account.notifications');
 
     return (
-        <div className="account-body account-container">
-          <Helmet title={title} titleTemplate="SonarQube - %s"/>
+      <div className="account-body account-container">
+        <Helmet title={title} titleTemplate="SonarQube - %s" />
 
-          <p className="big-spacer-bottom">
-            {translate('notification.dispatcher.information')}
-          </p>
+        <p className="big-spacer-bottom">
+          {translate('notification.dispatcher.information')}
+        </p>
 
-          <GlobalNotifications/>
+        <GlobalNotifications />
 
-          <hr className="account-separator"/>
+        <hr className="account-separator" />
 
-          <Projects/>
-        </div>
+        <Projects />
+      </div>
     );
   }
 }

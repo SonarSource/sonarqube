@@ -31,7 +31,7 @@ export default class ListView extends React.Component {
     router: React.PropTypes.object.isRequired
   };
 
-  componentDidMount () {
+  componentDidMount() {
     const { component, metric } = this.props;
     if (component.qualifier === 'DEV') {
       const { router } = this.context;
@@ -40,7 +40,7 @@ export default class ListView extends React.Component {
     this.handleChangeBaseComponent(component);
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.metric !== this.props.metric) {
       this.handleChangeBaseComponent(this.props.component);
     }
@@ -52,7 +52,7 @@ export default class ListView extends React.Component {
     }
   }
 
-  scrollToViewer () {
+  scrollToViewer() {
     const { container } = this.refs;
     const top = container.getBoundingClientRect().top + window.scrollY - 95 - 10;
 
@@ -62,41 +62,50 @@ export default class ListView extends React.Component {
     }
   }
 
-  scrollToStoredPosition () {
+  scrollToStoredPosition() {
     window.scrollTo(0, this.scrollTop);
     this.scrollTop = null;
   }
 
-  storeScrollPosition () {
+  storeScrollPosition() {
     this.scrollTop = window.scrollY;
   }
 
-  handleChangeBaseComponent (baseComponent) {
+  handleChangeBaseComponent(baseComponent) {
     const { metric, onFetchList } = this.props;
     const periodIndex = this.props.location.query.period || 1;
     onFetchList(baseComponent, metric, Number(periodIndex));
   }
 
-  handleFetchMore () {
+  handleFetchMore() {
     const periodIndex = this.props.location.query.period || 1;
     this.props.onFetchMore(Number(periodIndex));
   }
 
-  changeSelected (selected) {
+  changeSelected(selected) {
     this.props.onSelect(selected);
   }
 
-  handleClick (selected) {
+  handleClick(selected) {
     this.storeScrollPosition();
     this.props.onSelect(selected);
   }
 
-  handleBreadcrumbClick () {
+  handleBreadcrumbClick() {
     this.props.onSelect(undefined);
   }
 
-  render () {
-    const { component, components, metrics, metric, leakPeriod, selected, total, fetching } = this.props;
+  render() {
+    const {
+      component,
+      components,
+      metrics,
+      metric,
+      leakPeriod,
+      selected,
+      total,
+      fetching
+    } = this.props;
     const { onSelectNext, onSelectPrevious } = this.props;
 
     const breadcrumbs = [component];
@@ -105,57 +114,58 @@ export default class ListView extends React.Component {
     }
     const selectedIndex = components.indexOf(selected);
     const sourceViewerPeriod = metric.key.indexOf('new_') === 0 && !!leakPeriod ? leakPeriod : null;
-    const sourceViewerPeriodDate = sourceViewerPeriod != null ? moment(sourceViewerPeriod.date).toDate() : null;
+    const sourceViewerPeriodDate = sourceViewerPeriod != null
+      ? moment(sourceViewerPeriod.date).toDate()
+      : null;
 
-    const filterLine = sourceViewerPeriodDate != null ? line => {
-      if (line.scmDate) {
-        const scmDate = moment(line.scmDate).toDate();
-        return scmDate >= sourceViewerPeriodDate;
-      } else {
-        return false;
-      }
-    } : undefined;
+    const filterLine = sourceViewerPeriodDate != null
+      ? line => {
+          if (line.scmDate) {
+            const scmDate = moment(line.scmDate).toDate();
+            return scmDate >= sourceViewerPeriodDate;
+          } else {
+            return false;
+          }
+        }
+      : undefined;
 
     return (
-        <div ref="container" className="measure-details-plain-list">
-          <ListHeader
-              metric={metric}
-              breadcrumbs={breadcrumbs}
-              componentsCount={components.length}
-              selectedIndex={selectedIndex}
-              onSelectPrevious={onSelectPrevious}
-              onSelectNext={onSelectNext}
-              onBrowse={this.handleBreadcrumbClick.bind(this)}/>
+      <div ref="container" className="measure-details-plain-list">
+        <ListHeader
+          metric={metric}
+          breadcrumbs={breadcrumbs}
+          componentsCount={components.length}
+          selectedIndex={selectedIndex}
+          onSelectPrevious={onSelectPrevious}
+          onSelectNext={onSelectNext}
+          onBrowse={this.handleBreadcrumbClick.bind(this)}
+        />
 
-          {!selected && (
-              <div className={classNames({ 'new-loading': fetching })}>
-                {(!fetching || components.length !== 0) ? (
-                    <div>
-                      <ComponentsList
-                          components={components}
-                          metrics={metrics}
-                          selected={selected}
-                          metric={metric}
-                          onClick={this.handleClick.bind(this)}/>
-                      <ListFooter
-                          count={components.length}
-                          total={total}
-                          loadMore={this.handleFetchMore.bind(this)}/>
-                    </div>
-                ) : (
-                    <Spinner/>
-                )}
-              </div>
-          )}
+        {!selected &&
+          <div className={classNames({ 'new-loading': fetching })}>
+            {!fetching || components.length !== 0
+              ? <div>
+                  <ComponentsList
+                    components={components}
+                    metrics={metrics}
+                    selected={selected}
+                    metric={metric}
+                    onClick={this.handleClick.bind(this)}
+                  />
+                  <ListFooter
+                    count={components.length}
+                    total={total}
+                    loadMore={this.handleFetchMore.bind(this)}
+                  />
+                </div>
+              : <Spinner />}
+          </div>}
 
-          {!!selected && (
-              <div className="measure-details-viewer">
-                <SourceViewer
-                  component={selected.key}
-                  filterLine={filterLine}/>
-              </div>
-          )}
-        </div>
+        {!!selected &&
+          <div className="measure-details-viewer">
+            <SourceViewer component={selected.key} filterLine={filterLine} />
+          </div>}
+      </div>
     );
   }
 }

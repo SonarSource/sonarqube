@@ -45,11 +45,11 @@ export default class AddEventForm extends React.Component {
     name: ''
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
@@ -87,60 +87,62 @@ export default class AddEventForm extends React.Component {
   handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.addEvent(this.props.analysis.key, this.state.name)
-        .then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props
+      .addEvent(this.props.analysis.key, this.state.name)
+      .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
-  renderModal () {
+  renderModal() {
     return (
-        <Modal isOpen={true}
-               contentLabel="modal form"
-               className="modal"
-               overlayClassName="modal-overlay"
-               onRequestClose={this.closeForm}>
+      <Modal
+        isOpen={true}
+        contentLabel="modal form"
+        className="modal"
+        overlayClassName="modal-overlay"
+        onRequestClose={this.closeForm}
+      >
 
-          <header className="modal-head">
-            <h2>{translate(this.props.addEventButtonText)}</h2>
-          </header>
+        <header className="modal-head">
+          <h2>{translate(this.props.addEventButtonText)}</h2>
+        </header>
 
-          <form onSubmit={this.handleSubmit}>
-            <div className="modal-body">
-              <div className="modal-field">
-                <label>{translate('name')}</label>
-                <input
-                    value={this.state.name}
-                    autoFocus={true}
-                    disabled={this.state.processing}
-                    className="input-medium"
-                    type="text"
-                    onChange={this.changeInput}/>
-              </div>
+        <form onSubmit={this.handleSubmit}>
+          <div className="modal-body">
+            <div className="modal-field">
+              <label>{translate('name')}</label>
+              <input
+                value={this.state.name}
+                autoFocus={true}
+                disabled={this.state.processing}
+                className="input-medium"
+                type="text"
+                onChange={this.changeInput}
+              />
             </div>
+          </div>
 
-            <footer className="modal-foot">
-              {this.state.processing ? (
-                      <i className="spinner"/>
-                  ) : (
-                      <div>
-                        <button type="submit">{translate('save')}</button>
-                        <button type="reset" className="button-link" onClick={this.closeForm}>
-                          {translate('cancel')}
-                        </button>
-                      </div>
-                  )}
-            </footer>
-          </form>
+          <footer className="modal-foot">
+            {this.state.processing
+              ? <i className="spinner" />
+              : <div>
+                  <button type="submit">{translate('save')}</button>
+                  <button type="reset" className="button-link" onClick={this.closeForm}>
+                    {translate('cancel')}
+                  </button>
+                </div>}
+          </footer>
+        </form>
 
-        </Modal>
+      </Modal>
     );
   }
 
-  render () {
+  render() {
     return (
-        <a className="js-add-event button-small" href="#" onClick={this.openForm}>
-          {translate(this.props.addEventButtonText)}
-          {this.state.open && this.renderModal()}
-        </a>
+      <a className="js-add-event button-small" href="#" onClick={this.openForm}>
+        {translate(this.props.addEventButtonText)}
+        {this.state.open && this.renderModal()}
+      </a>
     );
   }
 }

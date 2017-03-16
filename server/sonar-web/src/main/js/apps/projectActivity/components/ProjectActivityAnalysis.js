@@ -35,54 +35,49 @@ export default class ProjectActivityAnalysis extends React.Component {
     canAdmin: boolean
   };
 
-  render () {
+  render() {
     const { date, events } = this.props.analysis;
     const { isFirst, canAdmin } = this.props;
 
     const version = events.find(event => event.category === 'VERSION');
 
     return (
-        <li className="project-activity-analysis clearfix">
-          {canAdmin && (
-              <div className="project-activity-analysis-actions">
-                <div className="dropdown display-inline-block">
-                  <button className="js-create button-small" data-toggle="dropdown">
-                    {translate('create')} <i className="icon-dropdown"/>
-                  </button>
-                  <ul className="dropdown-menu dropdown-menu-right">
-                    {version == null && (
-                        <li>
-                          <AddVersionForm analysis={this.props.analysis}/>
-                        </li>
-                    )}
-                    <li>
-                      <AddCustomEventForm analysis={this.props.analysis}/>
-                    </li>
-                  </ul>
-                </div>
+      <li className="project-activity-analysis clearfix">
+        {canAdmin &&
+          <div className="project-activity-analysis-actions">
+            <div className="dropdown display-inline-block">
+              <button className="js-create button-small" data-toggle="dropdown">
+                {translate('create')} <i className="icon-dropdown" />
+              </button>
+              <ul className="dropdown-menu dropdown-menu-right">
+                {version == null &&
+                  <li>
+                    <AddVersionForm analysis={this.props.analysis} />
+                  </li>}
+                <li>
+                  <AddCustomEventForm analysis={this.props.analysis} />
+                </li>
+              </ul>
+            </div>
 
-                {!isFirst && (
-                    <div className="display-inline-block little-spacer-left">
-                      <RemoveAnalysisForm
-                          analysis={this.props.analysis}
-                          project={this.props.project}/>
-                    </div>
-                )}
-              </div>
-          )}
+            {!isFirst &&
+              <div className="display-inline-block little-spacer-left">
+                <RemoveAnalysisForm analysis={this.props.analysis} project={this.props.project} />
+              </div>}
+          </div>}
 
-          <div className="project-activity-time">
-            <FormattedDate date={date} format="LT" tooltipFormat="LTS"/>
-          </div>
+        <div className="project-activity-time">
+          <FormattedDate date={date} format="LT" tooltipFormat="LTS" />
+        </div>
 
-          {events.length > 0 && (
-              <Events
-                  analysis={this.props.analysis.key}
-                  events={events}
-                  isFirst={this.props.isFirst}
-                  canAdmin={canAdmin}/>
-          )}
-        </li>
+        {events.length > 0 &&
+          <Events
+            analysis={this.props.analysis.key}
+            events={events}
+            isFirst={this.props.isFirst}
+            canAdmin={canAdmin}
+          />}
+      </li>
     );
   }
 }

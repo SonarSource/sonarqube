@@ -28,11 +28,12 @@ it('should render DateInput', () => {
   const onToDateChange = jest.fn();
   const output = shallow(
     <ChangelogSearch
-          fromDate="2016-01-01"
-          toDate="2016-05-05"
-          onFromDateChange={onFromDateChange}
-          onToDateChange={onToDateChange}
-          onReset={jest.fn()}/>
+      fromDate="2016-01-01"
+      toDate="2016-05-05"
+      onFromDateChange={onFromDateChange}
+      onToDateChange={onToDateChange}
+      onReset={jest.fn()}
+    />
   );
   const dateInputs = output.find(DateInput);
   expect(dateInputs.length).toBe(2);
@@ -46,11 +47,12 @@ it('should reset', () => {
   const onReset = jest.fn();
   const output = shallow(
     <ChangelogSearch
-          fromDate="2016-01-01"
-          toDate="2016-05-05"
-          onFromDateChange={jest.fn()}
-          onToDateChange={jest.fn()}
-          onReset={onReset}/>
+      fromDate="2016-01-01"
+      toDate="2016-05-05"
+      onFromDateChange={jest.fn()}
+      onToDateChange={jest.fn()}
+      onReset={onReset}
+    />
   );
   expect(onReset).not.toBeCalled();
   click(output.find('button'));

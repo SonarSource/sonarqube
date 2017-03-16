@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 
-function getTooltip (component) {
+function getTooltip(component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
   if (isFile && component.path) {
     return component.path + '\n\n' + component.key;
@@ -31,7 +31,7 @@ function getTooltip (component) {
   }
 }
 
-function mostCommitPrefix (strings) {
+function mostCommitPrefix(strings) {
   const sortedStrings = strings.slice(0).sort();
   const firstString = sortedStrings[0];
   const firstStringLength = firstString.length;
@@ -49,22 +49,25 @@ function mostCommitPrefix (strings) {
 const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
   const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
   const prefix = areBothDirs ? mostCommitPrefix([component.name + '/', previous.name + '/']) : '';
-  const name = prefix ? (
-      <span>
+  const name = prefix
+    ? <span>
         <span style={{ color: '#777' }}>{prefix}</span>
         <span>{component.name.substr(prefix.length)}</span>
       </span>
-  ) : component.name;
+    : component.name;
 
   let inner = null;
 
   if (component.refKey && component.qualifier !== 'SVW') {
     inner = (
-        <Link to={{ pathname: '/dashboard', query: { id: component.refKey } }} className="link-with-icon">
-          <QualifierIcon qualifier={component.qualifier}/>
-          {' '}
-          <span>{name}</span>
-        </Link>
+      <Link
+        to={{ pathname: '/dashboard', query: { id: component.refKey } }}
+        className="link-with-icon"
+      >
+        <QualifierIcon qualifier={component.qualifier} />
+        {' '}
+        <span>{name}</span>
+      </Link>
     );
   } else if (canBrowse) {
     const query = { id: rootComponent.key };
@@ -72,26 +75,26 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
       Object.assign(query, { selected: component.key });
     }
     inner = (
-        <Link to={{ pathname: '/code', query }} className="link-with-icon">
-          <QualifierIcon qualifier={component.qualifier}/>
-          {' '}
-          <span>{name}</span>
-        </Link>
+      <Link to={{ pathname: '/code', query }} className="link-with-icon">
+        <QualifierIcon qualifier={component.qualifier} />
+        {' '}
+        <span>{name}</span>
+      </Link>
     );
   } else {
     inner = (
-        <span>
-          <QualifierIcon qualifier={component.qualifier}/>
-          {' '}
-          {name}
-        </span>
+      <span>
+        <QualifierIcon qualifier={component.qualifier} />
+        {' '}
+        {name}
+      </span>
     );
   }
 
   return (
-      <Truncated title={getTooltip(component)}>
-        {inner}
-      </Truncated>
+    <Truncated title={getTooltip(component)}>
+      {inner}
+    </Truncated>
   );
 };
 

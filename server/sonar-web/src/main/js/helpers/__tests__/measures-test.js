@@ -228,8 +228,12 @@ describe('#formatMeasureVariation()', () => {
     expect(formatMeasureVariation(ONE_HOUR + 55 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+2h');
     expect(formatMeasureVariation(3 * ONE_DAY + 6 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+4d');
     expect(formatMeasureVariation(7 * ONE_HOUR + 59 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+1d');
-    expect(formatMeasureVariation(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+5d');
-    expect(formatMeasureVariation(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+15d');
+    expect(formatMeasureVariation(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe(
+      '+5d'
+    );
+    expect(formatMeasureVariation(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe(
+      '+15d'
+    );
     expect(formatMeasureVariation(7 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+7min');
     expect(formatMeasureVariation(-5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('-5d');
     expect(formatMeasureVariation(-2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('-2h');

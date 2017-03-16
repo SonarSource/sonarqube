@@ -24,9 +24,8 @@ import Template from '../templates/facets/issues-severity-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  sortValues (values) {
+  sortValues(values) {
     const order = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
     return sortBy(values, v => order.indexOf(v.val));
   }
 });
-

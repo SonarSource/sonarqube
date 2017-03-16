@@ -29,12 +29,13 @@ export default class FavoriteIssueFilter extends React.Component {
     }).isRequired
   };
 
-  render () {
+  render() {
     return (
-        <FavoriteBase
-            favorite={this.props.favorite}
-            addFavorite={() => toggleIssueFilter(this.props.filter.id)}
-            removeFavorite={() => toggleIssueFilter(this.props.filter.id)}/>
+      <FavoriteBase
+        favorite={this.props.favorite}
+        addFavorite={() => toggleIssueFilter(this.props.filter.id)}
+        removeFavorite={() => toggleIssueFilter(this.props.filter.id)}
+      />
     );
   }
 }

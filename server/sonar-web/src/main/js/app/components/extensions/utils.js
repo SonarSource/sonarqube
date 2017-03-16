@@ -29,20 +29,19 @@ const installScript = (key: string) => {
   });
 };
 
-export const getExtensionStart = (key: string) => (
-    new Promise((resolve, reject) => {
-      const fromCache = getExtensionFromCache(key);
-      if (fromCache) {
-        return resolve(fromCache);
-      }
+export const getExtensionStart = (key: string) =>
+  new Promise((resolve, reject) => {
+    const fromCache = getExtensionFromCache(key);
+    if (fromCache) {
+      return resolve(fromCache);
+    }
 
-      installScript(key).then(() => {
-        const start = getExtensionFromCache(key);
-        if (start) {
-          resolve(start);
-        } else {
-          reject();
-        }
-      });
-    })
-);
+    installScript(key).then(() => {
+      const start = getExtensionFromCache(key);
+      if (start) {
+        resolve(start);
+      } else {
+        reject();
+      }
+    });
+  });

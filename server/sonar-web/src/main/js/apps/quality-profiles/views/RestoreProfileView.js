@@ -24,27 +24,27 @@ import { restoreQualityProfile } from '../../../api/quality-profiles';
 export default ModalFormView.extend({
   template: Template,
 
-  onFormSubmit (e) {
+  onFormSubmit(e) {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     const data = new FormData(e.currentTarget);
 
     this.disableForm();
 
     restoreQualityProfile(data)
-        .then(r => {
-          this.profile = r.profile;
-          this.ruleSuccesses = r.ruleSuccesses;
-          this.ruleFailures = r.ruleFailures;
-          this.render();
-          this.trigger('done');
-        })
-        .catch(e => {
-          this.enableForm();
-          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
-        });
+      .then(r => {
+        this.profile = r.profile;
+        this.ruleSuccesses = r.ruleSuccesses;
+        this.ruleFailures = r.ruleFailures;
+        this.render();
+        this.trigger('done');
+      })
+      .catch(e => {
+        this.enableForm();
+        e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ModalFormView.prototype.serializeData.apply(this, arguments),
       profile: this.profile,

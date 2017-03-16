@@ -30,7 +30,7 @@ type Props = {
 export default class ActionChangelog extends React.PureComponent {
   props: Props;
 
-  render () {
+  render() {
     return (
       <ul className="big-spacer-top">
         {this.props.changelog.map((item, index) => (

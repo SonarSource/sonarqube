@@ -33,9 +33,8 @@ export type GetNotificationsResponse = {
   perProjectTypes: Array<string>
 };
 
-export const getNotifications = (): Promise<GetNotificationsResponse> => (
-    getJSON('/api/notifications/list')
-);
+export const getNotifications = (): Promise<GetNotificationsResponse> =>
+  getJSON('/api/notifications/list');
 
 export const addNotification = (channel: string, type: string, project?: string): Promise<*> => {
   const data: Object = { channel, type };

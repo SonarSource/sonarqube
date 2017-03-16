@@ -35,14 +35,14 @@ export default class SearchFilter extends React.PureComponent {
   props: Props;
   state: State;
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       userQuery: props.query.search
     };
   }
 
-  componentWillReceiveProps (nextProps: Props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (
       this.props.query.search === this.state.userQuery &&
       nextProps.query.search !== this.props.query.search
@@ -60,7 +60,7 @@ export default class SearchFilter extends React.PureComponent {
     }
   };
 
-  render () {
+  render() {
     const { userQuery } = this.state;
     const inputClassName = classNames('input-super-large', {
       touched: userQuery && userQuery.length < 2
@@ -74,7 +74,8 @@ export default class SearchFilter extends React.PureComponent {
           className={inputClassName}
           placeholder={translate('projects.search')}
           onChange={this.handleQueryChange}
-          autoComplete="off"/>
+          autoComplete="off"
+        />
         <span className="note spacer-left">
           {translateWithParameters('select2.tooShort', 2)}
         </span>

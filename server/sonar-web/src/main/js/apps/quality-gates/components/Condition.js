@@ -27,7 +27,7 @@ import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
 export default class Condition extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.state = {
@@ -39,7 +39,7 @@ export default class Condition extends Component {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const { condition } = this.props;
 
     if (!condition.id) {
@@ -47,29 +47,29 @@ export default class Condition extends Component {
     }
   }
 
-  handleChange () {
+  handleChange() {
     this.setState({ changed: true });
   }
 
-  handleOperatorChange (option) {
+  handleOperatorChange(option) {
     const { value } = option;
     this.setState({ changed: true, op: value });
   }
 
-  handlePeriodChange (checked) {
+  handlePeriodChange(checked) {
     const period = checked ? '1' : undefined;
     this.setState({ changed: true, period });
   }
 
-  handleWarningChange (value) {
+  handleWarningChange(value) {
     this.setState({ changed: true, warning: value });
   }
 
-  handleErrorChange (value) {
+  handleErrorChange(value) {
     this.setState({ changed: true, error: value });
   }
 
-  handleSaveClick (e) {
+  handleSaveClick(e) {
     const { qualityGate, condition, metric, onSaveCondition, onError, onResetError } = this.props;
     const period = this.state.period;
     const data = {
@@ -88,14 +88,16 @@ export default class Condition extends Component {
     }
 
     e.preventDefault();
-    createCondition(qualityGate.id, data).then(newCondition => {
-      this.setState({ changed: false });
-      onSaveCondition(condition, newCondition);
-      onResetError();
-    }).catch(error => onError(error));
+    createCondition(qualityGate.id, data)
+      .then(newCondition => {
+        this.setState({ changed: false });
+        onSaveCondition(condition, newCondition);
+        onResetError();
+      })
+      .catch(error => onError(error));
   }
 
-  handleUpdateClick (e) {
+  handleUpdateClick(e) {
     const { condition, onSaveCondition, metric, onError, onResetError } = this.props;
     const period = this.state.period;
     const data = {
@@ -115,14 +117,16 @@ export default class Condition extends Component {
     }
 
     e.preventDefault();
-    updateCondition(data).then(newCondition => {
-      this.setState({ changed: false });
-      onSaveCondition(condition, newCondition);
-      onResetError();
-    }).catch(error => onError(error));
+    updateCondition(data)
+      .then(newCondition => {
+        this.setState({ changed: false });
+        onSaveCondition(condition, newCondition);
+        onResetError();
+      })
+      .catch(error => onError(error));
   }
 
-  handleDeleteClick (e) {
+  handleDeleteClick(e) {
     const { qualityGate, condition, metric, onDeleteCondition } = this.props;
 
     e.preventDefault();
@@ -134,14 +138,14 @@ export default class Condition extends Component {
     }).render();
   }
 
-  handleCancelClick (e) {
+  handleCancelClick(e) {
     const { condition, onDeleteCondition } = this.props;
 
     e.preventDefault();
     onDeleteCondition(condition);
   }
 
-  renderPeriodValue () {
+  renderPeriodValue() {
     const { condition, metric } = this.props;
     const isLeakSelected = !!this.state.period;
     const isDiffMetric = condition.metric.indexOf('new_') === 0;
@@ -149,26 +153,26 @@ export default class Condition extends Component {
 
     if (isDiffMetric) {
       return (
-          <span className="note">
-            {translate('quality_gates.condition.leak.unconditional')}
-          </span>
+        <span className="note">
+          {translate('quality_gates.condition.leak.unconditional')}
+        </span>
       );
     }
 
     if (isRating) {
       return (
-          <span className="note">
-            {translate('quality_gates.condition.leak.never')}
-          </span>
+        <span className="note">
+          {translate('quality_gates.condition.leak.never')}
+        </span>
       );
     }
 
-    return isLeakSelected ?
-        translate('quality_gates.condition.leak.yes') :
-        translate('quality_gates.condition.leak.no');
+    return isLeakSelected
+      ? translate('quality_gates.condition.leak.yes')
+      : translate('quality_gates.condition.leak.no');
   }
 
-  renderPeriod () {
+  renderPeriod() {
     const { condition, metric, edit } = this.props;
 
     const isDiffMetric = condition.metric.indexOf('new_') === 0;
@@ -179,26 +183,20 @@ export default class Condition extends Component {
       return this.renderPeriodValue();
     }
 
-    return (
-        <Checkbox
-            checked={isLeakSelected}
-            onCheck={this.handlePeriodChange.bind(this)}/>
-    );
+    return <Checkbox checked={isLeakSelected} onCheck={this.handlePeriodChange.bind(this)} />;
   }
 
-  renderOperator () {
+  renderOperator() {
     const { condition, edit, metric } = this.props;
 
     if (!edit) {
-      return metric.type === 'RATING' ?
-          translate('quality_gates.operator', condition.op, 'rating') :
-          translate('quality_gates.operator', condition.op);
+      return metric.type === 'RATING'
+        ? translate('quality_gates.operator', condition.op, 'rating')
+        : translate('quality_gates.operator', condition.op);
     }
 
     if (metric.type === 'RATING') {
-      return (
-          <span className="note">{translate('quality_gates.operator.GT.rating')}</span>
-      );
+      return <span className="note">{translate('quality_gates.operator.GT.rating')}</span>;
     }
 
     const operators = ['LT', 'GT', 'EQ', 'NE'];
@@ -208,94 +206,94 @@ export default class Condition extends Component {
     });
 
     return (
-        <Select
-            ref="operator"
-            className="input-medium"
-            name="operator"
-            value={this.state.op}
-            clearable={false}
-            searchable={false}
-            options={operatorOptions}
-            onChange={this.handleOperatorChange.bind(this)}/>
+      <Select
+        ref="operator"
+        className="input-medium"
+        name="operator"
+        value={this.state.op}
+        clearable={false}
+        searchable={false}
+        options={operatorOptions}
+        onChange={this.handleOperatorChange.bind(this)}
+      />
     );
   }
 
-  render () {
+  render() {
     const { condition, edit, metric } = this.props;
     return (
-        <tr>
-          <td className="text-middle nowrap">
-            {getLocalizedMetricName(metric)}
-            {metric.hidden && (
-                <span className="text-danger little-spacer-left">
-                  {translate('deprecated')}
-                </span>
-            )}
-          </td>
+      <tr>
+        <td className="text-middle nowrap">
+          {getLocalizedMetricName(metric)}
+          {metric.hidden &&
+            <span className="text-danger little-spacer-left">
+              {translate('deprecated')}
+            </span>}
+        </td>
 
+        <td className="thin text-middle nowrap">
+          {this.renderPeriod()}
+        </td>
+
+        <td className="thin text-middle nowrap">
+          {this.renderOperator()}
+        </td>
+
+        <td className="thin text-middle nowrap">
+          {edit
+            ? <ThresholdInput
+                name="warning"
+                value={this.state.warning}
+                metric={metric}
+                onChange={value => this.handleWarningChange(value)}
+              />
+            : formatMeasure(condition.warning, metric.type)}
+        </td>
+
+        <td className="thin text-middle nowrap">
+          {edit
+            ? <ThresholdInput
+                name="error"
+                value={this.state.error}
+                metric={metric}
+                onChange={value => this.handleErrorChange(value)}
+              />
+            : formatMeasure(condition.error, metric.type)}
+        </td>
+
+        {edit &&
           <td className="thin text-middle nowrap">
-            {this.renderPeriod()}
-          </td>
+            {condition.id
+              ? <div className="button-group">
+                  <button
+                    className="update-condition"
+                    disabled={!this.state.changed}
+                    onClick={this.handleUpdateClick.bind(this)}
+                  >
+                    {translate('update_verb')}
+                  </button>
+                  <button
+                    className="button-red delete-condition"
+                    onClick={this.handleDeleteClick.bind(this)}
+                  >
+                    {translate('delete')}
+                  </button>
+                </div>
+              : <div className="button-group">
+                  <button className="add-condition" onClick={this.handleSaveClick.bind(this)}>
+                    {translate('add_verb')}
+                  </button>
+                  <a
+                    className="action cancel-add-condition"
+                    href="#"
+                    onClick={this.handleCancelClick.bind(this)}
+                  >
+                    {translate('cancel')}
+                  </a>
+                </div>}
+          </td>}
 
-          <td className="thin text-middle nowrap">
-            {this.renderOperator()}
-          </td>
-
-          <td className="thin text-middle nowrap">
-            {edit ? (
-                <ThresholdInput
-                    name="warning"
-                    value={this.state.warning}
-                    metric={metric}
-                    onChange={value => this.handleWarningChange(value)}/>
-            ) : formatMeasure(condition.warning, metric.type)}
-          </td>
-
-          <td className="thin text-middle nowrap">
-            {edit ? (
-                <ThresholdInput
-                    name="error"
-                    value={this.state.error}
-                    metric={metric}
-                    onChange={value => this.handleErrorChange(value)}/>
-            ) : formatMeasure(condition.error, metric.type)}
-          </td>
-
-          {edit && (
-              <td className="thin text-middle nowrap">
-                {condition.id ? (
-                    <div className="button-group">
-                      <button
-                          className="update-condition"
-                          disabled={!this.state.changed}
-                          onClick={this.handleUpdateClick.bind(this)}>
-                        {translate('update_verb')}
-                      </button>
-                      <button
-                          className="button-red delete-condition"
-                          onClick={this.handleDeleteClick.bind(this)}>
-                        {translate('delete')}
-                      </button>
-                    </div>
-                ) : (
-                    <div className="button-group">
-                      <button
-                          className="add-condition"
-                          onClick={this.handleSaveClick.bind(this)}>
-                        {translate('add_verb')}
-                      </button>
-                      <a
-                          className="action cancel-add-condition"
-                          href="#"
-                          onClick={this.handleCancelClick.bind(this)}>
-                        {translate('cancel')}
-                      </a>
-                    </div>
-                )}
-              </td>
-          )}
-
-        </tr>
+      </tr>
     );
   }
 }

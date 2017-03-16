@@ -25,48 +25,55 @@ import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import type { Organization } from '../../store/organizations/duck';
 
-const onRejected = (dispatch: Function) => (error: Object) => {
-  onFail(dispatch)(error);
-  return Promise.reject();
-};
-
-export const fetchOrganization = (key: string): Function => (dispatch: Function): Promise<*> => {
-  const onFulfilled = ([organization, navigation]) => {
-    if (organization) {
-      const organizationWithPermissions = { ...organization, ...navigation };
-      dispatch(actions.receiveOrganizations([organizationWithPermissions]));
-    }
+const onRejected = (dispatch: Function) =>
+  (error: Object) => {
+    onFail(dispatch)(error);
+    return Promise.reject();
   };
 
-  return Promise.all([
-    api.getOrganization(key),
-    api.getOrganizationNavigation(key)
-  ]).then(onFulfilled, onFail(dispatch));
-};
+export const fetchOrganization = (key: string): Function =>
+  (dispatch: Function): Promise<*> => {
+    const onFulfilled = ([organization, navigation]) => {
+      if (organization) {
+        const organizationWithPermissions = { ...organization, ...navigation };
+        dispatch(actions.receiveOrganizations([organizationWithPermissions]));
+      }
+    };
 
-export const createOrganization = (fields: {}): Function => (dispatch: Function): Promise<*> => {
-  const onFulfilled = (organization: Organization) => {
-    dispatch(actions.createOrganization(organization));
-    dispatch(addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name)));
+    return Promise.all([api.getOrganization(key), api.getOrganizationNavigation(key)]).then(
+      onFulfilled,
+      onFail(dispatch)
+    );
   };
 
-  return api.createOrganization(fields).then(onFulfilled, onRejected(dispatch));
-};
+export const createOrganization = (fields: {}): Function =>
+  (dispatch: Function): Promise<*> => {
+    const onFulfilled = (organization: Organization) => {
+      dispatch(actions.createOrganization(organization));
+      dispatch(
+        addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name))
+      );
+    };
 
-export const updateOrganization = (key: string, changes: {}): Function => (dispatch: Function): Promise<*> => {
-  const onFulfilled = () => {
-    dispatch(actions.updateOrganization(key, changes));
-    dispatch(addGlobalSuccessMessage(translate('organization.updated')));
+    return api.createOrganization(fields).then(onFulfilled, onRejected(dispatch));
   };
 
-  return api.updateOrganization(key, changes).then(onFulfilled, onFail(dispatch));
-};
+export const updateOrganization = (key: string, changes: {}): Function =>
+  (dispatch: Function): Promise<*> => {
+    const onFulfilled = () => {
+      dispatch(actions.updateOrganization(key, changes));
+      dispatch(addGlobalSuccessMessage(translate('organization.updated')));
+    };
 
-export const deleteOrganization = (key: string): Function => (dispatch: Function): Promise<*> => {
-  const onFulfilled = () => {
-    dispatch(actions.deleteOrganization(key));
-    dispatch(addGlobalSuccessMessage(translate('organization.deleted')));
+    return api.updateOrganization(key, changes).then(onFulfilled, onFail(dispatch));
   };
 
-  return api.deleteOrganization(key).then(onFulfilled, onFail(dispatch));
-};
+export const deleteOrganization = (key: string): Function =>
+  (dispatch: Function): Promise<*> => {
+    const onFulfilled = () => {
+      dispatch(actions.deleteOrganization(key));
+      dispatch(addGlobalSuccessMessage(translate('organization.deleted')));
+    };
+
+    return api.deleteOrganization(key).then(onFulfilled, onFail(dispatch));
+  };

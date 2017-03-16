@@ -26,7 +26,7 @@ const MEASURES = {};
 
 it('should display analysis date', () => {
   expect(
-    shallow(<ProjectCard measures={MEASURES} project={PROJECT}/>).find(
+    shallow(<ProjectCard measures={MEASURES} project={PROJECT} />).find(
       '.project-card-analysis-date'
     )
   ).toMatchSnapshot();
@@ -35,12 +35,12 @@ it('should display analysis date', () => {
 it('should NOT display analysis date', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   expect(
-    shallow(<ProjectCard measures={MEASURES} project={project}/>)
-        .find('.project-card-analysis-date')
-        .exists()
+    shallow(<ProjectCard measures={MEASURES} project={project} />)
+      .find('.project-card-analysis-date')
+      .exists()
   ).toBeFalsy();
 });
 
 it('should display loading', () => {
-  expect(shallow(<ProjectCard project={PROJECT}/>)).toMatchSnapshot();
+  expect(shallow(<ProjectCard project={PROJECT} />)).toMatchSnapshot();
 });

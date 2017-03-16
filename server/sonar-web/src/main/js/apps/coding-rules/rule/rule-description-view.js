@@ -27,7 +27,7 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   ui: {
@@ -47,18 +47,18 @@ export default Marionette.ItemView.extend({
     'click @ui.extendDescriptionRemove': 'removeExtendedDescription'
   },
 
-  showExtendDescriptionForm () {
+  showExtendDescriptionForm() {
     this.ui.descriptionExtra.addClass('hidden');
     this.ui.extendDescriptionForm.removeClass('hidden');
     this.ui.extendDescriptionText.focus();
   },
 
-  hideExtendDescriptionForm () {
+  hideExtendDescriptionForm() {
     this.ui.descriptionExtra.removeClass('hidden');
     this.ui.extendDescriptionForm.addClass('hidden');
   },
 
-  submitExtendDescription () {
+  submitExtendDescription() {
     const that = this;
     this.ui.extendDescriptionForm.addClass('hidden');
     return $.ajax({
@@ -69,29 +69,31 @@ export default Marionette.ItemView.extend({
         key: this.model.get('key'),
         markdown_note: this.ui.extendDescriptionText.val()
       }
-    }).done(r => {
-      that.model.set({
-        htmlNote: r.rule.htmlNote,
-        mdNote: r.rule.mdNote
+    })
+      .done(r => {
+        that.model.set({
+          htmlNote: r.rule.htmlNote,
+          mdNote: r.rule.mdNote
+        });
+        that.render();
+      })
+      .fail(() => {
+        that.render();
       });
-      that.render();
-    }).fail(() => {
-      that.render();
-    });
   },
 
-  removeExtendedDescription () {
+  removeExtendedDescription() {
     const that = this;
     confirmDialog({
       html: translate('coding_rules.remove_extended_description.confirm'),
-      yesHandler () {
+      yesHandler() {
         that.ui.extendDescriptionText.val('');
         that.submitExtendDescription();
       }
     });
   },
 
-  serializeData () {
+  serializeData() {
     const isEditable = this.options.app.canWrite && this.model.get('isCustom');
 
     return {

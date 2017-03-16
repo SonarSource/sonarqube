@@ -32,17 +32,17 @@ class App extends React.Component {
     component: React.PropTypes.object
   };
 
-  render () {
+  render() {
     if (!this.props.component) {
       return null;
     }
 
     return (
-        <div className="page page-limited">
-          <PageHeader project={this.props.component} currentUser={this.props.currentUser}/>
-          <PageError/>
-          <AllHoldersList project={this.props.component}/>
-        </div>
+      <div className="page page-limited">
+        <PageHeader project={this.props.component} currentUser={this.props.currentUser} />
+        <PageError />
+        <AllHoldersList project={this.props.component} />
+      </div>
     );
   }
 }
@@ -53,4 +53,3 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps)(App);
-

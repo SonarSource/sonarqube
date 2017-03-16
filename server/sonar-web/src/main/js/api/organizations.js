@@ -29,9 +29,8 @@ export const getOrganizations = (organizations?: Array<string>) => {
   return getJSON('/api/organizations/search', data);
 };
 
-export const getMyOrganizations = () => (
-    getJSON('/api/organizations/search_my_organizations').then(r => r.organizations)
-);
+export const getMyOrganizations = () =>
+  getJSON('/api/organizations/search_my_organizations').then(r => r.organizations);
 
 type GetOrganizationType = null | Organization;
 
@@ -48,14 +47,10 @@ export const getOrganizationNavigation = (key: string): Promise<GetOrganizationN
   return getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
 };
 
-export const createOrganization = (fields: {}): Promise<Organization> => (
-    postJSON('/api/organizations/create', fields).then(r => r.organization)
-);
+export const createOrganization = (fields: {}): Promise<Organization> =>
+  postJSON('/api/organizations/create', fields).then(r => r.organization);
 
-export const updateOrganization = (key: string, changes: {}) => (
-    post('/api/organizations/update', { key, ...changes })
-);
+export const updateOrganization = (key: string, changes: {}) =>
+  post('/api/organizations/update', { key, ...changes });
 
-export const deleteOrganization = (key: string) => (
-    post('/api/organizations/delete', { key })
-);
+export const deleteOrganization = (key: string) => post('/api/organizations/delete', { key });

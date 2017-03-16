@@ -22,11 +22,11 @@ import pick from 'lodash/pick';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
-  urlRoot () {
+  urlRoot() {
     return window.baseUrl + '/api/user_groups';
   },
 
-  sync (method, model, options) {
+  sync(method, model, options) {
     const opts = options || {};
     if (method === 'create') {
       const data = pick(model.toJSON(), 'name', 'description');
@@ -61,4 +61,3 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   }
 });
-

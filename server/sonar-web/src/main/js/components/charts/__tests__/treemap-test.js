@@ -28,11 +28,7 @@ it('should display', () => {
     { size: 20, color: '#777', label: 'SonarQube :: Search' }
   ];
   const chart = shallow(
-    <Treemap
-          items={items}
-          width={100}
-          height={100}
-          breadcrumbs={[]}
-          canBeClicked={() => true}/>);
+    <Treemap items={items} width={100} height={100} breadcrumbs={[]} canBeClicked={() => true} />
+  );
   expect(chart.find(TreemapRect).length).toBe(3);
 });

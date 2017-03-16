@@ -38,7 +38,7 @@ const SHOULD_NULL = {
 export default Marionette.ItemView.extend({
   className: 'issues-workspace-list-item',
 
-  initialize (options) {
+  initialize(options) {
     this.openComponentViewer = this.openComponentViewer.bind(this);
     this.onIssueFilterClick = this.onIssueFilterClick.bind(this);
     this.onIssueCheck = this.onIssueCheck.bind(this);
@@ -47,11 +47,11 @@ export default Marionette.ItemView.extend({
     this.subscribeToStore();
   },
 
-  template () {
+  template() {
     return '<div></div>';
   },
 
-  subscribeToStore () {
+  subscribeToStore() {
     const store = getStore();
     store.subscribe(() => {
       const issue = getIssueByKey(store.getState(), this.model.get('key'));
@@ -59,18 +59,18 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  onRender () {
+  onRender() {
     this.showIssue();
   },
 
-  onDestroy () {
+  onDestroy() {
     unmountComponentAtNode(this.el);
   },
 
-  showIssue () {
+  showIssue() {
     const selected = this.model.get('index') === this.options.app.state.get('selectedIndex');
 
-    render((
+    render(
       <WithStore>
         <ConnectedIssue
           issueKey={this.model.get('key')}
@@ -78,12 +78,14 @@ export default Marionette.ItemView.extend({
           onCheck={this.onIssueCheck}
           onClick={this.openComponentViewer}
           onFilterClick={this.onIssueFilterClick}
-          selected={selected}/>
-      </WithStore>
-    ), this.el);
+          selected={selected}
+        />
+      </WithStore>,
+      this.el
+    );
   },
 
-  onIssueFilterClick (e) {
+  onIssueFilterClick(e) {
     const that = this;
     e.preventDefault();
     e.stopPropagation();
@@ -110,7 +112,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  onIssueCheck (e) {
+  onIssueCheck(e) {
     e.preventDefault();
     e.stopPropagation();
     this.model.set({ selected: !this.model.get('selected') });
@@ -118,7 +120,7 @@ export default Marionette.ItemView.extend({
     this.options.app.state.set({ selected });
   },
 
-  changeSelection () {
+  changeSelection() {
     const selected = this.model.get('index') === this.options.app.state.get('selectedIndex');
     if (selected) {
       this.select();
@@ -127,26 +129,29 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  selectCurrent () {
+  selectCurrent() {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
   },
 
-  resetIssue (options) {
+  resetIssue(options) {
     const that = this;
     const key = this.model.get('key');
     const componentUuid = this.model.get('componentUuid');
     const index = this.model.get('index');
     const selected = this.model.get('selected');
-    this.model.reset({
-      key,
-      componentUuid,
-      index,
-      selected
-    }, { silent: true });
+    this.model.reset(
+      {
+        key,
+        componentUuid,
+        index,
+        selected
+      },
+      { silent: true }
+    );
     return this.model.fetch(options).done(() => that.trigger('reset'));
   },
 
-  openComponentViewer () {
+  openComponentViewer() {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
     if (this.options.app.state.has('component')) {
       return this.options.app.controller.closeComponentViewer();

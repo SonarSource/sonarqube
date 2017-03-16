@@ -23,6 +23,6 @@ import { IndexRoute, Redirect } from 'react-router';
 import App from './components/App';
 
 export default [
-  <Redirect key="1" from="/component/index" to="/component"/>,
-  <IndexRoute key="2" component={App}/>
+  <Redirect key="1" from="/component/index" to="/component" />,
+  <IndexRoute key="2" component={App} />
 ];

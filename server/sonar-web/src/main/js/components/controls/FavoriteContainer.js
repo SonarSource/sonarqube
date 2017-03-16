@@ -25,23 +25,25 @@ import * as api from '../../api/favorites';
 import { addGlobalErrorMessage } from '../../store/globalMessages/duck';
 import { parseError } from '../../apps/code/utils';
 
-const addFavorite = componentKey => dispatch => {
-  // optimistic update
-  dispatch(actionCreators.addFavorite(componentKey));
-  api.addFavorite(componentKey).catch(error => {
-    dispatch(actionCreators.removeFavorite(componentKey));
-    parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
-  });
-};
-
-const removeFavorite = componentKey => dispatch => {
-  // optimistic update
-  dispatch(actionCreators.removeFavorite(componentKey));
-  api.removeFavorite(componentKey).catch(error => {
+const addFavorite = componentKey =>
+  dispatch => {
+    // optimistic update
     dispatch(actionCreators.addFavorite(componentKey));
-    parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
-  });
-};
+    api.addFavorite(componentKey).catch(error => {
+      dispatch(actionCreators.removeFavorite(componentKey));
+      parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
+    });
+  };
+
+const removeFavorite = componentKey =>
+  dispatch => {
+    // optimistic update
+    dispatch(actionCreators.removeFavorite(componentKey));
+    api.removeFavorite(componentKey).catch(error => {
+      dispatch(actionCreators.addFavorite(componentKey));
+      parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
+    });
+  };
 
 const mapStateToProps = (state, ownProps) => ({
   favorite: isFavorite(state, ownProps.componentKey)
@@ -52,7 +54,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   removeFavorite: () => dispatch(removeFavorite(ownProps.componentKey))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FavoriteBaseStateless);
+export default connect(mapStateToProps, mapDispatchToProps)(FavoriteBaseStateless);

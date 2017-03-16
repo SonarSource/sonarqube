@@ -17,6 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (v1, v2, options) {
+module.exports = function(v1, v2, options) {
   return v1 > v2 ? options.fn(this) : options.inverse(this);
 };

@@ -24,7 +24,7 @@ import { getJSON, postJSON, post } from '../helpers/request';
  * @param {string} login
  * @returns {Promise}
  */
-export function getTokens (login) {
+export function getTokens(login) {
   const url = '/api/user_tokens/search';
   const data = { login };
   return getJSON(url, data).then(r => r.userTokens);
@@ -36,7 +36,7 @@ export function getTokens (login) {
  * @param {string} tokenName
  * @returns {Promise}
  */
-export function generateToken (userLogin, tokenName) {
+export function generateToken(userLogin, tokenName) {
   const url = '/api/user_tokens/generate';
   const data = { login: userLogin, name: tokenName };
   return postJSON(url, data);
@@ -48,7 +48,7 @@ export function generateToken (userLogin, tokenName) {
  * @param {string} tokenName
  * @returns {Promise}
  */
-export function revokeToken (userLogin, tokenName) {
+export function revokeToken(userLogin, tokenName) {
   const url = '/api/user_tokens/revoke';
   const data = { login: userLogin, name: tokenName };
   return post(url, data);

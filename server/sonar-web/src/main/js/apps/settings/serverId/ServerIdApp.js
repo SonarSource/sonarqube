@@ -35,113 +35,120 @@ export default class ServerIdApp extends React.Component {
     validIpAddresses: []
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.fetchServerId();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  handleError (error) {
+  handleError(error) {
     this.setState({ loading: false });
     parseError(error).then(message => this.props.addGlobalErrorMessage(message));
   }
 
-  fetchServerId () {
+  fetchServerId() {
     this.setState({ loading: true });
-    getServerId().then(data => {
-      if (this.mounted) {
-        this.setState({ ...data, loading: false });
-      }
-    }).catch(error => this.handleError(error));
+    getServerId()
+      .then(data => {
+        if (this.mounted) {
+          this.setState({ ...data, loading: false });
+        }
+      })
+      .catch(error => this.handleError(error));
   }
 
-  handleSubmit (e) {
+  handleSubmit(e) {
     e.preventDefault();
     this.setState({ loading: true });
     this.props.closeAllGlobalMessages();
-    generateServerId(this.state.organization, this.state.ip).then(data => {
-      if (this.mounted) {
-        this.setState({ serverId: data.serverId, invalidServerId: false, loading: false });
-      }
-    }).catch(error => this.handleError(error));
+    generateServerId(this.state.organization, this.state.ip)
+      .then(data => {
+        if (this.mounted) {
+          this.setState({ serverId: data.serverId, invalidServerId: false, loading: false });
+        }
+      })
+      .catch(error => this.handleError(error));
   }
 
-  render () {
+  render() {
     return (
-        <div id="server-id-page" className="page page-limited">
-          <header className="page-header">
-            <h1 className="page-title">{translate('property.category.server_id')}</h1>
-            {this.state.loading && <i className="spinner"/>}
-            <div className="page-description">{translate('server_id_configuration.information')}</div>
-          </header>
+      <div id="server-id-page" className="page page-limited">
+        <header className="page-header">
+          <h1 className="page-title">{translate('property.category.server_id')}</h1>
+          {this.state.loading && <i className="spinner" />}
+          <div className="page-description">{translate('server_id_configuration.information')}</div>
+        </header>
 
-          {this.state.serverId != null && (
-              <div className={this.state.invalidServerId ? 'panel panel-danger' : 'panel'}>
-                Server ID:
-                <input
-                    id="server-id-result"
-                    className="spacer-left input-large input-clear input-code"
-                    type="text"
-                    readOnly={true}
-                    value={this.state.serverId}/>
-                {!!this.state.invalidServerId && (
-                    <span className="spacer-left">{translate('server_id_configuration.bad_key')}</span>
-                )}
-              </div>
-          )}
+        {this.state.serverId != null &&
+          <div className={this.state.invalidServerId ? 'panel panel-danger' : 'panel'}>
+            Server ID:
+            <input
+              id="server-id-result"
+              className="spacer-left input-large input-clear input-code"
+              type="text"
+              readOnly={true}
+              value={this.state.serverId}
+            />
+            {!!this.state.invalidServerId &&
+              <span className="spacer-left">{translate('server_id_configuration.bad_key')}</span>}
+          </div>}
 
-          <div className="panel">
-            <form id="server-id-form" onSubmit={e => this.handleSubmit(e)}>
-              <div className="modal-field">
-                <label htmlFor="server-id-organization">
-                  {translate('server_id_configuration.organisation.title')}
-                  <em className="mandatory">*</em>
-                </label>
-                <input
-                    id="server-id-organization"
-                    type="text"
-                    required={true}
-                    value={this.state.organization}
-                    disabled={this.state.loading}
-                    onChange={e => this.setState({ organization: e.target.value })}/>
-                <div className="modal-field-description">
-                  {translate('server_id_configuration.organisation.desc')}
-                  {'. '}
-                  {translate('server_id_configuration.organisation.pattern')}
-                </div>
+        <div className="panel">
+          <form id="server-id-form" onSubmit={e => this.handleSubmit(e)}>
+            <div className="modal-field">
+              <label htmlFor="server-id-organization">
+                {translate('server_id_configuration.organisation.title')}
+                <em className="mandatory">*</em>
+              </label>
+              <input
+                id="server-id-organization"
+                type="text"
+                required={true}
+                value={this.state.organization}
+                disabled={this.state.loading}
+                onChange={e => this.setState({ organization: e.target.value })}
+              />
+              <div className="modal-field-description">
+                {translate('server_id_configuration.organisation.desc')}
+                {'. '}
+                {translate('server_id_configuration.organisation.pattern')}
               </div>
+            </div>
 
-              <div className="modal-field">
-                <label htmlFor="server-id-ip">
-                  {translate('server_id_configuration.ip.title')}
-                  <em className="mandatory">*</em>
-                </label>
-                <input
-                    id="server-id-ip"
-                    type="text"
-                    required={true}
-                    value={this.state.ip}
-                    disabled={this.state.loading}
-                    onChange={e => this.setState({ ip: e.target.value })}/>
-                <div className="modal-field-description">
-                  {translate('server_id_configuration.ip.desc')}
-                  <ul className="list-styled">
-                    {this.state.validIpAddresses.map(ip => (
-                        <li key={ip} className="little-spacer-top">{ip}</li>
-                    ))}
-                  </ul>
-                </div>
+            <div className="modal-field">
+              <label htmlFor="server-id-ip">
+                {translate('server_id_configuration.ip.title')}
+                <em className="mandatory">*</em>
+              </label>
+              <input
+                id="server-id-ip"
+                type="text"
+                required={true}
+                value={this.state.ip}
+                disabled={this.state.loading}
+                onChange={e => this.setState({ ip: e.target.value })}
+              />
+              <div className="modal-field-description">
+                {translate('server_id_configuration.ip.desc')}
+                <ul className="list-styled">
+                  {this.state.validIpAddresses.map(ip => (
+                    <li key={ip} className="little-spacer-top">{ip}</li>
+                  ))}
+                </ul>
               </div>
+            </div>
 
-              <div className="modal-field">
-                <button disabled={this.state.loading}>{translate('server_id_configuration.generate_button')}</button>
-              </div>
-            </form>
-          </div>
+            <div className="modal-field">
+              <button disabled={this.state.loading}>
+                {translate('server_id_configuration.generate_button')}
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
     );
   }
 }

@@ -31,20 +31,20 @@ export default class ProfileDetails extends React.Component {
     updateProfiles: React.PropTypes.func
   };
 
-  render () {
+  render() {
     return (
-        <div>
-          <div className="quality-profile-grid">
-            <div className="quality-profile-grid-left">
-              <ProfileRules {...this.props}/>
-              <ProfileExporters {...this.props}/>
-            </div>
-            <div className="quality-profile-grid-right">
-              <ProfileInheritance {...this.props}/>
-              <ProfileProjects {...this.props}/>
-            </div>
+      <div>
+        <div className="quality-profile-grid">
+          <div className="quality-profile-grid-left">
+            <ProfileRules {...this.props} />
+            <ProfileExporters {...this.props} />
+          </div>
+          <div className="quality-profile-grid-right">
+            <ProfileInheritance {...this.props} />
+            <ProfileProjects {...this.props} />
           </div>
         </div>
+      </div>
     );
   }
 }

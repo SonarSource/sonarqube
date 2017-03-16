@@ -32,7 +32,7 @@ export default class FormattedDate extends React.Component {
     format: 'LLL'
   };
 
-  render () {
+  render() {
     const { date, format, tooltipFormat } = this.props;
 
     const m = moment(date);
@@ -40,9 +40,9 @@ export default class FormattedDate extends React.Component {
     const title = tooltipFormat ? m.format(tooltipFormat) : undefined;
 
     return (
-        <time dateTime={m.format()} title={title}>
-          {m.format(format)}
-        </time>
+      <time dateTime={m.format()} title={title}>
+        {m.format(format)}
+      </time>
     );
   }
 }

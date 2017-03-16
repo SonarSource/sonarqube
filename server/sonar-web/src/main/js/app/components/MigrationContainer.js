@@ -32,7 +32,7 @@ class MigrationContainer extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     getSystemStatus().then(r => {
       if (r.status === 'UP') {
         this.setState({ loading: false });
@@ -42,7 +42,7 @@ class MigrationContainer extends React.Component {
     });
   }
 
-  render () {
+  render() {
     if (this.state.loading) {
       return null;
     }

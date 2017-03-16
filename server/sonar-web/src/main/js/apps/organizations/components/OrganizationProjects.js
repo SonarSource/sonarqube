@@ -36,24 +36,25 @@ class OrganizationProjects extends React.Component {
     }
   };
 
-  componentDidMount () {
+  componentDidMount() {
     document.querySelector('html').classList.add('dashboard-page');
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  render () {
+  render() {
     return (
-        <div id="projects-page" className="page page-limited">
-          <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube"/>
-          <PageHeaderContainer organization={this.props.organization}/>
-          <AllProjectsContainer
-            isFavorite={false}
-            location={this.props.location}
-            organization={this.props.organization}/>
-        </div>
+      <div id="projects-page" className="page page-limited">
+        <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube" />
+        <PageHeaderContainer organization={this.props.organization} />
+        <AllProjectsContainer
+          isFavorite={false}
+          location={this.props.location}
+          organization={this.props.organization}
+        />
+      </div>
     );
   }
 }

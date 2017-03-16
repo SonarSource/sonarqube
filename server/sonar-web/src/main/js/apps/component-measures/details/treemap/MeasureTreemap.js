@@ -23,7 +23,11 @@ import { getLeakValue } from '../../utils';
 import { Treemap } from '../../../../components/charts/treemap';
 import { getChildren } from '../../../../api/components';
 import { formatMeasure } from '../../../../helpers/measures';
-import { translate, translateWithParameters, getLocalizedMetricName } from '../../../../helpers/l10n';
+import {
+  translate,
+  translateWithParameters,
+  getLocalizedMetricName
+} from '../../../../helpers/l10n';
 import { getComponentUrl } from '../../../../helpers/urls';
 import Workspace from '../../../../components/workspace/main';
 
@@ -36,24 +40,24 @@ export default class MeasureTreemap extends React.Component {
     breadcrumbs: []
   };
 
-  componentDidMount () {
+  componentDidMount() {
     const { component } = this.props;
 
     this.mounted = true;
     this.fetchComponents(component.key);
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.metric !== this.props.metric) {
       this.fetchComponents(this.props.component.key);
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchComponents (componentKey) {
+  fetchComponents(componentKey) {
     const { metric } = this.props;
     const metrics = ['ncloc', metric.key];
     const options = {
@@ -81,7 +85,7 @@ export default class MeasureTreemap extends React.Component {
     });
   }
 
-  getTooltip (component) {
+  getTooltip(component) {
     const { metric } = this.props;
 
     let inner = [
@@ -91,36 +95,33 @@ export default class MeasureTreemap extends React.Component {
 
     const colorMeasure = component.measures[metric.key];
     const formatted = colorMeasure != null ? formatMeasure(colorMeasure, metric.type) : '—';
-
     inner.push(`${getLocalizedMetricName(metric)}: ${formatted}`);
     inner = inner.join('<br>');
-
     return `<div class="text-left">${inner}</div>`;
   }
-
-  getPercentColorScale (metric) {
+  getPercentColorScale(metric) {
     const color = d3.scale.linear().domain([0, 25, 50, 75, 100]);
-    color.range(metric.direction === 1 ?
-        ['#d4333f', '#ed7d20', '#eabe06', '#b0d513', '#00aa00'] :
-        ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']);
+    color.range(
+      metric.direction === 1
+        ? ['#d4333f', '#ed7d20', '#eabe06', '#b0d513', '#00aa00']
+        : ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']
+    );
     return color;
   }
-
-  getRatingColorScale () {
-    return d3.scale.linear()
-        .domain([1, 2, 3, 4, 5])
-        .range(['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']);
+  getRatingColorScale() {
+    return d3.scale
+      .linear()
+      .domain([1, 2, 3, 4, 5])
+      .range(['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']);
   }
-
-  getLevelColorScale () {
-    return d3.scale.ordinal()
-        .domain(['ERROR', 'WARN', 'OK', 'NONE'])
-        .range(['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4']);
+  getLevelColorScale() {
+    return d3.scale
+      .ordinal()
+      .domain(['ERROR', 'WARN', 'OK', 'NONE'])
+      .range(['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4']);
   }
-
-  getScale () {
+  getScale() {
     const { metric } = this.props;
-
     if (metric.type === 'LEVEL') {
       return this.getLevelColorScale();
     }
@@ -129,98 +130,95 @@ export default class MeasureTreemap extends React.Component {
     }
     return this.getPercentColorScale(metric);
   }
-
-  handleRectangleClick (node) {
+  handleRectangleClick(node) {
     const isFile = node.qualifier === 'FIL' || node.qualifier === 'UTS';
-
     if (isFile) {
       Workspace.openComponent({ key: node.key });
       return;
     }
-
     this.fetchComponents(node.key).then(() => {
       let nextBreadcrumbs = [...this.state.breadcrumbs];
       const index = this.state.breadcrumbs.findIndex(b => b.key === node.key);
-
       if (index !== -1) {
         nextBreadcrumbs = nextBreadcrumbs.slice(0, index);
       }
-
-      nextBreadcrumbs = [...nextBreadcrumbs, {
-        key: node.key,
-        name: node.name,
-        qualifier: node.qualifier
-      }];
-
+      nextBreadcrumbs = [
+        ...nextBreadcrumbs,
+        {
+          key: node.key,
+          name: node.name,
+          qualifier: node.qualifier
+        }
+      ];
       this.setState({ breadcrumbs: nextBreadcrumbs });
     });
   }
-
-  handleReset () {
+  handleReset() {
     const { component } = this.props;
     this.fetchComponents(component.key).then(() => {
       this.setState({ breadcrumbs: [] });
     });
   }
-
-  renderTreemap () {
+  renderTreemap() {
     const { metric } = this.props;
     const colorScale = this.getScale();
     const items = this.state.components
-        .filter(component => component.measures['ncloc'])
-        .map(component => {
-          const colorMeasure = component.measures[metric.key];
-
-          return {
-            id: component.id,
-            key: component.key,
-            name: component.name,
-            qualifier: component.qualifier,
-            size: component.measures['ncloc'],
-            color: colorMeasure != null ? colorScale(colorMeasure) : '#777',
-            tooltip: this.getTooltip(component),
-            label: component.name,
-            link: getComponentUrl(component.key)
-          };
-        });
-
+      .filter(component => component.measures['ncloc'])
+      .map(component => {
+        const colorMeasure = component.measures[metric.key];
+        return {
+          id: component.id,
+          key: component.key,
+          name: component.name,
+          qualifier: component.qualifier,
+          size: component.measures['ncloc'],
+          color: colorMeasure != null ? colorScale(colorMeasure) : '#777',
+          tooltip: this.getTooltip(component),
+          label: component.name,
+          link: getComponentUrl(component.key)
+        };
+      });
     return (
-        <Treemap
-            items={items}
-            breadcrumbs={this.state.breadcrumbs}
-            height={HEIGHT}
-            canBeClicked={() => true}
-            onRectangleClick={this.handleRectangleClick.bind(this)}
-            onReset={this.handleReset.bind(this)}/>
+      <Treemap
+        items={items}
+        breadcrumbs={this.state.breadcrumbs}
+        height={HEIGHT}
+        canBeClicked={() => true}
+        onRectangleClick={this.handleRectangleClick.bind(this)}
+        onReset={this.handleReset.bind(this)}
+      />
     );
   }
-
-  render () {
+  render() {
     const { metric } = this.props;
     const { fetching } = this.state;
-
     if (fetching) {
       return (
-          <div className="measure-details-treemap">
-            <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
-              <Spinner/>
-            </div>
+        <div className="measure-details-treemap">
+          <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
+            <Spinner />
           </div>
+        </div>
       );
     }
-
     return (
-        <div className="measure-details-treemap">
-          <ul className="list-inline note measure-details-treemap-legend">
-            <li>
-              {translateWithParameters('component_measures.legend.color_x', getLocalizedMetricName(metric))}
-            </li>
-            <li>
-              {translateWithParameters('component_measures.legend.size_x', translate('metric.ncloc.name'))}
-            </li>
-          </ul>
-          {this.renderTreemap()}
-        </div>
+      <div className="measure-details-treemap">
+        <ul className="list-inline note measure-details-treemap-legend">
+          <li>
+            {translateWithParameters(
+              'component_measures.legend.color_x',
+              getLocalizedMetricName(metric)
+            )}
+          </li>
+          <li>
+            {translateWithParameters(
+              'component_measures.legend.size_x',
+              translate('metric.ncloc.name')
+            )}
+          </li>
+        </ul>
+        {this.renderTreemap()}
+      </div>
     );
   }
 }

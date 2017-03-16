@@ -30,6 +30,6 @@ it('should work with extensions', () => {
     showSettings: true,
     extensions: [{ key: 'foo', name: 'Foo' }]
   };
-  const wrapper = shallow(<ComponentNavMenu component={component} conf={conf}/>);
+  const wrapper = shallow(<ComponentNavMenu component={component} conf={conf} />);
   expect(wrapper).toMatchSnapshot();
 });

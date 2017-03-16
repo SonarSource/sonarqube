@@ -69,7 +69,7 @@ import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/pe
 import getStore from './getStore';
 import getHistory from './getHistory';
 
-function handleUpdate () {
+function handleUpdate() {
   const { action } = this.state.location;
 
   if (action === 'PUSH') {
@@ -83,14 +83,17 @@ const startReactApp = () => {
   const history = getHistory();
   const store = getStore();
 
-  render((
+  render(
     <Provider store={store}>
       <Router history={history} onUpdate={handleUpdate}>
-        <Route path="/dashboard/index/:key" onEnter={(nextState, replace) => {
-          replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
-        }}/>
+        <Route
+          path="/dashboard/index/:key"
+          onEnter={(nextState, replace) => {
+            replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
+          }}
+        />
 
-        <Route path="markdown/help" component={MarkdownHelp}/>
+        <Route path="markdown/help" component={MarkdownHelp} />
 
         <Route component={LocalizationContainer}>
           <Route component={SimpleContainer}>
@@ -105,17 +108,20 @@ const startReactApp = () => {
 
             <Route path="/" component={App}>
 
-              <IndexRoute component={Landing}/>
+              <IndexRoute component={Landing} />
 
               <Route component={GlobalContainer}>
                 <Route path="about">{aboutRoutes}</Route>
                 <Route path="account">{accountRoutes}</Route>
-                <Route path="codingrules" onEnter={(nextState, replace) => {
-                  replace('/coding_rules' + window.location.hash);
-                }}/>
+                <Route
+                  path="codingrules"
+                  onEnter={(nextState, replace) => {
+                    replace('/coding_rules' + window.location.hash);
+                  }}
+                />
                 <Route path="coding_rules">{codingRulesRoutes}</Route>
                 <Route path="component">{componentRoutes}</Route>
-                <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension}/>
+                <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension} />
                 <Route path="issues">{issuesRoutes}</Route>
                 <Route path="organizations">{organizationsRouters}</Route>
                 <Route path="projects">{projectsRoutes}</Route>
@@ -129,24 +135,33 @@ const startReactApp = () => {
                   <Route path="component_measures">{componentMeasuresRoutes}</Route>
                   <Route path="custom_measures">{customMeasuresRoutes}</Route>
                   <Route path="dashboard">{overviewRoutes}</Route>
-                  <Redirect from="governance" to="/view"/>
+                  <Redirect from="governance" to="/view" />
                   <Route path="project">
                     <Route path="activity">{projectActivityRoutes}</Route>
                     <Route path="admin" component={ProjectAdminContainer}>
-                      <Route path="extension/:pluginKey/:extensionKey" component={ProjectAdminPageExtension}/>
+                      <Route
+                        path="extension/:pluginKey/:extensionKey"
+                        component={ProjectAdminPageExtension}
+                      />
                     </Route>
-                    <Redirect from="extension/governance/governance" to="/view"/>
-                    <Route path="extension/:pluginKey/:extensionKey" component={ProjectPageExtension}/>
+                    <Redirect from="extension/governance/governance" to="/view" />
+                    <Route
+                      path="extension/:pluginKey/:extensionKey"
+                      component={ProjectPageExtension}
+                    />
                     <Route path="background_tasks">{backgroundTasksRoutes}</Route>
                     <Route path="settings">{settingsRoutes}</Route>
                     {projectAdminRoutes}
                   </Route>
                   <Route path="project_roles">{projectPermissionsRoutes}</Route>
-                  <Route path="view" component={ViewDashboard}/>
+                  <Route path="view" component={ViewDashboard} />
                 </Route>
 
                 <Route component={AdminContainer}>
-                  <Route path="admin/extension/:pluginKey/:extensionKey" component={GlobalAdminPageExtension}/>
+                  <Route
+                    path="admin/extension/:pluginKey/:extensionKey"
+                    component={GlobalAdminPageExtension}
+                  />
                   <Route path="background_tasks">{backgroundTasksRoutes}</Route>
                   <Route path="groups">{groupsRoutes}</Route>
                   <Route path="metrics">{metricsRoutes}</Route>
@@ -160,14 +175,15 @@ const startReactApp = () => {
                 </Route>
               </Route>
 
-              <Route path="not_found" component={NotFound}/>
-              <Route path="*" component={NotFound}/>
+              <Route path="not_found" component={NotFound} />
+              <Route path="*" component={NotFound} />
             </Route>
           </Route>
         </Route>
       </Router>
-    </Provider>
-  ), el);
+    </Provider>,
+    el
+  );
 };
 
 export default startReactApp;

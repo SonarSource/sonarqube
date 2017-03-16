@@ -23,23 +23,23 @@ import init from '../init';
 import { getSettingValue } from '../../../store/rootReducer';
 
 class UpdateCenterAppContainer extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     this.stop = init(this.refs.container, this.props.updateCenterActive);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.stop();
   }
 
-  render () {
+  render() {
     // placing container inside div is required,
     // because when backbone.marionette's layout is destroyed,
     // it also destroys the root element,
     // but react wants it to be there to unmount it
     return (
-        <div>
-          <div ref="container"/>
-        </div>
+      <div>
+        <div ref="container" />
+      </div>
     );
   }
 }

@@ -30,7 +30,7 @@ type Props = {
 export default class LineIssuesList extends React.PureComponent {
   props: Props;
 
-  render () {
+  render() {
     const { issueKeys, onIssueClick, selectedIssue } = this.props;
 
     return (
@@ -40,7 +40,8 @@ export default class LineIssuesList extends React.PureComponent {
             issueKey={issueKey}
             key={issueKey}
             onClick={onIssueClick}
-            selected={selectedIssue === issueKey}/>
+            selected={selectedIssue === issueKey}
+          />
         ))}
       </div>
     );

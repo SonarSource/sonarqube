@@ -27,10 +27,7 @@ const fakeRouter = { push: () => {} };
 
 it('should render the tags without the ones in the facet', () => {
   const wrapper = shallow(
-    <TagsFilter
-      query={{ tags: null }}
-      router={fakeRouter}
-      facet={tagsFacet}/>
+    <TagsFilter query={{ tags: null }} router={fakeRouter} facet={tagsFacet} />
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ tags });
@@ -44,7 +41,8 @@ it('should render the tags facet with the selected tags', () => {
       value={['lang', 'sonar']}
       router={fakeRouter}
       facet={tagsFacet}
-      isFavorite={true}/>
+      isFavorite={true}
+    />
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
