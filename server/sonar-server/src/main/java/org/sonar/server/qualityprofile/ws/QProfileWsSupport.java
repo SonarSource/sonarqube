@@ -49,7 +49,7 @@ public class QProfileWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public String getOrganizationKey(QualityProfileDto profile, DbSession dbSession) {
+  public String getOrganizationKey(DbSession dbSession, QualityProfileDto profile) {
     String organizationUuid = profile.getOrganizationUuid();
     return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
       .orElseThrow(() -> new IllegalStateException("Cannot load organization with uuid=" + organizationUuid))

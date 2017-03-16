@@ -191,13 +191,40 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void find_by_language() {
-    dbTester.prepareDbUnit(getClass(), "select_by_language.xml");
+  public void should_find_by_language() {
+    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid());
+    underTest.insert(dbSession, profile);
 
-    List<QualityProfileDto> result = underTest.selectByLanguage(dbTester.getSession(), "java");
-    assertThat(result).hasSize(2);
-    assertThat(result.get(0).getName()).isEqualTo("Sonar Way 1");
-    assertThat(result.get(1).getName()).isEqualTo("Sonar Way 2");
+    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, organization, profile.getLanguage());
+    assertThat(results).hasSize(1);
+    QualityProfileDto result = results.get(0);
+
+    assertThat(result.getId()).isEqualTo(profile.getId());
+    assertThat(result.getName()).isEqualTo(profile.getName());
+    assertThat(result.getKey()).isEqualTo(profile.getKey());
+    assertThat(result.getLanguage()).isEqualTo(profile.getLanguage());
+    assertThat(result.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
+  }
+
+  @Test
+  public void should_not_find_by_language_in_wrong_organization() {
+    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid());
+    underTest.insert(dbSession, profile);
+
+    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, OrganizationTesting.newOrganizationDto(), profile.getLanguage());
+    assertThat(results).isEmpty();
+  }
+
+  @Test
+  public void should_not_find_by_language_with_wrong_language() {
+    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid());
+    underTest.insert(dbSession, profile);
+
+    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, organization, "another language");
+    assertThat(results).isEmpty();
   }
 
   @Test

@@ -45,7 +45,6 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileService;
@@ -75,7 +74,7 @@ public class InheritanceActionTest {
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient;
   private DbSession dbSession;
@@ -100,9 +99,8 @@ public class InheritanceActionTest {
       dbClient,
       new QProfileLookup(dbClient),
       new ActiveRuleIndex(esClient),
-      new QProfileFactory(dbClient),
-      new Languages(),
-      defaultOrganizationProvider
+      new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
+      new Languages()
     );
     wsActionTester = new WsActionTester(underTest);
     ruleActivator = new RuleActivator(
@@ -112,16 +110,16 @@ public class InheritanceActionTest {
       new RuleActivatorContextFactory(dbClient),
       new TypeValidations(new ArrayList<>()),
       activeRuleIndexer,
-      userSessionRule
+      userSession
     );
     service = new QProfileService(
       dbClient,
       activeRuleIndexer,
       ruleActivator,
-      userSessionRule,
+      userSession,
       defaultOrganizationProvider
     );
-    organization = dbTester.getDefaultOrganization();
+    organization = dbTester.organizations().insert();
   }
 
   @Test
@@ -161,7 +159,6 @@ public class InheritanceActionTest {
     String response = wsActionTester.newRequest()
       .setMethod("GET")
       .setParam("profileKey", buWide.getKee())
-      .setParam("organization", organization.getKey())
       .execute()
       .getInput();
 
@@ -190,7 +187,7 @@ public class InheritanceActionTest {
 
   @Test
   public void stat_for_all_profiles() {
-    userSessionRule.logIn()
+    userSession.logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
 
     String language = randomAlphanumeric(20);
@@ -209,11 +206,17 @@ public class InheritanceActionTest {
     dbClient.ruleDao().insert(dbSession, rule);
     dbSession.commit();
 
+    userSession.logIn()
+      .addPermission(ADMINISTER_QUALITY_PROFILES, dbTester.getDefaultOrganization().getUuid());
+
     service.activate(profile1.getKey(), new RuleActivation(rule.getKey()).setSeverity("MINOR"));
     service.activate(profile2.getKey(), new RuleActivation(rule.getKey()).setSeverity("BLOCKER"));
     activeRuleIndexer.index();
 
-    Map<String, Multimap<String, FacetValue>> stats = underTest.getAllProfileStats();
+    userSession.logIn()
+      .addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
+
+    Map<String, Multimap<String, FacetValue>> stats = underTest.getAllProfileStats(dbSession, organization);
 
     assertThat(stats.size()).isEqualTo(2);
     assertThat(stats.get(profile1.getKey()).size()).isEqualTo(3);
