@@ -22,9 +22,12 @@ package org.sonarqube.ws.client.organization;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class OrganizationServiceTest {
@@ -33,6 +36,23 @@ public class OrganizationServiceTest {
   public ServiceTester<OrganizationService> serviceTester = new ServiceTester<>(new OrganizationService(mock(WsConnector.class)));
 
   private OrganizationService underTest = serviceTester.getInstanceUnderTest();
+
+  @Test
+  public void search() {
+    underTest.search(SearchWsRequest.builder()
+      .setOrganizations("orga1", "orga2")
+      .setPage(2)
+      .setPageSize(10)
+      .build());
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(Organizations.SearchWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam("organizations", "orga1,orga2")
+      .hasParam("p", 2)
+      .hasParam("ps", 10)
+      .andNoOtherParam();
+  }
 
   @Test
   public void add_member() {
