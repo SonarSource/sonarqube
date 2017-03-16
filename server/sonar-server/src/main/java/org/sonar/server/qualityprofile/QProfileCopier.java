@@ -51,14 +51,13 @@ public class QProfileCopier {
     this.temp = temp;
   }
 
-  public QualityProfileDto copyToName(DbSession dbSession, String fromKey, String toName) {
-    QualityProfileDto from = db.qualityProfileDao().selectOrFailByKey(dbSession, fromKey);
-    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, from.getOrganizationUuid())
-      .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + from.getOrganizationUuid() + "] does not exist"));
-    QualityProfileDto to = prepareTarget(dbSession, organization, from, toName);
+  public QualityProfileDto copyToName(DbSession dbSession, QualityProfileDto sourceProfile, String toName) {
+    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, sourceProfile.getOrganizationUuid())
+      .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + sourceProfile.getOrganizationUuid() + "] does not exist"));
+    QualityProfileDto to = prepareTarget(dbSession, organization, sourceProfile, toName);
     File backupFile = temp.newFile();
     try {
-      backup(dbSession, from, backupFile);
+      backup(dbSession, sourceProfile, backupFile);
       restore(dbSession, backupFile, to);
       return to;
     } finally {
@@ -66,13 +65,13 @@ public class QProfileCopier {
     }
   }
 
-  private QualityProfileDto prepareTarget(DbSession dbSession, OrganizationDto organization, QualityProfileDto from, String toName) {
-    QProfileName toProfileName = new QProfileName(from.getLanguage(), toName);
-    verify(from, toProfileName);
+  private QualityProfileDto prepareTarget(DbSession dbSession, OrganizationDto organization, QualityProfileDto sourceProfile, String toName) {
+    QProfileName toProfileName = new QProfileName(sourceProfile.getLanguage(), toName);
+    verify(sourceProfile, toProfileName);
     QualityProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(organization, toProfileName.getName(), toProfileName.getLanguage(), dbSession);
     if (toProfile == null) {
       toProfile = factory.checkAndCreate(dbSession, organization, toProfileName);
-      toProfile.setParentKee(from.getParentKee());
+      toProfile.setParentKee(sourceProfile.getParentKee());
       db.qualityProfileDao().update(dbSession, toProfile);
       dbSession.commit();
     }

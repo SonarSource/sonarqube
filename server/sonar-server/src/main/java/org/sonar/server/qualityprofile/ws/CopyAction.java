@@ -28,8 +28,10 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
+import org.sonar.server.user.UserSession;
 
 public class CopyAction implements QProfileWsAction {
 
@@ -39,29 +41,31 @@ public class CopyAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileCopier profileCopier;
   private final Languages languages;
-  private final QProfileWsSupport qProfileWsSupport;
+  private final UserSession userSession;
+  private final QProfileWsSupport wsSupport;
 
-  public CopyAction(DbClient dbClient, QProfileCopier profileCopier, Languages languages, QProfileWsSupport qProfileWsSupport) {
+  public CopyAction(DbClient dbClient, QProfileCopier profileCopier, Languages languages, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.profileCopier = profileCopier;
     this.languages = languages;
-    this.qProfileWsSupport = qProfileWsSupport;
+    this.userSession = userSession;
+    this.wsSupport = wsSupport;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction setDefault = controller.createAction("copy")
+    NewAction action = controller.createAction("copy")
         .setSince("5.2")
         .setDescription("Copy a quality profile. Require Administer Quality Profiles permission.")
         .setPost(true)
         .setHandler(this);
 
-    setDefault.createParam(PARAM_PROFILE_NAME)
+    action.createParam(PARAM_PROFILE_NAME)
         .setDescription("The name for the new quality profile.")
         .setExampleValue("My Sonar way")
         .setRequired(true);
 
-    setDefault.createParam(PARAM_PROFILE_KEY)
+    action.createParam(PARAM_PROFILE_KEY)
         .setDescription("The key of a quality profile.")
         .setExampleValue(Uuids.UUID_EXAMPLE_01)
         .setRequired(true);
@@ -69,13 +73,16 @@ public class CopyAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    qProfileWsSupport.checkQProfileAdminPermission();
+    userSession.checkLoggedIn();
 
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto copiedProfile = profileCopier.copyToName(dbSession, profileKey, newName);
+      QualityProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
+      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, sourceProfile.getOrganizationUuid());
+
+      QualityProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
 
       String languageKey = copiedProfile.getLanguage();
       Language language = languages.get(copiedProfile.getLanguage());
