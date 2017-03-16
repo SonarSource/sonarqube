@@ -35,6 +35,7 @@ public class OrganizationsWsModule extends Module {
       EnableSupportAction.class,
       RemoveMemberAction.class,
       SearchAction.class,
+      SearchMembersAction.class,
       SearchMyOrganizationsAction.class,
       UpdateAction.class);
   }
