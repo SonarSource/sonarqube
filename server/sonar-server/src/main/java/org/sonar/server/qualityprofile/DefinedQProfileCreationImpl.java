@@ -58,6 +58,5 @@ public class DefinedQProfileCreationImpl implements DefinedQProfileCreation {
 
     LoadedTemplateDto template = new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType());
     dbClient.loadedTemplateDao().insert(template, session);
-    session.commit();
   }
 }

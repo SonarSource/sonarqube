@@ -27,6 +27,8 @@ public interface DefinedQProfileCreation {
   /**
    * Persists the specified {@link DefinedQProfile} of the specified organization and adds any {@link ActiveRuleChange}
    * to the specified list.
+   *
+   * The session is not commit.
    */
   void create(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes);
 }
