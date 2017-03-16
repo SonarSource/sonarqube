@@ -19,6 +19,8 @@
  */
 package org.sonar.db.rule;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbTester;
 
 public class RuleDbTester {
@@ -33,5 +35,15 @@ public class RuleDbTester {
     db.getDbClient().ruleDao().insert(db.getSession(), ruleDto);
     db.commit();
     return ruleDto;
+  }
+
+  public RuleParamDto insertRuleParam(RuleDto rule) {
+    RuleParamDto param = new RuleParamDto();
+    param.setRuleId(rule.getId());
+    param.setName(RandomStringUtils.random(10));
+    param.setType(RuleParamType.STRING.type());
+    db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule, param);
+    db.commit();
+    return param;
   }
 }

@@ -19,10 +19,12 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -43,14 +45,23 @@ public class QProfileChangeDao implements Dao {
 
     dto.setKey(uuidFactory.create());
     dto.setCreatedAt(system2.now());
-    dbSession.getMapper(QProfileChangeMapper.class).insert(dto);
+    mapper(dbSession).insert(dto);
   }
 
   public List<QProfileChangeDto> selectByQuery(DbSession dbSession, QProfileChangeQuery query) {
-    return dbSession.getMapper(QProfileChangeMapper.class).selectByQuery(query);
+    return mapper(dbSession).selectByQuery(query);
   }
 
   public int countForProfileKey(DbSession dbSession, String profileKey) {
-    return dbSession.getMapper(QProfileChangeMapper.class).countForProfileKey(profileKey);
+    return mapper(dbSession).countForProfileKey(profileKey);
+  }
+
+  public void deleteByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+    QProfileChangeMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByProfileKeys);
+  }
+
+  private static QProfileChangeMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(QProfileChangeMapper.class);
   }
 }

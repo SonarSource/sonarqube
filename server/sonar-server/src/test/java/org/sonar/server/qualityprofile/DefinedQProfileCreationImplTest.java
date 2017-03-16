@@ -48,6 +48,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
@@ -75,10 +76,10 @@ public class DefinedQProfileCreationImplTest {
   private UuidFactory mockedUuidFactory = mock(UuidFactory.class);
   private System2 mockedSystem2 = mock(System2.class);
   private CachingRuleActivator mockedCachingRuleActivator = mock(CachingRuleActivator.class);
-
+  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private DefinedQProfileCreationImpl underTest = new DefinedQProfileCreationImpl(
     dbClient,
-    new QProfileFactory(dbClient, mockedUuidFactory, mockedSystem2),
+    new QProfileFactory(dbClient, mockedUuidFactory, mockedSystem2, activeRuleIndexer),
     mockedCachingRuleActivator);
   private List<ActiveRuleChange> activeRuleChanges = new ArrayList<>();
 

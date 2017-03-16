@@ -51,6 +51,12 @@
     DELETE FROM rules_profiles WHERE id=#{id}
   </update>
 
+  <update id="deleteByKeys" parameterType="String">
+    delete from rules_profiles
+    where kee in
+      <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
+  </update>
+
   <select id="selectAll" parameterType="map" resultType="QualityProfile">
     SELECT
     <include refid="profilesColumns"/>
@@ -244,6 +250,14 @@
 
   <update id="deleteProjectProfileAssociation">
     DELETE FROM project_qprofiles WHERE project_uuid=#{projectUuid} AND profile_key=#{profileKey}
+  </update>
+
+  <update id="deleteProjectAssociationByProfileKeys" parameterType="String">
+    delete from project_qprofiles
+    where profile_key in
+    <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
+      #{profileKey, jdbcType=VARCHAR}
+    </foreach>
   </update>
 
   <update id="deleteAllProjectProfileAssociation">

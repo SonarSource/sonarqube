@@ -30,6 +30,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -212,6 +213,19 @@ public class QProfileChangeDaoTest {
 
     assertThat(underTest.countForProfileKey(dbSession, "P1")).isEqualTo(2);
     assertThat(underTest.countForProfileKey(dbSession, "P2")).isEqualTo(0);
+  }
+
+  @Test
+  public void delete() {
+    when(uuidFactory.create()).thenReturn("C1", "C2", "C3");
+    insertChange("P1", "ACTIVATED", null, null);// key: C1
+    insertChange("P1", "ACTIVATED", null, null);// key: C2
+    insertChange("P2", "ACTIVATED", null, null);// key: C3
+
+    underTest.deleteByProfileKeys(dbSession, asList("P1", "does_not_exist"));
+
+    assertThat(underTest.countForProfileKey(dbSession, "P1")).isEqualTo(0);
+    assertThat(underTest.countForProfileKey(dbSession, "P2")).isEqualTo(1);
   }
 
   private void insertChange(String profileKey, String type, @Nullable String login, @Nullable String data) {

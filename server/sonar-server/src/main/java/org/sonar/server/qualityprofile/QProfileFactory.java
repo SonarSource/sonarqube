@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +35,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -46,11 +48,13 @@ public class QProfileFactory {
   private final DbClient db;
   private final UuidFactory uuidFactory;
   private final System2 system2;
+  private final ActiveRuleIndexer activeRuleIndexer;
 
-  public QProfileFactory(DbClient db, UuidFactory uuidFactory, System2 system2) {
+  public QProfileFactory(DbClient db, UuidFactory uuidFactory, System2 system2, ActiveRuleIndexer activeRuleIndexer) {
     this.db = db;
     this.uuidFactory = uuidFactory;
     this.system2 = system2;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   // ------------- CREATION
@@ -108,10 +112,13 @@ public class QProfileFactory {
   // ------------- DELETION
 
   /**
+   * Delete the profile with specified key and all its descendants from database. Elasticsearch
+   * is not touched and still needs to be clean-up.
+   *
    * Session is NOT committed. Profiles marked as "default" for a language can't be deleted,
    * except if the parameter <code>force</code> is true.
    */
-  public List<ActiveRuleChange> delete(DbSession session, String key, boolean force) {
+  public List<ActiveRuleChange> deleteTree(DbSession session, String key, boolean force) {
     QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(session, key);
     List<QualityProfileDto> descendants = db.qualityProfileDao().selectDescendants(session, key);
     if (!force) {
@@ -138,6 +145,24 @@ public class QProfileFactory {
     }
     db.qualityProfileDao().delete(session, profile.getId());
     return changes;
+  }
+
+  /**
+   * Deletes the profiles with specified keys from database and Elasticsearch.
+   * All related information are deleted. The profiles marked as "default"
+   * are deleted too. Deleting a parent profile does not delete descendants
+   * if their keys are not listed.
+   */
+  public void deleteByKeys(DbSession dbSession, Collection<String> profileKeys) {
+    if (!profileKeys.isEmpty()) {
+      db.qualityProfileDao().deleteProjectAssociationsByProfileKeys(dbSession, profileKeys);
+      db.activeRuleDao().deleteParametersByProfileKeys(dbSession, profileKeys);
+      db.activeRuleDao().deleteByProfileKeys(dbSession, profileKeys);
+      db.qProfileChangeDao().deleteByProfileKeys(dbSession, profileKeys);
+      db.qualityProfileDao().deleteByKeys(dbSession, profileKeys);
+      dbSession.commit();
+      activeRuleIndexer.deleteByProfileKeys(profileKeys);
+    }
   }
 
   // ------------- DEFAULT PROFILE

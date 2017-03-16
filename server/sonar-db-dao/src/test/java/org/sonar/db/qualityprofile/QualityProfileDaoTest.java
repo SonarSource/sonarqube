@@ -19,8 +19,11 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +37,7 @@ import org.sonar.db.organization.OrganizationTesting;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +62,12 @@ public class QualityProfileDaoTest {
   public void before() {
     when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-01-20T12:00:00+0000").getTime());
     organization = dbTester.organizations().insertForUuid("QualityProfileDaoTest-ORG");
+  }
+
+  @After
+  public void tearDown() {
+    // minor optimization, no need to commit pending operations
+    dbSession.rollback();
   }
 
   @Test
@@ -101,6 +111,58 @@ public class QualityProfileDaoTest {
     dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "delete-result.xml", "rules_profiles");
+  }
+
+  @Test
+  public void test_deleteByKeys() {
+    QualityProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    QualityProfileDto p2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    QualityProfileDto p3 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+
+    underTest.deleteByKeys(dbSession, asList(p1.getKey(), p3.getKey(), "does_not_exist"));
+
+    List<Map<String, Object>> keysInDb = dbTester.select(dbSession, "select kee as \"key\" from rules_profiles");
+    assertThat(keysInDb).hasSize(1);
+    assertThat(keysInDb.get(0).get("key")).isEqualTo(p2.getKey());
+  }
+
+  @Test
+  public void deleteByKeys_does_nothing_if_empty_keys() {
+    QualityProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+
+    underTest.deleteByKeys(dbSession, Collections.emptyList());
+
+    assertThat(dbTester.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteProjectAssociationsByProfileKeys_does_nothing_if_empty_keys() {
+    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    ComponentDto project1 = dbTester.components().insertProject();
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profile1);
+
+    underTest.deleteProjectAssociationsByProfileKeys(dbSession, Collections.emptyList());
+
+    assertThat(dbTester.countRowsOfTable(dbSession, "project_qprofiles")).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteProjectAssociationsByProfileKeys_deletes_rows_from_table_project_profiles() {
+    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    QualityProfileDto profile2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    ComponentDto project1 = dbTester.components().insertProject();
+    ComponentDto project2 = dbTester.components().insertProject();
+    ComponentDto project3 = dbTester.components().insertProject();
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profile1);
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profile1);
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project3, profile2);
+
+    underTest.deleteProjectAssociationsByProfileKeys(dbSession, asList(profile1.getKey(), "does_not_exist"));
+
+    List<Map<String, Object>> rows = dbTester.select(dbSession, "select project_uuid as \"projectUuid\", profile_key as \"profileKey\" from project_qprofiles");
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).get("projectUuid")).isEqualTo(project3.uuid());
+    assertThat(rows.get(0).get("profileKey")).isEqualTo(profile2.getKey());
   }
 
   @Test

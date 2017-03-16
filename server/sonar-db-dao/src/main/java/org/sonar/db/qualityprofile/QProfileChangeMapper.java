@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,4 +30,6 @@ public interface QProfileChangeMapper {
   List<QProfileChangeDto> selectByQuery(@Param("query") QProfileChangeQuery query);
 
   int countForProfileKey(@Param("profileKey") String profileKey);
+
+  void deleteByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
 }
