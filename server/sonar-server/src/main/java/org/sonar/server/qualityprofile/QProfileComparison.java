@@ -49,10 +49,6 @@ public class QProfileComparison {
   }
 
   public QProfileComparisonResult compare(DbSession dbSession, QualityProfileDto left, QualityProfileDto right) {
-    QProfileComparisonResult result = new QProfileComparisonResult();
-    result.left = left;
-    result.right = right;
-
     Map<RuleKey, ActiveRuleDto> leftActiveRulesByRuleKey = loadActiveRules(dbSession, left);
     Map<RuleKey, ActiveRuleDto> rightActiveRulesByRuleKey = loadActiveRules(dbSession, right);
 
@@ -60,6 +56,7 @@ public class QProfileComparison {
     allRules.addAll(leftActiveRulesByRuleKey.keySet());
     allRules.addAll(rightActiveRulesByRuleKey.keySet());
 
+    QProfileComparisonResult result = new QProfileComparisonResult(left, right);
     for (RuleKey ruleKey : allRules) {
       if (!leftActiveRulesByRuleKey.containsKey(ruleKey)) {
         result.inRight.put(ruleKey, rightActiveRulesByRuleKey.get(ruleKey));
@@ -95,12 +92,17 @@ public class QProfileComparison {
 
   public static class QProfileComparisonResult {
 
-    private QualityProfileDto left;
-    private QualityProfileDto right;
-    private Map<RuleKey, ActiveRuleDto> inLeft = Maps.newHashMap();
-    private Map<RuleKey, ActiveRuleDto> inRight = Maps.newHashMap();
-    private Map<RuleKey, ActiveRuleDiff> modified = Maps.newHashMap();
-    private Map<RuleKey, ActiveRuleDto> same = Maps.newHashMap();
+    private final QualityProfileDto left;
+    private final QualityProfileDto right;
+    private final Map<RuleKey, ActiveRuleDto> inLeft = Maps.newHashMap();
+    private final Map<RuleKey, ActiveRuleDto> inRight = Maps.newHashMap();
+    private final Map<RuleKey, ActiveRuleDiff> modified = Maps.newHashMap();
+    private final Map<RuleKey, ActiveRuleDto> same = Maps.newHashMap();
+
+    public QProfileComparisonResult(QualityProfileDto left, QualityProfileDto right) {
+      this.left = left;
+      this.right = right;
+    }
 
     public QualityProfileDto left() {
       return left;
