@@ -120,7 +120,9 @@ public class UpgradeTest {
 
   private void upgrade(Version sqVersion) {
     checkSystemStatus(sqVersion, ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
-    checkUrlsBeforeUpgrade();
+    if (sqVersion.equals(VERSION_CURRENT)) {
+      checkUrlsBeforeUpgrade();
+    }
     ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
     assertThat(serverMigrationResponse.getStatus())
       .describedAs("Migration status of version " + sqVersion + " should be MIGRATION_SUCCEEDED")
