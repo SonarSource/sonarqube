@@ -101,7 +101,7 @@ public class RegisterRulesMediumTest {
       dbSession.close();
     }
     RULE_DEFS.set(rules);
-    TESTER.get(Platform.class).executeStartupTasks();
+    TESTER.get(Platform.class).restart();
     db = TESTER.get(DbClient.class);
     dbSession = TESTER.get(DbClient.class).openSession(false);
     dbSession.clearCache();

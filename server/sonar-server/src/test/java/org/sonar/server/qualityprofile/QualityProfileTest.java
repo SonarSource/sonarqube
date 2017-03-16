@@ -76,6 +76,5 @@ public class QualityProfileTest {
   @Test
   public void verify_toString() {
     assertThat(QUALITY_PROFILE.toString()).isEqualTo("QualityProfile{key=qpKey, name=qpName, language=languageKey, rulesUpdatedAt=1274194245000}");
-
   }
 }
