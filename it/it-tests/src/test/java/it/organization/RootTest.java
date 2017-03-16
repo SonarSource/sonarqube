@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category3Suite;
 import java.sql.SQLException;
 import java.util.Collections;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,8 +44,8 @@ public class RootTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  @After
-  public void tearDown() {
+  @Before
+  public void before() {
     orchestrator.resetData();
   }
 

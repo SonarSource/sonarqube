@@ -34,9 +34,10 @@ import it.analysis.ScannerTest;
 import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
-import it.plugins.VersionPluginTest;
+import it.organization.IssueAssignTest;
 import it.organization.OrganizationTest;
 import it.organization.RootTest;
+import it.plugins.VersionPluginTest;
 import it.webhook.WebhooksTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -66,6 +67,7 @@ import static util.ItUtils.xooPlugin;
   DecimalScaleMetricTest.class,
   // organization
   OrganizationTest.class,
+  IssueAssignTest.class,
   // root users
   RootTest.class,
   WebhooksTest.class
