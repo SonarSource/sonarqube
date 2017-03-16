@@ -64,6 +64,7 @@ public class QProfileCopierMediumTest {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private OrganizationDto organization;
+  private QualityProfileDto sourceProfile;
 
   @Before
   public void before() {
@@ -85,7 +86,8 @@ public class QProfileCopierMediumTest {
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
 
     // create pre-defined profile
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(organization));
+    sourceProfile = QProfileTesting.newXooP1(organization);
+    db.qualityProfileDao().insert(dbSession, sourceProfile);
     dbSession.commit();
     dbSession.clearCache();
     ruleIndexer.index();
@@ -108,7 +110,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // target does not exist
-    copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
+    copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_NAME, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
   }
@@ -138,7 +140,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // copy -> reset x1 and deactivate x2
-    copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
+    copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
   }
@@ -158,7 +160,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     // copy child -> profile2 is created with parent P1
-    copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
+    copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
     QualityProfileDto profile2Dto = db.qualityProfileDao().selectByKey(dbSession, QProfileTesting.XOO_P2_KEY);
@@ -176,7 +178,7 @@ public class QProfileCopierMediumTest {
     activeRuleIndexer.index();
 
     try {
-      copier.copyToName(dbSession, QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P1_NAME.getName());
+      copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P1_NAME.getName());
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Source and target profiles are equal: P1");
