@@ -58,7 +58,7 @@ export default class LanguagesFilter extends React.PureComponent {
   }
 
   getSortedOptions (facet: {} = {}) {
-    return sortBy(Object.keys(facet), [option => -facet[option]]);
+    return sortBy(Object.keys(facet), [option => -facet[option], option => option]);
   }
 
   getFacetValueForOption = (facet: {} = {}, option: string) => facet[option];
