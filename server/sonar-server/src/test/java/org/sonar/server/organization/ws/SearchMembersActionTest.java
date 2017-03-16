@@ -17,23 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.organization.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class OrganizationsWsModuleTest {
-  private OrganizationsWsModule underTest = new OrganizationsWsModule();
+public class SearchMembersActionTest {
+
+  private WsActionTester ws = new WsActionTester(new SearchMembersAction());
 
   @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-    underTest.configure(container);
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 11);
-  }
+  public void definition() {
+    WebService.Action action = ws.getDef();
 
+    assertThat(action.key()).isEqualTo("search_members");
+    assertThat(action.params()).extracting(WebService.Param::key)
+      .containsOnly("q", "selected", "p", "ps", "organization");
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.since()).isEqualTo("6.4");
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isFalse();
+  }
 }
