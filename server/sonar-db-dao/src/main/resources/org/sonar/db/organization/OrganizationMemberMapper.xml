@@ -36,4 +36,10 @@
     organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and user_id = #{userId, jdbcType=INTEGER}
   </delete>
+
+  <delete id="deleteByOrganization">
+    delete from organization_members
+    where
+    organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </delete>
 </mapper>

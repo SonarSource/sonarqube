@@ -34,8 +34,8 @@ import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_002;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -99,7 +99,7 @@ public class DeleteAction implements OrganizationsWsAction {
       deleteProjects(dbSession, organizationDto.getUuid());
       deletePermissions(dbSession, organizationDto.getUuid());
       deleteGroups(dbSession, organizationDto.getUuid());
-      deleteOrganization(key, dbSession);
+      deleteOrganization(organizationDto, dbSession);
 
       response.noContent();
     }
@@ -124,8 +124,9 @@ public class DeleteAction implements OrganizationsWsAction {
     dbSession.commit();
   }
 
-  private void deleteOrganization(String key, DbSession dbSession) {
-    dbClient.organizationDao().deleteByKey(dbSession, key);
+  private void deleteOrganization(OrganizationDto organizationDto, DbSession dbSession) {
+    dbClient.organizationMemberDao().deleteByOrganization(dbSession, organizationDto.getUuid());
+    dbClient.organizationDao().deleteByKey(dbSession, organizationDto.getKey());
     dbSession.commit();
   }
 
