@@ -121,12 +121,7 @@ public class MetricDao implements Dao {
   }
 
   public void disableCustomByIds(final DbSession session, List<Integer> ids) {
-    executeLargeInputsWithoutOutput(
-      ids,
-      input -> {
-        mapper(session).disableByIds(input);
-        return null;
-      });
+    executeLargeInputsWithoutOutput(ids, input -> mapper(session).disableByIds(input));
   }
 
   /**

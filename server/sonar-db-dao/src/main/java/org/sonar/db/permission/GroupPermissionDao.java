@@ -76,7 +76,6 @@ public class GroupPermissionDao implements Dao {
       partitionedComponentIds -> {
         parameters.put("componentIds", partitionedComponentIds);
         mapper(dbSession).groupsCountByProjectIdAndPermission(parameters, resultHandler);
-        return null;
       });
   }
 
