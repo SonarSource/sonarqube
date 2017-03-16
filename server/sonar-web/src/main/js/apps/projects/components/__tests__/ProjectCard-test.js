@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCard from '../ProjectCard';
 
-const PROJECT = { analysisDate: '2017-01-01', key: 'foo', name: 'Foo' };
+const PROJECT = { analysisDate: '2017-01-01', key: 'foo', name: 'Foo', tags: [] };
 const MEASURES = {};
 
 it('should display analysis date', () => {
@@ -47,5 +47,5 @@ it('should display loading', () => {
 
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
-  expect(shallow(<ProjectCard project={project}/>)).toMatchSnapshot();
+  expect(shallow(<ProjectCard project={project} />)).toMatchSnapshot();
 });

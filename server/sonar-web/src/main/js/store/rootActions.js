@@ -19,6 +19,7 @@
  */
 import { getLanguages } from '../api/languages';
 import { getGlobalNavigation, getComponentNavigation } from '../api/nav';
+import { getComponentTags } from '../api/components';
 import * as auth from '../api/auth';
 import { getOrganizations } from '../api/organizations';
 import { receiveLanguages } from './languages/actions';
@@ -57,7 +58,8 @@ const addQualifier = project => ({
 
 export const fetchProject = key =>
   dispatch =>
-    getComponentNavigation(key).then(component => {
+    Promise.all([getComponentNavigation(key), getComponentTags(key)]).then(([component, tags]) => {
+      component.tags = tags;
       dispatch(receiveComponents([addQualifier(component)]));
       if (component.organization != null) {
         dispatch(fetchOrganizations([component.organization]));

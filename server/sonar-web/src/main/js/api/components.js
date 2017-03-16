@@ -107,18 +107,24 @@ export function getTree(component: string, options?: Object = {}) {
   return getJSON(url, data);
 }
 
-export function getParents({ id, key }: { id: string, key: string }) {
+export function getComponentShow(component: string) {
   const url = '/api/components/show';
-  const data = id ? { id } : { key };
-  return getJSON(url, data).then(r => r.ancestors);
+  return getJSON(url, { component });
+}
+
+export function getParents(component: string) {
+  return getComponentShow(component).then(r => r.ancestors);
 }
 
 export function getBreadcrumbs(component: string) {
-  const url = '/api/components/show';
-  return getJSON(url, { component }).then(r => {
+  return getComponentShow(component).then(r => {
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
   });
+}
+
+export function getComponentTags(component: string) {
+  return getComponentShow(component).then(r => r.component.tags || []);
 }
 
 export function getMyProjects(data?: Object) {

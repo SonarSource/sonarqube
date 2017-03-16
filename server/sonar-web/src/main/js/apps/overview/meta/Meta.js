@@ -58,7 +58,7 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
 
       <div className="overview-meta-card">
         <TagsList
-          tags={component.tags && component.tags.length ? component.tags : [translate('no_tags')]}
+          tags={component.tags.length ? component.tags : [translate('no_tags')]}
           allowUpdate={configuration.showSettings}
           allowMultiLine={true}
         />

@@ -37,9 +37,9 @@ export default class ProjectCard extends React.PureComponent {
       analysisDate?: string,
       key: string,
       name: string,
+      tags: Array<string>,
       isFavorite?: boolean,
-      organization?: string,
-      tags?: Array<string>
+      organization?: string
     }
   };
 
@@ -78,7 +78,7 @@ export default class ProjectCard extends React.PureComponent {
               {project.name}
             </Link>
           </h2>
-          { project.tags && project.tags.length > 0 && <TagsList tags={project.tags}/> }
+          {project.tags.length > 0 && <TagsList tags={project.tags} />}
         </div>
 
         {isProjectAnalyzed

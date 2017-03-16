@@ -36,7 +36,7 @@ export default class TagsList extends React.PureComponent {
     allowMultiLine: false
   };
 
-  render () {
+  render() {
     const { tags, allowUpdate } = this.props;
     const spanClass = classNames('note', {
       'text-ellipsis': !this.props.allowMultiLine
@@ -44,9 +44,9 @@ export default class TagsList extends React.PureComponent {
 
     return (
       <span className="tags-list" title={tags.join(', ')}>
-        <i className="icon-tags icon-half-transparent"/>
+        <i className="icon-tags icon-half-transparent" />
         <span className={spanClass}>{tags.join(', ')}</span>
-        {allowUpdate && <i className="icon-dropdown icon-half-transparent"/>}
+        {allowUpdate && <i className="icon-dropdown icon-half-transparent" />}
       </span>
     );
   }
