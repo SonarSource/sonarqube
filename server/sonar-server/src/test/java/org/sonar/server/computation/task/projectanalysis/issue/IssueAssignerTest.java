@@ -100,7 +100,7 @@ public class IssueAssignerTest {
   public void set_default_assignee_if_author_not_found() throws Exception {
     addScmUser("john", null);
     setSingleChangeset("john", 123456789L, "rev-1");
-    when(defaultAssignee.getLogin()).thenReturn("John C");
+    when(defaultAssignee.loadDefaultAssigneeLogin()).thenReturn("John C");
     DefaultIssue issue = new DefaultIssue().setLine(1);
 
     underTest.onIssue(FILE, issue);
