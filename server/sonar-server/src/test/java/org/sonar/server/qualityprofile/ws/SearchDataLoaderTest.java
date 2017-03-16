@@ -19,79 +19,156 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 
 public class SearchDataLoaderTest {
 
   @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @Test
-  public void name_and_default_query_is_valid() throws Exception {
-    SearchWsRequest request = new SearchWsRequest()
-      .setProfileName("bla")
-      .setDefaults(true);
+  private Languages languages;
+  private QProfileLookup profileLookup;
+  private QProfileFactory profileFactory;
+  private ComponentFinder componentFinder;
+  private ActiveRuleIndex activeRuleIndex;
+  private QProfileWsSupport qProfileWsSupport;
+  private OrganizationDto organization;
 
-    SearchDataLoader.validateRequest(request);
+  @Before
+  public void before() {
+    organization = dbTester.organizations().insert();
+    languages = new Languages();
+    DbClient dbClient = dbTester.getDbClient();
+    profileLookup = new QProfileLookup(dbClient);
+    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+    qProfileWsSupport = new QProfileWsSupport(dbClient, null, defaultOrganizationProvider);
+    profileFactory = new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), new AlwaysIncreasingSystem2());
+    componentFinder = mock(ComponentFinder.class);
   }
 
   @Test
-  public void name_and_component_query_is_valid() throws Exception {
-    SearchWsRequest request = new SearchWsRequest()
-      .setProfileName("bla")
-      .setProjectKey("blubb");
-
-    SearchDataLoader.validateRequest(request);
+  public void find_no_profiles_if_database_is_empty() throws Exception {
+    assertThat(findProfiles(
+      new SearchWsRequest()
+    )).isEmpty();
   }
 
   @Test
-  public void name_requires_either_component_or_defaults() throws Exception {
-    SearchWsRequest request = new SearchWsRequest()
-      .setProfileName("bla");
-
-    thrown.expect(BadRequestException.class);
-    thrown.expectMessage("The name parameter requires either projectKey or defaults to be set.");
-
-    SearchDataLoader.validateRequest(request);
+  public void findAll_in_default_organization() throws Exception {
+    insertQualityProfile(dbTester.getDefaultOrganization());
+    assertThat(findProfiles(
+      new SearchWsRequest()
+    )).hasSize(1);
   }
 
   @Test
-  public void default_and_component_cannot_be_set_at_same_time() throws Exception {
-    SearchWsRequest request = new SearchWsRequest()
-      .setDefaults(true)
-      .setProjectKey("blubb");
-
-    thrown.expect(BadRequestException.class);
-    thrown.expectMessage("The default parameter cannot be provided at the same time than the component key.");
-
-    SearchDataLoader.validateRequest(request);
+  public void findAll_in_specific_organization() throws Exception {
+    insertQualityProfile(organization);
+    assertThat(findProfiles(
+      new SearchWsRequest()
+        .setOrganizationKey(organization.getKey())
+    )).hasSize(1);
   }
 
   @Test
-  public void language_and_component_cannot_be_set_at_same_time() throws Exception {
-    SearchWsRequest request = new SearchWsRequest()
-      .setLanguage("xoo")
-      .setProjectKey("bla");
-
-    thrown.expect(BadRequestException.class);
-    thrown.expectMessage("The language parameter cannot be provided at the same time than the component key or profile name.");
-
-    SearchDataLoader.validateRequest(request);
+  public void findDefaults_in_specific_organization() throws Exception {
+    insertQualityProfile(organization, dto -> dto.setDefault(true));
+    assertThat(findProfiles(
+      new SearchWsRequest()
+        .setOrganizationKey(organization.getKey())
+        .setDefaults(true)
+    )).hasSize(1);
   }
 
   @Test
-  public void language_and_name_cannot_be_set_at_same_time() throws Exception {
-    SearchWsRequest request = new SearchWsRequest()
-      .setLanguage("xoo")
-      .setProfileName("bla");
+  public void findForProject_in_specific_organization() throws Exception {
+    insertQualityProfile(organization, dto -> dto.setDefault(true));
+    ComponentDto project1 = insertProject();
+    assertThat(findProfiles(
+      new SearchWsRequest()
+        .setOrganizationKey(organization.getKey())
+        .setProjectKey(project1.getKey())
+    )).hasSize(1);
+  }
 
-    thrown.expect(BadRequestException.class);
-    thrown.expectMessage("The language parameter cannot be provided at the same time than the component key or profile name.");
+  @Test
+  public void findAllForLanguage_in_specific_organization() throws Exception {
+    QualityProfileDto qualityProfile = insertQualityProfile(organization, dto -> dto.setDefault(true));
+    assertThat(findProfiles(
+      new SearchWsRequest()
+        .setOrganizationKey(organization.getKey())
+        .setLanguage(qualityProfile.getLanguage())
+    )).hasSize(1);
+    assertThat(findProfiles(
+      new SearchWsRequest()
+        .setOrganizationKey(organization.getKey())
+        .setLanguage("other language")
+    )).hasSize(0);
+  }
 
-    SearchDataLoader.validateRequest(request);
+  private List<QProfile> findProfiles(SearchWsRequest request) {
+    return new SearchDataLoader(languages, profileLookup, profileFactory, dbTester.getDbClient(), componentFinder, qProfileWsSupport)
+      .findProfiles(dbTester.getSession(), request);
+  }
+
+  private QualityProfileDto insertQualityProfile(OrganizationDto organization, Consumer<QualityProfileDto>... specials) {
+    Language language = insertLanguage();
+    QualityProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setLanguage(language.getKey());
+    Arrays.stream(specials)
+      .forEachOrdered(c -> c.accept(qualityProfile));
+    dbTester.qualityProfiles().insertQualityProfile(qualityProfile);
+    return qualityProfile;
+  }
+
+  private Language insertLanguage() {
+    Language language = LanguageTesting.newLanguage(randomAlphanumeric(20));
+    languages.add(language);
+    return language;
+  }
+
+  private ComponentDto insertProject() {
+    ComponentDto project = dbTester.components().insertProject(organization);
+    doReturn(project).when(componentFinder).getByKey(any(DbSession.class), eq(project.getKey()));
+    return project;
   }
 }

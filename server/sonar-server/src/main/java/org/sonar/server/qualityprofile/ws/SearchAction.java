@@ -28,7 +28,10 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -37,17 +40,27 @@ import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.*;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 
 public class SearchAction implements QProfileWsAction {
 
   private final SearchDataLoader dataLoader;
   private final Languages languages;
+  private final ActiveRuleIndex activeRuleIndex;
+  private final DbClient dbClient;
 
-  public SearchAction(SearchDataLoader dataLoader, Languages languages) {
+  public SearchAction(SearchDataLoader dataLoader, Languages languages, ActiveRuleIndex activeRuleIndex, DbClient dbClient) {
     this.dataLoader = dataLoader;
     this.languages = languages;
+    this.activeRuleIndex = activeRuleIndex;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -95,7 +108,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
-    return  new SearchWsRequest()
+    return new SearchWsRequest()
       .setOrganizationKey(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setProfileName(request.param(PARAM_PROFILE_NAME))
@@ -105,8 +118,31 @@ public class SearchAction implements QProfileWsAction {
 
   @VisibleForTesting
   SearchWsResponse doHandle(SearchWsRequest request) {
-    SearchData data = dataLoader.load(request);
+    validateRequest(request);
+    SearchData data = load(request);
     return buildResponse(data);
+  }
+
+  private SearchData load(SearchWsRequest request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return new SearchData()
+        .setProfiles(dataLoader.findProfiles(dbSession, request))
+        .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
+        .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession));
+    }
+  }
+
+  private static void validateRequest(SearchWsRequest request) {
+    boolean hasLanguage = request.getLanguage() != null;
+    boolean isDefault = request.getDefaults();
+    boolean hasComponentKey = request.getProjectKey() != null;
+    boolean hasProfileName = request.getProfileName() != null;
+
+    checkRequest(!hasLanguage || (!hasComponentKey && !hasProfileName && !isDefault),
+      "The language parameter cannot be provided at the same time than the component key or profile name.");
+    checkRequest(!isDefault || !hasComponentKey, "The default parameter cannot be provided at the same time than the component key.");
+    checkRequest(!hasProfileName || hasComponentKey || isDefault, "The name parameter requires either projectKey or defaults to be set.");
   }
 
   private SearchWsResponse buildResponse(SearchData data) {

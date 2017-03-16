@@ -40,11 +40,9 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static java.lang.String.format;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class SearchDataLoader {
 
@@ -57,31 +55,16 @@ public class SearchDataLoader {
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
-  private final ActiveRuleIndex activeRuleIndex;
-
   private final QProfileWsSupport qProfileWsSupport;
 
   public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileFactory profileFactory, DbClient dbClient,
-    ComponentFinder componentFinder, ActiveRuleIndex activeRuleIndex, QProfileWsSupport qProfileWsSupport) {
+    ComponentFinder componentFinder, QProfileWsSupport qProfileWsSupport) {
     this.languages = languages;
     this.profileLookup = profileLookup;
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.activeRuleIndex = activeRuleIndex;
     this.qProfileWsSupport = qProfileWsSupport;
-  }
-
-  SearchData load(SearchWsRequest request) {
-    validateRequest(request);
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return new SearchData()
-        .setProfiles(findProfiles(dbSession, request))
-        .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
-        .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
-        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession));
-    }
   }
 
   @VisibleForTesting
@@ -204,32 +187,11 @@ public class SearchDataLoader {
       .collect(Collectors.toList());
   }
 
-  @VisibleForTesting
-  static void validateRequest(SearchWsRequest request) {
-    boolean hasLanguage = hasLanguage(request);
-    boolean isDefault = askDefaultProfiles(request);
-    boolean hasComponentKey = hasComponentKey(request);
-    boolean hasProfileName = hasProfileName(request);
-
-    checkRequest(!hasLanguage || (!hasComponentKey && !hasProfileName && !isDefault),
-      "The language parameter cannot be provided at the same time than the component key or profile name.");
-    checkRequest(!isDefault || !hasComponentKey, "The default parameter cannot be provided at the same time than the component key.");
-    checkRequest(!hasProfileName || hasComponentKey || isDefault, "The name parameter requires either projectKey or defaults to be set.");
-  }
-
   private static boolean askDefaultProfiles(SearchWsRequest request) {
     return request.getDefaults();
   }
 
-  private static boolean hasProfileName(SearchWsRequest request) {
-    return request.getProfileName() != null;
-  }
-
   private static boolean hasComponentKey(SearchWsRequest request) {
     return request.getProjectKey() != null;
-  }
-
-  private static boolean hasLanguage(SearchWsRequest request) {
-    return request.getLanguage() != null;
   }
 }
