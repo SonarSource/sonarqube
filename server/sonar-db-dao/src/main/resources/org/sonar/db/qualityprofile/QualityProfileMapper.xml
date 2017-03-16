@@ -153,15 +153,12 @@
     AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectProjects" resultType="Component">
-    SELECT projects.id as id, projects.name as name, projects.kee as kee, projects.uuid as uuid
-    FROM projects projects
-    JOIN project_qprofiles pp ON pp.project_uuid = projects.uuid
-    JOIN rules_profiles prof ON pp.profile_key = prof.kee
-    <where>
-      AND prof.name = #{profileName}
-      AND prof.language = #{language}
-    </where>
+  <select id="selectUuidsOfAssociatedProjects" resultType="String">
+    select p.uuid
+    from projects p
+    join project_qprofiles pq ON pq.project_uuid = p.uuid
+    join rules_profiles rp ON pq.profile_key = rp.kee
+    where rp.kee = #{profileKey, jdbcType=VARCHAR}
   </select>
 
   <select id="selectSelectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
