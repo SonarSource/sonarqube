@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -43,17 +42,15 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.search.FacetValue;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.rule.RuleTesting.newXooX1;
 import static org.sonar.db.rule.RuleTesting.newXooX2;
 import static org.sonar.db.rule.RuleTesting.newXooX3;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
@@ -69,7 +66,6 @@ public class QProfileServiceMediumTest {
   private DbClient dbClient;
   private DbSession dbSession;
   private QProfileService service;
-  private QProfileLoader loader;
   private ActiveRuleIndex activeRuleIndex;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
@@ -82,7 +78,6 @@ public class QProfileServiceMediumTest {
     dbClient = tester.get(DbClient.class);
     dbSession = dbClient.openSession(false);
     service = tester.get(QProfileService.class);
-    loader = tester.get(QProfileLoader.class);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     activeRuleIndex = tester.get(ActiveRuleIndex.class);
@@ -142,24 +137,6 @@ public class QProfileServiceMediumTest {
       .hasSize(2)
       .containsEntry(XOO_P1_KEY, 2L)
       .containsEntry(XOO_P2_KEY, 1L);
-  }
-
-  @Test
-  public void stat_for_all_profiles() {
-    logInAsQProfileAdministrator();
-
-    service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("MINOR"));
-    service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
-    dbSession.clearCache();
-    activeRuleIndexer.index();
-
-    Map<String, Multimap<String, FacetValue>> stats = loader.getAllProfileStats();
-
-    assertThat(stats.size()).isEqualTo(2);
-    assertThat(stats.get(XOO_P1_KEY).size()).isEqualTo(3);
-    assertThat(stats.get(XOO_P1_KEY).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).size()).isEqualTo(1);
-    assertThat(stats.get(XOO_P1_KEY).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).size()).isEqualTo(1);
-    assertThat(stats.get(XOO_P1_KEY).get("countActiveRules").size()).isEqualTo(1);
   }
 
   public static class XooExporter extends ProfileExporter {
