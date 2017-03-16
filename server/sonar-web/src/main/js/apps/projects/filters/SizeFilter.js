@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { FilterContainer } from './containers';
+import FilterContainer from './FilterContainer';
+import FilterHeader from './FilterHeader';
 import SortingFilter from './SortingFilter';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
@@ -33,7 +34,7 @@ export default class SizeFilter extends React.PureComponent {
 
   property = 'size';
 
-  renderOption = (option, selected) => {
+  renderOption (option, selected) {
     return (
       <span>
         <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected}/>
@@ -42,7 +43,7 @@ export default class SizeFilter extends React.PureComponent {
         </span>
       </span>
     );
-  };
+  }
 
   renderSort = () => {
     return (
@@ -56,7 +57,7 @@ export default class SizeFilter extends React.PureComponent {
     );
   };
 
-  getFacetValueForOption = (facet, option) => {
+  getFacetValueForOption (facet, option) {
     const map = [
       '*-1000.0',
       '1000.0-10000.0',
@@ -65,25 +66,30 @@ export default class SizeFilter extends React.PureComponent {
       '500000.0-*'
     ];
     return facet[map[option - 1]];
-  };
-
-  getOptions = () => [1, 2, 3, 4, 5];
-
-  renderName = () => 'Size';
+  }
 
   render () {
     return (
       <FilterContainer
         property={this.property}
-        getOptions={this.getOptions}
-        renderName={this.renderName}
-        renderOption={this.renderOption}
-        renderSort={this.renderSort}
-        highlightUnder={1}
-        getFacetValueForOption={this.getFacetValueForOption}
+        options={[1, 2, 3, 4, 5]}
         query={this.props.query}
+        renderOption={this.renderOption}
         isFavorite={this.props.isFavorite}
-        organization={this.props.organization}/>
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={
+          <FilterHeader name="Size">
+            <SortingFilter
+              property={this.property}
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+              leftText={translate('biggest')}
+              rightText={translate('smallest')}/>
+          </FilterHeader>
+        }/>
     );
   }
 }

@@ -26,21 +26,25 @@ import { translate } from '../../../helpers/l10n';
 
 export default class Filter extends React.PureComponent {
   static propTypes = {
-    value: React.PropTypes.any,
     property: React.PropTypes.string.isRequired,
-    getOptions: React.PropTypes.func.isRequired,
+    options: React.PropTypes.array.isRequired,
+    query: React.PropTypes.object.isRequired,
+    renderOption: React.PropTypes.func.isRequired,
+
+    value: React.PropTypes.any,
+    facet: React.PropTypes.object,
     maxFacetValue: React.PropTypes.number,
     optionClassName: React.PropTypes.string,
-
-    renderName: React.PropTypes.func.isRequired,
-    renderOption: React.PropTypes.func.isRequired,
-    renderFooter: React.PropTypes.func,
-    renderSort: React.PropTypes.func,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object,
 
     getFacetValueForOption: React.PropTypes.func,
 
     halfWidth: React.PropTypes.bool,
-    highlightUnder: React.PropTypes.number
+    highlightUnder: React.PropTypes.number,
+
+    header: React.PropTypes.object,
+    footer: React.PropTypes.object
   };
 
   static defaultProps = {
@@ -74,20 +78,10 @@ export default class Filter extends React.PureComponent {
     return getFilterUrl(this.props, { [property]: urlOption });
   }
 
-  renderHeader () {
-    return (
-      <div className="search-navigator-facet-header projects-facet-header">
-        {this.props.renderName()}
-        {this.props.renderSort && this.props.renderSort()}
-      </div>
-    );
-  }
-
   renderOptionBar (facetValue) {
     if (facetValue == null || !this.props.maxFacetValue) {
       return null;
     }
-
     return (
       <div className="projects-facet-bar">
         <div
@@ -133,7 +127,7 @@ export default class Filter extends React.PureComponent {
   }
 
   renderOptions () {
-    const options = this.props.getOptions(this.props.facet);
+    const { options } = this.props;
     if (options && options.length > 0) {
       return (
         <div className="search-navigator-facet-list">
@@ -149,23 +143,12 @@ export default class Filter extends React.PureComponent {
     }
   }
 
-  renderFooter () {
-    if (!this.props.renderFooter) {
-      return null;
-    }
-    return (
-      <div className="search-navigator-facet-footer projects-facet-footer">
-        {this.props.renderFooter()}
-      </div>
-    );
-  }
-
   render () {
     return (
       <div className="search-navigator-facet-box" data-key={this.props.property}>
-        {this.renderHeader()}
+        {this.props.header}
         {this.renderOptions()}
-        {this.renderFooter()}
+        {this.props.footer}
       </div>
     );
   }

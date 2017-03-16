@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { FilterContainer } from './containers';
+import FilterContainer from './FilterContainer';
+import FilterHeader from './FilterHeader';
 import SortingFilter from './SortingFilter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
@@ -32,7 +33,7 @@ export default class CoverageFilter extends React.PureComponent {
 
   property = 'coverage';
 
-  renderOption = (option, selected) => {
+  renderOption (option, selected) {
     return (
       <span>
         <CoverageRating
@@ -44,41 +45,34 @@ export default class CoverageFilter extends React.PureComponent {
         </span>
       </span>
     );
-  };
+  }
 
-  renderSort = () => {
-    return (
-      <SortingFilter
-        property={this.property}
-        query={this.props.query}
-        isFavorite={this.props.isFavorite}
-        organization={this.props.organization}
-        sortDesc="right"/>
-    );
-  };
-
-  getFacetValueForOption = (facet, option) => {
+  getFacetValueForOption (facet, option) {
     const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
     return facet[map[option - 1]];
-  };
-
-  getOptions = () => [1, 2, 3, 4, 5];
-
-  renderName = () => 'Coverage';
+  }
 
   render () {
     return (
       <FilterContainer
         property={this.property}
-        getOptions={this.getOptions}
-        renderName={this.renderName}
-        renderOption={this.renderOption}
-        renderSort={this.renderSort}
-        highlightUnder={1}
-        getFacetValueForOption={this.getFacetValueForOption}
+        options={[1, 2, 3, 4, 5]}
         query={this.props.query}
+        renderOption={this.renderOption}
         isFavorite={this.props.isFavorite}
-        organization={this.props.organization}/>
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={
+          <FilterHeader name="Coverage">
+            <SortingFilter
+              property={this.property}
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+              sortDesc="right"/>
+          </FilterHeader>
+        }/>
     );
   }
 }

@@ -56,6 +56,16 @@ export function createProject (data: {
   return postJSON(url, data);
 }
 
+export function searchProjectTags (data?: { ps?: number, q?: string }) {
+  const url = '/api/project_tags/search';
+  return getJSON(url, data);
+}
+
+export function setProjectTags (data: { project: string, tags: string }) {
+  const url = '/api/project_tags/set';
+  return postJSON(url, data);
+}
+
 export function getComponentTree (
     strategy: string,
     componentKey: string,

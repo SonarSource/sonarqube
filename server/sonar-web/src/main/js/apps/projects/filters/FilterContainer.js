@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import IssuesFilter from './IssuesFilter';
+import { connect } from 'react-redux';
+import Filter from './Filter';
+import {
+  getProjectsAppFacetByProperty,
+  getProjectsAppMaxFacetValue
+} from '../../../store/rootReducer';
 
-export default class ReliabilityFilter extends React.Component {
-  render () {
-    return <IssuesFilter {...this.props} name="Reliability" property="reliability"/>;
-  }
-}
+const mapStateToProps = (state, ownProps) => ({
+  value: ownProps.query[ownProps.property],
+  facet: getProjectsAppFacetByProperty(state, ownProps.property),
+  maxFacetValue: getProjectsAppMaxFacetValue(state)
+});
+export default connect(mapStateToProps)(Filter);

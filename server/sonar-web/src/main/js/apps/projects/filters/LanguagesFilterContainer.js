@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import LanguagesFilter from './LanguagesFilter';
+import {
+  getProjectsAppFacetByProperty,
+  getProjectsAppMaxFacetValue,
+  getLanguages
+} from '../../../store/rootReducer';
 
-export default class LanguageFilterOption extends React.Component {
-  static propTypes = {
-    languageKey: React.PropTypes.string.isRequired,
-    language: React.PropTypes.object
-  }
-
-  render () {
-    const languageName = this.props.language ? this.props.language.name : this.props.languageKey;
-    return (
-      <span>{this.props.languageKey !== '<null>' ? languageName : translate('unknown')}</span>
-    );
-  }
-}
+const mapStateToProps = (state, ownProps) => ({
+  languages: getLanguages(state),
+  value: ownProps.query['languages'],
+  facet: getProjectsAppFacetByProperty(state, 'languages'),
+  maxFacetValue: getProjectsAppMaxFacetValue(state)
+});
+export default connect(mapStateToProps)(withRouter(LanguagesFilter));

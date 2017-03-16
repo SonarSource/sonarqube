@@ -19,44 +19,33 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import LanguageFilterFooter from '../LanguageFilterFooter';
+import TagsFilter from '../TagsFilter';
 
-const languages = {
-  java: {
-    key: 'java',
-    name: 'Java'
-  },
-  cs: {
-    key: 'cs',
-    name: 'C#'
-  },
-  js: {
-    key: 'js',
-    name: 'JavaScript'
-  },
-  flex: {
-    key: 'flex',
-    name: 'Flex'
-  },
-  php: {
-    key: 'php',
-    name: 'PHP'
-  },
-  py: {
-    key: 'py',
-    name: 'Python'
-  }
-};
-const facet = { java: 39, cs: 4, js: 1 };
+const tags = ['lang', 'sonar', 'csharp', 'dotnet', 'it', 'net'];
+const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
+const fakeRouter = { push: () => {} };
 
-it('should render the languages without the ones in the facet', () => {
+it('should render the tags without the ones in the facet', () => {
   const wrapper = shallow(
-    <LanguageFilterFooter
-      property="foo"
-      query={{ languages: null }}
-      facet={facet}
-      languages={languages}/>
+    <TagsFilter
+      query={{ tags: null }}
+      router={fakeRouter}
+      facet={tagsFacet}/>
   );
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Select').props().options.length).toBe(3);
+  wrapper.setState({ tags });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render the tags facet with the selected tags', () => {
+  const wrapper = shallow(
+    <TagsFilter
+      query={{ tags: ['lang', 'sonar'] }}
+      value={['lang', 'sonar']}
+      router={fakeRouter}
+      facet={tagsFacet}
+      isFavorite={true}/>
+  );
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
 });

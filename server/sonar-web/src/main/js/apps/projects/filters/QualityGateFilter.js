@@ -18,33 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { FilterContainer } from './containers';
+import FilterContainer from './FilterContainer';
+import FilterHeader from './FilterHeader';
 import Level from '../../../components/ui/Level';
 
 export default class QualityGateFilter extends React.PureComponent {
-  renderOption = (option, selected) => {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  };
+
+  renderOption (option, selected) {
     return <Level level={option} small={true} muted={!selected}/>;
-  };
+  }
 
-  getFacetValueForOption = (facet, option) => {
+  getFacetValueForOption (facet, option) {
     return facet[option];
-  };
-
-  getOptions = () => ['OK', 'WARN', 'ERROR'];
-
-  renderName = () => 'Quality Gate';
+  }
 
   render () {
     return (
       <FilterContainer
         property="gate"
-        getOptions={this.getOptions}
-        renderName={this.renderName}
-        renderOption={this.renderOption}
-        getFacetValueForOption={this.getFacetValueForOption}
+        options={['OK', 'WARN', 'ERROR']}
         query={this.props.query}
+        renderOption={this.renderOption}
         isFavorite={this.props.isFavorite}
-        organization={this.props.organization}/>
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={
+          <FilterHeader name="Quality Gate"/>
+        }/>
     );
   }
 }

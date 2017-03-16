@@ -18,10 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import IssuesFilter from './IssuesFilter';
+import { translate } from '../../../helpers/l10n';
 
-export default class ReliabilityFilter extends React.Component {
+export default class SearchableFilterOption extends React.PureComponent {
+  static propTypes = {
+    optionKey: React.PropTypes.string.isRequired,
+    option: React.PropTypes.object
+  };
+
   render () {
-    return <IssuesFilter {...this.props} name="Reliability" property="reliability"/>;
+    const optionName = this.props.option ? this.props.option.name : this.props.optionKey;
+    return <span>{this.props.optionKey !== '<null>' ? optionName : translate('unknown')}</span>;
   }
 }

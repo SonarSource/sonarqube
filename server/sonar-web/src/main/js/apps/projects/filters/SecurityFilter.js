@@ -22,11 +22,6 @@ import IssuesFilter from './IssuesFilter';
 
 export default class SecurityFilter extends React.Component {
   render () {
-    return (
-        <IssuesFilter
-            {...this.props}
-            name="Security"
-            property="security"/>
-    );
+    return <IssuesFilter {...this.props} name="Security" property="security"/>;
   }
 }

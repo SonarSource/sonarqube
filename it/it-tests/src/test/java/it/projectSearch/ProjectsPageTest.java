@@ -26,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
@@ -118,11 +119,28 @@ public class ProjectsPageTest {
   }
 
   @Test
-  public void should_add_language() {
+  public void should_add_language_to_facet() {
     ProjectsPage page = nav.openProjects();
     page.getFacetByProperty("languages")
       .selectOptionItem("xoo2")
       .shouldHaveValue("xoo2", "0");
+  }
+
+  @Test
+  public void should_add_tag_to_facet() {
+    // Add some tags to this project
+    wsClient.wsConnector().call(
+      new PostRequest("api/project_tags/set")
+        .setParam("project", PROJECT_KEY)
+        .setParam("tags", "aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,zz")
+    );
+
+    ProjectsPage page = nav.openProjects();
+    page.getFacetByProperty("tags")
+      .shouldHaveValue("aa", "1")
+      .shouldHaveValue("ii", "1")
+      .selectOptionItem("zz")
+      .shouldHaveValue("zz", "1");
   }
 
   @Test

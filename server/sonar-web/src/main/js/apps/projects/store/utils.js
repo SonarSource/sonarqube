@@ -55,6 +55,7 @@ export const parseUrlQuery = urlQuery => ({
   'duplications': getAsNumericRating(urlQuery['duplications']),
   'size': getAsNumericRating(urlQuery['size']),
   'languages': getAsArray(urlQuery['languages'], getAsString),
+  'tags': getAsArray(urlQuery['tags'], getAsString),
   'search': getAsString(urlQuery['search']),
   'sort': getAsString(urlQuery['sort'])
 });
@@ -69,6 +70,7 @@ export const mapMetricToProperty = metricKey => {
     'ncloc': 'size',
     'alert_status': 'gate',
     'languages': 'languages',
+    'tags': 'tags',
     'query': 'search'
   };
   return map[metricKey];
@@ -84,6 +86,7 @@ export const mapPropertyToMetric = property => {
     'size': 'ncloc',
     'gate': 'alert_status',
     'languages': 'languages',
+    'tags': 'tags',
     'search': 'query'
   };
   return map[property];
@@ -177,14 +180,16 @@ const convertToFilter = (query, isFavorite) => {
     }
   });
 
-  const { languages } = query;
-  if (languages != null) {
-    if (!Array.isArray(languages) || languages.length < 2) {
-      conditions.push(mapPropertyToMetric('languages') + ' = ' + languages);
-    } else {
-      conditions.push(`${mapPropertyToMetric('languages')} IN (${languages.join(', ')})`);
+  ['languages', 'tags'].forEach(property => {
+    const items = query[property];
+    if (items != null) {
+      if (!Array.isArray(items) || items.length < 2) {
+        conditions.push(mapPropertyToMetric(property) + ' = ' + items);
+      } else {
+        conditions.push(`${mapPropertyToMetric(property)} IN (${items.join(', ')})`);
+      }
     }
-  }
+  });
 
   if (query['search'] != null) {
     conditions.push(`${mapPropertyToMetric('search')} = "${query['search']}"`);
