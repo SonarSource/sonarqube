@@ -19,69 +19,94 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.ArrayList;
 import java.util.Date;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileLoader;
+import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.util.TypeValidations;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 
-import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
-
-public class InheritanceActionMediumTest {
-
-  @ClassRule
-  public static final ServerTester tester = new ServerTester().withEsIndexes();
+public class InheritanceActionTest {
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  public DbTester dbTester = DbTester.create();
+  @Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  WsTester wsTester;
-
-  DbClient db;
-  DbSession session;
-
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
-
+  private DbClient dbClient;
+  private DbSession dbSession;
+  private EsClient esClient;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
+  private WsActionTester wsActionTester;
+  private RuleActivator ruleActivator;
   private OrganizationDto organization;
 
   @Before
   public void setUp() {
-    tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    session = db.openSession(false);
-    ruleIndexer = tester.get(RuleIndexer.class);
-    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-
-    wsTester = new WsTester(tester.get(QProfilesWs.class));
-    organization = getDefaultOrganization(tester, db, session);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
+    dbClient = dbTester.getDbClient();
+    dbSession = dbTester.getSession();
+    esClient = esTester.client();
+    ruleIndexer = new RuleIndexer(System2.INSTANCE, dbClient, esClient);
+    activeRuleIndexer = new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient);
+    wsActionTester = new WsActionTester(
+      new InheritanceAction(
+        dbClient,
+        new QProfileLookup(dbClient),
+        new QProfileLoader(
+          dbClient,
+          new ActiveRuleIndex(esClient),
+          TestDefaultOrganizationProvider.from(dbTester)
+        ),
+        new QProfileFactory(dbClient),
+        new Languages()
+      ));
+    ruleActivator = new RuleActivator(
+      System2.INSTANCE,
+      dbClient,
+      new RuleIndex(esClient),
+      new RuleActivatorContextFactory(dbClient),
+      new TypeValidations(new ArrayList<>()),
+      new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient),
+      userSessionRule
+    );
+    organization = dbTester.getDefaultOrganization();
   }
 
   @Test
@@ -97,7 +122,7 @@ public class InheritanceActionMediumTest {
     createActiveRule(rule1, groupWide);
     createActiveRule(rule2, groupWide);
 
-    session.commit();
+    dbSession.commit();
     ruleIndexer.index();
     activeRuleIndexer.index();
 
@@ -111,15 +136,21 @@ public class InheritanceActionMediumTest {
     QualityProfileDto forProject1 = createProfile("xoo", "For Project One", "xoo-for-project-one-34567");
     setParent(buWide, forProject1);
     createActiveRule(rule3, forProject1);
-    session.commit();
+    dbSession.commit();
     activeRuleIndexer.index();
 
     QualityProfileDto forProject2 = createProfile("xoo", "For Project Two", "xoo-for-project-two-45678");
     setParent(buWide, forProject2);
     overrideActiveRuleSeverity(rule2, forProject2, Severity.CRITICAL);
 
-    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", buWide.getKee()).setParam("organization", organization.getKey())
-      .execute().assertJson(getClass(), "inheritance-buWide.json");
+    String response = wsActionTester.newRequest()
+      .setMethod("GET")
+      .setParam("profileKey", buWide.getKee())
+      .setParam("organization", organization.getKey())
+      .execute()
+      .getInput();
+
+    JsonAssert.assertJson(response).isSimilarTo(getClass().getResource("InheritanceActionTest/inheritance-buWide.json"));
   }
 
   @Test
@@ -127,23 +158,30 @@ public class InheritanceActionMediumTest {
     // Simple profile, no parent, no child
     QualityProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
 
-    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", remi.getKee()).execute().assertJson(getClass(), "inheritance-simple.json");
+    String response = wsActionTester.newRequest()
+      .setMethod("GET")
+      .setParam("profileKey", remi.getKee())
+      .execute()
+      .getInput();
+
+    JsonAssert.assertJson(response).isSimilarTo(getClass().getResource("InheritanceActionTest/inheritance-simple.json"));
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_if_not_found() throws Exception {
-    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", "polop").execute();
+    wsActionTester.newRequest()
+      .setMethod("GET").setParam("profileKey", "polop").execute();
   }
 
   private QualityProfileDto createProfile(String lang, String name, String key) {
     QualityProfileDto profile = QProfileTesting.newQProfileDto(organization, new QProfileName(lang, name), key);
-    db.qualityProfileDao().insert(session, profile);
-    session.commit();
+    dbClient.qualityProfileDao().insert(dbSession, profile);
+    dbSession.commit();
     return profile;
   }
 
   private void setParent(QualityProfileDto profile, QualityProfileDto parent) {
-    tester.get(RuleActivator.class).setParent(session, parent.getKey(), profile.getKey());
+    ruleActivator.setParent(dbSession, parent.getKey(), profile.getKey());
   }
 
   private RuleDto createRule(String lang, String id) {
@@ -154,7 +192,7 @@ public class InheritanceActionMediumTest {
       .setStatus(RuleStatus.READY)
       .setUpdatedAt(now)
       .setCreatedAt(now);
-    db.ruleDao().insert(session, rule);
+    dbClient.ruleDao().insert(dbSession, rule);
     return rule;
   }
 
@@ -164,13 +202,13 @@ public class InheritanceActionMediumTest {
       .setSeverity(rule.getSeverityString())
       .setUpdatedAt(now)
       .setCreatedAt(now);
-    db.activeRuleDao().insert(session, activeRule);
+    dbClient.activeRuleDao().insert(dbSession, activeRule);
     return activeRule;
   }
 
   private void overrideActiveRuleSeverity(RuleDto rule, QualityProfileDto profile, String severity) {
-    tester.get(RuleActivator.class).activate(session, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKey());
-    session.commit();
+    ruleActivator.activate(dbSession, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKey());
+    dbSession.commit();
     activeRuleIndexer.index();
   }
 }
