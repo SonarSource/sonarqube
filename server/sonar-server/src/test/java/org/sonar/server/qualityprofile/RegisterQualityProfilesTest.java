@@ -19,21 +19,14 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -44,13 +37,10 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.UtcDateUtils.formatDateTime;
 
@@ -58,8 +48,6 @@ public class RegisterQualityProfilesTest {
   private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
   private static final Language BAR_LANGUAGE = LanguageTesting.newLanguage("bar", "bar", "bar");
   private static final String TABLE_RULES_PROFILES = "RULES_PROFILES";
-  private static final String TYPE_QUALITY_PROFILE = "QUALITY_PROFILE";
-  private static final String SONAR_WAY_QP_NAME = "Sonar way";
   private static final String TABLE_LOADED_TEMPLATES = "loaded_templates";
 
   @Rule
@@ -68,65 +56,45 @@ public class RegisterQualityProfilesTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DefinedQProfileRepositoryRule definedQProfileRepositoryRule = new DefinedQProfileRepositoryRule();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbClient mockedDbClient = mock(DbClient.class);
   private UuidFactory mockedUuidFactory = mock(UuidFactory.class);
   private System2 mockedSystem2 = mock(System2.class);
   private ActiveRuleIndexer mockedActiveRuleIndexer = mock(ActiveRuleIndexer.class);
+  private RegisterQualityProfiles underTest = new RegisterQualityProfiles(
+    definedQProfileRepositoryRule,
+    dbClient,
+    new QProfileFactory(dbClient, mockedUuidFactory, mockedSystem2),
+    new CachingRuleActivator(mockedSystem2, dbClient, null, new CachingRuleActivatorContextFactory(dbClient), null, null, userSessionRule),
+    mockedActiveRuleIndexer);
 
   @Test
-  public void no_action_in_DB_nor_index_when_there_is_no_definition() {
-    RegisterQualityProfiles underTest = mockedDBAndEs(Collections.emptyList(), new Languages(FOO_LANGUAGE));
+  public void no_action_in_DB_nothing_to_index_when_there_is_no_DefinedQProfile() {
+    RegisterQualityProfiles underTest = new RegisterQualityProfiles(definedQProfileRepositoryRule, mockedDbClient, null, null, mockedActiveRuleIndexer);
 
     underTest.start();
 
-    verifyZeroInteractions(mockedDbClient, mockedActiveRuleIndexer);
+    assertThat(definedQProfileRepositoryRule.isInitialized()).isTrue();
+    verify(mockedDbClient).openSession(false);
+    verify(mockedActiveRuleIndexer).index(Collections.emptyList());
+    verifyNoMoreInteractions(mockedDbClient, mockedActiveRuleIndexer);
   }
 
   @Test
-  public void no_action_in_DB_nor_index_when_all_definitions_apply_to_non_defined_languages() {
-    RegisterQualityProfiles underTest = mockedDBAndEs(Collections.singletonList(new DummyProfileDefinition("foo", "P1", false)), new Languages());
-
-    underTest.start();
-
-    verifyZeroInteractions(mockedDbClient, mockedActiveRuleIndexer);
-  }
-
-  @Test
-  public void start_throws_IAE_if_profileDefinition_creates_RulesProfile_with_null_name() {
-    DummyProfileDefinition definition = new DummyProfileDefinition("foo", null, false);
-    RegisterQualityProfiles underTest = mockedDBAndEs(Collections.singletonList(definition), new Languages());
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Profile created by Definition " + definition + " can't have a blank name");
-
-    underTest.start();
-  }
-
-  @Test
-  public void start_throws_IAE_if_profileDefinition_creates_RulesProfile_with_empty_name() {
-    DummyProfileDefinition definition = new DummyProfileDefinition("foo", "", false);
-    RegisterQualityProfiles underTest = mockedDBAndEs(Collections.singletonList(definition), new Languages());
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Profile created by Definition " + definition + " can't have a blank name");
-
-    underTest.start();
-  }
-
-  @Test
-  public void start_creates_qp_if_language_exists_and_store_flag_in_loaded_templates_for_each_organization_id_BD() {
+  public void start_creates_qp_and_store_flag_in_loaded_templates_for_each_organization_id_BD() {
     OrganizationDto otherOrganization = dbTester.organizations().insert();
     String[] uuids = {"uuid 1", "uuid 2"};
     Long[] dates = {2_456_789L, 6_123_789L};
     String[] formattedDates = {formatDateTime(new Date(dates[0])), formatDateTime(new Date(dates[1]))};
-    DummyProfileDefinition qpDefinition = new DummyProfileDefinition("foo", "foo1", false);
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(qpDefinition), new Languages(FOO_LANGUAGE));
+    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
     mockForQPInserts(uuids, dates);
 
     underTest.start();
 
+    assertThat(definedQProfileRepositoryRule.isInitialized()).isTrue();
     Arrays.asList(dbTester.getDefaultOrganization(), otherOrganization)
       .forEach(organization -> {
         QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, "foo1");
@@ -140,111 +108,65 @@ public class RegisterQualityProfilesTest {
         assertThat(dto.getRulesUpdatedAt()).isIn(formattedDates);
         assertThat(dto.getLastUsed()).isNull();
         assertThat(dto.getUserUpdatedAt()).isNull();
-        assertThat(dto.isDefault()).isTrue();
+        assertThat(dto.isDefault()).isFalse();
 
-        assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition), organization.getUuid(), dbTester.getSession()))
+        assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(definedQProfile.getLoadedTemplateType(), organization.getUuid(), dbTester.getSession()))
           .isEqualTo(1);
       });
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(2);
   }
 
   @Test
-  public void start_makes_single_qp_of_a_language_default_even_if_not_flagged_as_so() {
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", false)), new Languages(FOO_LANGUAGE));
-    mockForSingleQPInsert();
+  public void start_persists_default_flag_of_DefinedQualityProfile() {
+    definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1", false);
+    definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo2", true);
+    definedQProfileRepositoryRule.add(BAR_LANGUAGE, "bar1", true);
+    definedQProfileRepositoryRule.add(BAR_LANGUAGE, "bar2", false);
+    mockForQPInserts(new String[]{"uuid1", "uuid2", "uuid3", "uuid4"}, new Long[]{ 1L, 2L, 3L, 4L});
 
     underTest.start();
 
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo1").isDefault()).isTrue();
-  }
-
-  @Test
-  public void start_makes_single_qp_of_a_language_default_even_if_flagged_as_so() {
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(new DummyProfileDefinition("foo", "foo1", true)), new Languages(FOO_LANGUAGE));
-    mockForSingleQPInsert();
-
-    underTest.start();
-
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo1").isDefault()).isTrue();
-  }
-
-  @Test
-  public void start_makes_first_qp_of_a_language_default_when_none_flagged_as_so() {
-    List<ProfileDefinition> definitions = new ArrayList<>(asList(new DummyProfileDefinition("foo", "foo1", false), new DummyProfileDefinition("foo", "foo2", false)));
-    Collections.shuffle(definitions);
-    String firstQPName = ((DummyProfileDefinition) definitions.iterator().next()).getName();
-    RegisterQualityProfiles underTest = mockedEs(definitions, new Languages(FOO_LANGUAGE));
-    mockForTwoQPInserts();
-
-    underTest.start();
-
-    QualityProfileDto dto = getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo1");
-    assertThat(dto.isDefault()).isEqualTo(dto.getName().equals(firstQPName));
-    dto = getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo2");
-    assertThat(dto.isDefault()).isEqualTo(dto.getName().equals(firstQPName));
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(2);
+    assertThat(definedQProfileRepositoryRule.isInitialized()).isTrue();
+    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo1").isDefault()).isFalse();
+    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo2").isDefault()).isTrue();
+    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), BAR_LANGUAGE, "bar1").isDefault()).isTrue();
+    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), BAR_LANGUAGE, "bar2").isDefault()).isFalse();
   }
 
   @Test
   public void start_does_not_create_sq_if_loaded_profile_of_organization_already_exists() {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
-    DummyProfileDefinition qpDefinition = new DummyProfileDefinition("foo", "foo1", false);
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(dbTester.getDefaultOrganization().getUuid(), computeLoadedTemplateType(qpDefinition)), dbTester.getSession());
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(org1.getUuid(), computeLoadedTemplateType(qpDefinition)), dbTester.getSession());
+    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
+    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(dbTester.getDefaultOrganization().getUuid(), definedQProfile.getLoadedTemplateType()), dbTester.getSession());
+    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(org1.getUuid(), definedQProfile.getLoadedTemplateType()), dbTester.getSession());
     dbTester.commit();
-    RegisterQualityProfiles underTest = mockedEs(Collections.singletonList(qpDefinition), new Languages(FOO_LANGUAGE));
     mockForSingleQPInsert();
 
     underTest.start();
 
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition), org2.getUuid(), dbTester.getSession()))
+    assertThat(definedQProfileRepositoryRule.isInitialized()).isTrue();
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(definedQProfile.getLoadedTemplateType(), org2.getUuid(), dbTester.getSession()))
       .isEqualTo(1);
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_LOADED_TEMPLATES)).isEqualTo(3);
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(1);
   }
 
   @Test
-  public void start_fails_with_ISE_when_two_sq_with_different_name_are_default_for_the_same_language() {
-    RegisterQualityProfiles underTest = mockedEs(
-      asList(new DummyProfileDefinition("foo", "foo1", true), new DummyProfileDefinition("foo", "foo2", true)),
-      new Languages(FOO_LANGUAGE));
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Several Quality profiles are flagged as default for the language foo: [foo1, foo2]");
-
-    underTest.start();
-  }
-
-  @Test
-  public void starts_creates_single_qp_if_several_profile_have_the_same_name_for_a_given_language() {
-    RegisterQualityProfiles underTest = mockedEs(
-      asList(new DummyProfileDefinition("foo", "foo1", true), new DummyProfileDefinition("foo", "foo1", true)),
-      new Languages(FOO_LANGUAGE));
-    mockForSingleQPInsert();
-
-    underTest.start();
-
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "foo1").isDefault()).isTrue();
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(1);
-  }
-
-  @Test
-  public void start_creates_different_qp_and_their_loaded_templates_if_several_profile_has_same_name_for_different_languages() {
+  public void start_creates_different_qps_and_their_loaded_templates_if_several_profile_has_same_name_for_different_languages() {
     String uuid1 = "uuid1";
     String uuid2 = "uuid2";
     long date1 = 2_456_789L;
     long date2 = 4_231_654L;
     String name = "doh";
 
-    DummyProfileDefinition qpDefinition1 = new DummyProfileDefinition("foo", name, true);
-    DummyProfileDefinition qpDefinition2 = new DummyProfileDefinition("bar", name, true);
-    RegisterQualityProfiles underTest = mockedEs(asList(qpDefinition1, qpDefinition2), new Languages(FOO_LANGUAGE, BAR_LANGUAGE));
-    when(mockedUuidFactory.create()).thenReturn(uuid1).thenReturn(uuid2).thenThrow(new UnsupportedOperationException("uuidFactory should be called only twice"));
-    when(mockedSystem2.now()).thenReturn(date1).thenReturn(date2).thenThrow(new UnsupportedOperationException("now should be called only twice"));
+    DefinedQProfile definedQProfile1 = definedQProfileRepositoryRule.add(FOO_LANGUAGE, name, true);
+    DefinedQProfile definedQProfile2 = definedQProfileRepositoryRule.add(BAR_LANGUAGE, name, true);
+    mockForQPInserts(new String[]{uuid1, uuid2}, new Long[]{date1, date2});
 
     underTest.start();
 
+    assertThat(definedQProfileRepositoryRule.isInitialized()).isTrue();
     OrganizationDto organization = dbTester.getDefaultOrganization();
     QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, name);
     String uuidQP1 = dto.getKee();
@@ -273,79 +195,14 @@ public class RegisterQualityProfilesTest {
     assertThat(dto.isDefault()).isTrue();
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(2);
 
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition1), organization.getUuid(), dbTester.getSession()))
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(definedQProfile1.getLoadedTemplateType(), organization.getUuid(), dbTester.getSession()))
       .isEqualTo(1);
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(computeLoadedTemplateType(qpDefinition2), organization.getUuid(), dbTester.getSession()))
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(definedQProfile2.getLoadedTemplateType(), organization.getUuid(), dbTester.getSession()))
       .isEqualTo(1);
-  }
-
-  @Test
-  public void start_create_qp_as_default_even_if_only_one_profile_with_given_name_has_default_flag_true() {
-    String name = "doh";
-    RegisterQualityProfiles underTest = mockedEs(
-      asList(new DummyProfileDefinition("foo", name, false), new DummyProfileDefinition("foo", name, true)),
-      new Languages(FOO_LANGUAGE));
-    mockForSingleQPInsert();
-
-    underTest.start();
-
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, name).isDefault()).isTrue();
-  }
-
-  @Test
-  public void start_creates_qp_Sonar_Way_as_default_if_none_other_is_defined_default_for_a_given_language() {
-
-    RegisterQualityProfiles underTest = mockedEs(
-      asList(
-        new DummyProfileDefinition("foo", "doh", false), new DummyProfileDefinition("foo", "boo", false),
-        new DummyProfileDefinition("foo", SONAR_WAY_QP_NAME, false), new DummyProfileDefinition("foo", "goo", false)),
-      new Languages(FOO_LANGUAGE));
-    mockForQPInserts(new String[] {"uuid1", "uuid2", "uuid3", "uuid4"}, new Long[] {2_456_789L, 2_456_789L, 2_456_789L, 2_456_789L});
-
-    underTest.start();
-
-    Arrays.asList("doh", "boo", "goo")
-      .forEach(name -> assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, name).isDefault())
-        .describedAs("QP with name " + name + " should not be default")
-        .isFalse());
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, SONAR_WAY_QP_NAME).isDefault()).isTrue();
-  }
-
-  @Test
-  public void start_does_not_create_Sonar_Way_as_default_if_other_profile_is_defined_as_default() {
-    RegisterQualityProfiles underTest = mockedEs(
-      asList(
-        new DummyProfileDefinition("foo", SONAR_WAY_QP_NAME, false), new DummyProfileDefinition("foo", "goo", true)),
-      new Languages(FOO_LANGUAGE));
-    mockForTwoQPInserts();
-
-    underTest.start();
-
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, SONAR_WAY_QP_NAME).isDefault()).isFalse();
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "goo").isDefault()).isTrue();
-  }
-
-  @Test
-  public void start_matches_Sonar_Way_default_with_case_sensitivity() {
-    String sonarWayInOtherCase = SONAR_WAY_QP_NAME.toUpperCase();
-    RegisterQualityProfiles underTest = mockedEs(
-      asList(
-        new DummyProfileDefinition("foo", "goo", false), new DummyProfileDefinition("foo", sonarWayInOtherCase, false)),
-      new Languages(FOO_LANGUAGE));
-    mockForTwoQPInserts();
-
-    underTest.start();
-
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, sonarWayInOtherCase).isDefault()).isFalse();
-    assertThat(getPersistedQP(dbTester.getDefaultOrganization(), FOO_LANGUAGE, "goo").isDefault()).isTrue();
   }
 
   private void mockForSingleQPInsert() {
     mockForSingleQPInsert("generated uuid", 2_456_789);
-  }
-
-  private void mockForTwoQPInserts() {
-    mockForQPInserts(new String[] {"uuid1", "uuid2"}, new Long[] {2_456_789L, 3_789_159L});
   }
 
   private void mockForSingleQPInsert(String uuid, long now) {
@@ -367,53 +224,4 @@ public class RegisterQualityProfilesTest {
     return dbClient.qualityProfileDao().selectByNameAndLanguage(organization, name, language.getKey(), dbTester.getSession());
   }
 
-  private RegisterQualityProfiles mockedDBAndEs(List<ProfileDefinition> definitions, Languages languages) {
-    return new RegisterQualityProfiles(mockedDbClient, null, null, definitions, languages, mockedActiveRuleIndexer);
-  }
-
-  private RegisterQualityProfiles mockedEs(List<ProfileDefinition> definitions, Languages languages) {
-    return new RegisterQualityProfiles(
-      dbClient,
-      new QProfileFactory(dbClient, mockedUuidFactory, mockedSystem2),
-      new CachingRuleActivator(mockedSystem2, dbClient, null, new CachingRuleActivatorContextFactory(dbClient), null, null, userSessionRule),
-      definitions,
-      languages,
-      mockedActiveRuleIndexer);
-  }
-
-  private static final class DummyProfileDefinition extends ProfileDefinition {
-    private final String language;
-    private final String name;
-    private final boolean defaultProfile;
-
-    private DummyProfileDefinition(String language, String name, boolean defaultProfile) {
-      this.language = language;
-      this.name = name;
-      this.defaultProfile = defaultProfile;
-    }
-
-    @Override
-    public RulesProfile createProfile(ValidationMessages validation) {
-      RulesProfile res = RulesProfile.create(name, language);
-      res.setDefaultProfile(defaultProfile);
-      return res;
-    }
-
-    String getLanguage() {
-      return language;
-    }
-
-    String getName() {
-      return name;
-    }
-
-    boolean isDefaultProfile() {
-      return defaultProfile;
-    }
-  }
-
-  private String computeLoadedTemplateType(DummyProfileDefinition qpDefinition) {
-    String qpIdentifier = lowerCase(qpDefinition.getLanguage()) + ":" + qpDefinition.getName();
-    return format("%s.%s", TYPE_QUALITY_PROFILE, DigestUtils.md5Hex(qpIdentifier.getBytes(UTF_8)));
-  }
 }
