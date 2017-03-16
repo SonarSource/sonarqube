@@ -21,8 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -30,9 +28,7 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static org.sonar.db.Pagination.forPage;
@@ -48,17 +44,14 @@ public class RegisterQualityProfiles {
 
   private final DefinedQProfileRepository definedQProfileRepository;
   private final DbClient dbClient;
-  private final QProfileFactory profileFactory;
-  private final RuleActivator ruleActivator;
+  private final DefinedQProfileCreation definedQProfileCreation;
   private final ActiveRuleIndexer activeRuleIndexer;
 
   public RegisterQualityProfiles(DefinedQProfileRepository definedQProfileRepository,
-    DbClient dbClient,
-    QProfileFactory profileFactory, CachingRuleActivator ruleActivator, ActiveRuleIndexer activeRuleIndexer) {
+    DbClient dbClient, DefinedQProfileCreation definedQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
     this.definedQProfileRepository = definedQProfileRepository;
     this.dbClient = dbClient;
-    this.profileFactory = profileFactory;
-    this.ruleActivator = ruleActivator;
+    this.definedQProfileCreation = definedQProfileCreation;
     this.activeRuleIndexer = activeRuleIndexer;
   }
 
@@ -96,24 +89,7 @@ public class RegisterQualityProfiles {
   private void registerPerQualityProfileAndOrganization(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
     LOGGER.debug("Register profile {} for organization {}", qualityProfile.getQProfileName(), organization.getKey());
 
-    QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, qualityProfile.getName(), qualityProfile.getLanguage(), session);
-    if (profileDto != null) {
-      changes.addAll(profileFactory.delete(session, profileDto.getKey(), true));
-    }
-    QualityProfileDto newQProfileDto = profileFactory.create(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
-    for (org.sonar.api.rules.ActiveRule activeRule : qualityProfile.getActiveRules()) {
-      RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-      RuleActivation activation = new RuleActivation(ruleKey);
-      activation.setSeverity(activeRule.getSeverity() != null ? activeRule.getSeverity().name() : null);
-      for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-        activation.setParameter(param.getKey(), param.getValue());
-      }
-      changes.addAll(ruleActivator.activate(session, activation, newQProfileDto));
-    }
-
-    LoadedTemplateDto template = new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType());
-    dbClient.loadedTemplateDao().insert(template, session);
-    session.commit();
+    definedQProfileCreation.create(session, qualityProfile, organization, changes);
   }
 
 }
