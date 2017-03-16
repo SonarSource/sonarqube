@@ -120,8 +120,8 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), projectKey, input));
   }
 
-  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, String language) {
-    return mapper(dbSession).selectByLanguage(language);
+  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
+    return mapper(dbSession).selectByLanguage(organization.getUuid(), language);
   }
 
   @CheckForNull

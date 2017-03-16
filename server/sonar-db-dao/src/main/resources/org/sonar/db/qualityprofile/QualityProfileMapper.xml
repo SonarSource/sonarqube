@@ -103,6 +103,7 @@
     <include refid="profilesColumns"/>
     FROM rules_profiles p
     WHERE p.language=#{language}
+    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY p.name
   </select>
 
