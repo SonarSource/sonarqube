@@ -80,7 +80,7 @@ public class IssueAssigner extends IssueVisitor {
       }
     }
     if (authorWasSet && issue.assignee() == null) {
-      String assigneeLogin = StringUtils.defaultIfEmpty(scmAccountToUser.getNullable(issue.authorLogin()), defaultAssignee.getLogin());
+      String assigneeLogin = StringUtils.defaultIfEmpty(scmAccountToUser.getNullable(issue.authorLogin()), defaultAssignee.loadDefaultAssigneeLogin());
       issueUpdater.setNewAssignee(issue, assigneeLogin, changeContext);
     }
   }
