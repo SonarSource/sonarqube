@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -34,6 +35,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -56,6 +59,7 @@ public class RenameActionTest {
   private WsTester tester;
   private OrganizationDto organization;
   private RenameAction underTest;
+  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
 
   @Before
   public void setUp() {

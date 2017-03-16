@@ -38,6 +38,16 @@
     DELETE FROM active_rules WHERE id=#{id}
   </update>
 
+  <update id="deleteByProfileKeys" parameterType="String">
+    delete from active_rules
+    where exists (
+      select 1
+      from rules_profiles p
+      where p.id = profile_id and p.kee in
+        <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
+      )
+  </update>
+
   <select id="selectByKey" parameterType="map" resultType="ActiveRule">
     SELECT
     <include refid="activeRuleKeyColumns"/>
@@ -122,6 +132,19 @@
 
   <update id="deleteParameters" parameterType="int">
     DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
+  </update>
+
+  <update id="deleteParametersByProfileKeys" parameterType="String">
+    delete from active_rule_parameters
+    where exists (
+      select 1 from active_rules ar
+      inner join rules_profiles p on p.id = ar.profile_id
+      where ar.id = active_rule_id
+      and p.kee in
+        <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
+        #{profileKey, jdbcType=VARCHAR}
+        </foreach>
+    )
   </update>
 
   <update id="deleteParameter" parameterType="int">

@@ -31,6 +31,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
@@ -213,6 +214,11 @@ public class QualityProfileDao implements Dao {
     mapper(session).deleteAllProjectProfileAssociation(profileKey);
   }
 
+  public void deleteProjectAssociationsByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteProjectAssociationByProfileKeys);
+  }
+
   public List<ProjectQprofileAssociationDto> selectSelectedProjects(String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
     return mapper(session).selectSelectedProjects(profileKey, nameQuery);
@@ -237,5 +243,10 @@ public class QualityProfileDao implements Dao {
 
   private static QualityProfileMapper mapper(DbSession session) {
     return session.getMapper(QualityProfileMapper.class);
+  }
+
+  public void deleteByKeys(DbSession dbSession, Collection<String> profileKeys) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByKeys);
   }
 }

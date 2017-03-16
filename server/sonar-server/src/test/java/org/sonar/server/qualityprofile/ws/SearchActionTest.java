@@ -90,7 +90,6 @@ public class SearchActionTest {
   private DbSession dbSession = db.getSession();
   private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-
   private ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
   private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
 

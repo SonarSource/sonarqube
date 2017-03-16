@@ -193,7 +193,7 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
 
-    List<ActiveRuleChange> changes = factory.delete(dbSession, XOO_P1_KEY, false);
+    List<ActiveRuleChange> changes = factory.deleteTree(dbSession, XOO_P1_KEY, false);
     dbSession.commit();
     activeRuleIndexer.index(changes);
 
@@ -224,7 +224,7 @@ public class QProfileFactoryMediumTest {
     assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(3);
     assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(3);
 
-    changes = factory.delete(dbSession, XOO_P1_KEY, false);
+    changes = factory.deleteTree(dbSession, XOO_P1_KEY, false);
     dbSession.commit();
     activeRuleIndexer.index(changes);
 
@@ -247,7 +247,7 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
 
     try {
-      List<ActiveRuleChange> changes = factory.delete(dbSession, profile.getKey(), false);
+      List<ActiveRuleChange> changes = factory.deleteTree(dbSession, profile.getKey(), false);
       dbSession.commit();
       activeRuleIndexer.index(changes);
       fail();
@@ -275,7 +275,7 @@ public class QProfileFactoryMediumTest {
     activeRuleIndexer.index(changes);
 
     try {
-      changes = factory.delete(dbSession, parent.getKey(), false);
+      changes = factory.deleteTree(dbSession, parent.getKey(), false);
       dbSession.commit();
       activeRuleIndexer.index(changes);
       fail();
@@ -290,7 +290,7 @@ public class QProfileFactoryMediumTest {
     thrown.expect(RowNotFoundException.class);
     thrown.expectMessage("Quality profile not found: XOO_P1");
 
-    List<ActiveRuleChange> changes = factory.delete(dbSession, XOO_P1_KEY, false);
+    List<ActiveRuleChange> changes = factory.deleteTree(dbSession, XOO_P1_KEY, false);
     dbSession.commit();
     activeRuleIndexer.index(changes);
   }
