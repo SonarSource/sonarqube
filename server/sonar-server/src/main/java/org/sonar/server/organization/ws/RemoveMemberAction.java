@@ -27,13 +27,10 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
@@ -88,19 +85,22 @@ public class RemoveMemberAction implements OrganizationsWsAction {
 
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
-      OrganizationMemberDto organizationMember = dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)
-        .orElseThrow(() -> BadRequestException.create(format("User '%s' is not a member of organization '%s'", user.getLogin(), organization.getKey())));
-
-      dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
-      dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
-      dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
-      dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
-      dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
-
-      dbClient.organizationMemberDao().delete(dbSession, organizationMember.getOrganizationUuid(), organizationMember.getUserId());
-      dbSession.commit();
+      dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)
+        .ifPresent(om -> removeMember(dbSession, organizationUuid, user));
     }
 
     response.noContent();
+  }
+
+  private void removeMember(DbSession dbSession, String organizationUuid, UserDto user) {
+    int userId = user.getId();
+    dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
+    dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
+    dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
+    dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
+    dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
+
+    dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userId);
+    dbSession.commit();
   }
 }
