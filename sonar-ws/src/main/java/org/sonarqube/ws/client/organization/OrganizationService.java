@@ -80,4 +80,12 @@ public class OrganizationService extends BaseService {
 
     call(post);
   }
+
+  public void removeMember(String organizationKey, String login) {
+    PostRequest post = new PostRequest(path("remove_member"))
+      .setParam("organization", requireNonNull(organizationKey))
+      .setParam("login", requireNonNull(login));
+
+    call(post);
+  }
 }
