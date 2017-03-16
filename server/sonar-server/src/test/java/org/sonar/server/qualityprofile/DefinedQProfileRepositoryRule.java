@@ -84,11 +84,12 @@ public class DefinedQProfileRepositoryRule extends ExternalResource implements D
     return definedQProfile;
   }
 
-  private DefinedQProfile create(Language language, String profileName, boolean isDefault) {
+  public DefinedQProfile create(Language language, String profileName, boolean isDefault, org.sonar.api.rules.ActiveRule... rules) {
     return new DefinedQProfile.Builder()
       .setLanguage(language.getKey())
       .setName(profileName)
       .setDeclaredDefault(isDefault)
+        .addRules(Arrays.asList(rules))
       .build(DigestUtils.getMd5Digest());
   }
 }
