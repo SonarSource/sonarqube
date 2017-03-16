@@ -19,18 +19,23 @@
  */
 package org.sonarqube.ws.client.organization;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
+import static java.util.Arrays.asList;
 
 @Immutable
 public class SearchWsRequest {
   private final Integer page;
   private final Integer pageSize;
+  private final List<String> organizations;
 
   private SearchWsRequest(Builder builder) {
     this.page = builder.page;
     this.pageSize = builder.pageSize;
+    this.organizations = builder.organizations;
   }
 
   @CheckForNull
@@ -43,9 +48,19 @@ public class SearchWsRequest {
     return page;
   }
 
+  @CheckForNull
+  public List<String> getOrganizations() {
+    return organizations;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public static final class Builder {
     private Integer page;
     private Integer pageSize;
+    private List<String> organizations;
 
     public Builder setPage(@Nullable Integer page) {
       this.page = page;
@@ -54,6 +69,11 @@ public class SearchWsRequest {
 
     public Builder setPageSize(@Nullable Integer pageSize) {
       this.pageSize = pageSize;
+      return this;
+    }
+
+    public Builder setOrganizations(String... organizations) {
+      this.organizations = asList(organizations);
       return this;
     }
 
