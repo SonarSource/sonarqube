@@ -17,19 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import { shallow } from 'enzyme';
-import GlobalNavMenu from '../GlobalNavMenu';
+import GlobalPageExtension from './GlobalPageExtension';
 
-it('should work with extensions', () => {
-  const appState = {
-    globalPages: [{ key: 'foo', name: 'Foo' }],
-    qualifiers: ['TRK']
-  };
-  const currentUser = {
-    isLoggedIn: false,
-    permissions: { global: [] }
-  };
-  const wrapper = shallow(<GlobalNavMenu appState={appState} currentUser={currentUser} />);
-  expect(wrapper).toMatchSnapshot();
-});
+export default class PortfoliosPage extends React.Component {
+  render () {
+    return (
+        <GlobalPageExtension
+            location={this.props.location}
+            params={{ pluginKey: 'governance', extensionKey: 'portfolios' }}/>
+    );
+  }
+}
