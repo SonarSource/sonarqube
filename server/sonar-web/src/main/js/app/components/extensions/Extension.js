@@ -25,6 +25,7 @@ import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { getExtensionStart } from './utils';
+import getStore from '../../utils/getStore';
 
 type Props = {
   currentUser: Object,
@@ -58,7 +59,9 @@ class Extension extends React.Component {
   }
 
   handleStart = (start: Function) => {
+    const store = getStore();
     this.stop = start({
+      store,
       el: this.container,
       currentUser: this.props.currentUser,
       router: this.props.router,
