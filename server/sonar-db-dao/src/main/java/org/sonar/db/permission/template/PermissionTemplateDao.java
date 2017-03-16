@@ -124,7 +124,6 @@ public class PermissionTemplateDao implements Dao {
       partitionedTemplateIds -> {
         parameters.put("templateIds", partitionedTemplateIds);
         mapper(dbSession).usersCountByTemplateIdAndPermission(parameters, resultHandler);
-        return null;
       });
   }
 
@@ -140,7 +139,6 @@ public class PermissionTemplateDao implements Dao {
       partitionedTemplateIds -> {
         parameters.put("templateIds", partitionedTemplateIds);
         mapper(dbSession).groupsCountByTemplateIdAndPermission(parameters, resultHandler);
-        return null;
       });
   }
 
@@ -237,7 +235,6 @@ public class PermissionTemplateDao implements Dao {
       templateMapper.deleteGroupPermissionsByTemplateIds(subList);
       templateMapper.deleteUserPermissionsByTemplateIds(subList);
       templateMapper.deleteByIds(subList);
-      return null;
     });
   }
 }

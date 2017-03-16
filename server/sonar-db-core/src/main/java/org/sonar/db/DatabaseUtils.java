@@ -171,20 +171,19 @@ public class DatabaseUtils {
   }
 
   /**
-   * Partition by 1000 elements a list of input and execute a function on each part.
-   * The function has not output (ex: delete operation)
+   * Partition by 1000 elements a list of input and execute a consumer on each part.
    *
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
-  public static <INPUT> void executeLargeInputsWithoutOutput(Collection<INPUT> input, Function<List<INPUT>, Void> function) {
+  public static <T> void executeLargeInputsWithoutOutput(Collection<T> input, Consumer<List<T>> consumer) {
     if (input.isEmpty()) {
       return;
     }
 
-    List<List<INPUT>> partitions = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
-    for (List<INPUT> partition : partitions) {
-      function.apply(partition);
+    List<List<T>> partitions = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
+    for (List<T> partition : partitions) {
+      consumer.accept(partition);
     }
   }
 
