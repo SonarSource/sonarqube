@@ -62,6 +62,4 @@ public interface OrganizationMapper {
     @Param("defaultTemplates") DefaultTemplates defaultTemplates, @Param("now") long now);
 
   int deleteByUuid(@Param("uuid") String uuid);
-
-  int deleteByKey(@Param("key") String key);
 }

@@ -232,9 +232,4 @@
       uuid = #{uuid, jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByKey">
-    delete from organizations
-    where
-      kee = #{key, jdbcType=VARCHAR}
-  </delete>
 </mapper>
