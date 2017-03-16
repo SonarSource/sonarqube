@@ -34,9 +34,14 @@ public interface QProfileBackuper {
   void backup(DbSession dbSession, QualityProfileDto profile, Writer backupWriter);
 
   /**
-   * Restore a profile backup in the specified organization. The parameter {@code overriddenProfileName}
-   * is the name of the profile to be used. If null then name is loaded from backup.
+   * Restore backup on a profile in the specified organization. The parameter {@code overriddenProfileName}
+   * is the name of the profile to be used. If the parameter is null, then the name is loaded from the backup.
+   * The profile is created if it does not exist.
    */
   QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName);
 
+  /**
+   * Restore backup on an existing profile.
+   */
+  QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile);
 }

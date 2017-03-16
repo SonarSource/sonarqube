@@ -51,7 +51,7 @@ public class BackupActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private QProfileBackuper backuper = new QProfileBackuperImpl(null, db.getDbClient());
+  private QProfileBackuper backuper = new QProfileBackuperImpl(db.getDbClient(), null, null);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);

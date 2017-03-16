@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -46,6 +45,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
@@ -92,23 +92,13 @@ public class QProfileResetImpl implements QProfileReset {
           activations.add(activation);
         }
       }
-      doReset(dbSession, profile, activations);
+      reset(dbSession, profile, activations);
     }
   }
 
   @Override
-  public QProfileRestoreSummary reset(DbSession dbSession, OrganizationDto organization, QProfileName profileName, Collection<RuleActivation> activations) {
-    QualityProfileDto profile = factory.getOrCreate(dbSession, organization, profileName);
-    BulkChangeResult ruleChanges = doReset(dbSession, profile, activations);
-    return new QProfileRestoreSummary(organization, profile, ruleChanges);
-  }
-
-  /**
-   * @param dbSession
-   * @param profile must exist
-   */
-  private BulkChangeResult doReset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations) {
-    Preconditions.checkNotNull(profile.getId(), "Quality profile must be persisted");
+  public BulkChangeResult reset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations) {
+    requireNonNull(profile.getId(), "Quality profile must be persisted");
     BulkChangeResult result = new BulkChangeResult();
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
     // Keep reference to all the activated rules before backup restore

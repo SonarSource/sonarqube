@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -31,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -49,17 +49,21 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @ServerSide
 public class QProfileBackuperImpl implements QProfileBackuper {
 
   private static final Joiner RULE_KEY_JOINER = Joiner.on(", ").skipNulls();
 
-  private final QProfileReset reset;
   private final DbClient db;
+  private final QProfileReset profileReset;
+  private final QProfileFactory profileFactory;
 
-  public QProfileBackuperImpl(QProfileReset reset, DbClient db) {
-    this.reset = reset;
+  public QProfileBackuperImpl(DbClient db, QProfileReset profileReset, QProfileFactory profileFactory) {
     this.db = db;
+    this.profileReset = profileReset;
+    this.profileFactory = profileFactory;
   }
 
   @Override
@@ -97,6 +101,25 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
   @Override
   public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
+    return restore(dbSession, backup, nameInBackup -> {
+      QProfileName targetName = nameInBackup;
+      if (overriddenProfileName != null) {
+        targetName = new QProfileName(nameInBackup.getLanguage(), overriddenProfileName);
+      }
+      return profileFactory.getOrCreate(dbSession, organization, targetName);
+    });
+  }
+
+  @Override
+  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile) {
+    return restore(dbSession, backup, nameInBackup -> {
+      checkArgument(profile.getLanguage().equals(nameInBackup.getLanguage()),
+        "Can't restore %s backup on %s profile with key [%s]. Languages are different.", nameInBackup.getLanguage(), profile.getLanguage(), profile.getKey());
+      return profile;
+    });
+  }
+
+  private QProfileRestoreSummary restore(DbSession dbSession, Reader backup, Function<QProfileName, QualityProfileDto> profileLoader) {
     try {
       String profileLang = null;
       String profileName = null;
@@ -122,8 +145,10 @@ public class QProfileBackuperImpl implements QProfileBackuper {
         }
       }
 
-      QProfileName target = new QProfileName(profileLang, MoreObjects.firstNonNull(overriddenProfileName, profileName));
-      return reset.reset(dbSession, organization, target, ruleActivations);
+      QProfileName targetName = new QProfileName(profileLang, profileName);
+      QualityProfileDto targetProfile = profileLoader.apply(targetName);
+      BulkChangeResult changes = profileReset.reset(dbSession, targetProfile, ruleActivations);
+      return new QProfileRestoreSummary(targetProfile, changes);
     } catch (XMLStreamException e) {
       throw new IllegalStateException("Fail to restore Quality profile backup", e);
     }

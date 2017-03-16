@@ -19,24 +19,17 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
 import static java.util.Objects.requireNonNull;
 
 public final class QProfileRestoreSummary {
-  private final OrganizationDto organization;
   private final QualityProfileDto profile;
   private final BulkChangeResult ruleChanges;
 
-  public QProfileRestoreSummary(OrganizationDto organization, QualityProfileDto profile, BulkChangeResult ruleChanges) {
-    this.organization = requireNonNull(organization);
+  public QProfileRestoreSummary(QualityProfileDto profile, BulkChangeResult ruleChanges) {
     this.profile = requireNonNull(profile);
     this.ruleChanges = requireNonNull(ruleChanges);
-  }
-
-  public OrganizationDto getOrganization() {
-    return organization;
   }
 
   public QualityProfileDto getProfile() {

@@ -33,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -44,25 +43,23 @@ public class QProfileCopier {
   private final QProfileFactory factory;
   private final QProfileBackuper backuper;
   private final TempFolder temp;
-  private final QProfileWsSupport qProfileWsSupport;
 
-  public QProfileCopier(DbClient db, QProfileFactory factory, QProfileBackuper backuper, TempFolder temp, QProfileWsSupport qProfileWsSupport) {
+  public QProfileCopier(DbClient db, QProfileFactory factory, QProfileBackuper backuper, TempFolder temp) {
     this.db = db;
     this.factory = factory;
     this.backuper = backuper;
     this.temp = temp;
-    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   public QualityProfileDto copyToName(DbSession dbSession, String fromKey, String toName) {
     QualityProfileDto from = db.qualityProfileDao().selectOrFailByKey(dbSession, fromKey);
     OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, from.getOrganizationUuid())
-        .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + from.getOrganizationUuid() + "] does not exist"));
+      .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + from.getOrganizationUuid() + "] does not exist"));
     QualityProfileDto to = prepareTarget(dbSession, organization, from, toName);
     File backupFile = temp.newFile();
     try {
       backup(dbSession, from, backupFile);
-      restore(dbSession, backupFile, organization, to.getName());
+      restore(dbSession, backupFile, to);
       return to;
     } finally {
       org.sonar.core.util.FileUtils.deleteQuietly(backupFile);
@@ -74,8 +71,6 @@ public class QProfileCopier {
     verify(from, toProfileName);
     QualityProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(organization, toProfileName.getName(), toProfileName.getLanguage(), dbSession);
     if (toProfile == null) {
-      // Do not delegate creation to QProfileBackuper because we need to keep
-      // the parent-child association, if exists.
       toProfile = factory.checkAndCreate(dbSession, organization, toProfileName);
       toProfile.setParentKee(from.getParentKee());
       db.qualityProfileDao().update(dbSession, toProfile);
@@ -87,12 +82,12 @@ public class QProfileCopier {
   private void verify(QualityProfileDto fromProfile, QProfileName toProfileName) {
     if (!StringUtils.equals(fromProfile.getLanguage(), toProfileName.getLanguage())) {
       throw new IllegalArgumentException(String.format(
-          "Source and target profiles do not have the same language: %s and %s",
-          fromProfile.getLanguage(), toProfileName.getLanguage()));
+        "Source and target profiles do not have the same language: %s and %s",
+        fromProfile.getLanguage(), toProfileName.getLanguage()));
     }
     if (fromProfile.getName().equals(toProfileName.getName())) {
       throw new IllegalArgumentException(String.format("Source and target profiles are equal: %s",
-          fromProfile.getName()));
+        fromProfile.getName()));
     }
   }
 
@@ -104,9 +99,9 @@ public class QProfileCopier {
     }
   }
 
-  private void restore(DbSession dbSession, File backupFile, OrganizationDto org, String profileName) {
+  private void restore(DbSession dbSession, File backupFile, QualityProfileDto profile) {
     try (Reader reader = new InputStreamReader(FileUtils.openInputStream(backupFile), UTF_8)) {
-      backuper.restore(dbSession, reader, org, profileName);
+      backuper.restore(dbSession, reader, profile);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temporary backup file: " + backupFile, e);
     }

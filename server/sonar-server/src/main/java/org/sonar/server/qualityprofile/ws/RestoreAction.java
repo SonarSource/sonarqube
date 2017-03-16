@@ -94,21 +94,21 @@ public class RestoreAction implements QProfileWsAction {
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
 
       QProfileRestoreSummary summary = backuper.restore(dbSession, reader, organization, null);
-      writeResponse(response.newJsonWriter(), summary);
+      writeResponse(response.newJsonWriter(), organization, summary);
     } finally {
       IOUtils.closeQuietly(reader);
       IOUtils.closeQuietly(backup);
     }
   }
 
-  private void writeResponse(JsonWriter json, QProfileRestoreSummary summary) {
+  private void writeResponse(JsonWriter json, OrganizationDto organization, QProfileRestoreSummary summary) {
     QualityProfileDto profile = summary.getProfile();
     String languageKey = profile.getLanguage();
     Language language = languages.get(languageKey);
 
     JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
     jsonProfile
-      .prop("organization", summary.getOrganization().getKey())
+      .prop("organization", organization.getKey())
       .prop("key", profile.getKey())
       .prop("name", profile.getName())
       .prop("language", languageKey)
