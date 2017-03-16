@@ -332,10 +332,11 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void select_projects() {
+  public void test_selectUuidsOfAssociatedProjects() {
     dbTester.prepareDbUnit(getClass(), "projects.xml");
 
-    assertThat(underTest.selectProjects("Sonar Way", "java", dbTester.getSession())).hasSize(2);
+    assertThat(underTest.selectUuidsOfAssociatedProjects(dbTester.getSession(), "java_sonar_way")).containsOnly("A", "B");
+    assertThat(underTest.selectUuidsOfAssociatedProjects(dbTester.getSession(), "unknown")).isEmpty();
   }
 
   @Test
