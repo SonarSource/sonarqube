@@ -23,10 +23,12 @@ import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 
@@ -38,37 +40,50 @@ public class DefaultAssignee {
 
   private static final Logger LOG = Loggers.get(DefaultAssignee.class);
 
+  private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
-  private final UserIndex userIndex;
   private final SettingsRepository settingsRepository;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   private boolean loaded = false;
   private String login = null;
 
-  public DefaultAssignee(TreeRootHolder treeRootHolder, UserIndex userIndex, SettingsRepository settingsRepository) {
+  public DefaultAssignee(DbClient dbClient, TreeRootHolder treeRootHolder, SettingsRepository settingsRepository, AnalysisMetadataHolder analysisMetadataHolder) {
+    this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
-    this.userIndex = userIndex;
     this.settingsRepository = settingsRepository;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @CheckForNull
   public String getLogin() {
-    if (!loaded) {
-      String configuredLogin = settingsRepository.getSettings(treeRootHolder.getRoot()).getString(DEFAULT_ISSUE_ASSIGNEE);
-      if (!Strings.isNullOrEmpty(configuredLogin) && isValidLogin(configuredLogin)) {
-        this.login = configuredLogin;
-      }
-      loaded = true;
+    if (loaded) {
+      return login;
     }
+    String configuredLogin = settingsRepository.getSettings(treeRootHolder.getRoot()).getString(DEFAULT_ISSUE_ASSIGNEE);
+    if (!Strings.isNullOrEmpty(configuredLogin) && isValidLogin(configuredLogin)) {
+      this.login = configuredLogin;
+    }
+    loaded = true;
     return login;
   }
 
-  private boolean isValidLogin(String s) {
-    UserDoc user = userIndex.getNullableByLogin(s);
-    if (user == null || !user.active()) {
-      LOG.info("Property {} is set with an unknown login: {}", DEFAULT_ISSUE_ASSIGNEE, s);
-      return false;
+  private boolean isValidLogin(String login) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+      if (user == null) {
+        LOG.info("Property {} is set with an unknown login: {}", DEFAULT_ISSUE_ASSIGNEE, login);
+        return false;
+      }
+      if (!isUserMemberOfOrganization(dbSession, user)) {
+        LOG.info("Property {} is set with a user which is not memeber of the organization of the project : {}", DEFAULT_ISSUE_ASSIGNEE, login);
+        return false;
+      }
+      return true;
     }
-    return true;
+  }
+
+  private boolean isUserMemberOfOrganization(DbSession dbSession, UserDto user) {
+    return dbClient.organizationMemberDao().select(dbSession, analysisMetadataHolder.getOrganization().getUuid(), user.getId()).isPresent();
   }
 }

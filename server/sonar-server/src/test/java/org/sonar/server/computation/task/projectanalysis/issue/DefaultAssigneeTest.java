@@ -21,35 +21,43 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.api.config.Settings;
+import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 
 public class DefaultAssigneeTest {
 
   public static final String PROJECT_KEY = "PROJECT_KEY";
+  public static final String ORGANIZATION_UUID = "ORGANIZATION_UUID";
 
-  TreeRootHolderRule rootHolder = mock(TreeRootHolderRule.class, Mockito.RETURNS_DEEP_STUBS);
-  UserIndex userIndex = mock(UserIndex.class);
-  Settings settings = new MapSettings();
-  SettingsRepository settingsRepository = mock(SettingsRepository.class);
+  @org.junit.Rule
+  public DbTester db = DbTester.create();
 
-  DefaultAssignee underTest = new DefaultAssignee(rootHolder, userIndex, settingsRepository);
+  @org.junit.Rule
+  public TreeRootHolderRule rootHolder = new TreeRootHolderRule().setRoot(DUMB_PROJECT);
+
+  private Settings settings = new MapSettings();
+  private SettingsRepository settingsRepository = new TestSettingsRepository(settings);
+  private AnalysisMetadataHolderImpl analysisMetadataHolder = new AnalysisMetadataHolderImpl();
+  private OrganizationDto organizationDto;
+
+  private DefaultAssignee underTest = new DefaultAssignee(db.getDbClient(), rootHolder, settingsRepository, analysisMetadataHolder);
 
   @Before
-  public void before() {
-    when(rootHolder.getRoot()).thenReturn(mock(Component.class));
-    when(settingsRepository.getSettings(rootHolder.getRoot())).thenReturn(settings);
+  public void setUp() throws Exception {
+    organizationDto = db.organizations().insertForUuid(ORGANIZATION_UUID);
+    analysisMetadataHolder.setOrganization(Organization.from(new OrganizationDto().setUuid(ORGANIZATION_UUID).setKey("Organization key").setName("Organization name")));
   }
 
   @Test
@@ -58,9 +66,10 @@ public class DefaultAssigneeTest {
   }
 
   @Test
-  public void default_assignee() {
+  public void set_default_assignee() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
-    when(userIndex.getNullableByLogin("erik")).thenReturn(new UserDoc().setLogin("erik").setActive(true));
+    UserDto userDto = db.users().insertUser("erik");
+    db.organizations().addMember(organizationDto, userDto);
 
     assertThat(underTest.getLogin()).isEqualTo("erik");
   }
@@ -68,7 +77,6 @@ public class DefaultAssigneeTest {
   @Test
   public void configured_login_does_not_exist() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
-    when(userIndex.getNullableByLogin("erik")).thenReturn(null);
 
     assertThat(underTest.getLogin()).isNull();
   }
@@ -76,8 +84,30 @@ public class DefaultAssigneeTest {
   @Test
   public void configured_login_is_disabled() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
-    when(userIndex.getNullableByLogin("erik")).thenReturn(new UserDoc().setLogin("erik").setActive(false));
+    db.users().insertUser(user -> user.setLogin("erik").setActive(false));
 
     assertThat(underTest.getLogin()).isNull();
+  }
+
+  @Test
+  public void configured_login_is_not_member_of_organization() {
+    settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
+    OrganizationDto otherOrganization = db.organizations().insert();
+    UserDto userDto = db.users().insertUser("erik");
+    db.organizations().addMember(otherOrganization, userDto);
+
+    assertThat(underTest.getLogin()).isNull();
+  }
+
+  @Test
+  public void default_assignee_is_cached() {
+    settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
+    UserDto userDto = db.users().insertUser("erik");
+    db.organizations().addMember(organizationDto, userDto);
+    assertThat(underTest.getLogin()).isEqualTo("erik");
+
+    // The setting is updated but the assignee hasn't changed
+    settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "other");
+    assertThat(underTest.getLogin()).isEqualTo("erik");
   }
 }
