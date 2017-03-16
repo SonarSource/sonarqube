@@ -21,9 +21,11 @@ package org.sonar.db.qualityprofile;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
@@ -101,6 +103,16 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
+  public void deleteByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByProfileKeys);
+  }
+
+  public void deleteParametersByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteParametersByProfileKeys);
+  }
+
   /**
    * Nested DTO ActiveRuleParams
    */
@@ -150,7 +162,7 @@ public class ActiveRuleDao implements Dao {
     deleteParamById(session, activeRuleParam.getId());
   }
 
-  public void deleteParamById(DbSession session, int id){
+  public void deleteParamById(DbSession session, int id) {
     mapper(session).deleteParameter(id);
   }
 
