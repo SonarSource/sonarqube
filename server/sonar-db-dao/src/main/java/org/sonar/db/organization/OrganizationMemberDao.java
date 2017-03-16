@@ -21,6 +21,7 @@
 package org.sonar.db.organization;
 
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -44,4 +45,9 @@ public class OrganizationMemberDao implements Dao {
   public void deleteByOrganizationUuid(DbSession dbSession, String organizationMemberUuid) {
     mapper(dbSession).deleteByOrganization(organizationMemberUuid);
   }
+
+  public Set<String> selectOrganizationUuidsByUser(DbSession dbSession, int userId) {
+    return mapper(dbSession).selectOrganizationUuidsByUser(userId);
+  }
+
 }
