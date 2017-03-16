@@ -28,4 +28,6 @@ public interface OrganizationMemberMapper {
   void insert(OrganizationMemberDto organizationMember);
 
   void delete(@Param("organizationUuid") String organizationUuid, @Param("userId") Integer userId);
+
+  void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 }

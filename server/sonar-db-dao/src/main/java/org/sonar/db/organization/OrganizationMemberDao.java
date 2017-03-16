@@ -40,4 +40,8 @@ public class OrganizationMemberDao implements Dao {
   public void delete(DbSession dbSession, String organizationMemberUuid, Integer userId) {
     mapper(dbSession).delete(organizationMemberUuid, userId);
   }
+
+  public void deleteByOrganizationUuid(DbSession dbSession, String organizationMemberUuid) {
+    mapper(dbSession).deleteByOrganization(organizationMemberUuid);
+  }
 }
