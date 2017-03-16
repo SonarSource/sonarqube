@@ -69,7 +69,8 @@ public class SetTypeActionTest {
     DefaultIssue issue = newIssue().setType(BUG).toDefaultIssue();
     setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
 
-    action.execute(ImmutableMap.of("type", VULNERABILITY.name()), new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getLogin())));
+    action.execute(ImmutableMap.of("type", VULNERABILITY.name()),
+      new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getLogin()), db.getDefaultOrganization().getUuid()));
 
     assertThat(issue.type()).isEqualTo(VULNERABILITY);
     assertThat(issue.isChanged()).isTrue();

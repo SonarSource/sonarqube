@@ -78,6 +78,8 @@ public abstract class Action {
     DefaultIssue issue();
 
     IssueChangeContext issueChangeContext();
+
+    String issueOrganizationUuid();
   }
 
 }

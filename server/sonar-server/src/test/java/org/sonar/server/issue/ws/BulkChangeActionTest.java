@@ -214,6 +214,8 @@ public class BulkChangeActionTest {
   public void bulk_change_many_issues() throws Exception {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
     UserDto userToAssign = db.users().insertUser("arthur");
+    db.organizations().addMember(organization, user);
+    db.organizations().addMember(organization, userToAssign);
     IssueDto issue1 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(user.getLogin())).setType(BUG).setSeverity(MINOR);
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(userToAssign.getLogin())).setType(BUG).setSeverity(MAJOR);
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(null)).setType(VULNERABILITY).setSeverity(MAJOR);

@@ -20,9 +20,11 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +32,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ws.BulkChangeAction;
@@ -38,9 +41,10 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class AssignActionTest {
+
+  private static final String ISSUE_CURRENT_ASSIGNEE = "current assignee";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -49,24 +53,69 @@ public class AssignActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester dbTester = DbTester.create();
-
-  private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
+  public DbTester db = DbTester.create();
 
   private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "emmerik");
+  private DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssignee(ISSUE_CURRENT_ASSIGNEE);
+  private Action.Context context;
+  private OrganizationDto issueOrganizationDto;
 
-  private DefaultIssue issue = new DefaultIssue().setKey("ABC");
-  private Action.Context context = new BulkChangeAction.ActionContext(issue, issueChangeContext);
+  private AssignAction underTest = new AssignAction(db.getDbClient(), new IssueFieldsSetter());
 
-  private AssignAction action = new AssignAction(dbTester.getDbClient(), issueUpdater);
+  @Before
+  public void setUp() throws Exception {
+    issueOrganizationDto = db.organizations().insert();
+    context = new BulkChangeAction.ActionContext(issue, issueChangeContext, issueOrganizationDto.getUuid());
+  }
 
   @Test
   public void assign_issue() {
-    UserDto assignee = newUserDto();
+    UserDto assignee = db.users().insertUser("john");
+    db.organizations().addMember(issueOrganizationDto, assignee);
+    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", "john"));
 
-    action.execute(ImmutableMap.of("verifiedAssignee", assignee), context);
+    underTest.verify(properties, Collections.emptyList(), userSession);
+    boolean executeResult = underTest.execute(properties, context);
 
+    assertThat(executeResult).isTrue();
     assertThat(issue.assignee()).isEqualTo(assignee.getLogin());
+  }
+
+  @Test
+  public void unassign_issue_if_assignee_is_empty() {
+    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", ""));
+
+    underTest.verify(properties, Collections.emptyList(), userSession);
+    boolean executeResult = underTest.execute(properties, context);
+
+    assertThat(executeResult).isTrue();
+    assertThat(issue.assignee()).isNull();
+  }
+
+  @Test
+  public void unassign_issue_if_assignee_is_null() {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("assignee", null);
+
+    underTest.verify(properties, Collections.emptyList(), userSession);
+    boolean executeResult = underTest.execute(properties, context);
+
+    assertThat(executeResult).isTrue();
+    assertThat(issue.assignee()).isNull();
+  }
+
+  @Test
+  public void does_not_assign_issue_when_assignee_is_not_member_of_project_issue_organization() {
+    OrganizationDto otherOrganizationDto = db.organizations().insert();
+    UserDto assignee = db.users().insertUser("john");
+    // User is not member of the organization of the issue
+    db.organizations().addMember(otherOrganizationDto, assignee);
+    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", "john"));
+
+    underTest.verify(properties, Collections.emptyList(), userSession);
+    boolean executeResult = underTest.execute(properties, context);
+
+    assertThat(executeResult).isFalse();
   }
 
   @Test
@@ -74,20 +123,7 @@ public class AssignActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Assignee is missing from the execution parameters");
 
-    action.execute(emptyMap(), context);
-  }
-
-  @Test
-  public void verify_that_assignee_exists() {
-    String assignee = "arthur";
-    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", assignee));
-    UserDto user = dbTester.users().insertUser(assignee);
-
-    boolean verify = action.verify(properties, singletonList(issue), userSession);
-
-    assertThat(verify).isTrue();
-    UserDto verifiedUser = (UserDto) properties.get(AssignAction.VERIFIED_ASSIGNEE);
-    assertThat(verifiedUser.getLogin()).isEqualTo(user.getLogin());
+    underTest.execute(emptyMap(), context);
   }
 
   @Test
@@ -95,24 +131,23 @@ public class AssignActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Unknown user: arthur");
 
-    action.verify(ImmutableMap.of("assignee", "arthur"), singletonList(issue), userSession);
+    underTest.verify(ImmutableMap.of("assignee", "arthur"), singletonList(issue), userSession);
   }
 
   @Test
-  public void unassign_issue_if_assignee_is_empty() {
-    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", ""));
+  public void fail_if_assignee_is_removed() {
+    db.users().insertUser(user -> user.setLogin("arthur").setActive(false));
 
-    boolean verify = action.verify(properties, singletonList(issue), userSession);
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Unknown user: arthur");
 
-    assertThat(verify).isTrue();
-    assertThat(properties.containsKey(AssignAction.VERIFIED_ASSIGNEE)).isTrue();
-    assertThat(properties.get(AssignAction.VERIFIED_ASSIGNEE)).isNull();
+    underTest.verify(new HashMap<>(ImmutableMap.of("assignee", "arthur")), singletonList(issue), userSession);
   }
 
   @Test
   public void support_only_unresolved_issues() {
-    assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isFalse();
+    assertThat(underTest.supports(new DefaultIssue().setResolution(null))).isTrue();
+    assertThat(underTest.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isFalse();
   }
 
 }

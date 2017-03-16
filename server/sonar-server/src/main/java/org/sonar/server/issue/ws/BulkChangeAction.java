@@ -197,19 +197,19 @@ public class BulkChangeAction implements IssuesWsAction {
     return bulkChangeData -> {
       BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
       IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
-      
+
       List<DefaultIssue> items = bulkChangeData.issues.stream()
         .filter(bulkChange(issueChangeContext, bulkChangeData, result))
         .collect(Collectors.toList());
       issueStorage.save(items);
-      items.stream().forEach(sendNotification(issueChangeContext, bulkChangeData));
+      items.forEach(sendNotification(issueChangeContext, bulkChangeData));
       return result;
     };
   }
 
   private Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
     return issue -> {
-      ActionContext actionContext = new ActionContext(issue, issueChangeContext);
+      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.organizationUuidsByProjectUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
       return result.success.contains(issue.key());
@@ -260,10 +260,12 @@ public class BulkChangeAction implements IssuesWsAction {
   public static class ActionContext implements Action.Context {
     private final DefaultIssue issue;
     private final IssueChangeContext changeContext;
+    private final String issueOrganizationUuid;
 
-    public ActionContext(DefaultIssue issue, IssueChangeContext changeContext) {
+    public ActionContext(DefaultIssue issue, IssueChangeContext changeContext, String issueOrganizationUuid) {
       this.issue = issue;
       this.changeContext = changeContext;
+      this.issueOrganizationUuid = issueOrganizationUuid;
     }
 
     @Override
@@ -275,12 +277,18 @@ public class BulkChangeAction implements IssuesWsAction {
     public IssueChangeContext issueChangeContext() {
       return changeContext;
     }
+
+    @Override
+    public String issueOrganizationUuid() {
+      return issueOrganizationUuid;
+    }
   }
 
   private class BulkChangeData {
     private final Map<String, Map<String, Object>> propertiesByActions;
     private final boolean sendNotification;
     private final Collection<DefaultIssue> issues;
+    private final Map<String, String> organizationUuidsByProjectUuid;
     private final Map<String, ComponentDto> projectsByUuid;
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<RuleKey, RuleDto> rulesByKey;
@@ -296,6 +304,7 @@ public class BulkChangeAction implements IssuesWsAction {
 
       List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(Collectors.toSet()));
       this.projectsByUuid = getAuthorizedProjects(dbSession, allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
+      this.organizationUuidsByProjectUuid = projectsByUuid.values().stream().collect(Collectors.uniqueIndex(ComponentDto::uuid, ComponentDto::getOrganizationUuid));
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
