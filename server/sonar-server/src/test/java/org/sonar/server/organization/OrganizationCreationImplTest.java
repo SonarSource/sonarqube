@@ -214,6 +214,7 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
 
@@ -362,6 +363,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 

@@ -91,7 +91,7 @@ public class QProfileResetMediumTest {
     }
     RULE_DEFS.set(rules);
     PROFILE_DEFS.set(profile);
-    tester.get(Platform.class).executeStartupTasks();
+    tester.get(Platform.class).restart();
 
     db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
