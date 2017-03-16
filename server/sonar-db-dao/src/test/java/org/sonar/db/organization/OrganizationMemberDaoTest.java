@@ -87,6 +87,19 @@ public class OrganizationMemberDaoTest {
     underTest.insert(dbSession, create("O_1", 256));
   }
 
+  @Test
+  public void delete_by_organization() {
+    underTest.insert(dbSession, create("O1", 512));
+    underTest.insert(dbSession, create("O1", 513));
+    underTest.insert(dbSession, create("O2", 512));
+
+    underTest.deleteByOrganizationUuid(dbSession, "O1");
+
+    assertThat(underTest.select(dbSession, "O1", 512)).isNotPresent();
+    assertThat(underTest.select(dbSession, "O1", 513)).isNotPresent();
+    assertThat(underTest.select(dbSession, "O2", 512)).isPresent();
+  }
+
   private OrganizationMemberDto create(String organizationUuid, Integer userId) {
     return new OrganizationMemberDto()
       .setOrganizationUuid(organizationUuid)
