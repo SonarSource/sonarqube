@@ -40,6 +40,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
