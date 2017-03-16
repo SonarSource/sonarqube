@@ -38,7 +38,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -237,6 +236,13 @@ public class RemoveMemberActionTest {
   }
 
   @Test
+  public void do_not_fail_if_user_already_removed_from_organization() {
+    call(organization.getKey(), user.getLogin());
+
+    call(organization.getKey(), user.getLogin());
+  }
+
+  @Test
   public void fail_if_login_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User 'login-42' is not found");
@@ -264,16 +270,6 @@ public class RemoveMemberActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     call(null, user.getLogin());
-  }
-
-  @Test
-  public void fail_if_user_already_removed_from_organization() {
-    call(organization.getKey(), user.getLogin());
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("User '" + user.getLogin() + "' is not a member of organization '" + organization.getKey() + "'");
-
-    call(organization.getKey(), user.getLogin());
   }
 
   @Test
