@@ -65,7 +65,6 @@ public class RegisterQualityProfiles {
   public void start() {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
 
-    definedQProfileRepository.initialize();
     try (DbSession session = dbClient.openSession(false)) {
       List<ActiveRuleChange> changes = new ArrayList<>();
       definedQProfileRepository.getQProfilesByLanguage().entrySet()
