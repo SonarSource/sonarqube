@@ -27,7 +27,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.core.util.stream.Collectors.toList;
 
 @ServerSide
 public class QProfileLookup {
@@ -38,34 +37,29 @@ public class QProfileLookup {
     this.db = db;
   }
 
-  public List<QProfile> allProfiles(DbSession dbSession, OrganizationDto organization) {
-    return toQProfiles(db.qualityProfileDao().selectAll(dbSession, organization), organization);
+  public List<QualityProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
+    return db.qualityProfileDao().selectAll(dbSession, organization);
   }
 
-  public List<QProfile> profiles(DbSession dbSession, String language, OrganizationDto organization) {
-    return toQProfiles(db.qualityProfileDao().selectByLanguage(dbSession, language), organization);
+  public List<QualityProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {
+    return db.qualityProfileDao().selectByLanguage(dbSession, organization, language);
   }
 
-  public List<QProfile> ancestors(QualityProfileDto profile, DbSession session) {
-    List<QProfile> ancestors = newArrayList();
-    incrementAncestors(QProfile.from(profile, null), ancestors, session);
+  public List<QualityProfileDto> ancestors(QualityProfileDto profile, DbSession session) {
+    List<QualityProfileDto> ancestors = newArrayList();
+    incrementAncestors(profile, ancestors, session);
     return ancestors;
   }
 
-  private void incrementAncestors(QProfile profile, List<QProfile> ancestors, DbSession session) {
-    if (profile.parent() != null) {
-      QualityProfileDto parentDto = db.qualityProfileDao().selectParentById(session, profile.id());
+  private void incrementAncestors(QualityProfileDto profile, List<QualityProfileDto> ancestors, DbSession session) {
+    if (profile.getParentKee() != null) {
+      QualityProfileDto parentDto = db.qualityProfileDao().selectParentById(session, profile.getId());
       if (parentDto == null) {
-        throw new IllegalStateException("Cannot find parent of profile : " + profile.id());
+        throw new IllegalStateException("Cannot find parent of profile : " + profile.getId());
       }
-      QProfile parent = QProfile.from(parentDto, null);
-      ancestors.add(parent);
-      incrementAncestors(parent, ancestors, session);
+      ancestors.add(parentDto);
+      incrementAncestors(parentDto, ancestors, session);
     }
-  }
-
-  private static List<QProfile> toQProfiles(List<QualityProfileDto> dtos, OrganizationDto organization) {
-    return dtos.stream().map(dto -> QProfile.from(dto, organization)).collect(toList(dtos.size()));
   }
 
 }

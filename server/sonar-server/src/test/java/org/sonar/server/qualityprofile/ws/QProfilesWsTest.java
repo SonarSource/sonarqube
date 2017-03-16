@@ -65,7 +65,7 @@ public class QProfilesWsTest {
       new BulkRuleActivationActions(profileService, null),
       new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
-      new SearchAction(null, languages, null, dbClient),
+      new SearchAction(null, languages, null, dbClient, wsSupport ),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
       new ChangelogAction(null, wsSupport, languages, dbClient),
@@ -73,7 +73,7 @@ public class QProfilesWsTest {
       new CompareAction(null, null, languages),
       new DeleteAction(languages, null, null, userSessionRule, wsSupport),
       new ExportersAction(),
-      new InheritanceAction(null, null, null, null, languages, null),
+      new InheritanceAction(null, null, null, null, languages),
       new RenameAction(null, wsSupport, dbClient, userSessionRule))).controller(QProfilesWs.API_ENDPOINT);
   }
 
@@ -238,8 +238,8 @@ public class QProfilesWsTest {
     WebService.Action inheritance = controller.action("inheritance");
     assertThat(inheritance).isNotNull();
     assertThat(inheritance.isPost()).isFalse();
-    assertThat(inheritance.params()).hasSize(3).extracting("key").containsOnly(
-      "profileKey", "language", "profileName");
+    assertThat(inheritance.params()).hasSize(4).extracting("key").containsExactlyInAnyOrder(
+      "organization", "profileKey", "language", "profileName");
     assertThat(inheritance.responseExampleAsString()).isNotEmpty();
   }
 

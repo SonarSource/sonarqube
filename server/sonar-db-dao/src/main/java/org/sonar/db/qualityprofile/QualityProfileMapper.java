@@ -50,7 +50,7 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectByKey(String key);
 
-  List<QualityProfileDto> selectByLanguage(String language);
+  List<QualityProfileDto> selectByLanguage(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
   List<QualityProfileDto> selectByKeys(@Param("keys") List<String> keys);
 

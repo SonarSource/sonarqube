@@ -30,8 +30,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -55,12 +56,14 @@ public class SearchAction implements QProfileWsAction {
   private final Languages languages;
   private final ActiveRuleIndex activeRuleIndex;
   private final DbClient dbClient;
+  private final QProfileWsSupport wsSupport;
 
-  public SearchAction(SearchDataLoader dataLoader, Languages languages, ActiveRuleIndex activeRuleIndex, DbClient dbClient) {
+  public SearchAction(SearchDataLoader dataLoader, Languages languages, ActiveRuleIndex activeRuleIndex, DbClient dbClient, QProfileWsSupport wsSupport) {
     this.dataLoader = dataLoader;
     this.languages = languages;
     this.activeRuleIndex = activeRuleIndex;
     this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -125,8 +128,10 @@ public class SearchAction implements QProfileWsAction {
 
   private SearchData load(SearchWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.getOrganizationKey());
       return new SearchData()
-        .setProfiles(dataLoader.findProfiles(dbSession, request))
+        .setOrganization(organization)
+        .setProfiles(dataLoader.findProfiles(dbSession, request, organization))
         .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
         .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
         .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession));
@@ -146,21 +151,21 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private SearchWsResponse buildResponse(SearchData data) {
-    List<QProfile> profiles = data.getProfiles();
-    Map<String, QProfile> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfile::key, identity()));
+    List<QualityProfileDto> profiles = data.getProfiles();
+    Map<String, QualityProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QualityProfileDto::getKey, identity()));
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
-    for (QProfile profile : profiles) {
+    for (QualityProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
-      String profileKey = profile.key();
-      if (profile.organization() != null) {
-        profileBuilder.setOrganization(profile.organization().getKey());
+      String profileKey = profile.getKey();
+      if (profile.getOrganizationUuid() != null) {
+        profileBuilder.setOrganization(data.getOrganization().getKey());
       }
       profileBuilder.setKey(profileKey);
-      if (profile.name() != null) {
-        profileBuilder.setName(profile.name());
+      if (profile.getName() != null) {
+        profileBuilder.setName(profile.getName());
       }
       if (profile.getRulesUpdatedAt() != null) {
         profileBuilder.setRulesUpdatedAt(profile.getRulesUpdatedAt());
@@ -179,15 +184,15 @@ public class SearchAction implements QProfileWsAction {
 
       writeLanguageFields(profileBuilder, profile);
       writeParentFields(profileBuilder, profile, profilesByKey);
-      profileBuilder.setIsInherited(profile.isInherited());
+      profileBuilder.setIsInherited(profile.getParentKee() != null);
       profileBuilder.setIsDefault(profile.isDefault());
     }
 
     return response.build();
   }
 
-  private void writeLanguageFields(QualityProfile.Builder profileBuilder, QProfile profile) {
-    String languageKey = profile.language();
+  private void writeLanguageFields(QualityProfile.Builder profileBuilder, QualityProfileDto profile) {
+    String languageKey = profile.getLanguage();
     if (languageKey == null) {
       return;
     }
@@ -199,16 +204,16 @@ public class SearchAction implements QProfileWsAction {
     }
   }
 
-  private static void writeParentFields(QualityProfile.Builder profileBuilder, QProfile profile, Map<String, QProfile> profilesByKey) {
-    String parentKey = profile.parent();
+  private static void writeParentFields(QualityProfile.Builder profileBuilder, QualityProfileDto profile, Map<String, QualityProfileDto> profilesByKey) {
+    String parentKey = profile.getParentKee();
     if (parentKey == null) {
       return;
     }
 
     profileBuilder.setParentKey(parentKey);
-    QProfile parent = profilesByKey.get(parentKey);
-    if (parent != null && parent.name() != null) {
-      profileBuilder.setParentName(parent.name());
+    QualityProfileDto parent = profilesByKey.get(parentKey);
+    if (parent != null && parent.getName() != null) {
+      profileBuilder.setParentName(parent.getName());
     }
   }
 }

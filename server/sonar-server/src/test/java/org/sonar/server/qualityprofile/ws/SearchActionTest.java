@@ -111,10 +111,11 @@ public class SearchActionTest {
         languages,
         new QProfileLookup(dbClient),
         dbClient,
-        new ComponentFinder(dbClient), qProfileWsSupport),
+        new ComponentFinder(dbClient)),
       languages,
       activeRuleIndex,
-      dbClient);
+      dbClient,
+      qProfileWsSupport);
     ws = new WsActionTester(underTest);
   }
 
