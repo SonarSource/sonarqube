@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 import java.util.Collection;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
 public interface QProfileReset {
   /**
@@ -31,7 +32,7 @@ public interface QProfileReset {
   void resetLanguage(DbSession dbSession, OrganizationDto organization, String language);
 
   /**
-   * Reset the profile, which is created if it does not exist
+   * Reset the rules of the specified profile.
    */
-  QProfileRestoreSummary reset(DbSession dbSession, OrganizationDto organization, QProfileName profileName, Collection<RuleActivation> activations);
+  BulkChangeResult reset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations);
 }

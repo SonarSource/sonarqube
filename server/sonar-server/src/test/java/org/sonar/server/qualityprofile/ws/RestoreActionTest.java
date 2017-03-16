@@ -92,7 +92,6 @@ public class RestoreActionTest {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
     TestResponse response = restore("<backup/>", null);
 
-    assertThat(backuper.restoredSummary.getOrganization().getUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
     assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
     JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
@@ -115,7 +114,6 @@ public class RestoreActionTest {
     logInAsQProfileAdministrator(org);
     TestResponse response = restore("<backup/>", org.getKey());
 
-    assertThat(backuper.restoredSummary.getOrganization().getUuid()).isEqualTo(org.getUuid());
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
     assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
     JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
@@ -226,8 +224,13 @@ public class RestoreActionTest {
         .setDefault(false)
         .setLanguage("xoo")
         .setName(overriddenProfileName != null ? overriddenProfileName : "the-name-in-backup");
-      restoredSummary = new QProfileRestoreSummary(organization, profile, new BulkChangeResult());
+      restoredSummary = new QProfileRestoreSummary(profile, new BulkChangeResult());
       return restoredSummary;
+    }
+
+    @Override
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile) {
+      throw new UnsupportedOperationException();
     }
   }
 }
