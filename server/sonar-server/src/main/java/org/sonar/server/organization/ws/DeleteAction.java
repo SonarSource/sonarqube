@@ -82,47 +82,47 @@ public class DeleteAction implements OrganizationsAction {
       String key = request.mandatoryParam(PARAM_KEY);
       preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());
 
-      OrganizationDto organizationDto = checkFoundWithOptional(
+      OrganizationDto organization = checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, key),
         "Organization with key '%s' not found",
         key);
 
-      if (organizationDto.isGuarded()) {
+      if (organization.isGuarded()) {
         userSession.checkIsSystemAdministrator();
       } else {
-        userSession.checkPermission(ADMINISTER, organizationDto);
+        userSession.checkPermission(ADMINISTER, organization);
       }
 
-      deleteProjects(dbSession, organizationDto.getUuid());
-      deletePermissions(dbSession, organizationDto.getUuid());
-      deleteGroups(dbSession, organizationDto.getUuid());
-      deleteOrganization(key, dbSession);
+      deleteProjects(dbSession, organization);
+      deletePermissions(dbSession, organization);
+      deleteGroups(dbSession, organization);
+      deleteOrganization(dbSession, organization);
 
       response.noContent();
     }
   }
 
-  private void deleteProjects(DbSession dbSession, String organizationUuid) {
-    List<ComponentDto> roots = dbClient.componentDao().selectAllRootsByOrganization(dbSession, organizationUuid);
+  private void deleteProjects(DbSession dbSession, OrganizationDto organization) {
+    List<ComponentDto> roots = dbClient.componentDao().selectAllRootsByOrganization(dbSession, organization.getUuid());
     componentCleanerService.delete(dbSession, roots);
   }
 
-  private void deletePermissions(DbSession dbSession, String organizationUuid) {
-    dbClient.permissionTemplateDao().deleteByOrganization(dbSession, organizationUuid);
+  private void deletePermissions(DbSession dbSession, OrganizationDto organization) {
+    dbClient.permissionTemplateDao().deleteByOrganization(dbSession, organization.getUuid());
     dbSession.commit();
-    dbClient.userPermissionDao().deleteByOrganization(dbSession, organizationUuid);
+    dbClient.userPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
     dbSession.commit();
-    dbClient.groupPermissionDao().deleteByOrganization(dbSession, organizationUuid);
-    dbSession.commit();
-  }
-
-  private void deleteGroups(DbSession dbSession, String organizationUuid) {
-    dbClient.groupDao().deleteByOrganization(dbSession, organizationUuid);
+    dbClient.groupPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
     dbSession.commit();
   }
 
-  private void deleteOrganization(String key, DbSession dbSession) {
-    dbClient.organizationDao().deleteByKey(dbSession, key);
+  private void deleteGroups(DbSession dbSession, OrganizationDto organization) {
+    dbClient.groupDao().deleteByOrganization(dbSession, organization.getUuid());
+    dbSession.commit();
+  }
+
+  private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {
+    dbClient.organizationDao().deleteByUuid(dbSession, organization.getUuid());
     dbSession.commit();
   }
 
