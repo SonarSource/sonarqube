@@ -20,38 +20,32 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { translate } from '../../helpers/l10n';
 import './TagsList.css';
 
 type Props = {
-  tags?: Array<string>,
-  allowUpdate?: boolean,
-  hideWhenNoTags?: boolean,
-  allowMultiLine?: boolean
+  tags: Array<string>,
+  allowUpdate: boolean,
+  allowMultiLine: boolean
 };
 
-export default class SearchableFilterFooter extends React.PureComponent {
+export default class TagsList extends React.PureComponent {
   props: Props;
 
-  render () {
-    const { tags, hideWhenNoTags, allowUpdate } = this.props;
-    const spanClass = classNames('note', {
-      'single-line': !this.props.allowMultiLine
-    });
-    let tagsText;
+  static defaultProps = {
+    allowUpdate: false,
+    allowMultiLine: false
+  };
 
-    if (tags && tags.length) {
-      tagsText = tags.join(', ');
-    } else if (hideWhenNoTags) {
-      return null;
-    } else {
-      tagsText = translate('no_tags');
-    }
+  render () {
+    const { tags, allowUpdate } = this.props;
+    const spanClass = classNames('note', {
+      'text-ellipsis': !this.props.allowMultiLine
+    });
 
     return (
-      <span className="tags-list" title={tagsText}>
+      <span className="tags-list" title={tags.join(', ')}>
         <i className="icon-tags icon-half-transparent"/>
-        <span className={spanClass}>{tagsText}</span>
+        <span className={spanClass}>{tags.join(', ')}</span>
         {allowUpdate && <i className="icon-dropdown icon-half-transparent"/>}
       </span>
     );

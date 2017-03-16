@@ -20,7 +20,6 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import TagsList from '../TagsList';
-import { translate } from '../../../helpers/l10n';
 
 const tags = ['foo', 'bar'];
 
@@ -28,17 +27,11 @@ it('should render with a list of tag', () => {
   const taglist = shallow(<TagsList tags={tags}/>);
   expect(taglist.text()).toBe(tags.join(', '));
   expect(taglist.find('i').length).toBe(1);
-  expect(taglist.find('span.note').hasClass('single-line')).toBe(true);
+  expect(taglist.find('span.note').hasClass('text-ellipsis')).toBe(true);
 });
 
-it('should render without tags', () => {
-  const taglist = shallow(<TagsList/>);
-  expect(taglist.text()).toBe(translate('no_tags'));
-});
-
-it('should not render without tags', () => {
-  const taglist = shallow(<TagsList hideWhenNoTags={true}/>);
-  expect(taglist.html()).toBe(null);
+it('should FAIL to render without tags', () => {
+  expect(() => shallow(<TagsList/>)).toThrow();
 });
 
 it('should correctly handle a lot of tags', () => {
@@ -48,7 +41,7 @@ it('should correctly handle a lot of tags', () => {
   }
   const taglist = shallow(<TagsList tags={lotOfTags} allowMultiLine={true}/>);
   expect(taglist.text()).toBe(lotOfTags.join(', '));
-  expect(taglist.find('span.note').hasClass('single-line')).toBe(false);
+  expect(taglist.find('span.note').hasClass('text-ellipsis')).toBe(false);
 });
 
 it('should render with a caret on the right if update is allowed', () => {

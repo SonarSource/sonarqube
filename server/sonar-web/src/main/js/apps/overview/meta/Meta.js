@@ -28,6 +28,7 @@ import AnalysesList from '../events/AnalysesList';
 import MetaSize from './MetaSize';
 import TagsList from '../../../components/ui/TagsList';
 import { areThereCustomOrganizations } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 
 const Meta = ({ component, measures, areThereCustomOrganizations }) => {
   const { qualifier, description, qualityProfiles, qualityGate } = component;
@@ -57,7 +58,7 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
 
       <div className="overview-meta-card">
         <TagsList
-          tags={component.tags}
+          tags={component.tags && component.tags.length ? component.tags : [translate('no_tags')]}
           allowUpdate={configuration.showSettings}
           allowMultiLine={true}
         />

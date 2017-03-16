@@ -44,3 +44,8 @@ it('should NOT display analysis date', () => {
 it('should display loading', () => {
   expect(shallow(<ProjectCard project={PROJECT} />)).toMatchSnapshot();
 });
+
+it('should display tags', () => {
+  const project = { ...PROJECT, tags: ['foo', 'bar'] };
+  expect(shallow(<ProjectCard project={project}/>)).toMatchSnapshot();
+});
