@@ -67,10 +67,6 @@ public class RuleDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
-  public List<RuleDto> selectEnabled(DbSession session) {
-    return mapper(session).selectEnabled();
-  }
-
   public void selectEnabled(DbSession session, ResultHandler resultHandler) {
     mapper(session).selectEnabled(resultHandler);
   }

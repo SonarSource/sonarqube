@@ -29,8 +29,6 @@ public interface RuleMapper {
 
   List<RuleDto> selectAll();
 
-  List<RuleDto> selectEnabled();
-
   void selectEnabled(ResultHandler resultHandler);
 
   RuleDto selectById(long id);
