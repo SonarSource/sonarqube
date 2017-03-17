@@ -43,8 +43,6 @@ public interface RuleMapper {
 
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
-  RuleDto selectByName(String name);
-
   List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);
 
   void update(RuleDto rule);
