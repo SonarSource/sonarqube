@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class GroupMembershipQuery {
 
@@ -39,7 +38,6 @@ public class GroupMembershipQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
-  private final String login;
   private final String membership;
 
   private final String groupSearch;
@@ -54,7 +52,6 @@ public class GroupMembershipQuery {
   private final int pageIndex;
 
   private GroupMembershipQuery(Builder builder) {
-    this.login = builder.login;
     this.membership = builder.membership;
     this.groupSearch = builder.groupSearch;
     this.groupSearchSql = groupSearchToSql(groupSearch);
@@ -71,10 +68,6 @@ public class GroupMembershipQuery {
       sql = "%" + sql + "%";
     }
     return sql;
-  }
-
-  public String login() {
-    return login;
   }
 
   @CheckForNull
@@ -103,7 +96,6 @@ public class GroupMembershipQuery {
   }
 
   public static class Builder {
-    private String login;
     private String membership;
     private String groupSearch;
 
@@ -111,11 +103,6 @@ public class GroupMembershipQuery {
     private Integer pageSize = DEFAULT_PAGE_SIZE;
 
     private Builder() {
-    }
-
-    public Builder login(String login) {
-      this.login = login;
-      return this;
     }
 
     public Builder membership(@Nullable String membership) {
@@ -154,7 +141,6 @@ public class GroupMembershipQuery {
     }
 
     public GroupMembershipQuery build() {
-      checkNotNull(login, "User login cant be null.");
       initMembership();
       initPageIndex();
       initPageSize();
