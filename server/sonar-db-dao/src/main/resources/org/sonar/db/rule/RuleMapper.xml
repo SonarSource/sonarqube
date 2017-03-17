@@ -79,12 +79,6 @@
     </foreach>
   </select>
 
-  <select id="selectByName" parameterType="String" resultType="Rule">
-    select
-    <include refid="selectColumns"/>
-    from rules r WHERE r.name=#{name}
-  </select>
-
   <select id="selectByQuery" parameterType="map" resultType="Rule">
     SELECT
     <include refid="selectColumns"/>
