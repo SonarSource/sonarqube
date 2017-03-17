@@ -69,7 +69,7 @@ public class QProfilesWsTest {
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
       new ChangelogAction(null, wsSupport, languages, dbClient),
-      new ChangeParentAction(dbClient, null, null, languages, wsSupport),
+      new ChangeParentAction(dbClient, null, languages, wsSupport, userSessionRule),
       new CompareAction(null, null, languages),
       new DeleteAction(languages, null, null, userSessionRule, wsSupport),
       new ExportersAction(),
@@ -193,15 +193,6 @@ public class QProfilesWsTest {
     assertThat(changelog.responseExampleAsString()).isNotEmpty();
     assertThat(changelog.param("organization").since()).isEqualTo("6.4");
     assertThat(changelog.param("organization").isInternal()).isTrue();
-  }
-
-  @Test
-  public void define_change_parent_action() {
-    WebService.Action changeParent = controller.action("change_parent");
-    assertThat(changeParent).isNotNull();
-    assertThat(changeParent.isPost()).isTrue();
-    assertThat(changeParent.params()).hasSize(5).extracting("key").containsOnly(
-      "profileKey", "profileName", "language", "parentKey", "parentName");
   }
 
   @Test
