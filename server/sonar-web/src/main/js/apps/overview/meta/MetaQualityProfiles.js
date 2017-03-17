@@ -31,19 +31,18 @@ class MetaQualityProfiles extends React.Component {
     deprecatedByKey: {}
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadDeprecatedRules();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadDeprecatedRules () {
-    const requests = this.props.profiles.map(profile => (
-        this.loadDeprecatedRulesForProfile(profile.key)
-    ));
+  loadDeprecatedRules() {
+    const requests = this.props.profiles.map(profile =>
+      this.loadDeprecatedRulesForProfile(profile.key));
     Promise.all(requests).then(responses => {
       if (this.mounted) {
         const deprecatedByKey = {};
@@ -56,7 +55,7 @@ class MetaQualityProfiles extends React.Component {
     });
   }
 
-  loadDeprecatedRulesForProfile (profileKey) {
+  loadDeprecatedRulesForProfile(profileKey) {
     const data = {
       qprofile: profileKey,
       activation: 'true',
@@ -66,63 +65,64 @@ class MetaQualityProfiles extends React.Component {
     return searchRules(data).then(r => r.total);
   }
 
-  getDeprecatedRulesCount (profile) {
+  getDeprecatedRulesCount(profile) {
     const count = this.state.deprecatedByKey[profile.key];
     return count || 0;
   }
 
-  renderProfile (profile) {
+  renderProfile(profile) {
     const languageFromStore = this.props.languages[profile.language];
     const languageName = languageFromStore ? languageFromStore.name : profile.language;
 
     const inner = (
-        <div className="text-ellipsis">
-          <span className="note spacer-right">
-            {'(' + languageName + ')'}
-          </span>
-          <Link to={getQualityProfileUrl(profile.key)}>
-            {profile.name}
-          </Link>
-        </div>
+      <div className="text-ellipsis">
+        <span className="note spacer-right">
+          {'(' + languageName + ')'}
+        </span>
+        <Link to={getQualityProfileUrl(profile.key)}>
+          {profile.name}
+        </Link>
+      </div>
     );
 
     const count = this.getDeprecatedRulesCount(profile);
 
     if (count > 0) {
-      const tooltip =
-          translateWithParameters('overview.deprecated_profile', count);
+      const tooltip = translateWithParameters('overview.deprecated_profile', count);
       return (
-          <li key={profile.key}
-              className="overview-deprecated-rules"
-              title={tooltip}
-              data-toggle="tooltip">
-            {inner}
-          </li>
+        <li
+          key={profile.key}
+          className="overview-deprecated-rules"
+          title={tooltip}
+          data-toggle="tooltip"
+        >
+          {inner}
+        </li>
       );
     }
 
     return (
-        <li key={profile.key}>
-          {inner}
-        </li>
+      <li key={profile.key}>
+        {inner}
+      </li>
     );
   }
 
-  render () {
+  render() {
     const { profiles } = this.props;
 
     return (
-        <TooltipsContainer>
-          <div className="overview-meta-card">
-            <h4 className="overview-meta-header">
-              {translate('overview.quality_profiles')}
-            </h4>
+      <TooltipsContainer>
+        <div className="overview-meta-card">
+          <h4 className="overview-meta-header">
+            {translate('overview.quality_profiles')}
+          </h4>
 
-            <ul className="overview-meta-list">
-              {profiles.map(profile => this.renderProfile(profile))}
-            </ul>
-          </div>
-        </TooltipsContainer>
+          <ul className="overview-meta-list">
+            {profiles.map(profile => this.renderProfile(profile))}
+          </ul>
+        </div>
+      </TooltipsContainer>
     );
   }
 }

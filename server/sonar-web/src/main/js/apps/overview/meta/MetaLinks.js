@@ -29,22 +29,22 @@ export default class MetaLinks extends React.Component {
 
   state = {};
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadLinks();
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.component !== this.props.component) {
       this.loadLinks();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadLinks () {
+  loadLinks() {
     getProjectLinks(this.props.component.key).then(links => {
       if (this.mounted) {
         this.setState({ links });
@@ -52,7 +52,7 @@ export default class MetaLinks extends React.Component {
     });
   }
 
-  render () {
+  render() {
     const { links } = this.state;
 
     if (links == null || links.length === 0) {
@@ -62,13 +62,11 @@ export default class MetaLinks extends React.Component {
     const orderedLinks = orderLinks(links);
 
     return (
-        <div className="overview-meta-card">
-          <ul className="overview-meta-list">
-            {orderedLinks.map(link => (
-                <MetaLink key={link.id} link={link}/>
-            ))}
-          </ul>
-        </div>
+      <div className="overview-meta-card">
+        <ul className="overview-meta-list">
+          {orderedLinks.map(link => <MetaLink key={link.id} link={link} />)}
+        </ul>
+      </div>
     );
   }
 }

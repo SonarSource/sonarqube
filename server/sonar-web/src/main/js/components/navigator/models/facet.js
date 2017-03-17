@@ -26,13 +26,12 @@ export default Backbone.Model.extend({
     enabled: false
   },
 
-  getValues () {
+  getValues() {
     return this.get('values') || [];
   },
 
-  toggle () {
+  toggle() {
     const enabled = this.get('enabled');
     this.set({ enabled: !enabled });
   }
 });
-

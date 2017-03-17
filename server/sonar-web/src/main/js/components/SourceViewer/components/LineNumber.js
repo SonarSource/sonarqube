@@ -34,7 +34,7 @@ export default class LineNumber extends React.PureComponent {
     this.props.onClick(this.props.line, e.target);
   };
 
-  render () {
+  render() {
     const { line } = this.props.line;
 
     return (
@@ -44,7 +44,8 @@ export default class LineNumber extends React.PureComponent {
         data-line-number={line ? line : undefined}
         role={line ? 'button' : undefined}
         tabIndex={line ? 0 : undefined}
-        onClick={line ? this.handleClick : undefined}/>
+        onClick={line ? this.handleClick : undefined}
+      />
     );
   }
 }

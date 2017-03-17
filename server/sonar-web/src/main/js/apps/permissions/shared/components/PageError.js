@@ -26,7 +26,7 @@ class PageError extends React.Component {
     message: React.PropTypes.string
   };
 
-  render () {
+  render() {
     const { message } = this.props;
 
     if (!message) {
@@ -34,9 +34,9 @@ class PageError extends React.Component {
     }
 
     return (
-        <div className="alert alert-danger">
-          {message}
-        </div>
+      <div className="alert alert-danger">
+        {message}
+      </div>
     );
   }
 }
@@ -45,6 +45,4 @@ const mapStateToProps = state => ({
   message: getPermissionsAppError(state)
 });
 
-export default connect(
-  mapStateToProps
-)(PageError);
+export default connect(mapStateToProps)(PageError);

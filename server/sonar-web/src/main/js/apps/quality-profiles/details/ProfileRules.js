@@ -43,22 +43,22 @@ export default class ProfileRules extends React.Component {
     activatedByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val')
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadRules();
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.profile !== this.props.profile) {
       this.loadRules();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadAllRules () {
+  loadAllRules() {
     return searchRules({
       languages: this.props.profile.language,
       ps: 1,
@@ -66,7 +66,7 @@ export default class ProfileRules extends React.Component {
     });
   }
 
-  loadActivatedRules () {
+  loadActivatedRules() {
     return searchRules({
       qprofile: this.props.profile.key,
       activation: 'true',
@@ -75,11 +75,8 @@ export default class ProfileRules extends React.Component {
     });
   }
 
-  loadRules () {
-    Promise.all([
-      this.loadAllRules(),
-      this.loadActivatedRules()
-    ]).then(responses => {
+  loadRules() {
+    Promise.all([this.loadAllRules(), this.loadActivatedRules()]).then(responses => {
       if (this.mounted) {
         const [allRules, activatedRules] = responses;
         this.setState({
@@ -92,7 +89,7 @@ export default class ProfileRules extends React.Component {
     });
   }
 
-  getTooltip (count, total) {
+  getTooltip(count, total) {
     if (count == null || total == null) {
       return '';
     }
@@ -100,18 +97,19 @@ export default class ProfileRules extends React.Component {
     return translateWithParameters(
       'quality_profiles.x_activated_out_of_y',
       formatMeasure(count, 'INT'),
-      formatMeasure(total, 'INT'));
-  }
-
-  renderActiveTitle () {
-    return (
-        <strong>
-          {translate('total')}
-        </strong>
+      formatMeasure(total, 'INT')
     );
   }
 
-  renderActiveCount () {
+  renderActiveTitle() {
+    return (
+      <strong>
+        {translate('total')}
+      </strong>
+    );
+  }
+
+  renderActiveCount() {
     const rulesUrl = getRulesUrl({
       qprofile: this.props.profile.key,
       activation: 'true'
@@ -122,15 +120,15 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <Link to={rulesUrl}>
-          <strong>
-            {formatMeasure(this.state.activatedTotal, 'SHORT_INT')}
-          </strong>
-        </Link>
+      <Link to={rulesUrl}>
+        <strong>
+          {formatMeasure(this.state.activatedTotal, 'SHORT_INT')}
+        </strong>
+      </Link>
     );
   }
 
-  renderActiveTotal () {
+  renderActiveTotal() {
     const rulesUrl = getRulesUrl({
       qprofile: this.props.profile.key,
       activation: 'false'
@@ -145,33 +143,30 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <Link to={rulesUrl} className="small text-muted">
-          <strong>
-            {formatMeasure(
-              this.state.total - this.state.activatedTotal,
-              'SHORT_INT'
-            )}
-          </strong>
-        </Link>
+      <Link to={rulesUrl} className="small text-muted">
+        <strong>
+          {formatMeasure(this.state.total - this.state.activatedTotal, 'SHORT_INT')}
+        </strong>
+      </Link>
     );
   }
 
-  getTooltipForType (type) {
+  getTooltipForType(type) {
     const { count } = this.state.activatedByType[type];
     const total = this.state.allByType[type].count;
     return this.getTooltip(count, total);
   }
 
-  renderTitleForType (type) {
+  renderTitleForType(type) {
     return (
-        <span>
-          <IssueTypeIcon query={type} className="little-spacer-right"/>
-          {translate('issue.type', type, 'plural')}
-        </span>
+      <span>
+        <IssueTypeIcon query={type} className="little-spacer-right" />
+        {translate('issue.type', type, 'plural')}
+      </span>
     );
   }
 
-  renderCountForType (type) {
+  renderCountForType(type) {
     const rulesUrl = getRulesUrl({
       qprofile: this.props.profile.key,
       activation: 'true',
@@ -185,13 +180,13 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <Link to={rulesUrl}>
-          {formatMeasure(count, 'SHORT_INT')}
-        </Link>
+      <Link to={rulesUrl}>
+        {formatMeasure(count, 'SHORT_INT')}
+      </Link>
     );
   }
 
-  renderTotalForType (type) {
+  renderTotalForType(type) {
     const rulesUrl = getRulesUrl({
       qprofile: this.props.profile.key,
       activation: 'false',
@@ -210,13 +205,13 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <Link to={rulesUrl} className="small text-muted">
-          {formatMeasure(total - count, 'SHORT_INT')}
-        </Link>
+      <Link to={rulesUrl} className="small text-muted">
+        {formatMeasure(total - count, 'SHORT_INT')}
+      </Link>
     );
   }
 
-  renderDeprecated () {
+  renderDeprecated() {
     const { profile } = this.props;
 
     if (profile.activeDeprecatedRuleCount === 0) {
@@ -226,65 +221,66 @@ export default class ProfileRules extends React.Component {
     const url = getDeprecatedActiveRulesUrl({ qprofile: profile.key });
 
     return (
-        <div className="quality-profile-rules-deprecated clearfix">
-          <div className="pull-left">
-            {translate('quality_profiles.deprecated_rules')}
-          </div>
-          <div className="pull-right">
-            <Link to={url}>
-              {profile.activeDeprecatedRuleCount}
-            </Link>
-          </div>
+      <div className="quality-profile-rules-deprecated clearfix">
+        <div className="pull-left">
+          {translate('quality_profiles.deprecated_rules')}
         </div>
+        <div className="pull-right">
+          <Link to={url}>
+            {profile.activeDeprecatedRuleCount}
+          </Link>
+        </div>
+      </div>
     );
   }
 
-  render () {
+  render() {
     const activateMoreUrl = getRulesUrl({
       qprofile: this.props.profile.key,
       activation: 'false'
     });
 
     return (
-        <div className="quality-profile-rules">
-          <div className="quality-profile-rules-distribution">
-            <table className="data condensed">
-              <thead>
-                <tr>
-                  <th>
-                    <h2>{translate('rules')}</h2>
-                  </th>
-                  <th>Active</th>
-                  <th>Inactive</th>
-                </tr>
-              </thead>
-              <tbody>
+      <div className="quality-profile-rules">
+        <div className="quality-profile-rules-distribution">
+          <table className="data condensed">
+            <thead>
+              <tr>
+                <th>
+                  <h2>{translate('rules')}</h2>
+                </th>
+                <th>Active</th>
+                <th>Inactive</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ProfileRulesRow
+                key="all"
+                renderTitle={this.renderActiveTitle.bind(this)}
+                renderCount={this.renderActiveCount.bind(this)}
+                renderTotal={this.renderActiveTotal.bind(this)}
+              />
+              {TYPES.map(type => (
                 <ProfileRulesRow
-                    key="all"
-                    renderTitle={this.renderActiveTitle.bind(this)}
-                    renderCount={this.renderActiveCount.bind(this)}
-                    renderTotal={this.renderActiveTotal.bind(this)}/>
-                {TYPES.map(type => (
-                    <ProfileRulesRow
-                        key={type}
-                        renderTitle={this.renderTitleForType.bind(this, type)}
-                        renderCount={this.renderCountForType.bind(this, type)}
-                        renderTotal={this.renderTotalForType.bind(this, type)}/>
-                ))}
-              </tbody>
-            </table>
+                  key={type}
+                  renderTitle={this.renderTitleForType.bind(this, type)}
+                  renderCount={this.renderCountForType.bind(this, type)}
+                  renderTotal={this.renderTotalForType.bind(this, type)}
+                />
+              ))}
+            </tbody>
+          </table>
 
-            {this.props.canAdmin && (
-                <div className="text-right big-spacer-top">
-                  <Link to={activateMoreUrl} className="button js-activate-rules">
-                    {translate('quality_profiles.activate_more')}
-                  </Link>
-                </div>
-            )}
-          </div>
-
-          {this.renderDeprecated()}
+          {this.props.canAdmin &&
+            <div className="text-right big-spacer-top">
+              <Link to={activateMoreUrl} className="button js-activate-rules">
+                {translate('quality_profiles.activate_more')}
+              </Link>
+            </div>}
         </div>
+
+        {this.renderDeprecated()}
+      </div>
     );
   }
 }

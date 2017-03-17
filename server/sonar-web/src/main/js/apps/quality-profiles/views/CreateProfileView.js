@@ -25,30 +25,30 @@ import { createQualityProfile } from '../../../api/quality-profiles';
 export default ModalFormView.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...ModalFormView.prototype.events.apply(this, arguments),
       'change #create-profile-language': 'onLanguageChange'
     };
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
 
     const form = this.$('form')[0];
     const data = new FormData(form);
 
     createQualityProfile(data)
-        .then(r => {
-          this.trigger('done', r.profile);
-          this.destroy();
-        })
-        .catch(e => {
-          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
-        });
+      .then(r => {
+        this.trigger('done', r.profile);
+        this.destroy();
+      })
+      .catch(e => {
+        e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+      });
   },
 
-  onRender () {
+  onRender() {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('select').select2({
       width: '250px',
@@ -57,11 +57,11 @@ export default ModalFormView.extend({
     this.onLanguageChange();
   },
 
-  onLanguageChange () {
+  onLanguageChange() {
     const that = this;
     const language = this.$('#create-profile-language').val();
     const importers = this.getImportersForLanguages(language);
-    this.$('.js-importer').each(function () {
+    this.$('.js-importer').each(function() {
       that.emptyInput($(this));
       $(this).addClass('hidden');
     });
@@ -70,22 +70,20 @@ export default ModalFormView.extend({
     });
   },
 
-  emptyInput (e) {
+  emptyInput(e) {
     e.wrap('<form>').closest('form').get(0).reset();
     e.unwrap();
   },
 
-  getImportersForLanguages (language) {
+  getImportersForLanguages(language) {
     if (language != null) {
-      return this.options.importers.filter(importer => (
-          importer.languages.indexOf(language) !== -1
-      ));
+      return this.options.importers.filter(importer => importer.languages.indexOf(language) !== -1);
     } else {
       return [];
     }
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ModalFormView.prototype.serializeData.apply(this, arguments),
       languages: this.options.languages,
@@ -93,4 +91,3 @@ export default ModalFormView.extend({
     };
   }
 });
-

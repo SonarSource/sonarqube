@@ -24,11 +24,11 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
   idAttribute: 'id',
 
-  urlRoot () {
+  urlRoot() {
     return window.baseUrl + '/api/metrics';
   },
 
-  sync (method, model, options) {
+  sync(method, model, options) {
     const opts = options || {};
     if (method === 'create') {
       defaults(opts, {
@@ -54,4 +54,3 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   }
 });
-

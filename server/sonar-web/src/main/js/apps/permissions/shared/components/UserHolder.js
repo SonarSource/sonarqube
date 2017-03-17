@@ -31,32 +31,30 @@ export default class UserHolder extends React.Component {
     onToggle: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleClick (permission, e) {
+  handleClick(permission, e) {
     e.preventDefault();
     e.target.blur();
     this.props.onToggle(this.props.user, permission);
   }
 
-  render () {
+  render() {
     const { selectedPermission } = this.props;
     const permissionCells = this.props.permissionsOrder.map(p => (
-        <td key={p.key}
-            className="text-center text-middle"
-            style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
-          <button
-              className="button-clean"
-              onClick={this.handleClick.bind(this, p.key)}>
-            {this.props.permissions.includes(p.key) ? (
-                <i className="icon-checkbox icon-checkbox-checked"/>
-            ) : (
-                <i className="icon-checkbox"/>
-            )}
-          </button>
-        </td>
+      <td
+        key={p.key}
+        className="text-center text-middle"
+        style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}
+      >
+        <button className="button-clean" onClick={this.handleClick.bind(this, p.key)}>
+          {this.props.permissions.includes(p.key)
+            ? <i className="icon-checkbox icon-checkbox-checked" />
+            : <i className="icon-checkbox" />}
+        </button>
+      </td>
     ));
 
     const { user } = this.props;
@@ -64,33 +62,24 @@ export default class UserHolder extends React.Component {
     const isCreator = user.login === '<creator>';
 
     return (
-        <tr>
-          <td className="nowrap">
-            {!isCreator && (
-                <Avatar
-                    email={user.email}
-                    size={36}
-                    className="text-middle big-spacer-right"/>
-            )}
-            <div className="display-inline-block text-middle">
-              <div>
-                <strong>{user.name}</strong>
-                {!isCreator && (
-                    <span className="note spacer-left">{user.login}</span>
-                )}
-              </div>
-              {!isCreator && (
-                  <div className="little-spacer-top">{user.email}</div>
-              )}
-              {isCreator && (
-                  <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-                    {translate('permission_templates.project_creators.explanation')}
-                  </div>
-              )}
+      <tr>
+        <td className="nowrap">
+          {!isCreator &&
+            <Avatar email={user.email} size={36} className="text-middle big-spacer-right" />}
+          <div className="display-inline-block text-middle">
+            <div>
+              <strong>{user.name}</strong>
+              {!isCreator && <span className="note spacer-left">{user.login}</span>}
             </div>
-          </td>
-          {permissionCells}
-        </tr>
+            {!isCreator && <div className="little-spacer-top">{user.email}</div>}
+            {isCreator &&
+              <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
+                {translate('permission_templates.project_creators.explanation')}
+              </div>}
+          </div>
+        </td>
+        {permissionCells}
+      </tr>
     );
   }
 }

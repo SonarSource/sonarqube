@@ -26,15 +26,15 @@ const RestartModal = ModalForm.extend({
   template: Template,
   restartingTemplate: RestartingTemplate,
 
-  initialize () {
+  initialize() {
     this.restarting = false;
   },
 
-  getTemplate () {
+  getTemplate() {
     return this.restarting ? this.restartingTemplate : this.template;
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.restarting = true;
     this.render();

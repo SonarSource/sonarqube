@@ -26,7 +26,7 @@ it('render scm details', () => {
   const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
   const previousLine = { line: 2, scmAuthor: 'bar', scmDate: '2017-01-02' };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineSCM line={line} onClick={onClick} previousLine={previousLine}/>);
+  const wrapper = shallow(<LineSCM line={line} onClick={onClick} previousLine={previousLine} />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
   expect(onClick).toHaveBeenCalled();
@@ -35,7 +35,7 @@ it('render scm details', () => {
 it('render scm details for the first line', () => {
   const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineSCM line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineSCM line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -43,13 +43,13 @@ it('does not render scm details', () => {
   const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
   const previousLine = { line: 2, scmAuthor: 'foo', scmDate: '2017-01-01' };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineSCM line={line} onClick={onClick} previousLine={previousLine}/>);
+  const wrapper = shallow(<LineSCM line={line} onClick={onClick} previousLine={previousLine} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('does not allow to click', () => {
   const line = { scmAuthor: 'foo', scmDate: '2017-01-01' };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineSCM line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineSCM line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
 });

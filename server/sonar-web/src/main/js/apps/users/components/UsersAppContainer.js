@@ -27,12 +27,12 @@ class UsersAppContainer extends React.Component {
     currentUser: React.PropTypes.object.isRequired
   };
 
-  componentDidMount () {
+  componentDidMount() {
     init(this.refs.container, this.props.currentUser);
   }
 
-  render () {
-    return <div ref="container"/>;
+  render() {
+    return <div ref="container" />;
   }
 }
 

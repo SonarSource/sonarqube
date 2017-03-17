@@ -38,7 +38,7 @@ class ProjectActivityPageFooter extends React.Component {
     this.props.fetchMoreProjectActivity(this.props.project);
   };
 
-  render () {
+  render() {
     const { analyses, paging } = this.props;
 
     if (!paging || analyses.length === 0) {
@@ -46,7 +46,7 @@ class ProjectActivityPageFooter extends React.Component {
     }
 
     return (
-        <ListFooter count={analyses.length} total={paging.total} loadMore={this.handleLoadMore}/>
+      <ListFooter count={analyses.length} total={paging.total} loadMore={this.handleLoadMore} />
     );
   }
 }

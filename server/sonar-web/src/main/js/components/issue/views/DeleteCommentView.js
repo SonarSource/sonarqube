@@ -27,7 +27,7 @@ export default PopupView.extend({
     'click button': 'handleSubmit'
   },
 
-  handleSubmit (e) {
+  handleSubmit(e) {
     e.preventDefault();
     this.options.onDelete();
   }

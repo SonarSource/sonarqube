@@ -32,7 +32,7 @@ export type State = {
     key: string,
     name: string,
     category: string,
-    description?: string,
+    description?: string
   }
 };
 
@@ -74,6 +74,4 @@ export default (state: State = {}, action: Action): State => {
   }
 };
 
-export const getEvent = (state: State, key: string) => (
-    state[key]
-);
+export const getEvent = (state: State, key: string) => state[key];

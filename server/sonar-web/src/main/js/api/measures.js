@@ -19,13 +19,13 @@
  */
 import { getJSON } from '../helpers/request';
 
-export function getMeasures (componentKey, metrics) {
+export function getMeasures(componentKey, metrics) {
   const url = '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(',') };
   return getJSON(url, data).then(r => r.component.measures);
 }
 
-export function getMeasuresAndMeta (componentKey, metrics, additional = {}) {
+export function getMeasuresAndMeta(componentKey, metrics, additional = {}) {
   const url = '/api/measures/component';
   const data = Object.assign({}, additional, {
     componentKey,
@@ -34,9 +34,8 @@ export function getMeasuresAndMeta (componentKey, metrics, additional = {}) {
   return getJSON(url, data);
 }
 
-export const getMeasuresForProjects = (projectKeys, metricKeys) => (
-    getJSON('/api/measures/search', {
-      projectKeys: projectKeys.join(),
-      metricKeys: metricKeys.join()
-    })
-);
+export const getMeasuresForProjects = (projectKeys, metricKeys) =>
+  getJSON('/api/measures/search', {
+    projectKeys: projectKeys.join(),
+    metricKeys: metricKeys.join()
+  });

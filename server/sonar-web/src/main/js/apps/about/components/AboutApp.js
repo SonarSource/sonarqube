@@ -63,33 +63,29 @@ class AboutApp extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadData();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadProjects () {
+  loadProjects() {
     return searchProjects({ ps: 1 }).then(r => r.paging.total);
   }
 
-  loadIssues () {
+  loadIssues() {
     return getFacet({ resolved: false }, 'types');
   }
 
-  loadCustomText () {
+  loadCustomText() {
     return this.props.fetchAboutPageSettings();
   }
 
-  loadData () {
-    Promise.all([
-      this.loadProjects(),
-      this.loadIssues(),
-      this.loadCustomText()
-    ]).then(responses => {
+  loadData() {
+    Promise.all([this.loadProjects(), this.loadIssues(), this.loadCustomText()]).then(responses => {
       if (this.mounted) {
         const [projectsCount, issues] = responses;
         const issueTypes = keyBy(issues.facet, 'val');
@@ -102,7 +98,7 @@ class AboutApp extends React.Component {
     });
   }
 
-  render () {
+  render() {
     if (this.state.loading) {
       return null;
     }
@@ -118,69 +114,80 @@ class AboutApp extends React.Component {
 
     if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
       return (
-          <AboutAppForSonarQubeDotCom
-              bugs={bugs}
-              codeSmells={codeSmells}
-              currentUser={this.props.currentUser}
-              customText={customText}
-              projectsCount={this.state.projectsCount}
-              vulnerabilities={vulnerabilities}/>
+        <AboutAppForSonarQubeDotCom
+          bugs={bugs}
+          codeSmells={codeSmells}
+          currentUser={this.props.currentUser}
+          customText={customText}
+          projectsCount={this.state.projectsCount}
+          vulnerabilities={vulnerabilities}
+        />
       );
     }
 
     return (
-        <div id="about-page" className="about-page">
-          <div className="about-page-container">
-            <div className="about-page-entry">
-              <div className="about-page-intro">
-                <h1 className="big-spacer-bottom">
-                  {translate('layout.sonar.slogan')}
-                </h1>
-                {!this.props.currentUser.isLoggedIn && (
-                    <Link to="/sessions/new" className="button button-active big-spacer-right">
-                      {translate('layout.login')}
-                    </Link>
-                )}
-                <a className="button" href="https://redirect.sonarsource.com/doc/home.html" target="_blank">
-                  {translate('about_page.read_documentation')}
-                </a>
-              </div>
-
-              <div className="about-page-instance">
-                <AboutProjects count={this.state.projectsCount}/>
-                <EntryIssueTypes bugs={bugs} vulnerabilities={vulnerabilities} codeSmells={codeSmells}/>
-              </div>
+      <div id="about-page" className="about-page">
+        <div className="about-page-container">
+          <div className="about-page-entry">
+            <div className="about-page-intro">
+              <h1 className="big-spacer-bottom">
+                {translate('layout.sonar.slogan')}
+              </h1>
+              {!this.props.currentUser.isLoggedIn &&
+                <Link to="/sessions/new" className="button button-active big-spacer-right">
+                  {translate('layout.login')}
+                </Link>}
+              <a
+                className="button"
+                href="https://redirect.sonarsource.com/doc/home.html"
+                target="_blank"
+              >
+                {translate('about_page.read_documentation')}
+              </a>
             </div>
 
-            {customText != null && customText.value && (
-                <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText.value }}/>
-            )}
-
-            <AboutLanguages/>
-
-            <AboutQualityModel/>
-
-            <div className="flex-columns">
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutCleanCode/>
-              </div>
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutLeakPeriod/>
-              </div>
+            <div className="about-page-instance">
+              <AboutProjects count={this.state.projectsCount} />
+              <EntryIssueTypes
+                bugs={bugs}
+                vulnerabilities={vulnerabilities}
+                codeSmells={codeSmells}
+              />
             </div>
-
-            <div className="flex-columns">
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutQualityGates/>
-              </div>
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutStandards/>
-              </div>
-            </div>
-
-            <AboutScanners/>
           </div>
+
+          {customText != null &&
+            customText.value &&
+            <div
+              className="about-page-section"
+              dangerouslySetInnerHTML={{ __html: customText.value }}
+            />}
+
+          <AboutLanguages />
+
+          <AboutQualityModel />
+
+          <div className="flex-columns">
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutCleanCode />
+            </div>
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutLeakPeriod />
+            </div>
+          </div>
+
+          <div className="flex-columns">
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutQualityGates />
+            </div>
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutStandards />
+            </div>
+          </div>
+
+          <AboutScanners />
         </div>
+      </div>
     );
   }
 }

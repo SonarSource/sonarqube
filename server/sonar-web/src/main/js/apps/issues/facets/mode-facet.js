@@ -24,18 +24,17 @@ import Template from '../templates/facets/issues-mode-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  toggleFacet (e) {
+  toggleFacet(e) {
     const isCount = $(e.currentTarget).is('[data-value="count"]');
     return this.options.app.state.updateFilter({
       facetMode: isCount ? 'count' : 'effort'
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       mode: this.options.app.state.getFacetMode()
     };
   }
 });
-

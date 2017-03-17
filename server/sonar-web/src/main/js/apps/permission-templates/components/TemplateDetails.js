@@ -26,31 +26,26 @@ export default class TemplateDetails extends React.Component {
     template: React.PropTypes.object.isRequired
   };
 
-  render () {
+  render() {
     const { template } = this.props;
 
     return (
-        <div className="big-spacer-bottom">
-          {template.defaultFor.length > 0 && (
-              <div className="spacer-top js-defaults">
-                <Defaults
-                    permissionTemplate={template}
-                    organization={this.props.organization}/>
-              </div>
-          )}
+      <div className="big-spacer-bottom">
+        {template.defaultFor.length > 0 &&
+          <div className="spacer-top js-defaults">
+            <Defaults permissionTemplate={template} organization={this.props.organization} />
+          </div>}
 
-          {!!template.description && (
-              <div className="spacer-top js-description">
-                {template.description}
-              </div>
-          )}
+        {!!template.description &&
+          <div className="spacer-top js-description">
+            {template.description}
+          </div>}
 
-          {!!template.projectKeyPattern && (
-              <div className="spacer-top js-project-key-pattern">
-                Project Key Pattern: <code>{template.projectKeyPattern}</code>
-              </div>
-          )}
-        </div>
+        {!!template.projectKeyPattern &&
+          <div className="spacer-top js-project-key-pattern">
+            Project Key Pattern: <code>{template.projectKeyPattern}</code>
+          </div>}
+      </div>
     );
   }
 }

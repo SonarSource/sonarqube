@@ -22,6 +22,6 @@ import { IndexRoute, Redirect } from 'react-router';
 import Main from './main';
 
 export default [
-  <Redirect key="redirect" from="/system/index" to="/system"/>,
-  <IndexRoute key="index" component={Main}/>
+  <Redirect key="redirect" from="/system/index" to="/system" />,
+  <IndexRoute key="index" component={Main} />
 ];

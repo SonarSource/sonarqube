@@ -27,4 +27,4 @@ export default combineReducers({
 });
 
 export const getGroups = state =>
-    getNames(state.names).map(name => getGroupByName(state.byName, name));
+  getNames(state.names).map(name => getGroupByName(state.byName, name));

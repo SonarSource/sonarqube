@@ -21,6 +21,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import BackgroundTasksApp from './components/BackgroundTasksApp';
 
-export default (
-    <IndexRoute component={BackgroundTasksApp}/>
-);
+export default <IndexRoute component={BackgroundTasksApp} />;

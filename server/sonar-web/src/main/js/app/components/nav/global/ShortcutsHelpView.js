@@ -24,4 +24,3 @@ export default ModalView.extend({
   className: 'modal modal-large',
   template: ShortcutsHelpTemplate
 });
-

@@ -47,59 +47,43 @@ class AllHoldersList extends React.Component {
     project: React.PropTypes.object.isRequired
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.loadHolders(this.props.project.key);
   }
 
-  handleSearch (query) {
+  handleSearch(query) {
     this.props.onSearch(this.props.project.key, query);
   }
 
-  handleFilter (filter) {
+  handleFilter(filter) {
     this.props.onFilter(this.props.project.key, filter);
   }
 
-  handleToggleUser (user, permission) {
+  handleToggleUser(user, permission) {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromUser(
-        this.props.project.key,
-        user.login,
-        permission
-      );
+      this.props.revokePermissionFromUser(this.props.project.key, user.login, permission);
     } else {
-      this.props.grantPermissionToUser(
-        this.props.project.key,
-        user.login,
-        permission
-      );
+      this.props.grantPermissionToUser(this.props.project.key, user.login, permission);
     }
   }
 
-  handleToggleGroup (group, permission) {
+  handleToggleGroup(group, permission) {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromGroup(
-        this.props.project.key,
-        group.name,
-        permission
-      );
+      this.props.revokePermissionFromGroup(this.props.project.key, group.name, permission);
     } else {
-      this.props.grantPermissionToGroup(
-        this.props.project.key,
-        group.name,
-        permission
-      );
+      this.props.grantPermissionToGroup(this.props.project.key, group.name, permission);
     }
   }
 
-  handleSelectPermission (permission) {
+  handleSelectPermission(permission) {
     this.props.onSelectPermission(this.props.project.key, permission);
   }
 
-  render () {
+  render() {
     const order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.project.qualifier];
     const permissions = order.map(p => ({
       key: p,
@@ -108,22 +92,24 @@ class AllHoldersList extends React.Component {
     }));
 
     return (
-        <HoldersList
-            permissions={permissions}
-            selectedPermission={this.props.selectedPermission}
-            users={this.props.users}
-            groups={this.props.groups}
-            onSelectPermission={this.handleSelectPermission.bind(this)}
-            onToggleUser={this.handleToggleUser.bind(this)}
-            onToggleGroup={this.handleToggleGroup.bind(this)}>
+      <HoldersList
+        permissions={permissions}
+        selectedPermission={this.props.selectedPermission}
+        users={this.props.users}
+        groups={this.props.groups}
+        onSelectPermission={this.handleSelectPermission.bind(this)}
+        onToggleUser={this.handleToggleUser.bind(this)}
+        onToggleGroup={this.handleToggleGroup.bind(this)}
+      >
 
-          <SearchForm
-              query={this.props.query}
-              filter={this.props.filter}
-              onSearch={this.handleSearch.bind(this)}
-              onFilter={this.handleFilter.bind(this)}/>
+        <SearchForm
+          query={this.props.query}
+          filter={this.props.filter}
+          onSearch={this.handleSearch.bind(this)}
+          onFilter={this.handleFilter.bind(this)}
+        />
 
-        </HoldersList>
+      </HoldersList>
     );
   }
 }
@@ -144,21 +130,20 @@ type OwnProps = {
 
 const mapDispatchToProps = (dispatch, ownProps: OwnProps) => ({
   loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization)),
-  onSearch: (projectKey, query) => dispatch(updateQuery(projectKey, query, ownProps.project.organization)),
-  onFilter: (projectKey, filter) => dispatch(updateFilter(projectKey, filter, ownProps.project.organization)),
+  onSearch: (projectKey, query) =>
+    dispatch(updateQuery(projectKey, query, ownProps.project.organization)),
+  onFilter: (projectKey, filter) =>
+    dispatch(updateFilter(projectKey, filter, ownProps.project.organization)),
   onSelectPermission: (projectKey, permission) =>
-      dispatch(selectPermission(projectKey, permission, ownProps.project.organization)),
+    dispatch(selectPermission(projectKey, permission, ownProps.project.organization)),
   grantPermissionToUser: (projectKey, login, permission) =>
-      dispatch(grantToUser(projectKey, login, permission, ownProps.project.organization)),
+    dispatch(grantToUser(projectKey, login, permission, ownProps.project.organization)),
   revokePermissionFromUser: (projectKey, login, permission) =>
-      dispatch(revokeFromUser(projectKey, login, permission, ownProps.project.organization)),
+    dispatch(revokeFromUser(projectKey, login, permission, ownProps.project.organization)),
   grantPermissionToGroup: (projectKey, groupName, permission) =>
-      dispatch(grantToGroup(projectKey, groupName, permission, ownProps.project.organization)),
+    dispatch(grantToGroup(projectKey, groupName, permission, ownProps.project.organization)),
   revokePermissionFromGroup: (projectKey, groupName, permission) =>
-      dispatch(revokeFromGroup(projectKey, groupName, permission, ownProps.project.organization))
+    dispatch(revokeFromGroup(projectKey, groupName, permission, ownProps.project.organization))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AllHoldersList);
+export default connect(mapStateToProps, mapDispatchToProps)(AllHoldersList);

@@ -47,6 +47,4 @@ const reducer = (state: State = {}, action: Action) => {
 
 export default reducer;
 
-export const getIssueByKey = (state: State, key: string): ?Issue => (
-  state[key]
-);
+export const getIssueByKey = (state: State, key: string): ?Issue => state[key];

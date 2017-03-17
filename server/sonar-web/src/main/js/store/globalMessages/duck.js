@@ -57,39 +57,41 @@ export const closeAllGlobalMessages = (id: string) => ({
   id
 });
 
-const addGlobalMessage = (message: string, level: Level) => (dispatch: Function) => {
-  const id = uniqueId('global-message-');
-  dispatch(addGlobalMessageActionCreator(id, message, level));
-  setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
-};
+const addGlobalMessage = (message: string, level: Level) =>
+  (dispatch: Function) => {
+    const id = uniqueId('global-message-');
+    dispatch(addGlobalMessageActionCreator(id, message, level));
+    setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
+  };
 
-export const addGlobalErrorMessage = (message: string) =>
-    addGlobalMessage(message, ERROR);
+export const addGlobalErrorMessage = (message: string) => addGlobalMessage(message, ERROR);
 
-export const addGlobalSuccessMessage = (message: string) =>
-    addGlobalMessage(message, SUCCESS);
+export const addGlobalSuccessMessage = (message: string) => addGlobalMessage(message, SUCCESS);
 
 /* Reducer */
 const globalMessages = (state: State = [], action: Action = {}) => {
   switch (action.type) {
     case ADD_GLOBAL_MESSAGE:
-      return [{
-        id: action.id,
-        message: action.message,
-        level: action.level
-      }];
+      return [
+        {
+          id: action.id,
+          message: action.message,
+          level: action.level
+        }
+      ];
 
     case 'REQUIRE_AUTHORIZATION':
       // FIXME l10n
-      return [{
-        id: uniqueId('global-message-'),
-        message: 'You are not authorized to access this page. Please log in with more privileges and try again.',
-        level: ERROR
-      }];
+      return [
+        {
+          id: uniqueId('global-message-'),
+          message: 'You are not authorized to access this page. Please log in with more privileges and try again.',
+          level: ERROR
+        }
+      ];
 
     case CLOSE_GLOBAL_MESSAGE:
       return state.filter(message => message.id !== action.id);
-
 
     case CLOSE_ALL_GLOBAL_MESSAGES:
       return [];

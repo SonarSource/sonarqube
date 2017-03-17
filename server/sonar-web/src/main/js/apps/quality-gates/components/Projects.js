@@ -21,23 +21,23 @@ import React, { Component } from 'react';
 import ProjectsView from '../views/gate-projects-view';
 
 export default class Projects extends Component {
-  componentDidMount () {
+  componentDidMount() {
     this.renderView();
   }
 
-  componentWillUpdate () {
+  componentWillUpdate() {
     this.destroyView();
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.renderView();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.destroyView();
   }
 
-  renderView () {
+  renderView() {
     const { qualityGate, edit } = this.props;
 
     this.projectsView = new ProjectsView({
@@ -48,15 +48,13 @@ export default class Projects extends Component {
     this.projectsView.render();
   }
 
-  destroyView () {
+  destroyView() {
     if (this.projectsView) {
       this.projectsView.destroy();
     }
   }
 
-  render () {
-    return (
-        <div ref="container"/>
-    );
+  render() {
+    return <div ref="container" />;
   }
 }

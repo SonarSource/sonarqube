@@ -19,7 +19,7 @@
  */
 import numeral from 'numeral';
 
-module.exports = function (number) {
+module.exports = function(number) {
   let format = '0,0';
   if (number >= 10000) {
     format = '0.[0]a';

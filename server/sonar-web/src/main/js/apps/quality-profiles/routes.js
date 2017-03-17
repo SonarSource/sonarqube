@@ -27,15 +27,15 @@ import ChangelogContainer from './changelog/ChangelogContainer';
 import ComparisonContainer from './compare/ComparisonContainer';
 
 export default (
-    <Route component={AppContainer}>
-      <Redirect from="/profiles/index" to="/profiles"/>
+  <Route component={AppContainer}>
+    <Redirect from="/profiles/index" to="/profiles" />
 
-      <IndexRoute component={HomeContainer}/>
+    <IndexRoute component={HomeContainer} />
 
-      <Route component={ProfileContainer}>
-        <Route path="show" component={ProfileDetails}/>
-        <Route path="changelog" component={ChangelogContainer}/>
-        <Route path="compare" component={ComparisonContainer}/>
-      </Route>
+    <Route component={ProfileContainer}>
+      <Route path="show" component={ProfileDetails} />
+      <Route path="changelog" component={ChangelogContainer} />
+      <Route path="compare" component={ComparisonContainer} />
     </Route>
+  </Route>
 );

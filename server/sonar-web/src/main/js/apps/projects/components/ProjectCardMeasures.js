@@ -31,7 +31,7 @@ export default class ProjectCardMeasures extends React.PureComponent {
     measures: React.PropTypes.object
   };
 
-  render () {
+  render() {
     const { measures } = this.props;
 
     if (measures == null) {
@@ -39,91 +39,94 @@ export default class ProjectCardMeasures extends React.PureComponent {
     }
 
     return (
-        <div className="project-card-measures">
-          <div className="project-card-measure" data-key="reliability_rating">
-            <div className="project-card-measure-inner">
-              <div className="project-card-measure-number">
-                <Rating value={measures['reliability_rating']}/>
-              </div>
-              <div className="project-card-measure-label">
-                {translate('metric_domain.Reliability')}
-              </div>
+      <div className="project-card-measures">
+        <div className="project-card-measure" data-key="reliability_rating">
+          <div className="project-card-measure-inner">
+            <div className="project-card-measure-number">
+              <Rating value={measures['reliability_rating']} />
+            </div>
+            <div className="project-card-measure-label">
+              {translate('metric_domain.Reliability')}
             </div>
           </div>
-
-          <div className="project-card-measure" data-key="security_rating">
-            <div className="project-card-measure-inner">
-              <div className="project-card-measure-number">
-                <Rating value={measures['security_rating']}/>
-              </div>
-              <div className="project-card-measure-label">
-                {translate('metric_domain.Security')}
-              </div>
-            </div>
-          </div>
-
-          <div className="project-card-measure" data-key="sqale_rating">
-            <div className="project-card-measure-inner">
-              <div className="project-card-measure-number">
-                <Rating value={measures['sqale_rating']}/>
-              </div>
-              <div className="project-card-measure-label">
-                {translate('metric_domain.Maintainability')}
-              </div>
-            </div>
-          </div>
-
-          <div className="project-card-measure" data-key="coverage">
-            <div className="project-card-measure-inner">
-              <div className="project-card-measure-number">
-                {measures['coverage'] != null && (
-                    <span className="spacer-right">
-                      <CoverageRating value={measures['coverage']}/>
-                    </span>
-                )}
-                <Measure measure={{ value: measures['coverage'] }}
-                         metric={{ key: 'coverage', type: 'PERCENT' }}/>
-              </div>
-              <div className="project-card-measure-label">
-                {translate('metric.coverage.name')}
-              </div>
-            </div>
-          </div>
-
-          <div className="project-card-measure" data-key="duplicated_lines_density">
-            <div className="project-card-measure-inner">
-              <div className="project-card-measure-number">
-                {measures['duplicated_lines_density'] != null && (
-                  <span className="spacer-right">
-                    <DuplicationsRating value={measures['duplicated_lines_density']}/>
-                  </span>
-                )}
-                <Measure measure={{ value: measures['duplicated_lines_density'] }}
-                         metric={{ key: 'duplicated_lines_density', type: 'PERCENT' }}/>
-              </div>
-              <div className="project-card-measure-label">
-                {translate('metric.duplicated_lines_density.short_name')}
-              </div>
-            </div>
-          </div>
-
-          {measures['ncloc'] != null && (
-            <div className="project-card-measure" data-key="ncloc">
-              <div className="project-card-measure-inner">
-                <div className="project-card-measure-number">
-                  <span className="spacer-right">
-                    <SizeRating value={measures['ncloc']}/>
-                  </span>
-                  <Measure measure={{ value: measures['ncloc'] }}
-                           metric={{ key: 'ncloc', type: 'SHORT_INT' }}/>
-                </div>
-                <div className="project-card-measure-label">
-                  <ProjectCardLanguages distribution={measures['ncloc_language_distribution']}/>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
+
+        <div className="project-card-measure" data-key="security_rating">
+          <div className="project-card-measure-inner">
+            <div className="project-card-measure-number">
+              <Rating value={measures['security_rating']} />
+            </div>
+            <div className="project-card-measure-label">
+              {translate('metric_domain.Security')}
+            </div>
+          </div>
+        </div>
+
+        <div className="project-card-measure" data-key="sqale_rating">
+          <div className="project-card-measure-inner">
+            <div className="project-card-measure-number">
+              <Rating value={measures['sqale_rating']} />
+            </div>
+            <div className="project-card-measure-label">
+              {translate('metric_domain.Maintainability')}
+            </div>
+          </div>
+        </div>
+
+        <div className="project-card-measure" data-key="coverage">
+          <div className="project-card-measure-inner">
+            <div className="project-card-measure-number">
+              {measures['coverage'] != null &&
+                <span className="spacer-right">
+                  <CoverageRating value={measures['coverage']} />
+                </span>}
+              <Measure
+                measure={{ value: measures['coverage'] }}
+                metric={{ key: 'coverage', type: 'PERCENT' }}
+              />
+            </div>
+            <div className="project-card-measure-label">
+              {translate('metric.coverage.name')}
+            </div>
+          </div>
+        </div>
+
+        <div className="project-card-measure" data-key="duplicated_lines_density">
+          <div className="project-card-measure-inner">
+            <div className="project-card-measure-number">
+              {measures['duplicated_lines_density'] != null &&
+                <span className="spacer-right">
+                  <DuplicationsRating value={measures['duplicated_lines_density']} />
+                </span>}
+              <Measure
+                measure={{ value: measures['duplicated_lines_density'] }}
+                metric={{ key: 'duplicated_lines_density', type: 'PERCENT' }}
+              />
+            </div>
+            <div className="project-card-measure-label">
+              {translate('metric.duplicated_lines_density.short_name')}
+            </div>
+          </div>
+        </div>
+
+        {measures['ncloc'] != null &&
+          <div className="project-card-measure" data-key="ncloc">
+            <div className="project-card-measure-inner">
+              <div className="project-card-measure-number">
+                <span className="spacer-right">
+                  <SizeRating value={measures['ncloc']} />
+                </span>
+                <Measure
+                  measure={{ value: measures['ncloc'] }}
+                  metric={{ key: 'ncloc', type: 'SHORT_INT' }}
+                />
+              </div>
+              <div className="project-card-measure-label">
+                <ProjectCardLanguages distribution={measures['ncloc_language_distribution']} />
+              </div>
+            </div>
+          </div>}
+      </div>
     );
   }
 }

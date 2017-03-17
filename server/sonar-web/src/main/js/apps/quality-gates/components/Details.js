@@ -18,7 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-import { fetchQualityGate, setQualityGateAsDefault, unsetQualityGateAsDefault } from '../../../api/quality-gates';
+import {
+  fetchQualityGate,
+  setQualityGateAsDefault,
+  unsetQualityGateAsDefault
+} from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
 import RenameView from '../views/rename-view';
@@ -26,17 +30,17 @@ import CopyView from '../views/copy-view';
 import DeleteView from '../views/delete-view';
 
 export default class Details extends Component {
-  componentDidMount () {
+  componentDidMount() {
     this.fetchDetails();
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.params.id !== this.props.params.id) {
       this.fetchDetails();
     }
   }
 
-  fetchDetails () {
+  fetchDetails() {
     const { id } = this.props.params;
     const { onShow } = this.props;
 
@@ -45,7 +49,7 @@ export default class Details extends Component {
     });
   }
 
-  handleRenameClick () {
+  handleRenameClick() {
     const { qualityGate, onRename } = this.props;
 
     new RenameView({
@@ -56,7 +60,7 @@ export default class Details extends Component {
     }).render();
   }
 
-  handleCopyClick () {
+  handleCopyClick() {
     const { qualityGate, onCopy } = this.props;
     const { router } = this.context;
 
@@ -69,19 +73,17 @@ export default class Details extends Component {
     }).render();
   }
 
-  handleSetAsDefaultClick () {
+  handleSetAsDefaultClick() {
     const { qualityGate, onSetAsDefault, onUnsetAsDefault } = this.props;
 
     if (qualityGate.isDefault) {
-      unsetQualityGateAsDefault(qualityGate.id)
-          .then(() => onUnsetAsDefault(qualityGate));
+      unsetQualityGateAsDefault(qualityGate.id).then(() => onUnsetAsDefault(qualityGate));
     } else {
-      setQualityGateAsDefault(qualityGate.id)
-          .then(() => onSetAsDefault(qualityGate));
+      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate));
     }
   }
 
-  handleDeleteClick () {
+  handleDeleteClick() {
     const { qualityGate, onDelete } = this.props;
     const { router } = this.context;
 
@@ -94,39 +96,41 @@ export default class Details extends Component {
     }).render();
   }
 
-  render () {
+  render() {
     const { qualityGate, edit, metrics } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
 
     if (!qualityGate) {
       return (
-          <div className="search-navigator-workspace">
-            <div className="search-navigator-workspace-header" style={{ top: 30 }}>
-              <h2 className="search-navigator-header-component">&nbsp;</h2>
-            </div>
-            <div className="search-navigator-workspace-details"/>
+        <div className="search-navigator-workspace">
+          <div className="search-navigator-workspace-header" style={{ top: 30 }}>
+            <h2 className="search-navigator-header-component">&nbsp;</h2>
           </div>
+          <div className="search-navigator-workspace-details" />
+        </div>
       );
     }
 
     return (
-        <div className="search-navigator-workspace">
-          <DetailsHeader
-              qualityGate={qualityGate}
-              edit={edit}
-              onRename={this.handleRenameClick.bind(this)}
-              onCopy={this.handleCopyClick.bind(this)}
-              onSetAsDefault={this.handleSetAsDefaultClick.bind(this)}
-              onDelete={this.handleDeleteClick.bind(this)}/>
+      <div className="search-navigator-workspace">
+        <DetailsHeader
+          qualityGate={qualityGate}
+          edit={edit}
+          onRename={this.handleRenameClick.bind(this)}
+          onCopy={this.handleCopyClick.bind(this)}
+          onSetAsDefault={this.handleSetAsDefaultClick.bind(this)}
+          onDelete={this.handleDeleteClick.bind(this)}
+        />
 
-          <DetailsContent
-              gate={qualityGate}
-              canEdit={edit}
-              metrics={metrics}
-              onAddCondition={onAddCondition}
-              onSaveCondition={onSaveCondition}
-              onDeleteCondition={onDeleteCondition}/>
-        </div>
+        <DetailsContent
+          gate={qualityGate}
+          canEdit={edit}
+          metrics={metrics}
+          onAddCondition={onAddCondition}
+          onSaveCondition={onSaveCondition}
+          onDeleteCondition={onDeleteCondition}
+        />
+      </div>
     );
   }
 }

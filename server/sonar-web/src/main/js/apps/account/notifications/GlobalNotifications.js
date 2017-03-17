@@ -43,34 +43,35 @@ class GlobalNotifications extends React.Component {
     removeNotification: (n: Notification) => void
   };
 
-  render () {
+  render() {
     return (
-        <section>
-          <h2 className="spacer-bottom">
-            {translate('my_profile.overall_notifications.title')}
-          </h2>
+      <section>
+        <h2 className="spacer-bottom">
+          {translate('my_profile.overall_notifications.title')}
+        </h2>
 
-          <table className="form">
-            <thead>
-              <tr>
-                <th/>
-                {this.props.channels.map(channel => (
-                    <th key={channel} className="text-center">
-                      <h4>{translate('notification.channel', channel)}</h4>
-                    </th>
-                ))}
-              </tr>
-            </thead>
+        <table className="form">
+          <thead>
+            <tr>
+              <th />
+              {this.props.channels.map(channel => (
+                <th key={channel} className="text-center">
+                  <h4>{translate('notification.channel', channel)}</h4>
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-            <NotificationsList
-                notifications={this.props.notifications}
-                channels={this.props.channels}
-                types={this.props.types}
-                checkboxId={(d, c) => `global-notification-${d}-${c}`}
-                onAdd={this.props.addNotification}
-                onRemove={this.props.removeNotification}/>
-          </table>
-        </section>
+          <NotificationsList
+            notifications={this.props.notifications}
+            channels={this.props.channels}
+            types={this.props.types}
+            checkboxId={(d, c) => `global-notification-${d}-${c}`}
+            onAdd={this.props.addNotification}
+            onRemove={this.props.removeNotification}
+          />
+        </table>
+      </section>
     );
   }
 }

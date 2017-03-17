@@ -31,17 +31,17 @@ import OrganizationProjectsManagement from './components/OrganizationProjectsMan
 import OrganizationDelete from './components/OrganizationDelete';
 
 export default (
-    <Route path=":organizationKey" component={OrganizationPage}>
-      <IndexRedirect to="projects"/>
-      <Route path="projects" component={OrganizationProjects}/>
-      <Route path="projects/favorite" component={OrganizationFavoriteProjects}/>
-      <Route component={OrganizationAdmin}>
-        <Route path="delete" component={OrganizationDelete}/>
-        <Route path="edit" component={OrganizationEdit}/>
-        <Route path="groups" component={OrganizationGroups}/>
-        <Route path="permissions" component={OrganizationPermissions}/>
-        <Route path="permission_templates" component={OrganizationPermissionTemplates}/>
-        <Route path="projects_management" component={OrganizationProjectsManagement}/>
-      </Route>
+  <Route path=":organizationKey" component={OrganizationPage}>
+    <IndexRedirect to="projects" />
+    <Route path="projects" component={OrganizationProjects} />
+    <Route path="projects/favorite" component={OrganizationFavoriteProjects} />
+    <Route component={OrganizationAdmin}>
+      <Route path="delete" component={OrganizationDelete} />
+      <Route path="edit" component={OrganizationEdit} />
+      <Route path="groups" component={OrganizationGroups} />
+      <Route path="permissions" component={OrganizationPermissions} />
+      <Route path="permission_templates" component={OrganizationPermissionTemplates} />
+      <Route path="projects_management" component={OrganizationProjectsManagement} />
     </Route>
+  </Route>
 );

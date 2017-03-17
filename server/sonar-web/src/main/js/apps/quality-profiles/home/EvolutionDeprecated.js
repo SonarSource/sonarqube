@@ -30,53 +30,53 @@ export default class EvolutionDeprecated extends React.Component {
     profiles: ProfilesListType.isRequired
   };
 
-  render () {
-    const profilesWithDeprecations = this.props.profiles
-        .filter(profile => profile.activeDeprecatedRuleCount > 0);
+  render() {
+    const profilesWithDeprecations = this.props.profiles.filter(
+      profile => profile.activeDeprecatedRuleCount > 0
+    );
 
     if (profilesWithDeprecations.length === 0) {
       return null;
     }
 
-    const sortedProfiles =
-        sortBy(profilesWithDeprecations, p => -p.activeDeprecatedRuleCount);
+    const sortedProfiles = sortBy(profilesWithDeprecations, p => -p.activeDeprecatedRuleCount);
 
     return (
-        <div
-            className="quality-profile-box quality-profiles-evolution-deprecated">
-          <div className="spacer-bottom">
-            <strong>{translate('quality_profiles.deprecated_rules')}</strong>
-          </div>
-          <div className="spacer-bottom">
-            {translateWithParameters(
-              'quality_profiles.deprecated_rules_are_still_activated',
-              profilesWithDeprecations.length
-            )}
-          </div>
-          <ul>
-            {sortedProfiles.map(profile => (
-                <li key={profile.key} className="spacer-top">
-                  <div className="text-ellipsis">
-                    <ProfileLink
-                        profileKey={profile.key}
-                        className="link-no-underline">
-                      {profile.name}
-                    </ProfileLink>
-                  </div>
-                  <div className="note">
-                    {profile.languageName}
-                    {', '}
-                    <Link to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })} className="text-muted">
-                      {translateWithParameters(
-                        'quality_profile.x_rules',
-                        profile.activeDeprecatedRuleCount
-                      )}
-                    </Link>
-                  </div>
-                </li>
-            ))}
-          </ul>
+      <div className="quality-profile-box quality-profiles-evolution-deprecated">
+        <div className="spacer-bottom">
+          <strong>{translate('quality_profiles.deprecated_rules')}</strong>
         </div>
+        <div className="spacer-bottom">
+          {translateWithParameters(
+            'quality_profiles.deprecated_rules_are_still_activated',
+            profilesWithDeprecations.length
+          )}
+        </div>
+        <ul>
+          {sortedProfiles.map(profile => (
+            <li key={profile.key} className="spacer-top">
+              <div className="text-ellipsis">
+                <ProfileLink profileKey={profile.key} className="link-no-underline">
+                  {profile.name}
+                </ProfileLink>
+              </div>
+              <div className="note">
+                {profile.languageName}
+                {', '}
+                <Link
+                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
+                  className="text-muted"
+                >
+                  {translateWithParameters(
+                    'quality_profile.x_rules',
+                    profile.activeDeprecatedRuleCount
+                  )}
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 }

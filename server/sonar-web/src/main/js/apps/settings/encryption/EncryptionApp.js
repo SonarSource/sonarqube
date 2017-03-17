@@ -35,31 +35,32 @@ export default class EncryptionApp extends React.Component {
     startGeneration: React.PropTypes.func.isRequired
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.checkSecretKey();
   }
 
-  render () {
+  render() {
     return (
-        <div id="encryption-page" className="page page-limited">
-          <header className="page-header">
-            <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
-            {this.props.loading && <i className="spinner"/>}
-          </header>
+      <div id="encryption-page" className="page page-limited">
+        <header className="page-header">
+          <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
+          {this.props.loading && <i className="spinner" />}
+        </header>
 
-          {!this.props.loading && !this.props.secretKeyAvailable && (
-              <GenerateSecretKeyForm
-                  secretKey={this.props.secretKey}
-                  generateSecretKey={this.props.generateSecretKey}/>
-          )}
+        {!this.props.loading &&
+          !this.props.secretKeyAvailable &&
+          <GenerateSecretKeyForm
+            secretKey={this.props.secretKey}
+            generateSecretKey={this.props.generateSecretKey}
+          />}
 
-          {this.props.secretKeyAvailable && (
-              <EncryptionForm
-                  encryptedValue={this.props.encryptedValue}
-                  encryptValue={this.props.encryptValue}
-                  generateSecretKey={this.props.startGeneration}/>
-          )}
-        </div>
+        {this.props.secretKeyAvailable &&
+          <EncryptionForm
+            encryptedValue={this.props.encryptedValue}
+            encryptValue={this.props.encryptValue}
+            generateSecretKey={this.props.startGeneration}
+          />}
+      </div>
     );
   }
 }

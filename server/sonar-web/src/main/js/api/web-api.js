@@ -56,19 +56,20 @@ export type Domain = {
   path: string
 };
 
-export function fetchWebApi (showInternal: boolean = true): Promise<Array<Domain>> {
+export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>> {
   const url = '/api/webservices/list';
   const data = { include_internals: showInternal };
 
-  return getJSON(url, data).then(r => r.webServices.map(domain => {
-    const deprecated = !domain.actions.find(action => !action.deprecatedSince);
-    const internal = !domain.actions.find(action => !action.internal);
+  return getJSON(url, data).then(r =>
+    r.webServices.map(domain => {
+      const deprecated = !domain.actions.find(action => !action.deprecatedSince);
+      const internal = !domain.actions.find(action => !action.internal);
 
-    return { ...domain, deprecated, internal };
-  }));
+      return { ...domain, deprecated, internal };
+    }));
 }
 
-export function fetchResponseExample (domain: string, action: string): Promise<{ example: string }> {
+export function fetchResponseExample(domain: string, action: string): Promise<{ example: string }> {
   const url = '/api/webservices/response_example';
   const data = { controller: domain, action };
 

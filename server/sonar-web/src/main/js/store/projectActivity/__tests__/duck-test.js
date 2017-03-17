@@ -84,7 +84,6 @@ describe('actions', () => {
   });
 });
 
-
 describe('selectors', () => {
   it('getAnalyses', () => {
     const store = configureTestStore(reducer);

@@ -32,20 +32,22 @@ let showError = null;
  */
 
 const SelectListCollection = Backbone.Collection.extend({
-
-  initialize (options) {
+  initialize(options) {
     this.options = options;
   },
 
-  parse (r) {
+  parse(r) {
     return this.options.parse.call(this, r);
   },
 
-  fetch (options) {
-    const data = $.extend({
-      page: 1,
-      pageSize: 100
-    }, options.data || {});
+  fetch(options) {
+    const data = $.extend(
+      {
+        page: 1,
+        pageSize: 100
+      },
+      options.data || {}
+    );
     const settings = $.extend({}, options, { data });
 
     this.settings = {
@@ -56,7 +58,7 @@ const SelectListCollection = Backbone.Collection.extend({
     Backbone.Collection.prototype.fetch.call(this, settings);
   },
 
-  fetchNextPage (options) {
+  fetchNextPage(options) {
     if (this.more) {
       const nextPage = this.settings.data.page + 1;
       const settings = $.extend(this.settings, options);
@@ -68,7 +70,6 @@ const SelectListCollection = Backbone.Collection.extend({
       options.error();
     }
   }
-
 });
 
 /*
@@ -83,39 +84,43 @@ const SelectListItemView = Backbone.View.extend({
     'change .select-list-list-checkbox': 'toggle'
   },
 
-  initialize (options) {
+  initialize(options) {
     this.listenTo(this.model, 'change', this.render);
     this.settings = options.settings;
   },
 
-  render () {
+  render() {
     this.$el.html(this.template(this.settings.format(this.model.toJSON())));
     this.$('input').prop('name', this.model.get('name'));
     this.$el.toggleClass('selected', this.model.get('selected'));
     this.$('.select-list-list-checkbox')
-        .prop('title', this.model.get('selected') ?
-            this.settings.tooltips.deselect :
-            this.settings.tooltips.select)
-        .prop('checked', this.model.get('selected'));
+      .prop(
+        'title',
+        this.model.get('selected') ? this.settings.tooltips.deselect : this.settings.tooltips.select
+      )
+      .prop('checked', this.model.get('selected'));
 
     if (this.settings.readOnly) {
       this.$('.select-list-list-checkbox').prop('disabled', true);
     }
   },
 
-  remove (postpone) {
+  remove(postpone) {
     if (postpone) {
       const that = this;
       that.$el.addClass(this.model.get('selected') ? 'added' : 'removed');
-      setTimeout(function () {
-        Backbone.View.prototype.remove.call(that, arguments);
-      }, 500);
+      setTimeout(
+        function() {
+          Backbone.View.prototype.remove.call(that, arguments);
+        },
+        500
+      );
     } else {
       Backbone.View.prototype.remove.call(this, arguments);
     }
   },
 
-  toggle () {
+  toggle() {
     const selected = this.model.get('selected');
     const that = this;
     const url = selected ? this.settings.deselectUrl : this.settings.selectUrl;
@@ -134,14 +139,17 @@ const SelectListItemView = Backbone.View.extend({
         403: null,
         500: null
       }
-    }).done(() => {
-      that.model.set('selected', !selected);
-    }).fail(jqXHR => {
-      that.render();
-      showError(jqXHR);
-    }).always(() => {
-      that.$el.removeClass('progress');
-    });
+    })
+      .done(() => {
+        that.model.set('selected', !selected);
+      })
+      .fail(jqXHR => {
+        that.render();
+        showError(jqXHR);
+      })
+      .always(() => {
+        that.$el.removeClass('progress');
+      });
   }
 });
 
@@ -158,7 +166,7 @@ const SelectListView = Backbone.View.extend({
     'click .select-list-control-button[name=all]': 'showAll'
   },
 
-  initialize (options) {
+  initialize(options) {
     this.listenTo(this.collection, 'add', this.renderListItem);
     this.listenTo(this.collection, 'reset', this.renderList);
     this.listenTo(this.collection, 'remove', this.removeModel);
@@ -166,21 +174,21 @@ const SelectListView = Backbone.View.extend({
     this.settings = options.settings;
 
     const that = this;
-    this.showFetchSpinner = function () {
+    this.showFetchSpinner = function() {
       that.$listContainer.addClass('loading');
     };
-    this.hideFetchSpinner = function () {
+    this.hideFetchSpinner = function() {
       that.$listContainer.removeClass('loading');
     };
 
-    const onScroll = function () {
+    const onScroll = function() {
       that.showFetchSpinner();
 
       that.collection.fetchNextPage({
-        success () {
+        success() {
           that.hideFetchSpinner();
         },
-        error () {
+        error() {
           that.hideFetchSpinner();
         }
       });
@@ -188,23 +196,19 @@ const SelectListView = Backbone.View.extend({
     this.onScroll = throttle(onScroll, 1000);
   },
 
-  render () {
+  render() {
     const that = this;
-    const keyup = function () {
+    const keyup = function() {
       that.search();
     };
 
-    this.$el.html(this.template(this.settings.labels))
-        .width(this.settings.width);
+    this.$el.html(this.template(this.settings.labels)).width(this.settings.width);
 
     this.$listContainer = this.$('.select-list-list-container');
     if (!this.settings.readOnly) {
-      this.$listContainer
-          .height(this.settings.height)
-          .css('overflow', 'auto')
-          .on('scroll', () => {
-            that.scroll();
-          });
+      this.$listContainer.height(this.settings.height).css('overflow', 'auto').on('scroll', () => {
+        that.scroll();
+      });
     } else {
       this.$listContainer.addClass('select-list-list-container-readonly');
     }
@@ -212,27 +216,28 @@ const SelectListView = Backbone.View.extend({
     this.$list = this.$('.select-list-list');
 
     const searchInput = this.$('.select-list-search-control input')
-        .on('keyup', debounce(keyup, 250))
-        .on('search', debounce(keyup, 250));
+      .on('keyup', debounce(keyup, 250))
+      .on('search', debounce(keyup, 250));
 
     if (this.settings.focusSearch) {
-      setTimeout(() => {
-        searchInput.focus();
-      }, 250);
+      setTimeout(
+        () => {
+          searchInput.focus();
+        },
+        250
+      );
     }
 
     this.listItemViews = [];
 
-    showError = function (jqXHR) {
+    showError = function(jqXHR) {
       let message = translate('default_error_message');
       if (jqXHR != null && jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
         message = jqXHR.responseJSON.errors.map(e => e.msg).join('. ');
       }
 
       that.$el.prevAll('.alert').remove();
-      $('<div>')
-          .addClass('alert alert-danger').text(message)
-          .insertBefore(that.$el);
+      $('<div>').addClass('alert alert-danger').text(message).insertBefore(that.$el);
     };
 
     if (this.settings.readOnly) {
@@ -240,7 +245,7 @@ const SelectListView = Backbone.View.extend({
     }
   },
 
-  renderList () {
+  renderList() {
     this.listItemViews.forEach(view => {
       view.remove();
     });
@@ -253,7 +258,7 @@ const SelectListView = Backbone.View.extend({
     this.$listContainer.scrollTop(0);
   },
 
-  renderListItem (item) {
+  renderListItem(item) {
     const itemView = new SelectListItemView({
       model: item,
       settings: this.settings
@@ -263,32 +268,34 @@ const SelectListView = Backbone.View.extend({
     itemView.render();
   },
 
-  renderEmpty () {
+  renderEmpty() {
     this.$list.append(`<li class="empty-message">${this.settings.labels.noResults}</li>`);
   },
 
-  confirmFilter (model) {
+  confirmFilter(model) {
     if (this.currentFilter !== 'all') {
       this.collection.remove(model);
     }
   },
 
-  removeModel (model, collection, options) {
+  removeModel(model, collection, options) {
     this.listItemViews[options.index].remove(true);
     this.listItemViews.splice(options.index, 1);
   },
 
-  filterBySelection (filter) {
+  filterBySelection(filter) {
     const that = this;
-    filter = this.currentFilter = filter || this.currentFilter;
+    filter = (this.currentFilter = filter || this.currentFilter);
 
     if (filter != null) {
       this.$('.select-list-check-control').toggleClass('disabled', false);
       this.$('.select-list-search-control').toggleClass('disabled', true);
       this.$('.select-list-search-control input').val('');
 
-      this.$('.select-list-control-button').removeClass('active')
-          .filter(`[name=${filter}]`).addClass('active');
+      this.$('.select-list-control-button')
+        .removeClass('active')
+        .filter(`[name=${filter}]`)
+        .addClass('active');
 
       this.showFetchSpinner();
 
@@ -296,7 +303,7 @@ const SelectListView = Backbone.View.extend({
         url: this.settings.searchUrl,
         reset: true,
         data: { selected: filter },
-        success () {
+        success() {
           that.hideFetchSpinner();
         },
         error: showError
@@ -304,19 +311,19 @@ const SelectListView = Backbone.View.extend({
     }
   },
 
-  showSelected () {
+  showSelected() {
     this.filterBySelection('selected');
   },
 
-  showDeselected () {
+  showDeselected() {
     this.filterBySelection('deselected');
   },
 
-  showAll () {
+  showAll() {
     this.filterBySelection('all');
   },
 
-  search () {
+  search() {
     const query = this.$('.select-list-search-control input').val();
     const hasQuery = query.length > 0;
     const that = this;
@@ -335,7 +342,7 @@ const SelectListView = Backbone.View.extend({
         data,
         url: this.settings.searchUrl,
         reset: true,
-        success () {
+        success() {
           that.hideFetchSpinner();
         },
         error: showError
@@ -345,31 +352,30 @@ const SelectListView = Backbone.View.extend({
     }
   },
 
-  searchByQuery (query) {
+  searchByQuery(query) {
     this.$('.select-list-search-control input').val(query);
     this.search();
   },
 
-  clearSearch () {
+  clearSearch() {
     this.filterBySelection();
   },
 
-  scroll () {
+  scroll() {
     const scrollBottom = this.$listContainer.scrollTop() >=
-        this.$list[0].scrollHeight - this.$listContainer.outerHeight();
+      this.$list[0].scrollHeight - this.$listContainer.outerHeight();
 
     if (scrollBottom && this.collection.more) {
       this.onScroll();
     }
   }
-
 });
 
 /*
  * SelectList Entry Point
  */
 
-window.SelectList = function (options) {
+window.SelectList = function(options) {
   this.settings = $.extend(window.SelectList.defaults, options);
 
   this.collection = new SelectListCollection({
@@ -391,12 +397,12 @@ window.SelectList = function (options) {
  * SelectList API Methods
  */
 
-window.SelectList.prototype.filter = function (filter) {
+window.SelectList.prototype.filter = function(filter) {
   this.view.filterBySelection(filter);
   return this;
 };
 
-window.SelectList.prototype.search = function (query) {
+window.SelectList.prototype.search = function(query) {
   this.view.searchByQuery(query);
   return this;
 };
@@ -412,11 +418,11 @@ window.SelectList.defaults = {
   readOnly: false,
   focusSearch: true,
 
-  format (item) {
+  format(item) {
     return item.value;
   },
 
-  parse (r) {
+  parse(r) {
     this.more = r.more;
     return r.results;
   },

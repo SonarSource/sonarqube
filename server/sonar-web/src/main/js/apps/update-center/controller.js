@@ -20,29 +20,28 @@
 import Marionette from 'backbone.marionette';
 
 export default Marionette.Controller.extend({
-  initialize (options) {
+  initialize(options) {
     this.collection = options.collection;
     this.state = options.state;
   },
 
-  showInstalled () {
+  showInstalled() {
     this.state.set({ section: 'installed' });
     this.collection.fetchInstalled();
   },
 
-  showUpdates () {
+  showUpdates() {
     this.state.set({ section: 'updates' });
     this.collection.fetchUpdates();
   },
 
-  showAvailable () {
+  showAvailable() {
     this.state.set({ section: 'available' });
     this.collection.fetchAvailable();
   },
 
-  showSystemUpgrades () {
+  showSystemUpgrades() {
     this.state.set({ section: 'system' });
     this.collection.fetchSystemUpgrades();
   }
 });
-

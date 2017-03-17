@@ -28,7 +28,7 @@ export default class Toggle extends React.Component {
     onChange: React.PropTypes.func
   };
 
-  handleClick (e, value) {
+  handleClick(e, value) {
     e.preventDefault();
     e.currentTarget.blur();
     if (this.props.onChange) {
@@ -36,16 +36,20 @@ export default class Toggle extends React.Component {
     }
   }
 
-  render () {
+  render() {
     const { value } = this.props;
     const booleanValue = typeof value === 'string' ? value === 'true' : value;
 
     const className = classNames('boolean-toggle', { 'boolean-toggle-on': booleanValue });
 
     return (
-        <button className={className} name={this.props.name} onClick={e => this.handleClick(e, booleanValue)}>
-          <div className="boolean-toggle-handle"/>
-        </button>
+      <button
+        className={className}
+        name={this.props.name}
+        onClick={e => this.handleClick(e, booleanValue)}
+      >
+        <div className="boolean-toggle-handle" />
+      </button>
     );
   }
 }

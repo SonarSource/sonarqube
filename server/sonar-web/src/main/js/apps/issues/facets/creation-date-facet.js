@@ -28,7 +28,7 @@ import { formatMeasure } from '../../../helpers/measures';
 export default BaseFacet.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...BaseFacet.prototype.events.apply(this, arguments),
       'change input': 'applyFacet',
@@ -43,7 +43,7 @@ export default BaseFacet.extend({
     };
   },
 
-  onRender () {
+  onRender() {
     const that = this;
     this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
     this.$('input').datepicker({
@@ -70,24 +70,26 @@ export default BaseFacet.extend({
       values.reverse();
     }
     values = values.map(v => {
-      const format = that.options.app.state.getFacetMode() === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
+      const format = that.options.app.state.getFacetMode() === 'count'
+        ? 'SHORT_INT'
+        : 'SHORT_WORK_DUR';
       const text = formatMeasure(v.count, format);
       return { ...v, text };
     });
     return this.$('.js-barchart').barchart(values);
   },
 
-  selectPeriodStart () {
+  selectPeriodStart() {
     return this.$('.js-period-start').datepicker('show');
   },
 
-  selectPeriodEnd () {
+  selectPeriodEnd() {
     return this.$('.js-period-end').datepicker('show');
   },
 
-  applyFacet () {
+  applyFacet() {
     const obj = { createdAt: null, createdInLast: null };
-    this.$('input').each(function () {
+    this.$('input').each(function() {
       const property = $(this).prop('name');
       const value = $(this).val();
       obj[property] = value;
@@ -95,7 +97,7 @@ export default BaseFacet.extend({
     return this.options.app.state.updateFilter(obj);
   },
 
-  disable () {
+  disable() {
     return this.options.app.state.updateFilter({
       createdAfter: null,
       createdBefore: null,
@@ -105,7 +107,7 @@ export default BaseFacet.extend({
     });
   },
 
-  selectBar (e) {
+  selectBar(e) {
     const periodStart = $(e.currentTarget).data('period-start');
     const periodEnd = $(e.currentTarget).data('period-end');
     return this.options.app.state.updateFilter({
@@ -117,7 +119,7 @@ export default BaseFacet.extend({
     });
   },
 
-  selectPeriod (period) {
+  selectPeriod(period) {
     return this.options.app.state.updateFilter({
       createdAfter: null,
       createdBefore: null,
@@ -127,27 +129,27 @@ export default BaseFacet.extend({
     });
   },
 
-  onAllClick (e) {
+  onAllClick(e) {
     e.preventDefault();
     return this.disable();
   },
 
-  onLastWeekClick (e) {
+  onLastWeekClick(e) {
     e.preventDefault();
     return this.selectPeriod('1w');
   },
 
-  onLastMonthClick (e) {
+  onLastMonthClick(e) {
     e.preventDefault();
     return this.selectPeriod('1m');
   },
 
-  onLastYearClick (e) {
+  onLastYearClick(e) {
     e.preventDefault();
     return this.selectPeriod('1y');
   },
 
-  onLeakClick (e) {
+  onLeakClick(e) {
     e.preventDefault();
     this.options.app.state.updateFilter({
       createdAfter: null,
@@ -158,7 +160,7 @@ export default BaseFacet.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     const hasLeak = this.options.app.state.get('contextComponentQualifier') === 'TRK';
 
     return {
@@ -172,4 +174,3 @@ export default BaseFacet.extend({
     };
   }
 });
-

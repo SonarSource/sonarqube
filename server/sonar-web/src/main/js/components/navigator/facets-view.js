@@ -23,27 +23,25 @@ import BaseFacet from './facets/base-facet';
 export default Marionette.CollectionView.extend({
   className: 'search-navigator-facets-list',
 
-  childViewOptions () {
+  childViewOptions() {
     return {
       app: this.options.app
     };
   },
 
-  getChildView () {
+  getChildView() {
     return BaseFacet;
   },
 
-  collectionEvents () {
+  collectionEvents() {
     return {
       'change:enabled': 'updateState'
     };
   },
 
-  updateState () {
+  updateState() {
     const enabledFacets = this.collection.filter(model => model.get('enabled'));
     const enabledFacetIds = enabledFacets.map(model => model.id);
     this.options.app.state.set({ facets: enabledFacetIds });
   }
-
 });
-

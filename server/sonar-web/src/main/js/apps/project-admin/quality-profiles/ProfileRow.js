@@ -33,38 +33,38 @@ export default class ProfileRow extends React.Component {
     loading: false
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentWillUpdate (nextProps) {
+  componentWillUpdate(nextProps) {
     if (nextProps.profile !== this.props.profile) {
       this.setState({ loading: false });
     }
   }
 
-  handleChange (option) {
+  handleChange(option) {
     if (this.props.profile.key !== option.value) {
       this.setState({ loading: true });
       this.props.onChangeProfile(this.props.profile.key, option.value);
     }
   }
 
-  renderProfileName (profileOption) {
+  renderProfileName(profileOption) {
     if (profileOption.isDefault) {
       return (
-          <span>
-            <strong>{translate('default')}</strong>
-            {': '}
-            {profileOption.label}
-          </span>
+        <span>
+          <strong>{translate('default')}</strong>
+          {': '}
+          {profileOption.label}
+        </span>
       );
     }
 
     return profileOption.label;
   }
 
-  renderProfileSelect () {
+  renderProfileSelect() {
     const { profile, possibleProfiles } = this.props;
 
     const options = possibleProfiles.map(profile => ({
@@ -74,28 +74,30 @@ export default class ProfileRow extends React.Component {
     }));
 
     return (
-        <Select
-            options={options}
-            valueRenderer={this.renderProfileName}
-            optionRenderer={this.renderProfileName}
-            value={profile.key}
-            clearable={false}
-            style={{ width: 300 }}
-            disabled={this.state.loading}
-            onChange={this.handleChange.bind(this)}/>
+      <Select
+        options={options}
+        valueRenderer={this.renderProfileName}
+        optionRenderer={this.renderProfileName}
+        value={profile.key}
+        clearable={false}
+        style={{ width: 300 }}
+        disabled={this.state.loading}
+        onChange={this.handleChange.bind(this)}
+      />
     );
   }
 
-  render () {
+  render() {
     const { profile } = this.props;
 
     return (
-        <tr data-key={profile.language}>
-          <td className="thin nowrap">{profile.languageName}</td>
-          <td className="thin nowrap">{this.renderProfileSelect()}</td>
-          <td>{this.state.loading && <i className="spinner"/>}
-          </td>
-        </tr>
+      <tr data-key={profile.language}>
+        <td className="thin nowrap">{profile.languageName}</td>
+        <td className="thin nowrap">{this.renderProfileSelect()}</td>
+        <td>
+          {this.state.loading && <i className="spinner" />}
+        </td>
+      </tr>
     );
   }
 }

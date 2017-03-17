@@ -22,7 +22,9 @@ import App from './App';
 import { getComponent } from '../../../store/rootReducer';
 
 const mapStateToProps = (state, ownProps) => ({
-  component: ownProps.location.query.id ? getComponent(state, ownProps.location.query.id) : undefined
+  component: ownProps.location.query.id
+    ? getComponent(state, ownProps.location.query.id)
+    : undefined
 });
 
 export default connect(mapStateToProps)(App);

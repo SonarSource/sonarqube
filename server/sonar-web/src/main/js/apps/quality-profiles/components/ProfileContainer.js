@@ -32,33 +32,30 @@ export default class ProfileContainer extends React.Component {
     updateProfiles: React.PropTypes.func
   };
 
-  render () {
+  render() {
     const { profiles, location, ...other } = this.props;
     const { key } = location.query;
     const profile = profiles.find(profile => profile.key === key);
 
     if (!profile) {
-      return <ProfileNotFound/>;
+      return <ProfileNotFound />;
     }
 
-    const child = React.cloneElement(
-      this.props.children,
-        { profile, profiles, ...other });
+    const child = React.cloneElement(this.props.children, { profile, profiles, ...other });
 
     const title = translate('quality_profiles.page') + ' - ' + profile.name;
 
     return (
-        <div>
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
+      <div>
+        <Helmet title={title} titleTemplate="SonarQube - %s" />
 
-          <ProfileHeader
-              profile={profile}
-              canAdmin={this.props.canAdmin}
-              updateProfiles={this.props.updateProfiles}/>
-          {child}
-        </div>
+        <ProfileHeader
+          profile={profile}
+          canAdmin={this.props.canAdmin}
+          updateProfiles={this.props.updateProfiles}
+        />
+        {child}
+      </div>
     );
   }
 }

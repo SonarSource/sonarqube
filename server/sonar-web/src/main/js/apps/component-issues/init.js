@@ -33,7 +33,7 @@ import FacetsView from './../issues/facets-view';
 import HeaderView from './../issues/HeaderView';
 
 const App = new Marionette.Application();
-const init = function ({ el, component, currentUser }) {
+const init = function({ el, component, currentUser }) {
   this.config = {
     resource: component.id,
     resourceName: component.name,
@@ -86,28 +86,31 @@ const init = function ({ el, component, currentUser }) {
   Backbone.history.start();
 };
 
-App.getContextQuery = function () {
+App.getContextQuery = function() {
   return { componentUuids: this.config.resource };
 };
 
-App.getRestrictedFacets = function () {
+App.getRestrictedFacets = function() {
   return {
-    'TRK': ['projectUuids'],
-    'BRC': ['projectUuids'],
-    'DIR': ['projectUuids', 'moduleUuids', 'directories'],
-    'DEV': ['authors'],
-    'DEV_PRJ': ['projectUuids', 'authors']
+    TRK: ['projectUuids'],
+    BRC: ['projectUuids'],
+    DIR: ['projectUuids', 'moduleUuids', 'directories'],
+    DEV: ['authors'],
+    DEV_PRJ: ['projectUuids', 'authors']
   };
 };
 
-App.updateContextFacets = function () {
+App.updateContextFacets = function() {
   const facets = this.state.get('facets');
   const allFacets = this.state.get('allFacets');
   const facetsFromServer = this.state.get('facetsFromServer');
   return this.state.set({
     facets,
     allFacets: difference(allFacets, this.getRestrictedFacets()[this.config.resourceQualifier]),
-    facetsFromServer: difference(facetsFromServer, this.getRestrictedFacets()[this.config.resourceQualifier])
+    facetsFromServer: difference(
+      facetsFromServer,
+      this.getRestrictedFacets()[this.config.resourceQualifier]
+    )
   });
 };
 
@@ -115,7 +118,7 @@ App.on('start', options => {
   init.call(App, options);
 });
 
-export default function (el, component, currentUser) {
+export default function(el, component, currentUser) {
   App.start({ el, component, currentUser });
 
   return () => {

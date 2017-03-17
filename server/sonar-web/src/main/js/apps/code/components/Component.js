@@ -30,30 +30,33 @@ const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
 
 export default class Component extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     this.handleUpdate();
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.handleUpdate();
   }
 
-  handleUpdate () {
+  handleUpdate() {
     const { selected } = this.props;
 
     // scroll viewport so the current selected component is visible
     if (selected) {
-      setTimeout(() => {
-        this.handleScroll();
-      }, 0);
+      setTimeout(
+        () => {
+          this.handleScroll();
+        },
+        0
+      );
     }
   }
 
-  handleScroll () {
+  handleScroll() {
     const node = ReactDOM.findDOMNode(this);
     const position = node.getBoundingClientRect();
     const { top, bottom } = position;
@@ -64,7 +67,7 @@ export default class Component extends React.Component {
     }
   }
 
-  render () {
+  render() {
     const { component, rootComponent, selected, previous, canBrowse } = this.props;
     const isView = ['VW', 'SVW'].includes(rootComponent.qualifier);
 
@@ -74,54 +77,58 @@ export default class Component extends React.Component {
       switch (component.qualifier) {
         case 'FIL':
         case 'UTS':
-          componentAction = <ComponentPin component={component}/>;
+          componentAction = <ComponentPin component={component} />;
           break;
         default:
-          componentAction = <ComponentDetach component={component}/>;
+          componentAction = <ComponentDetach component={component} />;
       }
     }
 
-    const columns = isView ? [
-      { metric: 'releasability_rating', type: 'RATING' },
-      { metric: 'reliability_rating', type: 'RATING' },
-      { metric: 'security_rating', type: 'RATING' },
-      { metric: 'sqale_rating', type: 'RATING' },
-      { metric: 'ncloc', type: 'SHORT_INT' }
-    ] : [
-      { metric: 'ncloc', type: 'SHORT_INT' },
-      { metric: 'bugs', type: 'SHORT_INT' },
-      { metric: 'vulnerabilities', type: 'SHORT_INT' },
-      { metric: 'code_smells', type: 'SHORT_INT' },
-      { metric: 'coverage', type: 'PERCENT' },
-      { metric: 'duplicated_lines_density', type: 'PERCENT' }
-    ];
+    const columns = isView
+      ? [
+          { metric: 'releasability_rating', type: 'RATING' },
+          { metric: 'reliability_rating', type: 'RATING' },
+          { metric: 'security_rating', type: 'RATING' },
+          { metric: 'sqale_rating', type: 'RATING' },
+          { metric: 'ncloc', type: 'SHORT_INT' }
+        ]
+      : [
+          { metric: 'ncloc', type: 'SHORT_INT' },
+          { metric: 'bugs', type: 'SHORT_INT' },
+          { metric: 'vulnerabilities', type: 'SHORT_INT' },
+          { metric: 'code_smells', type: 'SHORT_INT' },
+          { metric: 'coverage', type: 'PERCENT' },
+          { metric: 'duplicated_lines_density', type: 'PERCENT' }
+        ];
 
     return (
-        <tr className={classNames({ selected })}>
-          <td className="thin nowrap">
-            <span className="spacer-right">
-              {componentAction}
-            </span>
-          </td>
-          <td className="code-name-cell">
-            <ComponentName
-                component={component}
-                rootComponent={rootComponent}
-                previous={previous}
-                canBrowse={canBrowse}/>
-          </td>
+      <tr className={classNames({ selected })}>
+        <td className="thin nowrap">
+          <span className="spacer-right">
+            {componentAction}
+          </span>
+        </td>
+        <td className="code-name-cell">
+          <ComponentName
+            component={component}
+            rootComponent={rootComponent}
+            previous={previous}
+            canBrowse={canBrowse}
+          />
+        </td>
 
-          {columns.map(column => (
-              <td key={column.metric} className="thin nowrap text-right">
-                <div className="code-components-cell">
-                  <ComponentMeasure
-                      component={component}
-                      metricKey={column.metric}
-                      metricType={column.type}/>
-                </div>
-              </td>
-          ))}
-        </tr>
+        {columns.map(column => (
+          <td key={column.metric} className="thin nowrap text-right">
+            <div className="code-components-cell">
+              <ComponentMeasure
+                component={component}
+                metricKey={column.metric}
+                metricType={column.type}
+              />
+            </div>
+          </td>
+        ))}
+      </tr>
     );
   }
 }

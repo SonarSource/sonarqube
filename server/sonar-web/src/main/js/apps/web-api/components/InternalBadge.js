@@ -20,13 +20,14 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function InternalBadge () {
+export default function InternalBadge() {
   return (
-      <span
-          className="badge badge-danger"
-          title={translate('api_documentation.internal_tooltip')}
-          data-toggle="tooltip">
-        internal
-      </span>
+    <span
+      className="badge badge-danger"
+      title={translate('api_documentation.internal_tooltip')}
+      data-toggle="tooltip"
+    >
+      internal
+    </span>
   );
 }

@@ -29,34 +29,32 @@ export default class IssueTypeIcon extends React.Component {
     query: string
   };
 
-  renderIcon () {
+  renderIcon() {
     switch (this.props.query.toLowerCase()) {
       case 'bug':
       case 'bugs':
       case 'new_bugs':
-        return <BugIcon/>;
+        return <BugIcon />;
       case 'vulnerability':
       case 'vulnerabilities':
       case 'new_vulnerabilities':
-        return <VulnerabilityIcon/>;
+        return <VulnerabilityIcon />;
       case 'code_smell':
       case 'code_smells':
       case 'new_code_smells':
-        return <CodeSmellIcon/>;
+        return <CodeSmellIcon />;
       default:
         return null;
     }
   }
 
-  render () {
+  render() {
     const icon = this.renderIcon();
 
     if (!icon) {
       return null;
     }
 
-    return this.props.className ?
-        <span className={this.props.className}>{icon}</span> :
-        icon;
+    return this.props.className ? <span className={this.props.className}>{icon}</span> : icon;
   }
 }

@@ -31,26 +31,26 @@ class ProjectAdminContainer extends React.Component {
     }
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.checkPermissions();
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.checkPermissions();
   }
 
-  isProjectAdmin () {
+  isProjectAdmin() {
     const { configuration } = this.props.project;
     return configuration != null && configuration.showSettings;
   }
 
-  checkPermissions () {
+  checkPermissions() {
     if (!this.isProjectAdmin()) {
       handleRequiredAuthorization();
     }
   }
 
-  render () {
+  render() {
     if (!this.isProjectAdmin()) {
       return null;
     }

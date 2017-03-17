@@ -22,19 +22,27 @@ import { shallow } from 'enzyme';
 import Domain from '../Domain';
 
 it('should render deprecated actions', () => {
-  const actions = [{
-    key: 'foo',
-    deprecatedSince: '5.0'
-  }];
+  const actions = [
+    {
+      key: 'foo',
+      deprecatedSince: '5.0'
+    }
+  ];
   const domain = { actions, path: 'api' };
-  expect(shallow(<Domain domain={domain} searchQuery="" showDeprecated={true}/>)).toMatchSnapshot();
+  expect(
+    shallow(<Domain domain={domain} searchQuery="" showDeprecated={true} />)
+  ).toMatchSnapshot();
 });
 
 it('should not render deprecated actions', () => {
-  const actions = [{
-    key: 'foo',
-    deprecatedSince: '5.0'
-  }];
+  const actions = [
+    {
+      key: 'foo',
+      deprecatedSince: '5.0'
+    }
+  ];
   const domain = { actions, path: 'api' };
-  expect(shallow(<Domain domain={domain} searchQuery="" showDeprecated={false}/>)).toMatchSnapshot();
+  expect(
+    shallow(<Domain domain={domain} searchQuery="" showDeprecated={false} />)
+  ).toMatchSnapshot();
 });

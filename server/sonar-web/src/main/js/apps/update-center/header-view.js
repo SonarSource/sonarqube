@@ -33,15 +33,15 @@ export default Marionette.ItemView.extend({
     'click .js-cancel-all': 'cancelAll'
   },
 
-  restart () {
+  restart() {
     new RestartModal().render();
   },
 
-  cancelAll () {
+  cancelAll() {
     this.collection.cancelAll();
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       installing: this.collection._installedCount,
@@ -50,4 +50,3 @@ export default Marionette.ItemView.extend({
     };
   }
 });
-

@@ -22,23 +22,20 @@ import HomeMeasuresList from './HomeMeasuresList';
 import { getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default class AllMeasuresDomain extends React.Component {
-  render () {
+  render() {
     const { domain, component, displayHeader } = this.props;
 
     return (
-        <li>
-          {displayHeader && (
-              <header className="page-header">
-                <h3 className="page-title">
-                  {getLocalizedMetricDomain(domain.name)}
-                </h3>
-              </header>
-          )}
+      <li>
+        {displayHeader &&
+          <header className="page-header">
+            <h3 className="page-title">
+              {getLocalizedMetricDomain(domain.name)}
+            </h3>
+          </header>}
 
-          <HomeMeasuresList
-              domain={domain}
-              component={component}/>
-        </li>
+        <HomeMeasuresList domain={domain} component={component} />
+      </li>
     );
   }
 }

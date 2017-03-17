@@ -43,5 +43,4 @@ const components = (state = {}, action = {}) => {
 
 export default components;
 
-export const getComponentByKey = (state, key) =>
-    state[key];
+export const getComponentByKey = (state, key) => state[key];

@@ -50,10 +50,8 @@ const viewsMapping = {
 };
 
 export default FacetsView.extend({
-
-  getChildView (model) {
+  getChildView(model) {
     const view = viewsMapping[model.get('property')];
     return view ? view : BaseFacet;
   }
-
 });

@@ -25,12 +25,12 @@ import { parseError } from '../../code/utils';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     deletePermissionTemplate({ templateId: this.model.id }).then(
       () => {
         this.trigger('done');

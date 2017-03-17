@@ -25,28 +25,37 @@ import { translateWithParameters } from '../../helpers/l10n';
 export default ModalFormView.extend({
   template: Template,
 
-  ui () {
+  ui() {
     return {
       ...ModalFormView.prototype.ui.apply(this, arguments),
       codingRulesSubmitBulkChange: '#coding-rules-submit-bulk-change'
     };
   },
 
-  showSuccessMessage (profile, succeeded) {
+  showSuccessMessage(profile, succeeded) {
     const profileBase = this.options.app.qualityProfiles.find(p => p.key === profile);
-    const message = translateWithParameters('coding_rules.bulk_change.success',
-      profileBase.name, profileBase.language, succeeded);
+    const message = translateWithParameters(
+      'coding_rules.bulk_change.success',
+      profileBase.name,
+      profileBase.language,
+      succeeded
+    );
     this.ui.messagesContainer.append(`<div class="alert alert-success">${message}</div>`);
   },
 
-  showWarnMessage (profile, succeeded, failed) {
+  showWarnMessage(profile, succeeded, failed) {
     const profileBase = this.options.app.qualityProfiles.find(p => p.key === profile);
-    const message = translateWithParameters('coding_rules.bulk_change.warning',
-      profileBase.name, profileBase.language, succeeded, failed);
+    const message = translateWithParameters(
+      'coding_rules.bulk_change.warning',
+      profileBase.name,
+      profileBase.language,
+      succeeded,
+      failed
+    );
     this.ui.messagesContainer.append(`<div class="alert alert-warning">${message}</div>`);
   },
 
-  onRender () {
+  onRender() {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('#coding-rules-bulk-change-profile').select2({
       width: '250px',
@@ -55,7 +64,7 @@ export default ModalFormView.extend({
     });
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     const url = `${window.baseUrl}/api/qualityprofiles/${this.options.action}_rules`;
     const options = { ...this.options.app.state.get('query'), wsAction: this.options.action };
@@ -64,7 +73,7 @@ export default ModalFormView.extend({
     this.sendRequests(url, options, profiles);
   },
 
-  sendRequests (url, options, profiles) {
+  sendRequests(url, options, profiles) {
     const that = this;
     let looper = $.Deferred().resolve();
     this.disableForm();
@@ -93,7 +102,7 @@ export default ModalFormView.extend({
     });
   },
 
-  getAvailableQualityProfiles () {
+  getAvailableQualityProfiles() {
     const queryLanguages = this.options.app.state.get('query').languages;
     const languages = queryLanguages && queryLanguages.length > 0 ? queryLanguages.split(',') : [];
     let profiles = this.options.app.qualityProfiles;
@@ -103,7 +112,7 @@ export default ModalFormView.extend({
     return profiles;
   },
 
-  serializeData () {
+  serializeData() {
     const profile = this.options.app.qualityProfiles.find(p => p.key === this.options.param);
     return {
       ...ModalFormView.prototype.serializeData.apply(this, arguments),

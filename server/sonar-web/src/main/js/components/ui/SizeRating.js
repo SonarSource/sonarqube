@@ -35,13 +35,11 @@ export default class SizeRating extends React.Component {
     muted: false
   };
 
-  render () {
+  render() {
     const { value } = this.props;
 
     if (value == null) {
-      return (
-          <div className="size-rating size-rating-muted">&nbsp;</div>
-      );
+      return <div className="size-rating size-rating-muted">&nbsp;</div>;
     }
 
     let letter;
@@ -62,8 +60,6 @@ export default class SizeRating extends React.Component {
       'size-rating-muted': this.props.muted
     });
 
-    return (
-        <div className={className}>{letter}</div>
-    );
+    return <div className={className}>{letter}</div>;
   }
 }

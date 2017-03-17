@@ -25,7 +25,7 @@ afterEach(() => {
 
 describe('#translate', () => {
   it('should translate simple message', () => {
-    resetBundle({ 'my_key': 'my message' });
+    resetBundle({ my_key: 'my message' });
     expect(translate('my_key')).toBe('my message');
   });
 
@@ -46,23 +46,25 @@ describe('#translate', () => {
 
 describe('#translateWithParameters', () => {
   it('should translate message with one parameter in the beginning', () => {
-    resetBundle({ 'x_apples': '{0} apples' });
+    resetBundle({ x_apples: '{0} apples' });
     expect(translateWithParameters('x_apples', 5)).toBe('5 apples');
   });
 
   it('should translate message with one parameter in the middle', () => {
-    resetBundle({ 'x_apples': 'I have {0} apples' });
+    resetBundle({ x_apples: 'I have {0} apples' });
     expect(translateWithParameters('x_apples', 5)).toBe('I have 5 apples');
   });
 
   it('should translate message with one parameter in the end', () => {
-    resetBundle({ 'x_apples': 'Apples: {0}' });
+    resetBundle({ x_apples: 'Apples: {0}' });
     expect(translateWithParameters('x_apples', 5)).toBe('Apples: 5');
   });
 
   it('should translate message with several parameters', () => {
-    resetBundle({ 'x_apples': '{0}: I have {2} apples in my {1} baskets - {3}' });
-    expect(translateWithParameters('x_apples', 1, 2, 3, 4)).toBe('1: I have 3 apples in my 2 baskets - 4');
+    resetBundle({ x_apples: '{0}: I have {2} apples in my {1} baskets - {3}' });
+    expect(translateWithParameters('x_apples', 1, 2, 3, 4)).toBe(
+      '1: I have 3 apples in my 2 baskets - 4'
+    );
   });
 
   it('should not translate message but return its key', () => {

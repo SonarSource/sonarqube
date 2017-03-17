@@ -22,9 +22,11 @@ import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
 const ComponentDetach = ({ component }) => (
-    <Link to={{ pathname: '/dashboard', query: { id: component.refKey || component.key } }}
-          className="icon-detach"
-          title={translate('code.open_component_page')}/>
+  <Link
+    to={{ pathname: '/dashboard', query: { id: component.refKey || component.key } }}
+    className="icon-detach"
+    title={translate('code.open_component_page')}
+  />
 );
 
 export default ComponentDetach;

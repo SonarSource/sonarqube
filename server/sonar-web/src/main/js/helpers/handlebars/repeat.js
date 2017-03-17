@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (number, options) {
+module.exports = function(number, options) {
   let ret = '';
   for (let i = 0; i < number; i++) {
     ret += options.fn(this);

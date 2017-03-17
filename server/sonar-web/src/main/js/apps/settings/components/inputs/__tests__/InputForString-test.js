@@ -25,11 +25,7 @@ import SimpleInput from '../SimpleInput';
 it('should render SimpleInput', () => {
   const onChange = jest.fn();
   const simpleInput = shallow(
-    <InputForString
-          name="foo"
-          value="bar"
-          isDefault={false}
-          onChange={onChange}/>
+    <InputForString name="foo" value="bar" isDefault={false} onChange={onChange} />
   ).find(SimpleInput);
   expect(simpleInput.length).toBe(1);
   expect(simpleInput.prop('name')).toBe('foo');

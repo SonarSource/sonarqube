@@ -21,6 +21,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import ComponentIssuesAppContainer from './components/ComponentIssuesAppContainer';
 
-export default (
-    <IndexRoute component={ComponentIssuesAppContainer}/>
-);
+export default <IndexRoute component={ComponentIssuesAppContainer} />;

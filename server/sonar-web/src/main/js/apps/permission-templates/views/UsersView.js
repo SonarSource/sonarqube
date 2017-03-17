@@ -21,46 +21,50 @@ import Modal from '../../../components/common/modals';
 import Template from '../templates/permission-templates-users.hbs';
 import '../../../components/SelectList';
 import {
-    addProjectCreatorToTemplate,
-    removeProjectCreatorFromTemplate
+  addProjectCreatorToTemplate,
+  removeProjectCreatorFromTemplate
 } from '../../../api/permissions';
 
 export default Modal.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...Modal.prototype.events.apply(this, arguments),
       'change #grant-to-project-creators': 'onCheckboxChange'
     };
   },
 
-  onCheckboxChange () {
+  onCheckboxChange() {
     const checked = this.$('#grant-to-project-creators').is(':checked');
     if (checked) {
       addProjectCreatorToTemplate(
         this.options.permissionTemplate.name,
-        this.options.permission.key);
+        this.options.permission.key
+      );
     } else {
       removeProjectCreatorFromTemplate(
         this.options.permissionTemplate.name,
-        this.options.permission.key);
+        this.options.permission.key
+      );
     }
   },
 
-  onRender () {
+  onRender() {
     Modal.prototype.onRender.apply(this, arguments);
-    this.$('[data-toggle="tooltip"]')
-        .tooltip({ container: 'body', placement: 'bottom' });
-    const searchUrl = window.baseUrl + '/api/permissions/template_users?ps=100&permission=' +
-        this.options.permission.key + '&templateId=' + this.options.permissionTemplate.id;
+    this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
+    const searchUrl = window.baseUrl +
+      '/api/permissions/template_users?ps=100&permission=' +
+      this.options.permission.key +
+      '&templateId=' +
+      this.options.permissionTemplate.id;
     new window.SelectList({
       searchUrl,
       el: this.$('#permission-templates-users'),
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format (item) {
+      format(item) {
         return `${item.name}<br><span class="note">${item.login}</span>`;
       },
       queryParam: 'q',
@@ -72,14 +76,14 @@ export default Modal.extend({
       },
       selectParameter: 'login',
       selectParameterValue: 'login',
-      parse (r) {
+      parse(r) {
         this.more = false;
         return r.users;
       }
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     if (this.options.refresh) {
       this.options.refresh();
     }
@@ -87,7 +91,7 @@ export default Modal.extend({
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Modal.prototype.serializeData.apply(this, arguments),
       permission: this.options.permission,

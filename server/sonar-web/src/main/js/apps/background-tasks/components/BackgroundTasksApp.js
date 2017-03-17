@@ -29,7 +29,13 @@ import Footer from './Footer';
 import Stats from '../components/Stats';
 import Search from '../components/Search';
 import Tasks from '../components/Tasks';
-import { getTypes, getActivity, getStatus, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
+import {
+  getTypes,
+  getActivity,
+  getStatus,
+  cancelAllTasks,
+  cancelTask as cancelTaskAPI
+} from '../../../api/ce';
 import { updateTask, mapFiltersToParameters } from '../utils';
 import { Task } from '../types';
 import { getComponent } from '../../../store/rootReducer';
@@ -48,7 +54,7 @@ type State = {
   types?: Array<*>,
   query: string,
   pendingCount: number,
-  failingCount: number,
+  failingCount: number
 };
 
 class BackgroundTasksApp extends React.Component {
@@ -72,11 +78,11 @@ class BackgroundTasksApp extends React.Component {
     failingCount: 0
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.loadTasksDebounced = debounce(this.loadTasks.bind(this), DEBOUNCE_DELAY);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
 
     getTypes().then(types => {
@@ -85,28 +91,30 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  shouldComponentUpdate (nextProps: Props, nextState: State) {
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (prevProps: Props) {
-    if (prevProps.component !== this.props.component ||
-        prevProps.location !== this.props.location) {
+  componentDidUpdate(prevProps: Props) {
+    if (
+      prevProps.component !== this.props.component || prevProps.location !== this.props.location
+    ) {
       this.loadTasksDebounced();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadTasks () {
+  loadTasks() {
     this.setState({ loading: true });
 
     const status = this.props.location.query.status || DEFAULT_FILTERS.status;
     const taskType = this.props.location.query.taskType || DEFAULT_FILTERS.taskType;
     const currents = this.props.location.query.currents || DEFAULT_FILTERS.currents;
-    const minSubmittedAt = this.props.location.query.minSubmittedAt || DEFAULT_FILTERS.minSubmittedAt;
+    const minSubmittedAt = this.props.location.query.minSubmittedAt ||
+      DEFAULT_FILTERS.minSubmittedAt;
     const maxExecutedAt = this.props.location.query.maxExecutedAt || DEFAULT_FILTERS.maxExecutedAt;
     const query = this.props.location.query.query || DEFAULT_FILTERS.query;
 
@@ -117,10 +125,7 @@ class BackgroundTasksApp extends React.Component {
       parameters.componentId = this.props.component.id;
     }
 
-    Promise.all([
-      getActivity(parameters),
-      getStatus(parameters.componentId)
-    ]).then(responses => {
+    Promise.all([getActivity(parameters), getStatus(parameters.componentId)]).then(responses => {
       if (this.mounted) {
         const [activity, status] = responses;
         const tasks = activity.tasks;
@@ -141,7 +146,7 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleFilterUpdate (nextState: Object) {
+  handleFilterUpdate(nextState: Object) {
     const nextQuery = { ...this.props.location.query, ...nextState };
 
     // remove defaults
@@ -157,7 +162,7 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleCancelTask (task: Task) {
+  handleCancelTask(task: Task) {
     this.setState({ loading: true });
 
     cancelTaskAPI(task.id).then(nextTask => {
@@ -168,11 +173,11 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleFilterTask (task: Task) {
+  handleFilterTask(task: Task) {
     this.handleFilterUpdate({ query: task.componentKey });
   }
 
-  handleShowFailing () {
+  handleShowFailing() {
     this.handleFilterUpdate({
       ...DEFAULT_FILTERS,
       status: STATUSES.FAILED,
@@ -180,7 +185,7 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleCancelAllPending () {
+  handleCancelAllPending() {
     this.setState({ loading: true });
 
     cancelAllTasks().then(() => {
@@ -190,15 +195,15 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  render () {
+  render() {
     const { component } = this.props;
     const { loading, types, tasks, pendingCount, failingCount } = this.state;
 
     if (!types) {
       return (
-          <div className="page">
-            <i className="spinner"/>
-          </div>
+        <div className="page">
+          <i className="spinner" />
+        </div>
       );
     }
 
@@ -210,45 +215,50 @@ class BackgroundTasksApp extends React.Component {
     const query = this.props.location.query.query || '';
 
     return (
-        <div className="page page-limited">
-          <Header/>
+      <div className="page page-limited">
+        <Header />
 
-          <Stats
-              component={component}
-              pendingCount={pendingCount}
-              failingCount={failingCount}
-              onShowFailing={this.handleShowFailing.bind(this)}
-              onCancelAllPending={this.handleCancelAllPending.bind(this)}/>
+        <Stats
+          component={component}
+          pendingCount={pendingCount}
+          failingCount={failingCount}
+          onShowFailing={this.handleShowFailing.bind(this)}
+          onCancelAllPending={this.handleCancelAllPending.bind(this)}
+        />
 
-          <Search
-              loading={loading}
-              component={component}
-              status={status}
-              currents={currents}
-              minSubmittedAt={minSubmittedAt}
-              maxExecutedAt={maxExecutedAt}
-              query={query}
-              taskType={taskType}
-              types={types}
-              onFilterUpdate={this.handleFilterUpdate.bind(this)}
-              onReload={this.loadTasksDebounced}/>
+        <Search
+          loading={loading}
+          component={component}
+          status={status}
+          currents={currents}
+          minSubmittedAt={minSubmittedAt}
+          maxExecutedAt={maxExecutedAt}
+          query={query}
+          taskType={taskType}
+          types={types}
+          onFilterUpdate={this.handleFilterUpdate.bind(this)}
+          onReload={this.loadTasksDebounced}
+        />
 
-          <Tasks
-              loading={loading}
-              component={component}
-              types={types}
-              tasks={tasks}
-              onCancelTask={this.handleCancelTask.bind(this)}
-              onFilterTask={this.handleFilterTask.bind(this)}/>
+        <Tasks
+          loading={loading}
+          component={component}
+          types={types}
+          tasks={tasks}
+          onCancelTask={this.handleCancelTask.bind(this)}
+          onFilterTask={this.handleFilterTask.bind(this)}
+        />
 
-          <Footer tasks={tasks}/>
-        </div>
+        <Footer tasks={tasks} />
+      </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  component: ownProps.location.query.id ? getComponent(state, ownProps.location.query.id) : undefined
+  component: ownProps.location.query.id
+    ? getComponent(state, ownProps.location.query.id)
+    : undefined
 });
 
 const mapDispatchToProps = { fetchOrganizations };

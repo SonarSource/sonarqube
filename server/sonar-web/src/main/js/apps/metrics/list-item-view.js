@@ -32,28 +32,26 @@ export default Marionette.ItemView.extend({
     'click .js-metric-delete': 'onDeleteClick'
   },
 
-  onRender () {
-    this.$el
-        .attr('data-id', this.model.id)
-        .attr('data-key', this.model.get('key'));
+  onRender() {
+    this.$el.attr('data-id', this.model.id).attr('data-key', this.model.get('key'));
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onUpdateClick (e) {
+  onUpdateClick(e) {
     e.preventDefault();
     this.updateMetric();
   },
 
-  onDeleteClick (e) {
+  onDeleteClick(e) {
     e.preventDefault();
     this.deleteMetric();
   },
 
-  updateMetric () {
+  updateMetric() {
     new UpdateView({
       model: this.model,
       collection: this.model.collection,
@@ -62,8 +60,7 @@ export default Marionette.ItemView.extend({
     }).render();
   },
 
-  deleteMetric () {
+  deleteMetric() {
     new DeleteView({ model: this.model }).render();
   }
 });
-

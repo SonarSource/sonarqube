@@ -47,6 +47,4 @@ const currentUser = (state = null, action = {}) => {
 
 export default combineReducers({ usersByLogin, userLogins, currentUser });
 
-export const getCurrentUser = state => (
-    state.currentUser
-);
+export const getCurrentUser = state => state.currentUser;

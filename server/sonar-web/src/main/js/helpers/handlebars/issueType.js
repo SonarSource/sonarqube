@@ -19,6 +19,6 @@
  */
 import { translate } from '../../helpers/l10n';
 
-module.exports = function (issueType) {
+module.exports = function(issueType) {
   return translate('issue.type', issueType);
 };

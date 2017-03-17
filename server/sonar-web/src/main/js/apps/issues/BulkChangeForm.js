@@ -37,14 +37,13 @@ type Issue = {
   transitions?: Array<string>
 };
 
-const hasAction = (action: string) => (issue: Issue) => (
-    issue.actions && issue.actions.includes(action)
-);
+const hasAction = (action: string) =>
+  (issue: Issue) => issue.actions && issue.actions.includes(action);
 
 export default ModalForm.extend({
   template: Template,
 
-  initialize () {
+  initialize() {
     this.issues = null;
     this.paging = null;
     this.tags = null;
@@ -52,7 +51,7 @@ export default ModalForm.extend({
     this.loadTags();
   },
 
-  loadIssues () {
+  loadIssues() {
     const { query } = this.options;
     searchIssues({
       ...query,
@@ -65,14 +64,14 @@ export default ModalForm.extend({
     });
   },
 
-  loadTags () {
+  loadTags() {
     searchIssueTags().then(r => {
       this.tags = r.tags;
       this.render();
     });
   },
 
-  prepareAssigneeSelect () {
+  prepareAssigneeSelect() {
     const input = this.$('#assignee');
     if (input.length) {
       const canBeAssignedToMe = this.issues && this.canBeAssignedToMe(this.issues);
@@ -80,7 +79,10 @@ export default ModalForm.extend({
       const canBeUnassigned = this.issues && this.canBeUnassigned(this.issues);
       const defaultOptions = [];
       if (canBeAssignedToMe && currentUser.isLoggedIn) {
-        defaultOptions.push({ id: currentUser.login, text: `${currentUser.name} (${currentUser.login})` });
+        defaultOptions.push({
+          id: currentUser.login,
+          text: `${currentUser.name} (${currentUser.login})`
+        });
       }
       if (canBeUnassigned) {
         defaultOptions.push({ id: UNASSIGNED, text: translate('unassigned') });
@@ -92,7 +94,8 @@ export default ModalForm.extend({
         width: INPUT_WIDTH,
         formatNoMatches: () => translate('select2.noMatches'),
         formatSearching: () => translate('select2.searching'),
-        formatInputTooShort: () => translateWithParameters('select2.tooShort', MINIMUM_QUERY_LENGTH),
+        formatInputTooShort: () =>
+          translateWithParameters('select2.tooShort', MINIMUM_QUERY_LENGTH),
         query: query => {
           if (query.term.length === 0) {
             query.callback({ results: defaultOptions });
@@ -113,40 +116,47 @@ export default ModalForm.extend({
     }
   },
 
-  prepareTypeSelect () {
-    this.$('#type').select2({
-      minimumResultsForSearch: 999,
-      width: INPUT_WIDTH
-    }).on('change', () => this.$('#set-type-action').prop('checked', true));
+  prepareTypeSelect() {
+    this.$('#type')
+      .select2({
+        minimumResultsForSearch: 999,
+        width: INPUT_WIDTH
+      })
+      .on('change', () => this.$('#set-type-action').prop('checked', true));
   },
 
-  prepareSeveritySelect () {
-    const format = state => (
-        state.id ?
-            `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}` :
-            state.text
-    );
-    this.$('#severity').select2({
-      minimumResultsForSearch: 999,
-      width: INPUT_WIDTH,
-      formatResult: format,
-      formatSelection: format
-    }).on('change', () => this.$('#set-severity-action').prop('checked', true));
+  prepareSeveritySelect() {
+    const format = state =>
+      state.id
+        ? `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}`
+        : state.text;
+    this.$('#severity')
+      .select2({
+        minimumResultsForSearch: 999,
+        width: INPUT_WIDTH,
+        formatResult: format,
+        formatSelection: format
+      })
+      .on('change', () => this.$('#set-severity-action').prop('checked', true));
   },
 
-  prepareTagsInput () {
-    this.$('#add_tags').select2({
-      width: INPUT_WIDTH,
-      tags: this.tags
-    }).on('change', () => this.$('#add-tags-action').prop('checked', true));
+  prepareTagsInput() {
+    this.$('#add_tags')
+      .select2({
+        width: INPUT_WIDTH,
+        tags: this.tags
+      })
+      .on('change', () => this.$('#add-tags-action').prop('checked', true));
 
-    this.$('#remove_tags').select2({
-      width: INPUT_WIDTH,
-      tags: this.tags
-    }).on('change', () => this.$('#remove-tags-action').prop('checked', true));
+    this.$('#remove_tags')
+      .select2({
+        width: INPUT_WIDTH,
+        tags: this.tags
+      })
+      .on('change', () => this.$('#remove-tags-action').prop('checked', true));
   },
 
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.prepareAssigneeSelect();
     this.prepareTypeSelect();
@@ -154,7 +164,7 @@ export default ModalForm.extend({
     this.prepareTagsInput();
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     const query = {};
 
@@ -215,35 +225,35 @@ export default ModalForm.extend({
     );
   },
 
-  canBeAssigned (issues: Array<Issue>) {
+  canBeAssigned(issues: Array<Issue>) {
     return issues.filter(hasAction('assign')).length;
   },
 
-  canBeAssignedToMe (issues: Array<Issue>) {
+  canBeAssignedToMe(issues: Array<Issue>) {
     return issues.filter(hasAction('assign_to_me')).length;
   },
 
-  canBeUnassigned (issues: Array<Issue>) {
+  canBeUnassigned(issues: Array<Issue>) {
     return issues.filter(issue => issue.assignee).length;
   },
 
-  canChangeType (issues: Array<Issue>) {
+  canChangeType(issues: Array<Issue>) {
     return issues.filter(hasAction('set_type')).length;
   },
 
-  canChangeSeverity (issues: Array<Issue>) {
+  canChangeSeverity(issues: Array<Issue>) {
     return issues.filter(hasAction('set_severity')).length;
   },
 
-  canChangeTags (issues: Array<Issue>) {
+  canChangeTags(issues: Array<Issue>) {
     return issues.filter(hasAction('set_tags')).length;
   },
 
-  canBeCommented (issues: Array<Issue>) {
+  canBeCommented(issues: Array<Issue>) {
     return issues.filter(hasAction('comment')).length;
   },
 
-  availableTransitions (issues: Array<Issue>) {
+  availableTransitions(issues: Array<Issue>) {
     const transitions = {};
     issues.forEach(issue => {
       if (issue.transitions) {
@@ -262,7 +272,7 @@ export default ModalForm.extend({
     }));
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ModalForm.prototype.serializeData.apply(this, arguments),
       isLoaded: this.issues != null && this.tags != null,

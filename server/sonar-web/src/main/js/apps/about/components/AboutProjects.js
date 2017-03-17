@@ -27,20 +27,20 @@ export default class AboutProjects extends React.Component {
     count: React.PropTypes.number.isRequired
   };
 
-  render () {
+  render() {
     return (
-        <div className="about-page-projects">
+      <div className="about-page-projects">
+        <div>
           <div>
-            <div>
-              <Link to="/projects" className="about-page-projects-link">
-                {formatMeasure(this.props.count, 'INT')}
-              </Link>
-            </div>
-            <div>
-              {translate('about_page.projects_analyzed')}
-            </div>
+            <Link to="/projects" className="about-page-projects-link">
+              {formatMeasure(this.props.count, 'INT')}
+            </Link>
+          </div>
+          <div>
+            {translate('about_page.projects_analyzed')}
           </div>
         </div>
+      </div>
     );
   }
 }

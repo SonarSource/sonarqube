@@ -19,6 +19,6 @@
  */
 import { fileFromPath } from '../path';
 
-module.exports = function (path) {
+module.exports = function(path) {
   return fileFromPath(path);
 };

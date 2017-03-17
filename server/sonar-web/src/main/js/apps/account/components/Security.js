@@ -26,32 +26,23 @@ import { translate } from '../../../helpers/l10n';
 import { getCurrentUser } from '../../../store/rootReducer';
 
 class Security extends React.Component {
-  render () {
+  render() {
     const { user } = this.props;
 
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.security');
+    const title = translate('my_account.page') + ' - ' + translate('my_account.security');
 
     return (
-        <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
+      <div className="account-body account-container">
+        <Helmet title={title} titleTemplate="SonarQube - %s" />
 
-          <Tokens user={user}/>
+        <Tokens user={user} />
 
-          {user.local && (
-              <hr className="account-separator"/>
-          )}
+        {user.local && <hr className="account-separator" />}
 
-          {user.local && (
-              <Password user={user}/>
-          )}
-        </div>
+        {user.local && <Password user={user} />}
+      </div>
     );
   }
 }
 
-export default connect(
-  state => ({ user: getCurrentUser(state) })
-)(Security);
+export default connect(state => ({ user: getCurrentUser(state) }))(Security);

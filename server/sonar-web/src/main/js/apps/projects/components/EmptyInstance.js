@@ -21,11 +21,11 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default class EmptyInstance extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="projects-empty-list">
-          <h3>{translate('projects.no_projects.empty_instance')}</h3>
-        </div>
+      <div className="projects-empty-list">
+        <h3>{translate('projects.no_projects.empty_instance')}</h3>
+      </div>
     );
   }
 }

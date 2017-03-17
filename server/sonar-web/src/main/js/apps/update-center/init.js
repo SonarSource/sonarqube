@@ -30,7 +30,7 @@ import Plugins from './plugins';
 
 const App = new Marionette.Application();
 
-const init = function ({ el, updateCenterActive }) {
+const init = function({ el, updateCenterActive }) {
   // State
   this.state = new Backbone.Model({ updateCenterActive });
 
@@ -52,7 +52,11 @@ const init = function ({ el, updateCenterActive }) {
   this.layout.headerRegion.show(this.headerView);
 
   // Search
-  this.searchView = new SearchView({ collection: this.plugins, router: this.router, state: this.state });
+  this.searchView = new SearchView({
+    collection: this.plugins,
+    router: this.router,
+    state: this.state
+  });
   this.layout.searchRegion.show(this.searchView);
   this.searchView.focusSearch();
 
@@ -73,7 +77,7 @@ const init = function ({ el, updateCenterActive }) {
 
 App.on('start', options => init.call(App, options));
 
-export default function (el, updateCenterActive) {
+export default function(el, updateCenterActive) {
   App.start({ el, updateCenterActive });
 
   return () => {

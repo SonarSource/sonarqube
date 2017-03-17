@@ -25,7 +25,7 @@ import LineNumber from '../LineNumber';
 it('render line 3', () => {
   const line = { line: 3 };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineNumber line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineNumber line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
   expect(onClick).toHaveBeenCalled();
@@ -34,6 +34,6 @@ it('render line 3', () => {
 it('render line 0', () => {
   const line = { line: 0 };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineNumber line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineNumber line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
 });

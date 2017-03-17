@@ -22,13 +22,9 @@ import React from 'react';
 import FavoriteBase from '../FavoriteBase';
 import { click } from '../../../helpers/testUtils';
 
-function renderFavoriteBase (props) {
+function renderFavoriteBase(props) {
   return shallow(
-    <FavoriteBase
-          favorite={true}
-          addFavorite={jest.fn()}
-          removeFavorite={jest.fn()}
-          {...props}/>
+    <FavoriteBase favorite={true} addFavorite={jest.fn()} removeFavorite={jest.fn()} {...props} />
   );
 }
 

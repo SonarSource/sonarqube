@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getDefinitions, getValues, setSettingValue, resetSettingValue } from '../../../api/settings';
+import {
+  getDefinitions,
+  getValues,
+  setSettingValue,
+  resetSettingValue
+} from '../../../api/settings';
 import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
 import { startLoading, stopLoading } from './settingsPage/loading/actions';
@@ -29,8 +34,9 @@ import { isEmptyValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../store/rootReducer';
 
-export const fetchSettings = componentKey => dispatch => {
-  return getDefinitions(componentKey)
+export const fetchSettings = componentKey =>
+  dispatch => {
+    return getDefinitions(componentKey)
       .then(definitions => {
         const withoutLicenses = definitions.filter(definition => definition.type !== 'LICENSE');
         dispatch(receiveDefinitions(withoutLicenses));
@@ -42,22 +48,23 @@ export const fetchSettings = componentKey => dispatch => {
         dispatch(closeAllGlobalMessages());
       })
       .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
-};
+  };
 
-export const saveValue = (key, componentKey) => (dispatch, getState) => {
-  dispatch(startLoading(key));
+export const saveValue = (key, componentKey) =>
+  (dispatch, getState) => {
+    dispatch(startLoading(key));
 
-  const state = getState();
-  const definition = getSettingsAppDefinition(state, key);
-  const value = getSettingsAppChangedValue(state, key);
+    const state = getState();
+    const definition = getSettingsAppDefinition(state, key);
+    const value = getSettingsAppChangedValue(state, key);
 
-  if (isEmptyValue(definition, value)) {
-    dispatch(failValidation(key, translate('settings.state.value_cant_be_empty')));
-    dispatch(stopLoading(key));
-    return Promise.reject();
-  }
+    if (isEmptyValue(definition, value)) {
+      dispatch(failValidation(key, translate('settings.state.value_cant_be_empty')));
+      dispatch(stopLoading(key));
+      return Promise.reject();
+    }
 
-  return setSettingValue(definition, value, componentKey)
+    return setSettingValue(definition, value, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
         dispatch(receiveValues(values));
@@ -70,12 +77,13 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
         parseError(e).then(message => dispatch(failValidation(key, message)));
         return Promise.reject();
       });
-};
+  };
 
-export const resetValue = (key, componentKey) => dispatch => {
-  dispatch(startLoading(key));
+export const resetValue = (key, componentKey) =>
+  dispatch => {
+    dispatch(startLoading(key));
 
-  return resetSettingValue(key, componentKey)
+    return resetSettingValue(key, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
         if (values.length > 0) {
@@ -91,4 +99,4 @@ export const resetValue = (key, componentKey) => dispatch => {
         parseError(e).then(message => dispatch(failValidation(key, message)));
         return Promise.reject();
       });
-};
+  };

@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {} from 'lodash/object';
+import 'lodash/object';
 import CustomValuesFacet from './custom-values-facet';
 
 export default CustomValuesFacet.extend({
-
-  getUrl () {
+  getUrl() {
     return window.baseUrl + '/api/rules/repositories';
   },
 
-  prepareAjaxSearch () {
+  prepareAjaxSearch() {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data (term) {
+      data(term) {
         return { q: term, ps: 10000 };
       },
-      results (data) {
+      results(data) {
         return {
           more: false,
           results: data.repositories.map(repo => {
@@ -44,13 +43,13 @@ export default CustomValuesFacet.extend({
     };
   },
 
-  getLabelsSource () {
+  getLabelsSource() {
     const source = {};
     this.options.app.repositories.forEach(repo => source[repo.key] = repo.name);
     return source;
   },
 
-  getValues () {
+  getValues() {
     const that = this;
     const labels = that.getLabelsSource();
     return this.model.getValues().map(value => {
@@ -63,11 +62,10 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.getValues()
     };
   }
-
 });

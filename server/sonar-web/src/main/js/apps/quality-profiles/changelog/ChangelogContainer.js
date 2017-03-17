@@ -39,28 +39,28 @@ export default class ChangelogContainer extends React.Component {
     loading: true
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleFromDateChange = this.handleFromDateChange.bind(this);
     this.handleToDateChange = this.handleToDateChange.bind(this);
     this.handleReset = this.handleReset.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadChangelog();
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.location !== this.props.location) {
       this.loadChangelog();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadChangelog () {
+  loadChangelog() {
     this.setState({ loading: true });
     const { query } = this.props.location;
     const data = { profileKey: this.props.profile.key };
@@ -83,7 +83,7 @@ export default class ChangelogContainer extends React.Component {
     });
   }
 
-  loadMore (e) {
+  loadMore(e) {
     e.preventDefault();
     e.target.blur();
 
@@ -112,58 +112,54 @@ export default class ChangelogContainer extends React.Component {
     });
   }
 
-  handleFromDateChange (fromDate) {
+  handleFromDateChange(fromDate) {
     const query = { ...this.props.location.query, since: fromDate };
     this.context.router.push({ pathname: '/profiles/changelog', query });
   }
 
-  handleToDateChange (toDate) {
+  handleToDateChange(toDate) {
     const query = { ...this.props.location.query, to: toDate };
     this.context.router.push({ pathname: '/profiles/changelog', query });
   }
 
-  handleReset () {
+  handleReset() {
     const query = { key: this.props.profile.key };
     this.context.router.push({ pathname: '/profiles/changelog', query });
   }
 
-  render () {
+  render() {
     const { query } = this.props.location;
 
     const shouldDisplayFooter = this.state.events != null &&
-        this.state.events.length < this.state.total;
+      this.state.events.length < this.state.total;
 
     return (
-        <div className="quality-profile-box js-profile-changelog">
-          <header className="spacer-bottom">
-            <ChangelogSearch
-                fromDate={query.since}
-                toDate={query.to}
-                onFromDateChange={this.handleFromDateChange}
-                onToDateChange={this.handleToDateChange}
-                onReset={this.handleReset}/>
+      <div className="quality-profile-box js-profile-changelog">
+        <header className="spacer-bottom">
+          <ChangelogSearch
+            fromDate={query.since}
+            toDate={query.to}
+            onFromDateChange={this.handleFromDateChange}
+            onToDateChange={this.handleToDateChange}
+            onReset={this.handleReset}
+          />
 
-            {this.state.loading && (
-                <i className="spinner spacer-left"/>
-            )}
-          </header>
+          {this.state.loading && <i className="spinner spacer-left" />}
+        </header>
 
-          {this.state.events != null && this.state.events.length === 0 && (
-              <ChangelogEmpty/>
-          )}
+        {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}
 
-          {this.state.events != null && this.state.events.length > 0 && (
-              <Changelog events={this.state.events}/>
-          )}
+        {this.state.events != null &&
+          this.state.events.length > 0 &&
+          <Changelog events={this.state.events} />}
 
-          {shouldDisplayFooter && (
-              <footer className="text-center spacer-top small">
-                <a href="#" onClick={this.loadMore.bind(this)}>
-                  {translate('show_more')}
-                </a>
-              </footer>
-          )}
-        </div>
+        {shouldDisplayFooter &&
+          <footer className="text-center spacer-top small">
+            <a href="#" onClick={this.loadMore.bind(this)}>
+              {translate('show_more')}
+            </a>
+          </footer>}
+      </div>
     );
   }
 }

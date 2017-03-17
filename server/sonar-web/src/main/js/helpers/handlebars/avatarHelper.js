@@ -20,7 +20,7 @@
 import md5 from 'blueimp-md5';
 import Handlebars from 'handlebars/runtime';
 
-function gravatarServer () {
+function gravatarServer() {
   const getStore = require('../../app/utils/getStore').default;
   const { getSettingValue } = require('../../store/rootReducer');
 
@@ -28,13 +28,11 @@ function gravatarServer () {
   return (getSettingValue(store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;
 }
 
-module.exports = function (email, size) {
+module.exports = function(email, size) {
   // double the size for high pixel density screens
   const emailHash = md5.md5((email || '').trim());
-  const url = gravatarServer()
-      .replace('{EMAIL_MD5}', emailHash)
-      .replace('{SIZE}', size * 2);
+  const url = gravatarServer().replace('{EMAIL_MD5}', emailHash).replace('{SIZE}', size * 2);
   return new Handlebars.default.SafeString(
-      `<img class="rounded" src="${url}" width="${size}" height="${size}" alt="${email}">`
+    `<img class="rounded" src="${url}" width="${size}" height="${size}" alt="${email}">`
   );
 };

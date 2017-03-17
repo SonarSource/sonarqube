@@ -40,7 +40,7 @@ export default class ThresholdInput extends React.Component {
     }
   };
 
-  renderRatingInput () {
+  renderRatingInput() {
     const { name, value } = this.props;
 
     const options = [
@@ -53,18 +53,19 @@ export default class ThresholdInput extends React.Component {
     const realValue = value === '' ? null : value;
 
     return (
-        <Select
-            className="input-tiny text-middle"
-            name={name}
-            value={realValue}
-            options={options}
-            searchable={false}
-            placeholder=""
-            onChange={this.handleSelectChange}/>
+      <Select
+        className="input-tiny text-middle"
+        name={name}
+        value={realValue}
+        options={options}
+        searchable={false}
+        placeholder=""
+        onChange={this.handleSelectChange}
+      />
     );
   }
 
-  render () {
+  render() {
     const { name, value, metric } = this.props;
 
     if (metric.type === 'RATING') {
@@ -72,14 +73,15 @@ export default class ThresholdInput extends React.Component {
     }
 
     return (
-        <input
-            name={name}
-            type="text"
-            className="input-tiny text-middle"
-            value={value}
-            data-type={metric.type}
-            placeholder={metric.placeholder}
-            onChange={this.handleChange}/>
+      <input
+        name={name}
+        type="text"
+        className="input-tiny text-middle"
+        value={value}
+        data-type={metric.type}
+        placeholder={metric.placeholder}
+        onChange={this.handleChange}
+      />
     );
   }
 }

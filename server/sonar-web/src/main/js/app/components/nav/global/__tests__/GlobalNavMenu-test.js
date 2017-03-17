@@ -29,6 +29,6 @@ it('should work with extensions', () => {
     isLoggedIn: false,
     permissions: { global: [] }
   };
-  const wrapper = shallow(<GlobalNavMenu appState={appState} currentUser={currentUser}/>);
+  const wrapper = shallow(<GlobalNavMenu appState={appState} currentUser={currentUser} />);
   expect(wrapper).toMatchSnapshot();
 });

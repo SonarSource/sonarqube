@@ -23,7 +23,7 @@ import { UnconnectedOrganizationEdit } from '../OrganizationEdit';
 
 it('smoke test', () => {
   const organization = { key: 'foo', name: 'Foo' };
-  const wrapper = shallow(<UnconnectedOrganizationEdit organization={organization}/>);
+  const wrapper = shallow(<UnconnectedOrganizationEdit organization={organization} />);
   expect(wrapper).toMatchSnapshot();
 
   wrapper.setState({

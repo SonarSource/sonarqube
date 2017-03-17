@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import moment from 'moment';
 import React from 'react';
 
-const TaskDate = ({ date, baseDate, format }: { date: string, baseDate: string, format: string }) => {
+const TaskDate = (
+  { date, baseDate, format }: { date: string, baseDate: string, format: string }
+) => {
   const m = moment(date);
   const baseM = moment(baseDate);
-  const diff = (date && baseDate) ? m.diff(baseM, 'days') : 0;
+  const diff = date && baseDate ? m.diff(baseM, 'days') : 0;
 
   return (
-      <td className="thin nowrap text-right">
-        {diff > 0 && (
-            <span className="text-warning little-spacer-right">{`(+${diff}d)`}</span>
-        )}
+    <td className="thin nowrap text-right">
+      {diff > 0 && <span className="text-warning little-spacer-right">{`(+${diff}d)`}</span>}
 
-        {date ? moment(date).format(format) : ''}
-      </td>
+      {date ? moment(date).format(format) : ''}
+    </td>
   );
 };
 

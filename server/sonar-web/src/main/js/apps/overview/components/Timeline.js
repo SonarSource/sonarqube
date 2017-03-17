@@ -26,18 +26,16 @@ const HEIGHT = 80;
 
 export default class Timeline extends React.Component {
   static propTypes = {
-    history: React.PropTypes.arrayOf(
-      React.PropTypes.object
-    ).isRequired,
+    history: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     before: React.PropTypes.object,
     after: React.PropTypes.object
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  filterSnapshots () {
+  filterSnapshots() {
     const { history, before, after } = this.props;
 
     return history.filter(s => {
@@ -47,7 +45,7 @@ export default class Timeline extends React.Component {
     });
   }
 
-  render () {
+  render() {
     const snapshots = this.filterSnapshots();
 
     if (snapshots.length < 2) {
@@ -61,15 +59,16 @@ export default class Timeline extends React.Component {
     const domain = [0, d3.max(this.props.history, d => d.value)];
 
     return (
-        <LineChart
-            data={data}
-            domain={domain}
-            interpolate="basis"
-            displayBackdrop={true}
-            displayPoints={false}
-            displayVerticalGrid={false}
-            height={HEIGHT}
-            padding={[0, 0, 0, 0]}/>
+      <LineChart
+        data={data}
+        domain={domain}
+        interpolate="basis"
+        displayBackdrop={true}
+        displayPoints={false}
+        displayVerticalGrid={false}
+        height={HEIGHT}
+        padding={[0, 0, 0, 0]}
+      />
     );
   }
 }

@@ -25,27 +25,24 @@ import '../styles.css';
 export default class App extends React.Component {
   state = { loading: true };
 
-  componentWillMount () {
+  componentWillMount() {
     document.querySelector('html').classList.add('dashboard-page');
     this.updateProfiles = this.updateProfiles.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadData();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  loadData () {
+  loadData() {
     this.setState({ loading: true });
-    Promise.all([
-      getExporters(),
-      getQualityProfiles()
-    ]).then(responses => {
+    Promise.all([getExporters(), getQualityProfiles()]).then(responses => {
       if (this.mounted) {
         const [exporters, profiles] = responses;
         this.setState({
@@ -57,7 +54,7 @@ export default class App extends React.Component {
     });
   }
 
-  updateProfiles () {
+  updateProfiles() {
     return getQualityProfiles().then(profiles => {
       if (this.mounted) {
         this.setState({ profiles: sortProfiles(profiles) });
@@ -65,9 +62,9 @@ export default class App extends React.Component {
     });
   }
 
-  renderChild () {
+  renderChild() {
     if (this.state.loading) {
-      return <i className="spinner"/>;
+      return <i className="spinner" />;
     }
 
     const finalLanguages = Object.values(this.props.languages);
@@ -83,11 +80,11 @@ export default class App extends React.Component {
     });
   }
 
-  render () {
+  render() {
     return (
-        <div className="page page-limited">
-          {this.renderChild()}
-        </div>
+      <div className="page page-limited">
+        {this.renderChild()}
+      </div>
     );
   }
 }

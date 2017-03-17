@@ -136,7 +136,7 @@ export default class SourceViewerBase extends React.Component {
     loadSources
   };
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       displayDuplications: false,
@@ -161,18 +161,18 @@ export default class SourceViewerBase extends React.Component {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.fetchComponent();
   }
 
-  componentWillReceiveProps (nextProps: Props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.onIssueSelect != null && nextProps.selectedIssue !== this.props.selectedIssue) {
       this.setState({ selectedIssue: nextProps.selectedIssue, selectedIssueLocation: null });
     }
   }
 
-  componentDidUpdate (prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (prevProps.component !== this.props.component) {
       this.fetchComponent();
     } else if (
@@ -191,11 +191,11 @@ export default class SourceViewerBase extends React.Component {
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  scrollToLine (line: number) {
+  scrollToLine(line: number) {
     const lineElement = this.node.querySelector(
       `.source-line-code[data-line-number="${line}"] .source-line-issue-locations`
     );
@@ -204,11 +204,11 @@ export default class SourceViewerBase extends React.Component {
     }
   }
 
-  computeCoverageStatus (lines: Array<SourceLine>): Array<SourceLine> {
+  computeCoverageStatus(lines: Array<SourceLine>): Array<SourceLine> {
     return lines.map(line => ({ ...line, coverageStatus: getCoverageStatus(line) }));
   }
 
-  isLineOutsideOfRange (lineNumber: number) {
+  isLineOutsideOfRange(lineNumber: number) {
     const { sources } = this.state;
     if (sources != null && sources.length > 0) {
       const firstLine = sources[0];
@@ -219,7 +219,7 @@ export default class SourceViewerBase extends React.Component {
     }
   }
 
-  fetchComponent () {
+  fetchComponent() {
     this.setState({ loading: true });
 
     const loadIssues = (component, sources) => {
@@ -277,7 +277,7 @@ export default class SourceViewerBase extends React.Component {
     this.props.loadComponent(this.props.component).then(onResolve, onFailLoadComponent);
   }
 
-  fetchSources () {
+  fetchSources() {
     this.loadSources().then(sources => {
       if (this.mounted) {
         const finalSources = sources.slice(0, LINES);
@@ -297,7 +297,7 @@ export default class SourceViewerBase extends React.Component {
     });
   }
 
-  loadSources () {
+  loadSources() {
     return new Promise((resolve, reject) => {
       const onFailLoadSources = ({ response }) => {
         // TODO handle other statuses
@@ -315,8 +315,8 @@ export default class SourceViewerBase extends React.Component {
       const to = this.props.aroundLine ? this.props.aroundLine + LINES / 2 + 1 : LINES + 1;
 
       return this.props
-          .loadSources(this.props.component, from, to)
-          .then(sources => resolve(sources), onFailLoadSources);
+        .loadSources(this.props.component, from, to)
+        .then(sources => resolve(sources), onFailLoadSources);
     });
   }
 
@@ -388,7 +388,7 @@ export default class SourceViewerBase extends React.Component {
     });
   };
 
-  getInitialLocationsPanelHeight () {
+  getInitialLocationsPanelHeight() {
     try {
       const rawValue = window.localStorage.getItem(LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY);
       if (!rawValue) {
@@ -401,7 +401,7 @@ export default class SourceViewerBase extends React.Component {
     }
   }
 
-  storeLocationsPanelHeight (height: number) {
+  storeLocationsPanelHeight(height: number) {
     window.localStorage.setItem(LOCATIONS_PANEL_HEIGHT_LOCAL_STORAGE_KEY, height);
   }
 
@@ -461,7 +461,7 @@ export default class SourceViewerBase extends React.Component {
     }
   };
 
-  displayLinePopup (line: number, element: HTMLElement) {
+  displayLinePopup(line: number, element: HTMLElement) {
     const popup = new LineActionsPopupView({
       line,
       triggerEl: element,
@@ -532,7 +532,7 @@ export default class SourceViewerBase extends React.Component {
     }));
   };
 
-  renderCode (sources: Array<SourceLine>) {
+  renderCode(sources: Array<SourceLine>) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
       <SourceViewerCode
@@ -571,11 +571,12 @@ export default class SourceViewerBase extends React.Component {
         selectedIssue={this.state.selectedIssue}
         selectedIssueLocation={this.state.selectedIssueLocation}
         sources={sources}
-        symbolsByLine={this.state.symbolsByLine}/>
+        symbolsByLine={this.state.symbolsByLine}
+      />
     );
   }
 
-  render () {
+  render() {
     const { component, loading } = this.state;
 
     if (loading) {
@@ -607,7 +608,8 @@ export default class SourceViewerBase extends React.Component {
         <SourceViewerHeader
           component={this.state.component}
           openNewWindow={this.openNewWindow}
-          showMeasures={this.showMeasures}/>
+          showMeasures={this.showMeasures}
+        />
         {this.state.notAccessible &&
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_security')}
@@ -620,7 +622,8 @@ export default class SourceViewerBase extends React.Component {
             issue={selectedIssueObj}
             onResize={this.handleLocationsPanelResize}
             onSelectLocation={this.handleSelectIssueLocation}
-            selectedLocation={this.state.selectedIssueLocation}/>}
+            selectedLocation={this.state.selectedIssueLocation}
+          />}
       </div>
     );
   }

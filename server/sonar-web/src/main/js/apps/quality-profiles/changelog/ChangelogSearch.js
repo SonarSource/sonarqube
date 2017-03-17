@@ -30,33 +30,32 @@ export default class ChangelogSearch extends React.Component {
     onReset: React.PropTypes.func.isRequired
   };
 
-  handleResetClick (e) {
+  handleResetClick(e) {
     e.preventDefault();
     e.target.blur();
     this.props.onReset();
   }
 
-  render () {
+  render() {
     return (
-        <div className="display-inline-block"
-             id="quality-profile-changelog-form">
-          <DateInput
-              name="since"
-              value={this.props.fromDate}
-              placeholder="From"
-              onChange={this.props.onFromDateChange}/>
-          {' — '}
-          <DateInput
-              name="to"
-              value={this.props.toDate}
-              placeholder="To"
-              onChange={this.props.onToDateChange}/>
-          <button
-              className="spacer-left"
-              onClick={this.handleResetClick.bind(this)}>
-            {translate('reset_verb')}
-          </button>
-        </div>
+      <div className="display-inline-block" id="quality-profile-changelog-form">
+        <DateInput
+          name="since"
+          value={this.props.fromDate}
+          placeholder="From"
+          onChange={this.props.onFromDateChange}
+        />
+        {' — '}
+        <DateInput
+          name="to"
+          value={this.props.toDate}
+          placeholder="To"
+          onChange={this.props.onToDateChange}
+        />
+        <button className="spacer-left" onClick={this.handleResetClick.bind(this)}>
+          {translate('reset_verb')}
+        </button>
+      </div>
     );
   }
 }

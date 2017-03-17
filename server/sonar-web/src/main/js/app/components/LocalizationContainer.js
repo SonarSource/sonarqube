@@ -34,16 +34,16 @@ export default class LocalizationContainer extends React.Component {
     }
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     requestMessages().then(this.finishLoading, this.finishLoading);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  render () {
+  render() {
     return this.state.loading ? null : this.props.children;
   }
 }

@@ -27,7 +27,7 @@ export default Marionette.CompositeView.extend({
   childView: ProfileView,
   childViewContainer: '#coding-rules-detail-quality-profiles',
 
-  childViewOptions () {
+  childViewOptions() {
     return {
       app: this.options.app,
       rule: this.model,
@@ -36,14 +36,14 @@ export default Marionette.CompositeView.extend({
   },
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   events: {
     'click #coding-rules-quality-profile-activate': 'activate'
   },
 
-  onRender () {
+  onRender() {
     let qualityProfilesVisible = true;
 
     if (this.model.get('isTemplate')) {
@@ -53,7 +53,7 @@ export default Marionette.CompositeView.extend({
     this.$el.toggleClass('hidden', !qualityProfilesVisible);
   },
 
-  activate () {
+  activate() {
     const that = this;
     const activationView = new ProfileActivationView({
       rule: this.model,
@@ -75,14 +75,16 @@ export default Marionette.CompositeView.extend({
     activationView.render();
   },
 
-  refreshActives () {
+  refreshActives() {
     const that = this;
     this.options.app.controller.getRuleDetails(this.model).done(data => {
-      that.collection.reset(that.model.getInactiveProfiles(data.actives, that.options.app.qualityProfiles));
+      that.collection.reset(
+        that.model.getInactiveProfiles(data.actives, that.options.app.qualityProfiles)
+      );
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite

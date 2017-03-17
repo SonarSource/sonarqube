@@ -26,14 +26,14 @@ export default class Header extends React.Component {
     hasProvisionPermission: React.PropTypes.bool.isRequired
   };
 
-  createProject () {
+  createProject() {
     new CreateView({
       refresh: this.props.refresh,
       organization: this.props.organization
     }).render();
   }
 
-  bulkApplyTemplate () {
+  bulkApplyTemplate() {
     new BulkApplyTemplateView({
       total: this.props.total,
       selection: this.props.selection,
@@ -43,43 +43,45 @@ export default class Header extends React.Component {
     }).render();
   }
 
-  renderCreateButton () {
+  renderCreateButton() {
     if (!this.props.hasProvisionPermission) {
       return null;
     }
     return (
-        <li>
-          <button onClick={this.createProject.bind(this)}>
-            Create Project
-          </button>
-        </li>
+      <li>
+        <button onClick={this.createProject.bind(this)}>
+          Create Project
+        </button>
+      </li>
     );
   }
 
-  renderBulkApplyTemplateButton () {
+  renderBulkApplyTemplateButton() {
     return (
-        <li>
-          <button onClick={this.bulkApplyTemplate.bind(this)}>
-            Bulk Apply Permission Template
-          </button>
-        </li>
+      <li>
+        <button onClick={this.bulkApplyTemplate.bind(this)}>
+          Bulk Apply Permission Template
+        </button>
+      </li>
     );
   }
 
-  render () {
+  render() {
     return (
-        <header className="page-header">
-          <h1 className="page-title">Projects Management</h1>
-          <div className="page-actions">
-            <ul className="list-inline">
-              {this.renderCreateButton()}
-              {this.renderBulkApplyTemplateButton()}
-            </ul>
-          </div>
-          <p className="page-description">Use this page to delete multiple projects at once, or to provision projects
-            if you would like to configure them before the first analysis. Note that once a project is provisioned, you
-            have access to perform all project configurations on it.</p>
-        </header>
+      <header className="page-header">
+        <h1 className="page-title">Projects Management</h1>
+        <div className="page-actions">
+          <ul className="list-inline">
+            {this.renderCreateButton()}
+            {this.renderBulkApplyTemplateButton()}
+          </ul>
+        </div>
+        <p className="page-description">
+          Use this page to delete multiple projects at once, or to provision projects
+          if you would like to configure them before the first analysis. Note that once a project is provisioned, you
+          have access to perform all project configurations on it.
+        </p>
+      </header>
     );
   }
 }

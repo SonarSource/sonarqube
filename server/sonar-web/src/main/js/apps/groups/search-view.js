@@ -30,21 +30,21 @@ export default Marionette.ItemView.extend({
     'keyup #groups-search-query': 'debouncedOnKeyUp'
   },
 
-  initialize () {
+  initialize() {
     this._bufferedValue = null;
     this.debouncedOnKeyUp = debounce(this.onKeyUp, 400);
   },
 
-  onRender () {
+  onRender() {
     this.delegateEvents();
   },
 
-  onFormSubmit (e) {
+  onFormSubmit(e) {
     e.preventDefault();
     this.debouncedOnKeyUp();
   },
 
-  onKeyUp () {
+  onKeyUp() {
     const q = this.getQuery();
     if (q === this._bufferedValue) {
       return;
@@ -56,12 +56,11 @@ export default Marionette.ItemView.extend({
     this.searchRequest = this.search(q);
   },
 
-  getQuery () {
+  getQuery() {
     return this.$('#groups-search-query').val();
   },
 
-  search (q) {
+  search(q) {
     return this.collection.fetch({ reset: true, data: { q } });
   }
 });
-

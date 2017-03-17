@@ -33,6 +33,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(
-  mapStateToProps
-)(DomainMeasures);
+export default connect(mapStateToProps)(DomainMeasures);

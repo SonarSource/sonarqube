@@ -27,9 +27,9 @@ import FineGrainedUpdate from './FineGrainedUpdate';
 import { fetchProjectModules, changeKey } from '../store/actions';
 import { translate } from '../../../helpers/l10n';
 import {
-    addGlobalErrorMessage,
-    closeAllGlobalMessages,
-    addGlobalSuccessMessage
+  addGlobalErrorMessage,
+  closeAllGlobalMessages,
+  addGlobalSuccessMessage
 } from '../../../store/globalMessages/duck';
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
@@ -50,38 +50,39 @@ class Key extends React.Component {
     tab: 'bulk'
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.fetchProjectModules(this.props.component.key);
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleChangeKey (key, newKey) {
-    return this.props.changeKey(key, newKey).then(() => {
-      if (key === this.props.component.key) {
-        this.props.addGlobalSuccessMessage(
-          translate('update_key.key_updated.reload'));
-        RecentHistory.remove(key);
-        reloadUpdateKeyPage(newKey);
-      } else {
-        this.props.addGlobalSuccessMessage(
-          translate('update_key.key_updated'));
-      }
-    }).catch(e => {
-      parseError(e).then(this.props.addGlobalErrorMessage);
-    });
+  handleChangeKey(key, newKey) {
+    return this.props
+      .changeKey(key, newKey)
+      .then(() => {
+        if (key === this.props.component.key) {
+          this.props.addGlobalSuccessMessage(translate('update_key.key_updated.reload'));
+          RecentHistory.remove(key);
+          reloadUpdateKeyPage(newKey);
+        } else {
+          this.props.addGlobalSuccessMessage(translate('update_key.key_updated'));
+        }
+      })
+      .catch(e => {
+        parseError(e).then(this.props.addGlobalErrorMessage);
+      });
   }
 
-  handleChangeTab (tab, e) {
+  handleChangeTab(tab, e) {
     e.preventDefault();
     e.target.blur();
     this.setState({ tab });
     this.props.closeAllGlobalMessages();
   }
 
-  render () {
+  render() {
     const { component, modules } = this.props;
 
     const noModules = modules != null && modules.length === 0;
@@ -90,59 +91,55 @@ class Key extends React.Component {
     const { tab } = this.state;
 
     return (
-        <div id="project-key" className="page page-limited">
-          <Header/>
+      <div id="project-key" className="page page-limited">
+        <Header />
 
-          {modules == null && (
-              <i className="spinner"/>
-          )}
+        {modules == null && <i className="spinner" />}
 
-          {noModules && (
-              <div>
-                <UpdateForm
-                    component={component}
-                    onKeyChange={this.handleChangeKey.bind(this)}/>
-              </div>
-          )}
+        {noModules &&
+          <div>
+            <UpdateForm component={component} onKeyChange={this.handleChangeKey.bind(this)} />
+          </div>}
 
-          {hasModules && (
-              <div>
-                <div className="big-spacer-bottom">
-                  <ul className="tabs">
-                    <li>
-                      <a id="update-key-tab-bulk"
-                         className={tab === 'bulk' ? 'selected' : ''}
-                         href="#"
-                         onClick={this.handleChangeTab.bind(this, 'bulk')}>
-                        {translate('update_key.bulk_update')}
-                      </a>
-                    </li>
-                    <li>
-                      <a id="update-key-tab-fine"
-                         className={tab === 'fine' ? 'selected' : ''}
-                         href="#"
-                         onClick={this.handleChangeTab.bind(this, 'fine')}>
-                        {translate('update_key.fine_grained_key_update')}
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+        {hasModules &&
+          <div>
+            <div className="big-spacer-bottom">
+              <ul className="tabs">
+                <li>
+                  <a
+                    id="update-key-tab-bulk"
+                    className={tab === 'bulk' ? 'selected' : ''}
+                    href="#"
+                    onClick={this.handleChangeTab.bind(this, 'bulk')}
+                  >
+                    {translate('update_key.bulk_update')}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    id="update-key-tab-fine"
+                    className={tab === 'fine' ? 'selected' : ''}
+                    href="#"
+                    onClick={this.handleChangeTab.bind(this, 'fine')}
+                  >
+                    {translate('update_key.fine_grained_key_update')}
+                  </a>
+                </li>
+              </ul>
+            </div>
 
-                {tab === 'bulk' && (
-                    <BulkUpdate component={component}/>
-                )}
+            {tab === 'bulk' && <BulkUpdate component={component} />}
 
-                {tab === 'fine' && (
-                    <FineGrainedUpdate
-                        component={component}
-                        modules={modules}
-                        onKeyChange={this.handleChangeKey.bind(this)}
-                        onSuccess={this.props.closeAllGlobalMessages}
-                        onError={this.props.addGlobalErrorMessage}/>
-                )}
-              </div>
-          )}
-        </div>
+            {tab === 'fine' &&
+              <FineGrainedUpdate
+                component={component}
+                modules={modules}
+                onKeyChange={this.handleChangeKey.bind(this)}
+                onSuccess={this.props.closeAllGlobalMessages}
+                onError={this.props.addGlobalErrorMessage}
+              />}
+          </div>}
+      </div>
     );
   }
 }
@@ -152,12 +149,10 @@ const mapStateToProps = (state, ownProps) => ({
   modules: getProjectAdminProjectModules(state, ownProps.location.query.id)
 });
 
-export default connect(
-  mapStateToProps, {
-    fetchProjectModules,
-    changeKey,
-    addGlobalErrorMessage,
-    addGlobalSuccessMessage,
-    closeAllGlobalMessages
-  }
-)(Key);
+export default connect(mapStateToProps, {
+  fetchProjectModules,
+  changeKey,
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage,
+  closeAllGlobalMessages
+})(Key);

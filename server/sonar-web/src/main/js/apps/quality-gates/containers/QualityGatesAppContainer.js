@@ -22,9 +22,7 @@ import { setState, addQualityGate, deleteQualityGate } from '../store/actions';
 import QualityGateApp from '../components/QualityGatesApp';
 import { getQualityGatesAppState } from '../../../store/rootReducer';
 
-const mapStateToProps = state => (
-    getQualityGatesAppState(state)
-);
+const mapStateToProps = state => getQualityGatesAppState(state);
 
 const mapDispatchToProps = dispatch => ({
   updateStore: nextState => dispatch(setState(nextState)),
@@ -32,7 +30,4 @@ const mapDispatchToProps = dispatch => ({
   deleteQualityGate: qualityGate => dispatch(deleteQualityGate(qualityGate))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(QualityGateApp);
+export default connect(mapStateToProps, mapDispatchToProps)(QualityGateApp);

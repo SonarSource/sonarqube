@@ -36,34 +36,33 @@ class QualityProfiles extends React.Component {
     profiles: React.PropTypes.array
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.fetchProjectProfiles(this.props.component.key);
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleChangeProfile (oldKey, newKey) {
+  handleChangeProfile(oldKey, newKey) {
     this.props.setProjectProfile(this.props.component.key, oldKey, newKey);
   }
 
-  render () {
+  render() {
     const { allProfiles, profiles } = this.props;
 
     return (
-        <div className="page page-limited">
-          <Header/>
+      <div className="page page-limited">
+        <Header />
 
-          {profiles.length > 0 ? (
-              <Table
-                  allProfiles={allProfiles}
-                  profiles={profiles}
-                  onChangeProfile={this.handleChangeProfile.bind(this)}/>
-          ) : (
-              <i className="spinner"/>
-          )}
-        </div>
+        {profiles.length > 0
+          ? <Table
+              allProfiles={allProfiles}
+              profiles={profiles}
+              onChangeProfile={this.handleChangeProfile.bind(this)}
+            />
+          : <i className="spinner" />}
+      </div>
     );
   }
 }
@@ -74,7 +73,6 @@ const mapStateToProps = (state, ownProps) => ({
   profiles: getProjectAdminProjectProfiles(state, ownProps.location.query.id)
 });
 
-export default connect(
-  mapStateToProps,
-    { fetchProjectProfiles, setProjectProfile }
-)(QualityProfiles);
+export default connect(mapStateToProps, { fetchProjectProfiles, setProjectProfile })(
+  QualityProfiles
+);

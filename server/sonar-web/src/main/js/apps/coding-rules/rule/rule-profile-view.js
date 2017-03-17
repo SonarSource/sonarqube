@@ -31,7 +31,7 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   ui: {
@@ -46,13 +46,13 @@ export default Marionette.ItemView.extend({
     'click @ui.deactivate': 'deactivate'
   },
 
-  onRender () {
+  onRender() {
     this.$('[data-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   },
 
-  change () {
+  change() {
     const that = this;
     const activationView = new ProfileActivationView({
       model: this.model,
@@ -66,13 +66,16 @@ export default Marionette.ItemView.extend({
     activationView.render();
   },
 
-  revert () {
+  revert() {
     const that = this;
     const ruleKey = this.options.rule.get('key');
     confirmDialog({
       title: translate('coding_rules.revert_to_parent_definition'),
-      html: translateWithParameters('coding_rules.revert_to_parent_definition.confirm', this.getParent().name),
-      yesHandler () {
+      html: translateWithParameters(
+        'coding_rules.revert_to_parent_definition.confirm',
+        this.getParent().name
+      ),
+      yesHandler() {
         return $.ajax({
           type: 'POST',
           url: window.baseUrl + '/api/qualityprofiles/activate_rule',
@@ -88,13 +91,13 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  deactivate () {
+  deactivate() {
     const that = this;
     const ruleKey = this.options.rule.get('key');
     confirmDialog({
       title: translate('coding_rules.deactivate'),
       html: translateWithParameters('coding_rules.deactivate.confirm'),
-      yesHandler () {
+      yesHandler() {
         return $.ajax({
           type: 'POST',
           url: window.baseUrl + '/api/qualityprofiles/deactivate_rule',
@@ -109,23 +112,26 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  enableUpdate () {
+  enableUpdate() {
     return this.ui.update.prop('disabled', false);
   },
 
-  getParent () {
+  getParent() {
     if (!(this.model.get('inherit') && this.model.get('inherit') !== 'NONE')) {
       return null;
     }
-    const myProfile = this.options.app.qualityProfiles.find(p => p.key === this.model.get('qProfile'));
+    const myProfile = this.options.app.qualityProfiles.find(
+      p => p.key === this.model.get('qProfile')
+    );
     const parentKey = myProfile.parentKey;
     const parent = { ...this.options.app.qualityProfiles.find(p => p.key === parentKey) };
-    const parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) || new Backbone.Model();
+    const parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) ||
+      new Backbone.Model();
     Object.assign(parent, parentActiveInfo.toJSON());
     return parent;
   },
 
-  enhanceParameters () {
+  enhanceParameters() {
     const parent = this.getParent();
     const params = sortBy(this.model.get('params'), 'key');
     if (!parent) {
@@ -141,7 +147,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite,

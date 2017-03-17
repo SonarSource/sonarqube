@@ -22,29 +22,29 @@ import { shallow } from 'enzyme';
 import LicenseStatus from '../LicenseStatus';
 
 it('should render nothing when no value', () => {
-  const status = shallow(<LicenseStatus license={{}}/>);
+  const status = shallow(<LicenseStatus license={{}} />);
   expect(status.node).toBeNull();
 });
 
 it('should render ok', () => {
-  const status = shallow(<LicenseStatus license={{ value: 'foo' }}/>);
+  const status = shallow(<LicenseStatus license={{ value: 'foo' }} />);
   expect(status.is('.icon-check')).toBe(true);
 });
 
 it('should render error when invalid product', () => {
-  const status = shallow(<LicenseStatus license={{ value: 'foo', invalidProduct: true }}/>);
+  const status = shallow(<LicenseStatus license={{ value: 'foo', invalidProduct: true }} />);
   expect(status.is('.icon-check')).toBe(false);
   expect(status.is('.icon-alert-error')).toBe(true);
 });
 
 it('should render error when invalid expiration', () => {
-  const status = shallow(<LicenseStatus license={{ value: 'foo', invalidExpiration: true }}/>);
+  const status = shallow(<LicenseStatus license={{ value: 'foo', invalidExpiration: true }} />);
   expect(status.is('.icon-check')).toBe(false);
   expect(status.is('.icon-alert-error')).toBe(true);
 });
 
 it('should render error when invalid server id', () => {
-  const status = shallow(<LicenseStatus license={{ value: 'foo', invalidServerId: true }}/>);
+  const status = shallow(<LicenseStatus license={{ value: 'foo', invalidServerId: true }} />);
   expect(status.is('.icon-check')).toBe(false);
   expect(status.is('.icon-alert-error')).toBe(true);
 });

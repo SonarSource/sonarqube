@@ -39,15 +39,13 @@ type Props = {
 class ProjectPageExtension extends React.Component {
   props: Props;
 
-  render () {
+  render() {
     const { extensionKey, pluginKey } = this.props.params;
     const { component } = this.props;
     const extension = component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
-    return extension ? (
-            <Extension extension={extension} options={{ component }}/>
-        ) : (
-            <ExtensionNotFound/>
-        );
+    return extension
+      ? <Extension extension={extension} options={{ component }} />
+      : <ExtensionNotFound />;
   }
 }
 

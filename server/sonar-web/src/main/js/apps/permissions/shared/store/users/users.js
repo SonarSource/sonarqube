@@ -27,4 +27,4 @@ export default combineReducers({
 });
 
 export const getUsers = state =>
-    getLogins(state.logins).map(login => getUserByLogin(state.byLogin, login));
+  getLogins(state.logins).map(login => getUserByLogin(state.byLogin, login));

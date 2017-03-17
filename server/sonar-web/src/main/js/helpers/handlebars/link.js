@@ -17,6 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (...args) {
+module.exports = function(...args) {
   return window.baseUrl + args.slice(0, -1).join('');
 };

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import Select from 'react-select';
 import { STATUSES } from '../constants';
@@ -26,7 +26,10 @@ import { translate } from '../../../helpers/l10n';
 const StatusFilter = ({ value, onChange }: { value: ?string, onChange: Function }) => {
   const options = [
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
-    { value: STATUSES.ALL_EXCEPT_PENDING, label: translate('background_task.status.ALL_EXCEPT_PENDING') },
+    {
+      value: STATUSES.ALL_EXCEPT_PENDING,
+      label: translate('background_task.status.ALL_EXCEPT_PENDING')
+    },
     { value: STATUSES.PENDING, label: translate('background_task.status.PENDING') },
     { value: STATUSES.IN_PROGRESS, label: translate('background_task.status.IN_PROGRESS') },
     { value: STATUSES.SUCCESS, label: translate('background_task.status.SUCCESS') },
@@ -35,13 +38,14 @@ const StatusFilter = ({ value, onChange }: { value: ?string, onChange: Function 
   ];
 
   return (
-      <Select
-          value={value}
-          onChange={option => onChange(option.value)}
-          className="input-medium"
-          options={options}
-          clearable={false}
-          searchable={false}/>
+    <Select
+      value={value}
+      onChange={option => onChange(option.value)}
+      className="input-medium"
+      options={options}
+      clearable={false}
+      searchable={false}
+    />
   );
 };
 

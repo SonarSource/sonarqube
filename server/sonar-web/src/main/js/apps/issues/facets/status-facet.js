@@ -24,9 +24,8 @@ import Template from '../templates/facets/issues-status-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  sortValues (values) {
+  sortValues(values) {
     const order = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED'];
     return sortBy(values, v => order.indexOf(v.val));
   }
 });
-

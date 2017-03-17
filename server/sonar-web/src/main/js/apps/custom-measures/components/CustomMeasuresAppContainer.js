@@ -23,12 +23,12 @@ import init from '../init';
 import { getComponent } from '../../../store/rootReducer';
 
 class CustomMeasuresAppContainer extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     init(this.refs.container, this.props.component);
   }
 
-  render () {
-    return <div ref="container"/>;
+  render() {
+    return <div ref="container" />;
   }
 }
 

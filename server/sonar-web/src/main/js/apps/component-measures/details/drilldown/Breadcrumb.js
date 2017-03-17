@@ -32,30 +32,25 @@ const Breadcrumb = ({ component, metric, onBrowse }) => {
   let inner;
   if (onBrowse) {
     inner = (
-        <a
-            id={'component-measures-breadcrumb-' + component.key}
-            href="#"
-            onClick={handleClick}>
-          {component.name}
-        </a>
+      <a id={'component-measures-breadcrumb-' + component.key} href="#" onClick={handleClick}>
+        {component.name}
+      </a>
     );
   } else {
     inner = <span>{component.name}</span>;
   }
 
-  const value = isDiffMetric(metric) ?
-      formatLeak(component.leak, metric) :
-      formatMeasure(component.value, metric.type);
+  const value = isDiffMetric(metric)
+    ? formatLeak(component.leak, metric)
+    : formatMeasure(component.value, metric.type);
 
   return (
-      <span>
-        <QualifierIcon qualifier={component.qualifier}/>
-        &nbsp;
-        {inner}
-        {value != null && (
-            <span>{' (' + value + ')'}</span>
-        )}
-      </span>
+    <span>
+      <QualifierIcon qualifier={component.qualifier} />
+      &nbsp;
+      {inner}
+      {value != null && <span>{' (' + value + ')'}</span>}
+    </span>
   );
 };
 

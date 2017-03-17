@@ -34,7 +34,7 @@ class LoginFormContainer extends React.Component {
 
   state = {};
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     getIdentityProviders().then(r => {
       if (this.mounted) {
@@ -43,7 +43,7 @@ class LoginFormContainer extends React.Component {
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
@@ -55,19 +55,18 @@ class LoginFormContainer extends React.Component {
   };
 
   handleSubmit = (login: string, password: string) => {
-    this.props.doLogin(login, password).then(
-      this.handleSuccessfulLogin,
-      () => { /* do nothing */ }
-    );
+    this.props.doLogin(login, password).then(this.handleSuccessfulLogin, () => {
+      /* do nothing */
+    });
   };
 
-  render () {
+  render() {
     if (!this.state.identityProviders) {
       return null;
     }
 
     return (
-        <LoginForm identityProviders={this.state.identityProviders} onSubmit={this.handleSubmit}/>
+      <LoginForm identityProviders={this.state.identityProviders} onSubmit={this.handleSubmit} />
     );
   }
 }

@@ -26,6 +26,6 @@ const onSearchEnter = (nextState, replace) => {
 };
 
 export default [
-  <IndexRoute key="index" component={IssuesAppContainer}/>,
-  <Route key="search" path="search" onEnter={onSearchEnter}/>
+  <IndexRoute key="index" component={IssuesAppContainer} />,
+  <Route key="search" path="search" onEnter={onSearchEnter} />
 ];

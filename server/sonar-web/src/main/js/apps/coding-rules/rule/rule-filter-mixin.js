@@ -21,7 +21,7 @@ import $ from 'jquery';
 import RuleFilterView from '../rule-filter-view';
 
 export default {
-  onRuleFilterClick (e) {
+  onRuleFilterClick(e) {
     e.preventDefault();
     e.stopPropagation();
     $('body').click();
@@ -40,4 +40,3 @@ export default {
     popup.render();
   }
 };
-

@@ -26,23 +26,22 @@ export default class PageHeader extends React.Component {
     total: React.PropTypes.number
   };
 
-  render () {
+  render() {
     const { loading } = this.props;
 
     return (
-        <header className="page-header">
-          <div className="page-actions projects-page-actions">
-            {!!loading && (
-                <i className="spinner spacer-right"/>
-            )}
+      <header className="page-header">
+        <div className="page-actions projects-page-actions">
+          {!!loading && <i className="spinner spacer-right" />}
 
-            {this.props.total != null && (
-                <span>
-                <strong id="projects-total">{this.props.total}</strong> {translate('projects._projects')}
-              </span>
-            )}
-          </div>
-        </header>
+          {this.props.total != null &&
+            <span>
+              <strong id="projects-total">{this.props.total}</strong>
+              {' '}
+              {translate('projects._projects')}
+            </span>}
+        </div>
+      </header>
     );
   }
 }

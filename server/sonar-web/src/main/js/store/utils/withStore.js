@@ -31,21 +31,22 @@ const withStore = (ComposedComponent, initial = {}) => {
   return class extends React.Component {
     static displayName = `withStore(${ComposedComponent.displayName})}`;
 
-    componentWillMount () {
+    componentWillMount() {
       this.handleUpdateStore = this.handleUpdateStore.bind(this);
     }
 
-    handleUpdateStore (changes) {
+    handleUpdateStore(changes) {
       updateStore(changes);
       this.forceUpdate();
     }
 
-    render () {
+    render() {
       return (
-          <ComposedComponent
-              {...this.props}
-              getStore={getStore}
-              updateStore={this.handleUpdateStore}/>
+        <ComposedComponent
+          {...this.props}
+          getStore={getStore}
+          updateStore={this.handleUpdateStore}
+        />
       );
     }
   };

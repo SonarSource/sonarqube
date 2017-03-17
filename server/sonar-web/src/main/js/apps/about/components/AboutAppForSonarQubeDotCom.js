@@ -39,71 +39,77 @@ export default class AboutAppForSonarQubeDotCom extends React.Component {
     currentUser: { isLoggedIn: boolean },
     customText?: string,
     projectsCount: number,
-    vulnerabilities: number,
+    vulnerabilities: number
   };
 
-  render () {
+  render() {
     const { customText } = this.props;
 
-
     return (
-        <div id="about-page" className="about-page sqcom-about-page">
-          <div className="sqcom-about-page-entry">
-            <div className="about-page-container">
-              <div className="sqcom-about-page-intro">
-                <h1 className="big-spacer-bottom">
-                  Continuous Code Quality<br/>as a Service
-                </h1>
-                <a className="button button-active" href="https://about.sonarqube.com/get-started/" target="_blank">
-                  Get Started
-                </a>
-                {!this.props.currentUser.isLoggedIn && (
-                    <Link to="/sessions/new" className="button big-spacer-left">
-                      {translate('layout.login')}
-                    </Link>
-                )}
-              </div>
-
-              <div className="sqcom-about-page-instance">
-                <AboutProjects count={this.props.projectsCount}/>
-                <EntryIssueTypesForSonarQubeDotCom
-                    bugs={this.props.bugs}
-                    vulnerabilities={this.props.vulnerabilities}
-                    codeSmells={this.props.codeSmells}/>
-              </div>
-            </div>
-          </div>
-
-          <AboutRulesForSonarQubeDotCom/>
-
+      <div id="about-page" className="about-page sqcom-about-page">
+        <div className="sqcom-about-page-entry">
           <div className="about-page-container">
-            {customText != null && customText.value && (
-                <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText.value }}/>
-            )}
-
-            <AboutQualityModelForSonarQubeDotCom/>
-
-            <div className="flex-columns">
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutCleanCode/>
-              </div>
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutLeakPeriod/>
-              </div>
+            <div className="sqcom-about-page-intro">
+              <h1 className="big-spacer-bottom">
+                Continuous Code Quality<br />as a Service
+              </h1>
+              <a
+                className="button button-active"
+                href="https://about.sonarqube.com/get-started/"
+                target="_blank"
+              >
+                Get Started
+              </a>
+              {!this.props.currentUser.isLoggedIn &&
+                <Link to="/sessions/new" className="button big-spacer-left">
+                  {translate('layout.login')}
+                </Link>}
             </div>
 
-            <div className="flex-columns">
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutQualityGates/>
-              </div>
-              <div className="flex-column flex-column-half about-page-group-boxes">
-                <AboutStandards/>
-              </div>
+            <div className="sqcom-about-page-instance">
+              <AboutProjects count={this.props.projectsCount} />
+              <EntryIssueTypesForSonarQubeDotCom
+                bugs={this.props.bugs}
+                vulnerabilities={this.props.vulnerabilities}
+                codeSmells={this.props.codeSmells}
+              />
             </div>
-
-            <AboutScanners/>
           </div>
         </div>
+
+        <AboutRulesForSonarQubeDotCom />
+
+        <div className="about-page-container">
+          {customText != null &&
+            customText.value &&
+            <div
+              className="about-page-section"
+              dangerouslySetInnerHTML={{ __html: customText.value }}
+            />}
+
+          <AboutQualityModelForSonarQubeDotCom />
+
+          <div className="flex-columns">
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutCleanCode />
+            </div>
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutLeakPeriod />
+            </div>
+          </div>
+
+          <div className="flex-columns">
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutQualityGates />
+            </div>
+            <div className="flex-column flex-column-half about-page-group-boxes">
+              <AboutStandards />
+            </div>
+          </div>
+
+          <AboutScanners />
+        </div>
+      </div>
     );
   }
 }

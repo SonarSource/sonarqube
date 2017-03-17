@@ -34,27 +34,27 @@ export default Marionette.ItemView.extend({
     'keyup #users-search-query': 'initialOnKeyUp'
   },
 
-  initialize () {
+  initialize() {
     this._bufferedValue = null;
     this.debouncedOnKeyUp = debounce(this.onKeyUp, 400);
   },
 
-  onRender () {
+  onRender() {
     this.delegateEvents();
   },
 
-  onFormSubmit (e) {
+  onFormSubmit(e) {
     e.preventDefault();
     this.debouncedOnKeyUp();
   },
 
-  initialOnKeyUp () {
+  initialOnKeyUp() {
     const q = this.getQuery();
     this.ui.hint.toggleClass('hidden', q.length !== 1);
     this.debouncedOnKeyUp();
   },
 
-  onKeyUp () {
+  onKeyUp() {
     const q = this.getQuery();
     if (q === this._bufferedValue) {
       return;
@@ -69,12 +69,11 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  getQuery () {
+  getQuery() {
     return this.$('#users-search-query').val();
   },
 
-  search (q) {
+  search(q) {
     return this.collection.fetch({ reset: true, data: { q } });
   }
 });
-

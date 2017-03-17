@@ -25,7 +25,7 @@ export default class LicenseStatus extends React.Component {
     license: React.PropTypes.object.isRequired
   };
 
-  render () {
+  render() {
     const { license } = this.props;
 
     if (license.value == null) {
@@ -34,9 +34,9 @@ export default class LicenseStatus extends React.Component {
 
     const isInvalid = isLicenseInvalid(license);
     if (isInvalid) {
-      return <i className="icon-alert-error"/>;
+      return <i className="icon-alert-error" />;
     }
 
-    return <i className="icon-check"/>;
+    return <i className="icon-check" />;
   }
 }

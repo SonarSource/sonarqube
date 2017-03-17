@@ -21,22 +21,22 @@ import Modal from '../../../components/common/modals';
 import Template from '../templates/permission-templates-groups.hbs';
 import '../../../components/SelectList';
 
-function getSearchUrl (permission, permissionTemplate) {
+function getSearchUrl(permission, permissionTemplate) {
   return window.baseUrl +
-      `/api/permissions/template_groups?ps=100&permission=${permission.key}&templateId=${permissionTemplate.id}`;
+    `/api/permissions/template_groups?ps=100&permission=${permission.key}&templateId=${permissionTemplate.id}`;
 }
 
 export default Modal.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     Modal.prototype.onRender.apply(this, arguments);
     new window.SelectList({
       el: this.$('#permission-templates-groups'),
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format (item) {
+      format(item) {
         return item.name;
       },
       queryParam: 'q',
@@ -49,21 +49,21 @@ export default Modal.extend({
       },
       selectParameter: 'groupName',
       selectParameterValue: 'name',
-      parse (r) {
+      parse(r) {
         this.more = false;
         return r.groups;
       }
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     if (this.options.refresh) {
       this.options.refresh();
     }
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Modal.prototype.serializeData.apply(this, arguments),
       permissionName: this.options.permission.name,

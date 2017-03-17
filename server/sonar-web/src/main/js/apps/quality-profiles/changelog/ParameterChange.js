@@ -26,28 +26,24 @@ export default class ParameterChange extends React.Component {
     value: React.PropTypes.any
   };
 
-  render () {
+  render() {
     const { name, value } = this.props;
 
     if (value == null) {
       return (
-          <div style={{ whiteSpace: 'normal' }}>
-            {translateWithParameters(
-              'quality_profiles.changelog.parameter_reset_to_default_value',
-              name
-            )}
-          </div>
+        <div style={{ whiteSpace: 'normal' }}>
+          {translateWithParameters(
+            'quality_profiles.changelog.parameter_reset_to_default_value',
+            name
+          )}
+        </div>
       );
     }
 
     return (
-        <div style={{ whiteSpace: 'normal' }}>
-          {translateWithParameters(
-            'quality_profiles.parameter_set_to',
-            name,
-            value
-          )}
-        </div>
+      <div style={{ whiteSpace: 'normal' }}>
+        {translateWithParameters('quality_profiles.parameter_set_to', name, value)}
+      </div>
     );
   }
 }

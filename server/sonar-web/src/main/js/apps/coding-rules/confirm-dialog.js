@@ -24,22 +24,30 @@ const DEFAULTS = {
   html: '',
   yesLabel: 'Yes',
   noLabel: 'Cancel',
-  yesHandler () {
+  yesHandler() {
     // no op
   },
-  noHandler () {
+  noHandler() {
     // no op
   },
-  always () {
+  always() {
     // no op
   }
 };
 
-export default function (options) {
+export default function(options) {
   const settings = { ...DEFAULTS, ...options };
-  const dialog = $('<div><div class="modal-head"><h2>' + settings.title + '</h2></div><div class="modal-body">' +
-      settings.html + '</div><div class="modal-foot"><button data-confirm="yes">' + settings.yesLabel +
-      '</button> <a data-confirm="no" class="action">' + settings.noLabel + '</a></div></div>');
+  const dialog = $(
+    '<div><div class="modal-head"><h2>' +
+      settings.title +
+      '</h2></div><div class="modal-body">' +
+      settings.html +
+      '</div><div class="modal-foot"><button data-confirm="yes">' +
+      settings.yesLabel +
+      '</button> <a data-confirm="no" class="action">' +
+      settings.noLabel +
+      '</a></div></div>'
+  );
 
   $('[data-confirm=yes]', dialog).on('click', () => {
     dialog.dialog('close');

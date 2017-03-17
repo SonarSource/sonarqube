@@ -38,40 +38,36 @@ export default class ProfileInheritanceBox extends React.Component {
     displayLink: true
   };
 
-  render () {
+  render() {
     const { profile, className } = this.props;
     const offset = 25 * this.props.depth;
 
     return (
-        <tr className={className}>
-          <td>
-            <div style={{ paddingLeft: offset }}>
-              {this.props.displayLink ? (
-                  <ProfileLink profileKey={profile.key}>
-                    {profile.name}
-                  </ProfileLink>
-              ) : profile.name}
-            </div>
-          </td>
+      <tr className={className}>
+        <td>
+          <div style={{ paddingLeft: offset }}>
+            {this.props.displayLink
+              ? <ProfileLink profileKey={profile.key}>
+                  {profile.name}
+                </ProfileLink>
+              : profile.name}
+          </div>
+        </td>
 
-          <td>
-            {translateWithParameters(
-              'quality_profile.x_active_rules',
-              profile.activeRuleCount
-            )}
-          </td>
+        <td>
+          {translateWithParameters('quality_profile.x_active_rules', profile.activeRuleCount)}
+        </td>
 
-          <td>
-            {profile.overridingRuleCount != null && (
-                <p>
-                  {translateWithParameters(
-                    'quality_profiles.x_overridden_rules',
-                    profile.overridingRuleCount
-                  )}
-                </p>
-            )}
-          </td>
-        </tr>
+        <td>
+          {profile.overridingRuleCount != null &&
+            <p>
+              {translateWithParameters(
+                'quality_profiles.x_overridden_rules',
+                profile.overridingRuleCount
+              )}
+            </p>}
+        </td>
+      </tr>
     );
   }
 }

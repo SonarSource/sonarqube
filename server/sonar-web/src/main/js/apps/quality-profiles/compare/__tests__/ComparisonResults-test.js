@@ -27,19 +27,18 @@ import SeverityIcon from '../../../../components/shared/severity-icon';
 it('should render ComparisonEmpty', () => {
   const output = shallow(
     <ComparisonResults
-          left={{ name: 'left' }}
-          right={{ name: 'right' }}
-          inLeft={[]}
-          inRight={[]}
-          modified={[]}/>
+      left={{ name: 'left' }}
+      right={{ name: 'right' }}
+      inLeft={[]}
+      inRight={[]}
+      modified={[]}
+    />
   );
   expect(output.is(ComparisonEmpty)).toBe(true);
 });
 
 it('should compare', () => {
-  const inLeft = [
-    { key: 'rule1', name: 'rule1', severity: 'BLOCKER' }
-  ];
+  const inLeft = [{ key: 'rule1', name: 'rule1', severity: 'BLOCKER' }];
   const inRight = [
     { key: 'rule2', name: 'rule2', severity: 'CRITICAL' },
     { key: 'rule3', name: 'rule3', severity: 'MAJOR' }
@@ -61,11 +60,12 @@ it('should compare', () => {
 
   const output = shallow(
     <ComparisonResults
-          left={{ name: 'left' }}
-          right={{ name: 'right' }}
-          inLeft={inLeft}
-          inRight={inRight}
-          modified={modified}/>
+      left={{ name: 'left' }}
+      right={{ name: 'right' }}
+      inLeft={inLeft}
+      inRight={inRight}
+      modified={modified}
+    />
   );
 
   const leftDiffs = output.find('.js-comparison-in-left');

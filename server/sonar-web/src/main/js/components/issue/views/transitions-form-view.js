@@ -24,18 +24,17 @@ import Template from '../templates/issue-transitions-form.hbs';
 export default ActionOptionsView.extend({
   template: Template,
 
-  selectInitialOption () {
+  selectInitialOption() {
     this.makeActive(this.getOptions().first());
   },
 
-  selectOption (e) {
+  selectOption(e) {
     const transition = $(e.currentTarget).data('value');
     this.submit(transition);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  submit (transition) {
+  submit(transition) {
     return this.model.transition(transition);
   }
 });
-

@@ -33,106 +33,106 @@ export default class ProfileHeader extends React.Component {
     updateProfiles: React.PropTypes.func.isRequired
   };
 
-  renderUpdateDate () {
+  renderUpdateDate() {
     const { profile } = this.props;
     let inner = (
-        <span>
-          {translate('quality_profiles.updated_')}
-          {' '}
-          <ProfileDate date={profile.userUpdatedAt}/>
-        </span>
+      <span>
+        {translate('quality_profiles.updated_')}
+        {' '}
+        <ProfileDate date={profile.userUpdatedAt} />
+      </span>
     );
     if (isStagnant(profile)) {
       inner = (
-          <span className="badge badge-normal-size badge-focus">
-            {inner}
-          </span>
+        <span className="badge badge-normal-size badge-focus">
+          {inner}
+        </span>
       );
     }
     return (
-        <li className="small spacer-right">
-          {inner}
-        </li>
+      <li className="small spacer-right">
+        {inner}
+      </li>
     );
   }
 
-  renderUsageDate () {
+  renderUsageDate() {
     const { profile } = this.props;
     let inner = (
-        <span>
-          {translate('quality_profiles.used_')}
-          {' '}
-          <ProfileDate date={profile.lastUsed}/>
-        </span>
+      <span>
+        {translate('quality_profiles.used_')}
+        {' '}
+        <ProfileDate date={profile.lastUsed} />
+      </span>
     );
     if (!profile.lastUsed) {
       inner = (
-          <span className="badge badge-normal-size badge-focus">
-            {inner}
-          </span>
+        <span className="badge badge-normal-size badge-focus">
+          {inner}
+        </span>
       );
     }
 
     return (
-        <li className="small big-spacer-right">
-          {inner}
-        </li>
+      <li className="small big-spacer-right">
+        {inner}
+      </li>
     );
   }
 
-  render () {
+  render() {
     const { profile } = this.props;
 
     return (
-        <header className="page-header quality-profile-header">
-          <div className="note spacer-bottom">
-            <IndexLink to="/profiles/" className="text-muted">
-              {translate('quality_profiles.page')}
-            </IndexLink>
-            {' / '}
-            <Link
-                to={{ pathname: '/profiles/', query: { language: profile.language } }}
-                className="text-muted">
-              {profile.languageName}
-            </Link>
-          </div>
+      <header className="page-header quality-profile-header">
+        <div className="note spacer-bottom">
+          <IndexLink to="/profiles/" className="text-muted">
+            {translate('quality_profiles.page')}
+          </IndexLink>
+          {' / '}
+          <Link
+            to={{ pathname: '/profiles/', query: { language: profile.language } }}
+            className="text-muted"
+          >
+            {profile.languageName}
+          </Link>
+        </div>
 
-          <h1 className="page-title">
-            <ProfileLink
-                profileKey={profile.key}
-                className="link-base-color">
-              {profile.name}
-            </ProfileLink>
-          </h1>
+        <h1 className="page-title">
+          <ProfileLink profileKey={profile.key} className="link-base-color">
+            {profile.name}
+          </ProfileLink>
+        </h1>
 
-          <div className="pull-right">
-            <ul className="list-inline" style={{ lineHeight: '24px' }}>
-              {this.renderUpdateDate()}
-              {this.renderUsageDate()}
-              <li>
-                <Link
-                    to={{ pathname: '/profiles/changelog', query: { key: profile.key } }}
-                    className="button">
-                  {translate('changelog')}
-                </Link>
-              </li>
-              <li>
-                <div className="pull-left dropdown">
-                  <button className="dropdown-toggle"
-                          data-toggle="dropdown">
-                    {translate('actions')}
-                    {' '}
-                    <i className="icon-dropdown"/>
-                  </button>
-                  <ProfileActions
-                      profile={profile}
-                      canAdmin={this.props.canAdmin}
-                      updateProfiles={this.props.updateProfiles}/>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </header>
+        <div className="pull-right">
+          <ul className="list-inline" style={{ lineHeight: '24px' }}>
+            {this.renderUpdateDate()}
+            {this.renderUsageDate()}
+            <li>
+              <Link
+                to={{ pathname: '/profiles/changelog', query: { key: profile.key } }}
+                className="button"
+              >
+                {translate('changelog')}
+              </Link>
+            </li>
+            <li>
+              <div className="pull-left dropdown">
+                <button className="dropdown-toggle" data-toggle="dropdown">
+                  {translate('actions')}
+                  {' '}
+                  <i className="icon-dropdown" />
+                </button>
+                <ProfileActions
+                  profile={profile}
+                  canAdmin={this.props.canAdmin}
+                  updateProfiles={this.props.updateProfiles}
+                />
+              </div>
+            </li>
+          </ul>
+        </div>
+      </header>
     );
   }
 }

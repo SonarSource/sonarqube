@@ -25,11 +25,11 @@ export default class ProjectsListFooter extends React.Component {
     total: React.PropTypes.number.isRequired
   };
 
-  render () {
+  render() {
     if (!this.props.total) {
       return null;
     }
 
-    return <ListFooter {...this.props}/>;
+    return <ListFooter {...this.props} />;
   }
 }

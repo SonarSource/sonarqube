@@ -21,27 +21,28 @@ import Group from './group';
 import FormView from './form-view';
 
 export default FormView.extend({
-
-  sendRequest () {
+  sendRequest() {
     const that = this;
     const group = new Group({
       name: this.$('#create-group-name').val(),
       description: this.$('#create-group-description').val()
     });
     this.disableForm();
-    return group.save(null, {
-      organization: this.collection.organization,
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      that.collection.refresh();
-      that.destroy();
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    return group
+      .save(null, {
+        organization: this.collection.organization,
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      })
+      .done(() => {
+        that.collection.refresh();
+        that.destroy();
+      })
+      .fail(jqXHR => {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
   }
 });
-

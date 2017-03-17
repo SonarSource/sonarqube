@@ -23,7 +23,7 @@ import Template from '../templates/permission-templates-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     this.$('#create-custom-measure-metric').select2({
@@ -32,12 +32,12 @@ export default ModalForm.extend({
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   }

@@ -33,52 +33,58 @@ export default class EntryIssueTypesForSonarQubeDotCom extends React.Component {
     codeSmells: React.PropTypes.number.isRequired
   };
 
-  render () {
+  render() {
     const { bugs, vulnerabilities, codeSmells } = this.props;
 
     return (
-        <div className="about-page-projects">
-          <table className="about-page-issue-types">
-            <tbody>
-              <tr>
-                <td className="about-page-issue-type-number">
-                  <Link to={getIssuesUrl({ resolved: false, types: 'BUG' })}
-                        className="about-page-issue-type-link">
-                    {formatMeasure(bugs, 'SHORT_INT')}
-                  </Link>
-                </td>
-                <td>
-                  <span className="little-spacer-right"><BugIconForSonarQubeDotCom/></span>
-                  {translate('issue.type.BUG.plural')}
-                </td>
-              </tr>
-              <tr>
-                <td className="about-page-issue-type-number">
-                  <Link to={getIssuesUrl({ resolved: false, types: 'VULNERABILITY' })}
-                        className="about-page-issue-type-link">
-                    {formatMeasure(vulnerabilities, 'SHORT_INT')}
-                  </Link>
-                </td>
-                <td>
-                  <span className="little-spacer-right"><VulnerabilityIconForSonarQubeDotCom/></span>
-                  {translate('issue.type.VULNERABILITY.plural')}
-                </td>
-              </tr>
-              <tr>
-                <td className="about-page-issue-type-number">
-                  <Link to={getIssuesUrl({ resolved: false, types: 'CODE_SMELL' })}
-                        className="about-page-issue-type-link">
-                    {formatMeasure(codeSmells, 'SHORT_INT')}
-                  </Link>
-                </td>
-                <td>
-                  <span className="little-spacer-right"><CodeSmellIconForSonarQubeDotCom/></span>
-                  {translate('issue.type.CODE_SMELL.plural')}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div className="about-page-projects">
+        <table className="about-page-issue-types">
+          <tbody>
+            <tr>
+              <td className="about-page-issue-type-number">
+                <Link
+                  to={getIssuesUrl({ resolved: false, types: 'BUG' })}
+                  className="about-page-issue-type-link"
+                >
+                  {formatMeasure(bugs, 'SHORT_INT')}
+                </Link>
+              </td>
+              <td>
+                <span className="little-spacer-right"><BugIconForSonarQubeDotCom /></span>
+                {translate('issue.type.BUG.plural')}
+              </td>
+            </tr>
+            <tr>
+              <td className="about-page-issue-type-number">
+                <Link
+                  to={getIssuesUrl({ resolved: false, types: 'VULNERABILITY' })}
+                  className="about-page-issue-type-link"
+                >
+                  {formatMeasure(vulnerabilities, 'SHORT_INT')}
+                </Link>
+              </td>
+              <td>
+                <span className="little-spacer-right"><VulnerabilityIconForSonarQubeDotCom /></span>
+                {translate('issue.type.VULNERABILITY.plural')}
+              </td>
+            </tr>
+            <tr>
+              <td className="about-page-issue-type-number">
+                <Link
+                  to={getIssuesUrl({ resolved: false, types: 'CODE_SMELL' })}
+                  className="about-page-issue-type-link"
+                >
+                  {formatMeasure(codeSmells, 'SHORT_INT')}
+                </Link>
+              </td>
+              <td>
+                <span className="little-spacer-right"><CodeSmellIconForSonarQubeDotCom /></span>
+                {translate('issue.type.CODE_SMELL.plural')}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

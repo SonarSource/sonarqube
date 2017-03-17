@@ -30,21 +30,21 @@ export default class ProjectsContainer extends React.Component {
     query: ''
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.loadMore = this.loadMore.bind(this);
     this.search = this.search.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadProjects();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadProjects (page = this.state.page, query = this.state.query) {
+  loadProjects(page = this.state.page, query = this.state.query) {
     this.setState({ loading: true });
     const data = { ps: 100 };
     if (page > 1) {
@@ -54,8 +54,7 @@ export default class ProjectsContainer extends React.Component {
       data.q = query;
     }
     return getMyProjects(data).then(r => {
-      const projects = page > 1 ?
-          [...this.state.projects, ...r.projects] : r.projects;
+      const projects = page > 1 ? [...this.state.projects, ...r.projects] : r.projects;
       this.setState({
         projects,
         query,
@@ -66,39 +65,37 @@ export default class ProjectsContainer extends React.Component {
     });
   }
 
-  loadMore () {
+  loadMore() {
     return this.loadProjects(this.state.page + 1);
   }
 
-  search (query) {
+  search(query) {
     return this.loadProjects(1, query);
   }
 
-  render () {
+  render() {
     if (this.state.projects == null) {
       return (
-          <div className="text-center">
-            <i className="spinner spinner-margin"/>
-          </div>
+        <div className="text-center">
+          <i className="spinner spinner-margin" />
+        </div>
       );
     }
 
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.projects');
+    const title = translate('my_account.page') + ' - ' + translate('my_account.projects');
 
     return (
-        <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
+      <div className="account-body account-container">
+        <Helmet title={title} titleTemplate="SonarQube - %s" />
 
-          <Projects
-              projects={this.state.projects}
-              total={this.state.total}
-              loading={this.state.loading}
-              loadMore={this.loadMore}
-              search={this.search}/>
-        </div>
+        <Projects
+          projects={this.state.projects}
+          total={this.state.total}
+          loading={this.state.loading}
+          loadMore={this.loadMore}
+          search={this.search}
+        />
+      </div>
     );
   }
 }

@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (componentKey, dashboardKey) {
-  const params = [
-    { key: 'id', value: componentKey },
-    { key: 'did', value: dashboardKey }
-  ];
+module.exports = function(componentKey, dashboardKey) {
+  const params = [{ key: 'id', value: componentKey }, { key: 'did', value: dashboardKey }];
 
   const matchPeriod = window.location.search.match(/period=(\d+)/);
   if (matchPeriod) {

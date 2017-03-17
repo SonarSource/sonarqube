@@ -28,11 +28,11 @@ export default Marionette.ItemView.extend({
     'change [name="issues-page-my"]': 'onMyIssuesChange'
   },
 
-  initialize () {
+  initialize() {
     this.listenTo(this.options.app.state, 'change:query', this.render);
   },
 
-  onMyIssuesChange () {
+  onMyIssuesChange() {
     const mode = this.$('[name="issues-page-my"]:checked').val();
     if (mode === 'my') {
       this.options.app.state.updateFilter({
@@ -48,7 +48,7 @@ export default Marionette.ItemView.extend({
       });
     }
   },
-  serializeData () {
+  serializeData() {
     const me = !!this.options.app.state.get('query').assigned_to_me;
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
@@ -58,4 +58,3 @@ export default Marionette.ItemView.extend({
     };
   }
 });
-

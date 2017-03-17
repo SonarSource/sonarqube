@@ -31,7 +31,7 @@ type Link = {
 
 type State = {|
   expanded: boolean
-  |};
+|};
 
 export default class MetaLink extends React.Component {
   props: {
@@ -48,37 +48,42 @@ export default class MetaLink extends React.Component {
     this.setState((s: State): State => ({ expanded: !s.expanded }));
   };
 
-  renderLinkIcon (link: Link) {
+  renderLinkIcon(link: Link) {
     if (link.type === 'issue') {
-      return <BugTrackerIcon/>;
+      return <BugTrackerIcon />;
     }
 
-    return isProvided(link) ?
-        <i className={`icon-color-link icon-${link.type}`}/> :
-        <i className="icon-color-link icon-detach"/>;
+    return isProvided(link)
+      ? <i className={`icon-color-link icon-${link.type}`} />
+      : <i className="icon-color-link icon-detach" />;
   }
 
-  render () {
+  render() {
     const { link } = this.props;
 
     return (
-        <li>
-          <a className="link-with-icon" href={link.url} target="_blank"
-             onClick={!isClickable(link) && this.handleClick}>
-            {this.renderLinkIcon(link)}
-            &nbsp;
-            {link.name}
-          </a>
-          {this.state.expanded && (
-              <div className="little-spacer-top">
-                <input type="text"
-                       className="overview-key"
-                       value={link.url}
-                       readOnly={true}
-                       onClick={e => e.target.select()}/>
-              </div>
-          )}
-        </li>
+      <li>
+        <a
+          className="link-with-icon"
+          href={link.url}
+          target="_blank"
+          onClick={!isClickable(link) && this.handleClick}
+        >
+          {this.renderLinkIcon(link)}
+          &nbsp;
+          {link.name}
+        </a>
+        {this.state.expanded &&
+          <div className="little-spacer-top">
+            <input
+              type="text"
+              className="overview-key"
+              value={link.url}
+              readOnly={true}
+              onClick={e => e.target.select()}
+            />
+          </div>}
+      </li>
     );
   }
 }

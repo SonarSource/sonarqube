@@ -36,13 +36,14 @@ export default class DuplicationsFilter extends React.PureComponent {
 
   property = 'duplications';
 
-  renderOption (option, selected) {
+  renderOption(option, selected) {
     return (
       <span>
         <DuplicationsRating
           value={getDuplicationsRatingAverageValue(option)}
           size="small"
-          muted={!selected}/>
+          muted={!selected}
+        />
         <span className="spacer-left">
           {getDuplicationsRatingLabel(option)}
         </span>
@@ -50,31 +51,33 @@ export default class DuplicationsFilter extends React.PureComponent {
     );
   }
 
-  getFacetValueForOption (facet, option) {
+  getFacetValueForOption(facet, option) {
     const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*'];
     return facet[map[option - 1]];
   }
 
-  render () {
+  render() {
     return (
-        <FilterContainer
-          property={this.property}
-          options={[1, 2, 3, 4, 5]}
-          query={this.props.query}
-          renderOption={this.renderOption}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-          getFacetValueForOption={this.getFacetValueForOption}
-          highlightUnder={1}
-          header={
-            <FilterHeader name="Duplications">
-              <SortingFilter
-                property={this.property}
-                query={this.props.query}
-                isFavorite={this.props.isFavorite}
-                organization={this.props.organization}/>
-            </FilterHeader>
-          }/>
+      <FilterContainer
+        property={this.property}
+        options={[1, 2, 3, 4, 5]}
+        query={this.props.query}
+        renderOption={this.renderOption}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={
+          <FilterHeader name="Duplications">
+            <SortingFilter
+              property={this.property}
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+            />
+          </FilterHeader>
+        }
+      />
     );
   }
 }

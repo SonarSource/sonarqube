@@ -38,7 +38,7 @@ export default class LineDuplicationBlock extends React.PureComponent {
     this.props.onClick(this.props.index, this.props.line.line);
   };
 
-  render () {
+  render() {
     const { duplicated, index, line } = this.props;
     const className = classNames('source-meta', 'source-line-duplications-extra', {
       'source-line-duplicated': duplicated
@@ -55,8 +55,9 @@ export default class LineDuplicationBlock extends React.PureComponent {
         data-toggle={duplicated ? 'tooltip' : undefined}
         role={duplicated ? 'button' : undefined}
         tabIndex={duplicated ? '0' : undefined}
-        onClick={duplicated ? this.handleClick : undefined}>
-        <div className="source-line-bar"/>
+        onClick={duplicated ? this.handleClick : undefined}
+      >
+        <div className="source-line-bar" />
       </td>
     );
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import StatusFilter from './StatusFilter';
 import TypesFilter from './TypesFilter';
@@ -37,38 +37,38 @@ export default class Search extends React.Component {
     onReload: React.PropTypes.func.isRequired
   };
 
-  handleStatusChange (status: string) {
+  handleStatusChange(status: string) {
     this.props.onFilterUpdate({ status });
   }
 
-  handleTypeChange (taskType: string) {
+  handleTypeChange(taskType: string) {
     this.props.onFilterUpdate({ taskType });
   }
 
-  handleCurrentsChange (currents: string) {
+  handleCurrentsChange(currents: string) {
     this.props.onFilterUpdate({ currents });
   }
 
-  handleDateChange (date: string) {
+  handleDateChange(date: string) {
     this.props.onFilterUpdate(date);
   }
 
-  handleQueryChange (query: string) {
+  handleQueryChange(query: string) {
     this.props.onFilterUpdate({ query });
   }
 
-  handleReload (e: Object) {
+  handleReload(e: Object) {
     e.target.blur();
     this.props.onReload();
   }
 
-  handleReset (e: Object) {
+  handleReset(e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onFilterUpdate(DEFAULT_FILTERS);
   }
 
-  renderSearchBox () {
+  renderSearchBox() {
     const { component, query } = this.props;
 
     if (component) {
@@ -77,95 +77,86 @@ export default class Search extends React.Component {
     }
 
     return (
-        <li>
-          <h6 className="bt-search-form-label">
-            Search by Task or Component
-          </h6>
+      <li>
+        <h6 className="bt-search-form-label">
+          Search by Task or Component
+        </h6>
 
-          <input
-              onChange={e => this.handleQueryChange(e.target.value)}
-              value={query}
-              ref="searchInput"
-              className="js-search input-large"
-              type="search"
-              placeholder="Search"/>
-        </li>
+        <input
+          onChange={e => this.handleQueryChange(e.target.value)}
+          value={query}
+          ref="searchInput"
+          className="js-search input-large"
+          type="search"
+          placeholder="Search"
+        />
+      </li>
     );
   }
 
-  render () {
+  render() {
     const {
-        loading,
-        component,
-        types,
-        status,
-        taskType,
-        currents,
-        minSubmittedAt,
-        maxExecutedAt
+      loading,
+      component,
+      types,
+      status,
+      taskType,
+      currents,
+      minSubmittedAt,
+      maxExecutedAt
     } = this.props;
 
     return (
-        <section className="big-spacer-top big-spacer-bottom">
-          <ul className="bt-search-form">
+      <section className="big-spacer-top big-spacer-bottom">
+        <ul className="bt-search-form">
+          <li>
+            <h6 className="bt-search-form-label">
+              Status
+            </h6>
+            <StatusFilter value={status} onChange={this.handleStatusChange.bind(this)} />
+          </li>
+          {types.length > 1 &&
             <li>
               <h6 className="bt-search-form-label">
-                Status
+                Type
               </h6>
-              <StatusFilter
-                  value={status}
-                  onChange={this.handleStatusChange.bind(this)}/>
-            </li>
-            {types.length > 1 && (
-                <li>
-                  <h6 className="bt-search-form-label">
-                    Type
-                  </h6>
-                  <TypesFilter
-                      value={taskType}
-                      types={types}
-                      onChange={this.handleTypeChange.bind(this)}/>
-                </li>
-            )}
-            {!component && (
-                <li>
-                  <h6 className="bt-search-form-label">
-                    Only Latest Analysis
-                  </h6>
-                  <CurrentsFilter
-                      value={currents}
-                      onChange={this.handleCurrentsChange.bind(this)}/>
-                </li>
-            )}
+              <TypesFilter
+                value={taskType}
+                types={types}
+                onChange={this.handleTypeChange.bind(this)}
+              />
+            </li>}
+          {!component &&
             <li>
               <h6 className="bt-search-form-label">
-                Date
+                Only Latest Analysis
               </h6>
-              <DateFilter
-                  minSubmittedAt={minSubmittedAt}
-                  maxExecutedAt={maxExecutedAt}
-                  onChange={this.handleDateChange.bind(this)}/>
-            </li>
+              <CurrentsFilter value={currents} onChange={this.handleCurrentsChange.bind(this)} />
+            </li>}
+          <li>
+            <h6 className="bt-search-form-label">
+              Date
+            </h6>
+            <DateFilter
+              minSubmittedAt={minSubmittedAt}
+              maxExecutedAt={maxExecutedAt}
+              onChange={this.handleDateChange.bind(this)}
+            />
+          </li>
 
-            {this.renderSearchBox()}
+          {this.renderSearchBox()}
 
-            <li className="bt-search-form-right">
-              <button
-                  className="js-reload"
-                  onClick={this.handleReload.bind(this)}
-                  disabled={loading}>
-                {translate('reload')}
-              </button>
-              {' '}
-              <button
-                  ref="resetButton"
-                  onClick={this.handleReset.bind(this)}
-                  disabled={loading}>
-                {translate('reset_verb')}
-              </button>
-            </li>
-          </ul>
-        </section>
+          <li className="bt-search-form-right">
+            <button className="js-reload" onClick={this.handleReload.bind(this)} disabled={loading}>
+              {translate('reload')}
+            </button>
+            {' '}
+            <button ref="resetButton" onClick={this.handleReset.bind(this)} disabled={loading}>
+              {translate('reset_verb')}
+            </button>
+          </li>
+        </ul>
+      </section>
     );
   }
 }

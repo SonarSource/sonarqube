@@ -25,11 +25,11 @@ import { translate } from '../../../helpers/l10n';
 export default BaseFacet.extend({
   template: Template,
 
-  initialize (options) {
+  initialize(options) {
     this.listenTo(options.app.state, 'change:query', this.onQueryChange);
   },
 
-  onQueryChange () {
+  onQueryChange() {
     const query = this.options.app.state.get('query');
     const isProfileSelected = query.qprofile != null;
     if (isProfileSelected) {
@@ -42,22 +42,22 @@ export default BaseFacet.extend({
     }
   },
 
-  onRender () {
+  onRender() {
     BaseFacet.prototype.onRender.apply(this, arguments);
     this.onQueryChange();
   },
 
-  forbid () {
+  forbid() {
     BaseFacet.prototype.forbid.apply(this, arguments);
     this.$el.prop('title', translate('coding_rules.filters.inheritance.inactive'));
   },
 
-  allow () {
+  allow() {
     BaseFacet.prototype.allow.apply(this, arguments);
     this.$el.prop('title', null);
   },
 
-  getValues () {
+  getValues() {
     const values = ['NONE', 'INHERITED', 'OVERRIDES'];
     return values.map(key => {
       return {
@@ -67,7 +67,7 @@ export default BaseFacet.extend({
     });
   },
 
-  toggleFacet (e) {
+  toggleFacet(e) {
     const obj = {};
     const property = this.model.get('property');
     if ($(e.currentTarget).is('.active')) {
@@ -78,7 +78,7 @@ export default BaseFacet.extend({
     this.options.app.state.updateFilter(obj);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.getValues()

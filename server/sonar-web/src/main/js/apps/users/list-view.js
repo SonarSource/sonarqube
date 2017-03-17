@@ -28,30 +28,29 @@ export default Marionette.CompositeView.extend({
   childViewContainer: 'tbody',
 
   collectionEvents: {
-    'request': 'showLoading',
-    'sync': 'hideLoading'
+    request: 'showLoading',
+    sync: 'hideLoading'
   },
 
-  childViewOptions () {
+  childViewOptions() {
     return {
       providers: this.options.providers,
       currentUser: this.options.currentUser
     };
   },
 
-  showLoading () {
+  showLoading() {
     this.$el.addClass('new-loading');
   },
 
-  hideLoading () {
+  hideLoading() {
     this.$el.removeClass('new-loading');
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.CompositeView.prototype.serializeData.apply(this, arguments),
       customOrganizations: areThereCustomOrganizations()
     };
   }
 });
-

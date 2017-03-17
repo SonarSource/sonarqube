@@ -29,19 +29,14 @@ describe('Reducer', () => {
 
     const action1 = {
       type: 'RECEIVE_ORGANIZATIONS',
-      organizations: [
-        { key: 'foo', name: 'Foo' },
-        { key: 'bar', name: 'Bar' }
-      ]
+      organizations: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
     };
     const state1 = organizations(state0, action1);
     expect(state1).toMatchSnapshot();
 
     const action2 = {
       type: 'RECEIVE_ORGANIZATIONS',
-      organizations: [
-        { key: 'foo', name: 'Qwe' }
-      ]
+      organizations: [{ key: 'foo', name: 'Qwe' }]
     };
     const state2 = organizations(state1, action2);
     expect(state2).toMatchSnapshot();

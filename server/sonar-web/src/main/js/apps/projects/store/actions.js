@@ -58,58 +58,63 @@ const FACETS = [
   'tags'
 ];
 
-const onFail = dispatch => error => {
-  parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
-  dispatch(updateState({ loading: false }));
-};
+const onFail = dispatch =>
+  error => {
+    parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
+    dispatch(updateState({ loading: false }));
+  };
 
-const onReceiveMeasures = (dispatch, expectedProjectKeys) => response => {
-  const byComponentKey = groupBy(response.measures, 'component');
+const onReceiveMeasures = (dispatch, expectedProjectKeys) =>
+  response => {
+    const byComponentKey = groupBy(response.measures, 'component');
 
-  const toStore = {};
+    const toStore = {};
 
-  // fill store with empty objects for expected projects
-  // this is required to not have "null"s for provisioned projects
-  expectedProjectKeys.forEach(projectKey => toStore[projectKey] = {});
+    // fill store with empty objects for expected projects
+    // this is required to not have "null"s for provisioned projects
+    expectedProjectKeys.forEach(projectKey => toStore[projectKey] = {});
 
-  Object.keys(byComponentKey).forEach(componentKey => {
-    const measures = {};
-    byComponentKey[componentKey].forEach(measure => {
-      measures[measure.metric] = measure.value;
+    Object.keys(byComponentKey).forEach(componentKey => {
+      const measures = {};
+      byComponentKey[componentKey].forEach(measure => {
+        measures[measure.metric] = measure.value;
+      });
+      toStore[componentKey] = measures;
     });
-    toStore[componentKey] = measures;
-  });
 
-  dispatch(receiveComponentsMeasures(toStore));
-};
+    dispatch(receiveComponentsMeasures(toStore));
+  };
 
-const onReceiveOrganizations = dispatch => response => {
-  dispatch(receiveOrganizations(response.organizations));
-};
+const onReceiveOrganizations = dispatch =>
+  response => {
+    dispatch(receiveOrganizations(response.organizations));
+  };
 
-const fetchProjectMeasures = projects => dispatch => {
-  if (!projects.length) {
-    return Promise.resolve();
-  }
+const fetchProjectMeasures = projects =>
+  dispatch => {
+    if (!projects.length) {
+      return Promise.resolve();
+    }
 
-  const projectKeys = projects.map(project => project.key);
-  return getMeasuresForProjects(projectKeys, METRICS).then(
-    onReceiveMeasures(dispatch, projectKeys),
-    onFail(dispatch)
-  );
-};
+    const projectKeys = projects.map(project => project.key);
+    return getMeasuresForProjects(projectKeys, METRICS).then(
+      onReceiveMeasures(dispatch, projectKeys),
+      onFail(dispatch)
+    );
+  };
 
-const fetchProjectOrganizations = projects => dispatch => {
-  if (!projects.length) {
-    return Promise.resolve();
-  }
+const fetchProjectOrganizations = projects =>
+  dispatch => {
+    if (!projects.length) {
+      return Promise.resolve();
+    }
 
-  const organizationKeys = uniq(projects.map(project => project.organization));
-  return getOrganizations(organizationKeys).then(
-    onReceiveOrganizations(dispatch),
-    onFail(dispatch)
-  );
-};
+    const organizationKeys = uniq(projects.map(project => project.organization));
+    return getOrganizations(organizationKeys).then(
+      onReceiveOrganizations(dispatch),
+      onFail(dispatch)
+    );
+  };
 
 const handleFavorites = (dispatch, projects) => {
   const toAdd = projects.filter(project => project.isFavorite);
@@ -119,55 +124,59 @@ const handleFavorites = (dispatch, projects) => {
   }
 };
 
-const onReceiveProjects = dispatch => response => {
-  dispatch(receiveComponents(response.components));
-  dispatch(receiveProjects(response.components, response.facets));
-  handleFavorites(dispatch, response.components);
-  Promise.all([
-    dispatch(fetchProjectMeasures(response.components)),
-    dispatch(fetchProjectOrganizations(response.components))
-  ]).then(() => {
-    dispatch(updateState({ loading: false }));
-  });
-  dispatch(
-    updateState({
-      total: response.paging.total,
-      pageIndex: response.paging.pageIndex
-    })
-  );
-};
+const onReceiveProjects = dispatch =>
+  response => {
+    dispatch(receiveComponents(response.components));
+    dispatch(receiveProjects(response.components, response.facets));
+    handleFavorites(dispatch, response.components);
+    Promise.all([
+      dispatch(fetchProjectMeasures(response.components)),
+      dispatch(fetchProjectOrganizations(response.components))
+    ]).then(() => {
+      dispatch(updateState({ loading: false }));
+    });
+    dispatch(
+      updateState({
+        total: response.paging.total,
+        pageIndex: response.paging.pageIndex
+      })
+    );
+  };
 
-const onReceiveMoreProjects = dispatch => response => {
-  dispatch(receiveComponents(response.components));
-  dispatch(receiveMoreProjects(response.components));
-  handleFavorites(dispatch, response.components);
-  Promise.all([
-    dispatch(fetchProjectMeasures(response.components)),
-    dispatch(fetchProjectOrganizations(response.components))
-  ]).then(() => {
-    dispatch(updateState({ loading: false }));
-  });
-  dispatch(updateState({ pageIndex: response.paging.pageIndex }));
-};
+const onReceiveMoreProjects = dispatch =>
+  response => {
+    dispatch(receiveComponents(response.components));
+    dispatch(receiveMoreProjects(response.components));
+    handleFavorites(dispatch, response.components);
+    Promise.all([
+      dispatch(fetchProjectMeasures(response.components)),
+      dispatch(fetchProjectOrganizations(response.components))
+    ]).then(() => {
+      dispatch(updateState({ loading: false }));
+    });
+    dispatch(updateState({ pageIndex: response.paging.pageIndex }));
+  };
 
-export const fetchProjects = (query, isFavorite, organization) => dispatch => {
-  dispatch(updateState({ loading: true }));
-  const data = convertToQueryData(query, isFavorite, organization, {
-    ps: PAGE_SIZE,
-    facets: FACETS.join(),
-    f: 'analysisDate'
-  });
-  return searchProjects(data).then(onReceiveProjects(dispatch), onFail(dispatch));
-};
+export const fetchProjects = (query, isFavorite, organization) =>
+  dispatch => {
+    dispatch(updateState({ loading: true }));
+    const data = convertToQueryData(query, isFavorite, organization, {
+      ps: PAGE_SIZE,
+      facets: FACETS.join(),
+      f: 'analysisDate'
+    });
+    return searchProjects(data).then(onReceiveProjects(dispatch), onFail(dispatch));
+  };
 
-export const fetchMoreProjects = (query, isFavorite, organization) => (dispatch, getState) => {
-  dispatch(updateState({ loading: true }));
-  const state = getState();
-  const { pageIndex } = getProjectsAppState(state);
-  const data = convertToQueryData(query, isFavorite, organization, {
-    ps: PAGE_SIZE,
-    p: pageIndex + 1,
-    f: 'analysisDate'
-  });
-  return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
-};
+export const fetchMoreProjects = (query, isFavorite, organization) =>
+  (dispatch, getState) => {
+    dispatch(updateState({ loading: true }));
+    const state = getState();
+    const { pageIndex } = getProjectsAppState(state);
+    const data = convertToQueryData(query, isFavorite, organization, {
+      ps: PAGE_SIZE,
+      p: pageIndex + 1,
+      f: 'analysisDate'
+    });
+    return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
+  };

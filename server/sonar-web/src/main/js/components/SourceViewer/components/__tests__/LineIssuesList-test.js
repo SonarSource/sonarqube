@@ -30,7 +30,8 @@ it('render issues list', () => {
       issueKeys={issueKeys}
       line={line}
       onIssueClick={onIssueClick}
-      selectedIssue="foo"/>
+      selectedIssue="foo"
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });

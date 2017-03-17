@@ -26,21 +26,19 @@ export default class ChangesList extends React.Component {
     changes: React.PropTypes.object.isRequired
   };
 
-  render () {
+  render() {
     const { changes } = this.props;
 
     return (
-        <ul>
-          {Object.keys(changes).map(key => (
-              <li key={key}>
-                {key === 'severity' ? (
-                    <SeverityChange severity={changes[key]}/>
-                ) : (
-                    <ParameterChange name={key} value={changes[key]}/>
-                )}
-              </li>
-          ))}
-        </ul>
+      <ul>
+        {Object.keys(changes).map(key => (
+          <li key={key}>
+            {key === 'severity'
+              ? <SeverityChange severity={changes[key]} />
+              : <ParameterChange name={key} value={changes[key]} />}
+          </li>
+        ))}
+      </ul>
     );
   }
 }

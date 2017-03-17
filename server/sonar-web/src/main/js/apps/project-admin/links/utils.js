@@ -20,19 +20,13 @@
 import partition from 'lodash/partition';
 import sortBy from 'lodash/sortBy';
 
-const PROVIDED_TYPES = [
-  'homepage',
-  'ci',
-  'issue',
-  'scm',
-  'scm_dev'
-];
+const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
 
-export function isProvided (link) {
+export function isProvided(link) {
   return PROVIDED_TYPES.includes(link.type);
 }
 
-export function orderLinks (links) {
+export function orderLinks(links) {
   const [provided, unknown] = partition(links, isProvided);
   return [
     ...sortBy(provided, link => PROVIDED_TYPES.indexOf(link.type)),
@@ -40,7 +34,7 @@ export function orderLinks (links) {
   ];
 }
 
-export function isClickable (link) {
+export function isClickable(link) {
   // stupid simple check
   return link.url.indexOf('http') === 0;
 }

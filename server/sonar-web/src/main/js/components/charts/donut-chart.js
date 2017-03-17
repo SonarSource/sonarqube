@@ -23,11 +23,12 @@ import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 const Sector = React.createClass({
-  render () {
-    const arc = d3.svg.arc()
-        .outerRadius(this.props.radius)
-        .innerRadius(this.props.radius - this.props.thickness);
-    return <path d={arc(this.props.data)} style={{ fill: this.props.fill }}/>;
+  render() {
+    const arc = d3.svg
+      .arc()
+      .outerRadius(this.props.radius)
+      .innerRadius(this.props.radius - this.props.thickness);
+    return <path d={arc(this.props.data)} style={{ fill: this.props.fill }} />;
   }
 });
 
@@ -38,17 +39,17 @@ export const DonutChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps () {
+  getDefaultProps() {
     return { thickness: 6, padding: [0, 0, 0, 0] };
   },
 
-  getInitialState () {
+  getInitialState() {
     return { width: this.props.width, height: this.props.height };
   },
 
-  render () {
+  render() {
     if (!this.state.width || !this.state.height) {
-      return <div/>;
+      return <div />;
     }
 
     const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
@@ -57,28 +58,27 @@ export const DonutChart = React.createClass({
     const size = Math.min(availableWidth, availableHeight);
     const radius = Math.floor(size / 2);
 
-    const pie = d3.layout.pie()
-        .sort(null)
-        .value(d => d.value);
+    const pie = d3.layout.pie().sort(null).value(d => d.value);
     const sectors = pie(this.props.data).map((d, i) => {
       return (
-          <Sector
-              key={i}
-              data={d}
-              radius={radius}
-              fill={this.props.data[i].fill}
-              thickness={this.props.thickness}/>
+        <Sector
+          key={i}
+          data={d}
+          radius={radius}
+          fill={this.props.data[i].fill}
+          thickness={this.props.thickness}
+        />
       );
     });
 
     return (
-        <svg className="donut-chart" width={this.state.width} height={this.state.height}>
-          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-            <g transform={`translate(${radius}, ${radius})`}>
-              {sectors}
-            </g>
+      <svg className="donut-chart" width={this.state.width} height={this.state.height}>
+        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+          <g transform={`translate(${radius}, ${radius})`}>
+            {sectors}
           </g>
-        </svg>
+        </g>
+      </svg>
     );
   }
 });

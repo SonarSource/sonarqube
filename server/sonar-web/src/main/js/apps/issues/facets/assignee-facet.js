@@ -25,34 +25,34 @@ import Template from '../templates/facets/issues-assignee-facet.hbs';
 export default CustomValuesFacet.extend({
   template: Template,
 
-  getUrl () {
+  getUrl() {
     return window.baseUrl + '/api/users/search';
   },
 
-  prepareAjaxSearch () {
+  prepareAjaxSearch() {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data (term, page) {
+      data(term, page) {
         return { q: term, p: page };
       },
       results: window.usersToSelect2
     };
   },
 
-  onRender () {
+  onRender() {
     CustomValuesFacet.prototype.onRender.apply(this, arguments);
 
     const myIssuesSelected = !!this.options.app.state.get('query').assigned_to_me;
     this.$el.toggleClass('hidden', myIssuesSelected);
 
     const value = this.options.app.state.get('query').assigned;
-    if ((value != null) && (!value || value === 'false')) {
+    if (value != null && (!value || value === 'false')) {
       this.$('.js-facet').filter('[data-unassigned]').addClass('active');
     }
   },
 
-  toggleFacet (e) {
+  toggleFacet(e) {
     const unassigned = $(e.currentTarget).is('[data-unassigned]');
     $(e.currentTarget).toggleClass('active');
     if (unassigned) {
@@ -72,7 +72,7 @@ export default CustomValuesFacet.extend({
     }
   },
 
-  getValuesWithLabels () {
+  getValuesWithLabels() {
     const values = this.model.getValues();
     const users = this.options.app.facets.users;
     values.forEach(v => {
@@ -89,14 +89,14 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  disable () {
+  disable() {
     return this.options.app.state.updateFilter({
       assigned: null,
       assignees: null
     });
   },
 
-  addCustomValue () {
+  addCustomValue() {
     const property = this.model.get('property');
     const customValue = this.$('.js-custom-value').select2('val');
     let value = this.getValue();
@@ -110,15 +110,14 @@ export default CustomValuesFacet.extend({
     return this.options.app.state.updateFilter(obj);
   },
 
-  sortValues (values) {
+  sortValues(values) {
     return sortBy(values, v => v.val === '' ? -999999 : -v.count);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
     };
   }
 });
-

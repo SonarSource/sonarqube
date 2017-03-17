@@ -22,6 +22,6 @@ import { IndexRoute, Redirect } from 'react-router';
 import AppContainer from './components/AppContainer';
 
 export default [
-  <Redirect key="redirect" from="/dashboard/index" to="/dashboard"/>,
-  <IndexRoute key="index" component={AppContainer}/>
+  <Redirect key="redirect" from="/dashboard/index" to="/dashboard" />,
+  <IndexRoute key="index" component={AppContainer} />
 ];

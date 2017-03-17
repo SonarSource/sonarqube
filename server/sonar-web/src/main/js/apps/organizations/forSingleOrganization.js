@@ -27,7 +27,7 @@ const forSingleOrganization = (ComposedComponent: Object) => {
   class X extends React.Component {
     static displayName = `forSingleOrganization(${ComposedComponent.displayName})}`;
 
-    render () {
+    render() {
       const { customOrganizations, router, ...other } = this.props;
 
       if (customOrganizations) {
@@ -35,7 +35,7 @@ const forSingleOrganization = (ComposedComponent: Object) => {
         return null;
       }
 
-      return <ComposedComponent {...other}/>;
+      return <ComposedComponent {...other} />;
     }
   }
 

@@ -20,31 +20,29 @@
 import $ from 'jquery';
 import uniqueId from 'lodash/uniqueId';
 
-function createFrame () {
+function createFrame() {
   const uuid = uniqueId('upload-form-');
   return $('<iframe></iframe>')
-      .prop('frameborder', 0)
-      .prop('width', 0)
-      .prop('height', 0)
-      .prop('id', uuid)
-      .prop('name', uuid)
-      .css('display', 'none');
+    .prop('frameborder', 0)
+    .prop('width', 0)
+    .prop('height', 0)
+    .prop('id', uuid)
+    .prop('name', uuid)
+    .css('display', 'none');
 }
 
-export default function (options) {
+export default function(options) {
   const deferred = new $.Deferred();
   const body = $('body');
   const frame = createFrame();
   const parent = options.form.parent();
   const clonedForm = options.form.detach();
 
-  clonedForm
-      .prop('target', frame.prop('id'))
-      .appendTo(frame);
+  clonedForm.prop('target', frame.prop('id')).appendTo(frame);
 
   frame.appendTo(body);
 
-  frame.on('load', function () {
+  frame.on('load', function() {
     const result = this.contentWindow.document.body.textContent;
     try {
       const js = JSON.parse(result);
@@ -60,4 +58,3 @@ export default function (options) {
 
   return deferred.promise();
 }
-

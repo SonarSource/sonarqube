@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function checkIfDefault (qualityGate, list) {
+export function checkIfDefault(qualityGate, list) {
   const finding = list.find(candidate => candidate.id === qualityGate.id);
 
   return finding ? finding.isDefault : false;
 }
 
-export function addCondition (qualityGate, metric) {
+export function addCondition(qualityGate, metric) {
   const condition = {
     metric,
     op: 'LT',
@@ -36,17 +36,15 @@ export function addCondition (qualityGate, metric) {
   return { ...qualityGate, conditions };
 }
 
-export function deleteCondition (qualityGate, condition) {
-  const conditions = qualityGate.conditions
-      .filter(candidate => candidate !== condition);
+export function deleteCondition(qualityGate, condition) {
+  const conditions = qualityGate.conditions.filter(candidate => candidate !== condition);
 
   return { ...qualityGate, conditions };
 }
 
-export function replaceCondition (qualityGate, oldCondition, newCondition) {
-  const conditions = qualityGate.conditions
-      .map(candidate => {
-        return candidate === oldCondition ? newCondition : candidate;
-      });
+export function replaceCondition(qualityGate, oldCondition, newCondition) {
+  const conditions = qualityGate.conditions.map(candidate => {
+    return candidate === oldCondition ? newCondition : candidate;
+  });
   return { ...qualityGate, conditions };
 }

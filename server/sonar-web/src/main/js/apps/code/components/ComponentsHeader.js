@@ -23,33 +23,35 @@ import { translate } from '../../../helpers/l10n';
 const ComponentsHeader = ({ baseComponent, rootComponent }) => {
   const isView = rootComponent.qualifier === 'VW' || rootComponent.qualifier === 'SVW';
 
-  const columns = isView ? [
-    translate('metric_domain.Releasability'),
-    translate('metric_domain.Reliability'),
-    translate('metric_domain.Security'),
-    translate('metric_domain.Maintainability'),
-    translate('metric', 'ncloc', 'name')
-  ] : [
-    translate('metric', 'ncloc', 'name'),
-    translate('metric', 'bugs', 'name'),
-    translate('metric', 'vulnerabilities', 'name'),
-    translate('metric', 'code_smells', 'name'),
-    translate('metric', 'coverage', 'name'),
-    translate('metric', 'duplicated_lines_density', 'short_name')
-  ];
+  const columns = isView
+    ? [
+        translate('metric_domain.Releasability'),
+        translate('metric_domain.Reliability'),
+        translate('metric_domain.Security'),
+        translate('metric_domain.Maintainability'),
+        translate('metric', 'ncloc', 'name')
+      ]
+    : [
+        translate('metric', 'ncloc', 'name'),
+        translate('metric', 'bugs', 'name'),
+        translate('metric', 'vulnerabilities', 'name'),
+        translate('metric', 'code_smells', 'name'),
+        translate('metric', 'coverage', 'name'),
+        translate('metric', 'duplicated_lines_density', 'short_name')
+      ];
 
   return (
-      <thead>
-        <tr className="code-components-header">
-          <th className="thin nowrap">&nbsp;</th>
-          <th>&nbsp;</th>
-          {columns.map(column => (
-              <th key={column} className="thin nowrap text-right code-components-cell">
-                {baseComponent && column}
-              </th>
-          ))}
-        </tr>
-      </thead>
+    <thead>
+      <tr className="code-components-header">
+        <th className="thin nowrap">&nbsp;</th>
+        <th>&nbsp;</th>
+        {columns.map(column => (
+          <th key={column} className="thin nowrap text-right code-components-cell">
+            {baseComponent && column}
+          </th>
+        ))}
+      </tr>
+    </thead>
   );
 };
 

@@ -20,14 +20,17 @@
 import Handlebars from 'handlebars/runtime';
 import { translateWithParameters } from '../l10n';
 
-module.exports = function (value, parameter) {
+module.exports = function(value, parameter) {
   if (parameter) {
     return new Handlebars.default.SafeString(
-        translateWithParameters('quality_profiles.parameter_set_to_x', value, parameter)
+      translateWithParameters('quality_profiles.parameter_set_to_x', value, parameter)
     );
   } else {
     return new Handlebars.default.SafeString(
-        translateWithParameters('quality_profiles.changelog.parameter_reset_to_default_value_x', parameter)
+      translateWithParameters(
+        'quality_profiles.changelog.parameter_reset_to_default_value_x',
+        parameter
+      )
     );
   }
 };

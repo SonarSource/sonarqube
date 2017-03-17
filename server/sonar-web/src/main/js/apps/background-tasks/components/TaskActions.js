@@ -25,31 +25,31 @@ import { STATUSES } from './../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class TaskActions extends React.Component {
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleFilterClick (e) {
+  handleFilterClick(e) {
     e.preventDefault();
     this.props.onFilterTask(this.props.task);
   }
 
-  handleCancelClick (e) {
+  handleCancelClick(e) {
     e.preventDefault();
     this.props.onCancelTask(this.props.task);
   }
 
-  handleShowScannerContextClick (e) {
+  handleShowScannerContextClick(e) {
     e.preventDefault();
     new ScannerContextView({ task: this.props.task }).render();
   }
 
-  handleShowStacktraceClick (e) {
+  handleShowStacktraceClick(e) {
     e.preventDefault();
     new StacktraceView({ task: this.props.task }).render();
   }
 
-  render () {
+  render() {
     const { component, task } = this.props;
 
     const canFilter = component == null;
@@ -62,51 +62,54 @@ export default class TaskActions extends React.Component {
     }
 
     return (
-        <td className="thin nowrap">
-          <div className="dropdown js-task-action">
-            <button className="dropdown-toggle" data-toggle="dropdown">
-              <i className="icon-dropdown"/>
-            </button>
-            <ul className="dropdown-menu dropdown-menu-right">
-              {canFilter && (
-                  <li>
-                    <a className="js-task-filter" href="#" onClick={this.handleFilterClick.bind(this)}>
-                      <i className="spacer-right icon-filter icon-gray"/>
-                      {translateWithParameters('background_tasks.filter_by_component_x', task.componentName)}
-                    </a>
-                  </li>
-              )}
-              {canCancel && (
-                  <li>
-                    <a className="js-task-cancel" href="#" onClick={this.handleCancelClick.bind(this)}>
-                      <i className="spacer-right icon-delete"/>
-                      {translate('background_tasks.cancel_task')}
-                    </a>
-                  </li>
-              )}
-              {task.hasScannerContext && (
-                  <li>
-                    <a className="js-task-show-scanner-context"
-                       href="#"
-                       onClick={this.handleShowScannerContextClick.bind(this)}>
-                      <i className="spacer-right icon-list icon-gray"/>
-                      {translate('background_tasks.show_scanner_context')}
-                    </a>
-                  </li>
-              )}
-              {canShowStacktrace && (
-                  <li>
-                    <a className="js-task-show-stacktrace"
-                       href="#"
-                       onClick={this.handleShowStacktraceClick.bind(this)}>
-                      <i className="spacer-right icon-list icon-red"/>
-                      {translate('background_tasks.show_stacktrace')}
-                    </a>
-                  </li>
-              )}
-            </ul>
-          </div>
-        </td>
+      <td className="thin nowrap">
+        <div className="dropdown js-task-action">
+          <button className="dropdown-toggle" data-toggle="dropdown">
+            <i className="icon-dropdown" />
+          </button>
+          <ul className="dropdown-menu dropdown-menu-right">
+            {canFilter &&
+              <li>
+                <a className="js-task-filter" href="#" onClick={this.handleFilterClick.bind(this)}>
+                  <i className="spacer-right icon-filter icon-gray" />
+                  {translateWithParameters(
+                    'background_tasks.filter_by_component_x',
+                    task.componentName
+                  )}
+                </a>
+              </li>}
+            {canCancel &&
+              <li>
+                <a className="js-task-cancel" href="#" onClick={this.handleCancelClick.bind(this)}>
+                  <i className="spacer-right icon-delete" />
+                  {translate('background_tasks.cancel_task')}
+                </a>
+              </li>}
+            {task.hasScannerContext &&
+              <li>
+                <a
+                  className="js-task-show-scanner-context"
+                  href="#"
+                  onClick={this.handleShowScannerContextClick.bind(this)}
+                >
+                  <i className="spacer-right icon-list icon-gray" />
+                  {translate('background_tasks.show_scanner_context')}
+                </a>
+              </li>}
+            {canShowStacktrace &&
+              <li>
+                <a
+                  className="js-task-show-stacktrace"
+                  href="#"
+                  onClick={this.handleShowStacktraceClick.bind(this)}
+                >
+                  <i className="spacer-right icon-list icon-red" />
+                  {translate('background_tasks.show_stacktrace')}
+                </a>
+              </li>}
+          </ul>
+        </div>
+      </td>
     );
   }
 }

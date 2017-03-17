@@ -20,27 +20,27 @@
 import ReactDOM from 'react-dom';
 
 export const ResizeMixin = {
-  componentDidMount () {
+  componentDidMount() {
     if (this.isResizable()) {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);
     }
   },
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     if (this.isResizable()) {
       window.removeEventListener('resize', this.handleResize);
     }
   },
 
-  handleResize () {
+  handleResize() {
     const boundingClientRect = ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect();
     const newWidth = this.props.width || boundingClientRect.width;
     const newHeight = this.props.height || boundingClientRect.height;
     this.setState({ width: newWidth, height: newHeight });
   },
 
-  isResizable () {
+  isResizable() {
     return !this.props.width || !this.props.height;
   }
 };

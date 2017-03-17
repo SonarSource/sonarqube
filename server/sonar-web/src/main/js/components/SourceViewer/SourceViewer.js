@@ -39,9 +39,10 @@ const onReceiveComponent = (component: { key: string, canMarkAsFavorite: boolean
     }
   };
 
-const onReceiveIssues = (issues: Array<*>) => dispatch => {
-  dispatch(receiveIssues(issues));
-};
+const onReceiveIssues = (issues: Array<*>) =>
+  dispatch => {
+    dispatch(receiveIssues(issues));
+  };
 
 const mapDispatchToProps = { onReceiveComponent, onReceiveIssues };
 

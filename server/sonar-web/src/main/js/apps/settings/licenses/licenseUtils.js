@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const isLicenseInvalid = license => (
-    !!license.invalidProduct || !!license.invalidExpiration || !!license.invalidServerId
-);
+export const isLicenseInvalid = license =>
+  !!license.invalidProduct || !!license.invalidExpiration || !!license.invalidServerId;
 
 export const isLicenseFromListInvalid = (licenses, key) => {
   const license = licenses.find(license => license.key === key);

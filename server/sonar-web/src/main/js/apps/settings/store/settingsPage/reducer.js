@@ -29,10 +29,9 @@ export default combineReducers({
 });
 
 export const getChangedValue = (state, key) =>
-    fromChangedValues.getChangedValue(state.changedValues, key);
+  fromChangedValues.getChangedValue(state.changedValues, key);
 
 export const getValidationMessage = (state, key) =>
-    fromValidationMessages.getValidationMessage(state.validationMessages, key);
+  fromValidationMessages.getValidationMessage(state.validationMessages, key);
 
-export const isLoading = (state, key) =>
-    fromLoading.isLoading(state.loading, key);
+export const isLoading = (state, key) => fromLoading.isLoading(state.loading, key);

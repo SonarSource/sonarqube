@@ -24,11 +24,10 @@ export default Marionette.CollectionView.extend({
   tagName: 'ul',
   childView: ListItemView,
 
-  childViewOptions () {
+  childViewOptions() {
     return {
       types: this.options.types,
       domains: this.options.domains
     };
   }
 });
-

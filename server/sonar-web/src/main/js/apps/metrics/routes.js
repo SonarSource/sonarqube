@@ -21,6 +21,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import MetricsAppContainer from './components/MetricsAppContainer';
 
-export default (
-    <IndexRoute component={MetricsAppContainer}/>
-);
+export default <IndexRoute component={MetricsAppContainer} />;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
@@ -39,11 +39,11 @@ export default class Tasks extends React.Component {
   props: Props;
   state: State;
 
-  shouldComponentUpdate (nextProps: Props, nextState: State) {
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  render () {
+  render() {
     const { tasks, component, types, loading, onCancelTask, onFilterTask } = this.props;
 
     const className = classNames('data zebra zebra-hover background-tasks', {
@@ -51,8 +51,8 @@ export default class Tasks extends React.Component {
     });
 
     return (
-        <table className={className}>
-          <thead>
+      <table className={className}>
+        <thead>
           <tr>
             <th>{translate('background_tasks.table.status')}</th>
             <th>{translate('background_tasks.table.task')}</th>
@@ -64,21 +64,22 @@ export default class Tasks extends React.Component {
             <th className="text-right">{translate('background_tasks.table.duration')}</th>
             <th>&nbsp;</th>
           </tr>
-          </thead>
-          <tbody>
+        </thead>
+        <tbody>
           {tasks.map((task, index, tasks) => (
-              <Task
-                  key={task.id}
-                  task={task}
-                  index={index}
-                  tasks={tasks}
-                  component={component}
-                  types={types}
-                  onCancelTask={onCancelTask}
-                  onFilterTask={onFilterTask}/>
+            <Task
+              key={task.id}
+              task={task}
+              index={index}
+              tasks={tasks}
+              component={component}
+              types={types}
+              onCancelTask={onCancelTask}
+              onFilterTask={onFilterTask}
+            />
           ))}
-          </tbody>
-        </table>
+        </tbody>
+      </table>
     );
   }
 }

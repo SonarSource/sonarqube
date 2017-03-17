@@ -24,26 +24,25 @@ import { deleteProject } from '../../../api/components';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.showSpinner();
 
     deleteProject(this.options.project.key)
-        .then(() => {
-          this.trigger('done');
-        })
-        .catch(function (e) {
-          e.response.json().then(r => {
-            this.hideSpinner();
-            this.showErrors(r.errors, r.warnings);
-            this.enableForm();
-          });
+      .then(() => {
+        this.trigger('done');
+      })
+      .catch(function(e) {
+        e.response.json().then(r => {
+          this.hideSpinner();
+          this.showErrors(r.errors, r.warnings);
+          this.enableForm();
         });
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return { project: this.options.project };
   }
 });
-

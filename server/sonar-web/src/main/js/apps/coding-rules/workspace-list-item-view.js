@@ -32,7 +32,7 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   events: {
@@ -46,30 +46,32 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     'click .coding-rules-detail-quality-profile-deactivate': 'deactivate'
   },
 
-  onRender () {
+  onRender() {
     WorkspaceListItemView.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  selectCurrent () {
+  selectCurrent() {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
   },
 
-  openRule () {
+  openRule() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
     this.options.app.controller.showDetails(this.model);
   },
 
-  activate () {
+  activate() {
     const that = this;
     const selectedProfile = this.options.app.state.get('query').qprofile;
-    const othersQualityProfiles = this.options.app.qualityProfiles.filter(profile => profile.key !== selectedProfile);
+    const othersQualityProfiles = this.options.app.qualityProfiles.filter(
+      profile => profile.key !== selectedProfile
+    );
     const activationView = new ProfileActivationView({
       rule: this.model,
       collection: new Backbone.Collection(othersQualityProfiles),
@@ -87,14 +89,14 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     activationView.render();
   },
 
-  deactivate () {
+  deactivate() {
     const that = this;
     const ruleKey = this.model.get('key');
     const activation = this.model.get('activation');
     confirmDialog({
       title: translate('coding_rules.deactivate'),
       html: translateWithParameters('coding_rules.deactivate.confirm'),
-      yesHandler () {
+      yesHandler() {
         return $.ajax({
           type: 'POST',
           url: window.baseUrl + '/api/qualityprofiles/deactivate_rule',
@@ -109,7 +111,7 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...WorkspaceListItemView.prototype.serializeData.apply(this, arguments),
       tags: union(this.model.get('sysTags'), this.model.get('tags')),

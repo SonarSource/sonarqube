@@ -23,56 +23,56 @@ import { request } from './request';
 
 let messages = {};
 
-export function translate (...keys: string[]) {
+export function translate(...keys: string[]) {
   const messageKey = keys.join('.');
   return messages[messageKey] || messageKey;
 }
 
-export function translateWithParameters (messageKey: string, ...parameters: Array<string | number>) {
+export function translateWithParameters(messageKey: string, ...parameters: Array<string | number>) {
   const message = messages[messageKey];
   if (message) {
     return parameters
-        .map(parameter => String(parameter))
-        .reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
+      .map(parameter => String(parameter))
+      .reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
   } else {
     return `${messageKey}.${parameters.join('.')}`;
   }
 }
 
-export function hasMessage (...keys: string[]) {
+export function hasMessage(...keys: string[]) {
   const messageKey = keys.join('.');
   return messages[messageKey] != null;
 }
 
-function getCurrentLocale () {
+function getCurrentLocale() {
   return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 }
 
-function makeRequest (params) {
+function makeRequest(params) {
   const url = '/api/l10n/index';
 
-  return request(url)
-      .setData(params)
-      .submit()
-      .then(response => {
-        switch (response.status) {
-          case 200:
-            return response.json();
-          case 304:
-            return JSON.parse(localStorage.getItem('l10n.bundle') || '{}');
-          case 401:
-            window.location = window.baseUrl + '/sessions/new?return_to=' +
-                encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-            // return unresolved promise to stop the promise chain
-            // anyway the page will be reloaded
-            return new Promise(() => {});
-          default:
-            throw new Error('Unexpected status code: ' + response.status);
-        }
-      });
+  return request(url).setData(params).submit().then(response => {
+    switch (response.status) {
+      case 200:
+        return response.json();
+      case 304:
+        return JSON.parse(localStorage.getItem('l10n.bundle') || '{}');
+      case 401:
+        window.location = window.baseUrl +
+          '/sessions/new?return_to=' +
+          encodeURIComponent(
+            window.location.pathname + window.location.search + window.location.hash
+          );
+        // return unresolved promise to stop the promise chain
+        // anyway the page will be reloaded
+        return new Promise(() => {});
+      default:
+        throw new Error('Unexpected status code: ' + response.status);
+    }
+  });
 }
 
-function checkCachedBundle () {
+function checkCachedBundle() {
   const cached = localStorage.getItem('l10n.bundle');
 
   if (!cached) {
@@ -87,7 +87,7 @@ function checkCachedBundle () {
   }
 }
 
-export function requestMessages () {
+export function requestMessages() {
   const currentLocale = getCurrentLocale();
   const cachedLocale = localStorage.getItem('l10n.locale');
 
@@ -118,29 +118,29 @@ export function requestMessages () {
   });
 }
 
-export function resetBundle (bundle: Object) {
+export function resetBundle(bundle: Object) {
   messages = bundle;
 }
 
-export function installGlobal () {
+export function installGlobal() {
   window.t = translate;
   window.tp = translateWithParameters;
   window.requestMessages = requestMessages;
 }
 
-export function getLocalizedDashboardName (baseName: string) {
+export function getLocalizedDashboardName(baseName: string) {
   const l10nKey = `dashboard.${baseName}.name`;
   const l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }
 
-export function getLocalizedMetricName (metric: { key: string, name: string }) {
+export function getLocalizedMetricName(metric: { key: string, name: string }) {
   const bundleKey = `metric.${metric.key}.name`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : metric.name;
 }
 
-export function getLocalizedMetricDomain (domainName: string) {
+export function getLocalizedMetricDomain(domainName: string) {
   const bundleKey = `metric_domain.${domainName}`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : domainName;

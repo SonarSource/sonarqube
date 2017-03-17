@@ -34,5 +34,4 @@ const gateByProject = (state = {}, action = {}) => {
 
 export default gateByProject;
 
-export const getProjectGate = (state, projectKey) =>
-    state[projectKey];
+export const getProjectGate = (state, projectKey) => state[projectKey];

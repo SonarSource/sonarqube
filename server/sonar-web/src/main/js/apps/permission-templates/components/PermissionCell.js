@@ -26,27 +26,26 @@ export default class PermissionCell extends React.Component {
     permission: PermissionType.isRequired
   };
 
-  render () {
+  render() {
     const { permission: p } = this.props;
 
     return (
-        <td className="permission-column" data-permission={p.key}>
-          <div className="permission-column-inner">
-            <ul>
-              {p.withProjectCreator && (
-                  <li className="little-spacer-bottom">
-                    {translate('permission_templates.project_creators')}
-                  </li>
-              )}
+      <td className="permission-column" data-permission={p.key}>
+        <div className="permission-column-inner">
+          <ul>
+            {p.withProjectCreator &&
               <li className="little-spacer-bottom">
-                <strong>{p.usersCount}</strong>{'  user(s)'}
-              </li>
-              <li>
-                <strong>{p.groupsCount}</strong>{' group(s)'}
-              </li>
-            </ul>
-          </div>
-        </td>
+                {translate('permission_templates.project_creators')}
+              </li>}
+            <li className="little-spacer-bottom">
+              <strong>{p.usersCount}</strong>{'  user(s)'}
+            </li>
+            <li>
+              <strong>{p.groupsCount}</strong>{' group(s)'}
+            </li>
+          </ul>
+        </div>
+      </td>
     );
   }
 }

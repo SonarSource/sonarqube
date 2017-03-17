@@ -25,28 +25,28 @@ import { PermissionTemplateType, CallbackType } from '../propTypes';
 export default class List extends React.Component {
   static propTypes = {
     organization: React.PropTypes.object,
-    permissionTemplates: React.PropTypes.arrayOf(
-      PermissionTemplateType).isRequired,
+    permissionTemplates: React.PropTypes.arrayOf(PermissionTemplateType).isRequired,
     permissions: React.PropTypes.array.isRequired,
     topQualifiers: React.PropTypes.array.isRequired,
     refresh: CallbackType
   };
 
-  render () {
+  render() {
     const permissionTemplates = this.props.permissionTemplates.map(p => (
-        <ListItem
-            key={p.id}
-            organization={this.props.organization}
-            permissionTemplate={p}
-            topQualifiers={this.props.topQualifiers}
-            refresh={this.props.refresh}/>
+      <ListItem
+        key={p.id}
+        organization={this.props.organization}
+        permissionTemplate={p}
+        topQualifiers={this.props.topQualifiers}
+        refresh={this.props.refresh}
+      />
     ));
 
     return (
-        <table id="permission-templates" className="data zebra permissions-table">
-          <ListHeader permissions={this.props.permissions}/>
-          <tbody>{permissionTemplates}</tbody>
-        </table>
+      <table id="permission-templates" className="data zebra permissions-table">
+        <ListHeader permissions={this.props.permissions} />
+        <tbody>{permissionTemplates}</tbody>
+      </table>
     );
   }
 }

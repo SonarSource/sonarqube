@@ -23,36 +23,34 @@ import { fetchResponseExample as fetchResponseExampleApi } from '../../../api/we
 export default class ResponseExample extends React.Component {
   state = {};
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.fetchResponseExample();
   }
 
-  componentDidUpdate (nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.action !== this.props.action) {
       this.fetchResponseExample();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchResponseExample () {
+  fetchResponseExample() {
     const { domain, action } = this.props;
-    fetchResponseExampleApi(domain.path, action.key)
-        .then(responseExample => this.setState({ responseExample }));
+    fetchResponseExampleApi(domain.path, action.key).then(responseExample =>
+      this.setState({ responseExample }));
   }
 
-  render () {
+  render() {
     const { responseExample } = this.state;
 
     return (
-        <div className="web-api-response">
-          {responseExample && (
-              <pre style={{ whiteSpace: 'pre-wrap' }}>{responseExample.example}</pre>
-          )}
-        </div>
+      <div className="web-api-response">
+        {responseExample && <pre style={{ whiteSpace: 'pre-wrap' }}>{responseExample.example}</pre>}
+      </div>
     );
   }
 }

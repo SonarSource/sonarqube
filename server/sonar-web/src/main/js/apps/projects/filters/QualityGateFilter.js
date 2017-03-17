@@ -29,15 +29,15 @@ export default class QualityGateFilter extends React.PureComponent {
     organization: React.PropTypes.object
   };
 
-  renderOption (option, selected) {
-    return <Level level={option} small={true} muted={!selected}/>;
+  renderOption(option, selected) {
+    return <Level level={option} small={true} muted={!selected} />;
   }
 
-  getFacetValueForOption (facet, option) {
+  getFacetValueForOption(facet, option) {
     return facet[option];
   }
 
-  render () {
+  render() {
     return (
       <FilterContainer
         property="gate"
@@ -48,9 +48,8 @@ export default class QualityGateFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={
-          <FilterHeader name="Quality Gate"/>
-        }/>
+        header={<FilterHeader name="Quality Gate" />}
+      />
     );
   }
 }

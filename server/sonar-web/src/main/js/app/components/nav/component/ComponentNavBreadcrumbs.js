@@ -29,7 +29,7 @@ class ComponentNavBreadcrumbs extends React.Component {
     breadcrumbs: React.PropTypes.array
   };
 
-  render () {
+  render() {
     const { breadcrumbs, organization, shouldOrganizationBeDisplayed } = this.props;
 
     if (!breadcrumbs) {
@@ -42,47 +42,46 @@ class ComponentNavBreadcrumbs extends React.Component {
 
     const items = breadcrumbs.map((item, index) => {
       return (
-          <span key={item.key}>
-            {!displayOrganization && index === 0 && (
-                <span className="navbar-context-title-qualifier little-spacer-right">
-                  <QualifierIcon qualifier={lastItem.qualifier}/>
-                </span>
-            )}
-            <Link to={{ pathname: '/dashboard', query: { id: item.key } }} className="link-base-color">
-              {index === breadcrumbs.length - 1 ? (
-                  <strong>{item.name}</strong>
-              ) : (
-                  <span>{item.name}</span>
-              )}
-            </Link>
-            {index < breadcrumbs.length - 1 && (
-                <span className="slash-separator"/>
-            )}
-          </span>
+        <span key={item.key}>
+          {!displayOrganization &&
+            index === 0 &&
+            <span className="navbar-context-title-qualifier little-spacer-right">
+              <QualifierIcon qualifier={lastItem.qualifier} />
+            </span>}
+          <Link
+            to={{ pathname: '/dashboard', query: { id: item.key } }}
+            className="link-base-color"
+          >
+            {index === breadcrumbs.length - 1
+              ? <strong>{item.name}</strong>
+              : <span>{item.name}</span>}
+          </Link>
+          {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
+        </span>
       );
     });
 
     return (
-        <h2 className="navbar-context-title">
-          {displayOrganization && (
-              <span>
-                <span className="navbar-context-title-qualifier little-spacer-right">
-                  <QualifierIcon qualifier={lastItem.qualifier}/>
-                </span>
-                <OrganizationLink organization={organization} className="link-base-color">
-                  {organization.name}
-                </OrganizationLink>
-                <span className="slash-separator"/>
-              </span>
-          )}
-          {items}
-        </h2>
+      <h2 className="navbar-context-title">
+        {displayOrganization &&
+          <span>
+            <span className="navbar-context-title-qualifier little-spacer-right">
+              <QualifierIcon qualifier={lastItem.qualifier} />
+            </span>
+            <OrganizationLink organization={organization} className="link-base-color">
+              {organization.name}
+            </OrganizationLink>
+            <span className="slash-separator" />
+          </span>}
+        {items}
+      </h2>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  organization: ownProps.component.organization && getOrganizationByKey(state, ownProps.component.organization),
+  organization: ownProps.component.organization &&
+    getOrganizationByKey(state, ownProps.component.organization),
   shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
 });
 

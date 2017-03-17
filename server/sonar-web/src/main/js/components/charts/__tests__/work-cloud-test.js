@@ -27,6 +27,6 @@ it('should display', () => {
     { size: 30, link: '#', text: 'SonarQube :: Web' },
     { size: 20, link: '#', text: 'SonarQube :: Search' }
   ];
-  const chart = shallow(<WordCloud items={items} width={100} height={100}/>);
+  const chart = shallow(<WordCloud items={items} width={100} height={100} />);
   expect(chart.find(Word).length).toBe(3);
 });

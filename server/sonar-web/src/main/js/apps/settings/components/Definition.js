@@ -25,7 +25,12 @@ import classNames from 'classnames';
 import Input from './inputs/Input';
 import DefinitionDefaults from './DefinitionDefaults';
 import DefinitionChanges from './DefinitionChanges';
-import { getPropertyName, getPropertyDescription, getSettingValue, isDefaultOrInherited } from '../utils';
+import {
+  getPropertyName,
+  getPropertyDescription,
+  getSettingValue,
+  isDefaultOrInherited
+} from '../utils';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue } from '../store/actions';
 import { passValidation } from '../store/settingsPage/validationMessages/actions';
@@ -59,25 +64,25 @@ class Definition extends React.Component {
     success: false
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  safeSetState (changes) {
+  safeSetState(changes) {
     if (this.mounted) {
       this.setState(changes);
     }
   }
 
-  handleChange (value) {
+  handleChange(value) {
     clearTimeout(this.timeout);
     this.props.changeValue(this.props.setting.definition.key, value);
     if (this.props.setting.definition.type === TYPE_PASSWORD) {
@@ -85,30 +90,40 @@ class Definition extends React.Component {
     }
   }
 
-  handleReset () {
+  handleReset() {
     const componentKey = this.props.component ? this.props.component.key : null;
     const { definition } = this.props.setting;
-    return this.props.resetValue(definition.key, componentKey).then(() => {
-      this.safeSetState({ success: true });
-      this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-    }).catch(() => { /* do nothing */ });
+    return this.props
+      .resetValue(definition.key, componentKey)
+      .then(() => {
+        this.safeSetState({ success: true });
+        this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
+      })
+      .catch(() => {
+        /* do nothing */
+      });
   }
 
-  handleCancel () {
+  handleCancel() {
     this.props.cancelChange(this.props.setting.definition.key);
     this.props.passValidation(this.props.setting.definition.key);
   }
 
-  handleSave () {
+  handleSave() {
     this.safeSetState({ success: false });
     const componentKey = this.props.component ? this.props.component.key : null;
-    this.props.saveValue(this.props.setting.definition.key, componentKey).then(() => {
-      this.safeSetState({ success: true });
-      this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-    }).catch(() => { /* do nothing */ });
+    this.props
+      .saveValue(this.props.setting.definition.key, componentKey)
+      .then(() => {
+        this.safeSetState({ success: true });
+        this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
+      })
+      .catch(() => {
+        /* do nothing */
+      });
   }
 
-  render () {
+  render() {
     const { setting, changedValue, loading } = this.props;
     const { definition } = setting;
     const propertyName = getPropertyName(definition);
@@ -124,66 +139,70 @@ class Definition extends React.Component {
     const isDefault = isDefaultOrInherited(setting) && !hasValueChanged;
 
     return (
-        <div className={className} data-key={definition.key}>
-          <div className="settings-definition-left">
-            <h3 className="settings-definition-name" title={propertyName}>
-              {propertyName}
-            </h3>
+      <div className={className} data-key={definition.key}>
+        <div className="settings-definition-left">
+          <h3 className="settings-definition-name" title={propertyName}>
+            {propertyName}
+          </h3>
 
-            <div className="settings-definition-description markdown small spacer-top"
-                 dangerouslySetInnerHTML={{ __html: getPropertyDescription(definition) }}/>
+          <div
+            className="settings-definition-description markdown small spacer-top"
+            dangerouslySetInnerHTML={{ __html: getPropertyDescription(definition) }}
+          />
 
-            <div className="settings-definition-key note little-spacer-top">
-              {translateWithParameters('settings.key_x', definition.key)}
-            </div>
-          </div>
-
-          <div className="settings-definition-right">
-            <Input setting={setting} value={effectiveValue} onChange={this.handleChange.bind(this)}/>
-
-            {!hasValueChanged && (
-                <DefinitionDefaults
-                    setting={setting}
-                    isDefault={isDefault}
-                    onReset={() => this.handleReset()}/>
-            )}
-
-            {hasValueChanged && (
-                <DefinitionChanges
-                    onSave={this.handleSave.bind(this)}
-                    onCancel={this.handleCancel.bind(this)}/>
-            )}
-
-            <div className="settings-definition-state">
-              {loading && (
-                  <span className="text-info">
-                    <span className="settings-definition-state-icon">
-                      <i className="spinner"/>
-                    </span>
-                    {translate('settings.state.saving')}
-                  </span>
-              )}
-
-              {!loading && (this.props.validationMessage != null) && (
-                  <span className="text-danger">
-                    <span className="settings-definition-state-icon">
-                      <i className="icon-alert-error"/>
-                    </span>
-                    {translateWithParameters('settings.state.validation_failed', this.props.validationMessage)}
-                  </span>
-              )}
-
-              {!loading && this.state.success && (
-                  <span className="text-success">
-                    <span className="settings-definition-state-icon">
-                      <i className="icon-check"/>
-                    </span>
-                    {translate('settings.state.saved')}
-                  </span>
-              )}
-            </div>
+          <div className="settings-definition-key note little-spacer-top">
+            {translateWithParameters('settings.key_x', definition.key)}
           </div>
         </div>
+
+        <div className="settings-definition-right">
+          <Input setting={setting} value={effectiveValue} onChange={this.handleChange.bind(this)} />
+
+          {!hasValueChanged &&
+            <DefinitionDefaults
+              setting={setting}
+              isDefault={isDefault}
+              onReset={() => this.handleReset()}
+            />}
+
+          {hasValueChanged &&
+            <DefinitionChanges
+              onSave={this.handleSave.bind(this)}
+              onCancel={this.handleCancel.bind(this)}
+            />}
+
+          <div className="settings-definition-state">
+            {loading &&
+              <span className="text-info">
+                <span className="settings-definition-state-icon">
+                  <i className="spinner" />
+                </span>
+                {translate('settings.state.saving')}
+              </span>}
+
+            {!loading &&
+              this.props.validationMessage != null &&
+              <span className="text-danger">
+                <span className="settings-definition-state-icon">
+                  <i className="icon-alert-error" />
+                </span>
+                {translateWithParameters(
+                  'settings.state.validation_failed',
+                  this.props.validationMessage
+                )}
+              </span>}
+
+            {!loading &&
+              this.state.success &&
+              <span className="text-success">
+                <span className="settings-definition-state-icon">
+                  <i className="icon-check" />
+                </span>
+                {translate('settings.state.saved')}
+              </span>}
+          </div>
+        </div>
+      </div>
     );
   }
 }
@@ -194,7 +213,10 @@ const mapStateToProps = (state, ownProps) => ({
   validationMessage: getSettingsAppValidationMessage(state, ownProps.setting.definition.key)
 });
 
-export default connect(
-  mapStateToProps,
-    { changeValue, saveValue, resetValue, passValidation, cancelChange }
-)(Definition);
+export default connect(mapStateToProps, {
+  changeValue,
+  saveValue,
+  resetValue,
+  passValidation,
+  cancelChange
+})(Definition);

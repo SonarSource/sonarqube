@@ -32,20 +32,20 @@ export default class IssuesFilter extends React.PureComponent {
     organization: React.PropTypes.object
   };
 
-  renderOption (option, selected) {
+  renderOption(option, selected) {
     return (
       <span>
-        <Rating value={option} small={true} muted={!selected}/>
+        <Rating value={option} small={true} muted={!selected} />
         {option > 1 && option < 5 && <span className="note spacer-left">and worse</span>}
       </span>
     );
   }
 
-  getFacetValueForOption (facet, option) {
+  getFacetValueForOption(facet, option) {
     return facet[option];
   }
 
-  render () {
+  render() {
     return (
       <FilterContainer
         property={this.props.property}
@@ -62,9 +62,11 @@ export default class IssuesFilter extends React.PureComponent {
               property={this.props.property}
               query={this.props.query}
               isFavorite={this.props.isFavorite}
-              organization={this.props.organization}/>
+              organization={this.props.organization}
+            />
           </FilterHeader>
-        }/>
+        }
+      />
     );
   }
 }

@@ -87,7 +87,7 @@ export default class Line extends React.PureComponent {
     }
   };
 
-  render () {
+  render() {
     const { line, duplications, duplicationsCount, filtered } = this.props;
     const className = classNames('source-line', {
       'source-line-highlighted': this.props.highlighted,
@@ -98,18 +98,19 @@ export default class Line extends React.PureComponent {
     return (
       <TooltipsContainer>
         <tr className={className} data-line-number={line.line}>
-          <LineNumber line={line} onClick={this.props.onClick}/>
+          <LineNumber line={line} onClick={this.props.onClick} />
 
           <LineSCM
             line={line}
             onClick={this.props.onSCMClick}
-            previousLine={this.props.previousLine}/>
+            previousLine={this.props.previousLine}
+          />
 
           {this.props.displayCoverage &&
-            <LineCoverage line={line} onClick={this.props.onCoverageClick}/>}
+            <LineCoverage line={line} onClick={this.props.onCoverageClick} />}
 
           {this.props.displayDuplications &&
-            <LineDuplications line={line} onClick={this.props.loadDuplications}/>}
+            <LineDuplications line={line} onClick={this.props.loadDuplications} />}
 
           {times(duplicationsCount).map(index => (
             <LineDuplicationBlock
@@ -117,7 +118,8 @@ export default class Line extends React.PureComponent {
               index={index}
               key={index}
               line={this.props.line}
-              onClick={this.props.onDuplicationClick}/>
+              onClick={this.props.onDuplicationClick}
+            />
           ))}
 
           {this.props.displayIssues &&
@@ -125,11 +127,12 @@ export default class Line extends React.PureComponent {
             <LineIssuesIndicatorContainer
               issueKeys={this.props.issues}
               line={line}
-              onClick={this.handleIssuesIndicatorClick}/>}
+              onClick={this.handleIssuesIndicatorClick}
+            />}
 
           {this.props.displayFiltered &&
             <td className="source-meta source-line-filtered-container" data-line-number={line.line}>
-              <div className="source-line-bar"/>
+              <div className="source-line-bar" />
             </td>}
 
           <LineCode
@@ -144,7 +147,8 @@ export default class Line extends React.PureComponent {
             secondaryIssueLocations={this.props.secondaryIssueLocations}
             selectedIssue={this.props.selectedIssue}
             selectedIssueLocation={this.props.selectedIssueLocation}
-            showIssues={this.props.openIssues || this.props.displayAllIssues}/>
+            showIssues={this.props.openIssues || this.props.displayAllIssues}
+          />
         </tr>
       </TooltipsContainer>
     );

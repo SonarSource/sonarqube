@@ -25,7 +25,7 @@ import { getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
 class ProjectCardLanguages extends React.Component {
-  getLanguageName (key) {
+  getLanguageName(key) {
     if (key === '<null>') {
       return translate('unknown');
     }
@@ -33,7 +33,7 @@ class ProjectCardLanguages extends React.Component {
     return language != null ? language.name : key;
   }
 
-  render () {
+  render() {
     const { distribution } = this.props;
 
     if (distribution == null) {
@@ -41,13 +41,13 @@ class ProjectCardLanguages extends React.Component {
     }
 
     const parsedLanguages = distribution.split(';').map(item => item.split('='));
-    const finalLanguages = sortBy(parsedLanguages, l => (-1) * Number(l[1]))
+    const finalLanguages = sortBy(parsedLanguages, l => -1 * Number(l[1]))
       .slice(0, 2)
       .map(l => this.getLanguageName(l[0]));
 
     const tooltip = (
       <span>
-        {finalLanguages.map(language => <span key={language}>{language}<br/></span>)}
+        {finalLanguages.map(language => <span key={language}>{language}<br /></span>)}
       </span>
     );
 

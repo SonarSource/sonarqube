@@ -24,10 +24,10 @@ import Intro from './components/Intro';
 import DetailsContainer from './containers/DetailsContainer';
 
 export default (
-    <Route component={QualityGatesAppContainer}>
-      <Redirect from="/quality_gates/index" to="/quality_gates/"/>
+  <Route component={QualityGatesAppContainer}>
+    <Redirect from="/quality_gates/index" to="/quality_gates/" />
 
-      <IndexRoute component={Intro}/>
-      <Route path="show/:id" component={DetailsContainer}/>
-    </Route>
+    <IndexRoute component={Intro} />
+    <Route path="show/:id" component={DetailsContainer} />
+  </Route>
 );

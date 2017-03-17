@@ -35,26 +35,26 @@ export default class ProfileProjects extends React.Component {
     projects: null
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.loadProjects = this.loadProjects.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadProjects();
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.profile !== this.props.profile) {
       this.loadProjects();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadProjects () {
+  loadProjects() {
     if (this.props.profile.isDefault) {
       return;
     }
@@ -71,7 +71,7 @@ export default class ProfileProjects extends React.Component {
     });
   }
 
-  handleChange (e) {
+  handleChange(e) {
     e.preventDefault();
     e.target.blur();
     new ChangeProjectsView({
@@ -80,18 +80,18 @@ export default class ProfileProjects extends React.Component {
     }).render();
   }
 
-  renderDefault () {
+  renderDefault() {
     return (
-        <div>
-          <span className="badge spacer-right">
-            {translate('default')}
-          </span>
-          {translate('quality_profiles.projects_for_default')}
-        </div>
+      <div>
+        <span className="badge spacer-right">
+          {translate('default')}
+        </span>
+        {translate('quality_profiles.projects_for_default')}
+      </div>
     );
   }
 
-  renderProjects () {
+  renderProjects() {
     const { projects } = this.state;
 
     if (projects == null) {
@@ -100,51 +100,49 @@ export default class ProfileProjects extends React.Component {
 
     if (projects.length === 0) {
       return (
-          <div>
-            {translate('quality_profiles.no_projects_associated_to_profile')}
-          </div>
+        <div>
+          {translate('quality_profiles.no_projects_associated_to_profile')}
+        </div>
       );
     }
 
     return (
-        <ul>
-          {projects.map(project => (
-              <li key={project.uuid} className="spacer-top js-profile-project" data-key={project.key}>
-                <Link to={{ pathname: '/dashboard', query: { id: project.key } }} className="link-with-icon">
-                  <QualifierIcon qualifier="TRK"/>
-                  {' '}
-                  <span>{project.name}</span>
-                </Link>
-              </li>
-          ))}
-        </ul>
+      <ul>
+        {projects.map(project => (
+          <li key={project.uuid} className="spacer-top js-profile-project" data-key={project.key}>
+            <Link
+              to={{ pathname: '/dashboard', query: { id: project.key } }}
+              className="link-with-icon"
+            >
+              <QualifierIcon qualifier="TRK" />
+              {' '}
+              <span>{project.name}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     );
   }
 
-  render () {
+  render() {
     return (
-        <div className="quality-profile-projects">
-          <header className="page-header">
-            <h2 className="page-title">
-              {translate('projects')}
-            </h2>
+      <div className="quality-profile-projects">
+        <header className="page-header">
+          <h2 className="page-title">
+            {translate('projects')}
+          </h2>
 
-            {this.props.canAdmin && !this.props.profile.isDefault && (
-                <div className="pull-right">
-                  <button
-                      className="js-change-projects"
-                      onClick={this.handleChange.bind(this)}>
-                    {translate('quality_profiles.change_projects')}
-                  </button>
-                </div>
-            )}
-          </header>
+          {this.props.canAdmin &&
+            !this.props.profile.isDefault &&
+            <div className="pull-right">
+              <button className="js-change-projects" onClick={this.handleChange.bind(this)}>
+                {translate('quality_profiles.change_projects')}
+              </button>
+            </div>}
+        </header>
 
-          {this.props.profile.isDefault ?
-              this.renderDefault() :
-              this.renderProjects()
-          }
-        </div>
+        {this.props.profile.isDefault ? this.renderDefault() : this.renderProjects()}
+      </div>
     );
   }
 }

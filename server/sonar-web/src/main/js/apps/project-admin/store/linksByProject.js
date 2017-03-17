@@ -18,11 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import without from 'lodash/without';
-import {
-    RECEIVE_PROJECT_LINKS,
-    DELETE_PROJECT_LINK,
-    ADD_PROJECT_LINK
-} from './actions';
+import { RECEIVE_PROJECT_LINKS, DELETE_PROJECT_LINK, ADD_PROJECT_LINK } from './actions';
 
 const linksByProject = (state = {}, action = {}) => {
   if (action.type === RECEIVE_PROJECT_LINKS) {

@@ -28,16 +28,15 @@ export default Marionette.ItemView.extend({
     'click #custom-measures-create': 'onCreateClick'
   },
 
-  onCreateClick (e) {
+  onCreateClick(e) {
     e.preventDefault();
     this.createCustomMeasure();
   },
 
-  createCustomMeasure () {
+  createCustomMeasure() {
     new CreateView({
       collection: this.collection,
       projectId: this.options.projectId
     }).render();
   }
 });
-

@@ -26,7 +26,4 @@ const mapStateToProps = (state, ownProps) => ({
   license: getSettingsAppLicenseByKey(state, ownProps.licenseKey)
 });
 
-export default connect(
-  mapStateToProps,
-    { setLicense }
-)(LicenseRow);
+export default connect(mapStateToProps, { setLicense })(LicenseRow);

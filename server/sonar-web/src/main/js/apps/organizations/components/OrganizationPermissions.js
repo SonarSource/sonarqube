@@ -29,10 +29,8 @@ class OrganizationPermissions extends React.Component {
     organization: Organization
   };
 
-  render () {
-    return (
-        <GlobalPermissionsApp organization={this.props.organization}/>
-    );
+  render() {
+    return <GlobalPermissionsApp organization={this.props.organization} />;
   }
 }
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import { Task } from '../types';
 import { translateWithParameters } from '../../../helpers/l10n';
@@ -30,9 +30,9 @@ const Footer = ({ tasks }: { tasks: Task[] }) => {
   }
 
   return (
-      <footer className="spacer-top note text-center">
-        {translateWithParameters('max_results_reached', LIMIT)}
-      </footer>
+    <footer className="spacer-top note text-center">
+      {translateWithParameters('max_results_reached', LIMIT)}
+    </footer>
   );
 };
 

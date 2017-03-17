@@ -29,23 +29,22 @@ class GlobalNavBranding extends React.Component {
     customLogoWidth: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])
   };
 
-  renderLogo () {
+  renderLogo() {
     const url = this.props.customLogoUrl || `${window.baseUrl}/images/logo.svg`;
     const width = this.props.customLogoWidth || 100;
     const height = 30;
     const title = translate('layout.sonar.slogan');
-    return (
-        <img src={url} width={width} height={height} alt={title} title={title}/>
-    );
+    return <img src={url} width={width} height={height} alt={title} title={title} />;
   }
 
-  render () {
+  render() {
     const homeController = this.props.currentUser.isLoggedIn ? '/projects' : '/about';
-    const homeLinkClassName = 'navbar-brand' + (this.props.customLogoUrl ? ' navbar-brand-custom' : '');
+    const homeLinkClassName = 'navbar-brand' +
+      (this.props.customLogoUrl ? ' navbar-brand-custom' : '');
     return (
-        <div className="navbar-header">
-          <Link to={homeController} className={homeLinkClassName}>{this.renderLogo()}</Link>
-        </div>
+      <div className="navbar-header">
+        <Link to={homeController} className={homeLinkClassName}>{this.renderLogo()}</Link>
+      </div>
     );
   }
 }

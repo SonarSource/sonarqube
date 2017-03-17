@@ -29,19 +29,19 @@ export default Popup.extend({
     'click a[data-key]': 'goToFile'
   },
 
-  onRender () {
+  onRender() {
     Popup.prototype.onRender.apply(this, arguments);
     this.$('.bubble-popup-container').isolatedScroll();
   },
 
-  goToFile (e) {
+  goToFile(e) {
     e.stopPropagation();
     const key = $(e.currentTarget).data('key');
     const Workspace = require('../../workspace/main').default;
     Workspace.openComponent({ key });
   },
 
-  serializeData () {
+  serializeData() {
     const row = this.options.line || {};
     const tests = groupBy(this.options.tests, 'fileKey');
     const testFiles = Object.keys(tests).map(fileKey => {

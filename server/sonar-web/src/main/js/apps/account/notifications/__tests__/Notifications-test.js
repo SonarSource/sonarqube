@@ -22,7 +22,5 @@ import { shallow } from 'enzyme';
 import { UnconnectedNotifications } from '../Notifications';
 
 it('should match snapshot', () => {
-  expect(shallow(
-    <UnconnectedNotifications fetchNotifications={jest.fn()}/>
-  )).toMatchSnapshot();
+  expect(shallow(<UnconnectedNotifications fetchNotifications={jest.fn()} />)).toMatchSnapshot();
 });

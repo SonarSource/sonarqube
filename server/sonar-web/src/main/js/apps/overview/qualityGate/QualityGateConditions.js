@@ -27,7 +27,7 @@ import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
-function enhanceConditions (conditions, measures) {
+function enhanceConditions(conditions, measures) {
   return conditions.map(c => {
     const measure = measures.find(measure => measure.metric.key === c.metric);
     return { ...c, measure };
@@ -44,36 +44,33 @@ export default class QualityGateConditions extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadFailedMeasures();
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (prevProps) {
-    if (prevProps.conditions !== this.props.conditions ||
-        prevProps.component !== this.props.component) {
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.conditions !== this.props.conditions || prevProps.component !== this.props.component
+    ) {
       this.loadFailedMeasures();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadFailedMeasures () {
+  loadFailedMeasures() {
     const { component, conditions } = this.props;
     const failedConditions = conditions.filter(c => c.level !== 'OK');
     if (failedConditions.length > 0) {
       const metrics = failedConditions.map(condition => condition.metric);
-      getMeasuresAndMeta(
-        component.key,
-        metrics,
-          { additionalFields: 'metrics' }
-      ).then(r => {
+      getMeasuresAndMeta(component.key, metrics, { additionalFields: 'metrics' }).then(r => {
         if (this.mounted) {
           const measures = enhanceMeasuresWithMetrics(r.component.measures, r.metrics);
           this.setState({
@@ -87,7 +84,7 @@ export default class QualityGateConditions extends React.Component {
     }
   }
 
-  render () {
+  render() {
     const { component, periods } = this.props;
     const { loading, conditions } = this.state;
 
@@ -102,16 +99,19 @@ export default class QualityGateConditions extends React.Component {
     );
 
     return (
-        <div id="overview-quality-gate-conditions-list"
-             className="overview-quality-gate-conditions-list clearfix">
-          {sortedConditions.map(condition => (
-              <QualityGateCondition
-                  key={condition.measure.metric.key}
-                  component={component}
-                  periods={periods}
-                  condition={condition}/>
-          ))}
-        </div>
+      <div
+        id="overview-quality-gate-conditions-list"
+        className="overview-quality-gate-conditions-list clearfix"
+      >
+        {sortedConditions.map(condition => (
+          <QualityGateCondition
+            key={condition.measure.metric.key}
+            component={component}
+            periods={periods}
+            condition={condition}
+          />
+        ))}
+      </div>
     );
   }
 }

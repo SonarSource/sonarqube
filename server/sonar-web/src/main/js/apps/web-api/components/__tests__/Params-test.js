@@ -22,26 +22,32 @@ import { shallow } from 'enzyme';
 import Params from '../Params';
 
 it('should render deprecated parameters', () => {
-  const params = [{
-    key: 'foo',
-    deprecatedSince: '5.0'
-  }];
-  expect(shallow(<Params params={params} showDeprecated={true}/>)).toMatchSnapshot();
+  const params = [
+    {
+      key: 'foo',
+      deprecatedSince: '5.0'
+    }
+  ];
+  expect(shallow(<Params params={params} showDeprecated={true} />)).toMatchSnapshot();
 });
 
 it('should not render deprecated parameters', () => {
-  const params = [{
-    key: 'foo',
-    deprecatedSince: '5.0'
-  }];
-  expect(shallow(<Params params={params} showDeprecated={false}/>)).toMatchSnapshot();
+  const params = [
+    {
+      key: 'foo',
+      deprecatedSince: '5.0'
+    }
+  ];
+  expect(shallow(<Params params={params} showDeprecated={false} />)).toMatchSnapshot();
 });
 
 it('should render deprecated key', () => {
-  const params = [{
-    key: 'foo',
-    deprecatedKey: 'foo-deprecated',
-    deprecatedKeySince: '5.0'
-  }];
-  expect(shallow(<Params params={params} showDeprecated={true}/>)).toMatchSnapshot();
+  const params = [
+    {
+      key: 'foo',
+      deprecatedKey: 'foo-deprecated',
+      deprecatedKeySince: '5.0'
+    }
+  ];
+  expect(shallow(<Params params={params} showDeprecated={true} />)).toMatchSnapshot();
 });

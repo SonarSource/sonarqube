@@ -24,18 +24,17 @@ import { UnconnectedOrganization } from '../Organization';
 const organization = { key: 'foo', name: 'foo' };
 
 it('should match snapshot', () => {
-  expect(shallow(
-    <UnconnectedOrganization organization={organization} shouldBeDisplayed={true}/>
-  )).toMatchSnapshot();
+  expect(
+    shallow(<UnconnectedOrganization organization={organization} shouldBeDisplayed={true} />)
+  ).toMatchSnapshot();
 });
 
 it('should not be displayed', () => {
-  expect(shallow(
-    <UnconnectedOrganization organization={organization} shouldBeDisplayed={false}/>
-  )).toMatchSnapshot();
+  expect(
+    shallow(<UnconnectedOrganization organization={organization} shouldBeDisplayed={false} />)
+  ).toMatchSnapshot();
 
-  expect(shallow(
-    <UnconnectedOrganization organization={null} shouldBeDisplayed={true}/>
-  )).toMatchSnapshot();
+  expect(
+    shallow(<UnconnectedOrganization organization={null} shouldBeDisplayed={true} />)
+  ).toMatchSnapshot();
 });
-

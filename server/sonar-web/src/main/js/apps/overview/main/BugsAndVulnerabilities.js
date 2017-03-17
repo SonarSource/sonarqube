@@ -27,7 +27,7 @@ import BugIcon from '../../../components/ui/BugIcon';
 import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
 
 class BugsAndVulnerabilities extends React.Component {
-  renderHeader () {
+  renderHeader() {
     const { component } = this.props;
     const bugsDomainUrl = {
       pathname: '/component_measures/domain/Reliability',
@@ -39,17 +39,17 @@ class BugsAndVulnerabilities extends React.Component {
     };
 
     return (
-        <div className="overview-card-header">
-          <div className="overview-title">
-            <Link to={bugsDomainUrl}>{translate('metric.bugs.name')}</Link>
-            {' & '}
-            <Link to={vulnerabilitiesDomainUrl}>{translate('metric.vulnerabilities.name')}</Link>
-          </div>
+      <div className="overview-card-header">
+        <div className="overview-title">
+          <Link to={bugsDomainUrl}>{translate('metric.bugs.name')}</Link>
+          {' & '}
+          <Link to={vulnerabilitiesDomainUrl}>{translate('metric.vulnerabilities.name')}</Link>
         </div>
+      </div>
     );
   }
 
-  renderLeak () {
+  renderLeak() {
     const { leakPeriod } = this.props;
 
     if (leakPeriod == null) {
@@ -57,85 +57,85 @@ class BugsAndVulnerabilities extends React.Component {
     }
 
     return (
-        <div className="overview-domain-leak">
-          <LeakPeriodLegend period={leakPeriod}/>
+      <div className="overview-domain-leak">
+        <LeakPeriodLegend period={leakPeriod} />
 
-          <div className="overview-domain-measures">
-            <div className="overview-domain-measure">
-              <div className="overview-domain-measure-value">
-                <span style={{ marginLeft: 30 }}>
-                  {this.props.renderIssues('new_bugs', 'BUG')}
-                </span>
-                {this.props.renderRating('new_reliability_rating')}
-              </div>
-              <div className="overview-domain-measure-label">
-                <span className="little-spacer-right"><BugIcon/></span>
-                {getMetricName('new_bugs')}
-              </div>
+        <div className="overview-domain-measures">
+          <div className="overview-domain-measure">
+            <div className="overview-domain-measure-value">
+              <span style={{ marginLeft: 30 }}>
+                {this.props.renderIssues('new_bugs', 'BUG')}
+              </span>
+              {this.props.renderRating('new_reliability_rating')}
             </div>
+            <div className="overview-domain-measure-label">
+              <span className="little-spacer-right"><BugIcon /></span>
+              {getMetricName('new_bugs')}
+            </div>
+          </div>
 
-            <div className="overview-domain-measure">
-              <div className="overview-domain-measure-value">
-                <span style={{ marginLeft: 30 }}>
-                  {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
-                </span>
-                {this.props.renderRating('new_security_rating')}
-              </div>
-              <div className="overview-domain-measure-label">
-                <span className="little-spacer-right"><VulnerabilityIcon/></span>
-                {getMetricName('new_vulnerabilities')}
-              </div>
+          <div className="overview-domain-measure">
+            <div className="overview-domain-measure-value">
+              <span style={{ marginLeft: 30 }}>
+                {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
+              </span>
+              {this.props.renderRating('new_security_rating')}
+            </div>
+            <div className="overview-domain-measure-label">
+              <span className="little-spacer-right"><VulnerabilityIcon /></span>
+              {getMetricName('new_vulnerabilities')}
             </div>
           </div>
         </div>
+      </div>
     );
   }
 
-  renderNutshell () {
+  renderNutshell() {
     return (
-        <div className="overview-domain-nutshell">
-          <div className="overview-domain-measures">
+      <div className="overview-domain-nutshell">
+        <div className="overview-domain-measures">
 
-            <div className="overview-domain-measure">
-              <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
-                <div className="overview-domain-measure-value">
-                  {this.props.renderIssues('bugs', 'BUG')}
-                  {this.props.renderRating('reliability_rating')}
-                </div>
-                <div className="overview-domain-measure-label">
-                  <span className="little-spacer-right"><BugIcon/></span>
-                  {getMetricName('bugs')}
-                </div>
+          <div className="overview-domain-measure">
+            <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
+              <div className="overview-domain-measure-value">
+                {this.props.renderIssues('bugs', 'BUG')}
+                {this.props.renderRating('reliability_rating')}
+              </div>
+              <div className="overview-domain-measure-label">
+                <span className="little-spacer-right"><BugIcon /></span>
+                {getMetricName('bugs')}
               </div>
             </div>
+          </div>
 
-            <div className="overview-domain-measure">
-              <div className="display-inline-block text-middle">
-                <div className="overview-domain-measure-value">
-                  {this.props.renderIssues('vulnerabilities', 'VULNERABILITY')}
-                  {this.props.renderRating('security_rating')}
-                </div>
-                <div className="overview-domain-measure-label">
-                  <span className="little-spacer-right"><VulnerabilityIcon/></span>
-                  {getMetricName('vulnerabilities')}
-                </div>
+          <div className="overview-domain-measure">
+            <div className="display-inline-block text-middle">
+              <div className="overview-domain-measure-value">
+                {this.props.renderIssues('vulnerabilities', 'VULNERABILITY')}
+                {this.props.renderRating('security_rating')}
+              </div>
+              <div className="overview-domain-measure-label">
+                <span className="little-spacer-right"><VulnerabilityIcon /></span>
+                {getMetricName('vulnerabilities')}
               </div>
             </div>
           </div>
         </div>
+      </div>
     );
   }
 
-  render () {
+  render() {
     return (
-        <div className="overview-card overview-card-special">
-          {this.renderHeader()}
+      <div className="overview-card overview-card-special">
+        {this.renderHeader()}
 
-          <div className="overview-domain-panel">
-            {this.renderNutshell()}
-            {this.renderLeak()}
-          </div>
+        <div className="overview-domain-panel">
+          {this.renderNutshell()}
+          {this.renderLeak()}
         </div>
+      </div>
     );
   }
 }

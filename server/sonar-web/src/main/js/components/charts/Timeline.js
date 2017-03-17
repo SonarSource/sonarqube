@@ -34,54 +34,51 @@ const Timeline = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps () {
+  getDefaultProps() {
     return {
       padding: [10, 10, 10, 10],
       interpolate: 'basis'
     };
   },
 
-  getInitialState () {
+  getInitialState() {
     return {
       width: this.props.width,
       height: this.props.height
     };
   },
 
-  getRatingScale (availableHeight) {
-    return d3.scale.ordinal()
-        .domain([5, 4, 3, 2, 1])
-        .rangePoints([availableHeight, 0]);
+  getRatingScale(availableHeight) {
+    return d3.scale.ordinal().domain([5, 4, 3, 2, 1]).rangePoints([availableHeight, 0]);
   },
 
-  getLevelScale (availableHeight) {
-    return d3.scale.ordinal()
-        .domain(['ERROR', 'WARN', 'OK'])
-        .rangePoints([availableHeight, 0]);
+  getLevelScale(availableHeight) {
+    return d3.scale.ordinal().domain(['ERROR', 'WARN', 'OK']).rangePoints([availableHeight, 0]);
   },
 
-  getYScale (availableHeight) {
+  getYScale(availableHeight) {
     if (this.props.metricType === 'RATING') {
       return this.getRatingScale(availableHeight);
     } else if (this.props.metricType === 'LEVEL') {
       return this.getLevelScale(availableHeight);
     } else {
-      return d3.scale.linear()
-          .range([availableHeight, 0])
-          .domain([0, d3.max(this.props.data, d => d.y || 0)])
-          .nice();
+      return d3.scale
+        .linear()
+        .range([availableHeight, 0])
+        .domain([0, d3.max(this.props.data, d => d.y || 0)])
+        .nice();
     }
   },
 
-  handleEventMouseEnter (event) {
+  handleEventMouseEnter(event) {
     $(`.js-event-circle-${event.date.getTime()}`).tooltip('show');
   },
 
-  handleEventMouseLeave (event) {
+  handleEventMouseLeave(event) {
     $(`.js-event-circle-${event.date.getTime()}`).tooltip('hide');
   },
 
-  renderHorizontalGrid (xScale, yScale) {
+  renderHorizontalGrid(xScale, yScale) {
     const hasTicks = typeof yScale.ticks === 'function';
     const ticks = hasTicks ? yScale.ticks(4) : yScale.domain();
 
@@ -96,22 +93,31 @@ const Timeline = React.createClass({
       };
 
       return (
-          <g key={tick}>
-            <text className="line-chart-tick line-chart-tick-x" dx="-1em" dy="0.3em"
-                  textAnchor="end" {...opts}>{this.props.formatYTick(tick)}</text>
-            <line className="line-chart-grid"
-                  x1={xScale.range()[0]}
-                  x2={xScale.range()[1]}
-                  y1={yScale(tick)}
-                  y2={yScale(tick)}/>
-          </g>
+        <g key={tick}>
+          <text
+            className="line-chart-tick line-chart-tick-x"
+            dx="-1em"
+            dy="0.3em"
+            textAnchor="end"
+            {...opts}
+          >
+            {this.props.formatYTick(tick)}
+          </text>
+          <line
+            className="line-chart-grid"
+            x1={xScale.range()[0]}
+            x2={xScale.range()[1]}
+            y1={yScale(tick)}
+            y2={yScale(tick)}
+          />
+        </g>
       );
     });
 
     return <g>{grid}</g>;
   },
 
-  renderTicks (xScale, yScale) {
+  renderTicks(xScale, yScale) {
     const format = xScale.tickFormat(7);
     let ticks = xScale.ticks(7);
 
@@ -121,21 +127,16 @@ const Timeline = React.createClass({
       const y = yScale.range()[0];
 
       return (
-          <text
-              key={index}
-              className="line-chart-tick"
-              x={x}
-              y={y}
-              dy="1.5em">
-            {format(tick)}
-          </text>
+        <text key={index} className="line-chart-tick" x={x} y={y} dy="1.5em">
+          {format(tick)}
+        </text>
       );
     });
 
     return <g>{ticks}</g>;
   },
 
-  renderLeak (xScale, yScale) {
+  renderLeak(xScale, yScale) {
     if (!this.props.leakPeriodDate) {
       return null;
     }
@@ -149,76 +150,73 @@ const Timeline = React.createClass({
       fill: '#fbf3d5'
     };
 
-    return <rect {...opts}/>;
+    return <rect {...opts} />;
   },
 
-  renderLine (xScale, yScale) {
-    const p = d3.svg.line()
-        .x(d => xScale(d.x))
-        .y(d => yScale(d.y))
-        .interpolate(this.props.interpolate);
+  renderLine(xScale, yScale) {
+    const p = d3.svg
+      .line()
+      .x(d => xScale(d.x))
+      .y(d => yScale(d.y))
+      .interpolate(this.props.interpolate);
 
-    return <path className="line-chart-path" d={p(this.props.data)}/>;
+    return <path className="line-chart-path" d={p(this.props.data)} />;
   },
 
-  renderEvents (xScale, yScale) {
+  renderEvents(xScale, yScale) {
     const points = this.props.events
-        .map(event => {
-          const snapshot = this.props.data.find(d => d.x.getTime() === event.date.getTime());
-          return { ...event, snapshot };
-        })
-        .filter(event => event.snapshot)
-        .map(event => {
-          const key = `${event.date.getTime()}-${event.snapshot.y}`;
-          const className = `line-chart-point js-event-circle-${event.date.getTime()}`;
-          const tooltip = [
-            `<span class="nowrap">${event.version}</span>`,
-            `<span class="nowrap">${moment(event.date).format('LL')}</span>`,
-            `<span class="nowrap">${event.snapshot.y ? this.props.formatValue(event.snapshot.y) : '—'}</span>`
-          ].join('<br>');
-
-          return (
-              <circle key={key}
-                      className={className}
-                      r="4"
-                      cx={xScale(event.snapshot.x)}
-                      cy={yScale(event.snapshot.y)}
-                      onMouseEnter={this.handleEventMouseEnter.bind(this, event)}
-                      onMouseLeave={this.handleEventMouseLeave.bind(this, event)}
-                      data-toggle="tooltip"
-                      data-title={tooltip}/>
-          );
-        });
-
+      .map(event => {
+        const snapshot = this.props.data.find(d => d.x.getTime() === event.date.getTime());
+        return { ...event, snapshot };
+      })
+      .filter(event => event.snapshot)
+      .map(event => {
+        const key = `${event.date.getTime()}-${event.snapshot.y}`;
+        const className = `line-chart-point js-event-circle-${event.date.getTime()}`;
+        const tooltip = [
+          `<span class="nowrap">${event.version}</span>`,
+          `<span class="nowrap">${moment(event.date).format('LL')}</span>`,
+          `<span class="nowrap">${event.snapshot.y ? this.props.formatValue(event.snapshot.y) : '—'}</span>`
+        ].join('<br>');
+        return (
+          <circle
+            key={key}
+            className={className}
+            r="4"
+            cx={xScale(event.snapshot.x)}
+            cy={yScale(event.snapshot.y)}
+            onMouseEnter={this.handleEventMouseEnter.bind(this, event)}
+            onMouseLeave={this.handleEventMouseLeave.bind(this, event)}
+            data-toggle="tooltip"
+            data-title={tooltip}
+          />
+        );
+      });
     return <g>{points}</g>;
   },
-
-  render () {
+  render() {
     if (!this.state.width || !this.state.height) {
-      return <div/>;
+      return <div />;
     }
-
     const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
-
-    const xScale = d3.time.scale()
-        .domain(d3.extent(this.props.data, d => d.x || 0))
-        .range([0, availableWidth])
-        .clamp(true);
+    const xScale = d3.time
+      .scale()
+      .domain(d3.extent(this.props.data, d => d.x || 0))
+      .range([0, availableWidth])
+      .clamp(true);
     const yScale = this.getYScale(availableHeight);
-
     return (
-        <svg className="line-chart" width={this.state.width} height={this.state.height}>
-          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-            {this.renderLeak(xScale, yScale)}
-            {this.renderHorizontalGrid(xScale, yScale)}
-            {this.renderTicks(xScale, yScale)}
-            {this.renderLine(xScale, yScale)}
-            {this.renderEvents(xScale, yScale)}
-          </g>
-        </svg>
+      <svg className="line-chart" width={this.state.width} height={this.state.height}>
+        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+          {this.renderLeak(xScale, yScale)}
+          {this.renderHorizontalGrid(xScale, yScale)}
+          {this.renderTicks(xScale, yScale)}
+          {this.renderLine(xScale, yScale)}
+          {this.renderEvents(xScale, yScale)}
+        </g>
+      </svg>
     );
   }
 });
-
 export default Timeline;

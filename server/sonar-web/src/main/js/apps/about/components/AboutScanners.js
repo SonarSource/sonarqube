@@ -24,41 +24,49 @@ const scanners = [
   {
     key: 'sonarqube',
     link: 'https://redirect.sonarsource.com/doc/install-configure-scanner.html'
-  }, {
+  },
+  {
     key: 'msbuild',
     link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html'
-  }, {
+  },
+  {
     key: 'maven',
     link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-maven.html'
-  }, {
+  },
+  {
     key: 'gradle',
     link: 'https://redirect.sonarsource.com/doc/gradle.html'
-  }, {
+  },
+  {
     key: 'jenkins',
     link: 'https://redirect.sonarsource.com/plugins/jenkins.html'
-  }, {
+  },
+  {
     key: 'ant',
     link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-ant.html'
   }
 ];
 
 export default class AboutScanners extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="boxed-group">
-          <h2>{translate('about_page.scanners')}</h2>
-          <div className="boxed-group-inner">
-            <p className="about-page-text">{translate('about_page.scanners.text')}</p>
-            <div className="about-page-analyzers">
-              {scanners.map(scanner => (
-                  <a key={scanner.key} className="about-page-analyzer-box" href={scanner.link}>
-                    <img src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`} height={60}
-                         alt={translate('about_page.scanners', scanner.key)}/>
-                  </a>
-              ))}
-            </div>
+      <div className="boxed-group">
+        <h2>{translate('about_page.scanners')}</h2>
+        <div className="boxed-group-inner">
+          <p className="about-page-text">{translate('about_page.scanners.text')}</p>
+          <div className="about-page-analyzers">
+            {scanners.map(scanner => (
+              <a key={scanner.key} className="about-page-analyzer-box" href={scanner.link}>
+                <img
+                  src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`}
+                  height={60}
+                  alt={translate('about_page.scanners', scanner.key)}
+                />
+              </a>
+            ))}
           </div>
         </div>
+      </div>
     );
   }
 }

@@ -29,13 +29,11 @@ export default React.createClass({
     deselectItem: React.PropTypes.func.isRequired
   },
 
-  render () {
+  render() {
     const renderedItems = this.props.items.map(item => {
       const key = this.props.getItemKey(item);
-      return <Item key={key} {...this.props} item={item}/>;
+      return <Item key={key} {...this.props} item={item} />;
     });
-    return (
-        <ul>{renderedItems}</ul>
-    );
+    return <ul>{renderedItems}</ul>;
   }
 });

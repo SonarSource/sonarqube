@@ -25,16 +25,16 @@ const STORAGE_KEY = 'sonarqube-workspace';
 export default Backbone.Collection.extend({
   model: Item,
 
-  initialize () {
+  initialize() {
     this.on('remove', this.save);
   },
 
-  save () {
+  save() {
     const dump = JSON.stringify(this.toJSON());
     window.localStorage.setItem(STORAGE_KEY, dump);
   },
 
-  load () {
+  load() {
     const dump = window.localStorage.getItem(STORAGE_KEY);
     if (dump != null) {
       try {
@@ -46,13 +46,13 @@ export default Backbone.Collection.extend({
     }
   },
 
-  has (model) {
+  has(model) {
     const forComponent = model.isComponent() && this.findWhere({ key: model.get('key') }) != null;
     const forRule = model.isRule() && this.findWhere({ key: model.get('key') }) != null;
     return forComponent || forRule;
   },
 
-  add2 (model) {
+  add2(model) {
     const tryModel = this.findWhere({ key: model.get('key') });
     return tryModel != null ? tryModel : this.add(model);
   }

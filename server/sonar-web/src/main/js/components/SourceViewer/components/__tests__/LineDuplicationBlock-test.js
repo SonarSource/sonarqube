@@ -26,7 +26,7 @@ it('render duplicated line', () => {
   const line = { line: 3, duplicated: true };
   const onClick = jest.fn();
   const wrapper = shallow(
-    <LineDuplicationBlock index={1} duplicated={true} line={line} onClick={onClick}/>
+    <LineDuplicationBlock index={1} duplicated={true} line={line} onClick={onClick} />
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
@@ -37,7 +37,7 @@ it('render not duplicated line', () => {
   const line = { line: 3, duplicated: false };
   const onClick = jest.fn();
   const wrapper = shallow(
-    <LineDuplicationBlock index={1} duplicated={false} line={line} onClick={onClick}/>
+    <LineDuplicationBlock index={1} duplicated={false} line={line} onClick={onClick} />
   );
   expect(wrapper).toMatchSnapshot();
 });

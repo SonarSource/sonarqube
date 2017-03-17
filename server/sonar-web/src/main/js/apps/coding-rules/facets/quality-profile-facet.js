@@ -25,7 +25,7 @@ import Template from '../templates/facets/coding-rules-quality-profile-facet.hbs
 export default BaseFacet.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...BaseFacet.prototype.events.apply(this, arguments),
       'click .js-active': 'setActivation',
@@ -33,24 +33,22 @@ export default BaseFacet.extend({
     };
   },
 
-  getValues () {
+  getValues() {
     const that = this;
     const languagesQuery = this.options.app.state.get('query').languages;
     const languages = languagesQuery != null ? languagesQuery.split(',') : [];
     const lang = languages.length === 1 ? languages[0] : null;
     const values = this.options.app.qualityProfiles
-        .filter(profile => (
-            lang != null ? profile.lang === lang : true
-        ))
-        .map(profile => ({
-          label: profile.name,
-          extra: that.options.app.languages[profile.lang],
-          val: profile.key
-        }));
+      .filter(profile => lang != null ? profile.lang === lang : true)
+      .map(profile => ({
+        label: profile.name,
+        extra: that.options.app.languages[profile.lang],
+        val: profile.key
+      }));
     return sortBy(values, 'label');
   },
 
-  toggleFacet (e) {
+  toggleFacet(e) {
     const obj = {};
     const property = this.model.get('property');
     if ($(e.currentTarget).is('.active')) {
@@ -63,29 +61,29 @@ export default BaseFacet.extend({
     this.options.app.state.updateFilter(obj);
   },
 
-  setActivation (e) {
+  setActivation(e) {
     e.stopPropagation();
     this.options.app.state.updateFilter({ activation: 'true' });
   },
 
-  unsetActivation (e) {
+  unsetActivation(e) {
     e.stopPropagation();
     this.options.app.state.updateFilter({ activation: 'false', active_severities: null });
   },
 
-  getToggled () {
+  getToggled() {
     const activation = this.options.app.state.get('query').activation;
     return activation === 'true' || activation === true;
   },
 
-  disable () {
+  disable() {
     const obj = { activation: null };
     const property = this.model.get('property');
     obj[property] = null;
     this.options.app.state.updateFilter(obj);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.getValues(),

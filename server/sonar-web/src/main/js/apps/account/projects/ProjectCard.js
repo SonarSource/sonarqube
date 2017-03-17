@@ -30,69 +30,64 @@ export default class ProjectCard extends React.Component {
     project: projectType.isRequired
   };
 
-  render () {
+  render() {
     const { project } = this.props;
     const isAnalyzed = project.lastAnalysisDate != null;
     const analysisMoment = isAnalyzed && moment(project.lastAnalysisDate);
     const links = sortBy(project.links, 'type');
 
     return (
-        <div className="account-project-card clearfix">
-          <aside className="account-project-side">
-            {isAnalyzed ? (
-                <div className="account-project-analysis"
-                     title={analysisMoment.format('LLL')}>
-                  {translateWithParameters(
-                    'my_account.projects.analyzed_x',
-                    analysisMoment.fromNow()
-                  )}
-                </div>
-            ) : (
-                <div className="account-project-analysis">
-                  {translate('my_account.projects.never_analyzed')}
-                </div>
-            )}
-
-            {project.qualityGate != null && (
-                <div className="account-project-quality-gate">
-                  <Level level={project.qualityGate}/>
-                </div>
-            )}
-          </aside>
-
-          <h3 className="account-project-name">
-            <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
-              {project.name}
-            </Link>
-          </h3>
-
-          {links.length > 0 && (
-              <div className="account-project-links">
-                <ul className="list-inline">
-                  {links.map(link => (
-                      <li key={link.type}>
-                        <a
-                            className="link-with-icon"
-                            href={link.href}
-                            title={link.name}
-                            target="_blank"
-                            rel="nofollow">
-                          <i className={`icon-color-link icon-${link.type}`}/>
-                        </a>
-                      </li>
-                  ))}
-                </ul>
+      <div className="account-project-card clearfix">
+        <aside className="account-project-side">
+          {isAnalyzed
+            ? <div className="account-project-analysis" title={analysisMoment.format('LLL')}>
+                {translateWithParameters(
+                  'my_account.projects.analyzed_x',
+                  analysisMoment.fromNow()
+                )}
               </div>
-          )}
+            : <div className="account-project-analysis">
+                {translate('my_account.projects.never_analyzed')}
+              </div>}
 
-          <div className="account-project-key">{project.key}</div>
+          {project.qualityGate != null &&
+            <div className="account-project-quality-gate">
+              <Level level={project.qualityGate} />
+            </div>}
+        </aside>
 
-          {!!project.description && (
-              <div className="account-project-description">
-                {project.description}
-              </div>
-          )}
-        </div>
+        <h3 className="account-project-name">
+          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
+            {project.name}
+          </Link>
+        </h3>
+
+        {links.length > 0 &&
+          <div className="account-project-links">
+            <ul className="list-inline">
+              {links.map(link => (
+                <li key={link.type}>
+                  <a
+                    className="link-with-icon"
+                    href={link.href}
+                    title={link.name}
+                    target="_blank"
+                    rel="nofollow"
+                  >
+                    <i className={`icon-color-link icon-${link.type}`} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>}
+
+        <div className="account-project-key">{project.key}</div>
+
+        {!!project.description &&
+          <div className="account-project-description">
+            {project.description}
+          </div>}
+      </div>
     );
   }
 }

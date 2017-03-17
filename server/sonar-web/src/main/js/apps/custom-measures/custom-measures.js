@@ -24,45 +24,43 @@ import CustomMeasure from './custom-measure';
 export default Backbone.Collection.extend({
   model: CustomMeasure,
 
-  initialize (options) {
+  initialize(options) {
     this.projectId = options.projectId;
   },
 
-  url () {
+  url() {
     return window.baseUrl + '/api/custom_measures/search';
   },
 
-  parse (r) {
+  parse(r) {
     this.total = r.total;
     this.p = r.p;
     this.ps = r.ps;
     return r.customMeasures;
   },
 
-  fetch (options) {
+  fetch(options) {
     const opts = { data: {}, ...options };
     this.q = opts.data.q;
     opts.data.projectId = this.projectId;
     return Backbone.Collection.prototype.fetch.call(this, opts);
   },
 
-  fetchMore () {
+  fetchMore() {
     const p = this.p + 1;
     return this.fetch({ add: true, remove: false, data: { p, ps: this.ps, q: this.q } });
   },
 
-  refresh () {
+  refresh() {
     return this.fetch({ reset: true, data: { q: this.q } });
   },
 
-  hasMore () {
+  hasMore() {
     return this.total > this.p * this.ps;
   },
 
-  getTakenMetrics () {
+  getTakenMetrics() {
     const metrics = this.map(model => model.get('metric').id);
     return uniq(metrics);
   }
-
 });
-

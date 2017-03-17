@@ -20,7 +20,7 @@
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-module.exports = function (diff) {
+module.exports = function(diff) {
   let message;
 
   if (diff.key === 'file') {
@@ -28,20 +28,25 @@ module.exports = function (diff) {
   }
 
   if (diff.newValue != null) {
-    const newValue = diff.key === 'effort' ?
-        formatMeasure(diff.newValue, 'WORK_DUR') :
-        diff.newValue;
-    message = translateWithParameters('issue.changelog.changed_to',
-      translate('issue.changelog.field', diff.key), newValue);
+    const newValue = diff.key === 'effort'
+      ? formatMeasure(diff.newValue, 'WORK_DUR')
+      : diff.newValue;
+    message = translateWithParameters(
+      'issue.changelog.changed_to',
+      translate('issue.changelog.field', diff.key),
+      newValue
+    );
   } else {
-    message = translateWithParameters('issue.changelog.removed',
-      translate('issue.changelog.field', diff.key));
+    message = translateWithParameters(
+      'issue.changelog.removed',
+      translate('issue.changelog.field', diff.key)
+    );
   }
 
   if (diff.oldValue != null) {
-    const oldValue = diff.key === 'effort' ?
-        formatMeasure(diff.oldValue, 'WORK_DUR') :
-        diff.oldValue;
+    const oldValue = diff.key === 'effort'
+      ? formatMeasure(diff.oldValue, 'WORK_DUR')
+      : diff.oldValue;
 
     message += ' (';
     message += translateWithParameters('issue.changelog.was', oldValue);

@@ -19,8 +19,7 @@
  */
 import { getJSON, post } from '../helpers/request';
 
-export const getLicenses = () =>
-    getJSON('/api/licenses/list').then(r => r.licenses);
+export const getLicenses = () => getJSON('/api/licenses/list').then(r => r.licenses);
 
 export const setLicense = (key, value) => {
   const url = '/api/settings/set';

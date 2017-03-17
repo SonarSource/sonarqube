@@ -27,7 +27,7 @@ export default Popup.extend({
     'click .js-get-permalink': 'getPermalink'
   },
 
-  getPermalink (e) {
+  getPermalink(e) {
     e.preventDefault();
     const { component, line } = this.options;
     const url = `${window.baseUrl}/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;

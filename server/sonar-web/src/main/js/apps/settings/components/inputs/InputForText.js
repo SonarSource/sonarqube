@@ -23,18 +23,19 @@ import { defaultInputPropTypes } from '../../propTypes';
 export default class InputForText extends React.Component {
   static propTypes = defaultInputPropTypes;
 
-  handleInputChange (e) {
+  handleInputChange(e) {
     this.props.onChange(e.target.value);
   }
 
-  render () {
+  render() {
     return (
-        <textarea
-            name={this.props.name}
-            className="input-super-large text-top"
-            rows="5"
-            value={this.props.value || ''}
-            onChange={e => this.handleInputChange(e)}/>
+      <textarea
+        name={this.props.name}
+        className="input-super-large text-top"
+        rows="5"
+        value={this.props.value || ''}
+        onChange={e => this.handleInputChange(e)}
+      />
     );
   }
 }

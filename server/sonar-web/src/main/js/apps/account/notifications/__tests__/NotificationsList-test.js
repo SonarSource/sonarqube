@@ -32,15 +32,18 @@ const notifications = [
 const checkboxId = (t, c) => `checkbox-io-${t}-${c}`;
 
 it('should match snapshot', () => {
-  expect(shallow(
-    <NotificationsList
-          onAdd={jest.fn()}
-          onRemove={jest.fn()}
-          channels={channels}
-          checkboxId={checkboxId}
-          types={types}
-          notifications={notifications}/>
-  )).toMatchSnapshot();
+  expect(
+    shallow(
+      <NotificationsList
+        onAdd={jest.fn()}
+        onRemove={jest.fn()}
+        channels={channels}
+        checkboxId={checkboxId}
+        types={types}
+        notifications={notifications}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('should call `onAdd` and `onRemove`', () => {
@@ -48,12 +51,13 @@ it('should call `onAdd` and `onRemove`', () => {
   const onRemove = jest.fn();
   const wrapper = shallow(
     <NotificationsList
-          onAdd={onAdd}
-          onRemove={onRemove}
-          channels={channels}
-          checkboxId={checkboxId}
-          types={types}
-          notifications={notifications}/>
+      onAdd={onAdd}
+      onRemove={onRemove}
+      channels={channels}
+      checkboxId={checkboxId}
+      types={types}
+      notifications={notifications}
+    />
   );
   const checkbox = wrapper.find(Checkbox).first();
 

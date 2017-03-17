@@ -31,7 +31,7 @@ export default ModalView.extend({
   template: Template,
   testsOrder: ['ERROR', 'FAILURE', 'OK', 'SKIPPED'],
 
-  initialize () {
+  initialize() {
     this.testsScroll = 0;
     const requests = [this.requestMeasures(), this.requestIssues()];
     if (this.options.component.q === 'UTS') {
@@ -40,7 +40,7 @@ export default ModalView.extend({
     Promise.all(requests).then(() => this.render());
   },
 
-  events () {
+  events() {
     return {
       ...ModalView.prototype.events.apply(this, arguments),
       'click .js-sort-tests-by-duration': 'sortTestsByDuration',
@@ -51,8 +51,8 @@ export default ModalView.extend({
     };
   },
 
-  initPieChart () {
-    const trans = function (left, top) {
+  initPieChart() {
+    const trans = function(left, top) {
       return `translate(${left}, ${top})`;
     };
 
@@ -63,46 +63,32 @@ export default ModalView.extend({
       baseColor: '#e6e6e6'
     };
 
-    this.$('.js-pie-chart').each(function () {
-      const data = [
-        $(this).data('value'),
-        $(this).data('max') - $(this).data('value')
-      ];
+    this.$('.js-pie-chart').each(function() {
+      const data = [$(this).data('value'), $(this).data('max') - $(this).data('value')];
       const options = { ...defaults, ...$(this).data() };
       const radius = options.size / 2;
 
       const container = d3.select(this);
-      const svg = container.append('svg')
-          .attr('width', options.size)
-          .attr('height', options.size);
-      const plot = svg.append('g')
-          .attr('transform', trans(radius, radius));
-      const arc = d3.svg.arc()
-          .innerRadius(radius - options.thickness)
-          .outerRadius(radius);
-      const pie = d3.layout.pie()
-          .sort(null)
-          .value(d => d);
-      const colors = function (i) {
+      const svg = container.append('svg').attr('width', options.size).attr('height', options.size);
+      const plot = svg.append('g').attr('transform', trans(radius, radius));
+      const arc = d3.svg.arc().innerRadius(radius - options.thickness).outerRadius(radius);
+      const pie = d3.layout.pie().sort(null).value(d => d);
+      const colors = function(i) {
         return i === 0 ? options.color : options.baseColor;
       };
-      const sectors = plot.selectAll('path')
-          .data(pie(data));
+      const sectors = plot.selectAll('path').data(pie(data));
 
-      sectors.enter()
-          .append('path')
-          .style('fill', (d, i) => colors(i))
-          .attr('d', arc);
+      sectors.enter().append('path').style('fill', (d, i) => colors(i)).attr('d', arc);
     });
   },
 
-  onRender () {
+  onRender() {
     ModalView.prototype.onRender.apply(this, arguments);
     this.initPieChart();
     this.$('.js-test-list').scrollTop(this.testsScroll);
   },
 
-  getMetrics () {
+  getMetrics() {
     let metrics = '';
     const url = window.baseUrl + '/api/metrics/search';
     $.ajax({
@@ -116,11 +102,10 @@ export default ModalView.extend({
     return metrics;
   },
 
-  calcAdditionalMeasures (measures) {
-    measures.issuesRemediationEffort =
-        (Number(measures.sqale_index_raw) || 0) +
-        (Number(measures.reliability_remediation_effort_raw) || 0) +
-        (Number(measures.security_remediation_effort_raw) || 0);
+  calcAdditionalMeasures(measures) {
+    measures.issuesRemediationEffort = (Number(measures.sqale_index_raw) || 0) +
+      (Number(measures.reliability_remediation_effort_raw) || 0) +
+      (Number(measures.security_remediation_effort_raw) || 0);
 
     if (measures.lines_to_cover && measures.uncovered_lines) {
       measures.covered_lines = measures.lines_to_cover_raw - measures.uncovered_lines_raw;
@@ -131,7 +116,7 @@ export default ModalView.extend({
     return measures;
   },
 
-  prepareMetrics (metrics) {
+  prepareMetrics(metrics) {
     metrics = metrics.filter(metric => metric.value != null);
     return sortBy(
       toPairs(groupBy(metrics, 'domain')).map(domain => {
@@ -144,11 +129,11 @@ export default ModalView.extend({
     );
   },
 
-  requestMeasures () {
+  requestMeasures() {
     return getMetrics().then(metrics => {
       const metricsToRequest = metrics
-          .filter(metric => metric.type !== 'DATA' && !metric.hidden)
-          .map(metric => metric.key);
+        .filter(metric => metric.type !== 'DATA' && !metric.hidden)
+        .map(metric => metric.key);
 
       return getMeasures(this.options.component.key, metricsToRequest).then(measures => {
         let nextMeasures = this.options.component.measures || {};
@@ -165,7 +150,7 @@ export default ModalView.extend({
     });
   },
 
-  requestIssues () {
+  requestIssues() {
     return new Promise(resolve => {
       const url = window.baseUrl + '/api/issues/search';
       const options = {
@@ -181,7 +166,8 @@ export default ModalView.extend({
         const sortedTypesFacet = sortBy(typesFacet, v => typesOrder.indexOf(v.val));
 
         const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
-        const sortedSeveritiesFacet = sortBy(severitiesFacet, facet => window.severityComparator(facet.val));
+        const sortedSeveritiesFacet = sortBy(severitiesFacet, facet =>
+          window.severityComparator(facet.val));
 
         const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
 
@@ -195,7 +181,7 @@ export default ModalView.extend({
     });
   },
 
-  requestTests () {
+  requestTests() {
     return new Promise(resolve => {
       const url = window.baseUrl + '/api/tests/list';
       const options = { testFileKey: this.options.component.key };
@@ -210,7 +196,7 @@ export default ModalView.extend({
     });
   },
 
-  sortTests (condition) {
+  sortTests(condition) {
     let tests = this.tests;
     if (Array.isArray(tests)) {
       tests = sortBy(tests, condition);
@@ -221,7 +207,7 @@ export default ModalView.extend({
     }
   },
 
-  sortTestsByDuration () {
+  sortTestsByDuration() {
     if (this.testSorting === 'duration') {
       this.testAsc = !this.testAsc;
     }
@@ -230,7 +216,7 @@ export default ModalView.extend({
     this.render();
   },
 
-  sortTestsByName () {
+  sortTestsByName() {
     if (this.testSorting === 'name') {
       this.testAsc = !this.testAsc;
     }
@@ -239,7 +225,7 @@ export default ModalView.extend({
     this.render();
   },
 
-  sortTestsByStatus () {
+  sortTestsByStatus() {
     if (this.testSorting === 'status') {
       this.testAsc = !this.testAsc;
     }
@@ -248,7 +234,7 @@ export default ModalView.extend({
     this.render();
   },
 
-  showTest (e) {
+  showTest(e) {
     const testId = $(e.currentTarget).data('id');
     const url = window.baseUrl + '/api/tests/covered_files';
     const options = { testId };
@@ -260,12 +246,12 @@ export default ModalView.extend({
     });
   },
 
-  showAllMeasures () {
+  showAllMeasures() {
     this.$('.js-all-measures').removeClass('hidden');
     this.$('.js-show-all-measures').remove();
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ModalView.prototype.serializeData.apply(this, arguments),
       ...this.options.component,

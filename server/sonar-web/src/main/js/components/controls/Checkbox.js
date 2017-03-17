@@ -32,24 +32,22 @@ export default class Checkbox extends React.Component {
     thirdState: false
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleClick = this.handleClick.bind(this);
   }
 
-  handleClick (e) {
+  handleClick(e) {
     e.preventDefault();
     e.target.blur();
     this.props.onCheck(!this.props.checked);
   }
 
-  render () {
+  render() {
     const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': this.props.checked,
       'icon-checkbox-single': this.props.thirdState
     });
 
-    return (
-        <a id={this.props.id} className={className} href="#" onClick={this.handleClick}/>
-    );
+    return <a id={this.props.id} className={className} href="#" onClick={this.handleClick} />;
   }
 }

@@ -45,24 +45,24 @@ export default class WebApiApp extends React.PureComponent {
     showInternal: false
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.scrollToAction = this.scrollToAction.bind(this);
     this.fetchList();
     document.getElementById('footer').classList.add('search-navigator-footer');
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.toggleInternalInitially();
     this.scrollToAction();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
     document.getElementById('footer').classList.remove('search-navigator-footer');
   }
 
-  fetchList (cb?: () => void) {
+  fetchList(cb?: () => void) {
     fetchWebApi().then(domains => {
       if (this.mounted) {
         this.setState({ domains }, cb);
@@ -70,12 +70,12 @@ export default class WebApiApp extends React.PureComponent {
     });
   }
 
-  scrollToAction () {
+  scrollToAction() {
     const splat = this.props.params.splat || '';
     this.scrollToElement(splat);
   }
 
-  scrollToElement (id: string) {
+  scrollToElement(id: string) {
     const element = document.getElementById(id);
 
     if (element) {
@@ -88,7 +88,7 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  toggleInternalInitially () {
+  toggleInternalInitially() {
     const splat = this.props.params.splat || '';
     const { domains, showInternal } = this.state;
 
@@ -107,11 +107,11 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  handleSearch (searchQuery: string) {
+  handleSearch(searchQuery: string) {
     this.setState({ searchQuery });
   }
 
-  handleToggleInternal () {
+  handleToggleInternal() {
     const splat = this.props.params.splat || '';
     const { router } = this.context;
     const { domains } = this.state;
@@ -125,11 +125,11 @@ export default class WebApiApp extends React.PureComponent {
     this.setState({ showInternal });
   }
 
-  handleToggleDeprecated () {
+  handleToggleDeprecated() {
     this.setState(state => ({ showDeprecated: !state.showDeprecated }));
   }
 
-  render () {
+  render() {
     const splat = this.props.params.splat || '';
     const { domains, showInternal, showDeprecated, searchQuery } = this.state;
 
@@ -149,14 +149,16 @@ export default class WebApiApp extends React.PureComponent {
             showInternal={showInternal}
             onSearch={this.handleSearch.bind(this)}
             onToggleInternal={this.handleToggleInternal.bind(this)}
-            onToggleDeprecated={this.handleToggleDeprecated.bind(this)}/>
+            onToggleDeprecated={this.handleToggleDeprecated.bind(this)}
+          />
 
           <Menu
             domains={this.state.domains}
             showDeprecated={showDeprecated}
             showInternal={showInternal}
             searchQuery={searchQuery}
-            splat={splat}/>
+            splat={splat}
+          />
         </div>
 
         <div className="search-navigator-workspace">
@@ -166,7 +168,8 @@ export default class WebApiApp extends React.PureComponent {
               domain={domain}
               showDeprecated={showDeprecated}
               showInternal={showInternal}
-              searchQuery={searchQuery}/>}
+              searchQuery={searchQuery}
+            />}
         </div>
       </div>
     );

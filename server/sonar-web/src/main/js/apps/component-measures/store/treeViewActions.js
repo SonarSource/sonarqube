@@ -41,7 +41,7 @@ export const INIT = 'measuresApp/drilldown/tree/INIT';
  * @param state
  * @returns {{type: string, state: *}}
  */
-function updateStore (state) {
+function updateStore(state) {
   return { type: UPDATE_STORE, state };
 }
 
@@ -52,7 +52,7 @@ function updateStore (state) {
  * @param periodIndex
  * @returns {{type: string, rootComponent: *, metric: *}}
  */
-function init (rootComponent, metric, periodIndex = 1) {
+function init(rootComponent, metric, periodIndex = 1) {
   return { type: INIT, rootComponent, metric, periodIndex };
 }
 
@@ -60,12 +60,12 @@ function init (rootComponent, metric, periodIndex = 1) {
  * Workflow
  */
 
-function getComplementary (metric) {
+function getComplementary(metric) {
   const comp = complementary[metric] || [];
   return [metric, ...comp];
 }
 
-function makeRequest (rootComponent, baseComponent, metric, options, periodIndex = 1) {
+function makeRequest(rootComponent, baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
   const ps = 100;
   const finalOptions = { asc, ps, metricSortFilter: 'withMeasuresOnly' };
@@ -94,7 +94,7 @@ function makeRequest (rootComponent, baseComponent, metric, options, periodIndex
   return getComponentTree('children', finalKey, getComplementary(metric.key), finalOptions);
 }
 
-function fetchComponents (rootComponent, baseComponent, metric, pageIndex = 1, periodIndex = 1) {
+function fetchComponents(rootComponent, baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
   return makeRequest(rootComponent, baseComponent, metric, options, periodIndex).then(r => {
@@ -113,17 +113,19 @@ function fetchComponents (rootComponent, baseComponent, metric, pageIndex = 1, p
  * Fetch the first page of components for a given base component
  * @param baseComponent
  */
-function fetchList (baseComponent) {
+function fetchList(baseComponent) {
   return (dispatch, getState) => {
     const { metric, periodIndex, rootComponent } = getMeasuresAppTree(getState());
 
     dispatch(startFetching());
     return fetchComponents(rootComponent, baseComponent, metric, 1, periodIndex).then(r => {
-      dispatch(updateStore({
-        ...r,
-        baseComponent,
-        breadcrumbs: [baseComponent]
-      }));
+      dispatch(
+        updateStore({
+          ...r,
+          baseComponent,
+          breadcrumbs: [baseComponent]
+        })
+      );
       dispatch(stopFetching());
     });
   };
@@ -137,7 +139,7 @@ function fetchList (baseComponent) {
  * @param periodIndex
  * @returns {function()}
  */
-export function start (rootComponent, metric, periodIndex = 1) {
+export function start(rootComponent, metric, periodIndex = 1) {
   return (dispatch, getState) => {
     const tree = getMeasuresAppTree(getState());
     if (rootComponent === tree.rootComponent && metric === tree.metric) {
@@ -153,16 +155,18 @@ export function start (rootComponent, metric, periodIndex = 1) {
  * Drilldown to the component
  * @param component
  */
-export function drilldown (component) {
+export function drilldown(component) {
   return (dispatch, getState) => {
     const { metric, rootComponent, breadcrumbs, periodIndex } = getMeasuresAppTree(getState());
     dispatch(startFetching());
     return fetchComponents(rootComponent, component, metric, 1, periodIndex).then(r => {
-      dispatch(updateStore({
-        ...r,
-        breadcrumbs: [...breadcrumbs, component],
-        selected: undefined
-      }));
+      dispatch(
+        updateStore({
+          ...r,
+          breadcrumbs: [...breadcrumbs, component],
+          selected: undefined
+        })
+      );
       dispatch(stopFetching());
     });
   };
@@ -172,27 +176,42 @@ export function drilldown (component) {
  * Go up using breadcrumbs
  * @param component
  */
-export function useBreadcrumbs (component) {
+export function useBreadcrumbs(component) {
   return (dispatch, getState) => {
     const { metric, rootComponent, breadcrumbs, periodIndex } = getMeasuresAppTree(getState());
     const index = breadcrumbs.indexOf(component);
     dispatch(startFetching());
     return fetchComponents(rootComponent, component, metric, 1, periodIndex).then(r => {
-      dispatch(updateStore({
-        ...r,
-        breadcrumbs: breadcrumbs.slice(0, index + 1),
-        selected: undefined
-      }));
+      dispatch(
+        updateStore({
+          ...r,
+          breadcrumbs: breadcrumbs.slice(0, index + 1),
+          selected: undefined
+        })
+      );
       dispatch(stopFetching());
     });
   };
 }
 
-export function fetchMore () {
+export function fetchMore() {
   return (dispatch, getState) => {
-    const { rootComponent, baseComponent, metric, pageIndex, components, periodIndex } = getMeasuresAppTree(getState());
+    const {
+      rootComponent,
+      baseComponent,
+      metric,
+      pageIndex,
+      components,
+      periodIndex
+    } = getMeasuresAppTree(getState());
     dispatch(startFetching());
-    return fetchComponents(rootComponent, baseComponent, metric, pageIndex + 1, periodIndex).then(r => {
+    return fetchComponents(
+      rootComponent,
+      baseComponent,
+      metric,
+      pageIndex + 1,
+      periodIndex
+    ).then(r => {
       const nextComponents = [...components, ...r.components];
       dispatch(updateStore({ ...r, components: nextComponents }));
       dispatch(stopFetching());
@@ -204,31 +223,35 @@ export function fetchMore () {
  * Select given component from the list
  * @param component
  */
-export function selectComponent (component) {
+export function selectComponent(component) {
   return (dispatch, getState) => {
     const { breadcrumbs } = getMeasuresAppTree(getState());
     const nextBreadcrumbs = [...breadcrumbs, component];
-    dispatch(updateStore({
-      selected: component,
-      breadcrumbs: nextBreadcrumbs
-    }));
+    dispatch(
+      updateStore({
+        selected: component,
+        breadcrumbs: nextBreadcrumbs
+      })
+    );
   };
 }
 
 /**
  * Select next element from the list of components
  */
-export function selectNext () {
+export function selectNext() {
   return (dispatch, getState) => {
     const { components, selected, breadcrumbs } = getMeasuresAppTree(getState());
     const selectedIndex = components.indexOf(selected);
     if (selectedIndex < components.length - 1) {
       const nextSelected = components[selectedIndex + 1];
       const nextBreadcrumbs = [...initial(breadcrumbs), nextSelected];
-      dispatch(updateStore({
-        selected: nextSelected,
-        breadcrumbs: nextBreadcrumbs
-      }));
+      dispatch(
+        updateStore({
+          selected: nextSelected,
+          breadcrumbs: nextBreadcrumbs
+        })
+      );
     }
   };
 }
@@ -236,17 +259,19 @@ export function selectNext () {
 /**
  * Select previous element from the list of components
  */
-export function selectPrevious () {
+export function selectPrevious() {
   return (dispatch, getState) => {
     const { components, selected, breadcrumbs } = getMeasuresAppTree(getState());
     const selectedIndex = components.indexOf(selected);
     if (selectedIndex > 0) {
       const nextSelected = components[selectedIndex - 1];
       const nextBreadcrumbs = [...initial(breadcrumbs), nextSelected];
-      dispatch(updateStore({
-        selected: nextSelected,
-        breadcrumbs: nextBreadcrumbs
-      }));
+      dispatch(
+        updateStore({
+          selected: nextSelected,
+          breadcrumbs: nextBreadcrumbs
+        })
+      );
     }
   };
 }

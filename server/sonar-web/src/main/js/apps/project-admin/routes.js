@@ -26,9 +26,9 @@ import Links from './links/Links';
 import Key from './key/Key';
 
 export default [
-  <Route key="deletion" path="deletion" component={Deletion}/>,
-  <Route key="quality_profiles" path="quality_profiles" component={QualityProfiles}/>,
-  <Route key="quality_gate" path="quality_gate" component={QualityGate}/>,
-  <Route key="links" path="links" component={Links}/>,
-  <Route key="key" path="key" component={Key}/>
+  <Route key="deletion" path="deletion" component={Deletion} />,
+  <Route key="quality_profiles" path="quality_profiles" component={QualityProfiles} />,
+  <Route key="quality_gate" path="quality_gate" component={QualityGate} />,
+  <Route key="links" path="links" component={Links} />,
+  <Route key="key" path="key" component={Key} />
 ];

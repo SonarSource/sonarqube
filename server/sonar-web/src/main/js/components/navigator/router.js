@@ -27,19 +27,18 @@ export default Backbone.Router.extend({
     ':query': 'index'
   },
 
-  initialize (options) {
+  initialize(options) {
     this.options = options;
     this.listenTo(this.options.app.state, 'change:query', this.updateRoute);
   },
 
-  index (query) {
+  index(query) {
     query = this.options.app.controller.parseQuery(query);
     this.options.app.state.setQuery(query);
   },
 
-  updateRoute () {
+  updateRoute() {
     const route = this.options.app.controller.getRoute();
     this.navigate(route);
   }
 });
-

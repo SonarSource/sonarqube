@@ -26,7 +26,7 @@ import ListView from './list-view';
 import ListFooterView from './list-footer-view';
 
 const App = new Marionette.Application();
-const init = function (el) {
+const init = function(el) {
   // Layout
   this.layout = new Layout({ el });
   this.layout.render();
@@ -59,12 +59,12 @@ const init = function (el) {
   this.metrics.fetch();
 };
 
-App.requestDomains = function () {
+App.requestDomains = function() {
   return $.get(window.baseUrl + '/api/metrics/domains').done(r => {
     App.domains = r.domains;
   });
 };
-App.requestTypes = function () {
+App.requestTypes = function() {
   return $.get(window.baseUrl + '/api/metrics/types').done(r => {
     App.types = r.types;
   });
@@ -76,7 +76,6 @@ App.on('start', el => {
   });
 });
 
-export default function (el) {
+export default function(el) {
   App.start(el);
 }
-

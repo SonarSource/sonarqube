@@ -38,44 +38,48 @@ class ProjectActivityAnalysesList extends React.Component {
     canAdmin: boolean
   };
 
-  render () {
+  render() {
     if (!this.props.analyses) {
       return null;
     }
 
     if (this.props.analyses.length === 0) {
-      return (
-          <div className="note">{translate('no_results')}</div>
-      );
+      return <div className="note">{translate('no_results')}</div>;
     }
 
     const firstAnalysis = this.props.analyses[0];
 
-    const byDay = groupBy(this.props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());
+    const byDay = groupBy(this.props.analyses, analysis =>
+      moment(analysis.date).startOf('day').valueOf());
 
     return (
-        <div className="boxed-group boxed-group-inner">
-          <ul className="project-activity-days-list">
-            {Object.keys(byDay).map(day => (
-                <li key={day} className="project-activity-day" data-day={moment(Number(day)).format('YYYY-MM-DD')}>
-                  <div className="project-activity-date">
-                    <FormattedDate date={Number(day)} format="LL"/>
-                  </div>
+      <div className="boxed-group boxed-group-inner">
+        <ul className="project-activity-days-list">
+          {Object.keys(byDay).map(day => (
+            <li
+              key={day}
+              className="project-activity-day"
+              data-day={moment(Number(day)).format('YYYY-MM-DD')}
+            >
+              <div className="project-activity-date">
+                <FormattedDate date={Number(day)} format="LL" />
+              </div>
 
-                  <ul className="project-activity-analyses-list">
-                    {byDay[day].map(analysis => (
-                        <ProjectActivityAnalysis
-                            key={analysis.key}
-                            analysis={analysis}
-                            isFirst={analysis === firstAnalysis}
-                            project={this.props.project}
-                            canAdmin={this.props.canAdmin}/>
-                    ))}
-                  </ul>
-                </li>
-            ))}
-          </ul>
-        </div>
+              <ul className="project-activity-analyses-list">
+                {byDay[day].map(analysis => (
+                  <ProjectActivityAnalysis
+                    key={analysis.key}
+                    analysis={analysis}
+                    isFirst={analysis === firstAnalysis}
+                    project={this.props.project}
+                    canAdmin={this.props.canAdmin}
+                  />
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 }

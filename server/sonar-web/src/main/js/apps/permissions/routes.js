@@ -24,9 +24,7 @@ import ProjectPermissionsApp from './project/components/App';
 import forSingleOrganization from '../organizations/forSingleOrganization';
 
 export const globalPermissionsRoutes = (
-    <IndexRoute component={forSingleOrganization(GlobalPermissionsApp)}/>
+  <IndexRoute component={forSingleOrganization(GlobalPermissionsApp)} />
 );
 
-export const projectPermissionsRoutes = (
-    <IndexRoute component={ProjectPermissionsApp}/>
-);
+export const projectPermissionsRoutes = <IndexRoute component={ProjectPermissionsApp} />;

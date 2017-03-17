@@ -23,21 +23,21 @@ import Spinner from './../components/Spinner';
 export default class App extends React.Component {
   state = { componentSet: false };
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.setComponent(this.props.component);
     this.props.fetchMetrics();
     this.setState({ componentSet: true });
   }
 
-  render () {
+  render() {
     if (this.props.metrics == null || !this.state.componentSet) {
-      return <Spinner/>;
+      return <Spinner />;
     }
 
     return (
-        <main id="component-measures">
-          {this.props.children}
-        </main>
+      <main id="component-measures">
+        {this.props.children}
+      </main>
     );
   }
 }

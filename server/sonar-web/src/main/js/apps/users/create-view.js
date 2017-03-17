@@ -21,8 +21,7 @@ import User from './user';
 import FormView from './form-view';
 
 export default FormView.extend({
-
-  sendRequest () {
+  sendRequest() {
     const that = this;
     const user = new User({
       login: this.$('#create-user-login').val(),
@@ -32,19 +31,21 @@ export default FormView.extend({
       scmAccounts: this.getScmAccounts()
     });
     this.disableForm();
-    return user.save(null, {
-      statusCode: {
-        // do not show global error
-        400: null,
-        500: null
-      }
-    }).done(() => {
-      that.collection.refresh();
-      that.destroy();
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    return user
+      .save(null, {
+        statusCode: {
+          // do not show global error
+          400: null,
+          500: null
+        }
+      })
+      .done(() => {
+        that.collection.refresh();
+        that.destroy();
+      })
+      .fail(jqXHR => {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
   }
 });
-

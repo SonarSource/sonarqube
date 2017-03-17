@@ -34,7 +34,7 @@ export default class Level extends React.Component {
     muted: false
   };
 
-  render () {
+  render() {
     const formatted = formatMeasure(this.props.level, 'LEVEL');
     const className = classNames('level', 'level-' + this.props.level, {
       'level-small': this.props.small,

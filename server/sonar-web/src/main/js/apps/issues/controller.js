@@ -27,7 +27,7 @@ import { receiveIssues } from '../../store/issues/duck';
 const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'languages'];
 
 export default Controller.extend({
-  _issuesParameters () {
+  _issuesParameters() {
     return {
       p: this.options.app.state.get('page'),
       ps: this.pageSize,
@@ -37,12 +37,12 @@ export default Controller.extend({
     };
   },
 
-  receiveIssues (issues) {
+  receiveIssues(issues) {
     const store = getStore();
     store.dispatch(receiveIssues(issues));
   },
 
-  fetchList (firstPage) {
+  fetchList(firstPage) {
     const that = this;
     if (firstPage == null) {
       firstPage = true;
@@ -95,21 +95,26 @@ export default Controller.extend({
     });
   },
 
-  isIssuePermalink () {
+  isIssuePermalink() {
     const query = this.options.app.state.get('query');
-    return (query.issues != null) && this.options.app.list.length === 1;
+    return query.issues != null && this.options.app.list.length === 1;
   },
 
-  _mergeCollections (a, b) {
+  _mergeCollections(a, b) {
     const collection = new Backbone.Collection(a);
     collection.add(b, { merge: true });
     return collection.toJSON();
   },
 
-  requestFacet (id) {
+  requestFacet(id) {
     const that = this;
     const facet = this.options.app.facets.get(id);
-    const data = { facets: id, ps: 1, additionalFields: '_all', ...this.options.app.state.get('query') };
+    const data = {
+      facets: id,
+      ps: 1,
+      additionalFields: '_all',
+      ...this.options.app.state.get('query')
+    };
     if (this.options.app.state.get('query').assigned_to_me) {
       Object.assign(data, { assignees: '__me__' });
     }
@@ -118,7 +123,10 @@ export default Controller.extend({
     }
     return $.get(window.baseUrl + '/api/issues/search', data, r => {
       FACET_DATA_FIELDS.forEach(field => {
-        that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
+        that.options.app.facets[field] = that._mergeCollections(
+          that.options.app.facets[field],
+          r[field]
+        );
       });
       const facetData = r.facets.find(facet => facet.property === id);
       if (facetData != null) {
@@ -127,12 +135,12 @@ export default Controller.extend({
     });
   },
 
-  newSearch () {
+  newSearch() {
     this.options.app.state.unset('filter');
     return this.options.app.state.setQuery({ resolved: 'false' });
   },
 
-  parseQuery () {
+  parseQuery() {
     const q = Controller.prototype.parseQuery.apply(this, arguments);
     delete q.asc;
     delete q.s;
@@ -140,7 +148,7 @@ export default Controller.extend({
     return q;
   },
 
-  getQueryAsObject () {
+  getQueryAsObject() {
     const state = this.options.app.state;
     const query = state.get('query');
     if (query.assigned_to_me) {
@@ -152,7 +160,7 @@ export default Controller.extend({
     return query;
   },
 
-  getQuery (separator, addContext, handleMyIssues = false) {
+  getQuery(separator, addContext, handleMyIssues = false) {
     if (separator == null) {
       separator = '|';
     }
@@ -173,7 +181,7 @@ export default Controller.extend({
     return route.join(separator);
   },
 
-  _prepareComponent (issue) {
+  _prepareComponent(issue) {
     return {
       key: issue.get('component'),
       name: issue.get('componentLongName'),
@@ -186,7 +194,7 @@ export default Controller.extend({
     };
   },
 
-  showComponentViewer (issue) {
+  showComponentViewer(issue) {
     this.options.app.layout.workspaceComponentViewerRegion.reset();
     key.setScope('componentViewer');
     this.options.app.issuesView.unbindScrollEvents();
@@ -197,7 +205,7 @@ export default Controller.extend({
     return this.options.app.componentViewer.openFileByIssue(issue);
   },
 
-  closeComponentViewer () {
+  closeComponentViewer() {
     key.setScope('list');
     $('body').click();
     this.options.app.state.unset('component');
@@ -207,4 +215,3 @@ export default Controller.extend({
     return this.options.app.issuesView.scrollTo();
   }
 });
-

@@ -25,7 +25,7 @@ import LineCoverage from '../LineCoverage';
 it('render covered line', () => {
   const line = { line: 3, coverageStatus: 'covered' };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineCoverage line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineCoverage line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
   expect(onClick).toHaveBeenCalled();
@@ -34,7 +34,7 @@ it('render covered line', () => {
 it('render uncovered line', () => {
   const line = { line: 3, coverageStatus: 'uncovered' };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineCoverage line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineCoverage line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
   expect(onClick).toHaveBeenCalled();
@@ -43,6 +43,6 @@ it('render uncovered line', () => {
 it('render line with unknown coverage', () => {
   const line = { line: 3 };
   const onClick = jest.fn();
-  const wrapper = shallow(<LineCoverage line={line} onClick={onClick}/>);
+  const wrapper = shallow(<LineCoverage line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
 });

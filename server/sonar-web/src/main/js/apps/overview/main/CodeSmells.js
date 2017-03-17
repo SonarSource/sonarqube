@@ -28,13 +28,11 @@ import { getComponentIssuesUrl } from '../../../helpers/urls';
 import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
 
 class CodeSmells extends React.Component {
-  renderHeader () {
-    return this.props.renderHeader(
-      'Maintainability',
-      translate('metric.code_smells.name'));
+  renderHeader() {
+    return this.props.renderHeader('Maintainability', translate('metric.code_smells.name'));
   }
 
-  renderDebt (metric, type) {
+  renderDebt(metric, type) {
     const { measures, component } = this.props;
     const measure = measures.find(measure => measure.metric.key === metric);
     const value = this.props.getValue(measure);
@@ -45,36 +43,36 @@ class CodeSmells extends React.Component {
     }
 
     const formattedSnapshotDate = moment(component.snapshotDate).format('LLL');
-    const tooltip = translateWithParameters('widget.as_calculated_on_x',
-      formattedSnapshotDate);
+    const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
 
     return (
-        <Link to={getComponentIssuesUrl(component.key, params)}>
-          <span title={tooltip} data-toggle="tooltip">
-            {formatMeasure(value, 'SHORT_WORK_DUR')}
-          </span>
-        </Link>
+      <Link to={getComponentIssuesUrl(component.key, params)}>
+        <span title={tooltip} data-toggle="tooltip">
+          {formatMeasure(value, 'SHORT_WORK_DUR')}
+        </span>
+      </Link>
     );
   }
 
-  renderTimelineStartDate () {
+  renderTimelineStartDate() {
     const momentDate = moment(this.props.historyStartDate);
     const fromNow = momentDate.fromNow();
     return (
-        <span className="overview-domain-timeline-date">
-          {translateWithParameters('overview.started_x', fromNow)}
-        </span>
+      <span className="overview-domain-timeline-date">
+        {translateWithParameters('overview.started_x', fromNow)}
+      </span>
     );
   }
 
-  renderTimeline (range, displayDate) {
+  renderTimeline(range, displayDate) {
     return this.props.renderTimeline(
       'sqale_index',
       range,
-      displayDate ? this.renderTimelineStartDate() : null);
+      displayDate ? this.renderTimelineStartDate() : null
+    );
   }
 
-  renderLeak () {
+  renderLeak() {
     const { leakPeriod } = this.props;
 
     if (leakPeriod == null) {
@@ -82,82 +80,81 @@ class CodeSmells extends React.Component {
     }
 
     return (
-        <div className="overview-domain-leak">
-          <div className="overview-domain-measures">
-            <div className="overview-domain-measure">
-              <div className="overview-domain-measure-value">
-                <span style={{ marginLeft: 30 }}>
-                  {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
-                </span>
-                {this.props.renderRating('new_maintainability_rating')}
-              </div>
-              <div className="overview-domain-measure-label">
-                {getMetricName('new_effort')}
-              </div>
+      <div className="overview-domain-leak">
+        <div className="overview-domain-measures">
+          <div className="overview-domain-measure">
+            <div className="overview-domain-measure-value">
+              <span style={{ marginLeft: 30 }}>
+                {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
+              </span>
+              {this.props.renderRating('new_maintainability_rating')}
             </div>
-
-            <div className="overview-domain-measure">
-              <div className="overview-domain-measure-value">
-                {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
-              </div>
-              <div className="overview-domain-measure-label">
-                <span className="little-spacer-right"><CodeSmellIcon/></span>
-                {getMetricName('new_code_smells')}
-              </div>
+            <div className="overview-domain-measure-label">
+              {getMetricName('new_effort')}
             </div>
           </div>
 
-          {this.renderTimeline('after')}
+          <div className="overview-domain-measure">
+            <div className="overview-domain-measure-value">
+              {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
+            </div>
+            <div className="overview-domain-measure-label">
+              <span className="little-spacer-right"><CodeSmellIcon /></span>
+              {getMetricName('new_code_smells')}
+            </div>
+          </div>
         </div>
+
+        {this.renderTimeline('after')}
+      </div>
     );
   }
 
-  renderNutshell () {
+  renderNutshell() {
     return (
-        <div className="overview-domain-nutshell">
-          <div className="overview-domain-measures">
+      <div className="overview-domain-nutshell">
+        <div className="overview-domain-measures">
 
-            <div className="overview-domain-measure">
-              <div className="display-inline-block text-middle"
-                   style={{ paddingLeft: 56 }}>
-                <div className="overview-domain-measure-value">
-                  {this.renderDebt('sqale_index', 'CODE_SMELL')}
-                  {this.props.renderRating('sqale_rating')}
-                </div>
-                <div className="overview-domain-measure-label">
-                  {getMetricName('effort')}
-                </div>
+          <div className="overview-domain-measure">
+            <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
+              <div className="overview-domain-measure-value">
+                {this.renderDebt('sqale_index', 'CODE_SMELL')}
+                {this.props.renderRating('sqale_rating')}
               </div>
-            </div>
-
-            <div className="overview-domain-measure">
-              <div className="display-inline-block text-middle">
-                <div className="overview-domain-measure-value">
-                  {this.props.renderIssues('code_smells', 'CODE_SMELL')}
-                </div>
-                <div className="overview-domain-measure-label">
-                  <span className="little-spacer-right"><CodeSmellIcon/></span>
-                  {getMetricName('code_smells')}
-                </div>
+              <div className="overview-domain-measure-label">
+                {getMetricName('effort')}
               </div>
             </div>
           </div>
 
-          {this.renderTimeline('before', true)}
+          <div className="overview-domain-measure">
+            <div className="display-inline-block text-middle">
+              <div className="overview-domain-measure-value">
+                {this.props.renderIssues('code_smells', 'CODE_SMELL')}
+              </div>
+              <div className="overview-domain-measure-label">
+                <span className="little-spacer-right"><CodeSmellIcon /></span>
+                {getMetricName('code_smells')}
+              </div>
+            </div>
+          </div>
         </div>
+
+        {this.renderTimeline('before', true)}
+      </div>
     );
   }
 
-  render () {
+  render() {
     return (
-        <div className="overview-card" id="overview-code-smells">
-          {this.renderHeader()}
+      <div className="overview-card" id="overview-code-smells">
+        {this.renderHeader()}
 
-          <div className="overview-domain-panel">
-            {this.renderNutshell()}
-            {this.renderLeak()}
-          </div>
+        <div className="overview-domain-panel">
+          {this.renderNutshell()}
+          {this.renderLeak()}
         </div>
+      </div>
     );
   }
 }

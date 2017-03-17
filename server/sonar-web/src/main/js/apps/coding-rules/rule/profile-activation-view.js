@@ -27,7 +27,7 @@ import { sortProfiles } from '../../quality-profiles/utils';
 export default ModalForm.extend({
   template: Template,
 
-  ui () {
+  ui() {
     return {
       ...ModalForm.prototype.ui.apply(this, arguments),
       qualityProfileSelect: '#coding-rules-quality-profile-activation-select',
@@ -37,14 +37,14 @@ export default ModalForm.extend({
     };
   },
 
-  events () {
+  events() {
     return {
       ...ModalForm.prototype.events.apply(this, arguments),
       'click @ui.qualityProfileActivate': 'activate'
     };
   },
 
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
 
     this.ui.qualityProfileSelect.select2({
@@ -53,14 +53,15 @@ export default ModalForm.extend({
     });
 
     const that = this;
-    const format = function (state) {
+    const format = function(state) {
       if (!state.id) {
         return state.text;
       } else {
         return `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}`;
       }
     };
-    const severity = (this.model && this.model.get('severity')) || this.options.rule.get('severity');
+    const severity = (this.model && this.model.get('severity')) ||
+      this.options.rule.get('severity');
     this.ui.qualityProfileSeverity.val(severity);
     this.ui.qualityProfileSeverity.select2({
       width: '250px',
@@ -68,22 +69,27 @@ export default ModalForm.extend({
       formatResult: format,
       formatSelection: format
     });
-    setTimeout(() => {
-      that.$('a').first().focus();
-    }, 0);
+    setTimeout(
+      () => {
+        that.$('a').first().focus();
+      },
+      0
+    );
   },
 
-  activate (e) {
+  activate(e) {
     e.preventDefault();
     const that = this;
     let profileKey = this.ui.qualityProfileSelect.val();
-    const params = this.ui.qualityProfileParameters.map(function () {
-      return {
-        key: $(this).prop('name'),
-        value: $(this).val() || $(this).prop('placeholder') || ''
-      };
-    }).get();
-    const paramsHash = (params.map(param => param.key + '=' + csvEscape(param.value))).join(';');
+    const params = this.ui.qualityProfileParameters
+      .map(function() {
+        return {
+          key: $(this).prop('name'),
+          value: $(this).val() || $(this).prop('placeholder') || ''
+        };
+      })
+      .get();
+    const paramsHash = params.map(param => param.key + '=' + csvEscape(param.value)).join(';');
 
     if (this.model) {
       profileKey = this.model.get('qProfile');
@@ -110,24 +116,26 @@ export default ModalForm.extend({
         // do not show global error
         400: null
       }
-    }).done(() => {
-      that.destroy();
-      that.trigger('profileActivated', severity, params, profileKey);
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    })
+      .done(() => {
+        that.destroy();
+        that.trigger('profileActivated', severity, params, profileKey);
+      })
+      .fail(jqXHR => {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
   },
 
-  getAvailableQualityProfiles (lang) {
+  getAvailableQualityProfiles(lang) {
     const activeQualityProfiles = this.collection || new Backbone.Collection();
-    const inactiveProfiles = this.options.app.qualityProfiles.filter(profile => (
-        !activeQualityProfiles.findWhere({ key: profile.key })
-    ));
+    const inactiveProfiles = this.options.app.qualityProfiles.filter(
+      profile => !activeQualityProfiles.findWhere({ key: profile.key })
+    );
     return inactiveProfiles.filter(profile => profile.lang === lang);
   },
 
-  serializeData () {
+  serializeData() {
     let params = this.options.rule.get('params');
     if (this.model != null) {
       const modelParams = this.model.get('params');
@@ -159,7 +167,8 @@ export default ModalForm.extend({
       qualityProfiles: profilesWithDepth,
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
       saveEnabled: availableProfiles.length > 0 || (this.model && this.model.get('qProfile')),
-      isCustomRule: (this.model && this.model.has('templateKey')) || this.options.rule.has('templateKey')
+      isCustomRule: (this.model && this.model.has('templateKey')) ||
+        this.options.rule.has('templateKey')
     };
   }
 });

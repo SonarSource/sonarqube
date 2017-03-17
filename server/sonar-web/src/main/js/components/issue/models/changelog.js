@@ -20,12 +20,11 @@
 import Backbone from 'backbone';
 
 export default Backbone.Collection.extend({
-  url () {
+  url() {
     return window.baseUrl + '/api/issues/changelog';
   },
 
-  parse (r) {
+  parse(r) {
     return r.changelog;
   }
 });
-

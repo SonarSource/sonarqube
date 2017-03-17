@@ -25,7 +25,7 @@ import { parseError } from '../../code/utils';
 import { getCurrentUser } from '../../../store/rootReducer';
 
 class EmailForm extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       recipient: this.props.currentUser.email,
@@ -37,7 +37,7 @@ class EmailForm extends React.Component {
     };
   }
 
-  handleFormSubmit (e) {
+  handleFormSubmit(e) {
     e.preventDefault();
     this.setState({ success: false, error: null, loading: true });
     const { recipient, subject, message } = this.state;
@@ -47,72 +47,78 @@ class EmailForm extends React.Component {
     );
   }
 
-  render () {
+  render() {
     return (
-        <div className="huge-spacer-top">
-          <h3 className="spacer-bottom">{translate('email_configuration.test.title')}</h3>
+      <div className="huge-spacer-top">
+        <h3 className="spacer-bottom">{translate('email_configuration.test.title')}</h3>
 
-          <form style={{ marginLeft: 201 }} onSubmit={e => this.handleFormSubmit(e)}>
-            {this.state.success && (
-                <div className="modal-field">
-                  <div className="alert alert-success">
-                    {translateWithParameters('email_configuration.test.email_was_sent_to_x', this.state.recipient)}
-                  </div>
-                </div>
-            )}
+        <form style={{ marginLeft: 201 }} onSubmit={e => this.handleFormSubmit(e)}>
+          {this.state.success &&
+            <div className="modal-field">
+              <div className="alert alert-success">
+                {translateWithParameters(
+                  'email_configuration.test.email_was_sent_to_x',
+                  this.state.recipient
+                )}
+              </div>
+            </div>}
 
-            {this.state.error != null && (
-                <div className="modal-field">
-                  <div className="alert alert-danger">
-                    {this.state.error}
-                  </div>
-                </div>
-            )}
+          {this.state.error != null &&
+            <div className="modal-field">
+              <div className="alert alert-danger">
+                {this.state.error}
+              </div>
+            </div>}
 
-            <div className="modal-field">
-              <label htmlFor="test-email-to">
-                {translate('email_configuration.test.to_address')}
-                <em className="mandatory">*</em>
-              </label>
-              <input
-                  id="test-email-to"
-                  type="email"
-                  required={true}
-                  value={this.state.recipient}
-                  disabled={this.state.loading}
-                  onChange={e => this.setState({ recipient: e.target.value })}/>
-            </div>
-            <div className="modal-field">
-              <label htmlFor="test-email-subject">
-                {translate('email_configuration.test.subject')}
-              </label>
-              <input
-                  id="test-email-subject"
-                  type="text"
-                  value={this.state.subject}
-                  disabled={this.state.loading}
-                  onChange={e => this.setState({ subject: e.target.value })}/>
-            </div>
-            <div className="modal-field">
-              <label htmlFor="test-email-message">
-                {translate('email_configuration.test.message')}
-                <em className="mandatory">*</em>
-              </label>
-              <textarea
-                  id="test-email-title"
-                  required={true}
-                  rows="5"
-                  value={this.state.message}
-                  disabled={this.state.loading}
-                  onChange={e => this.setState({ message: e.target.value })}/>
-            </div>
+          <div className="modal-field">
+            <label htmlFor="test-email-to">
+              {translate('email_configuration.test.to_address')}
+              <em className="mandatory">*</em>
+            </label>
+            <input
+              id="test-email-to"
+              type="email"
+              required={true}
+              value={this.state.recipient}
+              disabled={this.state.loading}
+              onChange={e => this.setState({ recipient: e.target.value })}
+            />
+          </div>
+          <div className="modal-field">
+            <label htmlFor="test-email-subject">
+              {translate('email_configuration.test.subject')}
+            </label>
+            <input
+              id="test-email-subject"
+              type="text"
+              value={this.state.subject}
+              disabled={this.state.loading}
+              onChange={e => this.setState({ subject: e.target.value })}
+            />
+          </div>
+          <div className="modal-field">
+            <label htmlFor="test-email-message">
+              {translate('email_configuration.test.message')}
+              <em className="mandatory">*</em>
+            </label>
+            <textarea
+              id="test-email-title"
+              required={true}
+              rows="5"
+              value={this.state.message}
+              disabled={this.state.loading}
+              onChange={e => this.setState({ message: e.target.value })}
+            />
+          </div>
 
-            <div className="modal-field">
-              {this.state.loading && <i className="spacer-right spinner"/>}
-              <button disabled={this.state.loading}>{translate('email_configuration.test.send')}</button>
-            </div>
-          </form>
-        </div>
+          <div className="modal-field">
+            {this.state.loading && <i className="spacer-right spinner" />}
+            <button disabled={this.state.loading}>
+              {translate('email_configuration.test.send')}
+            </button>
+          </div>
+        </form>
+      </div>
     );
   }
 }

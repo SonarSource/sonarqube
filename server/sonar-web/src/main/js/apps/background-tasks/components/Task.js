@@ -38,31 +38,32 @@ export default class Task extends React.Component {
     onFilterTask: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  render () {
+  render() {
     const { task, index, tasks, component, types, onCancelTask, onFilterTask } = this.props;
 
     const prevTask = index > 0 ? tasks[index - 1] : null;
 
     return (
-        <tr>
-          <TaskStatus task={task}/>
-          <TaskComponent task={task} types={types}/>
-          <TaskId task={task}/>
-          <TaskDay task={task} prevTask={prevTask}/>
-          <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS"/>
-          <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS"/>
-          <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS"/>
-          <TaskExecutionTime task={task}/>
-          <TaskActions
-              component={component}
-              task={task}
-              onFilterTask={onFilterTask}
-              onCancelTask={onCancelTask}/>
-        </tr>
+      <tr>
+        <TaskStatus task={task} />
+        <TaskComponent task={task} types={types} />
+        <TaskId task={task} />
+        <TaskDay task={task} prevTask={prevTask} />
+        <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS" />
+        <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS" />
+        <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS" />
+        <TaskExecutionTime task={task} />
+        <TaskActions
+          component={component}
+          task={task}
+          onFilterTask={onFilterTask}
+          onCancelTask={onCancelTask}
+        />
+      </tr>
     );
   }
 }

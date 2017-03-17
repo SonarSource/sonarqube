@@ -29,8 +29,7 @@ export default class App extends React.Component {
         line?: string
       }
     }
-  }
-
+  };
   scrollToLine = () => {
     const { line } = this.props.location.query;
     if (line) {
@@ -44,19 +43,20 @@ export default class App extends React.Component {
     }
   };
 
-  render () {
+  render() {
     const { id, line } = this.props.location.query;
 
     const finalLine = line != null ? Number(line) : null;
 
     return (
-        <div className="page">
+      <div className="page">
         <SourceViewer
           aroundLine={finalLine}
           component={id}
           highlightedLine={finalLine}
-          onLoaded={this.scrollToLine}/>
-        </div>
+          onLoaded={this.scrollToLine}
+        />
+      </div>
     );
   }
 }

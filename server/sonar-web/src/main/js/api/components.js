@@ -20,57 +20,59 @@
 // @flow
 import { getJSON, postJSON, post } from '../helpers/request';
 
-export function getComponents (data?: Object) {
+export function getComponents(data?: Object) {
   const url = '/api/projects/search';
   return getJSON(url, data);
 }
 
-export function getProvisioned (data?: Object) {
+export function getProvisioned(data?: Object) {
   const url = '/api/projects/provisioned';
   return getJSON(url, data);
 }
 
-export function getGhosts (data?: Object) {
+export function getGhosts(data?: Object) {
   const url = '/api/projects/ghosts';
   return getJSON(url, data);
 }
 
-export function deleteComponents (data: { projects: string, organization?: string }) {
+export function deleteComponents(data: { projects: string, organization?: string }) {
   const url = '/api/projects/bulk_delete';
   return post(url, data);
 }
 
-export function deleteProject (project: string) {
+export function deleteProject(project: string) {
   const url = '/api/projects/delete';
   const data = { project };
   return post(url, data);
 }
 
-export function createProject (data: {
-  branch?: string,
-  name: string,
-  project: string,
-  organization?: string
-}) {
+export function createProject(
+  data: {
+    branch?: string,
+    name: string,
+    project: string,
+    organization?: string
+  }
+) {
   const url = '/api/projects/create';
   return postJSON(url, data);
 }
 
-export function searchProjectTags (data?: { ps?: number, q?: string }) {
+export function searchProjectTags(data?: { ps?: number, q?: string }) {
   const url = '/api/project_tags/search';
   return getJSON(url, data);
 }
 
-export function setProjectTags (data: { project: string, tags: string }) {
+export function setProjectTags(data: { project: string, tags: string }) {
   const url = '/api/project_tags/set';
   return postJSON(url, data);
 }
 
-export function getComponentTree (
-    strategy: string,
-    componentKey: string,
-    metrics: Array<string> = [],
-    additional?: Object = {}
+export function getComponentTree(
+  strategy: string,
+  componentKey: string,
+  metrics: Array<string> = [],
+  additional?: Object = {}
 ) {
   const url = '/api/measures/component_tree';
   const data = Object.assign({}, additional, {
@@ -81,33 +83,37 @@ export function getComponentTree (
   return getJSON(url, data);
 }
 
-export function getChildren (componentKey: string, metrics?: Array<string>, additional?: Object) {
+export function getChildren(componentKey: string, metrics?: Array<string>, additional?: Object) {
   return getComponentTree('children', componentKey, metrics, additional);
 }
 
-export function getComponentLeaves (componentKey: string, metrics?: Array<string>, additional?: Object) {
+export function getComponentLeaves(
+  componentKey: string,
+  metrics?: Array<string>,
+  additional?: Object
+) {
   return getComponentTree('leaves', componentKey, metrics, additional);
 }
 
-export function getComponent (componentKey: string, metrics: Array<string> = []) {
+export function getComponent(componentKey: string, metrics: Array<string> = []) {
   const url = '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(',') };
   return getJSON(url, data).then(r => r.component);
 }
 
-export function getTree (component: string, options?: Object = {}) {
+export function getTree(component: string, options?: Object = {}) {
   const url = '/api/components/tree';
   const data = { ...options, component };
   return getJSON(url, data);
 }
 
-export function getParents ({ id, key }: { id: string, key: string }) {
+export function getParents({ id, key }: { id: string, key: string }) {
   const url = '/api/components/show';
   const data = id ? { id } : { key };
   return getJSON(url, data).then(r => r.ancestors);
 }
 
-export function getBreadcrumbs (component: string) {
+export function getBreadcrumbs(component: string) {
   const url = '/api/components/show';
   return getJSON(url, { component }).then(r => {
     const reversedAncestors = [...r.ancestors].reverse();
@@ -115,12 +121,12 @@ export function getBreadcrumbs (component: string) {
   });
 }
 
-export function getMyProjects (data?: Object) {
+export function getMyProjects(data?: Object) {
   const url = '/api/projects/search_my_projects';
   return getJSON(url, data);
 }
 
-export function searchProjects (data?: Object) {
+export function searchProjects(data?: Object) {
   const url = '/api/components/search_projects';
   return getJSON(url, data);
 }
@@ -131,7 +137,7 @@ export function searchProjects (data?: Object) {
  * @param {string} to
  * @returns {Promise}
  */
-export function changeKey (from: string, to: string) {
+export function changeKey(from: string, to: string) {
   const url = '/api/projects/update_key';
   const data = { from, to };
   return post(url, data);
@@ -145,19 +151,17 @@ export function changeKey (from: string, to: string) {
  * @param {boolean} dryRun
  * @returns {Promise}
  */
-export function bulkChangeKey (project: string, from: string, to: string, dryRun?: boolean = false) {
+export function bulkChangeKey(project: string, from: string, to: string, dryRun?: boolean = false) {
   const url = '/api/projects/bulk_update_key';
   const data = { project, from, to, dryRun };
   return postJSON(url, data);
 }
 
-export const getSuggestions = (query: string): Promise<Object> => (
-    getJSON('/api/components/suggestions', { s: query })
-);
+export const getSuggestions = (query: string): Promise<Object> =>
+  getJSON('/api/components/suggestions', { s: query });
 
-export const getComponentForSourceViewer = (component: string): Promise<*> => (
-  getJSON('/api/components/app', { component })
-);
+export const getComponentForSourceViewer = (component: string): Promise<*> =>
+  getJSON('/api/components/app', { component });
 
 export const getSources = (component: string, from?: number, to?: number): Promise<Array<*>> => {
   const data: Object = { key: component };
@@ -170,10 +174,10 @@ export const getSources = (component: string, from?: number, to?: number): Promi
   return getJSON('/api/sources/lines', data).then(r => r.sources);
 };
 
-export const getDuplications = (component: string): Promise<*> => (
-  getJSON('/api/duplications/show', { key: component })
-);
+export const getDuplications = (component: string): Promise<*> =>
+  getJSON('/api/duplications/show', { key: component });
 
-export const getTests = (component: string, line: number | string): Promise<*> => (
-  getJSON('/api/tests/list', { sourceFileKey: component, sourceFileLineNumber: line }).then(r => r.tests)
-);
+export const getTests = (component: string, line: number | string): Promise<*> =>
+  getJSON('/api/tests/list', { sourceFileKey: component, sourceFileLineNumber: line }).then(
+    r => r.tests
+  );

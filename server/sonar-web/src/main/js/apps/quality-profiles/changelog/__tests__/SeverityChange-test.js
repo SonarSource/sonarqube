@@ -23,7 +23,7 @@ import SeverityChange from '../SeverityChange';
 import SeverityHelper from '../../../../components/shared/severity-helper';
 
 it('should render SeverityHelper', () => {
-  const output = shallow(<SeverityChange severity="BLOCKER"/>).find(SeverityHelper);
+  const output = shallow(<SeverityChange severity="BLOCKER" />).find(SeverityHelper);
   expect(output.length).toBe(1);
   expect(output.prop('severity')).toBe('BLOCKER');
 });

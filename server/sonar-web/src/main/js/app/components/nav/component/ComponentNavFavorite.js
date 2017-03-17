@@ -27,17 +27,15 @@ class ComponentNavFavorite extends React.Component {
     currentUser: React.PropTypes.object.isRequired
   };
 
-  render () {
+  render() {
     if (!this.props.currentUser.isLoggedIn) {
       return null;
     }
 
     return (
-        <div className="navbar-context-favorite">
-          <Favorite
-              component={this.props.component}
-              favorite={this.props.favorite}/>
-        </div>
+      <div className="navbar-context-favorite">
+        <Favorite component={this.props.component} favorite={this.props.favorite} />
+      </div>
     );
   }
 }

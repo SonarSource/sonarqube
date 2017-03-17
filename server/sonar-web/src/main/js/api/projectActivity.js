@@ -36,8 +36,8 @@ type GetProjectActivityOptions = {
 };
 
 export const getProjectActivity = (
-    project: string,
-    options?: GetProjectActivityOptions
+  project: string,
+  options?: GetProjectActivityOptions
 ): Promise<GetProjectActivityResponse> => {
   const data: Object = { project };
   if (options) {
@@ -64,10 +64,10 @@ type CreateEventResponse = {
 };
 
 export const createEvent = (
-    analysis: string,
-    name: string,
-    category?: string,
-    description?: string
+  analysis: string,
+  name: string,
+  category?: string,
+  description?: string
 ): Promise<CreateEventResponse> => {
   const data: Object = { analysis, name };
   if (category) {
@@ -79,11 +79,14 @@ export const createEvent = (
   return postJSON('/api/project_analyses/create_event', data).then(r => r.event);
 };
 
-export const deleteEvent = (event: string): Promise<*> => (
-    post('/api/project_analyses/delete_event', { event })
-);
+export const deleteEvent = (event: string): Promise<*> =>
+  post('/api/project_analyses/delete_event', { event });
 
-export const changeEvent = (event: string, name: ?string, description: ?string): Promise<CreateEventResponse> => {
+export const changeEvent = (
+  event: string,
+  name: ?string,
+  description: ?string
+): Promise<CreateEventResponse> => {
   const data: Object = { event };
   if (name) {
     data.name = name;
@@ -94,6 +97,5 @@ export const changeEvent = (event: string, name: ?string, description: ?string):
   return postJSON('/api/project_analyses/update_event', data).then(r => r.event);
 };
 
-export const deleteAnalysis = (analysis: string): Promise<*> => (
-    post('/api/project_analyses/delete', { analysis })
-);
+export const deleteAnalysis = (analysis: string): Promise<*> =>
+  post('/api/project_analyses/delete', { analysis });

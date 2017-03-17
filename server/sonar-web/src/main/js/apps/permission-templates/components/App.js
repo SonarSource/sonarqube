@@ -21,11 +21,7 @@ import React from 'react';
 import Home from './Home';
 import Template from './Template';
 import { getPermissionTemplates } from '../../../api/permissions';
-import {
-    sortPermissions,
-    mergePermissionsToTemplates,
-    mergeDefaultsToTemplates
-} from '../utils';
+import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates } from '../utils';
 import '../../permissions/styles.css';
 
 export default class App extends React.Component {
@@ -41,22 +37,24 @@ export default class App extends React.Component {
     permissionTemplates: []
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.requestPermissions = this.requestPermissions.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.requestPermissions();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  requestPermissions () {
+  requestPermissions() {
     const { organization } = this.props;
-    const request = organization ? getPermissionTemplates(organization.key) : getPermissionTemplates();
+    const request = organization
+      ? getPermissionTemplates(organization.key)
+      : getPermissionTemplates();
     return request.then(r => {
       if (this.mounted) {
         const permissions = sortPermissions(r.permissions);
@@ -73,22 +71,23 @@ export default class App extends React.Component {
     });
   }
 
-  renderTemplate (id) {
+  renderTemplate(id) {
     if (!this.state.ready) {
       return null;
     }
 
     const template = this.state.permissionTemplates.find(t => t.id === id);
     return (
-        <Template
-            organization={this.props.organization}
-            template={template}
-            refresh={this.requestPermissions}
-            topQualifiers={this.props.topQualifiers}/>
+      <Template
+        organization={this.props.organization}
+        template={template}
+        refresh={this.requestPermissions}
+        topQualifiers={this.props.topQualifiers}
+      />
     );
   }
 
-  render () {
+  render() {
     const { id } = this.props.location.query;
 
     if (id) {
@@ -96,13 +95,14 @@ export default class App extends React.Component {
     }
 
     return (
-        <Home
-            organization={this.props.organization}
-            topQualifiers={this.props.topQualifiers}
-            permissions={this.state.permissions}
-            permissionTemplates={this.state.permissionTemplates}
-            ready={this.state.ready}
-            refresh={this.requestPermissions}/>
+      <Home
+        organization={this.props.organization}
+        topQualifiers={this.props.topQualifiers}
+        permissions={this.state.permissions}
+        permissionTemplates={this.state.permissionTemplates}
+        ready={this.state.ready}
+        refresh={this.requestPermissions}
+      />
     );
   }
 }

@@ -30,12 +30,15 @@ it('should match snapshot', () => {
     { channel: 'channel2', type: 'type2' }
   ];
 
-  expect(shallow(
-    <UnconnectedGlobalNotifications
-          notifications={notifications}
-          channels={channels}
-          types={types}
-          addNotification={jest.fn()}
-          removeNotification={jest.fn()}/>
-  )).toMatchSnapshot();
+  expect(
+    shallow(
+      <UnconnectedGlobalNotifications
+        notifications={notifications}
+        channels={channels}
+        types={types}
+        addNotification={jest.fn()}
+        removeNotification={jest.fn()}
+      />
+    )
+  ).toMatchSnapshot();
 });

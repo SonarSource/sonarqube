@@ -38,7 +38,7 @@ export default class LineIssuesIndicator extends React.PureComponent {
     this.props.onClick();
   };
 
-  render () {
+  render() {
     const { issues, line } = this.props;
     const hasIssues = issues.length > 0;
     const className = classNames('source-meta', 'source-line-issues', {
@@ -52,8 +52,9 @@ export default class LineIssuesIndicator extends React.PureComponent {
         data-line-number={line.line}
         role={hasIssues ? 'button' : undefined}
         tabIndex={hasIssues ? '0' : undefined}
-        onClick={hasIssues ? this.handleClick : undefined}>
-        {mostImportantIssue != null && <SeverityIcon severity={mostImportantIssue.severity}/>}
+        onClick={hasIssues ? this.handleClick : undefined}
+      >
+        {mostImportantIssue != null && <SeverityIcon severity={mostImportantIssue.severity} />}
         {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
       </td>
     );

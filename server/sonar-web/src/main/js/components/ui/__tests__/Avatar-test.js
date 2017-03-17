@@ -25,7 +25,12 @@ const gravatarServerUrl = 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}';
 
 it('should render', () => {
   const avatar = shallow(
-    <Avatar enableGravatar={true} gravatarServerUrl={gravatarServerUrl} email="mail@example.com" size={20}/>
+    <Avatar
+      enableGravatar={true}
+      gravatarServerUrl={gravatarServerUrl}
+      email="mail@example.com"
+      size={20}
+    />
   );
   expect(avatar.is('img')).toBe(true);
   expect(avatar.prop('width')).toBe(20);
@@ -36,7 +41,12 @@ it('should render', () => {
 
 it('should not render', () => {
   const avatar = shallow(
-    <Avatar enableGravatar={false} gravatarServerUrl={gravatarServerUrl} email="mail@example.com" size={20}/>
+    <Avatar
+      enableGravatar={false}
+      gravatarServerUrl={gravatarServerUrl}
+      email="mail@example.com"
+      size={20}
+    />
   );
   expect(avatar.is('img')).toBe(false);
 });

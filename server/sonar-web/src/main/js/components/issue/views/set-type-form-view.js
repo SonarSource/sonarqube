@@ -24,29 +24,28 @@ import Template from '../templates/issue-set-type-form.hbs';
 export default ActionOptionsView.extend({
   template: Template,
 
-  getType () {
+  getType() {
     return this.model.get('type');
   },
 
-  selectInitialOption () {
+  selectInitialOption() {
     return this.makeActive(this.getOptions().filter(`[data-value="${this.getType()}"]`));
   },
 
-  selectOption (e) {
+  selectOption(e) {
     const issueType = $(e.currentTarget).data('value');
     this.submit(issueType);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  submit (issueType) {
+  submit(issueType) {
     return this.model.setType(issueType);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ActionOptionsView.prototype.serializeData.apply(this, arguments),
       items: ['BUG', 'VULNERABILITY', 'CODE_SMELL']
     };
   }
 });
-

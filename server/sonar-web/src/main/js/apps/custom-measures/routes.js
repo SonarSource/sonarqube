@@ -21,6 +21,4 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import CustomMeasuresAppContainer from './components/CustomMeasuresAppContainer';
 
-export default (
-    <IndexRoute component={CustomMeasuresAppContainer}/>
-);
+export default <IndexRoute component={CustomMeasuresAppContainer} />;

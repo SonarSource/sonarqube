@@ -21,11 +21,11 @@ import React from 'react';
 
 const TaskId = ({ task }) => {
   return (
-      <td className="thin nowrap">
-        <div className="note">
-          {task.id}
-        </div>
-      </td>
+    <td className="thin nowrap">
+      <div className="note">
+        {task.id}
+      </div>
+    </td>
   );
 };
 

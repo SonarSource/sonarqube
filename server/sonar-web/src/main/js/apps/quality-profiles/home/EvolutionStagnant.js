@@ -29,7 +29,7 @@ export default class EvolutionStagnant extends React.Component {
     profiles: ProfilesListType.isRequired
   };
 
-  render () {
+  render() {
     // TODO filter built-in out
 
     const outdated = this.props.profiles.filter(isStagnant);
@@ -39,33 +39,30 @@ export default class EvolutionStagnant extends React.Component {
     }
 
     return (
-        <div
-            className="quality-profile-box quality-profiles-evolution-stagnant">
-          <div className="spacer-bottom">
-            <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
-          </div>
-          <div className="spacer-bottom">
-            {translate('quality_profiles.not_updated_more_than_year')}
-          </div>
-          <ul>
-            {outdated.map(profile => (
-                <li key={profile.key} className="spacer-top">
-                  <div className="text-ellipsis">
-                    <ProfileLink
-                        profileKey={profile.key}
-                        className="link-no-underline">
-                      {profile.name}
-                    </ProfileLink>
-                  </div>
-                  <div className="note">
-                    {profile.languageName}
-                    {', '}
-                    updated on {moment(profile.rulesUpdatedAt).format('LL')}
-                  </div>
-                </li>
-            ))}
-          </ul>
+      <div className="quality-profile-box quality-profiles-evolution-stagnant">
+        <div className="spacer-bottom">
+          <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
         </div>
+        <div className="spacer-bottom">
+          {translate('quality_profiles.not_updated_more_than_year')}
+        </div>
+        <ul>
+          {outdated.map(profile => (
+            <li key={profile.key} className="spacer-top">
+              <div className="text-ellipsis">
+                <ProfileLink profileKey={profile.key} className="link-no-underline">
+                  {profile.name}
+                </ProfileLink>
+              </div>
+              <div className="note">
+                {profile.languageName}
+                {', '}
+                updated on {moment(profile.rulesUpdatedAt).format('LL')}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 }

@@ -22,8 +22,8 @@ import Select from 'react-select';
 import sortBy from 'lodash/sortBy';
 import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
-export default function AddConditionForm ({ metrics, onSelect }) {
-  function handleChange (option) {
+export default function AddConditionForm({ metrics, onSelect }) {
+  function handleChange(option) {
     const metric = option.value;
 
     // e.target.value = '';
@@ -55,13 +55,14 @@ export default function AddConditionForm ({ metrics, onSelect }) {
   });
 
   return (
-      <div className="big-spacer-top panel bg-muted">
-        <Select
-            id="quality-gate-new-condition-metric"
-            className="text-middle input-large"
-            options={optionsWithDomains}
-            placeholder={translate('quality_gates.add_condition')}
-            onChange={handleChange}/>
-      </div>
+    <div className="big-spacer-top panel bg-muted">
+      <Select
+        id="quality-gate-new-condition-metric"
+        className="text-middle input-large"
+        options={optionsWithDomains}
+        placeholder={translate('quality_gates.add_condition')}
+        onChange={handleChange}
+      />
+    </div>
   );
 }

@@ -21,12 +21,12 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default class NoProjects extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="projects-empty-list">
-          <h3>{translate('projects.no_projects.1')}</h3>
-          <p className="big-spacer-top">{translate('projects.no_projects.2')}</p>
-        </div>
+      <div className="projects-empty-list">
+        <h3>{translate('projects.no_projects.1')}</h3>
+        <p className="big-spacer-top">{translate('projects.no_projects.2')}</p>
+      </div>
     );
   }
 }

@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import LicensesAppHeader from '../LicensesAppHeader';
 
 it('should render', () => {
-  const header = shallow(<LicensesAppHeader/>);
+  const header = shallow(<LicensesAppHeader />);
   expect(header.find('.page-title').length).toBe(1);
   expect(header.find('.page-description').length).toBe(1);
 });

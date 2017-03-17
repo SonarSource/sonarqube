@@ -25,13 +25,13 @@ export default Modal.extend({
   template: Template,
   className: 'modal modal-large',
 
-  initialize () {
+  initialize() {
     this.loaded = false;
     this.stacktrace = null;
     this.loadStacktrace();
   },
 
-  loadStacktrace () {
+  loadStacktrace() {
     getTask(this.options.task.id, ['stacktrace']).then(task => {
       this.loaded = true;
       this.stacktrace = task.errorStacktrace;
@@ -39,7 +39,7 @@ export default Modal.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       task: this.options.task,
       stacktrace: this.stacktrace,
@@ -47,4 +47,3 @@ export default Modal.extend({
     };
   }
 });
-

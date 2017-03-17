@@ -22,9 +22,9 @@ import { IndexRoute, Route } from 'react-router';
 import UpdateCenterAppContainer from './components/UpdateCenterAppContainer';
 
 export default [
-  <IndexRoute key="index" component={UpdateCenterAppContainer}/>,
-  <Route key="installed" path="installed" component={UpdateCenterAppContainer}/>,
-  <Route key="updates" path="updates" component={UpdateCenterAppContainer}/>,
-  <Route key="available" path="available" component={UpdateCenterAppContainer}/>,
-  <Route key="system" path="system" component={UpdateCenterAppContainer}/>
+  <IndexRoute key="index" component={UpdateCenterAppContainer} />,
+  <Route key="installed" path="installed" component={UpdateCenterAppContainer} />,
+  <Route key="updates" path="updates" component={UpdateCenterAppContainer} />,
+  <Route key="available" path="available" component={UpdateCenterAppContainer} />,
+  <Route key="system" path="system" component={UpdateCenterAppContainer} />
 ];

@@ -23,43 +23,43 @@ import Group from './group';
 export default Backbone.Collection.extend({
   model: Group,
 
-  initialize ({ organization }) {
+  initialize({ organization }) {
     this.organization = organization;
   },
 
-  url () {
+  url() {
     return window.baseUrl + '/api/user_groups/search';
   },
 
-  parse (r) {
+  parse(r) {
     this.total = +r.total;
     this.p = +r.p;
     this.ps = +r.ps;
     return r.groups;
   },
 
-  fetch (options) {
+  fetch(options) {
     const data = (options && options.data) || {};
     this.q = data.q;
-    const finalOptions = this.organization ? {
-      ...options,
-      data: { ...data, organization: this.organization.key }
-    } : options;
+    const finalOptions = this.organization
+      ? {
+          ...options,
+          data: { ...data, organization: this.organization.key }
+        }
+      : options;
     return Backbone.Collection.prototype.fetch.call(this, finalOptions);
   },
 
-  fetchMore () {
+  fetchMore() {
     const p = this.p + 1;
     return this.fetch({ add: true, remove: false, data: { p, ps: this.ps, q: this.q } });
   },
 
-  refresh () {
+  refresh() {
     return this.fetch({ reset: true, data: { q: this.q } });
   },
 
-  hasMore () {
+  hasMore() {
     return this.total > this.p * this.ps;
   }
-
 });
-

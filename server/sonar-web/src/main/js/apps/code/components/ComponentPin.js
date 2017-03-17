@@ -29,13 +29,14 @@ const ComponentPin = ({ component }) => {
   };
 
   return (
-      <a
-          className="link-no-underline"
-          onClick={handleClick}
-          title={translate('component_viewer.open_in_workspace')}
-          href="#">
-        <PinIcon/>
-      </a>
+    <a
+      className="link-no-underline"
+      onClick={handleClick}
+      title={translate('component_viewer.open_in_workspace')}
+      href="#"
+    >
+      <PinIcon />
+    </a>
   );
 };
 

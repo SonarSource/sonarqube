@@ -45,35 +45,26 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
   const shouldShowOrganizationKey = component.organization != null && areThereCustomOrganizations;
 
   return (
-      <div className="overview-meta">
-        {hasDescription && (
-            <div className="overview-meta-card overview-meta-description">
-              {description}
-            </div>
-        )}
+    <div className="overview-meta">
+      {hasDescription &&
+        <div className="overview-meta-card overview-meta-description">
+          {description}
+        </div>}
 
-        <MetaSize component={component} measures={measures}/>
+      <MetaSize component={component} measures={measures} />
 
-        {shouldShowQualityGate && (
-            <MetaQualityGate gate={qualityGate}/>
-        )}
+      {shouldShowQualityGate && <MetaQualityGate gate={qualityGate} />}
 
-        {shouldShowQualityProfiles && (
-            <MetaQualityProfiles profiles={qualityProfiles}/>
-        )}
+      {shouldShowQualityProfiles && <MetaQualityProfiles profiles={qualityProfiles} />}
 
-        <MetaLinks component={component}/>
+      <MetaLinks component={component} />
 
-        <MetaKey component={component}/>
+      <MetaKey component={component} />
 
-        {shouldShowOrganizationKey && (
-            <MetaOrganizationKey component={component}/>
-        )}
+      {shouldShowOrganizationKey && <MetaOrganizationKey component={component} />}
 
-        {isProject && (
-            <AnalysesList project={component.key}/>
-        )}
-      </div>
+      {isProject && <AnalysesList project={component.key} />}
+    </div>
   );
 };
 

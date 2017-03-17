@@ -28,18 +28,18 @@ export default class UpdateKeyForm extends React.Component {
 
   state = {};
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleUpdateClick = this.handleUpdateClick.bind(this);
     this.handleResetClick = this.handleResetClick.bind(this);
   }
 
-  handleInputChange (e) {
+  handleInputChange(e) {
     const key = e.target.value;
     this.setState({ key });
   }
 
-  handleUpdateClick (e) {
+  handleUpdateClick(e) {
     e.preventDefault();
     e.target.blur();
 
@@ -52,41 +52,39 @@ export default class UpdateKeyForm extends React.Component {
     }).render();
   }
 
-  handleResetClick (e) {
+  handleResetClick(e) {
     e.preventDefault();
     e.target.blur();
     this.setState({ key: null });
   }
 
-  render () {
+  render() {
     const { component } = this.props;
 
-    const value = this.state.key != null ?
-        this.state.key :
-        component.key;
+    const value = this.state.key != null ? this.state.key : component.key;
 
-    const hasChanged = this.state.key != null &&
-        this.state.key !== component.key;
+    const hasChanged = this.state.key != null && this.state.key !== component.key;
 
     return (
-        <div className="js-fine-grained-update" data-key={component.key}>
-          <input
-              ref="newKey"
-              className="input-super-large big-spacer-right"
-              type="text"
-              value={value}
-              onChange={this.handleInputChange}/>
+      <div className="js-fine-grained-update" data-key={component.key}>
+        <input
+          ref="newKey"
+          className="input-super-large big-spacer-right"
+          type="text"
+          value={value}
+          onChange={this.handleInputChange}
+        />
 
-          <div className="button-group">
-            <button disabled={!hasChanged} onClick={this.handleUpdateClick}>
-              {translate('update_verb')}
-            </button>
+        <div className="button-group">
+          <button disabled={!hasChanged} onClick={this.handleUpdateClick}>
+            {translate('update_verb')}
+          </button>
 
-            <button disabled={!hasChanged} onClick={this.handleResetClick}>
-              {translate('reset_verb')}
-            </button>
-          </div>
+          <button disabled={!hasChanged} onClick={this.handleResetClick}>
+            {translate('reset_verb')}
+          </button>
         </div>
+      </div>
     );
   }
 }

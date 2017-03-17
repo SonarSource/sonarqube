@@ -25,31 +25,30 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   collectionEvents: {
-    'request': 'showSpinner',
-    'sync': 'hideSpinner'
+    request: 'showSpinner',
+    sync: 'hideSpinner'
   },
 
   events: {
     'click #groups-create': 'onCreateClick'
   },
 
-  showSpinner () {
+  showSpinner() {
     this.$('.spinner').removeClass('hidden');
   },
 
-  hideSpinner () {
+  hideSpinner() {
     this.$('.spinner').addClass('hidden');
   },
 
-  onCreateClick (e) {
+  onCreateClick(e) {
     e.preventDefault();
     this.createGroup();
   },
 
-  createGroup () {
+  createGroup() {
     new CreateView({
       collection: this.collection
     }).render();
   }
 });
-

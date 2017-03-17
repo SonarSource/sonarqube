@@ -25,18 +25,17 @@ import Template from './templates/coding-rules-rule-filter-form.hbs';
 export default ActionOptionsView.extend({
   template: Template,
 
-  selectOption (e) {
+  selectOption(e) {
     const property = $(e.currentTarget).data('property');
     const value = $(e.currentTarget).data('value');
     this.trigger('select', property, value);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ActionOptionsView.prototype.serializeData.apply(this, arguments),
       tags: union(this.model.get('sysTags'), this.model.get('tags'))
     };
   }
-
 });

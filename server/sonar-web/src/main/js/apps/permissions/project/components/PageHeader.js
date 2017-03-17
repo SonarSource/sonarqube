@@ -35,46 +35,44 @@ class PageHeader extends React.Component {
     loading: false
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleApplyTemplate = this.handleApplyTemplate.bind(this);
   }
 
-  handleApplyTemplate (e) {
+  handleApplyTemplate(e) {
     e.preventDefault();
     e.target.blur();
     const { project, loadHolders } = this.props;
     const organization = project.organization ? { key: project.organization } : null;
     new ApplyTemplateView({ project, organization })
-        .on('done', () => loadHolders(project.key))
-        .render();
+      .on('done', () => loadHolders(project.key))
+      .render();
   }
 
-  render () {
+  render() {
     const configuration = this.props.project.configuration;
-    const canApplyPermissionTemplate = configuration != null && configuration.canApplyPermissionTemplate;
+    const canApplyPermissionTemplate = configuration != null &&
+      configuration.canApplyPermissionTemplate;
 
     return (
-        <header className="page-header">
-          <h1 className="page-title">
-            {translate('permissions.page')}
-          </h1>
+      <header className="page-header">
+        <h1 className="page-title">
+          {translate('permissions.page')}
+        </h1>
 
-          {this.props.loading && (
-              <i className="spinner"/>
-          )}
+        {this.props.loading && <i className="spinner" />}
 
-          {canApplyPermissionTemplate && (
-              <div className="page-actions">
-                <button className="js-apply-template" onClick={this.handleApplyTemplate}>
-                  Apply Template
-                </button>
-              </div>
-          )}
+        {canApplyPermissionTemplate &&
+          <div className="page-actions">
+            <button className="js-apply-template" onClick={this.handleApplyTemplate}>
+              Apply Template
+            </button>
+          </div>}
 
-          <div className="page-description">
-            {translate('roles.page.description2')}
-          </div>
-        </header>
+        <div className="page-description">
+          {translate('roles.page.description2')}
+        </div>
+      </header>
     );
   }
 }
@@ -87,7 +85,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PageHeader);
+export default connect(mapStateToProps, mapDispatchToProps)(PageHeader);

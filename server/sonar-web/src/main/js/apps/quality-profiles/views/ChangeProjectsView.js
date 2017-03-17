@@ -26,13 +26,14 @@ import '../../../components/SelectList';
 export default ModalFormView.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     ModalFormView.prototype.onRender.apply(this, arguments);
 
     const { key } = this.options.profile;
 
-    const searchUrl = window.baseUrl + '/api/qualityprofiles/projects?key=' +
-        encodeURIComponent(key);
+    const searchUrl = window.baseUrl +
+      '/api/qualityprofiles/projects?key=' +
+      encodeURIComponent(key);
 
     new window.SelectList({
       searchUrl,
@@ -40,7 +41,7 @@ export default ModalFormView.extend({
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format (item) {
+      format(item) {
         return escapeHtml(item.name);
       },
       selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
@@ -63,9 +64,8 @@ export default ModalFormView.extend({
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.options.loadProjects();
     ModalFormView.prototype.onDestroy.apply(this, arguments);
   }
 });
-

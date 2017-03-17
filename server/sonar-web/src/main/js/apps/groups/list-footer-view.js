@@ -24,23 +24,23 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   collectionEvents: {
-    'all': 'render'
+    all: 'render'
   },
 
   events: {
     'click #groups-fetch-more': 'onMoreClick'
   },
 
-  onMoreClick (e) {
+  onMoreClick(e) {
     e.preventDefault();
     this.fetchMore();
   },
 
-  fetchMore () {
+  fetchMore() {
     this.collection.fetchMore();
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       total: this.collection.total,
@@ -49,4 +49,3 @@ export default Marionette.ItemView.extend({
     };
   }
 });
-

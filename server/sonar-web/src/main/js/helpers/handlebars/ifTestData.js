@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (test, options) {
-  if ((test.status !== 'OK') || ((test.status === 'OK') && test.coveredLines)) {
+module.exports = function(test, options) {
+  if (test.status !== 'OK' || (test.status === 'OK' && test.coveredLines)) {
     return options.fn(this);
   } else {
     return options.inverse(this);

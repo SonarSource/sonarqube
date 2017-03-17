@@ -39,25 +39,27 @@ const reducer = (state: State = {}, action: Action) => {
 
 export default reducer;
 
-export const getDefinition = (state: State, key: string): Definition =>
-    state[key];
+export const getDefinition = (state: State, key: string): Definition => state[key];
 
 export const getAllDefinitions = (state: State): Definition[] =>
-    Object.keys(state).map(key => state[key]);
+  Object.keys(state).map(key => state[key]);
 
 export const getDefinitionsForCategory = (state: State, category: string) =>
-    getAllDefinitions(state).filter(definition => definition.category.toLowerCase() === category.toLowerCase());
+  getAllDefinitions(state).filter(
+    definition => definition.category.toLowerCase() === category.toLowerCase()
+  );
 
-export const getAllCategories = (state: State) => uniqBy(
-  getAllDefinitions(state).map(definition => definition.category),
-  category => category.toLowerCase());
+export const getAllCategories = (state: State) =>
+  uniqBy(getAllDefinitions(state).map(definition => definition.category), category =>
+    category.toLowerCase());
 
 export const getDefaultCategory = (state: State) => {
   const categories = getAllCategories(state);
   if (categories.includes(DEFAULT_CATEGORY)) {
     return DEFAULT_CATEGORY;
   } else {
-    const sortedCategories = sortBy(categories, category => getCategoryName(category).toLowerCase());
+    const sortedCategories = sortBy(categories, category =>
+      getCategoryName(category).toLowerCase());
     return sortedCategories[0];
   }
 };

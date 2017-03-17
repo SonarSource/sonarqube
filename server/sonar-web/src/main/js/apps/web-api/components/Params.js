@@ -30,7 +30,7 @@ export default class Params extends React.PureComponent {
     params: Array<Param>
   };
 
-  render () {
+  render() {
     const { showDeprecated, showInternal, params } = this.props;
     const displayedParameters = params
       .filter(p => showDeprecated || !p.deprecatedSince)
@@ -47,12 +47,12 @@ export default class Params extends React.PureComponent {
 
                   {param.internal &&
                     <div className="little-spacer-top">
-                      <InternalBadge/>
+                      <InternalBadge />
                     </div>}
 
                   {param.deprecatedSince &&
                     <div className="little-spacer-top">
-                      <DeprecatedBadge since={param.deprecatedSince}/>
+                      <DeprecatedBadge since={param.deprecatedSince} />
                     </div>}
 
                   {showDeprecated &&
@@ -65,7 +65,7 @@ export default class Params extends React.PureComponent {
                     param.deprecatedKey &&
                     param.deprecatedKeySince &&
                     <div className="little-spacer-top">
-                      <DeprecatedBadge since={param.deprecatedKeySince}/>
+                      <DeprecatedBadge since={param.deprecatedKeySince} />
                     </div>}
 
                   <div className="note little-spacer-top">
@@ -81,7 +81,8 @@ export default class Params extends React.PureComponent {
                 <td>
                   <div
                     className="markdown"
-                    dangerouslySetInnerHTML={{ __html: param.description }}/>
+                    dangerouslySetInnerHTML={{ __html: param.description }}
+                  />
                 </td>
 
                 <td style={{ width: 250 }}>

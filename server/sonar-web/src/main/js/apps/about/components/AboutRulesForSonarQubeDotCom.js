@@ -23,27 +23,36 @@ import { Link } from 'react-router';
 import { getRulesUrl } from '../../../helpers/urls';
 
 export default class AboutRulesForSonarQubeDotCom extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="sqcom-about-rules">
-          <div className="about-page-container">
-            <Link to={getRulesUrl()} className="sqcom-about-rules-link">
-              +3,000 rules
-              <span className="spacer-left">
-                <svg width="15" height="36" viewBox="0 0 15 36">
-                  <g transform="matrix(1,0,0,1,-267,-362)">
-                    <path d="M268,363L281,380L269,397" style={{ fill: 'none', stroke: '#c1d9ea', strokeWidth: 1 }}/>
-                  </g>
-                </svg>
-              </span>
-            </Link>
-            <Link to={getRulesUrl({ languages: 'js' })} className="sqcom-about-rules-link">JavaScript</Link>
-            <Link to={getRulesUrl({ languages: 'java' })} className="sqcom-about-rules-link">Java</Link>
-            <Link to={getRulesUrl({ languages: 'c,cpp' })} className="sqcom-about-rules-link">C/C++</Link>
-            <Link to={getRulesUrl({ languages: 'cs' })} className="sqcom-about-rules-link">C#</Link>
-            <Link to={getRulesUrl()} className="button">And More</Link>
-          </div>
+      <div className="sqcom-about-rules">
+        <div className="about-page-container">
+          <Link to={getRulesUrl()} className="sqcom-about-rules-link">
+            +3,000 rules
+            <span className="spacer-left">
+              <svg width="15" height="36" viewBox="0 0 15 36">
+                <g transform="matrix(1,0,0,1,-267,-362)">
+                  <path
+                    d="M268,363L281,380L269,397"
+                    style={{ fill: 'none', stroke: '#c1d9ea', strokeWidth: 1 }}
+                  />
+                </g>
+              </svg>
+            </span>
+          </Link>
+          <Link to={getRulesUrl({ languages: 'js' })} className="sqcom-about-rules-link">
+            JavaScript
+          </Link>
+          <Link to={getRulesUrl({ languages: 'java' })} className="sqcom-about-rules-link">
+            Java
+          </Link>
+          <Link to={getRulesUrl({ languages: 'c,cpp' })} className="sqcom-about-rules-link">
+            C/C++
+          </Link>
+          <Link to={getRulesUrl({ languages: 'cs' })} className="sqcom-about-rules-link">C#</Link>
+          <Link to={getRulesUrl()} className="button">And More</Link>
         </div>
+      </div>
     );
   }
 }

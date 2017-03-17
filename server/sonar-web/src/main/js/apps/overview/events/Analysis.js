@@ -29,25 +29,23 @@ export default class Analysis extends React.Component {
     analysis: AnalysisType
   };
 
-  render () {
+  render() {
     const { analysis } = this.props;
 
     return (
-        <TooltipsContainer>
-          <li className="overview-analysis">
-            <div className="small little-spacer-bottom">
-              <strong>
-                <FormattedDate date={analysis.date} format="LL"/>
-              </strong>
-            </div>
+      <TooltipsContainer>
+        <li className="overview-analysis">
+          <div className="small little-spacer-bottom">
+            <strong>
+              <FormattedDate date={analysis.date} format="LL" />
+            </strong>
+          </div>
 
-            {analysis.events.length > 0 ? (
-                <Events events={analysis.events} canAdmin={false}/>
-            ) : (
-                <span className="note">{translate('project_activity.project_analyzed')}</span>
-            )}
-          </li>
-        </TooltipsContainer>
+          {analysis.events.length > 0
+            ? <Events events={analysis.events} canAdmin={false} />
+            : <span className="note">{translate('project_activity.project_analyzed')}</span>}
+        </li>
+      </TooltipsContainer>
     );
   }
 }

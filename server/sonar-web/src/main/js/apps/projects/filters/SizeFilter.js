@@ -34,10 +34,10 @@ export default class SizeFilter extends React.PureComponent {
 
   property = 'size';
 
-  renderOption (option, selected) {
+  renderOption(option, selected) {
     return (
       <span>
-        <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected}/>
+        <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected} />
         <span className="spacer-left">
           {getSizeRatingLabel(option)}
         </span>
@@ -53,11 +53,12 @@ export default class SizeFilter extends React.PureComponent {
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         leftText={translate('biggest')}
-        rightText={translate('smallest')}/>
+        rightText={translate('smallest')}
+      />
     );
   };
 
-  getFacetValueForOption (facet, option) {
+  getFacetValueForOption(facet, option) {
     const map = [
       '*-1000.0',
       '1000.0-10000.0',
@@ -68,7 +69,7 @@ export default class SizeFilter extends React.PureComponent {
     return facet[map[option - 1]];
   }
 
-  render () {
+  render() {
     return (
       <FilterContainer
         property={this.property}
@@ -87,9 +88,11 @@ export default class SizeFilter extends React.PureComponent {
               isFavorite={this.props.isFavorite}
               organization={this.props.organization}
               leftText={translate('biggest')}
-              rightText={translate('smallest')}/>
+              rightText={translate('smallest')}
+            />
           </FilterHeader>
-        }/>
+        }
+      />
     );
   }
 }

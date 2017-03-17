@@ -49,35 +49,35 @@ class GlobalNavUser extends React.Component {
     this.props.router.push('/sessions/logout');
   };
 
-  renderAuthenticated () {
+  renderAuthenticated() {
     const { currentUser } = this.props;
     return (
-        <li className="dropdown js-user-authenticated">
-          <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            <Avatar email={currentUser.email} size={20}/>&nbsp;
-            {currentUser.name}&nbsp;<i className="icon-dropdown"/>
-          </a>
-          <ul className="dropdown-menu dropdown-menu-right">
-            <li>
-              <Link to="/account">{translate('my_account.page')}</Link>
-            </li>
-            <li>
-              <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>
-            </li>
-          </ul>
-        </li>
+      <li className="dropdown js-user-authenticated">
+        <a className="dropdown-toggle" data-toggle="dropdown" href="#">
+          <Avatar email={currentUser.email} size={20} />&nbsp;
+          {currentUser.name}&nbsp;<i className="icon-dropdown" />
+        </a>
+        <ul className="dropdown-menu dropdown-menu-right">
+          <li>
+            <Link to="/account">{translate('my_account.page')}</Link>
+          </li>
+          <li>
+            <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>
+          </li>
+        </ul>
+      </li>
     );
   }
 
-  renderAnonymous () {
+  renderAnonymous() {
     return (
-        <li>
-          <a onClick={this.handleLogin} href="#">{translate('layout.login')}</a>
-        </li>
+      <li>
+        <a onClick={this.handleLogin} href="#">{translate('layout.login')}</a>
+      </li>
     );
   }
 
-  render () {
+  render() {
     return this.props.currentUser.isLoggedIn ? this.renderAuthenticated() : this.renderAnonymous();
   }
 }

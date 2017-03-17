@@ -20,14 +20,13 @@
 import ModalView from './modals';
 
 export default ModalView.extend({
-
-  ui () {
+  ui() {
     return {
       messagesContainer: '.js-modal-messages'
     };
   },
 
-  events () {
+  events() {
     return {
       ...ModalView.prototype.events.apply(this, arguments),
       'keydown input,textarea,select': 'onInputKeydown',
@@ -35,26 +34,29 @@ export default ModalView.extend({
     };
   },
 
-  onRender () {
+  onRender() {
     ModalView.prototype.onRender.apply(this, arguments);
     const that = this;
-    setTimeout(() => {
-      that.$(':tabbable').first().focus();
-    }, 0);
+    setTimeout(
+      () => {
+        that.$(':tabbable').first().focus();
+      },
+      0
+    );
   },
 
-  onInputKeydown (e) {
+  onInputKeydown(e) {
     if (e.keyCode === 27) {
       // escape
       this.destroy();
     }
   },
 
-  onFormSubmit (e) {
+  onFormSubmit(e) {
     e.preventDefault();
   },
 
-  showErrors (errors, warnings) {
+  showErrors(errors, warnings) {
     const container = this.ui.messagesContainer.empty();
     if (Array.isArray(errors)) {
       errors.forEach(error => {
@@ -71,28 +73,27 @@ export default ModalView.extend({
     this.ui.messagesContainer.scrollParent().scrollTop(0);
   },
 
-  showSingleError (msg) {
+  showSingleError(msg) {
     this.showErrors([{ msg }], []);
   },
 
-  disableForm () {
+  disableForm() {
     const form = this.$('form');
     this.disabledFields = form.find(':input:not(:disabled)');
     this.disabledFields.prop('disabled', true);
   },
 
-  enableForm () {
+  enableForm() {
     if (this.disabledFields != null) {
       this.disabledFields.prop('disabled', false);
     }
   },
 
-  showSpinner () {
+  showSpinner() {
     this.$('.js-modal-spinner').removeClass('hidden');
   },
 
-  hideSpinner () {
+  hideSpinner() {
     this.$('.js-modal-spinner').addClass('hidden');
   }
 });
-

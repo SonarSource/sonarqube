@@ -28,16 +28,16 @@ class Deletion extends React.Component {
     component: React.PropTypes.object
   };
 
-  render () {
+  render() {
     if (!this.props.component) {
       return null;
     }
 
     return (
-        <div className="page page-limited">
-          <Header/>
-          <Form component={this.props.component}/>
-        </div>
+      <div className="page page-limited">
+        <Header />
+        <Form component={this.props.component} />
+      </div>
     );
   }
 }

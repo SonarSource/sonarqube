@@ -25,11 +25,7 @@ import { click, change, submit } from '../../../../../helpers/testUtils';
 it('should render lock icon, but no form', () => {
   const onChange = jest.fn();
   const input = shallow(
-    <InputForPassword
-          name="foo"
-          value="bar"
-          isDefault={false}
-          onChange={onChange}/>
+    <InputForPassword name="foo" value="bar" isDefault={false} onChange={onChange} />
   );
   expect(input.find('.icon-lock').length).toBe(1);
   expect(input.find('form').length).toBe(0);
@@ -38,11 +34,7 @@ it('should render lock icon, but no form', () => {
 it('should open form', () => {
   const onChange = jest.fn();
   const input = shallow(
-    <InputForPassword
-          name="foo"
-          value="bar"
-          isDefault={false}
-          onChange={onChange}/>
+    <InputForPassword name="foo" value="bar" isDefault={false} onChange={onChange} />
   );
   const button = input.find('button');
   expect(button.length).toBe(1);
@@ -54,11 +46,7 @@ it('should open form', () => {
 it('should close form', () => {
   const onChange = jest.fn();
   const input = shallow(
-    <InputForPassword
-          name="foo"
-          value="bar"
-          isDefault={false}
-          onChange={onChange}/>
+    <InputForPassword name="foo" value="bar" isDefault={false} onChange={onChange} />
   );
   const button = input.find('button');
   expect(button.length).toBe(1);
@@ -73,11 +61,7 @@ it('should close form', () => {
 it('should set value', () => {
   const onChange = jest.fn(() => Promise.resolve());
   const input = shallow(
-    <InputForPassword
-          name="foo"
-          value="bar"
-          isDefault={false}
-          onChange={onChange}/>
+    <InputForPassword name="foo" value="bar" isDefault={false} onChange={onChange} />
   );
   click(input.find('button'));
   change(input.find('.js-password-input'), 'secret');

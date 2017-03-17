@@ -27,7 +27,7 @@ type Props = {
   property: string,
   query: {},
   options: [{ label: string, value: string }],
-  router: { push: ({ pathname: string, query?: {}}) => void },
+  router: { push: ({ pathname: string, query?: {} }) => void },
   onInputChange?: (string) => void,
   onOpen?: (void) => void,
   isLoading?: boolean,
@@ -44,7 +44,7 @@ export default class SearchableFilterFooter extends React.PureComponent {
     this.props.router.push(path);
   };
 
-  render () {
+  render() {
     return (
       <div className="search-navigator-facet-footer projects-facet-footer">
         <Select
@@ -56,7 +56,8 @@ export default class SearchableFilterFooter extends React.PureComponent {
           onInputChange={this.props.onInputChange}
           onOpen={this.props.onOpen}
           isLoading={this.props.isLoading}
-          options={this.props.options}/>
+          options={this.props.options}
+        />
       </div>
     );
   }

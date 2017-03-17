@@ -23,39 +23,39 @@ import ProjectCardMeasures from '../ProjectCardMeasures';
 
 it('should not render coverage', () => {
   const measures = {
-    'alert_status': 'ERROR',
-    'duplicated_lines_density': '9.8',
-    'ncloc': '2053',
-    'reliability_rating': '1.0',
-    'security_rating': '1.0',
-    'sqale_rating': '1.0'
+    alert_status: 'ERROR',
+    duplicated_lines_density: '9.8',
+    ncloc: '2053',
+    reliability_rating: '1.0',
+    security_rating: '1.0',
+    sqale_rating: '1.0'
   };
-  const wrapper = shallow(<ProjectCardMeasures measures={measures}/>);
+  const wrapper = shallow(<ProjectCardMeasures measures={measures} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should not render duplications', () => {
   const measures = {
-    'alert_status': 'ERROR',
-    'coverage': '88.3',
-    'ncloc': '2053',
-    'reliability_rating': '1.0',
-    'security_rating': '1.0',
-    'sqale_rating': '1.0'
+    alert_status: 'ERROR',
+    coverage: '88.3',
+    ncloc: '2053',
+    reliability_rating: '1.0',
+    security_rating: '1.0',
+    sqale_rating: '1.0'
   };
-  const wrapper = shallow(<ProjectCardMeasures measures={measures}/>);
+  const wrapper = shallow(<ProjectCardMeasures measures={measures} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should not render ncloc', () => {
   const measures = {
-    'alert_status': 'ERROR',
-    'coverage': '88.3',
-    'duplicated_lines_density': '9.8',
-    'reliability_rating': '1.0',
-    'security_rating': '1.0',
-    'sqale_rating': '1.0'
+    alert_status: 'ERROR',
+    coverage: '88.3',
+    duplicated_lines_density: '9.8',
+    reliability_rating: '1.0',
+    security_rating: '1.0',
+    sqale_rating: '1.0'
   };
-  const wrapper = shallow(<ProjectCardMeasures measures={measures}/>);
+  const wrapper = shallow(<ProjectCardMeasures measures={measures} />);
   expect(wrapper).toMatchSnapshot();
 });

@@ -26,7 +26,7 @@ import ListView from './list-view';
 import ListFooterView from './list-footer-view';
 
 const App = new Marionette.Application();
-const init = function ({ el, organization }) {
+const init = function({ el, organization }) {
   // Layout
   this.layout = new Layout({ el });
   this.layout.render();
@@ -58,7 +58,6 @@ App.on('start', options => {
   init.call(App, options);
 });
 
-export default function (el, organization) {
+export default function(el, organization) {
   App.start({ el, organization });
 }
-

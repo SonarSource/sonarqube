@@ -29,28 +29,29 @@ export default class ComparisonForm extends React.Component {
     onCompare: React.PropTypes.func.isRequired
   };
 
-  handleChange (option) {
+  handleChange(option) {
     this.props.onCompare(option.value);
   }
 
-  render () {
+  render() {
     const { profile, profiles, withKey } = this.props;
     const options = profiles
-        .filter(p => p.language === profile.language && p !== profile)
-        .map(p => ({ value: p.key, label: p.name }));
+      .filter(p => p.language === profile.language && p !== profile)
+      .map(p => ({ value: p.key, label: p.name }));
 
     return (
-        <div className="display-inline-block">
-          <label className="spacer-right">
-            {translate('quality_profiles.compare_with')}
-          </label>
-          <Select
-              value={withKey}
-              options={options}
-              clearable={false}
-              className="input-large"
-              onChange={this.handleChange.bind(this)}/>
-        </div>
+      <div className="display-inline-block">
+        <label className="spacer-right">
+          {translate('quality_profiles.compare_with')}
+        </label>
+        <Select
+          value={withKey}
+          options={options}
+          clearable={false}
+          className="input-large"
+          onChange={this.handleChange.bind(this)}
+        />
+      </div>
     );
   }
 }

@@ -26,7 +26,7 @@ export default class Header extends React.Component {
     onCreate: React.PropTypes.func.isRequired
   };
 
-  handleCreateClick (e) {
+  handleCreateClick(e) {
     e.preventDefault();
     e.target.blur();
     new CreationModal({
@@ -34,23 +34,21 @@ export default class Header extends React.Component {
     }).render();
   }
 
-  render () {
+  render() {
     return (
-        <header className="page-header">
-          <h1 className="page-title">
-            {translate('project_links.page')}
-          </h1>
-          <div className="page-actions">
-            <button
-                id="create-project-link"
-                onClick={this.handleCreateClick.bind(this)}>
-              {translate('create')}
-            </button>
-          </div>
-          <div className="page-description">
-            {translate('project_links.page.description')}
-          </div>
-        </header>
+      <header className="page-header">
+        <h1 className="page-title">
+          {translate('project_links.page')}
+        </h1>
+        <div className="page-actions">
+          <button id="create-project-link" onClick={this.handleCreateClick.bind(this)}>
+            {translate('create')}
+          </button>
+        </div>
+        <div className="page-description">
+          {translate('project_links.page.description')}
+        </div>
+      </header>
     );
   }
 }

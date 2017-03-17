@@ -26,11 +26,12 @@ it('should render Select', () => {
   const onChange = jest.fn();
   const select = shallow(
     <InputForSingleSelectList
-          name="foo"
-          value="bar"
-          options={['foo', 'bar', 'baz']}
-          isDefault={false}
-          onChange={onChange}/>
+      name="foo"
+      value="bar"
+      options={['foo', 'bar', 'baz']}
+      isDefault={false}
+      onChange={onChange}
+    />
   ).find(Select);
   expect(select.length).toBe(1);
   expect(select.prop('name')).toBe('foo');
@@ -47,11 +48,12 @@ it('should call onChange', () => {
   const onChange = jest.fn();
   const select = shallow(
     <InputForSingleSelectList
-          name="foo"
-          value="bar"
-          options={['foo', 'bar', 'baz']}
-          isDefault={false}
-          onChange={onChange}/>
+      name="foo"
+      value="bar"
+      options={['foo', 'bar', 'baz']}
+      isDefault={false}
+      onChange={onChange}
+    />
   ).find(Select);
   expect(select.length).toBe(1);
   expect(select.prop('onChange')).toBeTruthy();

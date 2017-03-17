@@ -25,9 +25,9 @@ import EncryptionAppContainer from './encryption/EncryptionAppContainer';
 import ServerIdAppContainer from './serverId/ServerIdAppContainer';
 
 export default [
-  <Redirect key="1" from="/settings/index" to="/settings"/>,
-  <IndexRoute key="2" component={AppContainer}/>,
-  <Route key="3" path="licenses" component={LicensesApp}/>,
-  <Route key="4" path="encryption" component={EncryptionAppContainer}/>,
-  <Route key="5" path="server_id" component={ServerIdAppContainer}/>
+  <Redirect key="1" from="/settings/index" to="/settings" />,
+  <IndexRoute key="2" component={AppContainer} />,
+  <Route key="3" path="licenses" component={LicensesApp} />,
+  <Route key="4" path="encryption" component={EncryptionAppContainer} />,
+  <Route key="5" path="server_id" component={ServerIdAppContainer} />
 ];

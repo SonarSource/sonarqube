@@ -25,18 +25,18 @@ import Plugin from './plugin';
 const Plugins = Backbone.Collection.extend({
   model: Plugin,
 
-  comparator (model) {
+  comparator(model) {
     return model.get('name') || '';
   },
 
-  initialize () {
+  initialize() {
     this._installedCount = 0;
     this._updatedCount = 0;
     this._uninstalledCount = 0;
     this.listenTo(this, 'change:_status', this.onStatusChange);
   },
 
-  parse (r) {
+  parse(r) {
     const that = this;
     return r.plugins.map(plugin => {
       let updates = [
@@ -49,18 +49,18 @@ const Plugins = Backbone.Collection.extend({
     });
   },
 
-  _getLastWithStatus (updates, status) {
+  _getLastWithStatus(updates, status) {
     const index = findLastIndex(updates, update => update.status === status);
     return index !== -1 ? updates[index] : null;
   },
 
-  _extendChangelog (updates, update) {
+  _extendChangelog(updates, update) {
     const index = updates.indexOf(update);
     const previousUpdates = index > 0 ? updates.slice(0, index) : [];
     return { ...update, previousUpdates };
   },
 
-  _fetchInstalled () {
+  _fetchInstalled() {
     if (this._installed) {
       return $.Deferred().resolve().promise();
     }
@@ -68,14 +68,14 @@ const Plugins = Backbone.Collection.extend({
     const opts = {
       type: 'GET',
       url: window.baseUrl + '/api/plugins/installed',
-      success (r) {
+      success(r) {
         that._installed = that.parse(r);
       }
     };
     return Backbone.ajax(opts);
   },
 
-  _fetchUpdates () {
+  _fetchUpdates() {
     if (this._updates) {
       return $.Deferred().resolve().promise();
     }
@@ -83,14 +83,14 @@ const Plugins = Backbone.Collection.extend({
     const opts = {
       type: 'GET',
       url: window.baseUrl + '/api/plugins/updates',
-      success (r) {
+      success(r) {
         that._updates = that.parse(r);
       }
     };
     return Backbone.ajax(opts);
   },
 
-  _fetchAvailable () {
+  _fetchAvailable() {
     if (this._available) {
       return $.Deferred().resolve().promise();
     }
@@ -98,19 +98,19 @@ const Plugins = Backbone.Collection.extend({
     const opts = {
       type: 'GET',
       url: window.baseUrl + '/api/plugins/available',
-      success (r) {
+      success(r) {
         that._available = that.parse(r);
       }
     };
     return Backbone.ajax(opts);
   },
 
-  _fetchPending () {
+  _fetchPending() {
     const that = this;
     const opts = {
       type: 'GET',
       url: window.baseUrl + '/api/plugins/pending',
-      success (r) {
+      success(r) {
         const installing = r.installing.map(plugin => {
           return { key: plugin.key, _status: 'installing' };
         });
@@ -129,7 +129,7 @@ const Plugins = Backbone.Collection.extend({
     return Backbone.ajax(opts);
   },
 
-  _fetchSystemUpgrades () {
+  _fetchSystemUpgrades() {
     if (this._systemUpdates) {
       return $.Deferred().resolve().promise();
     }
@@ -137,14 +137,14 @@ const Plugins = Backbone.Collection.extend({
     const opts = {
       type: 'GET',
       url: window.baseUrl + '/api/system/upgrades',
-      success (r) {
+      success(r) {
         that._systemUpdates = r.upgrades.map(update => ({ ...update, _system: true }));
       }
     };
     return Backbone.ajax(opts);
   },
 
-  fetchInstalled () {
+  fetchInstalled() {
     const that = this;
     return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending()).done(() => {
       const plugins = new Plugins();
@@ -155,19 +155,18 @@ const Plugins = Backbone.Collection.extend({
     });
   },
 
-  fetchUpdates () {
+  fetchUpdates() {
     const that = this;
-    return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending())
-        .done(() => {
-          const plugins = new Plugins();
-          plugins.set(that._installed);
-          plugins.set(that._updates, { remove: true });
-          plugins.set(that._pending, { add: false, remove: false });
-          that.reset(plugins.models);
-        });
+    return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending()).done(() => {
+      const plugins = new Plugins();
+      plugins.set(that._installed);
+      plugins.set(that._updates, { remove: true });
+      plugins.set(that._pending, { add: false, remove: false });
+      that.reset(plugins.models);
+    });
   },
 
-  fetchAvailable () {
+  fetchAvailable() {
     const that = this;
     return $.when(this._fetchAvailable(), this._fetchPending()).done(() => {
       const plugins = new Plugins();
@@ -177,26 +176,26 @@ const Plugins = Backbone.Collection.extend({
     });
   },
 
-  fetchSystemUpgrades () {
+  fetchSystemUpgrades() {
     const that = this;
     return $.when(this._fetchSystemUpgrades()).done(() => {
       that.reset(that._systemUpdates);
     });
   },
 
-  search (query) {
+  search(query) {
     /* eslint-disable array-callback-return */
     this.filter(model => {
       model.set({ _hidden: !model.match(query) });
     });
   },
 
-  cancelAll () {
+  cancelAll() {
     const that = this;
     const opts = {
       type: 'POST',
       url: window.baseUrl + '/api/plugins/cancel_all',
-      success () {
+      success() {
         that._installedCount = 0;
         that._updatedCount = 0;
         that._uninstalledCount = 0;
@@ -209,7 +208,7 @@ const Plugins = Backbone.Collection.extend({
     return Backbone.ajax(opts);
   },
 
-  onStatusChange (model, status) {
+  onStatusChange(model, status) {
     if (status === 'installing') {
       this._installedCount++;
     }
@@ -224,4 +223,3 @@ const Plugins = Backbone.Collection.extend({
 });
 
 export default Plugins;
-

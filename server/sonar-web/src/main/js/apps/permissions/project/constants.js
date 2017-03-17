@@ -17,27 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const PERMISSIONS_ORDER_FOR_PROJECT = [
-  'user',
-  'codeviewer',
-  'issueadmin',
-  'admin',
-  'scan'
-];
+export const PERMISSIONS_ORDER_FOR_PROJECT = ['user', 'codeviewer', 'issueadmin', 'admin', 'scan'];
 
-export const PERMISSIONS_ORDER_FOR_VIEW = [
-  'user',
-  'admin'
-];
+export const PERMISSIONS_ORDER_FOR_VIEW = ['user', 'admin'];
 
-export const PERMISSIONS_ORDER_FOR_DEV = [
-  'user',
-  'admin'
-];
+export const PERMISSIONS_ORDER_FOR_DEV = ['user', 'admin'];
 
 export const PERMISSIONS_ORDER_BY_QUALIFIER = {
-  'TRK': PERMISSIONS_ORDER_FOR_PROJECT,
-  'VW': PERMISSIONS_ORDER_FOR_VIEW,
-  'SVW': PERMISSIONS_ORDER_FOR_VIEW,
-  'DEV': PERMISSIONS_ORDER_FOR_DEV
+  TRK: PERMISSIONS_ORDER_FOR_PROJECT,
+  VW: PERMISSIONS_ORDER_FOR_VIEW,
+  SVW: PERMISSIONS_ORDER_FOR_VIEW,
+  DEV: PERMISSIONS_ORDER_FOR_DEV
 };

@@ -31,19 +31,20 @@ import uniq from 'lodash/uniq';
  * @returns {function(state, action)}
  */
 export const createValue = (
-    shouldUpdate = () => true,
-    shouldReset = () => false,
-    getValue = (state, action) => action.payload,
-    defaultValue = null
-) => (state = defaultValue, action = {}) => {
-  if (shouldReset(state, action)) {
-    return defaultValue;
-  }
-  if (shouldUpdate(state, action)) {
-    return getValue(state, action);
-  }
-  return state;
-};
+  shouldUpdate = () => true,
+  shouldReset = () => false,
+  getValue = (state, action) => action.payload,
+  defaultValue = null
+) =>
+  (state = defaultValue, action = {}) => {
+    if (shouldReset(state, action)) {
+      return defaultValue;
+    }
+    if (shouldUpdate(state, action)) {
+      return getValue(state, action);
+    }
+    return state;
+  };
 
 /**
  * Creates a reducer that manages a map.
@@ -54,11 +55,16 @@ export const createValue = (
  * @returns {function(state, action)}
  */
 export const createMap = (
-    shouldUpdate = () => true,
-    shouldReset = () => false,
-    getValues = (state, action) => action.payload
-) => createValue(shouldUpdate, shouldReset, (state, action) =>
-    ({ ...state, ...getValues(state, action) }), {});
+  shouldUpdate = () => true,
+  shouldReset = () => false,
+  getValues = (state, action) => action.payload
+) =>
+  createValue(
+    shouldUpdate,
+    shouldReset,
+    (state, action) => ({ ...state, ...getValues(state, action) }),
+    {}
+  );
 
 /**
  * Creates a reducer that manages a set.
@@ -69,11 +75,16 @@ export const createMap = (
  * @returns {function(state, action)}
  */
 export const createSet = (
-    shouldUpdate = () => true,
-    shouldReset = () => false,
-    getValues = (state, action) => action.payload
-) => createValue(shouldUpdate, shouldReset, (state, action) =>
-    uniq([...state, ...getValues(state, action)]), []);
+  shouldUpdate = () => true,
+  shouldReset = () => false,
+  getValues = (state, action) => action.payload
+) =>
+  createValue(
+    shouldUpdate,
+    shouldReset,
+    (state, action) => uniq([...state, ...getValues(state, action)]),
+    []
+  );
 
 /**
  * Creates a reducer that manages a flag.
@@ -84,12 +95,12 @@ export const createSet = (
  * @returns {function(state, action)}
  */
 export const createFlag = (shouldTurnOn, shouldTurnOff, defaultValue = false) =>
-    (state = defaultValue, action = {}) => {
-      if (shouldTurnOn(state, action)) {
-        return true;
-      }
-      if (shouldTurnOff(state, action)) {
-        return false;
-      }
-      return state;
-    };
+  (state = defaultValue, action = {}) => {
+    if (shouldTurnOn(state, action)) {
+      return true;
+    }
+    if (shouldTurnOff(state, action)) {
+      return false;
+    }
+    return state;
+  };

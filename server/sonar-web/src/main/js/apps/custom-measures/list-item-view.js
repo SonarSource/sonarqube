@@ -31,34 +31,33 @@ export default Marionette.ItemView.extend({
     'click .js-custom-measure-delete': 'onDeleteClick'
   },
 
-  onRender () {
+  onRender() {
     this.$el.attr('data-id', this.model.id);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onUpdateClick (e) {
+  onUpdateClick(e) {
     e.preventDefault();
     this.updateCustomMeasure();
   },
 
-  onDeleteClick (e) {
+  onDeleteClick(e) {
     e.preventDefault();
     this.deleteCustomMeasure();
   },
 
-  updateCustomMeasure () {
+  updateCustomMeasure() {
     new UpdateView({
       model: this.model,
       collection: this.model.collection
     }).render();
   },
 
-  deleteCustomMeasure () {
+  deleteCustomMeasure() {
     new DeleteView({ model: this.model }).render();
   }
 });
-

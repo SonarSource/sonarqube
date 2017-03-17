@@ -22,7 +22,7 @@ const getAsNumericRating = value => {
     return null;
   }
   const num = Number(value);
-  return (num > 0 && num < 6) ? num : null;
+  return num > 0 && num < 6 ? num : null;
 };
 
 const getAsLevel = value => {
@@ -47,47 +47,47 @@ const getAsArray = (values, elementGetter) => {
 };
 
 export const parseUrlQuery = urlQuery => ({
-  'gate': getAsLevel(urlQuery['gate']),
-  'reliability': getAsNumericRating(urlQuery['reliability']),
-  'security': getAsNumericRating(urlQuery['security']),
-  'maintainability': getAsNumericRating(urlQuery['maintainability']),
-  'coverage': getAsNumericRating(urlQuery['coverage']),
-  'duplications': getAsNumericRating(urlQuery['duplications']),
-  'size': getAsNumericRating(urlQuery['size']),
-  'languages': getAsArray(urlQuery['languages'], getAsString),
-  'tags': getAsArray(urlQuery['tags'], getAsString),
-  'search': getAsString(urlQuery['search']),
-  'sort': getAsString(urlQuery['sort'])
+  gate: getAsLevel(urlQuery['gate']),
+  reliability: getAsNumericRating(urlQuery['reliability']),
+  security: getAsNumericRating(urlQuery['security']),
+  maintainability: getAsNumericRating(urlQuery['maintainability']),
+  coverage: getAsNumericRating(urlQuery['coverage']),
+  duplications: getAsNumericRating(urlQuery['duplications']),
+  size: getAsNumericRating(urlQuery['size']),
+  languages: getAsArray(urlQuery['languages'], getAsString),
+  tags: getAsArray(urlQuery['tags'], getAsString),
+  search: getAsString(urlQuery['search']),
+  sort: getAsString(urlQuery['sort'])
 });
 
 export const mapMetricToProperty = metricKey => {
   const map = {
-    'reliability_rating': 'reliability',
-    'security_rating': 'security',
-    'sqale_rating': 'maintainability',
-    'coverage': 'coverage',
-    'duplicated_lines_density': 'duplications',
-    'ncloc': 'size',
-    'alert_status': 'gate',
-    'languages': 'languages',
-    'tags': 'tags',
-    'query': 'search'
+    reliability_rating: 'reliability',
+    security_rating: 'security',
+    sqale_rating: 'maintainability',
+    coverage: 'coverage',
+    duplicated_lines_density: 'duplications',
+    ncloc: 'size',
+    alert_status: 'gate',
+    languages: 'languages',
+    tags: 'tags',
+    query: 'search'
   };
   return map[metricKey];
 };
 
 export const mapPropertyToMetric = property => {
   const map = {
-    'reliability': 'reliability_rating',
-    'security': 'security_rating',
-    'maintainability': 'sqale_rating',
-    'coverage': 'coverage',
-    'duplications': 'duplicated_lines_density',
-    'size': 'ncloc',
-    'gate': 'alert_status',
-    'languages': 'languages',
-    'tags': 'tags',
-    'search': 'query'
+    reliability: 'reliability_rating',
+    security: 'security_rating',
+    maintainability: 'sqale_rating',
+    coverage: 'coverage',
+    duplications: 'duplicated_lines_density',
+    size: 'ncloc',
+    gate: 'alert_status',
+    languages: 'languages',
+    tags: 'tags',
+    search: 'query'
   };
   return map[property];
 };

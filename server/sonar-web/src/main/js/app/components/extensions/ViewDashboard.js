@@ -22,11 +22,12 @@ import React from 'react';
 import ProjectPageExtension from './ProjectPageExtension';
 
 export default class ViewDashboard extends React.Component {
-  render () {
+  render() {
     return (
-        <ProjectPageExtension
-            location={this.props.location}
-            params={{ pluginKey: 'governance', extensionKey: 'governance' }}/>
+      <ProjectPageExtension
+        location={this.props.location}
+        params={{ pluginKey: 'governance', extensionKey: 'governance' }}
+      />
     );
   }
 }

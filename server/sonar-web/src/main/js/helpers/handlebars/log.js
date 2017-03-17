@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (...args) {
+module.exports = function(...args) {
   /* eslint no-console: 0 */
   console.log(...args.slice(0, -1));
 };

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (currentLine, prevLine, options) {
+module.exports = function(currentLine, prevLine, options) {
   let changed = true;
   if (currentLine && prevLine && currentLine.scmAuthor && prevLine.scmAuthor) {
-    changed = (currentLine.scmAuthor !== prevLine.scmAuthor) || (currentLine.scmDate !== prevLine.scmDate);
+    changed = currentLine.scmAuthor !== prevLine.scmAuthor ||
+      currentLine.scmDate !== prevLine.scmDate;
   }
   return changed ? options.fn(this) : options.inverse(this);
 };

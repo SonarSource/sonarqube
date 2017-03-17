@@ -23,30 +23,30 @@ import Checkbox from '../Checkbox';
 import { click } from '../../../helpers/testUtils';
 
 it('should render unchecked', () => {
-  const checkbox = shallow(<Checkbox checked={false} onCheck={() => true}/>);
+  const checkbox = shallow(<Checkbox checked={false} onCheck={() => true} />);
   expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
 });
 
 it('should render checked', () => {
-  const checkbox = shallow(<Checkbox checked={true} onCheck={() => true}/>);
+  const checkbox = shallow(<Checkbox checked={true} onCheck={() => true} />);
   expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
 });
 
 it('should render unchecked third state', () => {
-  const checkbox = shallow(<Checkbox checked={false} thirdState={true} onCheck={() => true}/>);
+  const checkbox = shallow(<Checkbox checked={false} thirdState={true} onCheck={() => true} />);
   expect(checkbox.is('.icon-checkbox-single')).toBe(true);
   expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
 });
 
 it('should render checked  third state', () => {
-  const checkbox = shallow(<Checkbox checked={true} thirdState={true} onCheck={() => true}/>);
+  const checkbox = shallow(<Checkbox checked={true} thirdState={true} onCheck={() => true} />);
   expect(checkbox.is('.icon-checkbox-single')).toBe(true);
   expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
 });
 
 it('should call onCheck', () => {
   const onCheck = jest.fn();
-  const checkbox = shallow(<Checkbox checked={false} onCheck={onCheck}/>);
+  const checkbox = shallow(<Checkbox checked={false} onCheck={onCheck} />);
   click(checkbox);
   expect(onCheck).toBeCalledWith(true);
 });

@@ -26,5 +26,5 @@ it('should render', () => {
     { version: '5.0', description: 'foo' },
     { version: '5.1', description: 'bar' }
   ];
-  expect(shallow(<ActionChangelog changelog={changelog}/>)).toMatchSnapshot();
+  expect(shallow(<ActionChangelog changelog={changelog} />)).toMatchSnapshot();
 });

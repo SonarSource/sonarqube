@@ -19,19 +19,19 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 
-export function getProjectLinks (projectKey) {
+export function getProjectLinks(projectKey) {
   const url = '/api/project_links/search';
   const data = { projectKey };
   return getJSON(url, data).then(r => r.links);
 }
 
-export function deleteLink (linkId) {
+export function deleteLink(linkId) {
   const url = '/api/project_links/delete';
   const data = { id: linkId };
   return post(url, data);
 }
 
-export function createLink (projectKey, name, url) {
+export function createLink(projectKey, name, url) {
   const apiURL = '/api/project_links/create';
   const data = { projectKey, name, url };
   return postJSON(apiURL, data).then(r => r.link);

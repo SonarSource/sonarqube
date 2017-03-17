@@ -30,32 +30,31 @@ export default class MetaSize extends React.Component {
     measures: React.PropTypes.array.isRequired
   };
 
-  render () {
-    const ncloc = this.props.measures
-        .find(measure => measure.metric.key === 'ncloc');
-    const languageDistribution = this.props.measures
-        .find(measure => measure.metric.key === 'ncloc_language_distribution');
+  render() {
+    const ncloc = this.props.measures.find(measure => measure.metric.key === 'ncloc');
+    const languageDistribution = this.props.measures.find(
+      measure => measure.metric.key === 'ncloc_language_distribution'
+    );
 
     if (ncloc == null || languageDistribution == null) {
       return null;
     }
 
     return (
-        <div id="overview-size" className="overview-meta-card">
-          <div id="overview-ncloc" className="overview-meta-size-ncloc">
-            <span className="spacer-right">
-              <SizeRating value={ncloc.value}/>
-            </span>
-            <DrilldownLink component={this.props.component.key} metric="ncloc">
-              {formatMeasure(ncloc.value, 'SHORT_INT')}
-            </DrilldownLink>
-            <div className="overview-domain-measure-label text-muted">{getMetricName('ncloc')}</div>
-          </div>
-          <div id="overview-language-distribution"
-               className="overview-meta-size-lang-dist">
-            <LanguageDistribution distribution={languageDistribution.value}/>
-          </div>
+      <div id="overview-size" className="overview-meta-card">
+        <div id="overview-ncloc" className="overview-meta-size-ncloc">
+          <span className="spacer-right">
+            <SizeRating value={ncloc.value} />
+          </span>
+          <DrilldownLink component={this.props.component.key} metric="ncloc">
+            {formatMeasure(ncloc.value, 'SHORT_INT')}
+          </DrilldownLink>
+          <div className="overview-domain-measure-label text-muted">{getMetricName('ncloc')}</div>
         </div>
+        <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
+          <LanguageDistribution distribution={languageDistribution.value} />
+        </div>
+      </div>
     );
   }
 }

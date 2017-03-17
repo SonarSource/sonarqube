@@ -39,7 +39,8 @@ it('should render the languages without the ones in the facet', () => {
       property="languages"
       query={{ languages: null }}
       options={languageOptions}
-      router={fakeRouter}/>
+      router={fakeRouter}
+    />
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Select').props().options.length).toBe(3);
@@ -51,7 +52,8 @@ it('should render the tags without the ones in the facet', () => {
       property="tags"
       query={{ tags: ['java'] }}
       options={tagOptions}
-      isFavorite={true}/>
+      isFavorite={true}
+    />
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Select').props().options.length).toBe(3);

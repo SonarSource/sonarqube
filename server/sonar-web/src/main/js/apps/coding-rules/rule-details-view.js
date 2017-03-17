@@ -50,7 +50,7 @@ export default Marionette.LayoutView.extend({
     'click .js-delete': 'deleteRule'
   },
 
-  initialize () {
+  initialize() {
     this.bindShortcuts();
     this.customRules = new Rules();
     if (this.model.get('isTemplate')) {
@@ -59,41 +59,53 @@ export default Marionette.LayoutView.extend({
     this.listenTo(this.options.app.state, 'change:selectedIndex', this.select);
   },
 
-  onRender () {
-    this.metaRegion.show(new MetaView({
-      app: this.options.app,
-      model: this.model
-    }));
-    this.descRegion.show(new DescView({
-      app: this.options.app,
-      model: this.model
-    }));
-    this.paramRegion.show(new ParamView({
-      app: this.options.app,
-      model: this.model
-    }));
-    this.profilesRegion.show(new ProfilesView({
-      app: this.options.app,
-      model: this.model,
-      collection: new Backbone.Collection(this.getQualityProfiles())
-    }));
-    this.customRulesRegion.show(new CustomRulesView({
-      app: this.options.app,
-      model: this.model,
-      collection: this.customRules
-    }));
-    this.issuesRegion.show(new IssuesView({
-      app: this.options.app,
-      model: this.model
-    }));
+  onRender() {
+    this.metaRegion.show(
+      new MetaView({
+        app: this.options.app,
+        model: this.model
+      })
+    );
+    this.descRegion.show(
+      new DescView({
+        app: this.options.app,
+        model: this.model
+      })
+    );
+    this.paramRegion.show(
+      new ParamView({
+        app: this.options.app,
+        model: this.model
+      })
+    );
+    this.profilesRegion.show(
+      new ProfilesView({
+        app: this.options.app,
+        model: this.model,
+        collection: new Backbone.Collection(this.getQualityProfiles())
+      })
+    );
+    this.customRulesRegion.show(
+      new CustomRulesView({
+        app: this.options.app,
+        model: this.model,
+        collection: this.customRules
+      })
+    );
+    this.issuesRegion.show(
+      new IssuesView({
+        app: this.options.app,
+        model: this.model
+      })
+    );
     this.$el.scrollParent().scrollTop(0);
   },
 
-  onDestroy () {
+  onDestroy() {
     this.unbindShortcuts();
   },
 
-  fetchCustomRules () {
+  fetchCustomRules() {
     const that = this;
     const url = window.baseUrl + '/api/rules/search';
     const options = {
@@ -105,11 +117,11 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  getQualityProfiles () {
+  getQualityProfiles() {
     return this.model.getInactiveProfiles(this.options.actives, this.options.app.qualityProfiles);
   },
 
-  bindShortcuts () {
+  bindShortcuts() {
     const that = this;
     key('up', 'details', () => {
       that.options.app.controller.selectPrev();
@@ -125,18 +137,18 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  unbindShortcuts () {
+  unbindShortcuts() {
     key.deleteScope('details');
   },
 
-  editCustomRule () {
+  editCustomRule() {
     new CustomRuleCreationView({
       app: this.options.app,
       model: this.model
     }).render();
   },
 
-  deleteRule () {
+  deleteRule() {
     const deleteRuleView = new DeleteRuleView({
       model: this.model
     }).render();
@@ -151,13 +163,13 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  select () {
+  select() {
     const selected = this.options.app.state.get('selectedIndex');
     const selectedRule = this.options.app.list.at(selected);
     this.options.app.controller.showDetails(selectedRule);
   },
 
-  serializeData () {
+  serializeData() {
     const isCustom = this.model.has('templateKey');
     const isEditable = this.options.app.canWrite && isCustom;
     let qualityProfilesVisible = true;

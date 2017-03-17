@@ -19,15 +19,15 @@
  */
 export const click = element => {
   return element.simulate('click', {
-    target: { blur () {} },
-    currentTarget: { blur () {} },
-    preventDefault () {}
+    target: { blur() {} },
+    currentTarget: { blur() {} },
+    preventDefault() {}
   });
 };
 
 export const submit = element => {
   return element.simulate('submit', {
-    preventDefault () {}
+    preventDefault() {}
   });
 };
 

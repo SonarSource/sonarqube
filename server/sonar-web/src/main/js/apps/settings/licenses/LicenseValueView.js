@@ -23,7 +23,7 @@ import Template from './LicenseValueView.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.showSpinner();
@@ -32,7 +32,7 @@ export default ModalForm.extend({
     this.options.onChange(value).then(() => this.destroy());
   },
 
-  serializeData () {
+  serializeData() {
     return {
       productName: this.options.productName,
       value: this.options.value

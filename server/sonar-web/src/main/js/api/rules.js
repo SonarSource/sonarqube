@@ -19,12 +19,12 @@
  */
 import { getJSON } from '../helpers/request';
 
-export function searchRules (data) {
+export function searchRules(data) {
   const url = '/api/rules/search';
   return getJSON(url, data);
 }
 
-export function takeFacet (response, property) {
+export function takeFacet(response, property) {
   const facet = response.facets.find(facet => facet.property === property);
   return facet ? facet.values : [];
 }

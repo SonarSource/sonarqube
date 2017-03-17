@@ -27,40 +27,37 @@ export default class OrganizationCard extends React.Component {
     organization: Organization
   };
 
-  render () {
+  render() {
     const { organization } = this.props;
 
     return (
-        <div className="account-project-card clearfix">
-          <aside className="account-project-side">
-            {!!organization.avatar && (
-                <div className="spacer-bottom">
-                  <img src={organization.avatar} height={30} alt={organization.name}/>
-                </div>
-            )}
-            {!!organization.url && (
-                <div className="text-limited text-top spacer-bottom">
-                  <a className="small" href={organization.url} title={organization.url} rel="nofollow">
-                    {organization.url}
-                  </a>
-                </div>
-            )}
-          </aside>
+      <div className="account-project-card clearfix">
+        <aside className="account-project-side">
+          {!!organization.avatar &&
+            <div className="spacer-bottom">
+              <img src={organization.avatar} height={30} alt={organization.name} />
+            </div>}
+          {!!organization.url &&
+            <div className="text-limited text-top spacer-bottom">
+              <a className="small" href={organization.url} title={organization.url} rel="nofollow">
+                {organization.url}
+              </a>
+            </div>}
+        </aside>
 
-          <h3 className="account-project-name">
-            <OrganizationLink organization={organization}>
-              {organization.name}
-            </OrganizationLink>
-          </h3>
+        <h3 className="account-project-name">
+          <OrganizationLink organization={organization}>
+            {organization.name}
+          </OrganizationLink>
+        </h3>
 
-          <div className="account-project-key">{organization.key}</div>
+        <div className="account-project-key">{organization.key}</div>
 
-          {!!organization.description && (
-              <div className="account-project-description">
-                {organization.description}
-              </div>
-          )}
-        </div>
+        {!!organization.description &&
+          <div className="account-project-description">
+            {organization.description}
+          </div>}
+      </div>
     );
   }
 }

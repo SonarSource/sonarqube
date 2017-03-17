@@ -23,16 +23,16 @@ import RadioToggle from '../controls/RadioToggle';
 import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
-  componentWillMount () {
+  componentWillMount() {
     this.search = debounce(this.search, 100);
   },
 
-  search () {
+  search() {
     const query = this.refs.search.value;
     this.props.search(query);
   },
 
-  onCheck (value) {
+  onCheck(value) {
     switch (value) {
       case 'selected':
         this.props.loadSelected();
@@ -45,7 +45,7 @@ export default React.createClass({
     }
   },
 
-  render () {
+  render() {
     const selectionOptions = [
       { value: 'selected', label: 'Selected' },
       { value: 'deselected', label: 'Not Selected' },
@@ -53,23 +53,25 @@ export default React.createClass({
     ];
 
     return (
-        <div className="select-list-control">
-          <div className="pull-left">
-            <RadioToggle
-                name="select-list-selection"
-                options={selectionOptions}
-                onCheck={this.onCheck}
-                value={this.props.selection}/>
-          </div>
-          <div className="pull-right">
-            <input
-                onChange={this.search}
-                ref="search"
-                type="search"
-                placeholder={translate('search_verb')}
-                initialValue={this.props.query}/>
-          </div>
+      <div className="select-list-control">
+        <div className="pull-left">
+          <RadioToggle
+            name="select-list-selection"
+            options={selectionOptions}
+            onCheck={this.onCheck}
+            value={this.props.selection}
+          />
         </div>
+        <div className="pull-right">
+          <input
+            onChange={this.search}
+            ref="search"
+            type="search"
+            placeholder={translate('search_verb')}
+            initialValue={this.props.query}
+          />
+        </div>
+      </div>
     );
   }
 });

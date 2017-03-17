@@ -32,7 +32,6 @@ App.on('start', options => {
   mainView.render().refresh();
 });
 
-export default function (el, setup) {
+export default function(el, setup) {
   App.start({ el, setup });
 }
-

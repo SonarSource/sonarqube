@@ -24,7 +24,7 @@ import Template from '../templates/rule/coding-rules-delete-rule.hbs';
 export default ModalFormView.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
 
     const url = window.baseUrl + '/api/rules/delete';

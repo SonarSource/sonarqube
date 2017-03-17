@@ -24,7 +24,7 @@ import MeasuresList from './MeasuresList';
 import { domains } from '../config/domains';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 
-function sortMeasures (measures, order) {
+function sortMeasures(measures, order) {
   const [known, unknown] = partition(measures, measure => order.includes(measure.metric.key));
   return [
     ...sortBy(known, measure => order.indexOf(measure.metric.key)),
@@ -32,7 +32,7 @@ function sortMeasures (measures, order) {
   ];
 }
 
-function filterIssuesMeasures (measures) {
+function filterIssuesMeasures(measures) {
   const BANNED_MEASURES = [
     'blocker_violations',
     'new_blocker_violations',
@@ -55,29 +55,26 @@ const HomeMeasuresList = ({ domain, component }) => {
   const filteredMeasures = filterIssuesMeasures(measures);
 
   const configMain = config.main || [];
-  const [mainMeasures, otherMeasures] = partition(filteredMeasures, measure => configMain.includes(measure.metric.key));
+  const [mainMeasures, otherMeasures] = partition(filteredMeasures, measure =>
+    configMain.includes(measure.metric.key));
 
   const configOrder = config.order || [];
   const sortedMainMeasures = sortMeasures(mainMeasures, configOrder);
   const sortedOtherMeasures = sortMeasures(otherMeasures, configOrder);
 
   return (
-      <div className="home-measures-list clearfix">
-        {sortedMainMeasures.length > 0 && (
-            <MeasuresList
-                className="main-domain-measures"
-                measures={sortedMainMeasures}
-                component={component}
-                spaces={[]}/>
-        )}
+    <div className="home-measures-list clearfix">
+      {sortedMainMeasures.length > 0 &&
+        <MeasuresList
+          className="main-domain-measures"
+          measures={sortedMainMeasures}
+          component={component}
+          spaces={[]}
+        />}
 
-        {sortedOtherMeasures.length > 0 && (
-            <MeasuresList
-                measures={sortedOtherMeasures}
-                component={component}
-                spaces={[]}/>
-        )}
-      </div>
+      {sortedOtherMeasures.length > 0 &&
+        <MeasuresList measures={sortedOtherMeasures} component={component} spaces={[]} />}
+    </div>
   );
 };
 

@@ -29,46 +29,43 @@ export default class Table extends React.Component {
     onDelete: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleDeleteLink (link) {
+  handleDeleteLink(link) {
     this.props.onDelete(link);
   }
 
-  renderHeader () {
+  renderHeader() {
     // keep empty cell for actions
     return (
-        <thead>
-          <tr>
-            <th className="nowrap">
-              {translate('project_links.name')}
-            </th>
-            <th className="nowrap width-100">
-              {translate('project_links.url')}
-            </th>
-            <th className="thin">&nbsp;</th>
-          </tr>
-        </thead>
+      <thead>
+        <tr>
+          <th className="nowrap">
+            {translate('project_links.name')}
+          </th>
+          <th className="nowrap width-100">
+            {translate('project_links.url')}
+          </th>
+          <th className="thin">&nbsp;</th>
+        </tr>
+      </thead>
     );
   }
 
-  render () {
+  render() {
     const orderedLinks = orderLinks(this.props.links);
 
     const linkRows = orderedLinks.map(link => (
-        <LinkRow
-            key={link.id}
-            link={link}
-            onDelete={this.handleDeleteLink.bind(this, link)}/>
+      <LinkRow key={link.id} link={link} onDelete={this.handleDeleteLink.bind(this, link)} />
     ));
 
     return (
-        <table id="project-links" className="data zebra">
-          {this.renderHeader()}
-          <tbody>{linkRows}</tbody>
-        </table>
+      <table id="project-links" className="data zebra">
+        {this.renderHeader()}
+        <tbody>{linkRows}</tbody>
+      </table>
     );
   }
 }

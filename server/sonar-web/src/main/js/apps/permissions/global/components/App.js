@@ -31,13 +31,13 @@ export default class App extends React.Component {
     organization?: {}
   };
 
-  render () {
+  render() {
     return (
-        <div className="page page-limited">
-          <PageHeader organization={this.props.organization}/>
-          <PageError/>
-          <AllHoldersList organization={this.props.organization}/>
-        </div>
+      <div className="page page-limited">
+        <PageHeader organization={this.props.organization} />
+        <PageError />
+        <AllHoldersList organization={this.props.organization} />
+      </div>
     );
   }
 }

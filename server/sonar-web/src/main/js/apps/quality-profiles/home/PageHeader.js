@@ -35,15 +35,15 @@ export default class PageHeader extends React.Component {
 
   state = {};
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  retrieveImporters () {
+  retrieveImporters() {
     if (this.state.importers) {
       return Promise.resolve(this.state.importers);
     } else {
@@ -54,83 +54,82 @@ export default class PageHeader extends React.Component {
     }
   }
 
-  handleCreateClick (e) {
+  handleCreateClick(e) {
     e.preventDefault();
     e.target.blur();
     this.retrieveImporters().then(importers => {
       new CreateProfileView({
         languages: this.props.languages,
         importers
-      }).on('done', profile => {
-        this.props.updateProfiles().then(() => {
-          this.context.router.push({
-            pathname: '/profiles/show',
-            query: { key: profile.key }
+      })
+        .on('done', profile => {
+          this.props.updateProfiles().then(() => {
+            this.context.router.push({
+              pathname: '/profiles/show',
+              query: { key: profile.key }
+            });
           });
-        });
-      }).render();
+        })
+        .render();
     });
   }
 
-  handleRestoreClick (e) {
+  handleRestoreClick(e) {
     e.preventDefault();
-    new RestoreProfileView()
-        .on('done', this.props.updateProfiles)
-        .render();
+    new RestoreProfileView().on('done', this.props.updateProfiles).render();
   }
 
-  handleRestoreBuiltIn (e) {
+  handleRestoreBuiltIn(e) {
     e.preventDefault();
     new RestoreBuiltInProfilesView({ languages: this.props.languages })
-        .on('done', this.props.updateProfiles)
-        .render();
+      .on('done', this.props.updateProfiles)
+      .render();
   }
 
-  render () {
+  render() {
     return (
-        <header className="page-header">
-          <h1 className="page-title">
-            {translate('quality_profiles.page')}
-          </h1>
+      <header className="page-header">
+        <h1 className="page-title">
+          {translate('quality_profiles.page')}
+        </h1>
 
-          {this.props.canAdmin && (
-              <div className="page-actions button-group dropdown">
-                <button
-                    id="quality-profiles-create"
-                    onClick={this.handleCreateClick.bind(this)}>
-                  {translate('create')}
-                </button>
-                <button
-                    className="dropdown-toggle js-more-admin-actions"
-                    data-toggle="dropdown">
-                  <i className="icon-dropdown"/>
-                </button>
-                <ul className="dropdown-menu dropdown-menu-right">
-                  <li>
-                    <a href="#"
-                       id="quality-profiles-restore"
-                       onClick={this.handleRestoreClick.bind(this)}>
-                      {translate('quality_profiles.restore_profile')}
-                    </a>
-                  </li>
+        {this.props.canAdmin &&
+          <div className="page-actions button-group dropdown">
+            <button id="quality-profiles-create" onClick={this.handleCreateClick.bind(this)}>
+              {translate('create')}
+            </button>
+            <button className="dropdown-toggle js-more-admin-actions" data-toggle="dropdown">
+              <i className="icon-dropdown" />
+            </button>
+            <ul className="dropdown-menu dropdown-menu-right">
+              <li>
+                <a
+                  href="#"
+                  id="quality-profiles-restore"
+                  onClick={this.handleRestoreClick.bind(this)}
+                >
+                  {translate('quality_profiles.restore_profile')}
+                </a>
+              </li>
 
-                  <li>
-                    <a href="#"
-                       id="quality-profiles-restore-built-in"
-                       onClick={this.handleRestoreBuiltIn.bind(this)}>
-                      {translate('quality_profiles.restore_built_in_profiles')}
-                    </a>
-                  </li>
-                </ul>
-              </div>
-          )}
+              <li>
+                <a
+                  href="#"
+                  id="quality-profiles-restore-built-in"
+                  onClick={this.handleRestoreBuiltIn.bind(this)}
+                >
+                  {translate('quality_profiles.restore_built_in_profiles')}
+                </a>
+              </li>
+            </ul>
+          </div>}
 
-          <div className="page-description markdown">
-            {translate('quality_profiles.intro1')}
-            <br/>
-            {translate('quality_profiles.intro2')}
-          </div>
-        </header>
+        <div className="page-description markdown">
+          {translate('quality_profiles.intro1')}
+          <br />
+          {translate('quality_profiles.intro2')}
+        </div>
+      </header>
     );
   }
 }

@@ -35,7 +35,7 @@ export default class LineCoverage extends React.PureComponent {
     this.props.onClick(this.props.line, e.target);
   };
 
-  render () {
+  render() {
     const { line } = this.props;
     const className = 'source-meta source-line-coverage' +
       (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
@@ -51,8 +51,9 @@ export default class LineCoverage extends React.PureComponent {
         data-toggle={line.coverageStatus != null ? 'tooltip' : undefined}
         role={line.coverageStatus != null ? 'button' : undefined}
         tabIndex={line.coverageStatus != null ? 0 : undefined}
-        onClick={line.coverageStatus != null ? this.handleClick : undefined}>
-        <div className="source-line-bar"/>
+        onClick={line.coverageStatus != null ? this.handleClick : undefined}
+      >
+        <div className="source-line-bar" />
       </td>
     );
   }

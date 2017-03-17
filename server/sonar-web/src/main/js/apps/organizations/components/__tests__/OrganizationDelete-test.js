@@ -23,7 +23,7 @@ import { UnconnectedOrganizationDelete } from '../OrganizationDelete';
 
 it('smoke test', () => {
   const organization = { key: 'foo', name: 'Foo' };
-  const wrapper = shallow(<UnconnectedOrganizationDelete organization={organization}/>);
+  const wrapper = shallow(<UnconnectedOrganizationDelete organization={organization} />);
   expect(wrapper).toMatchSnapshot();
 
   wrapper.setState({ deleting: true });

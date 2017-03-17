@@ -27,52 +27,49 @@ import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
-export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasure, leakPeriod }) {
+export default function MeasureDetailsHeader({ measure, metric, secondaryMeasure, leakPeriod }) {
   return (
-      <header className="measure-details-header">
-        <h2 className="measure-details-metric">
-          <IssueTypeIcon query={metric.key} className="little-spacer-right"/>
-          {getLocalizedMetricName(metric)}
-        </h2>
+    <header className="measure-details-header">
+      <h2 className="measure-details-metric">
+        <IssueTypeIcon query={metric.key} className="little-spacer-right" />
+        {getLocalizedMetricName(metric)}
+      </h2>
 
-        {isDiffMetric(metric) && (
-            <div className="pull-right">
-              <LeakPeriodLegend period={leakPeriod}/>
-            </div>
-        )}
+      {isDiffMetric(metric) &&
+        <div className="pull-right">
+          <LeakPeriodLegend period={leakPeriod} />
+        </div>}
 
-        <TooltipsContainer options={{ html: false }}>
-          <div className="measure-details-value">
+      <TooltipsContainer options={{ html: false }}>
+        <div className="measure-details-value">
 
-            {isDiffMetric(metric) ? (
-                <div className="measure-details-value-leak">
-                  <Measure measure={measure} metric={metric}/>
-                </div>
-            ) : (
-                <div className="measure-details-value-absolute">
-                  <Measure measure={measure} metric={metric}/>
-                </div>
-            )}
+          {isDiffMetric(metric)
+            ? <div className="measure-details-value-leak">
+                <Measure measure={measure} metric={metric} />
+              </div>
+            : <div className="measure-details-value-absolute">
+                <Measure measure={measure} metric={metric} />
+              </div>}
 
-            {secondaryMeasure && secondaryMeasure.metric === 'ncloc_language_distribution' && (
-                <div className="measure-details-secondary">
-                  <LanguageDistribution distribution={secondaryMeasure.value}/>
-                </div>
-            )}
+          {secondaryMeasure &&
+            secondaryMeasure.metric === 'ncloc_language_distribution' &&
+            <div className="measure-details-secondary">
+              <LanguageDistribution distribution={secondaryMeasure.value} />
+            </div>}
 
-            {secondaryMeasure && secondaryMeasure.metric === 'function_complexity_distribution' && (
-                <div className="measure-details-secondary">
-                  <ComplexityDistribution distribution={secondaryMeasure.value} of="function"/>
-                </div>
-            )}
+          {secondaryMeasure &&
+            secondaryMeasure.metric === 'function_complexity_distribution' &&
+            <div className="measure-details-secondary">
+              <ComplexityDistribution distribution={secondaryMeasure.value} of="function" />
+            </div>}
 
-            {secondaryMeasure && secondaryMeasure.metric === 'file_complexity_distribution' && (
-                <div className="measure-details-secondary">
-                  <ComplexityDistribution distribution={secondaryMeasure.value} of="file"/>
-                </div>
-            )}
-          </div>
-        </TooltipsContainer>
-      </header>
+          {secondaryMeasure &&
+            secondaryMeasure.metric === 'file_complexity_distribution' &&
+            <div className="measure-details-secondary">
+              <ComplexityDistribution distribution={secondaryMeasure.value} of="file" />
+            </div>}
+        </div>
+      </TooltipsContainer>
+    </header>
   );
 }

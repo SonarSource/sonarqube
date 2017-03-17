@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getQualityProfiles, associateProject, dissociateProject } from '../../../api/quality-profiles';
+import {
+  getQualityProfiles,
+  associateProject,
+  dissociateProject
+} from '../../../api/quality-profiles';
 import {
   fetchQualityGates,
   getGateForProject,
@@ -43,16 +47,14 @@ export const receiveProjectProfiles = (projectKey, profiles) => ({
   profiles
 });
 
-export const fetchProjectProfiles = projectKey => dispatch => {
-  Promise.all([
-    getQualityProfiles(),
-    getQualityProfiles({ projectKey })
-  ]).then(responses => {
-    const [allProfiles, projectProfiles] = responses;
-    dispatch(receiveProfiles(allProfiles));
-    dispatch(receiveProjectProfiles(projectKey, projectProfiles));
-  });
-};
+export const fetchProjectProfiles = projectKey =>
+  dispatch => {
+    Promise.all([getQualityProfiles(), getQualityProfiles({ projectKey })]).then(responses => {
+      const [allProfiles, projectProfiles] = responses;
+      dispatch(receiveProfiles(allProfiles));
+      dispatch(receiveProjectProfiles(projectKey, projectProfiles));
+    });
+  };
 
 export const SET_PROJECT_PROFILE = 'projectAdmin/SET_PROJECT_PROFILE';
 const setProjectProfileAction = (projectKey, oldProfileKey, newProfileKey) => ({
@@ -63,21 +65,25 @@ const setProjectProfileAction = (projectKey, oldProfileKey, newProfileKey) => ({
 });
 
 export const setProjectProfile = (projectKey, oldKey, newKey) =>
-    (dispatch, getState) => {
-      const state = getState();
-      const newProfile = getProjectAdminProfileByKey(state, newKey);
-      const request = newProfile.isDefault ?
-          dissociateProject(oldKey, projectKey) :
-          associateProject(newKey, projectKey);
+  (dispatch, getState) => {
+    const state = getState();
+    const newProfile = getProjectAdminProfileByKey(state, newKey);
+    const request = newProfile.isDefault
+      ? dissociateProject(oldKey, projectKey)
+      : associateProject(newKey, projectKey);
 
-      request.then(() => {
-        dispatch(setProjectProfileAction(projectKey, oldKey, newKey));
-        dispatch(addGlobalSuccessMessage(
+    request.then(() => {
+      dispatch(setProjectProfileAction(projectKey, oldKey, newKey));
+      dispatch(
+        addGlobalSuccessMessage(
           translateWithParameters(
             'project_quality_profile.successfully_updated',
-            newProfile.languageName)));
-      });
-    };
+            newProfile.languageName
+          )
+        )
+      );
+    });
+  };
 
 export const RECEIVE_GATES = 'projectAdmin/RECEIVE_GATES';
 export const receiveGates = gates => ({
@@ -92,16 +98,14 @@ export const receiveProjectGate = (projectKey, gate) => ({
   gate
 });
 
-export const fetchProjectGate = projectKey => dispatch => {
-  Promise.all([
-    fetchQualityGates(),
-    getGateForProject(projectKey)
-  ]).then(responses => {
-    const [allGates, projectGate] = responses;
-    dispatch(receiveGates(allGates));
-    dispatch(receiveProjectGate(projectKey, projectGate));
-  });
-};
+export const fetchProjectGate = projectKey =>
+  dispatch => {
+    Promise.all([fetchQualityGates(), getGateForProject(projectKey)]).then(responses => {
+      const [allGates, projectGate] = responses;
+      dispatch(receiveGates(allGates));
+      dispatch(receiveProjectGate(projectKey, projectGate));
+    });
+  };
 
 export const SET_PROJECT_GATE = 'projectAdmin/SET_PROJECT_GATE';
 const setProjectGateAction = (projectKey, gateId) => ({
@@ -110,17 +114,17 @@ const setProjectGateAction = (projectKey, gateId) => ({
   gateId
 });
 
-export const setProjectGate = (projectKey, oldId, newId) => dispatch => {
-  const request = newId != null ?
-      associateGateWithProject(newId, projectKey) :
-      dissociateGateWithProject(oldId, projectKey);
+export const setProjectGate = (projectKey, oldId, newId) =>
+  dispatch => {
+    const request = newId != null
+      ? associateGateWithProject(newId, projectKey)
+      : dissociateGateWithProject(oldId, projectKey);
 
-  request.then(() => {
-    dispatch(setProjectGateAction(projectKey, newId));
-    dispatch(addGlobalSuccessMessage(
-      translate('project_quality_gate.successfully_updated')));
-  });
-};
+    request.then(() => {
+      dispatch(setProjectGateAction(projectKey, newId));
+      dispatch(addGlobalSuccessMessage(translate('project_quality_gate.successfully_updated')));
+    });
+  };
 
 export const RECEIVE_PROJECT_LINKS = 'projectAdmin/RECEIVE_PROJECT_LINKS';
 export const receiveProjectLinks = (projectKey, links) => ({
@@ -129,11 +133,12 @@ export const receiveProjectLinks = (projectKey, links) => ({
   links
 });
 
-export const fetchProjectLinks = projectKey => dispatch => {
-  getProjectLinks(projectKey).then(links => {
-    dispatch(receiveProjectLinks(projectKey, links));
-  });
-};
+export const fetchProjectLinks = projectKey =>
+  dispatch => {
+    getProjectLinks(projectKey).then(links => {
+      dispatch(receiveProjectLinks(projectKey, links));
+    });
+  };
 
 export const ADD_PROJECT_LINK = 'projectAdmin/ADD_PROJECT_LINK';
 const addProjectLink = (projectKey, link) => ({
@@ -142,11 +147,12 @@ const addProjectLink = (projectKey, link) => ({
   link
 });
 
-export const createProjectLink = (projectKey, name, url) => dispatch => {
-  return createLink(projectKey, name, url).then(link => {
-    dispatch(addProjectLink(projectKey, link));
-  });
-};
+export const createProjectLink = (projectKey, name, url) =>
+  dispatch => {
+    return createLink(projectKey, name, url).then(link => {
+      dispatch(addProjectLink(projectKey, link));
+    });
+  };
 
 export const DELETE_PROJECT_LINK = 'projectAdmin/DELETE_PROJECT_LINK';
 export const deleteProjectLink = (projectKey, linkId) => ({
@@ -162,12 +168,13 @@ const receiveProjectModules = (projectKey, modules) => ({
   modules
 });
 
-export const fetchProjectModules = projectKey => dispatch => {
-  const options = { qualifiers: 'BRC', s: 'name', ps: 500 };
-  getTree(projectKey, options).then(r => {
-    dispatch(receiveProjectModules(projectKey, r.components));
-  });
-};
+export const fetchProjectModules = projectKey =>
+  dispatch => {
+    const options = { qualifiers: 'BRC', s: 'name', ps: 500 };
+    getTree(projectKey, options).then(r => {
+      dispatch(receiveProjectModules(projectKey, r.components));
+    });
+  };
 
 export const CHANGE_KEY = 'projectAdmin/CHANGE_KEY';
 const changeKeyAction = (key, newKey) => ({
@@ -176,7 +183,7 @@ const changeKeyAction = (key, newKey) => ({
   newKey
 });
 
-export const changeKey = (key, newKey) => dispatch => {
-  return changeKeyApi(key, newKey)
-      .then(() => dispatch(changeKeyAction(key, newKey)));
-};
+export const changeKey = (key, newKey) =>
+  dispatch => {
+    return changeKeyApi(key, newKey).then(() => dispatch(changeKeyAction(key, newKey)));
+  };

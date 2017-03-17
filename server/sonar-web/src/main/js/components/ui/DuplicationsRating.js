@@ -35,7 +35,7 @@ export default class DuplicationsRating extends React.Component {
     muted: false
   };
 
-  render () {
+  render() {
     const { value, size, muted } = this.props;
     const className = classNames('duplications-rating', {
       'duplications-rating-small': size === 'small',
@@ -48,8 +48,6 @@ export default class DuplicationsRating extends React.Component {
       'duplications-rating-E': value >= 20
     });
 
-    return (
-        <div className={className}/>
-    );
+    return <div className={className} />;
   }
 }
