@@ -144,7 +144,7 @@ public class CreateAction implements RulesWsAction {
         if (!isNullOrEmpty(params)) {
           newRule.setParameters(KeyValueFormat.parse(params));
         }
-        writeResponse(dbSession, request, response, ruleCreator.create(newRule));
+        writeResponse(dbSession, request, response, ruleCreator.create(dbSession, newRule));
       } catch (ReactivationException e) {
         write409(dbSession, request, response, e.ruleKey());
       }
