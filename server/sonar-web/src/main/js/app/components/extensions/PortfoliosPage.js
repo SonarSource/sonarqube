@@ -22,11 +22,12 @@ import React from 'react';
 import GlobalPageExtension from './GlobalPageExtension';
 
 export default class PortfoliosPage extends React.Component {
-  render () {
+  render() {
     return (
-        <GlobalPageExtension
-            location={this.props.location}
-            params={{ pluginKey: 'governance', extensionKey: 'portfolios' }}/>
+      <GlobalPageExtension
+        location={this.props.location}
+        params={{ pluginKey: 'governance', extensionKey: 'portfolios' }}
+      />
     );
   }
 }
