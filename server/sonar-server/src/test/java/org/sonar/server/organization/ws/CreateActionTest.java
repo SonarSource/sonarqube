@@ -491,6 +491,17 @@ public class CreateActionTest {
   }
 
   @Test
+  public void request_set_user_as_member_of_organization() {
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    UserDto user = dbTester.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+
+    executeRequest("orgFoo");
+
+    assertThat(dbClient.organizationMemberDao().select(dbSession, SOME_UUID, user.getId())).isPresent();
+  }
+
+  @Test
   public void request_fails_with_IllegalStateException_if_organization_support_is_disabled() {
     organizationFlags.setEnabled(false);
     logInAsSystemAdministrator();

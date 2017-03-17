@@ -75,6 +75,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, dto -> {
     });
+    insertOrganizationMember(dbSession, organization, creatorUserId);
     GroupDto group = insertOwnersGroup(dbSession, organization);
     insertDefaultTemplate(dbSession, organization, group);
     addCurrentUserToGroup(dbSession, group, creatorUserId);
@@ -106,7 +107,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     OrganizationPermission.all()
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization);
-    insertOrganizationMember(dbSession, organization, newUser);
+    insertOrganizationMember(dbSession, organization, newUser.getId());
 
     dbSession.commit();
 
@@ -255,9 +256,9 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       new UserGroupDto().setGroupId(group.getId()).setUserId(createUserId));
   }
 
-  private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, UserDto userDto) {
+  private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, int userId) {
     dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
       .setOrganizationUuid(organizationDto.getUuid())
-      .setUserId(userDto.getId()));
+      .setUserId(userId));
   }
 }
