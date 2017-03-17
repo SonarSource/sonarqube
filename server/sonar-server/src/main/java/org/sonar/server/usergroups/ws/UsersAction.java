@@ -30,10 +30,9 @@ import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.GroupMembershipQuery;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.utils.Paging.forPageIndex;
@@ -119,11 +118,11 @@ public class UsersAction implements UserGroupsWsAction {
 
   private static String getMembership(String selected) {
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
-    String membership = GroupMembershipQuery.ANY;
+    String membership = UserMembershipQuery.ANY;
     if (SelectionMode.SELECTED == selectionMode) {
-      membership = GroupMembershipQuery.IN;
+      membership = UserMembershipQuery.IN;
     } else if (SelectionMode.DESELECTED == selectionMode) {
-      membership = GroupMembershipQuery.OUT;
+      membership = UserMembershipQuery.OUT;
     }
     return membership;
   }
