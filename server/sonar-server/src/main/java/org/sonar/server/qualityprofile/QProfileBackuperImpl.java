@@ -56,6 +56,21 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
   private static final Joiner RULE_KEY_JOINER = Joiner.on(", ").skipNulls();
 
+  private static final String ATTRIBUTE_PROFILE = "profile";
+  private static final String ATTRIBUTE_NAME = "name";
+  private static final String ATTRIBUTE_LANGUAGE = "language";
+
+  private static final String ATTRIBUTE_RULES = "rules";
+  private static final String ATTRIBUTE_RULE = "rule";
+  private static final String ATTRIBUTE_REPOSITORY_KEY = "repositoryKey";
+  private static final String ATTRIBUTE_KEY = "key";
+  private static final String ATTRIBUTE_PRIORITY = "priority";
+
+  private static final String ATTRIBUTE_PARAMETERS = "parameters";
+  private static final String ATTRIBUTE_PARAMETER = "parameter";
+  private static final String ATTRIBUTE_PARAMETER_KEY = "key";
+  private static final String ATTRIBUTE_PARAMETER_VALUE = "value";
+
   private final DbClient db;
   private final QProfileReset profileReset;
   private final QProfileFactory profileFactory;
@@ -75,28 +90,28 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
   private void writeXml(DbSession dbSession, Writer writer, QualityProfileDto profile, Iterator<ActiveRuleDto> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
-    xml.begin("profile");
-    xml.prop("name", profile.getName());
-    xml.prop("language", profile.getLanguage());
-    xml.begin("rules");
+    xml.begin(ATTRIBUTE_PROFILE);
+    xml.prop(ATTRIBUTE_NAME, profile.getName());
+    xml.prop(ATTRIBUTE_LANGUAGE, profile.getLanguage());
+    xml.begin(ATTRIBUTE_RULES);
     while (activeRules.hasNext()) {
       ActiveRuleDto activeRule = activeRules.next();
-      xml.begin("rule");
-      xml.prop("repositoryKey", activeRule.getKey().ruleKey().repository());
-      xml.prop("key", activeRule.getKey().ruleKey().rule());
-      xml.prop("priority", activeRule.getSeverityString());
-      xml.begin("parameters");
+      xml.begin(ATTRIBUTE_RULE);
+      xml.prop(ATTRIBUTE_REPOSITORY_KEY, activeRule.getKey().ruleKey().repository());
+      xml.prop(ATTRIBUTE_KEY, activeRule.getKey().ruleKey().rule());
+      xml.prop(ATTRIBUTE_PRIORITY, activeRule.getSeverityString());
+      xml.begin(ATTRIBUTE_PARAMETERS);
       for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
         xml
-          .begin("parameter")
-          .prop("key", param.getKey())
-          .prop("value", param.getValue())
+          .begin(ATTRIBUTE_PARAMETER)
+          .prop(ATTRIBUTE_PARAMETER_KEY, param.getKey())
+          .prop(ATTRIBUTE_PARAMETER_VALUE, param.getValue())
           .end();
       }
-      xml.end("parameters");
-      xml.end("rule");
+      xml.end(ATTRIBUTE_PARAMETERS);
+      xml.end(ATTRIBUTE_RULE);
     }
-    xml.end("rules").end("profile").close();
+    xml.end(ATTRIBUTE_RULES).end(ATTRIBUTE_PROFILE).close();
   }
 
   @Override
@@ -133,13 +148,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       SMInputCursor cursor = rootC.childElementCursor();
       while (cursor.getNext() != null) {
         String nodeName = cursor.getLocalName();
-        if (StringUtils.equals("name", nodeName)) {
+        if (StringUtils.equals(ATTRIBUTE_NAME, nodeName)) {
           profileName = StringUtils.trim(cursor.collectDescendantText(false));
 
-        } else if (StringUtils.equals("language", nodeName)) {
+        } else if (StringUtils.equals(ATTRIBUTE_LANGUAGE, nodeName)) {
           profileLang = StringUtils.trim(cursor.collectDescendantText(false));
 
-        } else if (StringUtils.equals("rules", nodeName)) {
+        } else if (StringUtils.equals(ATTRIBUTE_RULES, nodeName)) {
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
           ruleActivations = parseRuleActivations(rulesCursor);
         }
@@ -166,17 +181,17 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       Map<String, String> parameters = Maps.newHashMap();
       while (ruleCursor.getNext() != null) {
         String nodeName = ruleCursor.getLocalName();
-        if (StringUtils.equals("repositoryKey", nodeName)) {
+        if (StringUtils.equals(ATTRIBUTE_REPOSITORY_KEY, nodeName)) {
           repositoryKey = StringUtils.trim(ruleCursor.collectDescendantText(false));
 
-        } else if (StringUtils.equals("key", nodeName)) {
+        } else if (StringUtils.equals(ATTRIBUTE_KEY, nodeName)) {
           key = StringUtils.trim(ruleCursor.collectDescendantText(false));
 
-        } else if (StringUtils.equals("priority", nodeName)) {
+        } else if (StringUtils.equals(ATTRIBUTE_PRIORITY, nodeName)) {
           severity = StringUtils.trim(ruleCursor.collectDescendantText(false));
 
-        } else if (StringUtils.equals("parameters", nodeName)) {
-          SMInputCursor propsCursor = ruleCursor.childElementCursor("parameter");
+        } else if (StringUtils.equals(ATTRIBUTE_PARAMETERS, nodeName)) {
+          SMInputCursor propsCursor = ruleCursor.childElementCursor(ATTRIBUTE_PARAMETER);
           readParameters(propsCursor, parameters);
         }
       }
@@ -204,9 +219,9 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       String value = null;
       while (propCursor.getNext() != null) {
         String nodeName = propCursor.getLocalName();
-        if (StringUtils.equals("key", nodeName)) {
+        if (StringUtils.equals(ATTRIBUTE_PARAMETER_KEY, nodeName)) {
           key = StringUtils.trim(propCursor.collectDescendantText(false));
-        } else if (StringUtils.equals("value", nodeName)) {
+        } else if (StringUtils.equals(ATTRIBUTE_PARAMETER_VALUE, nodeName)) {
           value = StringUtils.trim(propCursor.collectDescendantText(false));
         }
       }
