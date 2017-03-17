@@ -60,7 +60,7 @@ public class GroupsAction implements UsersWsAction {
     NewAction action = context.createAction("groups")
       .setDescription("Lists the groups a user belongs to. Requires Administer System permission.")
       .setHandler(this)
-      .setResponseExample(getClass().getResource("example-groups.json"))
+      .setResponseExample(getClass().getResource("groups-example.json"))
       .setSince("5.2");
 
     action.createParam(PARAM_LOGIN)
