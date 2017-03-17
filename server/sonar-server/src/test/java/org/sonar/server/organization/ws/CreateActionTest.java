@@ -53,6 +53,9 @@ import org.sonar.server.organization.OrganizationCreationImpl;
 import org.sonar.server.organization.OrganizationValidation;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestOrganizationFlags;
+import org.sonar.server.qualityprofile.DefinedQProfileCreation;
+import org.sonar.server.qualityprofile.DefinedQProfileRepository;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -88,7 +91,8 @@ public class CreateActionTest {
     .setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
-  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings);
+  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings,
+      mock(DefinedQProfileRepository.class), mock(DefinedQProfileCreation.class), mock(ActiveRuleIndexer.class));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private CreateAction underTest = new CreateAction(settings, userSession, dbClient, new OrganizationsWsSupport(organizationValidation), organizationValidation,
     organizationCreation, organizationFlags);
