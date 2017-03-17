@@ -52,7 +52,7 @@ public final class ClusterProperties {
     networkInterfaces = extractNetworkInterfaces(
       appSettings.getProps().value(ProcessProperties.CLUSTER_NETWORK_INTERFACES, "")
     );
-    name = appSettings.getProps().value(ProcessProperties.CLUSTER_NAME);
+    name = appSettings.getProps().nonNullValue(ProcessProperties.CLUSTER_NAME);
     hosts = extractHosts(
       appSettings.getProps().value(ProcessProperties.CLUSTER_HOSTS, "")
     );
@@ -82,13 +82,6 @@ public final class ClusterProperties {
     if (!enabled) {
       return;
     }
-    // Name is required in cluster mode
-    checkArgument(
-      StringUtils.isNotEmpty(name),
-      "Cluster have been enabled but a %s has not been defined.",
-      ProcessProperties.CLUSTER_NAME
-    );
-
     // Test validity of port
     checkArgument(
       port > 0 && port < 65_536,

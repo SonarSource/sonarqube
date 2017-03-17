@@ -102,7 +102,7 @@ public class EsServerHolder {
       int port = NetworkUtils.freePort();
 
       Properties properties = new Properties();
-      properties.setProperty(ProcessProperties.SEARCH_CLUSTER_NAME, clusterName);
+      properties.setProperty(ProcessProperties.CLUSTER_NAME, clusterName);
       properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(port));
       properties.setProperty(ProcessProperties.SEARCH_HOST, hostName);
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());

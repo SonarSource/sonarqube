@@ -56,7 +56,6 @@ public class ProcessProperties {
   public static final String PATH_TEMP = "sonar.path.temp";
   public static final String PATH_WEB = "sonar.path.web";
 
-  public static final String SEARCH_CLUSTER_NAME = "sonar.search.clusterName";
   public static final String SEARCH_HOST = "sonar.search.host";
   public static final String SEARCH_PORT = "sonar.search.port";
   public static final String SEARCH_HTTP_PORT = "sonar.search.httpPort";
@@ -111,7 +110,6 @@ public class ProcessProperties {
 
   public static Properties defaults() {
     Properties defaults = new Properties();
-    defaults.put(SEARCH_CLUSTER_NAME, "sonarqube");
     defaults.put(SEARCH_HOST, "127.0.0.1");
     defaults.put(SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
@@ -138,7 +136,7 @@ public class ProcessProperties {
     defaults.put(CLUSTER_CE_DISABLED, "false");
     defaults.put(CLUSTER_WEB_DISABLED, "false");
     defaults.put(CLUSTER_SEARCH_DISABLED, "false");
-    defaults.put(CLUSTER_NAME, "");
+    defaults.put(CLUSTER_NAME, "sonarqube");
     defaults.put(CLUSTER_NETWORK_INTERFACES, "");
     defaults.put(CLUSTER_HOSTS, "");
     defaults.put(CLUSTER_PORT, "9003");

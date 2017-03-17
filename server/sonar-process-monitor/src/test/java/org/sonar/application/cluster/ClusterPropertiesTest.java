@@ -41,7 +41,6 @@ public class ClusterPropertiesTest {
 
   @Test
   public void test_default_values() throws Exception {
-
     ClusterProperties props = new ClusterProperties(appSettings);
 
     assertThat(props.getNetworkInterfaces())
@@ -53,7 +52,7 @@ public class ClusterPropertiesTest {
     assertThat(props.getHosts())
       .isEqualTo(Collections.emptyList());
     assertThat(props.getName())
-      .isEqualTo("");
+      .isEqualTo("sonarqube");
   }
 
   @Test
@@ -84,19 +83,6 @@ public class ClusterPropertiesTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(
       String.format("Interface %s is not available on this machine.", "8.8.8.8"));
-    clusterProperties.validate();
-  }
-
-  @Test
-  public void test_missing_name() {
-    appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "");
-
-    ClusterProperties clusterProperties = new ClusterProperties(appSettings);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(
-      String.format("Cluster have been enabled but a %s has not been defined.",
-        ProcessProperties.CLUSTER_NAME));
     clusterProperties.validate();
   }
 
