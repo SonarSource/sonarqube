@@ -20,6 +20,7 @@
 
 package org.sonar.db.organization;
 
+import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,6 +28,8 @@ public interface OrganizationMemberMapper {
   OrganizationMemberDto select(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 
   Set<String> selectOrganizationUuidsByUser(@Param("userId") int userId);
+
+  List<String> selectLogins(String organizationUuid);
 
   void insert(OrganizationMemberDto organizationMember);
 
