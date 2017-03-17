@@ -19,69 +19,133 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Collections;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
-import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.util.TypeValidations;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.qualityprofile.ws.QProfileReference.DEFAULT_PARAM_LANGUAGE;
+import static org.sonar.server.qualityprofile.ws.QProfileReference.DEFAULT_PARAM_PROFILE_KEY;
+import static org.sonar.server.qualityprofile.ws.QProfileReference.DEFAULT_PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
-public class ChangeParentActionMediumTest {
+public class ChangeParentActionTest {
 
-  // TODO Replace with DbTester + EsTester once DaoV2 is removed
-  @ClassRule
-  public static ServerTester tester = new ServerTester().withEsIndexes();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  public DbTester dbTester = new DbTester(System2.INSTANCE, null);
+  @Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
-  private DbClient db;
-  private DbSession session;
-  private WsTester wsTester;
+  private DbClient dbClient;
+  private DbSession dbSession;
+  private RuleIndex ruleIndex;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
-  private RuleIndex ruleIndex;
+  private WsActionTester wsActionTester;
+  private OrganizationDto organization;
+  private RuleActivator ruleActivator;
 
   @Before
   public void setUp() {
-    tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    wsTester = tester.get(WsTester.class);
-    session = db.openSession(false);
-    ruleIndexer = tester.get(RuleIndexer.class);
-    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    ruleIndex = tester.get(RuleIndex.class);
-    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, tester.get(DefaultOrganizationProvider.class).get().getUuid());
+    dbClient = dbTester.getDbClient();
+    dbSession = dbTester.getSession();
+    EsClient esClient = esTester.client();
+    ruleIndex = new RuleIndex(esClient);
+    ruleIndexer = new RuleIndexer(
+      System2.INSTANCE,
+      dbClient,
+      esClient
+    );
+    activeRuleIndexer = new ActiveRuleIndexer(
+      System2.INSTANCE,
+      dbClient,
+      esClient
+    );
+    RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
+    TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
+    ruleActivator = new RuleActivator(
+      System2.INSTANCE,
+      dbClient,
+      ruleIndex,
+      ruleActivatorContextFactory,
+      typeValidations,
+      activeRuleIndexer,
+      userSessionRule
+    );
+    ChangeParentAction underTest = new ChangeParentAction(
+      dbClient,
+      new RuleActivator(
+        System2.INSTANCE,
+        dbClient,
+        ruleIndex,
+        ruleActivatorContextFactory,
+        typeValidations,
+        activeRuleIndexer,
+        userSessionRule
+      ),
+      new QProfileFactory(
+        dbClient,
+        UuidFactoryFast.getInstance(),
+        System2.INSTANCE
+      ),
+      new Languages(),
+      new QProfileWsSupport(
+        dbClient,
+        userSessionRule,
+        TestDefaultOrganizationProvider.from(dbTester)
+      )
+    );
+    wsActionTester = new WsActionTester(underTest);
+    organization = dbTester.getDefaultOrganization();
+    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
   }
 
   @After
   public void after() {
-    session.close();
+    dbSession.close();
   }
 
   @Test
@@ -91,21 +155,22 @@ public class ChangeParentActionMediumTest {
 
     RuleDto rule1 = createRule("xoo", "rule1");
     createActiveRule(rule1, parent1);
-    session.commit();
+    dbSession.commit();
     ruleIndexer.index();
     activeRuleIndexer.index();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
 
     // Set parent
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
+    wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent1.getKey())
       .execute();
-    session.clearCache();
+    dbSession.clearCache();
 
     // Check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
 
@@ -122,23 +187,24 @@ public class ChangeParentActionMediumTest {
     RuleDto rule2 = createRule("xoo", "rule2");
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    session.commit();
+    dbSession.commit();
     ruleIndexer.index();
     activeRuleIndexer.index();
 
     // Set parent 1
-    tester.get(RuleActivator.class).setParent(session, child.getKey(), parent1.getKey());
-    session.clearCache();
+    ruleActivator.setParent(dbSession, child.getKey(), parent1.getKey());
+    dbSession.clearCache();
 
     // Set parent 2 through WS
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
+    wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent2.getKey())
       .execute();
-    session.clearCache();
+    dbSession.clearCache();
 
     // Check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
 
@@ -152,22 +218,23 @@ public class ChangeParentActionMediumTest {
 
     RuleDto rule1 = createRule("xoo", "rule1");
     createActiveRule(rule1, parent);
-    session.commit();
+    dbSession.commit();
     ruleIndexer.index();
     activeRuleIndexer.index();
 
     // Set parent
-    tester.get(RuleActivator.class).setParent(session, child.getKey(), parent.getKey());
-    session.clearCache();
+    ruleActivator.setParent(dbSession, child.getKey(), parent.getKey());
+    dbSession.clearCache();
 
     // Remove parent through WS
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
+    wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
       .execute();
-    session.clearCache();
+    dbSession.clearCache();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey());
     assertThat(activeRules).isEmpty();
 
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
@@ -183,49 +250,52 @@ public class ChangeParentActionMediumTest {
     RuleDto rule2 = createRule("xoo", "rule2");
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    session.commit();
+    dbSession.commit();
     ruleIndexer.index();
     activeRuleIndexer.index();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
 
     // 1. Set parent 1
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_LANGUAGE, "xoo")
-      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
+    wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_LANGUAGE, "xoo")
+      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
       .setParam("parentName", parent1.getName())
       .execute();
-    session.clearCache();
+    dbSession.clearCache();
 
     // 1. check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).hasSize(1);
 
     // 2. Set parent 2
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_LANGUAGE, "xoo")
-      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
+    wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_LANGUAGE, "xoo")
+      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
       .setParam("parentName", parent2.getName())
       .execute();
-    session.clearCache();
+    dbSession.clearCache();
 
     // 2. check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
 
     // 3. Remove parent
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_LANGUAGE, "xoo")
-      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
+    wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_LANGUAGE, "xoo")
+      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
       .setParam("parentName", "")
       .execute();
-    session.clearCache();
+    dbSession.clearCache();
 
     // 3. check no rule enabled
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey());
     assertThat(activeRules).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
   }
@@ -237,71 +307,82 @@ public class ChangeParentActionMediumTest {
 
     RuleDto rule1 = createRule("xoo", "rule1");
     createActiveRule(rule1, parent);
-    session.commit();
+    dbSession.commit();
     ruleIndexer.index();
     activeRuleIndexer.index();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
 
     // Set parent
-    tester.get(RuleActivator.class).setParent(session, child.getKey(), parent.getKey());
-    session.clearCache();
+    ruleActivator.setParent(dbSession, child.getKey(), parent.getKey());
+    dbSession.clearCache();
 
     // Remove parent
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
+    wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", "")
       .execute();
-    session.clearCache();
+    dbSession.clearCache();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey());
     assertThat(activeRules).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_parent_key_and_name_both_set() throws Exception {
     QualityProfileDto child = createProfile("xoo", "Child");
-    session.commit();
+    dbSession.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
 
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKee())
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKee())
       .setParam("parentName", "polop")
-      .setParam("parentKey", "palap")
+      .setParam("parentKey", "palap");
+    thrown.expect(IllegalArgumentException.class);
+    request
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_profile_key_and_name_both_set() throws Exception {
     QualityProfileDto child = createProfile("xoo", "Child");
-    session.commit();
+    dbSession.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
 
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKee())
-      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
-      .setParam("parentKey", "palap")
-      .execute();
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKee())
+      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_ORGANIZATION, child.getOrganizationUuid())
+      .setParam("parentKey", "palap");
+
+    thrown.expect(IllegalArgumentException.class);
+    request.execute();
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void fail_if_missing_permission() throws Exception {
     userSessionRule.logIn("anakin");
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileRef.PARAM_PROFILE_KEY, "polop")
-      .setParam("parentKey", "pulup")
-      .execute();
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(DEFAULT_PARAM_PROFILE_KEY, "polop")
+      .setParam("parentKey", "pulup");
+
+    thrown.expect(ForbiddenException.class);
+    request.execute();
   }
 
   private QualityProfileDto createProfile(String lang, String name) {
-    QualityProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, name), "p" + lang + "-" + name.toLowerCase());
-    db.qualityProfileDao().insert(session, profile);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto(organization, new QProfileName(lang, name), "p" + lang + "-" + name.toLowerCase());
+    dbClient.qualityProfileDao().insert(dbSession, profile);
     return profile;
   }
 
@@ -310,14 +391,14 @@ public class ChangeParentActionMediumTest {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.ruleDao().insert(session, rule);
+    dbClient.ruleDao().insert(dbSession, rule);
     return rule;
   }
 
   private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
-    db.activeRuleDao().insert(session, activeRule);
+    dbClient.activeRuleDao().insert(dbSession, activeRule);
     return activeRule;
   }
 }
