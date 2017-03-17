@@ -57,7 +57,7 @@ public class DeleteAction implements QProfileWsAction {
       .setPost(true)
       .setHandler(this);
 
-    qProfileWsSupport.createOrganizationParam(action)
+    QProfileWsSupport.createOrganizationParam(action)
       .setSince("6.4");
 
     QProfileReference.defineParams(action, languages);

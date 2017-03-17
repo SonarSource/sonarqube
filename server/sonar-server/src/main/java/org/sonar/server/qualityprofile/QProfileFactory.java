@@ -34,10 +34,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.ws.QProfileReference;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
-import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -143,29 +141,6 @@ public class QProfileFactory {
   }
 
   // ------------- DEFAULT PROFILE
-
-  /**
-   * @deprecated replaced by {@link org.sonar.server.qualityprofile.ws.QProfileWsSupport#getProfile(DbSession, QProfileReference)}
-   */
-  @Deprecated
-  public QualityProfileDto find(DbSession dbSession, QProfileRef ref) {
-    if (ref.hasKey()) {
-      return findByKey(dbSession, ref.getKey());
-    }
-    return findByName(dbSession, ref.getLanguage(), ref.getName());
-  }
-
-  private QualityProfileDto findByKey(DbSession dbSession, String profileKey) {
-    QualityProfileDto profile;
-    profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
-    return checkFound(profile, "Unable to find a profile for with key '%s'", profileKey);
-  }
-
-  private QualityProfileDto findByName(DbSession dbSession, String language, String profileName) {
-    QualityProfileDto profile;
-    profile = db.qualityProfileDao().selectByNameAndLanguage(profileName, language, dbSession);
-    return checkFound(profile, "Unable to find a profile for language '%s' with name '%s'", language, profileName);
-  }
 
   private static void checkNotDefault(QualityProfileDto p) {
     if (p.isDefault()) {

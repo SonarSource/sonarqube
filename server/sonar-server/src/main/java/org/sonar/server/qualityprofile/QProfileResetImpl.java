@@ -78,22 +78,26 @@ public class QProfileResetImpl implements QProfileReset {
       List<RuleActivation> activations = Lists.newArrayList();
       for (RulesProfile def : entry.getValue()) {
         for (ActiveRule activeRule : def.getActiveRules()) {
-          RuleActivation activation = new RuleActivation(RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey()));
-          activation.setSeverity(activeRule.getSeverity().name());
-          if (!activeRule.getActiveRuleParams().isEmpty()) {
-            for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-              activation.setParameter(param.getParamKey(), param.getValue());
-            }
-          } else {
-            for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
-              activation.setParameter(param.getName(), param.getDefaultValue());
-            }
-          }
-          activations.add(activation);
+          activations.add(getRuleActivation(dbSession, activeRule));
         }
       }
       reset(dbSession, profile, activations);
     }
+  }
+
+  private RuleActivation getRuleActivation(DbSession dbSession, ActiveRule activeRule) {
+    RuleActivation activation = new RuleActivation(RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey()));
+    activation.setSeverity(activeRule.getSeverity().name());
+    if (!activeRule.getActiveRuleParams().isEmpty()) {
+      for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+        activation.setParameter(param.getParamKey(), param.getValue());
+      }
+    } else {
+      for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
+        activation.setParameter(param.getName(), param.getDefaultValue());
+      }
+    }
+    return activation;
   }
 
   @Override

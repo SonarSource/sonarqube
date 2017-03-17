@@ -88,7 +88,7 @@ public class CreateAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("example-create.json"))
       .setHandler(this);
 
-    qProfileWsSupport
+    QProfileWsSupport
       .createOrganizationParam(create)
       .setSince("6.4");
 

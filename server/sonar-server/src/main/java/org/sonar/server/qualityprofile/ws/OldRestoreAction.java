@@ -88,7 +88,7 @@ public class OldRestoreAction implements WsAction {
       checkArgument(backup != null, "A backup file must be provided");
       reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
       OrganizationDto defaultOrg = qProfileWsSupport.getOrganizationByKey(dbSession, null);
-      QProfileRestoreSummary result = backuper.restore(dbSession, reader, defaultOrg,null);
+      QProfileRestoreSummary result = backuper.restore(dbSession, reader, defaultOrg, null);
       writeResponse(response.newJsonWriter(), result);
     } finally {
       IOUtils.closeQuietly(reader);
@@ -98,20 +98,20 @@ public class OldRestoreAction implements WsAction {
 
   private void writeResponse(JsonWriter json, QProfileRestoreSummary result) {
     QualityProfileDto profile = result.getProfile();
-      String languageKey = profile.getLanguage();
-      Language language = languages.get(languageKey);
+    String languageKey = profile.getLanguage();
+    Language language = languages.get(languageKey);
 
-      JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
-      jsonProfile
-        .prop("key", profile.getKey())
-        .prop("name", profile.getName())
-        .prop("language", languageKey)
-        .prop("isDefault", false)
-        .prop("isInherited", false);
-      if (language != null) {
-        jsonProfile.prop("languageName", language.getName());
-      }
-      jsonProfile.endObject();
+    JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
+    jsonProfile
+      .prop("key", profile.getKey())
+      .prop("name", profile.getName())
+      .prop("language", languageKey)
+      .prop("isDefault", false)
+      .prop("isInherited", false);
+    if (language != null) {
+      jsonProfile.prop("languageName", language.getName());
+    }
+    jsonProfile.endObject();
 
     BulkChangeResult ruleChanges = result.getRuleChanges();
     json.prop("ruleSuccesses", ruleChanges.countSucceeded());
