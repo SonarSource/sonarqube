@@ -50,7 +50,7 @@
   <select id="selectById" parameterType="Long" resultType="Rule">
     select
     <include refid="selectColumns"/>
-    from rules r WHERE r.id=#{id}
+    from rules r WHERE r.id=#{id,jdbcType=INTEGER}
   </select>
 
   <select id="selectByIds" parameterType="map" resultType="Rule">
@@ -59,14 +59,14 @@
     FROM rules r
     WHERE
     <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
-      r.id=#{id}
+      r.id=#{id,jdbcType=INTEGER}
     </foreach>
   </select>
 
   <select id="selectByKey" parameterType="map" resultType="Rule">
     SELECT
     <include refid="selectColumns"/>
-    FROM rules r WHERE r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+    FROM rules r WHERE r.plugin_name=#{repository,jdbcType=VARCHAR} AND r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByKeys" parameterType="map" resultType="Rule">
@@ -75,7 +75,7 @@
     FROM rules r
     WHERE
     <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
-      (r.plugin_name=#{ruleKey.repository} and r.plugin_rule_key=#{ruleKey.rule})
+      (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
     </foreach>
   </select>
 
@@ -86,13 +86,13 @@
     <where>
       AND r.status != 'REMOVED'
       <if test="query.repositoryKey!=null">
-        AND r.plugin_name = #{query.repositoryKey}
+        AND r.plugin_name = #{query.repositoryKey,jdbcType=VARCHAR}
       </if>
       <if test="query.key!=null">
-        AND r.plugin_rule_key = #{query.key}
+        AND r.plugin_rule_key = #{query.key,jdbcType=VARCHAR}
       </if>
       <if test="query.configKey!=null">
-        AND r.plugin_config_key = #{query.configKey}
+        AND r.plugin_config_key = #{query.configKey,jdbcType=VARCHAR}
       </if>
     </where>
     ORDER BY r.updated_at DESC
@@ -100,33 +100,33 @@
 
   <update id="update" parameterType="Rule">
     UPDATE rules SET
-    plugin_rule_key=#{ruleKey},
-    plugin_name=#{repositoryKey},
-    description=#{description},
-    description_format=#{descriptionFormat},
-    status=#{status},
-    name=#{name},
-    plugin_config_key=#{configKey},
-    priority=#{severity},
-    is_template=#{isTemplate},
-    language=#{language},
-    template_id=#{templateId},
-    note_data=#{noteData},
-    note_user_login=#{noteUserLogin},
-    note_created_at=#{noteCreatedAt},
-    note_updated_at=#{noteUpdatedAt},
-    remediation_function=#{remediationFunction},
-    def_remediation_function=#{defRemediationFunction},
-    remediation_gap_mult=#{remediationGapMultiplier},
-    def_remediation_gap_mult=#{defRemediationGapMultiplier},
-    remediation_base_effort=#{remediationBaseEffort},
-    def_remediation_base_effort=#{defRemediationBaseEffort},
-    gap_description=#{gapDescription},
-    tags=#{tagsField},
-    system_tags=#{systemTagsField},
-    rule_type=#{type},
-    updated_at=#{updatedAt}
-    WHERE id=#{id}
+    plugin_rule_key=#{ruleKey,jdbcType=VARCHAR},
+    plugin_name=#{repositoryKey,jdbcType=VARCHAR},
+    description=#{description,jdbcType=VARCHAR},
+    description_format=#{descriptionFormat,jdbcType=VARCHAR},
+    status=#{status,jdbcType=VARCHAR},
+    name=#{name,jdbcType=VARCHAR},
+    plugin_config_key=#{configKey,jdbcType=VARCHAR},
+    priority=#{severity,jdbcType=INTEGER},
+    is_template=#{isTemplate,jdbcType=BOOLEAN},
+    language=#{language,jdbcType=VARCHAR},
+    template_id=#{templateId,jdbcType=INTEGER},
+    note_data=#{noteData,jdbcType=CLOB},
+    note_user_login=#{noteUserLogin,jdbcType=VARCHAR},
+    note_created_at=#{noteCreatedAt,jdbcType=TIMESTAMP},
+    note_updated_at=#{noteUpdatedAt,jdbcType=TIMESTAMP},
+    remediation_function=#{remediationFunction,jdbcType=VARCHAR},
+    def_remediation_function=#{defRemediationFunction,jdbcType=VARCHAR},
+    remediation_gap_mult=#{remediationGapMultiplier,jdbcType=VARCHAR},
+    def_remediation_gap_mult=#{defRemediationGapMultiplier,jdbcType=VARCHAR},
+    remediation_base_effort=#{remediationBaseEffort,jdbcType=VARCHAR},
+    def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
+    gap_description=#{gapDescription,jdbcType=VARCHAR},
+    tags=#{tagsField,jdbcType=VARCHAR},
+    system_tags=#{systemTagsField,jdbcType=VARCHAR},
+    rule_type=#{type,jdbcType=TINYINT},
+    updated_at=#{updatedAt,jdbcType=BIGINT}
+    WHERE id=#{id,jdbcType=INTEGER}
   </update>
 
   <sql id="insertColumns">
@@ -141,16 +141,17 @@
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules
     <include refid="insertColumns"/>
-    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
-    #{severity}, #{isTemplate}, #{language}, #{templateId},
-    #{remediationFunction}, #{defRemediationFunction},
-    #{remediationGapMultiplier}, #{defRemediationGapMultiplier}, #{remediationBaseEffort}, #{defRemediationBaseEffort},
-    #{gapDescription}, #{tagsField}, #{systemTagsField}, #{type,jdbcType=INTEGER}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-    #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
+    values (
+    #{ruleKey,jdbcType=VARCHAR}, #{repositoryKey,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{descriptionFormat,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{configKey,jdbcType=VARCHAR},
+    #{severity,jdbcType=INTEGER}, #{isTemplate,jdbcType=BOOLEAN}, #{language,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
+    #{remediationFunction,jdbcType=VARCHAR}, #{defRemediationFunction,jdbcType=VARCHAR},
+    #{remediationGapMultiplier,jdbcType=VARCHAR}, #{defRemediationGapMultiplier,jdbcType=VARCHAR}, #{remediationBaseEffort,jdbcType=VARCHAR}, #{defRemediationBaseEffort,jdbcType=VARCHAR},
+    #{gapDescription,jdbcType=VARCHAR}, #{tagsField,jdbcType=VARCHAR}, #{systemTagsField,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}, #{noteData,jdbcType=CLOB}, #{noteUserLogin,jdbcType=VARCHAR}, #{noteCreatedAt,jdbcType=TIMESTAMP},
+    #{noteUpdatedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT})
   </insert>
 
   <delete id="deleteParams" parameterType="Integer">
-    delete from active_rule_parameters where rules_parameter_id=#{id}
+    delete from active_rule_parameters where rules_parameter_id=#{id,jdbcType=INTEGER}
   </delete>
 
   <sql id="paramColumns">
@@ -164,7 +165,7 @@
     FROM rules_parameters p
     <where>
       AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">
-      p.rule_id=#{id}</foreach>)
+      p.rule_id=#{id,jdbcType=INTEGER}</foreach>)
     </where>
   </select>
 
@@ -173,7 +174,7 @@
     <include refid="paramColumns"/>
     FROM rules_parameters p, rules r
     WHERE p.rule_id=r.id
-    AND r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+    AND r.plugin_name=#{repository,jdbcType=VARCHAR} AND r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
   </select>
 
   <select id="selectParamsByRuleKeys" resultType="RuleParam" parameterType="map">
@@ -183,25 +184,25 @@
     INNER JOIN rules r ON r.id=p.rule_id
     WHERE
     <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
-      (r.plugin_name=#{ruleKey.repository} AND r.plugin_rule_key=#{ruleKey.rule})
+      (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} AND r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
     </foreach>
   </select>
 
   <delete id="deleteParameter" parameterType="Integer">
-    delete from rules_parameters where id=#{id}
+    delete from rules_parameters where id=#{id,jdbcType=INTEGER}
   </delete>
 
   <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
-    VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
+    VALUES (#{ruleId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{defaultValue,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR})
   </insert>
 
   <update id="updateParameter" parameterType="RuleParam">
     UPDATE rules_parameters SET
-    param_type=#{type},
-    default_value=#{defaultValue},
-    description=#{description}
-    WHERE id=#{id}
+    param_type=#{type,jdbcType=VARCHAR},
+    default_value=#{defaultValue,jdbcType=VARCHAR},
+    description=#{description,jdbcType=VARCHAR}
+    WHERE id=#{id,jdbcType=INTEGER}
   </update>
 </mapper>
 
