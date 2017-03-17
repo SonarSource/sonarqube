@@ -264,7 +264,7 @@ public class RegisterRulesMediumTest {
     RuleDto template = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -320,7 +320,7 @@ public class RegisterRulesMediumTest {
     RuleDto template = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -355,7 +355,7 @@ public class RegisterRulesMediumTest {
     RuleDto templateRule = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -403,7 +403,7 @@ public class RegisterRulesMediumTest {
     RuleDto templateRule = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)

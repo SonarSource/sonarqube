@@ -60,16 +60,7 @@ public class RuleCreator {
     this.typeValidations = typeValidations;
   }
 
-  public RuleKey create(NewCustomRule newRule) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return createCustomRule(newRule, dbSession);
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  private RuleKey createCustomRule(NewCustomRule newRule, DbSession dbSession) {
+  public RuleKey create(DbSession dbSession, NewCustomRule newRule) {
     RuleKey templateKey = newRule.templateKey();
     if (templateKey == null) {
       throw new IllegalArgumentException("Rule template key should not be null");

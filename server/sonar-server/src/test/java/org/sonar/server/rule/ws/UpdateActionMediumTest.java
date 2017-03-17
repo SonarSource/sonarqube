@@ -137,7 +137,7 @@ public class UpdateActionMediumTest {
       .setStatus(RuleStatus.BETA)
       .setParameters(ImmutableMap.of("regex", "a"));
 
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(newRule);
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(session, newRule);
     session.clearCache();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")

@@ -221,7 +221,7 @@ public class ShowActionMediumTest {
       .setSeverity(MINOR)
       .setStatus(RuleStatus.READY)
       .setMarkdownDescription("<div>line1\nline2</div>");
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(customRule);
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(session, customRule);
     session.clearCache();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")

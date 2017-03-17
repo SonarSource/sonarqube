@@ -90,7 +90,7 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "a.*"));
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
 
     dbSession.clearCache();
 
@@ -137,7 +137,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", ""));
 
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
     dbSession.clearCache();
 
     List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
@@ -161,7 +161,7 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY);
 
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
     dbSession.clearCache();
 
     List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
@@ -186,7 +186,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("myIntegers", "1,3"));
 
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
     dbSession.clearCache();
 
     List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
@@ -212,7 +212,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("myIntegers", "1,polop,2"));
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       Fail.failBecauseExceptionWasNotThrown(BadRequestException.class);
     } catch (BadRequestException iae) {
       assertThat(iae).hasMessage("Value 'polop' must be an integer.");
@@ -234,7 +234,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("first", "polop", "second", "palap"));
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       Fail.failBecauseExceptionWasNotThrown(BadRequestException.class);
     } catch (BadRequestException badRequest) {
       assertThat(badRequest.errors().toString()).contains("palap").contains("polop");
@@ -270,7 +270,7 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "c.*"));
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
 
     dbSession.clearCache();
 
@@ -317,7 +317,7 @@ public class RuleCreatorMediumTest {
       .setPreventReactivation(true);
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ReactivationException.class);
@@ -339,7 +339,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The rule key \"*INVALID*\" is invalid, it should only contain: a-z, 0-9, \"_\"");
@@ -358,7 +358,7 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "a.*"));
-    creator.create(newRule);
+    creator.create(dbSession, newRule);
 
     try {
       // Create another custom rule having same key
@@ -368,7 +368,7 @@ public class RuleCreatorMediumTest {
         .setSeverity(Severity.MAJOR)
         .setStatus(RuleStatus.READY)
         .setParameters(ImmutableMap.of("regex", "a.*"));
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'CUSTOM_RULE' already exists");
@@ -387,7 +387,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The name is missing");
@@ -406,7 +406,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The description is missing");
@@ -425,7 +425,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The severity is missing");
@@ -445,7 +445,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Severity \"INVALID\" is invalid");
@@ -464,7 +464,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The status is missing");
@@ -487,7 +487,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("This rule is not a template rule: java:S001");
