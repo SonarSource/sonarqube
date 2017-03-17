@@ -212,6 +212,15 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
+  public void create_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+
+    underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
+
+    assertThat(dbClient.organizationMemberDao().select(dbSession, SOME_UUID, SOME_USER_ID)).isPresent();
+  }
+
+  @Test
   public void createForUser_has_no_effect_if_setting_for_feature_is_not_set() {
     checkSizeOfTables();
 
