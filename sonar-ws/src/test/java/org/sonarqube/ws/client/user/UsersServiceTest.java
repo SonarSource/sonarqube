@@ -36,6 +36,7 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOCAL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SELECTED;
@@ -90,6 +91,7 @@ public class UsersServiceTest {
   public void groups() {
     underTest.groups(GroupsRequest.builder()
       .setLogin("john")
+      .setOrganization("orga-uuid")
       .setSelected("all")
       .setQuery("sonar-users")
       .setPage(10)
@@ -99,6 +101,7 @@ public class UsersServiceTest {
     assertThat(serviceTester.getGetParser()).isSameAs(GroupsWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasParam(PARAM_LOGIN, "john")
+      .hasParam(PARAM_ORGANIZATION, "orga-uuid")
       .hasParam(PARAM_SELECTED, "all")
       .hasParam(TEXT_QUERY, "sonar-users")
       .hasParam(PAGE, 10)

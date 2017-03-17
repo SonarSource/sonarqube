@@ -19,24 +19,53 @@
  */
 package org.sonar.db.user;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class GroupMembershipQueryTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Test
+  public void create_query() throws Exception {
+    GroupMembershipQuery underTest = GroupMembershipQuery.builder()
+      .groupSearch("sonar-users")
+      .membership(GroupMembershipQuery.IN)
+      .pageIndex(2)
+      .pageSize(10)
+      .organizationUuid("organization_uuid")
+      .build();
+
+    assertThat(underTest.groupSearch()).isEqualTo("sonar-users");
+    assertThat(underTest.membership()).isEqualTo("IN");
+    assertThat(underTest.pageIndex()).isEqualTo(2);
+    assertThat(underTest.pageSize()).isEqualTo(10);
+    assertThat(underTest.organizationUuid()).isEqualTo("organization_uuid");
+  }
+
+  @Test
+  public void fail_on_null_organization() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Organization uuid cant be null");
+
+    GroupMembershipQuery.builder()
+      .organizationUuid(null)
+      .build();
+  }
+
   @Test
   public void fail_on_invalid_membership() {
-    GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
-    builder.membership("unknwown");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Membership is not valid (got unknwown). Availables values are [ANY, IN, OUT]");
 
-    try {
-      builder.build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Membership is not valid (got unknwown). Availables values are [ANY, IN, OUT]");
-    }
+    GroupMembershipQuery.builder()
+      .organizationUuid("organization_uuid")
+      .membership("unknwown")
+      .build();
   }
 
 }
