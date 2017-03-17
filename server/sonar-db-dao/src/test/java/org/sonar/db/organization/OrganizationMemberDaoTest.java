@@ -20,6 +20,7 @@
 
 package org.sonar.db.organization;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -29,6 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -54,6 +56,22 @@ public class OrganizationMemberDaoTest {
     assertThat(result.get()).extracting(OrganizationMemberDto::getOrganizationUuid, OrganizationMemberDto::getUserId).containsExactly("O1", 512);
     assertThat(underTest.select(dbSession, "O1", 256)).isNotPresent();
     assertThat(underTest.select(dbSession, "O2", 512)).isNotPresent();
+  }
+
+  @Test
+  public void select_logins() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
+    UserDto userInAnotherOrganization = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    db.organizations().addMember(organization, anotherUser);
+    db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
+
+    List<String> result = underTest.selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
+
+    assertThat(result).containsOnly(user.getLogin(), anotherUser.getLogin());
   }
 
   @Test

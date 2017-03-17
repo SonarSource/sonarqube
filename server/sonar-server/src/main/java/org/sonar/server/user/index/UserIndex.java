@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -133,20 +133,24 @@ public class UserIndex {
     return EsUtils.scroll(esClient, response.getScrollId(), DOC_CONVERTER);
   }
 
-  public SearchResult<UserDoc> search(@Nullable String searchText, SearchOptions options) {
+  public SearchResult<UserDoc> search(UserQuery userQuery, SearchOptions options) {
     SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
       .setSize(options.getLimit())
       .setFrom(options.getOffset())
       .addSort(FIELD_NAME, SortOrder.ASC);
 
-    BoolQueryBuilder filter = boolQuery()
-      .must(termQuery(FIELD_ACTIVE, true));
+    BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, true));
 
-    QueryBuilder query;
-    if (StringUtils.isEmpty(searchText)) {
-      query = matchAllQuery();
-    } else {
-      query = QueryBuilders.multiMatchQuery(searchText,
+    userQuery.getLogins().ifPresent(
+      logins -> filter.must(termsQuery(FIELD_LOGIN, userQuery.getLogins().get())));
+
+    userQuery.getExcludedLogins().ifPresent(
+      excludedLogins -> filter.mustNot(termsQuery(FIELD_LOGIN, userQuery.getExcludedLogins().get())));
+
+    QueryBuilder esQuery = matchAllQuery();
+    Optional<String> textQuery = userQuery.getTextQuery();
+    if (textQuery.isPresent()) {
+      esQuery = QueryBuilders.multiMatchQuery(textQuery.get(),
         FIELD_LOGIN,
         USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_LOGIN),
         FIELD_NAME,
@@ -156,7 +160,7 @@ public class UserIndex {
         .operator(MatchQueryBuilder.Operator.AND);
     }
 
-    request.setQuery(boolQuery().must(query).filter(filter));
+    request.setQuery(boolQuery().must(esQuery).filter(filter));
 
     return new SearchResult<>(request.get(), DOC_CONVERTER);
   }

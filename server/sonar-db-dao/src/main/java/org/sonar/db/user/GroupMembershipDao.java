@@ -23,6 +23,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,21 @@ public class GroupMembershipDao implements Dao {
 
   public List<Integer> selectGroupIdsByUserId(DbSession dbSession, int userId) {
     return mapper(dbSession).selectGroupIdsByUserId(userId);
+  }
+
+  public Multiset<String> countGroupByLoginsAndOrganization(DbSession dbSession, Collection<String> logins, String organizationUuid) {
+    Multimap<String, String> result = ArrayListMultimap.create();
+    executeLargeInputs(
+      logins,
+      input -> {
+        List<LoginGroup> groupMemberships = mapper(dbSession).selectGroupsByLoginsAndOrganization(input, organizationUuid);
+        for (LoginGroup membership : groupMemberships) {
+          result.put(membership.login(), membership.groupName());
+        }
+        return groupMemberships;
+      });
+
+    return result.keys();
   }
 
   public Multimap<String, String> selectGroupsByLogins(DbSession session, Collection<String> logins) {
