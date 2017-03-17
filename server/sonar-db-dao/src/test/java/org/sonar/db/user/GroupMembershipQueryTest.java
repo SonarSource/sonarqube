@@ -27,22 +27,8 @@ import static org.junit.Assert.fail;
 public class GroupMembershipQueryTest {
 
   @Test
-  public void fail_on_null_login() {
-    GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
-    builder.login(null);
-
-    try {
-      builder.build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NullPointerException.class).hasMessage("User login cant be null.");
-    }
-  }
-
-  @Test
   public void fail_on_invalid_membership() {
     GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
-    builder.login("nelson");
     builder.membership("unknwown");
 
     try {
