@@ -26,9 +26,8 @@ import MetaQualityGate from './MetaQualityGate';
 import MetaQualityProfiles from './MetaQualityProfiles';
 import AnalysesList from '../events/AnalysesList';
 import MetaSize from './MetaSize';
-import TagsList from '../../../components/ui/TagsList';
+import MetaTags from './MetaTags';
 import { areThereCustomOrganizations } from '../../../store/rootReducer';
-import { translate } from '../../../helpers/l10n';
 
 const Meta = ({ component, measures, areThereCustomOrganizations }) => {
   const { qualifier, description, qualityProfiles, qualityGate } = component;
@@ -45,8 +44,6 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
   const shouldShowOrganizationKey = component.organization != null && areThereCustomOrganizations;
 
-  const configuration = component.configuration || {};
-
   return (
     <div className="overview-meta">
       {hasDescription &&
@@ -56,13 +53,7 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
 
       <MetaSize component={component} measures={measures} />
 
-      <div className="overview-meta-card">
-        <TagsList
-          tags={component.tags.length ? component.tags : [translate('no_tags')]}
-          allowUpdate={configuration.showSettings}
-          allowMultiLine={true}
-        />
-      </div>
+      <MetaTags component={component} />
 
       {shouldShowQualityGate && <MetaQualityGate gate={qualityGate} />}
 

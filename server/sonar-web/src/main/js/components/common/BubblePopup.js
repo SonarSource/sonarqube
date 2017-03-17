@@ -17,43 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import React from 'react';
+import classNames from 'classnames';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-  white-space: nowrap;
-}
+export default class BubblePopup extends React.PureComponent {
+  static propsType = {
+    children: React.PropTypes.object.isRequired,
+    open: React.PropTypes.bool.isRequired,
+    position: React.PropTypes.object.isRequired,
+    customClass: React.PropTypes.string
+  };
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
+  static defaultProps = {
+    customClass: ''
+  };
 
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
+  render() {
+    const popupClass = classNames('bubble-popup', this.props.customClass);
+    const popupStyle = {
+      ...this.props.position,
+      display: this.props.open ? 'block' : 'none'
+    };
 
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
+    return (
+      <div className={popupClass} style={popupStyle}>
+        {this.props.children}
+        <div className="bubble-popup-arrow" />
+      </div>
+    );
   }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
 }

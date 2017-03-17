@@ -17,43 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+// @flow
+import React from 'react';
+import classNames from 'classnames';
+import './TagsList.css';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-  white-space: nowrap;
-}
+type Props = {
+  tags: Array<string>,
+  allowUpdate: boolean,
+  allowMultiLine: boolean
+};
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
+export default class TagsList extends React.PureComponent {
+  props: Props;
 
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
+  static defaultProps = {
+    allowUpdate: false,
+    allowMultiLine: false
+  };
 
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
+  render() {
+    const { tags, allowUpdate } = this.props;
+    const spanClass = classNames({
+      'note': !allowUpdate,
+      'text-ellipsis': !this.props.allowMultiLine
+    });
+
+    return (
+      <span className="tags-list" title={tags.join(', ')}>
+        <i className="icon-tags icon-half-transparent" />
+        <span className={spanClass}>{tags.join(', ')}</span>
+        {allowUpdate && <i className="icon-dropdown icon-half-transparent" />}
+      </span>
+    );
   }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
 }

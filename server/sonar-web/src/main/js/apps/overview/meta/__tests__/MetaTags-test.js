@@ -17,43 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import React from 'react';
+import { shallow } from 'enzyme';
+import MetaTags from '../MetaTags';
+import { click } from '../../../../helpers/testUtils';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-  white-space: nowrap;
-}
+// TODO write the whole tests
+it('should match snapshot', () => {
+  const link = {
+    id: '1',
+    name: 'Foo',
+    url: 'http://example.com',
+    type: 'foo'
+  };
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
+  expect(shallow(<MetaTags link={link} />)).toMatchSnapshot();
+});
 
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
+it('should expand and collapse link', () => {
+  const link = {
+    id: '1',
+    name: 'Foo',
+    url: 'scm:git:git@github.com',
+    type: 'foo'
+  };
 
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
+  const wrapper = shallow(<MetaTags link={link} />);
+  expect(wrapper).toMatchSnapshot();
 
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
+  // expand
+  click(wrapper.find('a'));
+  expect(wrapper).toMatchSnapshot();
 
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
-}
+  // collapse
+  click(wrapper.find('a'));
+  expect(wrapper).toMatchSnapshot();
+});

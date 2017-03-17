@@ -20,34 +20,39 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import './TagsList.css';
 
 type Props = {
-  tags: Array<string>,
-  allowUpdate: boolean,
-  allowMultiLine: boolean
+  element: string,
+  selected: boolean,
+  custom: boolean,
+  onSelectChange: (string, boolean) => void
 };
 
-export default class TagsList extends React.PureComponent {
+export default class MultiSelectOption extends React.PureComponent {
   props: Props;
 
   static defaultProps = {
-    allowUpdate: false,
-    allowMultiLine: false
+    selected: false,
+    custom: false
   };
 
+  handleSelect = (evt: SyntheticInputEvent) => {
+    evt.stopPropagation();
+    evt.target.blur();
+    this.props.onSelectChange(this.props.element, !this.props.selected);
+  }
+
   render() {
-    const { tags, allowUpdate } = this.props;
-    const spanClass = classNames('note', {
-      'text-ellipsis': !this.props.allowMultiLine
+    const className = classNames('icon-checkbox', {
+      'icon-checkbox-checked': this.props.selected
     });
 
     return (
-      <span className="tags-list" title={tags.join(', ')}>
-        <i className="icon-tags icon-half-transparent" />
-        <span className={spanClass}>{tags.join(', ')}</span>
-        {allowUpdate && <i className="icon-dropdown icon-half-transparent" />}
-      </span>
+      <li>
+        <a href="#" onClick={this.handleSelect}>
+          <i className={className} />{' '}{this.props.custom && '+ '}{this.props.element}
+        </a>
+      </li>
     );
   }
 }
