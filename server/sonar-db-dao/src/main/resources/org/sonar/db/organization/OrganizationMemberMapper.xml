@@ -17,6 +17,13 @@
     and om.user_id = #{userId, jdbcType=INTEGER}
   </select>
 
+  <select id="selectLogins" resultType="string">
+    select u.login
+    from organization_members om
+      inner join users u on om.user_id = u.id
+    where om.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectOrganizationUuidsByUser" resultType="String">
     select om.organization_uuid as "organizationUuid"
     from organization_members om
@@ -36,7 +43,7 @@
     )
   </insert>
 
-  <delete id="delete" parameterType="map">
+  <delete id="delete">
     delete from organization_members
     where
     organization_uuid = #{organizationUuid, jdbcType=VARCHAR}

@@ -63,7 +63,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void count_groups_by_login() {
+  public void count_groups_by_logins() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(underTest.selectGroupsByLogins(dbTester.getSession(), Arrays.<String>asList()).keys()).isEmpty();

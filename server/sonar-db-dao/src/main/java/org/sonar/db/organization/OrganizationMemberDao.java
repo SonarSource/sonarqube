@@ -20,6 +20,7 @@
 
 package org.sonar.db.organization;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.Dao;
@@ -32,6 +33,10 @@ public class OrganizationMemberDao implements Dao {
 
   public Optional<OrganizationMemberDto> select(DbSession dbSession, String organizationUuid, int userId) {
     return Optional.ofNullable(mapper(dbSession).select(organizationUuid, userId));
+  }
+
+  public List<String> selectLoginsByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectLogins(organizationUuid);
   }
 
   public void insert(DbSession dbSession, OrganizationMemberDto organizationMemberDto) {
