@@ -37,6 +37,7 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOCAL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SELECTED;
@@ -69,6 +70,7 @@ public class UsersService extends BaseService {
   public GroupsWsResponse groups(GroupsRequest request) {
     return call(new GetRequest(path(ACTION_GROUPS))
       .setParam(PARAM_LOGIN, request.getLogin())
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_SELECTED, request.getSelected())
       .setParam(TEXT_QUERY, request.getQuery())
       .setParam(PAGE, request.getPage())

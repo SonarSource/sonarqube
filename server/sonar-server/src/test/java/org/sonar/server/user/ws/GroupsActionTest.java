@@ -26,12 +26,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -41,59 +42,36 @@ import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class GroupsActionTest {
 
-  private System2 system2 = mock(System2.class);
+  private static final String USER_LOGIN = "john";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create();
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
 
-  private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession));
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  @Test
-  public void fail_on_unknown_user() throws Exception {
-    expectedException.expect(NotFoundException.class);
-
-    call(ws.newRequest().setParam("login", "john"));
-  }
-
-  @Test
-  public void fail_on_disabled_user() throws Exception {
-    UserDto userDto = db.users().insertUser(user -> user.setActive(false));
-
-    expectedException.expect(NotFoundException.class);
-
-    call(ws.newRequest().setParam("login", userDto.getLogin()));
-  }
-
-  @Test
-  public void fail_on_missing_permission() throws Exception {
-    userSession.logIn("not-admin");
-
-    expectedException.expect(ForbiddenException.class);
-
-    call(ws.newRequest().setParam("login", "john"));
-  }
+  private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession, defaultOrganizationProvider));
 
   @Test
   public void empty_groups() throws Exception {
     insertUser();
 
-    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john"));
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN));
 
     assertThat(response.getGroupsList()).isEmpty();
   }
@@ -105,7 +83,7 @@ public class GroupsActionTest {
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
-    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, ALL.value()));
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN).setParam(Param.SELECTED, ALL.value()));
 
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
@@ -121,7 +99,7 @@ public class GroupsActionTest {
     insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
-    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, SELECTED.value()));
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN).setParam(Param.SELECTED, SELECTED.value()));
 
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
@@ -135,7 +113,7 @@ public class GroupsActionTest {
     insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
-    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john"));
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN));
 
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
@@ -149,7 +127,7 @@ public class GroupsActionTest {
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
-    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, DESELECTED.value()));
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN).setParam(Param.SELECTED, DESELECTED.value()));
 
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
@@ -175,7 +153,7 @@ public class GroupsActionTest {
       addUserToGroup(user, groupDto);
     }
 
-    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john")
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN)
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.PAGE, "2")
       .setParam(Param.SELECTED, ALL.value()));
@@ -193,10 +171,77 @@ public class GroupsActionTest {
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
-    assertThat(call(ws.newRequest().setParam("login", "john").setParam("q", "admin").setParam(Param.SELECTED, ALL.value())).getGroupsList())
+    assertThat(call(ws.newRequest().setParam("login", USER_LOGIN).setParam("q", "admin").setParam(Param.SELECTED, ALL.value())).getGroupsList())
       .extracting(GroupsWsResponse.Group::getName).containsOnly(adminGroup.getName());
-    assertThat(call(ws.newRequest().setParam("login", "john").setParam("q", "users").setParam(Param.SELECTED, ALL.value())).getGroupsList())
+    assertThat(call(ws.newRequest().setParam("login", USER_LOGIN).setParam("q", "users").setParam(Param.SELECTED, ALL.value())).getGroupsList())
       .extracting(GroupsWsResponse.Group::getName).containsOnly(usersGroup.getName());
+  }
+
+  @Test
+  public void return_groups_from_given_organization() throws Exception {
+    UserDto user = insertUser();
+    OrganizationDto organizationDto = db.organizations().insert();
+    OrganizationDto otherOrganizationDto = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organizationDto, "group1");
+    GroupDto otherGroup = db.users().insertGroup(otherOrganizationDto, "group2");
+    addUserToGroup(user, group);
+    addUserToGroup(user, otherGroup);
+
+    GroupsWsResponse response = call(ws.newRequest()
+      .setParam("login", USER_LOGIN)
+      .setParam("organization", organizationDto.getKey())
+      .setParam(Param.SELECTED, ALL.value()));
+
+    assertThat(response.getGroupsList())
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
+      .containsOnly(tuple(group.getId().longValue(), group.getName(), group.getDescription(), true));
+  }
+
+  @Test
+  public void fail_on_unknown_user() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Unknown user: john");
+
+    call(ws.newRequest().setParam("login", USER_LOGIN));
+  }
+
+  @Test
+  public void fail_on_disabled_user() throws Exception {
+    UserDto userDto = db.users().insertUser(user -> user.setLogin("disabled").setActive(false));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Unknown user: disabled");
+
+    call(ws.newRequest().setParam("login", userDto.getLogin()));
+  }
+
+  @Test
+  public void fail_on_unknown_organization() throws Exception {
+    insertUser();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization with key 'unknown'");
+
+    call(ws.newRequest().setParam("login", USER_LOGIN).setParam("organization", "unknown"));
+  }
+
+  @Test
+  public void fail_on_missing_permission() throws Exception {
+    OrganizationDto organizationDto = db.organizations().insert();
+    userSession.logIn().addPermission(ADMINISTER, organizationDto);
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(ws.newRequest().setParam("login", USER_LOGIN));
+  }
+
+  @Test
+  public void fail_when_no_permission() throws Exception {
+    userSession.logIn("not-admin");
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(ws.newRequest().setParam("login", USER_LOGIN));
   }
 
   @Test
@@ -208,7 +253,7 @@ public class GroupsActionTest {
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setParam(Param.SELECTED, ALL.value())
       .setParam(Param.PAGE_SIZE, "25")
       .setParam(Param.PAGE, "1")
@@ -225,14 +270,21 @@ public class GroupsActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
-    assertThat(action.params()).extracting(Param::key).containsOnly("p", "q", "ps", "login", "selected");
+    assertThat(action.params()).extracting(Param::key).containsOnly("p", "q", "ps", "login", "selected", "organization");
 
     WebService.Param qualifiers = action.param("login");
     assertThat(qualifiers.isRequired()).isTrue();
+
+    WebService.Param organization = action.param("organization");
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.description()).isEqualTo("Organization key");
+    assertThat(organization.isInternal()).isTrue();
+    assertThat(organization.exampleValue()).isEqualTo("my-org");
+    assertThat(organization.since()).isEqualTo("6.4");
   }
 
   private GroupDto insertGroup(String name, String description) {
-    return db.users().insertGroup(newGroupDto().setName(name).setDescription(description));
+    return db.users().insertGroup(newGroupDto().setName(name).setDescription(description).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
   }
 
   private void addUserToGroup(UserDto user, GroupDto usersGroup) {
@@ -243,7 +295,7 @@ public class GroupsActionTest {
     return db.users().insertUser(newUserDto()
       .setActive(true)
       .setEmail("john@email.com")
-      .setLogin("john")
+      .setLogin(USER_LOGIN)
       .setName("John")
       .setScmAccounts(singletonList("jn")));
   }

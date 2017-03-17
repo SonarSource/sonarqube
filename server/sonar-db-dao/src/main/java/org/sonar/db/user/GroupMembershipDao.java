@@ -36,12 +36,12 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class GroupMembershipDao implements Dao {
 
   public List<GroupMembershipDto> selectGroups(DbSession session, GroupMembershipQuery query, Integer userId, int offset, int limit) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
+    Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId, "organizationUuid", query.organizationUuid());
     return mapper(session).selectGroups(params, new RowBounds(offset, limit));
   }
 
   public int countGroups(DbSession session, GroupMembershipQuery query, Integer userId) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
+    Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId, "organizationUuid", query.organizationUuid());
     return mapper(session).countGroups(params);
   }
 

@@ -30,6 +30,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class GroupsRequest {
 
   private final String login;
+  private final String organization;
   private final String query;
   private final String selected;
   private final Integer page;
@@ -37,6 +38,7 @@ public class GroupsRequest {
 
   private GroupsRequest(Builder builder) {
     this.login = builder.login;
+    this.organization = builder.organization;
     this.query = builder.query;
     this.selected = builder.selected;
     this.page = builder.page;
@@ -45,6 +47,11 @@ public class GroupsRequest {
 
   public String getLogin() {
     return login;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
   }
 
   @CheckForNull
@@ -73,6 +80,7 @@ public class GroupsRequest {
 
   public static class Builder {
     private String login;
+    private String organization;
     private String query;
     private String selected;
     private Integer page;
@@ -84,6 +92,11 @@ public class GroupsRequest {
 
     public Builder setLogin(String login) {
       this.login = login;
+      return this;
+    }
+
+    public Builder setOrganization(@Nullable String organization) {
+      this.organization = organization;
       return this;
     }
 

@@ -7,6 +7,7 @@
     FROM groups g
     LEFT JOIN groups_users gu ON gu.group_id=g.id AND gu.user_id=#{userId}
     <where>
+      AND g.organization_uuid=#{organizationUuid}
       <choose>
         <when test="query.membership() == 'IN'">
           AND gu.user_id IS NOT NULL
