@@ -39,6 +39,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserQuery;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
@@ -78,7 +79,8 @@ public class SearchAction implements UsersWsAction {
     SearchOptions options = new SearchOptions()
       .setPage(request.mandatoryParamAsInt(Param.PAGE), request.mandatoryParamAsInt(Param.PAGE_SIZE));
     List<String> fields = request.paramAsStrings(Param.FIELDS);
-    SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
+    String textQuery = request.param(Param.TEXT_QUERY);
+    SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setTextQuery(textQuery).build(), options);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<String> logins = Lists.transform(result.getDocs(), UserDocToLogin.INSTANCE);
