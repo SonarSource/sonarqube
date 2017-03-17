@@ -37,6 +37,7 @@ public class GroupsRequestTest {
   public void create_request() {
     GroupsRequest result = underTest
       .setLogin("john")
+      .setOrganization("orga-uuid")
       .setSelected("all")
       .setQuery("sonar-users")
       .setPage(10)
@@ -44,6 +45,7 @@ public class GroupsRequestTest {
       .build();
 
     assertThat(result.getLogin()).isEqualTo("john");
+    assertThat(result.getOrganization()).isEqualTo("orga-uuid");
     assertThat(result.getSelected()).isEqualTo("all");
     assertThat(result.getQuery()).isEqualTo("sonar-users");
     assertThat(result.getPage()).isEqualTo(10);
@@ -52,9 +54,12 @@ public class GroupsRequestTest {
 
   @Test
   public void create_request_wih_minimal_fields() {
-    GroupsRequest result = underTest.setLogin("john").build();
+    GroupsRequest result = underTest
+      .setLogin("john")
+      .build();
 
     assertThat(result.getLogin()).isEqualTo("john");
+    assertThat(result.getOrganization()).isNull();
     assertThat(result.getSelected()).isNull();
     assertThat(result.getQuery()).isNull();
     assertThat(result.getPage()).isNull();
@@ -66,9 +71,7 @@ public class GroupsRequestTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Login is mandatory and must not be empty");
 
-    underTest
-      .setLogin("")
-      .build();
+    underTest.setLogin("").build();
   }
 
   @Test

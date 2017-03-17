@@ -20,6 +20,8 @@
 package org.sonar.server.user.ws;
 
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,9 +32,12 @@ import org.sonar.api.utils.Paging;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse.Group;
@@ -44,17 +49,21 @@ import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_ORGANIZATION;
 
 public class GroupsAction implements UsersWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public GroupsAction(DbClient dbClient, UserSession userSession) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -73,26 +82,34 @@ public class GroupsAction implements UsersWsAction {
       .setDescription("A user login")
       .setExampleValue("admin")
       .setRequired(true);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setExampleValue("my-org")
+      .setInternal(true)
+      .setSince("6.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsSystemAdministrator();
     GroupsWsResponse groupsWsResponse = doHandle(toGroupsRequest(request));
     writeProtobuf(groupsWsResponse, request, response);
   }
 
   private GroupsWsResponse doHandle(GroupsRequest request) {
-    GroupMembershipQuery query = GroupMembershipQuery.builder()
-      .login(request.getLogin())
-      .groupSearch(request.getQuery())
-      .membership(getMembership(request.getSelected()))
-      .pageIndex(request.getPage())
-      .pageSize(request.getPageSize())
-      .build();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = findOrganizationByKey(dbSession, request.getOrganization());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+
       String login = request.getLogin();
+      GroupMembershipQuery query = GroupMembershipQuery.builder()
+        .organizationUuid(organization.getUuid())
+        .groupSearch(request.getQuery())
+        .membership(getMembership(request.getSelected()))
+        .pageIndex(request.getPage())
+        .pageSize(request.getPageSize())
+        .build();
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "Unknown user: %s", login);
       int total = dbClient.groupMembershipDao().countGroups(dbSession, query, user.getId());
       Paging paging = forPageIndex(query.pageIndex()).withPageSize(query.pageSize()).andTotal(total);
@@ -101,9 +118,17 @@ public class GroupsAction implements UsersWsAction {
     }
   }
 
+  private OrganizationDto findOrganizationByKey(DbSession dbSession, @Nullable String key) {
+    String effectiveKey = key == null ? defaultOrganizationProvider.get().getKey() : key;
+    Optional<OrganizationDto> org = dbClient.organizationDao().selectByKey(dbSession, effectiveKey);
+    checkFoundWithOptional(org, "No organization with key '%s'", key);
+    return org.get();
+  }
+
   private static GroupsRequest toGroupsRequest(Request request) {
     return GroupsRequest.builder()
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setSelected(request.mandatoryParam(SELECTED))
       .setQuery(request.param(TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(PAGE))

@@ -312,7 +312,7 @@ public class OrganizationTest {
   }
 
   @Test
-  public void deleting_an_organization_also_deletes_group_permissions_and_projects_and_check_security() {
+  public void deleting_an_organization_also_deletes_projects_and_check_security() {
     verifyNoExtraOrganization();
 
     String orgKeyAndName = "org-key";
@@ -343,10 +343,6 @@ public class OrganizationTest {
     adminOrganizationService.delete(orgKeyAndName);
 
     expect404HttpError(() -> searchSampleProject(orgKeyAndName, componentsService));
-    assertThat(groupManagement.getUserGroups("bob").getGroups())
-      .extracting(Groups.Group::getName)
-      .doesNotContain("grp1", "grp2");
-
     verifyNoExtraOrganization();
   }
 

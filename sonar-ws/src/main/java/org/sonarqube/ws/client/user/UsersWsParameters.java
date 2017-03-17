@@ -27,6 +27,7 @@ public class UsersWsParameters {
   public static final String ACTION_UPDATE = "update";
   public static final String ACTION_GROUPS = "groups";
 
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LOGIN = "login";
   public static final String PARAM_PASSWORD = "password";
   public static final String PARAM_NAME = "name";

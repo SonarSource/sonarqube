@@ -218,8 +218,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
           .setParam("login", userLogin)
           .setParam("selected", "selected");
       addOrganizationParam(request);
-      WsResponse response = adminWsClient().wsConnector().call(request);
-      assertThat(response.code()).isEqualTo(200);
+      WsResponse response = adminWsClient().wsConnector().call(request).failIfNotSuccessful();
       return Groups.parse(response.content());
     }
 

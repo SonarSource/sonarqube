@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class GroupMembershipQuery {
 
@@ -38,6 +39,7 @@ public class GroupMembershipQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
+  private final String organizationUuid;
   private final String membership;
 
   private final String groupSearch;
@@ -51,9 +53,10 @@ public class GroupMembershipQuery {
   // index of selected page. Start with 1.
   private final int pageIndex;
 
-  private GroupMembershipQuery(Builder builder) {
+  private GroupMembershipQuery(Builder builder, String organizationUuid) {
     this.membership = builder.membership;
     this.groupSearch = builder.groupSearch;
+    this.organizationUuid = organizationUuid;
     this.groupSearchSql = groupSearchToSql(groupSearch);
 
     this.pageSize = builder.pageSize;
@@ -68,6 +71,10 @@ public class GroupMembershipQuery {
       sql = "%" + sql + "%";
     }
     return sql;
+  }
+
+  public String organizationUuid() {
+    return organizationUuid;
   }
 
   @CheckForNull
@@ -96,13 +103,20 @@ public class GroupMembershipQuery {
   }
 
   public static class Builder {
+    private String organizationUuid;
     private String membership;
     private String groupSearch;
 
     private Integer pageIndex = DEFAULT_PAGE_INDEX;
+
     private Integer pageSize = DEFAULT_PAGE_SIZE;
 
     private Builder() {
+    }
+
+    public Builder organizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
     }
 
     public Builder membership(@Nullable String membership) {
@@ -141,10 +155,11 @@ public class GroupMembershipQuery {
     }
 
     public GroupMembershipQuery build() {
+      checkNotNull(organizationUuid, "Organization uuid cant be null");
       initMembership();
       initPageIndex();
       initPageSize();
-      return new GroupMembershipQuery(this);
+      return new GroupMembershipQuery(this, organizationUuid);
     }
   }
 }
