@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -33,7 +32,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 
 public class CachingRuleActivatorContextFactory extends RuleActivatorContextFactory implements Startable {
@@ -81,10 +79,5 @@ public class CachingRuleActivatorContextFactory extends RuleActivatorContextFact
   private Map<RuleKey, ActiveRuleDto> loadActiveRulesOfQualityProfile(DbSession session, String profileKey) {
     return dbClient.activeRuleDao().selectByProfileKey(session, profileKey).stream()
       .collect(Collectors.uniqueIndex(dto -> dto.getKey().ruleKey()));
-  }
-
-  @Override
-  List<ActiveRuleParamDto> getActiveRuleParams(DbSession session, ActiveRuleDto activeRuleDto) {
-    return super.getActiveRuleParams(session, activeRuleDto);
   }
 }
