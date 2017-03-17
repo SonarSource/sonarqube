@@ -33,7 +33,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -47,14 +46,10 @@ public class RenameAction implements QProfileWsAction {
   private static final String PARAM_PROFILE_KEY = "key";
   private static final int MAXIMUM_NAME_LENGTH = 100;
 
-  private final QProfileFactory profileFactory;
-  private final QProfileWsSupport qProfileWsSupport;
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public RenameAction(QProfileFactory profileFactory, QProfileWsSupport qProfileWsSupport, DbClient dbClient, UserSession userSession) {
-    this.profileFactory = profileFactory;
-    this.qProfileWsSupport = qProfileWsSupport;
+  public RenameAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
