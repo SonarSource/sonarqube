@@ -19,12 +19,16 @@
  */
 package org.sonar.server.organization;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.permission.GlobalPermissions;
@@ -41,6 +45,11 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.qualityprofile.DefinedQProfile;
+import org.sonar.server.qualityprofile.DefinedQProfileCreation;
+import org.sonar.server.qualityprofile.DefinedQProfileRepository;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -48,20 +57,28 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
 
 public class OrganizationCreationImpl implements OrganizationCreation {
+  private static final Logger LOGGER = Loggers.get(OrganizationCreationImpl.class);
 
   private final DbClient dbClient;
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final OrganizationValidation organizationValidation;
   private final Settings settings;
+  private final DefinedQProfileRepository definedQProfileRepository;
+  private final DefinedQProfileCreation definedQProfileCreation;
+  private final ActiveRuleIndexer activeRuleIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
-    OrganizationValidation organizationValidation, Settings settings) {
+    OrganizationValidation organizationValidation, Settings settings,
+    DefinedQProfileRepository definedQProfileRepository, DefinedQProfileCreation definedQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.organizationValidation = organizationValidation;
     this.settings = settings;
+    this.definedQProfileRepository = definedQProfileRepository;
+    this.definedQProfileCreation = definedQProfileCreation;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   @Override
@@ -76,6 +93,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     });
     GroupDto group = insertOwnersGroup(dbSession, organization);
     insertDefaultTemplate(dbSession, organization, group);
+    insertQualityProfiles(dbSession, organization);
     addCurrentUserToGroup(dbSession, group, creatorUserId);
 
     dbSession.commit();
@@ -105,6 +123,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     OrganizationPermission.all()
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization);
+    insertQualityProfiles(dbSession, organization);
 
     dbSession.commit();
 
@@ -218,6 +237,21 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, @Nullable GroupDto group) {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group == null ? null : group.getId(), permission);
+  }
+
+  private void insertQualityProfiles(DbSession dbSession, OrganizationDto organization) {
+    List<ActiveRuleChange> changes = new ArrayList<>();
+    definedQProfileRepository.getQProfilesByLanguage().entrySet()
+      .stream()
+      .flatMap(entry -> entry.getValue().stream())
+      .forEach(profile -> insertQualityProfile(dbSession, profile, organization, changes));
+    activeRuleIndexer.index(changes);
+  }
+
+  private void insertQualityProfile(DbSession dbSession, DefinedQProfile profile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+    LOGGER.debug("Creating quality profile {} for language {} for organization {}", profile.getName(), profile.getLanguage(), organization.getKey());
+
+    definedQProfileCreation.create(dbSession, profile, organization, changes);
   }
 
   /**
