@@ -32,6 +32,7 @@ import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
 import ViewDashboard from '../components/extensions/ViewDashboard';
+import PortfoliosPage from '../components/extensions/PortfoliosPage';
 import AdminContainer from '../components/AdminContainer';
 import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
 import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
@@ -93,6 +94,8 @@ const startReactApp = () => {
           }}
         />
 
+        <Redirect from="/extension/governance/portfolios" to="/portfolios" />
+
         <Route path="markdown/help" component={MarkdownHelp} />
 
         <Route component={LocalizationContainer}>
@@ -126,6 +129,7 @@ const startReactApp = () => {
                 <Route path="organizations">{organizationsRouters}</Route>
                 <Route path="projects">{projectsRoutes}</Route>
                 <Route path="quality_gates">{qualityGatesRoutes}</Route>
+                <Route path="portfolios" component={PortfoliosPage} />
                 <Route path="profiles">{qualityProfilesRoutes}</Route>
                 <Route path="web_api">{webAPIRoutes}</Route>
 

@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import moment from 'moment';
-import * as ReactRedux from 'react-redux';
-import * as measures from '../../helpers/measures';
-import * as request from '../../helpers/request';
-import FavoriteContainer from '../../components/controls/FavoriteContainer';
-import ListFooter from '../../components/controls/ListFooter';
+// @flow
+import React from 'react';
+import GlobalPageExtension from './GlobalPageExtension';
 
-const exposeLibraries = () => {
-  window.moment = moment;
-  window.ReactRedux = ReactRedux;
-  window.SonarMeasures = measures;
-  window.SonarRequest = request;
-  window.SonarComponents = {
-    FavoriteContainer,
-    ListFooter
-  };
-};
-
-export default exposeLibraries;
+export default class PortfoliosPage extends React.Component {
+  render () {
+    return (
+        <GlobalPageExtension
+            location={this.props.location}
+            params={{ pluginKey: 'governance', extensionKey: 'portfolios' }}/>
+    );
+  }
+}

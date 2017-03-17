@@ -23,7 +23,8 @@ import GlobalNavMenu from '../GlobalNavMenu';
 
 it('should work with extensions', () => {
   const appState = {
-    globalPages: [{ key: 'foo', name: 'Foo' }]
+    globalPages: [{ key: 'foo', name: 'Foo' }],
+    qualifiers: ['TRK']
   };
   const currentUser = {
     isLoggedIn: false,

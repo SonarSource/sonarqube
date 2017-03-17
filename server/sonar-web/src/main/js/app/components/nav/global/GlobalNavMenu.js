@@ -47,6 +47,16 @@ export default class GlobalNavMenu extends React.Component {
     );
   }
 
+  renderPortfolios() {
+    return (
+      <li>
+        <Link to="/portfolios" activeClassName="active">
+          {translate('portfolios.page')}
+        </Link>
+      </li>
+    );
+  }
+
   renderIssuesLink() {
     const query = this.props.currentUser.isLoggedIn
       ? '#resolved=false|assigned_to_me=true'
@@ -114,7 +124,8 @@ export default class GlobalNavMenu extends React.Component {
 
   renderMore() {
     const { globalPages } = this.props.appState;
-    if (globalPages.length === 0) {
+    const withoutPortfolios = globalPages.filter(page => page.key !== 'governance/portfolios');
+    if (withoutPortfolios.length === 0) {
       return null;
     }
     return (
@@ -124,16 +135,19 @@ export default class GlobalNavMenu extends React.Component {
           <span className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
-          {globalPages.map(this.renderGlobalPageLink)}
+          {withoutPortfolios.map(this.renderGlobalPageLink)}
         </ul>
       </li>
     );
   }
 
   render() {
+    const governanceInstalled = this.props.appState.qualifiers.includes('VW');
+
     return (
       <ul className="nav navbar-nav">
         {this.renderProjects()}
+        {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}
         {this.renderRulesLink()}
         {this.renderProfilesLink()}
