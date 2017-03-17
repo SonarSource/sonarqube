@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.PersistentSettings;
@@ -143,7 +142,7 @@ public class UpdateAction implements UserGroupsWsAction {
   private void writeResponse(DbSession dbSession, Request request, Response response, OrganizationDto organization, GroupDto group) {
     UserMembershipQuery query = UserMembershipQuery.builder()
       .groupId(group.getId())
-      .membership(GroupMembershipQuery.IN)
+      .membership(UserMembershipQuery.IN)
       .build();
     int membersCount = dbClient.groupMembershipDao().countMembers(dbSession, query);
 
