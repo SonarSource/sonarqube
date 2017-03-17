@@ -69,7 +69,7 @@ public class DeactivateAction implements UsersWsAction {
       .setDescription("Deactivate a user. Requires Administer System permission")
       .setSince("3.7")
       .setPost(true)
-      .setResponseExample(getClass().getResource("example-deactivate.json"))
+      .setResponseExample(getClass().getResource("deactivate-example.json"))
       .setHandler(this);
 
     action.createParam("login")
