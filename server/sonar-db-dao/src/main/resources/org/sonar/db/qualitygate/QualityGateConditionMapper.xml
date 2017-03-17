@@ -46,7 +46,7 @@
 
   <delete id="deleteConditionsWithInvalidMetrics">
     delete from quality_gate_conditions
-    where metric_id not in (select id from metrics where enabled=${_true})
+    where not exists (select 1 from metrics m where m.enabled=${_true} and m.id = metric_id)
   </delete>
 
 </mapper>

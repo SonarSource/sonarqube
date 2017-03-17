@@ -194,7 +194,7 @@
     FROM group_roles gr
     WHERE
     gr.role=#{role,jdbcType=VARCHAR}
-    and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+    and (gr.group_id is null or exists (select 1 from groups_users gu where gu.user_id = #{userId, jdbcType=INTEGER} and gr.group_id = gu.group_id))
     and
     <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
       gr.resource_id=#{element,jdbcType=BIGINT}
@@ -231,8 +231,7 @@
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         where
         gr.role=#{role,jdbcType=VARCHAR}
-        and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
-        gu.user_id=#{userId,jdbcType=INTEGER}))
+        and (gr.group_id is null or exists (select 1 from groups_users gu where gu.user_id = #{userId,jdbcType=INTEGER} and gu.group_id = gr.group_id))
         UNION
         SELECT p.uuid as root_project_uuid
         FROM user_roles ur
