@@ -20,11 +20,17 @@
 package org.sonarqube.ws.client.user;
 
 import org.sonarqube.ws.WsUsers.CreateWsResponse;
+import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_GROUPS;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.CONTROLLER_USERS;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -33,6 +39,7 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SELECTED;
 
 public class UsersService extends BaseService {
 
@@ -57,6 +64,16 @@ public class UsersService extends BaseService {
       .setParam(PARAM_NAME, request.getName())
       .setParam(PARAM_EMAIL, request.getEmail())
       .setParam(PARAM_SCM_ACCOUNT, request.getScmAccounts()));
+  }
+
+  public GroupsWsResponse groups(GroupsRequest request) {
+    return call(new GetRequest(path(ACTION_GROUPS))
+      .setParam(PARAM_LOGIN, request.getLogin())
+      .setParam(PARAM_SELECTED, request.getSelected())
+      .setParam(TEXT_QUERY, request.getQuery())
+      .setParam(PAGE, request.getPage())
+      .setParam(PAGE_SIZE, request.getPageSize()),
+      GroupsWsResponse.parser());
   }
 
 }

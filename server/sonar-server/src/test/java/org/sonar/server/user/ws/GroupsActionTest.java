@@ -19,139 +19,228 @@
  */
 package org.sonar.server.user.ws;
 
-import org.junit.After;
-import org.junit.Before;
+import com.google.common.base.Throwables;
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMembershipDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDao;
-import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
+import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
+import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class GroupsActionTest {
 
+  private System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public DbTester db = DbTester.create(system2);
 
-  private WsTester tester;
-  private DbClient dbClient;
-  private DbSession session;
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
 
-  @Before
-  public void setUp() {
-    System2 system2 = new System2();
-    UserDao userDao = new UserDao(system2);
-    GroupDao groupDao = new GroupDao(system2);
-    UserGroupDao userGroupDao = new UserGroupDao();
-    GroupMembershipDao groupMembershipDao = new GroupMembershipDao();
+  private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession));
 
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, groupDao, userGroupDao, groupMembershipDao);
-    session = dbClient.openSession(false);
-    session.commit();
-
-    tester = new WsTester(new UsersWs(new GroupsAction(dbClient, userSession)));
-    userSession.logIn().setSystemAdministrator();
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
-
-  @Test(expected = NotFoundException.class)
+  @Test
   public void fail_on_unknown_user() throws Exception {
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john").execute();
+    expectedException.expect(NotFoundException.class);
+
+    call(ws.newRequest().setParam("login", "john"));
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
+  public void fail_on_disabled_user() throws Exception {
+    UserDto userDto = db.users().insertUser(user -> user.setActive(false));
+
+    expectedException.expect(NotFoundException.class);
+
+    call(ws.newRequest().setParam("login", userDto.getLogin()));
+  }
+
+  @Test
   public void fail_on_missing_permission() throws Exception {
     userSession.logIn("not-admin");
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john").execute();
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(ws.newRequest().setParam("login", "john"));
   }
 
   @Test
   public void empty_groups() throws Exception {
-    createUser();
-    session.commit();
+    insertUser();
 
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .execute()
-      .assertJson(getClass(), "empty.json");
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john"));
+
+    assertThat(response.getGroupsList()).isEmpty();
   }
 
   @Test
-  public void all_groups() throws Exception {
-    UserDto user = createUser();
-    GroupDto usersGroup = createGroup("sonar-users", "Sonar Users");
-    createGroup("sonar-admins", "Sonar Admins");
+  public void return_selected_groups_selected_param_is_set_to_all() throws Exception {
+    UserDto user = insertUser();
+    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
-    session.commit();
 
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute()
-      .assertJson(getClass(), "all.json");
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, ALL.value()));
+
+    assertThat(response.getGroupsList())
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
+      .containsOnly(
+        tuple(usersGroup.getId().longValue(), usersGroup.getName(), usersGroup.getDescription(), true),
+        tuple(adminGroup.getId().longValue(), adminGroup.getName(), adminGroup.getDescription(), false));
   }
 
   @Test
-  public void selected_groups() throws Exception {
-    UserDto user = createUser();
-    GroupDto usersGroup = createGroup("sonar-users", "Sonar Users");
-    createGroup("sonar-admins", "Sonar Admins");
+  public void return_selected_groups_selected_param_is_set_to_selected() throws Exception {
+    UserDto user = insertUser();
+    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
-    session.commit();
 
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .execute()
-      .assertJson(getClass(), "selected.json");
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, SELECTED.value()));
 
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .setParam(Param.SELECTED, SelectionMode.SELECTED.value())
-      .execute()
-      .assertJson(getClass(), "selected.json");
+    assertThat(response.getGroupsList())
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
+      .containsOnly(tuple(usersGroup.getId().longValue(), usersGroup.getName(), usersGroup.getDescription(), true));
   }
 
   @Test
-  public void deselected_groups() throws Exception {
-    UserDto user = createUser();
-    GroupDto usersGroup = createGroup("sonar-users", "Sonar Users");
-    createGroup("sonar-admins", "Sonar Admins");
+  public void return_selected_groups_selected_param_is_not_set() throws Exception {
+    UserDto user = insertUser();
+    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
-    session.commit();
 
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .setParam(Param.SELECTED, SelectionMode.DESELECTED.value())
-      .execute()
-      .assertJson(getClass(), "deselected.json");
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john"));
+
+    assertThat(response.getGroupsList())
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
+      .containsOnly(tuple(usersGroup.getId().longValue(), usersGroup.getName(), usersGroup.getDescription(), true));
   }
 
-  private UserDto createUser() {
-    return dbClient.userDao().insert(session, new UserDto()
+  @Test
+  public void return_not_selected_groups_selected_param_is_set_to_deselected() throws Exception {
+    UserDto user = insertUser();
+    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
+    addUserToGroup(user, usersGroup);
+
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, DESELECTED.value()));
+
+    assertThat(response.getGroupsList())
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
+      .containsOnly(tuple(adminGroup.getId().longValue(), adminGroup.getName(), adminGroup.getDescription(), false));
+  }
+
+  @Test
+  public void return_group_not_having_description() throws Exception {
+    UserDto user = insertUser();
+    GroupDto group = insertGroup("sonar-users", null);
+    addUserToGroup(user, group);
+
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, ALL.value()));
+
+    assertThat(response.getGroupsList()).extracting(GroupsWsResponse.Group::hasDescription).containsOnly(false);
+  }
+
+  @Test
+  public void search_with_pagination() throws IOException {
+    UserDto user = insertUser();
+    for (int i = 1; i <= 9; i++) {
+      GroupDto groupDto = insertGroup("group-" + i, "group-" + i);
+      addUserToGroup(user, groupDto);
+    }
+
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", "john")
+      .setParam(Param.PAGE_SIZE, "3")
+      .setParam(Param.PAGE, "2")
+      .setParam(Param.SELECTED, ALL.value()));
+
+    assertThat(response.getGroupsList()).extracting(GroupsWsResponse.Group::getName).containsOnly("group-4", "group-5", "group-6");
+    assertThat(response.getPaging().getPageSize()).isEqualTo(3);
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(2);
+    assertThat(response.getPaging().getTotal()).isEqualTo(9);
+  }
+
+  @Test
+  public void search_by_text_query() throws Exception {
+    UserDto user = insertUser();
+    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
+    addUserToGroup(user, usersGroup);
+
+    assertThat(call(ws.newRequest().setParam("login", "john").setParam("q", "admin").setParam(Param.SELECTED, ALL.value())).getGroupsList())
+      .extracting(GroupsWsResponse.Group::getName).containsOnly(adminGroup.getName());
+    assertThat(call(ws.newRequest().setParam("login", "john").setParam("q", "users").setParam(Param.SELECTED, ALL.value())).getGroupsList())
+      .extracting(GroupsWsResponse.Group::getName).containsOnly(usersGroup.getName());
+  }
+
+  @Test
+  public void test_json_example() {
+    UserDto user = insertUser();
+    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    insertGroup("sonar-admins", "Sonar Admins");
+    addUserToGroup(user, usersGroup);
+
+    String response = ws.newRequest()
+      .setMediaType(MediaTypes.JSON)
+      .setParam("login", "john")
+      .setParam(Param.SELECTED, ALL.value())
+      .setParam(Param.PAGE_SIZE, "25")
+      .setParam(Param.PAGE, "1")
+      .execute().getInput();
+    assertJson(response).ignoreFields("id").isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void verify_definition() {
+    WebService.Action action = ws.getDef();
+
+    assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+
+    assertThat(action.params()).extracting(Param::key).containsOnly("p", "q", "ps", "login", "selected");
+
+    WebService.Param qualifiers = action.param("login");
+    assertThat(qualifiers.isRequired()).isTrue();
+  }
+
+  private GroupDto insertGroup(String name, String description) {
+    return db.users().insertGroup(newGroupDto().setName(name).setDescription(description));
+  }
+
+  private void addUserToGroup(UserDto user, GroupDto usersGroup) {
+    db.users().insertMember(usersGroup, user);
+  }
+
+  private UserDto insertUser() {
+    return db.users().insertUser(newUserDto()
       .setActive(true)
       .setEmail("john@email.com")
       .setLogin("john")
@@ -159,58 +248,13 @@ public class GroupsActionTest {
       .setScmAccounts(singletonList("jn")));
   }
 
-  @Test
-  public void paging() throws Exception {
-    UserDto user = createUser();
-    GroupDto usersGroup = createGroup("sonar-users", "Sonar Users");
-    createGroup("sonar-admins", "Sonar Admins");
-    addUserToGroup(user, usersGroup);
-    session.commit();
-
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .setParam(Param.PAGE_SIZE, "1")
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute()
-      .assertJson(getClass(), "all_page1.json");
-
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .setParam(Param.PAGE_SIZE, "1")
-      .setParam(Param.PAGE, "2")
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute()
-      .assertJson(getClass(), "all_page2.json");
+  private GroupsWsResponse call(TestRequest request) {
+    request.setMediaType(MediaTypes.PROTOBUF);
+    try {
+      return GroupsWsResponse.parseFrom(request.execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
-  @Test
-  public void filtering() throws Exception {
-    UserDto user = createUser();
-    GroupDto usersGroup = createGroup("sonar-users", "Sonar Users");
-    createGroup("sonar-admins", "Sonar Admins");
-    addUserToGroup(user, usersGroup);
-    session.commit();
-
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .setParam("q", "users")
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute()
-      .assertJson(getClass(), "all_users.json");
-
-    tester.newGetRequest("api/users", "groups")
-      .setParam("login", "john")
-      .setParam("q", "admin")
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute()
-      .assertJson(getClass(), "all_admin.json");
-  }
-
-  private GroupDto createGroup(String name, String description) {
-    return dbClient.groupDao().insert(session, newGroupDto().setName(name).setDescription(description));
-  }
-
-  private void addUserToGroup(UserDto user, GroupDto usersGroup) {
-    dbClient.userGroupDao().insert(session, new UserGroupDto().setUserId(user.getId()).setGroupId(usersGroup.getId()));
-  }
 }

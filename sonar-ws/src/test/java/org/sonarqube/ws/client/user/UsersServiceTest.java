@@ -22,18 +22,23 @@ package org.sonarqube.ws.client.user;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsUsers.CreateWsResponse;
+import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOCAL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SELECTED;
 
 public class UsersServiceTest {
 
@@ -78,6 +83,26 @@ public class UsersServiceTest {
       .hasParam(PARAM_NAME, "John")
       .hasParam(PARAM_EMAIL, "john@doo.com")
       .hasParam(PARAM_SCM_ACCOUNT, asList("jo", "hn"))
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void groups() {
+    underTest.groups(GroupsRequest.builder()
+      .setLogin("john")
+      .setSelected("all")
+      .setQuery("sonar-users")
+      .setPage(10)
+      .setPageSize(50)
+      .build());
+
+    assertThat(serviceTester.getGetParser()).isSameAs(GroupsWsResponse.parser());
+    serviceTester.assertThat(serviceTester.getGetRequest())
+      .hasParam(PARAM_LOGIN, "john")
+      .hasParam(PARAM_SELECTED, "all")
+      .hasParam(TEXT_QUERY, "sonar-users")
+      .hasParam(PAGE, 10)
+      .hasParam(PAGE_SIZE, 50)
       .andNoOtherParam();
   }
 
