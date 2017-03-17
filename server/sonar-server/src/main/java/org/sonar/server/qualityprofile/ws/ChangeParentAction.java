@@ -27,12 +27,14 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 
 public class ChangeParentAction implements QProfileWsAction {
 
@@ -41,17 +43,17 @@ public class ChangeParentAction implements QProfileWsAction {
 
   private DbClient dbClient;
   private final RuleActivator ruleActivator;
-  private final QProfileFactory profileFactory;
   private final Languages languages;
-  private final QProfileWsSupport qProfileWsSupport;
+  private final QProfileWsSupport wsSupport;
+  private final UserSession userSession;
 
-  public ChangeParentAction(DbClient dbClient, RuleActivator ruleActivator, QProfileFactory profileFactory,
-    Languages languages, QProfileWsSupport qProfileWsSupport) {
+  public ChangeParentAction(DbClient dbClient, RuleActivator ruleActivator,
+    Languages languages, QProfileWsSupport wsSupport, UserSession userSession) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
-    this.profileFactory = profileFactory;
     this.languages = languages;
-    this.qProfileWsSupport = qProfileWsSupport;
+    this.wsSupport = wsSupport;
+    this.userSession = userSession;
   }
 
   @Override
@@ -62,7 +64,9 @@ public class ChangeParentAction implements QProfileWsAction {
       .setDescription("Change a quality profile's parent.")
       .setHandler(this);
 
-    QProfileRef.defineParams(inheritance, languages);
+    QProfileWsSupport.createOrganizationParam(inheritance)
+      .setSince("6.4");
+    QProfileReference.defineParams(inheritance, languages);
 
     inheritance.createParam(PARAM_PARENT_KEY)
       .setDescription("The key of the new parent profile. If this parameter is set, parentName must not be set. " +
@@ -77,17 +81,25 @@ public class ChangeParentAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    qProfileWsSupport.checkQProfileAdminPermission();
+    userSession.checkLoggedIn();
+    QProfileReference reference = QProfileReference.from(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
+      QualityProfileDto profile = wsSupport.getProfile(dbSession, reference);
+      String organizationUuid = profile.getOrganizationUuid();
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+        .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' of profile '%s'", organizationUuid, profile.getKee())));
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
+
       String parentKey = request.param(PARAM_PARENT_KEY);
       String parentName = request.param(PARAM_PARENT_NAME);
       if (isEmpty(parentKey) && isEmpty(parentName)) {
         ruleActivator.setParent(dbSession, profile.getKey(), null);
       } else {
-        QProfileRef parentRef = QProfileRef.from(parentKey, request.param(QProfileRef.PARAM_LANGUAGE), parentName);
-        QualityProfileDto parent = profileFactory.find(dbSession, parentRef);
+        String parentOrganizationKey = parentKey == null ? organization.getKey() : null;
+        String parentLanguage = parentKey == null ? request.param(PARAM_LANGUAGE) : null;
+        QProfileReference parentRef = QProfileReference.from(parentKey, parentOrganizationKey, parentLanguage, parentName);
+        QualityProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
         ruleActivator.setParent(dbSession, profile.getKey(), parent.getKey());
       }
       response.noContent();

@@ -31,8 +31,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -48,7 +48,6 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -60,14 +59,17 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.ws.WsTester;
+import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.qualityprofile.ws.QProfileReference.DEFAULT_PARAM_LANGUAGE;
-import static org.sonar.server.qualityprofile.ws.QProfileReference.DEFAULT_PARAM_PROFILE_KEY;
-import static org.sonar.server.qualityprofile.ws.QProfileReference.DEFAULT_PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 
 public class ChangeParentActionTest {
 
@@ -90,6 +92,7 @@ public class ChangeParentActionTest {
   private RuleActivator ruleActivator;
   private Language language = LanguageTesting.newLanguage(randomAlphanumeric(20));
   private String ruleRepository = randomAlphanumeric(5);
+  private ChangeParentAction underTest;
 
   @Before
   public void setUp() {
@@ -118,7 +121,7 @@ public class ChangeParentActionTest {
       activeRuleIndexer,
       userSessionRule
     );
-    ChangeParentAction underTest = new ChangeParentAction(
+    underTest = new ChangeParentAction(
       dbClient,
       new RuleActivator(
         System2.INSTANCE,
@@ -129,21 +132,28 @@ public class ChangeParentActionTest {
         activeRuleIndexer,
         userSessionRule
       ),
-      new QProfileFactory(
-        dbClient,
-        UuidFactoryFast.getInstance(),
-        System2.INSTANCE
-      ),
       new Languages(),
       new QProfileWsSupport(
         dbClient,
         userSessionRule,
         TestDefaultOrganizationProvider.from(dbTester)
-      )
+      ),
+      userSessionRule
     );
     wsActionTester = new WsActionTester(underTest);
-    organization = dbTester.getDefaultOrganization();
+    organization = dbTester.organizations().insert();
     userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
+  }
+
+  @Test
+  public void define_change_parent_action() {
+    WebService.Action changeParent = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), underTest))
+      .action(QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES, "change_parent");
+    assertThat(changeParent).isNotNull();
+    assertThat(changeParent.isPost()).isTrue();
+    assertThat(changeParent.params()).extracting("key").containsExactlyInAnyOrder(
+      "organization", "profileKey", "profileName", "language", "parentKey", "parentName");
+    assertThat(changeParent.param("organization").since()).isEqualTo("6.4");
   }
 
   @Test
@@ -161,7 +171,7 @@ public class ChangeParentActionTest {
     // Set parent
     wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
+      .setParam(PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent1.getKey())
       .execute();
 
@@ -192,7 +202,7 @@ public class ChangeParentActionTest {
     // Set parent 2 through WS
     wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
+      .setParam(PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent2.getKey())
       .execute();
 
@@ -220,7 +230,7 @@ public class ChangeParentActionTest {
     // Remove parent through WS
     wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
+      .setParam(PARAM_PROFILE_KEY, child.getKey())
       .execute();
 
     // Check no rule enabled
@@ -245,11 +255,15 @@ public class ChangeParentActionTest {
 
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
 
+    System.out.println("org uuid: " + organization.getUuid());
+    System.out.println("org key: " + organization.getKey());
+
     // 1. Set parent 1
     wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_LANGUAGE, child.getLanguage())
-      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("parentName", parent1.getName())
       .execute();
 
@@ -262,8 +276,9 @@ public class ChangeParentActionTest {
     // 2. Set parent 2
     wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_LANGUAGE, child.getLanguage())
-      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("parentName", parent2.getName())
       .execute();
 
@@ -275,8 +290,9 @@ public class ChangeParentActionTest {
     // 3. Remove parent
     wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_LANGUAGE, child.getLanguage())
-      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("parentName", "")
       .execute();
 
@@ -304,7 +320,7 @@ public class ChangeParentActionTest {
     // Remove parent
     wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKey())
+      .setParam(PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", "")
       .execute();
 
@@ -323,7 +339,7 @@ public class ChangeParentActionTest {
 
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKee())
+      .setParam(PARAM_PROFILE_KEY, child.getKee())
       .setParam("parentName", "polop")
       .setParam("parentKey", "palap");
     thrown.expect(IllegalArgumentException.class);
@@ -340,9 +356,9 @@ public class ChangeParentActionTest {
 
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_PROFILE_KEY, child.getKee())
-      .setParam(DEFAULT_PARAM_PROFILE_NAME, child.getName())
-      .setParam(PARAM_ORGANIZATION, child.getOrganizationUuid())
+      .setParam(PARAM_PROFILE_KEY, child.getKee())
+      .setParam(PARAM_PROFILE_NAME, child.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("parentKey", "palap");
 
     thrown.expect(IllegalArgumentException.class);
@@ -352,12 +368,31 @@ public class ChangeParentActionTest {
   @Test
   public void fail_if_missing_permission() throws Exception {
     userSessionRule.logIn();
+
+    QualityProfileDto child = createProfile();
+
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam(DEFAULT_PARAM_PROFILE_KEY, "polop")
-      .setParam("parentKey", "pulup");
+      .setParam(PARAM_PROFILE_KEY, child.getKey());
 
     thrown.expect(ForbiddenException.class);
+    thrown.expectMessage("Insufficient privileges");
+    request.execute();
+  }
+
+  @Test
+  public void fail_if_missing_permission_for_this_organization() throws Exception {
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization2.getUuid());
+
+    QualityProfileDto child = createProfile();
+
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_PROFILE_KEY, child.getKey());
+
+    thrown.expect(ForbiddenException.class);
+    thrown.expectMessage("Insufficient privileges");
     request.execute();
   }
 
