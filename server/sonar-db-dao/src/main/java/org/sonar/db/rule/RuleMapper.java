@@ -29,8 +29,6 @@ public interface RuleMapper {
 
   List<RuleDto> selectAll();
 
-  List<RuleDto> selectAll(ResultHandler resultHandler);
-
   List<RuleDto> selectEnabled();
 
   void selectEnabled(ResultHandler resultHandler);
