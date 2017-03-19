@@ -70,7 +70,7 @@ public class LogbackHelperTest {
 
   @AfterClass
   public static void resetLogback() throws Exception {
-    new LogbackHelper().resetFromXml("/logback-test.xml");
+    new LogbackHelper().resetFromXml("/org/sonar/process/logging/LogbackHelperTest/logback-test.xml");
   }
 
   @Test

@@ -19,38 +19,50 @@
  */
 package org.sonar.process;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class StopWatcherTest {
+
+  @Rule
+  public TestRule safeguard = new DisableOnDebug(Timeout.seconds(10));
+
   @Test
-  public void stop_if_receive_command() {
+  public void stop_if_receive_command() throws Exception {
     ProcessCommands commands = mock(ProcessCommands.class);
     when(commands.askedForStop()).thenReturn(false, true);
     Stoppable stoppable = mock(Stoppable.class);
 
-    StopWatcher watcher = new StopWatcher(commands, stoppable, 1L);
-    watcher.start();
+    StopWatcher underTest = new StopWatcher(commands, stoppable, 1L);
+    underTest.start();
 
-    verify(stoppable, timeout(5000)).stopAsync();
+    while (underTest.isAlive()) {
+      Thread.sleep(1L);
+    }
+    verify(stoppable).stopAsync();
   }
 
-  @Test(timeout = 5000)
-  public void stop_watching_on_interruption() throws InterruptedException {
+  @Test
+  public void stop_watching_on_interruption() throws Exception {
     ProcessCommands commands = mock(ProcessCommands.class);
     when(commands.askedForStop()).thenReturn(false);
     Stoppable stoppable = mock(Stoppable.class);
 
-    StopWatcher watcher = new StopWatcher(commands, stoppable, 1000L);
-    watcher.start();
-    Thread.sleep(50L);
-    watcher.interrupt();
+    StopWatcher underTest = new StopWatcher(commands, stoppable, 1L);
+    underTest.start();
+    underTest.interrupt();
 
+    while (underTest.isAlive()) {
+      Thread.sleep(1L);
+    }
     verify(stoppable, never()).stopAsync();
   }
 }
