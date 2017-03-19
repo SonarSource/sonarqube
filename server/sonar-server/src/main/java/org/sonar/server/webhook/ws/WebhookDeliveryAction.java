@@ -65,6 +65,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
 
     action.createParam(PARAM_ID)
       .setDescription("Id of delivery")
+      .setRequired(true)
       .setExampleValue(Uuids.UUID_EXAMPLE_06);
   }
 
