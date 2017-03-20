@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -34,7 +33,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.organization.OrganizationService;
@@ -42,14 +44,17 @@ import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.organization.UpdateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
+import org.sonarqube.ws.client.user.GroupsRequest;
 import util.ItUtils;
 import util.user.GroupManagement;
 import util.user.Groups;
 import util.user.UserRule;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newAdminWsClient;
 
 public class OrganizationTest {
   private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
@@ -67,20 +72,15 @@ public class OrganizationTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private WsClient adminClient = newAdminWsClient(orchestrator);
   private OrganizationService anonymousOrganizationService = ItUtils.newWsClient(orchestrator).organizations();
-  private OrganizationService adminOrganizationService = ItUtils.newAdminWsClient(orchestrator).organizations();
+  private OrganizationService adminOrganizationService = adminClient.organizations();
 
   @Before
   public void setUp() throws Exception {
     orchestrator.resetData();
-    userRule.resetUsers();
     ItUtils.resetSettings(orchestrator, null, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS);
     orchestrator.getServer().post("api/organizations/enable_support", Collections.emptyMap());
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    orchestrator.resetData();
   }
 
   @Test
@@ -346,6 +346,31 @@ public class OrganizationTest {
     verifyNoExtraOrganization();
   }
 
+  @Test
+  public void return_groups_belonging_to_a_user_on_an_organization() throws Exception {
+    String userLogin = randomAlphabetic(10);
+    String groupName = randomAlphabetic(10);
+    String orgKeyAndName = "org-key";
+    adminClient.organizations().create(new CreateWsRequest.Builder().setKey(orgKeyAndName).setName(orgKeyAndName).build()).getOrganization();
+    userRule.createUser(userLogin, userLogin);
+    adminOrganizationService.addMember(orgKeyAndName, userLogin);
+    adminClient.wsConnector().call(new PostRequest("api/user_groups/create")
+      .setParam("name", groupName)
+      .setParam("description", groupName)
+      .setParam("organization", orgKeyAndName)).failIfNotSuccessful();
+    adminClient.wsConnector().call(new PostRequest("api/user_groups/add_user")
+      .setParam("login", userLogin)
+      .setParam("name", groupName)
+      .setParam("organization", orgKeyAndName)).failIfNotSuccessful();
+
+    List<WsUsers.GroupsWsResponse.Group> result = adminClient.users().groups(
+      GroupsRequest.builder().setLogin(userLogin).setOrganization(orgKeyAndName).build()).getGroupsList();
+
+    assertThat(result).extracting(WsUsers.GroupsWsResponse.Group::getName).containsOnly(groupName);
+
+    adminOrganizationService.delete(orgKeyAndName);
+  }
+
   private WsComponents.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
     return componentsService
       .search(new org.sonarqube.ws.client.component.SearchWsRequest()
@@ -382,7 +407,7 @@ public class OrganizationTest {
   private void verifySingleSearchResult(Organizations.Organization createdOrganization, String name, String description, String url,
     String avatarUrl) {
     List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder()
-        .build()).getOrganizationsList();
+      .build()).getOrganizationsList();
     assertThat(organizations).hasSize(2);
     Organizations.Organization searchedOrganization = organizations.stream()
       .filter(organization -> !DEFAULT_ORGANIZATION_KEY.equals(organization.getKey()))
