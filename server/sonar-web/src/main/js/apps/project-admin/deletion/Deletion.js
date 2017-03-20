@@ -35,7 +35,7 @@ class Deletion extends React.Component {
 
     return (
       <div className="page page-limited">
-        <Header />
+        <Header component={this.props.component} />
         <Form component={this.props.component} />
       </div>
     );

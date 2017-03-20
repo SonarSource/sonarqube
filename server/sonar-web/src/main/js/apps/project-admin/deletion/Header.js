@@ -17,18 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default class Header extends React.Component {
+  props: {
+    component: { qualifier: string }
+  };
+
   render() {
+    const description = ['VW', 'SVW'].includes(this.props.component.qualifier)
+      ? translate('portfolio_deletion.page.description')
+      : translate('project_deletion.page.description');
+
     return (
       <header className="page-header">
         <h1 className="page-title">
           {translate('deletion.page')}
         </h1>
         <div className="page-description">
-          {translate('project_deletion.page.description')}
+          {description}
         </div>
       </header>
     );
