@@ -68,7 +68,7 @@ public class QProfilesWsTest {
       new SearchAction(null, languages, null, dbClient),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
-      new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),
+      new ChangelogAction(null, wsSupport, languages, dbClient),
       new ChangeParentAction(dbClient, null, null, languages, wsSupport),
       new CompareAction(null, null, languages),
       new DeleteAction(languages, null, null, userSessionRule, wsSupport),
@@ -191,6 +191,8 @@ public class QProfilesWsTest {
     assertThat(changelog.isPost()).isFalse();
     assertThat(changelog.params().size()).isPositive();
     assertThat(changelog.responseExampleAsString()).isNotEmpty();
+    assertThat(changelog.param("organization").since()).isEqualTo("6.4");
+    assertThat(changelog.param("organization").isInternal()).isTrue();
   }
 
   @Test
