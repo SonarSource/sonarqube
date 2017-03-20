@@ -123,9 +123,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
   public void deactivateUsers(List<String> userLogins) {
     for (String userLogin : userLogins) {
       if (getUserByLogin(userLogin).isPresent()) {
-        adminWsClient().wsConnector().call(
-          new PostRequest("api/users/deactivate")
-            .setParam("login", userLogin));
+        adminWsClient().wsConnector().call(new PostRequest("api/users/deactivate").setParam("login", userLogin)).failIfNotSuccessful();
       }
     }
   }
