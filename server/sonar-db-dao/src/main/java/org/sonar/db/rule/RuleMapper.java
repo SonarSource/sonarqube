@@ -41,9 +41,11 @@ public interface RuleMapper {
 
   List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);
 
-  void update(RuleDto rule);
+  void insert(RuleDefinitionDto ruleDefinitionDto);
 
-  void insert(RuleDto rule);
+  void updateDefinition(RuleDefinitionDto ruleDefinitionDto);
+
+  void updateMetadata(RuleMetadataDto ruleMetadataDto);
 
   List<RuleParamDto> selectParamsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 

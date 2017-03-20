@@ -20,8 +20,7 @@
 package org.sonar.db.rule;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.CheckForNull;
@@ -37,17 +36,13 @@ import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class RuleDto {
-
-  public enum Format {
-    HTML, MARKDOWN
-  }
+public class RuleDefinitionDto {
 
   private Integer id;
   private String repositoryKey;
   private String ruleKey;
   private String description;
-  private Format descriptionFormat;
+  private RuleDto.Format descriptionFormat;
   private RuleStatus status;
   private String name;
   private String configKey;
@@ -55,18 +50,10 @@ public class RuleDto {
   private boolean isTemplate;
   private String language;
   private Integer templateId;
-  private String noteData;
-  private String noteUserLogin;
-  private Date noteCreatedAt;
-  private Date noteUpdatedAt;
-  private String remediationFunction;
   private String defRemediationFunction;
-  private String remediationGapMultiplier;
   private String defRemediationGapMultiplier;
-  private String remediationBaseEffort;
   private String defRemediationBaseEffort;
   private String gapDescription;
-  private String tags;
   private String systemTags;
   private int type;
 
@@ -86,7 +73,7 @@ public class RuleDto {
     return id;
   }
 
-  public RuleDto setId(Integer id) {
+  public RuleDefinitionDto setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -95,7 +82,7 @@ public class RuleDto {
     return repositoryKey;
   }
 
-  public RuleDto setRepositoryKey(String s) {
+  public RuleDefinitionDto setRepositoryKey(String s) {
     checkArgument(s.length() <= 255, "Rule repository is too long: %s", s);
     this.repositoryKey = s;
     return this;
@@ -105,7 +92,7 @@ public class RuleDto {
     return ruleKey;
   }
 
-  public RuleDto setRuleKey(String s) {
+  public RuleDefinitionDto setRuleKey(String s) {
     checkArgument(s.length() <= 200, "Rule key is too long: %s", s);
     this.ruleKey = s;
     return this;
@@ -115,16 +102,16 @@ public class RuleDto {
     return description;
   }
 
-  public RuleDto setDescription(String description) {
+  public RuleDefinitionDto setDescription(String description) {
     this.description = description;
     return this;
   }
 
-  public Format getDescriptionFormat() {
+  public RuleDto.Format getDescriptionFormat() {
     return descriptionFormat;
   }
 
-  public RuleDto setDescriptionFormat(Format descriptionFormat) {
+  public RuleDefinitionDto setDescriptionFormat(RuleDto.Format descriptionFormat) {
     this.descriptionFormat = descriptionFormat;
     return this;
   }
@@ -133,7 +120,7 @@ public class RuleDto {
     return status;
   }
 
-  public RuleDto setStatus(@Nullable RuleStatus s) {
+  public RuleDefinitionDto setStatus(@Nullable RuleStatus s) {
     this.status = s;
     return this;
   }
@@ -142,7 +129,7 @@ public class RuleDto {
     return name;
   }
 
-  public RuleDto setName(@Nullable String s) {
+  public RuleDefinitionDto setName(@Nullable String s) {
     checkArgument(s == null || s.length() <= 255, "Rule name is too long: %s", s);
     this.name = s;
     return this;
@@ -152,7 +139,7 @@ public class RuleDto {
     return configKey;
   }
 
-  public RuleDto setConfigKey(@Nullable String configKey) {
+  public RuleDefinitionDto setConfigKey(@Nullable String configKey) {
     this.configKey = configKey;
     return this;
   }
@@ -167,11 +154,11 @@ public class RuleDto {
     return severity != null ? SeverityUtil.getSeverityFromOrdinal(severity) : null;
   }
 
-  public RuleDto setSeverity(@Nullable String severity) {
+  public RuleDefinitionDto setSeverity(@Nullable String severity) {
     return this.setSeverity(severity != null ? SeverityUtil.getOrdinalFromSeverity(severity) : null);
   }
 
-  public RuleDto setSeverity(@Nullable Integer severity) {
+  public RuleDefinitionDto setSeverity(@Nullable Integer severity) {
     this.severity = severity;
     return this;
   }
@@ -180,7 +167,7 @@ public class RuleDto {
     return isTemplate;
   }
 
-  public RuleDto setIsTemplate(boolean isTemplate) {
+  public RuleDefinitionDto setIsTemplate(boolean isTemplate) {
     this.isTemplate = isTemplate;
     return this;
   }
@@ -190,7 +177,7 @@ public class RuleDto {
     return language;
   }
 
-  public RuleDto setLanguage(String language) {
+  public RuleDefinitionDto setLanguage(String language) {
     this.language = language;
     return this;
   }
@@ -200,58 +187,8 @@ public class RuleDto {
     return templateId;
   }
 
-  public RuleDto setTemplateId(@Nullable Integer templateId) {
+  public RuleDefinitionDto setTemplateId(@Nullable Integer templateId) {
     this.templateId = templateId;
-    return this;
-  }
-
-  @CheckForNull
-  public String getNoteData() {
-    return noteData;
-  }
-
-  public RuleDto setNoteData(@Nullable String s) {
-    this.noteData = s;
-    return this;
-  }
-
-  @CheckForNull
-  public String getNoteUserLogin() {
-    return noteUserLogin;
-  }
-
-  public RuleDto setNoteUserLogin(@Nullable String noteUserLogin) {
-    this.noteUserLogin = noteUserLogin;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getNoteCreatedAt() {
-    return noteCreatedAt;
-  }
-
-  public RuleDto setNoteCreatedAt(@Nullable Date noteCreatedAt) {
-    this.noteCreatedAt = noteCreatedAt;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getNoteUpdatedAt() {
-    return noteUpdatedAt;
-  }
-
-  public RuleDto setNoteUpdatedAt(@Nullable Date noteUpdatedAt) {
-    this.noteUpdatedAt = noteUpdatedAt;
-    return this;
-  }
-
-  @CheckForNull
-  public String getRemediationFunction() {
-    return remediationFunction;
-  }
-
-  public RuleDto setRemediationFunction(@Nullable String remediationFunction) {
-    this.remediationFunction = remediationFunction;
     return this;
   }
 
@@ -260,18 +197,8 @@ public class RuleDto {
     return defRemediationFunction;
   }
 
-  public RuleDto setDefaultRemediationFunction(@Nullable String defaultRemediationFunction) {
+  public RuleDefinitionDto setDefaultRemediationFunction(@Nullable String defaultRemediationFunction) {
     this.defRemediationFunction = defaultRemediationFunction;
-    return this;
-  }
-
-  @CheckForNull
-  public String getRemediationGapMultiplier() {
-    return remediationGapMultiplier;
-  }
-
-  public RuleDto setRemediationGapMultiplier(@Nullable String remediationGapMultiplier) {
-    this.remediationGapMultiplier = remediationGapMultiplier;
     return this;
   }
 
@@ -280,18 +207,8 @@ public class RuleDto {
     return defRemediationGapMultiplier;
   }
 
-  public RuleDto setDefaultRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
+  public RuleDefinitionDto setDefaultRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
     this.defRemediationGapMultiplier = defaultRemediationGapMultiplier;
-    return this;
-  }
-
-  @CheckForNull
-  public String getRemediationBaseEffort() {
-    return remediationBaseEffort;
-  }
-
-  public RuleDto setRemediationBaseEffort(@Nullable String remediationBaseEffort) {
-    this.remediationBaseEffort = remediationBaseEffort;
     return this;
   }
 
@@ -300,7 +217,7 @@ public class RuleDto {
     return defRemediationBaseEffort;
   }
 
-  public RuleDto setDefaultRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
+  public RuleDefinitionDto setDefaultRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
     this.defRemediationBaseEffort = defaultRemediationBaseEffort;
     return this;
   }
@@ -310,43 +227,24 @@ public class RuleDto {
     return gapDescription;
   }
 
-  public RuleDto setGapDescription(@Nullable String s) {
+  public RuleDefinitionDto setGapDescription(@Nullable String s) {
     this.gapDescription = s;
     return this;
   }
 
-  public Set<String> getTags() {
-    return tags == null ? Collections.emptySet() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
-  }
-
   public Set<String> getSystemTags() {
-    return systemTags == null ? Collections.emptySet() : new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
-  }
-
-  private String getTagsField() {
-    return tags;
+    return systemTags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
   }
 
   private String getSystemTagsField() {
     return systemTags;
   }
 
-  private void setTagsField(String s) {
-    tags = s;
-  }
-
   private void setSystemTagsField(String s) {
     systemTags = s;
   }
 
-  public RuleDto setTags(Set<String> tags) {
-    String raw = tags.isEmpty() ? null : StringUtils.join(tags, ',');
-    checkArgument(raw == null || raw.length() <= 4000, "Rule tags are too long: %s", raw);
-    this.tags = raw;
-    return this;
-  }
-
-  public RuleDto setSystemTags(Set<String> tags) {
+  public RuleDefinitionDto setSystemTags(Set<String> tags) {
     this.systemTags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
     return this;
   }
@@ -355,12 +253,12 @@ public class RuleDto {
     return type;
   }
 
-  public RuleDto setType(int type) {
+  public RuleDefinitionDto setType(int type) {
     this.type = type;
     return this;
   }
 
-  public RuleDto setType(RuleType type) {
+  public RuleDefinitionDto setType(RuleType type) {
     this.type = type.getDbConstant();
     return this;
   }
@@ -369,7 +267,7 @@ public class RuleDto {
     return createdAt;
   }
 
-  public RuleDto setCreatedAt(long createdAt) {
+  public RuleDefinitionDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -378,7 +276,7 @@ public class RuleDto {
     return updatedAt;
   }
 
-  public RuleDto setUpdatedAt(long updatedAt) {
+  public RuleDefinitionDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -393,17 +291,17 @@ public class RuleDto {
     }
     RuleDto other = (RuleDto) obj;
     return new EqualsBuilder()
-      .append(repositoryKey, other.getRepositoryKey())
-      .append(ruleKey, other.getRuleKey())
-      .isEquals();
+        .append(repositoryKey, other.getRepositoryKey())
+        .append(ruleKey, other.getRuleKey())
+        .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(repositoryKey)
-      .append(ruleKey)
-      .toHashCode();
+        .append(repositoryKey)
+        .append(ruleKey)
+        .toHashCode();
   }
 
   @Override
@@ -413,8 +311,9 @@ public class RuleDto {
 
   public static RuleDto createFor(RuleKey key) {
     return new RuleDto()
-      .setRepositoryKey(key.repository())
-      .setRuleKey(key.rule());
+        .setRepositoryKey(key.repository())
+        .setRuleKey(key.rule());
   }
 
 }
+
