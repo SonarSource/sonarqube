@@ -20,10 +20,9 @@
 //@flow
 import React from 'react';
 import ReactDOM from 'react-dom';
-import debounce from 'lodash/debounce';
 import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
-import TagsSelector from '../../../components/tags/TagsSelector';
+import ProjectTagsSelectorContainer from '../../projects/components/ProjectTagsSelectorContainer';
 
 type Props = {
   component: {
@@ -39,11 +38,12 @@ type Props = {
 
 type State = {
   popupOpen: boolean,
-  popupPosition: { top: number, right: number },
-  searchResult: Array<string>
+  popupPosition: { top: number, right: number }
 };
 
 export default class MetaTags extends React.PureComponent {
+  card: HTMLElement;
+  tagsList: HTMLElement;
   tagsSelector: HTMLElement;
   props: Props;
   state: State = {
@@ -51,18 +51,12 @@ export default class MetaTags extends React.PureComponent {
     popupPosition: {
       top: 0,
       right: 0
-    },
-    searchResult: []
+    }
   };
 
-  constructor(props: Props) {
-    super(props);
-    this.onSearch = debounce(this.onSearch, 250);
-  }
-
   componentDidMount() {
-    const buttonPos = this.refs.tagslist.getBoundingClientRect();
-    const cardPos = this.refs.card.getBoundingClientRect();
+    const buttonPos = this.tagsList.getBoundingClientRect();
+    const cardPos = this.card.getBoundingClientRect();
     this.setState({ popupPosition: this.getPopupPos(buttonPos, cardPos) });
 
     window.addEventListener('keydown', this.handleKey, false);
@@ -74,7 +68,7 @@ export default class MetaTags extends React.PureComponent {
     window.removeEventListener('click', this.handleOutsideClick);
   }
 
-  handleKey = (evt: SyntheticInputEvent) => {
+  handleKey = (evt: KeyboardEvent) => {
     // Escape key
     if (evt.keyCode === 27) {
       this.setState({ popupOpen: false });
@@ -82,7 +76,7 @@ export default class MetaTags extends React.PureComponent {
   };
 
   handleOutsideClick = (evt: SyntheticInputEvent) => {
-    const domNode = ReactDOM.findDOMNode(this.refs.tagsSelector);
+    const domNode = ReactDOM.findDOMNode(this.tagsSelector);
     if (!domNode || !domNode.contains(evt.target)) {
       this.setState({ popupOpen: false });
     }
@@ -93,19 +87,6 @@ export default class MetaTags extends React.PureComponent {
     this.setState(state => ({ popupOpen: !state.popupOpen }));
   };
 
-  onSearch = (query: string) => {
-    console.log('search', query);// eslint-disable-line
-    this.setState({ searchResult: [query] });
-  };
-
-  onSelect = (tag: string) => {
-    console.log(`select`, tag); // eslint-disable-line
-  };
-
-  onUnselect = (tag: string) => {
-    console.log('unselect', tag);// eslint-disable-line
-  };
-
   getPopupPos(eltPos: { height: number, width: number }, containerPos: { width: number }) {
     return {
       top: eltPos.height,
@@ -114,29 +95,35 @@ export default class MetaTags extends React.PureComponent {
   }
 
   render() {
-    const { tags, configuration } = this.props.component;
+    const { tags, configuration, key } = this.props.component;
     const { popupOpen, popupPosition } = this.state;
 
     return (
-      <div className="overview-meta-card" style={{ position: 'relative' }} ref="card">
-        <button className="button-link" onClick={this.handleClick} ref="tagslist">
+      <div
+        className="overview-meta-card"
+        style={{ position: 'relative' }}
+        ref={card => this.card = card}
+      >
+        <button
+          className="button-link"
+          onClick={this.handleClick}
+          ref={tagsList => this.tagsList = tagsList}
+        >
           <TagsList
             tags={tags.length ? tags : [translate('no_tags')]}
             allowUpdate={configuration && configuration.showSettings}
             allowMultiLine={true}
           />
         </button>
-        <TagsSelector
-          ref="tagsSelector"
-          open={popupOpen}
-          position={popupPosition}
-          tags={this.state.searchResult}
-          selectedTags={tags}
-          onSearch={this.onSearch}
-          onSelect={this.onSelect}
-          onUnselect={this.onUnselect}
-          popupCustomClass="bubble-popup-bottom-right"
-        />
+        {configuration &&
+          configuration.showSettings &&
+          <ProjectTagsSelectorContainer
+            ref={tagsSelector => this.tagsSelector = tagsSelector}
+            open={popupOpen}
+            position={popupPosition}
+            project={key}
+            selectedTags={tags}
+          />}
       </div>
     );
   }
