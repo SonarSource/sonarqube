@@ -25,7 +25,9 @@ type Props = {
   element: string,
   selected: boolean,
   custom: boolean,
-  onSelectChange: (string, boolean) => void
+  active: boolean,
+  onSelectChange: (string, boolean) => void,
+  onHover: (string) => void
 };
 
 export default class MultiSelectOption extends React.PureComponent {
@@ -33,23 +35,35 @@ export default class MultiSelectOption extends React.PureComponent {
 
   static defaultProps = {
     selected: false,
-    custom: false
+    custom: false,
+    active: false
   };
 
   handleSelect = (evt: SyntheticInputEvent) => {
     evt.stopPropagation();
     evt.target.blur();
     this.props.onSelectChange(this.props.element, !this.props.selected);
-  }
+  };
+
+  handleHover = () => {
+    this.props.onHover(this.props.element);
+  };
 
   render() {
     const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': this.props.selected
     });
+    const activeClass = classNames({ active: this.props.active });
 
     return (
       <li>
-        <a href="#" onClick={this.handleSelect}>
+        <a
+          href="#"
+          className={activeClass}
+          onClick={this.handleSelect}
+          onMouseOver={this.handleHover}
+          onFocus={this.handleHover}
+        >
           <i className={className} />{' '}{this.props.custom && '+ '}{this.props.element}
         </a>
       </li>

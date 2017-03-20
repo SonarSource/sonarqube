@@ -19,10 +19,6 @@
  */
 // @flow
 import React from 'react';
-//import classNames from 'classnames';
-//import debounce from 'lodash/debounce';
-//import without from 'lodash/without';
-import classNames from 'classnames';
 import BubblePopup from '../common/BubblePopup';
 import MultiSelect from '../common/MultiSelect';
 import './TagsList.css';
@@ -32,9 +28,9 @@ type Props = {
   position: {},
   tags: Array<string>,
   selectedTags: Array<string>,
-  onSearch: string => void,
-  onSelect: string => void,
-  onUnselect: string => void,
+  onSearch: (string) => void,
+  onSelect: (string) => void,
+  onUnselect: (string) => void,
   popupCustomClass?: string
 };
 
@@ -46,7 +42,7 @@ export default class TagsSelector extends React.PureComponent {
       <BubblePopup
         open={this.props.open}
         position={this.props.position}
-        customClass={classNames(this.props.popupCustomClass, 'bubble-popup-menu')}
+        customClass="bubble-popup-bottom-right bubble-popup-menu"
       >
         <MultiSelect
           elements={this.props.tags}
