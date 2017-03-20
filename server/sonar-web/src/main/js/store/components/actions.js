@@ -18,8 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export const RECEIVE_COMPONENTS = 'RECEIVE_COMPONENTS';
+export const RECEIVE_PROJECT_TAGS = 'RECEIVE_PROJECT_TAGS';
 
 export const receiveComponents = components => ({
   type: RECEIVE_COMPONENTS,
   components
+});
+
+export const receiveProjectTags = (project, tags) => ({
+  type: RECEIVE_PROJECT_TAGS,
+  project,
+  tags
 });
