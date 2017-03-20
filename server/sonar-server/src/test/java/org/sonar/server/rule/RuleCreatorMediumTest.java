@@ -258,8 +258,8 @@ public class RuleCreatorMediumTest {
       .setDescription("Old description")
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(Severity.INFO);
-    dao.insert(dbSession, rule);
-    dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dao.insert(dbSession, rule.getDefinition());
+    dao.insertRuleParam(dbSession, rule.getDefinition(), dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -302,8 +302,8 @@ public class RuleCreatorMediumTest {
       .setName("Old name")
       .setDescription("Old description")
       .setSeverity(Severity.INFO);
-    dao.insert(dbSession, rule);
-    dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dao.insert(dbSession, rule.getDefinition());
+    dao.insertRuleParam(dbSession, rule.getDefinition(), dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -475,7 +475,7 @@ public class RuleCreatorMediumTest {
   public void fail_to_create_custom_rule_when_wrong_rule_template() {
     // insert rule
     RuleDto rule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false);
-    dao.insert(dbSession, rule);
+    dao.insert(dbSession, rule.getDefinition());
     dbSession.commit();
 
     // Create custom rule with unknown template rule
@@ -507,9 +507,10 @@ public class RuleCreatorMediumTest {
       .setSystemTags(Sets.newHashSet("tag1", "tag4"))
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule);
-    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
+    dao.insert(dbSession, templateRule.getDefinition());
+    dao.update(dbSession, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();
     ruleIndexer.index();
     return templateRule;
@@ -526,10 +527,10 @@ public class RuleCreatorMediumTest {
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule);
-    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
+    dao.insert(dbSession, templateRule.getDefinition());
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition())
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
-    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();
     ruleIndexer.index();
     return templateRule;
@@ -546,13 +547,13 @@ public class RuleCreatorMediumTest {
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule);
-    RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
+    dao.insert(dbSession, templateRule.getDefinition());
+    RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule.getDefinition())
       .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");
-    dao.insertRuleParam(dbSession, templateRule, ruleParam1Dto);
-    RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule)
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParam1Dto);
+    RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule.getDefinition())
       .setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0");
-    dao.insertRuleParam(dbSession, templateRule, ruleParam2Dto);
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParam2Dto);
     dbSession.commit();
     return templateRule;
   }

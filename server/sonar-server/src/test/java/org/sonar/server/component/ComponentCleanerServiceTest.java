@@ -132,7 +132,7 @@ public class ComponentCleanerServiceTest {
     ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     RuleDto rule = RuleTesting.newDto(RuleKey.of("sonarqube", "rule-" + suffix));
-    dbClient.ruleDao().insert(dbSession, rule);
+    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
     IssueDto issue = IssueTesting.newDto(rule, project, project).setKee("issue-key-" + suffix).setUpdatedAt(new Date().getTime());
     dbClient.componentDao().insert(dbSession, project);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(project));

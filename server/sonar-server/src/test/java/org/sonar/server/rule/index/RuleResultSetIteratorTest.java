@@ -31,6 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -56,13 +57,14 @@ public class RuleResultSetIteratorTest {
     .setSeverity(Severity.BLOCKER)
     .setStatus(RuleStatus.READY)
     .setIsTemplate(true)
-    .setTags(newHashSet("performance"))
     .setSystemTags(newHashSet("cwe"))
     .setType(RuleType.BUG)
     .setCreatedAt(1500000000000L)
-    .setUpdatedAt(1600000000000L);
+    .setUpdatedAt(1600000000000L)
+    .setOrganizationUuid("foo-org")
+    .setTags(newHashSet("performance"));
 
-  RuleDto customRule = new RuleDto()
+  RuleDefinitionDto customRule = new RuleDefinitionDto()
     .setRuleKey("S002")
     .setRepositoryKey("xoo")
     .setConfigKey("S2")
@@ -79,8 +81,7 @@ public class RuleResultSetIteratorTest {
 
   @Test
   public void iterator_over_one_rule() {
-    dbClient.ruleDao().insert(dbSession, templateRule);
-    dbSession.commit();
+    dbTester.rules().insertRule(templateRule);
 
     RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
     Map<String, RuleDoc> rulesByKey = rulesByKey(it);
@@ -107,7 +108,7 @@ public class RuleResultSetIteratorTest {
 
   @Test
   public void iterator_over_rules() {
-    dbClient.ruleDao().insert(dbSession, templateRule);
+    dbTester.rules().insertRule(templateRule);
     dbClient.ruleDao().insert(dbSession, customRule);
     dbSession.commit();
 
@@ -150,7 +151,7 @@ public class RuleResultSetIteratorTest {
 
   @Test
   public void custom_rule() {
-    dbClient.ruleDao().insert(dbSession, templateRule);
+    dbTester.rules().insertRule(templateRule);
     dbClient.ruleDao().insert(dbSession, customRule.setTemplateId(templateRule.getId()));
     dbSession.commit();
 
@@ -171,7 +172,7 @@ public class RuleResultSetIteratorTest {
 
   @Test
   public void removed_rule_is_returned() {
-    dbClient.ruleDao().insert(dbSession, templateRule.setStatus(RuleStatus.REMOVED));
+    dbTester.rules().insertRule(templateRule.setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
     RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);

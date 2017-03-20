@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -39,7 +40,6 @@ import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -62,7 +62,6 @@ public class UpdateActionMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   private WsTester wsTester;
-  private RuleService ruleService;
   private RuleDao ruleDao;
   private DbSession session;
   private OrganizationDto defaultOrganization;
@@ -71,7 +70,6 @@ public class UpdateActionMediumTest {
   public void setUp() {
     tester.clearDbAndIndexes();
     wsTester = tester.get(WsTester.class);
-    ruleService = tester.get(RuleService.class);
     ruleDao = tester.get(RuleDao.class);
     DbClient dbClient = tester.get(DbClient.class);
     session = dbClient.openSession(false);
@@ -90,11 +88,8 @@ public class UpdateActionMediumTest {
     RuleDto rule = RuleTesting.newXooX1()
       .setDefaultRemediationFunction(LINEAR.toString())
       .setDefaultRemediationGapMultiplier("10d")
-      .setDefaultRemediationBaseEffort(null)
-      .setRemediationFunction(null)
-      .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort(null);
-    ruleDao.insert(session, rule);
+      .setDefaultRemediationBaseEffort(null);
+    ruleDao.insert(session, rule.getDefinition());
     session.commit();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
@@ -114,7 +109,8 @@ public class UpdateActionMediumTest {
       .setRemediationFunction(LINEAR_OFFSET.toString())
       .setRemediationGapMultiplier("15min")
       .setRemediationBaseEffort("3h");
-    ruleDao.insert(session, rule);
+    ruleDao.insert(session, rule.getDefinition());
+    ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
     session.commit();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
@@ -129,9 +125,11 @@ public class UpdateActionMediumTest {
   public void update_custom_rule() throws Exception {
     // Template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"), defaultOrganization);
-    ruleDao.insert(session, templateRule);
-    RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.insertRuleParam(session, templateRule, param);
+    RuleDefinitionDto definition = templateRule.getDefinition();
+    ruleDao.insert(session, definition);
+    ruleDao.update(session, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    RuleParamDto param = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, definition, param);
     session.commit();
 
     // Custom rule
@@ -159,11 +157,11 @@ public class UpdateActionMediumTest {
   public void fail_to_update_custom_when_description_is_empty() {
     // Template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(session, templateRule);
+    ruleDao.insert(session, templateRule.getDefinition());
 
     // Custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    ruleDao.insert(session, customRule);
+    ruleDao.insert(session, customRule.getDefinition());
     session.commit();
     session.clearCache();
 

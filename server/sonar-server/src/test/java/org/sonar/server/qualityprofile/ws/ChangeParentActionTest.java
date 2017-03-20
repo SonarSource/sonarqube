@@ -410,7 +410,7 @@ public class ChangeParentActionTest {
       .setLanguage(language.getKey())
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    dbClient.ruleDao().insert(dbSession, rule);
+    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
     dbSession.commit();
     return rule;
   }

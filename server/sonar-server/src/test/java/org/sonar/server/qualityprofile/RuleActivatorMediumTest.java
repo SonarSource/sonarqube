@@ -111,21 +111,21 @@ public class RuleActivatorMediumTest {
     RuleDto xooRule2 = newXooX2().setSeverity("INFO");
     RuleDto xooTemplateRule1 = newTemplateRule(TEMPLATE_RULE_KEY)
       .setSeverity("MINOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, javaRule);
-    db.ruleDao().insert(dbSession, xooRule1);
-    db.ruleDao().insert(dbSession, xooRule2);
-    db.ruleDao().insert(dbSession, xooTemplateRule1);
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insert(dbSession, javaRule.getDefinition());
+    db.ruleDao().insert(dbSession, xooRule1.getDefinition());
+    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
+    db.ruleDao().insert(dbSession, xooTemplateRule1.getDefinition());
+    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
       .setName("min").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooTemplateRule1.getDefinition(), RuleParamDto.createFor(xooTemplateRule1.getDefinition())
       .setName("format").setType(RuleParamType.STRING.type()));
 
     RuleDto xooCustomRule1 = newCustomRule(xooTemplateRule1).setRuleKey(CUSTOM_RULE_KEY.rule())
       .setSeverity("MINOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, xooCustomRule1);
-    db.ruleDao().insertRuleParam(dbSession, xooCustomRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.ruleDao().insert(dbSession, xooCustomRule1.getDefinition());
+    db.ruleDao().insertRuleParam(dbSession, xooCustomRule1.getDefinition(), RuleParamDto.createFor(xooTemplateRule1.getDefinition())
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile P1
@@ -457,7 +457,7 @@ public class RuleActivatorMediumTest {
   public void fail_to_activate_if_rule_with_removed_status() {
     RuleDto ruleDto = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
     ruleDto.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, ruleDto);
+    db.ruleDao().update(dbSession, ruleDto.getDefinition());
     dbSession.commit();
     dbSession.clearCache();
 
@@ -553,7 +553,7 @@ public class RuleActivatorMediumTest {
     // set rule as removed
     RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, rule);
+    db.ruleDao().update(dbSession, rule.getDefinition());
     dbSession.commit();
     dbSession.clearCache();
 
@@ -895,7 +895,7 @@ public class RuleActivatorMediumTest {
     // Generate more rules than the search's max limit
     int bulkSize = SearchOptions.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {
-      db.ruleDao().insert(dbSession, newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo"));
+      db.ruleDao().insert(dbSession, newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo").getDefinition());
     }
     dbSession.commit();
     ruleIndexer.index();
@@ -1025,7 +1025,7 @@ public class RuleActivatorMediumTest {
     // mark rule x1 as REMOVED
     RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, rule);
+    db.ruleDao().update(dbSession, rule.getDefinition());
     dbSession.commit();
     dbSession.clearCache();
 

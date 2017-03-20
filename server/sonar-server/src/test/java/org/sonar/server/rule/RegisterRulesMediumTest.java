@@ -233,16 +233,16 @@ public class RegisterRulesMediumTest {
     assertThat(rule.getSystemTags()).containsOnly("tag1");
     assertThat(rule.getTags()).containsOnly("tag2");
 
-    // Definition updated -> user tag "tag2" becomes a system tag
-    register(new Rules() {
-      @Override
-      public void init(RulesDefinition.NewRepository repository) {
-        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1", "tag2");
-      }
-    });
-    rule = ruleDao.selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
-    assertThat(rule.getSystemTags()).containsOnly("tag1", "tag2");
-    assertThat(rule.getTags()).isEmpty();
+    // FIXME: not supported anymore because information specific to an organization: Definition updated -> user tag "tag2" becomes a system tag
+//    register(new Rules() {
+//      @Override
+//      public void init(RulesDefinition.NewRepository repository) {
+//        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1", "tag2");
+//      }
+//    });
+//    rule = ruleDao.selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
+//    assertThat(rule.getSystemTags()).containsOnly("tag1", "tag2");
+//    assertThat(rule.getTags()).isEmpty();
   }
 
   @Test

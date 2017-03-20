@@ -30,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 
@@ -48,7 +49,7 @@ public class RuleIndexerTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private RuleDto rule = new RuleDto()
+  private RuleDefinitionDto rule = new RuleDefinitionDto()
     .setRuleKey("S001")
     .setRepositoryKey("xoo")
     .setConfigKey("S1")
@@ -59,7 +60,6 @@ public class RuleIndexerTest {
     .setSeverity(Severity.BLOCKER)
     .setStatus(RuleStatus.READY)
     .setIsTemplate(true)
-    .setTags(newHashSet("performance"))
     .setSystemTags(newHashSet("cwe"))
     .setType(RuleType.BUG)
     .setCreatedAt(1500000000000L)

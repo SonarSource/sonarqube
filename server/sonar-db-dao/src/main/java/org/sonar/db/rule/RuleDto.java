@@ -249,6 +249,7 @@ public class RuleDto {
 
   public RuleDto setUpdatedAt(long updatedAt) {
     definition.setUpdatedAt(updatedAt);
+    metadata.setUpdatedAt(updatedAt);
     return this;
   }
 

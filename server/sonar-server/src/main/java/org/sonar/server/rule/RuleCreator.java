@@ -24,6 +24,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -34,8 +35,10 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
+import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -75,7 +78,7 @@ public class RuleCreator {
 
     Optional<RuleDto> existingRule = loadRule(customRuleKey, dbSession);
     if (existingRule.isPresent()) {
-      updateExistingRule(existingRule.get(), newRule, dbSession);
+      updateExistingRule(existingRule.get().getDefinition(), newRule, dbSession);
     } else {
       createCustomRule(customRuleKey, newRule, templateRule, dbSession);
     }
@@ -148,7 +151,8 @@ public class RuleCreator {
   }
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
-    RuleDto ruleDto = RuleDto.createFor(ruleKey)
+    RuleDefinitionDto ruleDefinition = new RuleDefinitionDto()
+      .setRuleKey(ruleKey)
       .setTemplateId(templateRuleDto.getId())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())
@@ -161,21 +165,28 @@ public class RuleCreator {
       .setDefaultRemediationGapMultiplier(templateRuleDto.getDefaultRemediationGapMultiplier())
       .setDefaultRemediationBaseEffort(templateRuleDto.getDefaultRemediationBaseEffort())
       .setGapDescription(templateRuleDto.getGapDescription())
-      .setTags(templateRuleDto.getTags())
       .setSystemTags(templateRuleDto.getSystemTags())
       .setType(templateRuleDto.getType())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
-    dbClient.ruleDao().insert(dbSession, ruleDto);
+    dbClient.ruleDao().insert(dbSession, ruleDefinition);
+    Set<String> tags = templateRuleDto.getTags();
+    if (!tags.isEmpty()) {
+      RuleMetadataDto ruleMetadata = new RuleMetadataDto()
+        .setRuleId(ruleDefinition.getId())
+        .setTags(tags)
+        .setUpdatedAt(system2.now());
+      dbClient.ruleDao().update(dbSession, ruleMetadata);
+    }
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
       String customRuleParamValue = Strings.emptyToNull(newRule.parameter(templateRuleParamDto.getName()));
-      createCustomRuleParams(customRuleParamValue, ruleDto, templateRuleParamDto, dbSession);
+      createCustomRuleParams(customRuleParamValue, ruleDefinition, templateRuleParamDto, dbSession);
     }
     return ruleKey;
   }
 
-  private void createCustomRuleParams(@Nullable String paramValue, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession) {
+  private void createCustomRuleParams(@Nullable String paramValue, RuleDefinitionDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession) {
     RuleParamDto ruleParamDto = RuleParamDto.createFor(ruleDto)
       .setName(templateRuleParam.getName())
       .setType(templateRuleParam.getType())
@@ -184,7 +195,7 @@ public class RuleCreator {
     dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private void updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
+  private void updateExistingRule(RuleDefinitionDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());

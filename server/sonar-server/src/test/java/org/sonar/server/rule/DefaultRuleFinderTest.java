@@ -79,10 +79,10 @@ public class DefaultRuleFinderTest {
 
   @Before
   public void setup() {
-    dbClient.ruleDao().insert(session, rule1);
-    dbClient.ruleDao().insert(session, rule2);
-    dbClient.ruleDao().insert(session, rule3);
-    dbClient.ruleDao().insert(session, rule4);
+    dbTester.rules().insertRule(rule1);
+    dbTester.rules().insertRule(rule2);
+    dbTester.rules().insertRule(rule3);
+    dbTester.rules().insertRule(rule4);
     session.commit();
   }
 

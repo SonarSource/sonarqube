@@ -30,6 +30,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
@@ -109,8 +110,9 @@ public class RuleServiceMediumTest {
   }
 
   private void insertRule(RuleKey key, Set<String> tags, Set<String> systemTags) {
-    dao.insert(dbSession,
-      RuleTesting.newDto(key).setTags(tags).setSystemTags(systemTags));
+    RuleDto ruleDto = RuleTesting.newDto(key).setTags(tags).setSystemTags(systemTags);
+    dao.insert(dbSession, ruleDto.getDefinition());
+    dao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
     ruleIndexer.index();
   }

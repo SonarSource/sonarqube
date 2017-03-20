@@ -91,29 +91,29 @@ public class ActiveRuleDaoTest {
 
     dbClient.qualityProfileDao().insert(dbSession, profile1);
     dbClient.qualityProfileDao().insert(dbSession, profile2);
-    dbClient.ruleDao().insert(dbSession, rule1);
-    dbClient.ruleDao().insert(dbSession, rule2);
-    dbClient.ruleDao().insert(dbSession, rule3);
+    dbTester.rules().insertRule(rule1);
+    dbTester.rules().insertRule(rule2);
+    dbTester.rules().insertRule(rule3);
 
     rule1Param1 = new RuleParamDto()
       .setName("param1")
       .setDefaultValue("value1")
       .setType(RuleParamType.STRING.toString());
-    dbClient.ruleDao().insertRuleParam(dbSession, rule1, rule1Param1);
+    dbClient.ruleDao().insertRuleParam(dbSession, rule1.getDefinition(), rule1Param1);
 
     rule1Param2 = new RuleParamDto()
       .setRuleId(rule1.getId())
       .setName("param2")
       .setDefaultValue("2")
       .setType(RuleParamType.INTEGER.toString());
-    dbClient.ruleDao().insertRuleParam(dbSession, rule1, rule1Param2);
+    dbClient.ruleDao().insertRuleParam(dbSession, rule1.getDefinition(), rule1Param2);
 
     rule2Param1 = new RuleParamDto()
       .setRuleId(rule2.getId())
       .setName("param1")
       .setDefaultValue("1")
       .setType(RuleParamType.INTEGER.toString());
-    dbClient.ruleDao().insertRuleParam(dbSession, rule2, rule2Param1);
+    dbClient.ruleDao().insertRuleParam(dbSession, rule2.getDefinition(), rule2Param1);
 
     dbSession.commit();
   }
@@ -214,7 +214,7 @@ public class ActiveRuleDaoTest {
   @Test
   public void select_by_profile_ignore_removed_rules() {
     RuleDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
-    dbClient.ruleDao().insert(dbTester.getSession(), removedRule);
+    dbTester.rules().insertRule(removedRule);
     ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();

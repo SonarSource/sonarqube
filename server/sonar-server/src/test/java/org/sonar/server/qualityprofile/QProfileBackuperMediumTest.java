@@ -44,7 +44,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.ws.QProfileWsSupport;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -95,9 +94,9 @@ public class QProfileBackuperMediumTest {
     // create pre-defined rules
     RuleDto xooRule1 = newXooX1().setSeverity("MINOR").setLanguage("xoo");
     RuleDto xooRule2 = newXooX2().setSeverity("MAJOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, xooRule1);
-    db.ruleDao().insert(dbSession, xooRule2);
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insert(dbSession, xooRule1.getDefinition());
+    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
+    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
     dbSession.clearCache();
@@ -114,7 +113,7 @@ public class QProfileBackuperMediumTest {
   public void backup() throws Exception {
     RuleKey blahRuleKey = RuleKey.of("blah", "my-rule");
     RuleDto blahRule = newDto(blahRuleKey).setSeverity("INFO").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, blahRule);
+    db.ruleDao().insert(dbSession, blahRule.getDefinition());
     dbSession.commit();
     dbSession.clearCache();
     ruleIndexer.index();

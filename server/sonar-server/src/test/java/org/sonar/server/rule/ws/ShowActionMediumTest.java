@@ -36,6 +36,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
@@ -98,9 +99,11 @@ public class ShowActionMediumTest {
       .setTags(newHashSet("tag1", "tag2"))
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG);
-    ruleDao.insert(session, ruleDto);
-    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
-    ruleDao.insertRuleParam(session, ruleDto, param);
+    RuleDefinitionDto definition = ruleDto.getDefinition();
+    ruleDao.insert(session, definition);
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    RuleParamDto param = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, definition, param);
     session.commit();
     session.clearCache();
 
@@ -124,7 +127,8 @@ public class ShowActionMediumTest {
       .setRemediationFunction(null)
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort(null);
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata());
     session.commit();
     session.clearCache();
 
@@ -150,7 +154,8 @@ public class ShowActionMediumTest {
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
     session.clearCache();
 
@@ -174,7 +179,8 @@ public class ShowActionMediumTest {
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
     session.clearCache();
 
@@ -195,11 +201,8 @@ public class ShowActionMediumTest {
       .setLanguage("xoo")
       .setDefaultRemediationFunction(null)
       .setDefaultRemediationGapMultiplier(null)
-      .setDefaultRemediationBaseEffort(null)
-      .setRemediationFunction(null)
-      .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort(null);
-    ruleDao.insert(session, ruleDto);
+      .setDefaultRemediationBaseEffort(null);
+    ruleDao.insert(session, ruleDto.getDefinition());
     session.commit();
     session.clearCache();
 
@@ -212,7 +215,7 @@ public class ShowActionMediumTest {
   public void encode_html_description_of_custom_rule() throws Exception {
     // Template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(session, templateRule);
+    ruleDao.insert(session, templateRule.getDefinition());
     session.commit();
 
     // Custom rule
@@ -244,7 +247,8 @@ public class ShowActionMediumTest {
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
@@ -264,9 +268,10 @@ public class ShowActionMediumTest {
       .setType(RuleType.BUG)
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    ruleDao.insert(session, ruleDto);
-    RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
-    ruleDao.insertRuleParam(session, ruleDto, regexParam);
+    RuleDefinitionDto definition = ruleDto.getDefinition();
+    ruleDao.insert(session, definition);
+    RuleParamDto regexParam = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, definition, regexParam);
 
     QualityProfileDto profile = QualityProfileDto.createFor("profile")
       .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())

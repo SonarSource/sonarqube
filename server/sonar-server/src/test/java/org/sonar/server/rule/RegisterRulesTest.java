@@ -36,6 +36,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
@@ -145,7 +146,7 @@ public class RegisterRulesTest {
     rule1.setTags(newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
     rule1.setNoteUserLogin("marius");
-    dbClient.ruleDao().update(dbTester.getSession(), rule1);
+    dbClient.ruleDao().update(dbTester.getSession(), rule1.getMetadata());
     dbTester.getSession().commit();
 
     when(system.now()).thenReturn(DATE2.getTime());
@@ -342,7 +343,7 @@ public class RegisterRulesTest {
     execute(new FakeRepositoryV2());
 
     // On MySQL, need to update a rule otherwise rule2 will be seen as READY, but why ???
-    dbClient.ruleDao().update(dbTester.getSession(), dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY1));
+    dbClient.ruleDao().update(dbTester.getSession(), dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY1).getDefinition());
     dbTester.getSession().commit();
 
     // rule2 is removed
@@ -384,14 +385,13 @@ public class RegisterRulesTest {
   @Test
   public void remove_system_tags_when_plugin_does_not_provide_any() {
     // Rule already exists in DB, with some system tags
-    dbClient.ruleDao().insert(dbTester.getSession(), new RuleDto()
+    dbClient.ruleDao().insert(dbTester.getSession(), new RuleDefinitionDto()
       .setRuleKey("rule1")
       .setRepositoryKey("findbugs")
       .setName("Rule One")
       .setDescription("Rule one description")
       .setDescriptionFormat(RuleDto.Format.HTML)
-      .setSystemTags(newHashSet("tag1", "tag2"))
-      );
+      .setSystemTags(newHashSet("tag1", "tag2")));
     dbTester.getSession().commit();
 
     // Synchronize rule without tag

@@ -446,7 +446,7 @@ public class QProfilesWsMediumTest {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.ruleDao().insert(session, rule);
+    db.ruleDao().insert(session, rule.getDefinition());
     return rule;
   }
 

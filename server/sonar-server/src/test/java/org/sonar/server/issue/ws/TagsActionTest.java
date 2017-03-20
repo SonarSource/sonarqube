@@ -54,10 +54,8 @@ public class TagsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create();
-
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()), new RuleIndexDefinition(new MapSettings()));
 
@@ -79,8 +77,8 @@ public class TagsActionTest {
 
   @Test
   public void return_tags_from_rules() throws Exception {
-    db.rules().insertRule(rule -> rule.setSystemTags(ImmutableSet.of("tag1")).setTags(ImmutableSet.of("tag2")));
-    db.rules().insertRule(rule -> rule.setSystemTags(ImmutableSet.of("tag3")).setTags(ImmutableSet.of("tag4", "tag5")));
+    db.rules().insertRule(db.getDefaultOrganization(), rule -> rule.setSystemTags(ImmutableSet.of("tag1")).setTags(ImmutableSet.of("tag2")));
+    db.rules().insertRule(db.getDefaultOrganization(), rule -> rule.setSystemTags(ImmutableSet.of("tag3")).setTags(ImmutableSet.of("tag4", "tag5")));
     ruleIndexer.index();
 
     String result = tester.newRequest().execute().getInput();
@@ -92,7 +90,7 @@ public class TagsActionTest {
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
     issueIndexer.indexOnStartup(null);
-    db.rules().insertRule(rule -> rule.setSystemTags(ImmutableSet.of("tag6")).setTags(ImmutableSet.of("tag7")));
+    db.rules().insertRule(db.getDefaultOrganization(), rule -> rule.setSystemTags(ImmutableSet.of("tag6")).setTags(ImmutableSet.of("tag7")));
     ruleIndexer.index();
 
     String result = tester.newRequest().execute().getInput();
@@ -129,7 +127,7 @@ public class TagsActionTest {
   public void test_example() throws Exception {
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "convention");
     issueIndexer.indexOnStartup(null);
-    db.rules().insertRule(rule -> rule.setSystemTags(ImmutableSet.of("cwe")).setTags(ImmutableSet.of("security")));
+    db.rules().insertRule(db.getDefaultOrganization(), rule -> rule.setSystemTags(ImmutableSet.of("cwe")).setTags(ImmutableSet.of("security")));
     ruleIndexer.index();
 
     String result = tester.newRequest().execute().getInput();
@@ -158,7 +156,7 @@ public class TagsActionTest {
   }
 
   private RuleDto insertRuleWithoutTags() {
-    RuleDto ruleDto = newRuleDto().setTags(emptySet()).setSystemTags(emptySet());
+    RuleDto ruleDto = newRuleDto(db.getDefaultOrganization()).setTags(emptySet()).setSystemTags(emptySet());
     db.rules().insertRule(ruleDto);
     return ruleDto;
   }

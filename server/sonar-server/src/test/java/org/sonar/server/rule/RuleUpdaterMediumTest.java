@@ -44,6 +44,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -90,7 +91,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void do_not_update_rule_with_removed_status() {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED));
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED).getDefinition());
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("java9"));
@@ -104,14 +105,16 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void no_changes() {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
       .setNoteUserLogin("me")
       .setTags(ImmutableSet.of("tag1"))
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier("1d")
-      .setRemediationBaseEffort("5min"));
+      .setRemediationBaseEffort("5min");
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
@@ -132,7 +135,7 @@ public class RuleUpdaterMediumTest {
   public void set_markdown_note() {
     userSessionRule.logIn("me");
 
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
       .setNoteData(null)
       .setNoteUserLogin(null)
 
@@ -140,7 +143,9 @@ public class RuleUpdaterMediumTest {
       .setTags(ImmutableSet.of("tag1"))
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier("1d")
-      .setRemediationBaseEffort("5min"));
+      .setRemediationBaseEffort("5min");
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
@@ -162,9 +167,11 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void remove_markdown_note() {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
       .setNoteData("my *note*")
-      .setNoteUserLogin("me"));
+      .setNoteUserLogin("me");
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setMarkdownNote(null);
@@ -183,7 +190,7 @@ public class RuleUpdaterMediumTest {
     // insert db
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
-      .setSystemTags(Sets.newHashSet("java8", "javadoc")));
+      .setSystemTags(Sets.newHashSet("java8", "javadoc")).getDefinition());
     dbSession.commit();
 
     // java8 is a system tag -> ignore
@@ -202,9 +209,11 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void remove_tags() {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
-      .setSystemTags(Sets.newHashSet("java8", "javadoc")));
+      .setSystemTags(Sets.newHashSet("java8", "javadoc"));
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata());
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(null);
@@ -226,9 +235,7 @@ public class RuleUpdaterMediumTest {
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationGapMultiplier("1d")
       .setDefaultRemediationBaseEffort("5min")
-      .setRemediationFunction(null)
-      .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort(null));
+      .getDefinition());
     dbSession.commit();
 
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
@@ -254,9 +261,7 @@ public class RuleUpdaterMediumTest {
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationGapMultiplier("1d")
       .setDefaultRemediationBaseEffort(null)
-      .setRemediationFunction(null)
-      .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort(null));
+      .getDefinition());
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
@@ -281,9 +286,7 @@ public class RuleUpdaterMediumTest {
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationGapMultiplier("1d")
       .setDefaultRemediationBaseEffort("5min")
-      .setRemediationFunction(null)
-      .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort(null));
+      .getDefinition());
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
@@ -304,13 +307,15 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void reset_remediation_function() {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationGapMultiplier("1d")
       .setDefaultRemediationBaseEffort("5min")
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort("1min"));
+      .setRemediationBaseEffort("1min");
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setDebtRemediationFunction(null);
@@ -332,18 +337,19 @@ public class RuleUpdaterMediumTest {
   public void update_custom_rule() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule);
-    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule).setName("format").setType("STRING").setDescription("Format");
-    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam1);
-    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam2);
+    ruleDao.insert(dbSession, templateRule.getDefinition());
+    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule.getDefinition()).setName("format").setType("STRING").setDescription("Format");
+    ruleDao.insertRuleParam(dbSession, templateRule.getDefinition(), templateRuleParam1);
+    ruleDao.insertRuleParam(dbSession, templateRule.getDefinition(), templateRuleParam2);
 
     // Create custom rule
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule)
+    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
       .setName("Old name")
       .setDescription("Old description")
       .setSeverity(Severity.MINOR)
-      .setStatus(RuleStatus.BETA);
+      .setStatus(RuleStatus.BETA)
+      .getDefinition();
     ruleDao.insert(dbSession, customRule);
     ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
     ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue(null));
@@ -386,16 +392,17 @@ public class RuleUpdaterMediumTest {
   public void update_custom_rule_with_empty_parameter() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule);
-    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex");
-    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam);
+    ruleDao.insert(dbSession, templateRule.getDefinition());
+    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex");
+    ruleDao.insertRuleParam(dbSession, templateRule.getDefinition(), templateRuleParam);
 
     // Create custom rule
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule)
+    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
       .setName("Old name")
       .setDescription("Old description")
       .setSeverity(Severity.MINOR)
-      .setStatus(RuleStatus.BETA);
+      .setStatus(RuleStatus.BETA)
+      .getDefinition();
     ruleDao.insert(dbSession, customRule);
     ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam);
 
@@ -420,16 +427,20 @@ public class RuleUpdaterMediumTest {
   public void update_active_rule_parameters_when_updating_custom_rule() {
     // Create template rule with 3 parameters
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
-    ruleDao.insert(dbSession, templateRule);
-    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam1);
-    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule).setName("format").setType("STRING").setDescription("format").setDefaultValue("csv");
-    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam2);
-    RuleParamDto templateRuleParam3 = RuleParamDto.createFor(templateRule).setName("message").setType("STRING").setDescription("message");
-    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam3);
+    RuleDefinitionDto templateRuleDefinition = templateRule.getDefinition();
+    ruleDao.insert(dbSession, templateRuleDefinition);
+    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRuleDefinition).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.insertRuleParam(dbSession, templateRuleDefinition, templateRuleParam1);
+    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRuleDefinition).setName("format").setType("STRING").setDescription("format").setDefaultValue("csv");
+    ruleDao.insertRuleParam(dbSession, templateRuleDefinition, templateRuleParam2);
+    RuleParamDto templateRuleParam3 = RuleParamDto.createFor(templateRuleDefinition).setName("message").setType("STRING").setDescription("message");
+    ruleDao.insertRuleParam(dbSession, templateRuleDefinition, templateRuleParam3);
 
     // Create custom rule
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule).setSeverity(Severity.MAJOR).setLanguage("xoo");
+    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
+      .setSeverity(Severity.MAJOR)
+      .setLanguage("xoo")
+      .getDefinition();
     ruleDao.insert(dbSession, customRule);
     ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
     ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue("txt"));
@@ -483,11 +494,11 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_custom_rule_when_empty_name() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule);
+    ruleDao.insert(dbSession, templateRule.getDefinition());
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    ruleDao.insert(dbSession, customRule);
+    ruleDao.insert(dbSession, customRule.getDefinition());
 
     dbSession.commit();
 
@@ -507,11 +518,11 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_custom_rule_when_empty_description() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule);
+    ruleDao.insert(dbSession, templateRule.getDefinition());
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    ruleDao.insert(dbSession, customRule);
+    ruleDao.insert(dbSession, customRule.getDefinition());
 
     dbSession.commit();
 
@@ -531,7 +542,7 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_plugin_rule_if_name_is_set() {
     // Create rule rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
-    ruleDao.insert(dbSession, ruleDto);
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
 
     dbSession.commit();
 
@@ -549,7 +560,7 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_plugin_rule_if_description_is_set() {
     // Create rule rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
-    ruleDao.insert(dbSession, ruleDto);
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
 
     dbSession.commit();
 
@@ -567,7 +578,7 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_plugin_rule_if_severity_is_set() {
     // Create rule rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
-    ruleDao.insert(dbSession, ruleDto);
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
 
     dbSession.commit();
 
