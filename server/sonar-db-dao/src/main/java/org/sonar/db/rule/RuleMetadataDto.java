@@ -32,6 +32,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class RuleMetadataDto {
   private int ruleId;
+  private String organizationUuid;
   private String noteData;
   private String noteUserLogin;
   private Date noteCreatedAt;
@@ -48,6 +49,15 @@ public class RuleMetadataDto {
 
   public RuleMetadataDto setRuleId(int ruleId) {
     this.ruleId = ruleId;
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public RuleMetadataDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
     return this;
   }
 
@@ -136,7 +146,7 @@ public class RuleMetadataDto {
     return tags;
   }
 
-  private void setTagsField(String s) {
+  void setTagsField(String s) {
     tags = s;
   }
 
@@ -147,5 +157,22 @@ public class RuleMetadataDto {
   public RuleMetadataDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return "RuleMetadataDto{" +
+      "ruleId=" + ruleId +
+      ", organizationUuid='" + organizationUuid + '\'' +
+      ", noteData='" + noteData + '\'' +
+      ", noteUserLogin='" + noteUserLogin + '\'' +
+      ", noteCreatedAt=" + noteCreatedAt +
+      ", noteUpdatedAt=" + noteUpdatedAt +
+      ", remediationFunction='" + remediationFunction + '\'' +
+      ", remediationGapMultiplier='" + remediationGapMultiplier + '\'' +
+      ", remediationBaseEffort='" + remediationBaseEffort + '\'' +
+      ", tags='" + tags + '\'' +
+      ", updatedAt=" + updatedAt +
+      '}';
   }
 }

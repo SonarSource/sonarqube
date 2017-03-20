@@ -122,6 +122,7 @@ public class RuleTesting {
       .setUpdatedAt(new Date().getTime());
     if (organization != null) {
       res
+        .setOrganizationUuid(organization.getUuid())
         .setTags(ImmutableSet.of("tag1", "tag2"))
         .setRemediationFunction("LINEAR")
         .setRemediationGapMultiplier("1h");
