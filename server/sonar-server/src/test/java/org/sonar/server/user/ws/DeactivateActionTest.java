@@ -82,13 +82,6 @@ public class DeactivateActionTest {
     dbClient, userIndexer, userSession, new UserJsonWriter(userSession), defaultOrganizationProvider));
 
   @Test
-  public void test_definition() {
-    assertThat(ws.getDef().isPost()).isTrue();
-    assertThat(ws.getDef().isInternal()).isFalse();
-    assertThat(ws.getDef().params()).hasSize(1);
-  }
-
-  @Test
   public void deactivate_user_and_delete_his_related_data() throws Exception {
     UserDto user = insertUser(newUserDto()
       .setLogin("ada.lovelace")
@@ -100,12 +93,10 @@ public class DeactivateActionTest {
     String json = deactivate(user.getLogin()).getInput();
 
     // scm accounts, groups and email are deleted
-    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
-
     assertThat(index.getNullableByLogin(user.getLogin()).active()).isFalse();
     verifyThatUserIsDeactivated(user.getLogin());
     assertThat(dbClient.userTokenDao().selectByLogin(dbSession, user.getLogin())).isEmpty();
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId().intValue()).build(), dbSession)).isEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession)).isEmpty();
   }
 
   @Test
@@ -191,7 +182,7 @@ public class DeactivateActionTest {
   public void fail_to_deactivate_last_administrator_of_organization() throws Exception {
     // user1 is the unique administrator of org1 and org2.
     // user1 and user2 are both administrators of org3
-    UserDto user1 = createUser();
+    UserDto user1 = insertUser(newUserDto().setLogin("test"));
     OrganizationDto org1 = db.organizations().insert(newOrganizationDto().setKey("org1"));
     OrganizationDto org2 = db.organizations().insert(newOrganizationDto().setKey("org2"));
     OrganizationDto org3 = db.organizations().insert(newOrganizationDto().setKey("org3"));
@@ -203,7 +194,7 @@ public class DeactivateActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("User is last administrator of organizations [org1, org2], and cannot be deactivated");
+    expectedException.expectMessage("User 'test' is last administrator of organizations [org1, org2], and cannot be deactivated");
 
     deactivate(user1.getLogin());
   }
@@ -221,6 +212,27 @@ public class DeactivateActionTest {
 
     verifyThatUserIsDeactivated(admin.getLogin());
     verifyThatUserExists(anotherAdmin.getLogin());
+  }
+
+  @Test
+  public void test_definition() {
+    assertThat(ws.getDef().isPost()).isTrue();
+    assertThat(ws.getDef().isInternal()).isFalse();
+    assertThat(ws.getDef().params()).hasSize(1);
+  }
+
+  @Test
+  public void test_example() throws Exception {
+    UserDto user = insertUser(newUserDto()
+      .setLogin("ada.lovelace")
+      .setEmail("ada.lovelace@noteg.com")
+      .setName("Ada Lovelace")
+      .setScmAccounts(singletonList("al")));
+    logInAsSystemAdministrator();
+
+    String json = deactivate(user.getLogin()).getInput();
+
+    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   private UserDto createUser() {

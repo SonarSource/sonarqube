@@ -27,17 +27,18 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class RemoveMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
@@ -79,21 +80,19 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "Organization '%s' is not found", organizationKey);
-      String organizationUuid = organization.getUuid();
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "User '%s' is not found", login);
-      int userId = user.getId();
+      userSession.checkPermission(ADMINISTER, organization);
 
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
-
-      dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)
-        .ifPresent(om -> removeMember(dbSession, organizationUuid, user));
+      dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
+        .ifPresent(om -> removeMember(dbSession, organization, user));
     }
-
     response.noContent();
   }
 
-  private void removeMember(DbSession dbSession, String organizationUuid, UserDto user) {
+  private void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
+    ensureLastAdminIsNotRemoved(dbSession, organization, user);
     int userId = user.getId();
+    String organizationUuid = organization.getUuid();
     dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
     dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
     dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
@@ -103,4 +102,11 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userId);
     dbSession.commit();
   }
+
+  private void ensureLastAdminIsNotRemoved(DbSession dbSession, OrganizationDto organizationDto, UserDto user) {
+    int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession,
+      organizationDto.getUuid(), ADMINISTER.getKey(), user.getId());
+    checkRequest(remainingAdmins > 0, "The last administrator member cannot be removed");
+  }
+
 }
