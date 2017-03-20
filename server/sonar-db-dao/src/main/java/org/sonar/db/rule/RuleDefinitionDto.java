@@ -28,8 +28,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -69,6 +67,10 @@ public class RuleDefinitionDto {
     return key;
   }
 
+  void setKey(RuleKey key) {
+    this.key = key;
+  }
+
   public Integer getId() {
     return id;
   }
@@ -95,6 +97,12 @@ public class RuleDefinitionDto {
   public RuleDefinitionDto setRuleKey(String s) {
     checkArgument(s.length() <= 200, "Rule key is too long: %s", s);
     this.ruleKey = s;
+    return this;
+  }
+
+  public RuleDefinitionDto setRuleKey(RuleKey ruleKey) {
+    this.repositoryKey = ruleKey.repository();
+    this.ruleKey = ruleKey.rule();
     return this;
   }
 
@@ -240,7 +248,7 @@ public class RuleDefinitionDto {
     return systemTags;
   }
 
-  private void setSystemTagsField(String s) {
+  void setSystemTagsField(String s) {
     systemTags = s;
   }
 
@@ -291,29 +299,49 @@ public class RuleDefinitionDto {
     }
     RuleDto other = (RuleDto) obj;
     return new EqualsBuilder()
-        .append(repositoryKey, other.getRepositoryKey())
-        .append(ruleKey, other.getRuleKey())
-        .isEquals();
+      .append(repositoryKey, other.getRepositoryKey())
+      .append(ruleKey, other.getRuleKey())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(repositoryKey)
-        .append(ruleKey)
-        .toHashCode();
-  }
-
-  @Override
-  public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+      .append(repositoryKey)
+      .append(ruleKey)
+      .toHashCode();
   }
 
   public static RuleDto createFor(RuleKey key) {
     return new RuleDto()
-        .setRepositoryKey(key.repository())
-        .setRuleKey(key.rule());
+      .setRepositoryKey(key.repository())
+      .setRuleKey(key.rule());
   }
 
+  @Override
+  public String toString() {
+    return "RuleDefinitionDto{" +
+      "id=" + id +
+      ", repositoryKey='" + repositoryKey + '\'' +
+      ", ruleKey='" + ruleKey + '\'' +
+      ", description='" + description + '\'' +
+      ", descriptionFormat=" + descriptionFormat +
+      ", status=" + status +
+      ", name='" + name + '\'' +
+      ", configKey='" + configKey + '\'' +
+      ", severity=" + severity +
+      ", isTemplate=" + isTemplate +
+      ", language='" + language + '\'' +
+      ", templateId=" + templateId +
+      ", defRemediationFunction='" + defRemediationFunction + '\'' +
+      ", defRemediationGapMultiplier='" + defRemediationGapMultiplier + '\'' +
+      ", defRemediationBaseEffort='" + defRemediationBaseEffort + '\'' +
+      ", gapDescription='" + gapDescription + '\'' +
+      ", systemTags='" + systemTags + '\'' +
+      ", type=" + type +
+      ", key=" + key +
+      ", createdAt=" + createdAt +
+      ", updatedAt=" + updatedAt +
+      '}';
+  }
 }
-
