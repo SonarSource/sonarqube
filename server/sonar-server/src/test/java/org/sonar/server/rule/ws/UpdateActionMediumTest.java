@@ -30,10 +30,12 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
@@ -59,11 +61,11 @@ public class UpdateActionMediumTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  WsTester wsTester;
-
-  RuleService ruleService;
-  RuleDao ruleDao;
-  DbSession session;
+  private WsTester wsTester;
+  private RuleService ruleService;
+  private RuleDao ruleDao;
+  private DbSession session;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
@@ -71,8 +73,11 @@ public class UpdateActionMediumTest {
     wsTester = tester.get(WsTester.class);
     ruleService = tester.get(RuleService.class);
     ruleDao = tester.get(RuleDao.class);
-    session = tester.get(DbClient.class).openSession(false);
+    DbClient dbClient = tester.get(DbClient.class);
+    session = dbClient.openSession(false);
     logInAsQProfileAdministrator();
+    DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
+    this.defaultOrganization = dbClient.organizationDao().selectByUuid(session, defaultOrganization.getUuid()).get();
   }
 
   @After
@@ -123,7 +128,7 @@ public class UpdateActionMediumTest {
   @Test
   public void update_custom_rule() throws Exception {
     // Template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"), defaultOrganization);
     ruleDao.insert(session, templateRule);
     RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, templateRule, param);

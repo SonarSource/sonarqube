@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
@@ -36,6 +37,8 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganization;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -57,12 +60,13 @@ public class RulesWsMediumTest {
   private static final String API_SHOW_METHOD = "show";
   private static final String API_TAGS_METHOD = "tags";
 
-  DbClient db;
-  RulesWs ws;
-  RuleDao ruleDao;
-  DbSession session;
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
+  private DbClient db;
+  private RulesWs ws;
+  private RuleDao ruleDao;
+  private DbSession session;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
@@ -73,6 +77,8 @@ public class RulesWsMediumTest {
     session = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
+    this.defaultOrganization = db.organizationDao().selectByUuid(session, defaultOrganization.getUuid()).get();
   }
 
   @After
@@ -104,7 +110,7 @@ public class RulesWsMediumTest {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(session, profile);
 
-    RuleDto rule = RuleTesting.newXooX1();
+    RuleDto rule = RuleTesting.newXooX1(defaultOrganization);
     ruleDao.insert(session, rule);
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
