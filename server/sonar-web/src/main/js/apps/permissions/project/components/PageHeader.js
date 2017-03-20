@@ -54,6 +54,10 @@ class PageHeader extends React.Component {
     const canApplyPermissionTemplate = configuration != null &&
       configuration.canApplyPermissionTemplate;
 
+    const description = ['VW', 'SVW'].includes(this.props.project.qualifier)
+      ? translate('roles.page.description_portfolio')
+      : translate('roles.page.description2');
+
     return (
       <header className="page-header">
         <h1 className="page-title">
@@ -70,7 +74,7 @@ class PageHeader extends React.Component {
           </div>}
 
         <div className="page-description">
-          {translate('roles.page.description2')}
+          {description}
         </div>
       </header>
     );
