@@ -712,7 +712,7 @@ public class SearchActionMediumTest {
       .setName("Rule name")
       .setDescription("Rule desc")
       .setStatus(RuleStatus.READY);
-    tester.get(RuleDao.class).insert(session, rule);
+    tester.get(RuleDao.class).insert(session, rule.getDefinition());
     session.commit();
     return rule;
   }

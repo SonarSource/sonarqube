@@ -111,7 +111,8 @@ public class RulesWsMediumTest {
     tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = RuleTesting.newXooX1(defaultOrganization);
-    ruleDao.insert(session, rule);
+    ruleDao.insert(session, rule.getDefinition());
+    ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
@@ -140,15 +141,17 @@ public class RulesWsMediumTest {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(session, profile);
 
-    RuleDto rule = RuleTesting.newXooX1().
-      setTags(ImmutableSet.of("hello", "world"))
+    RuleDto rule = RuleTesting.newXooX1()
+      .setTags(ImmutableSet.of("hello", "world"))
       .setSystemTags(Collections.<String>emptySet());
-    ruleDao.insert(session, rule);
+    ruleDao.insert(session, rule.getDefinition());
+    ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
 
     RuleDto rule2 = RuleTesting.newXooX2()
       .setTags(ImmutableSet.of("hello", "java"))
       .setSystemTags(ImmutableSet.of("sys1"));
-    ruleDao.insert(session, rule2);
+    ruleDao.insert(session, rule2.getDefinition());
+    ruleDao.update(session, rule2.getMetadata().setRuleId(rule2.getId()));
 
     session.commit();
     ruleIndexer.index();

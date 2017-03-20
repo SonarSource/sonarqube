@@ -76,9 +76,10 @@ public class CreateActionMediumTest {
   public void create_custom_rule() throws Exception {
     // Template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"), defaultOrganization);
-    ruleDao.insert(session, templateRule);
-    RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.insertRuleParam(session, templateRule, param);
+    ruleDao.insert(session, templateRule.getDefinition());
+    ruleDao.update(session, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    RuleParamDto param = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, templateRule.getDefinition(), param);
     session.commit();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
@@ -95,7 +96,7 @@ public class CreateActionMediumTest {
   @Test
   public void create_custom_rule_with_prevent_reactivation_param_to_true() throws Exception {
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(session, templateRule);
+    ruleDao.insert(session, templateRule.getDefinition());
 
     // insert a removed rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule)
@@ -105,7 +106,7 @@ public class CreateActionMediumTest {
       .setDescription("Description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .setSeverity(Severity.MAJOR);
-    tester.get(RuleDao.class).insert(session, customRule);
+    tester.get(RuleDao.class).insert(session, customRule.getDefinition());
     session.commit();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")

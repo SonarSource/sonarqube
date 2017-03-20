@@ -131,7 +131,7 @@ public class ViewIndexerTest {
     String viewUuid = "ABCD";
 
     RuleDto rule = RuleTesting.newXooX1();
-    dbClient.ruleDao().insert(dbSession, rule);
+    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
     ComponentDto project1 = addProjectWithIssue(rule, dbTester.organizations().insert());
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
     permissionIndexer.indexProjectsByUuids(dbSession, asList(project1.uuid()));

@@ -58,7 +58,8 @@ public class RuleDeleter {
 
       rule.setStatus(RuleStatus.REMOVED);
       rule.setUpdatedAt(system2.now());
-      dbClient.ruleDao().update(dbSession, rule);
+      dbClient.ruleDao().update(dbSession, rule.getDefinition());
+      dbClient.ruleDao().update(dbSession, rule.getMetadata());
 
       dbSession.commit();
       ruleIndexer.index();

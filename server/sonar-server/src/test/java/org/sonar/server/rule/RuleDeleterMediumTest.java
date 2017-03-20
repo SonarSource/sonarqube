@@ -80,14 +80,14 @@ public class RuleDeleterMediumTest {
       .setLanguage("xoo")
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST);
-    dao.insert(dbSession, templateRule);
+    dao.insert(dbSession, templateRule.getDefinition());
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule)
       .setLanguage("xoo")
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST);
-    dao.insert(dbSession, customRule);
+    dao.insert(dbSession, customRule.getDefinition());
 
     // Create a quality profile
     QualityProfileDto profileDto = QProfileTesting.newXooP1("org-123");
@@ -120,7 +120,7 @@ public class RuleDeleterMediumTest {
   public void fail_to_delete_if_not_custom() {
     // Create rule
     RuleKey ruleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(ruleKey));
+    dao.insert(dbSession, RuleTesting.newDto(ruleKey).getDefinition());
     dbSession.commit();
 
     try {

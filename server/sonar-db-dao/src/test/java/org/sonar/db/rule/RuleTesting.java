@@ -134,6 +134,11 @@ public class RuleTesting {
     return newDto(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
   }
 
+
+  public static RuleDto newRuleDto(OrganizationDto organization) {
+    return newDto(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)), organization);
+  }
+
   /**
    * Creates a new rule to be used as a template for a custom rule.
    */

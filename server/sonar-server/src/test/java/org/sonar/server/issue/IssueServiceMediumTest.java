@@ -175,7 +175,11 @@ public class IssueServiceMediumTest {
   }
 
   private RuleDto newRule(RuleDto rule) {
-    tester.get(RuleDao.class).insert(session, rule);
+    RuleDao ruleDao = tester.get(RuleDao.class);
+    ruleDao.insert(session, rule.getDefinition());
+    if (rule.getOrganizationUuid() != null) {
+      ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
+    }
     session.commit();
     ruleIndexer.index();
     return rule;

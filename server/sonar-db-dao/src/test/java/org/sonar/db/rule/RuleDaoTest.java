@@ -47,7 +47,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
-
 public class RuleDaoTest {
 
   @Rule
@@ -84,8 +83,8 @@ public class RuleDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(underTest.selectByIds(dbTester.getSession(), asList(1))).hasSize(1);
-    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1,2))).hasSize(2);
-    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1,2,3))).hasSize(2);
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1, 2))).hasSize(2);
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1, 2, 3))).hasSize(2);
 
     assertThat(underTest.selectByIds(dbTester.getSession(), asList(123))).isEmpty();
   }
@@ -174,7 +173,7 @@ public class RuleDaoTest {
 
   @Test
   public void insert() throws Exception {
-    RuleDto newRule = new RuleDto()
+    RuleDefinitionDto newRule = new RuleDefinitionDto()
       .setRuleKey("NewRuleKey")
       .setRepositoryKey("plugin")
       .setName("new name")
@@ -186,18 +185,10 @@ public class RuleDaoTest {
       .setIsTemplate(true)
       .setLanguage("dart")
       .setTemplateId(3)
-      .setNoteData("My note")
-      .setNoteUserLogin("admin")
-      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
-      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationGapMultiplier("1h")
       .setDefaultRemediationGapMultiplier("5d")
-      .setRemediationBaseEffort("5min")
       .setDefaultRemediationBaseEffort("10h")
       .setGapDescription("squid.S115.effortToFix")
-      .setTags(newHashSet("tag1", "tag2"))
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG)
       .setCreatedAt(1500000000000L)
@@ -218,18 +209,18 @@ public class RuleDaoTest {
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
-    assertThat(ruleDto.getNoteData()).isEqualTo("My note");
-    assertThat(ruleDto.getNoteUserLogin()).isEqualTo("admin");
-    assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
-    assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
-    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
+    assertThat(ruleDto.getNoteData()).isNull();
+    assertThat(ruleDto.getNoteUserLogin()).isNull();
+    assertThat(ruleDto.getNoteCreatedAt()).isNull();
+    assertThat(ruleDto.getNoteUpdatedAt()).isNull();
+    assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(ruleDto.getRemediationGapMultiplier()).isNull();
     assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
+    assertThat(ruleDto.getRemediationBaseEffort()).isNull();
     assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
-    assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
+    assertThat(ruleDto.getTags()).isEmpty();
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
@@ -237,10 +228,10 @@ public class RuleDaoTest {
   }
 
   @Test
-  public void update() {
+  public void update_RuleDefinitionDto() {
     dbTester.prepareDbUnit(getClass(), "update.xml");
 
-    RuleDto ruleToUpdate = new RuleDto()
+    RuleDefinitionDto ruleToUpdate = new RuleDefinitionDto()
       .setId(1)
       .setRuleKey("NewRuleKey")
       .setRepositoryKey("plugin")
@@ -253,18 +244,10 @@ public class RuleDaoTest {
       .setIsTemplate(true)
       .setLanguage("dart")
       .setTemplateId(3)
-      .setNoteData("My note")
-      .setNoteUserLogin("admin")
-      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
-      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationGapMultiplier("1h")
       .setDefaultRemediationGapMultiplier("5d")
-      .setRemediationBaseEffort("5min")
       .setDefaultRemediationBaseEffort("10h")
       .setGapDescription("squid.S115.effortToFix")
-      .setTags(newHashSet("tag1", "tag2"))
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG)
       .setUpdatedAt(2000000000000L);
@@ -284,20 +267,69 @@ public class RuleDaoTest {
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
+    assertThat(ruleDto.getNoteData()).isNull();
+    assertThat(ruleDto.getNoteUserLogin()).isNull();
+    assertThat(ruleDto.getNoteCreatedAt()).isNull();
+    assertThat(ruleDto.getNoteUpdatedAt()).isNull();
+    assertThat(ruleDto.getRemediationFunction()).isNull();
+    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getRemediationGapMultiplier()).isNull();
+    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationBaseEffort()).isNull();
+    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getTags()).isEmpty();
+    assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
+    assertThat(ruleDto.getUpdatedAt()).isEqualTo(2000000000000L);
+  }
+
+  @Test
+  public void update_RuleMetadataDto() {
+    dbTester.prepareDbUnit(getClass(), "update.xml");
+
+    RuleMetadataDto ruleToUpdate = new RuleMetadataDto()
+      .setRuleId(1)
+      .setNoteData("My note")
+      .setNoteUserLogin("admin")
+      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
+      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setRemediationGapMultiplier("1h")
+      .setRemediationBaseEffort("5min")
+      .setTags(newHashSet("tag1", "tag2"))
+      .setUpdatedAt(2000000000000L);
+
+    underTest.update(dbTester.getSession(), ruleToUpdate);
+    dbTester.getSession().commit();
+
+    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"));
+    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
+    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getDescriptionFormat()).isNull();
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(ruleDto.getRuleKey()).isEqualTo("AvoidNull");
+    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+    assertThat(ruleDto.getConfigKey()).isEqualTo("AvoidNull");
+    assertThat(ruleDto.getSeverity()).isEqualTo(2);
+    assertThat(ruleDto.getLanguage()).isEqualTo("golo");
+    assertThat(ruleDto.isTemplate()).isFalse();
+    assertThat(ruleDto.getTemplateId()).isNull();
     assertThat(ruleDto.getNoteData()).isEqualTo("My note");
     assertThat(ruleDto.getNoteUserLogin()).isEqualTo("admin");
     assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
     assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
-    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getDefaultRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isNull();
     assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
-    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
-    assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isNull();
+    assertThat(ruleDto.getGapDescription()).isNull();
     assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
-    assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
-    assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(ruleDto.getSystemTags()).isEmpty();
+    assertThat(ruleDto.getType()).isEqualTo(0);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2000000000000L);
   }
@@ -321,18 +353,17 @@ public class RuleDaoTest {
     dbTester.prepareDbUnit(getClass(), "select_parameters_by_rule_key.xml");
 
     assertThat(underTest.selectRuleParamsByRuleKeys(dbTester.getSession(),
-      Arrays.asList(RuleKey.of("checkstyle", "AvoidNull"), RuleKey.of("unused", "Unused"))
-    )).hasSize(2);
+      Arrays.asList(RuleKey.of("checkstyle", "AvoidNull"), RuleKey.of("unused", "Unused")))).hasSize(2);
 
     assertThat(underTest.selectRuleParamsByRuleKeys(dbTester.getSession(),
-      singletonList(RuleKey.of("unknown", "Unknown"))
-    )).isEmpty();
+      singletonList(RuleKey.of("unknown", "Unknown")))).isEmpty();
   }
 
   @Test
   public void insert_parameter() {
     dbTester.prepareDbUnit(getClass(), "insert_parameter.xml");
-    RuleDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
+    RuleDefinitionDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"))
+      .getDefinition();
 
     RuleParamDto param = RuleParamDto.createFor(rule1)
       .setName("max")
@@ -350,7 +381,8 @@ public class RuleDaoTest {
   public void update_parameter() {
     dbTester.prepareDbUnit(getClass(), "update_parameter.xml");
 
-    RuleDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"));
+    RuleDefinitionDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"))
+      .getDefinition();
 
     List<RuleParamDto> params = underTest.selectRuleParamsByRuleKey(dbTester.getSession(), rule1.getKey());
     assertThat(params).hasSize(1);

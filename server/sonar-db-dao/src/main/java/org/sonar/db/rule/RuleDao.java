@@ -79,55 +79,16 @@ public class RuleDao implements Dao {
     return mapper(session).selectByQuery(ruleQuery);
   }
 
-  public void insert(DbSession session, RuleDto dto) {
-    RuleDefinitionDto ruleDefinitionDto = definitionOf(dto);
-    mapper(session).insert(ruleDefinitionDto);
-    dto.setId(ruleDefinitionDto.getId());
-    // FIXME it doesn't make sense to insert metadata when creating a new rule in table RULES unless it is a custom rule
-    mapper(session).updateMetadata(metadataOf(dto));
+  public void insert(DbSession session, RuleDefinitionDto dto) {
+    mapper(session).insert(dto);
   }
 
-  public void update(DbSession session, RuleDto dto) {
-    mapper(session).updateDefinition(definitionOf(dto).setId(dto.getId()));
-    RuleMetadataDto ruleMetadata = metadataOf(dto);
-    mapper(session).updateMetadata(ruleMetadata);
+  public void update(DbSession session, RuleDefinitionDto dto) {
+    mapper(session).updateDefinition(dto);
   }
 
-  private static RuleMetadataDto metadataOf(RuleDto dto) {
-    return new RuleMetadataDto()
-        .setRuleId(dto.getId())
-        .setNoteData(dto.getNoteData())
-        .setNoteUserLogin(dto.getNoteUserLogin())
-        .setNoteCreatedAt(dto.getNoteCreatedAt())
-        .setNoteUpdatedAt(dto.getNoteUpdatedAt())
-        .setRemediationFunction(dto.getRemediationFunction())
-        .setRemediationGapMultiplier(dto.getRemediationGapMultiplier())
-        .setRemediationBaseEffort(dto.getRemediationBaseEffort())
-        .setTags(dto.getTags())
-        .setUpdatedAt(dto.getUpdatedAt());
-  }
-
-  private static RuleDefinitionDto definitionOf(RuleDto dto) {
-    return new RuleDefinitionDto()
-      .setRepositoryKey(dto.getRepositoryKey())
-      .setRuleKey(dto.getRuleKey())
-      .setDescription(dto.getDescription())
-      .setDescriptionFormat(dto.getDescriptionFormat())
-      .setStatus(dto.getStatus())
-      .setName(dto.getName())
-      .setConfigKey(dto.getConfigKey())
-      .setSeverity(dto.getSeverity())
-      .setIsTemplate(dto.isTemplate())
-      .setLanguage(dto.getLanguage())
-      .setTemplateId(dto.getTemplateId())
-      .setDefaultRemediationFunction(dto.getDefaultRemediationFunction())
-      .setDefaultRemediationGapMultiplier(dto.getDefaultRemediationGapMultiplier())
-      .setDefaultRemediationBaseEffort(dto.getDefaultRemediationBaseEffort())
-      .setGapDescription(dto.getGapDescription())
-      .setSystemTags(dto.getSystemTags())
-      .setType(dto.getType())
-      .setCreatedAt(dto.getCreatedAt())
-      .setUpdatedAt(dto.getUpdatedAt());
+  public void update(DbSession session, RuleMetadataDto dto) {
+    mapper(session).updateMetadata(dto);
   }
 
   private static RuleMapper mapper(DbSession session) {
@@ -150,13 +111,13 @@ public class RuleDao implements Dao {
     return executeLargeInputs(ruleIds, mapper(dbSession)::selectParamsByRuleIds);
   }
 
-  public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+  public void insertRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
     checkNotNull(rule.getId(), "Rule id must be set");
     param.setRuleId(rule.getId());
     mapper(session).insertParameter(param);
   }
 
-  public RuleParamDto updateRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+  public RuleParamDto updateRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
     checkNotNull(rule.getId(), "Rule id must be set");
     checkNotNull(param.getId(), "Rule parameter is not yet persisted must be set");
     param.setRuleId(rule.getId());

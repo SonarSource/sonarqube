@@ -160,7 +160,7 @@ public class ChangelogLoaderTest {
 
   private void insertRule(RuleKey key, String name) {
     RuleDto dto = RuleTesting.newDto(key).setName(name);
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), dto);
+    dbTester.rules().insertRule(dto);
     dbTester.getSession().commit();
   }
 

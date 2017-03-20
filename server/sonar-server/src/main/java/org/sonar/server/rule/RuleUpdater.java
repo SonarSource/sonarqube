@@ -260,7 +260,7 @@ public class RuleUpdater {
 
       // Update rule param
       ruleParamDto.setDefaultValue(value);
-      dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
+      dbClient.ruleDao().updateRuleParam(dbSession, customRule.getDefinition(), ruleParamDto);
 
       if (value != null) {
         // Update linked active rule params or create new one
@@ -351,7 +351,8 @@ public class RuleUpdater {
 
   private void update(DbSession session, RuleDto rule) {
     rule.setUpdatedAt(system.now());
-    dbClient.ruleDao().update(session, rule);
+    dbClient.ruleDao().update(session, rule.getDefinition());
+    dbClient.ruleDao().update(session, rule.getMetadata());
   }
 
 }

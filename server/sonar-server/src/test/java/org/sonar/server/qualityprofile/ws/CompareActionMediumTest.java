@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
@@ -201,16 +202,19 @@ public class CompareActionMediumTest {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.ruleDao().insert(session, rule);
-    RuleParamDto param = RuleParamDto.createFor(rule).setName("param_" + id).setType(RuleParamType.STRING.toString());
-    db.ruleDao().insertRuleParam(session, rule, param);
+    RuleDefinitionDto ruleDefinition = rule.getDefinition();
+    db.ruleDao().insert(session, ruleDefinition);
+    RuleParamDto param = RuleParamDto.createFor(ruleDefinition).setName("param_" + id).setType(RuleParamType.STRING.toString());
+    db.ruleDao().insertRuleParam(session, ruleDefinition, param);
     return rule;
   }
 
   private RuleDto createRuleWithParam(String lang, String id) {
     RuleDto rule = createRule(lang, id);
-    RuleParamDto param = RuleParamDto.createFor(rule).setName("param_" + id).setType(RuleParamType.STRING.toString());
-    db.ruleDao().insertRuleParam(session, rule, param);
+    RuleParamDto param = RuleParamDto.createFor(rule.getDefinition())
+      .setName("param_" + id)
+      .setType(RuleParamType.STRING.toString());
+    db.ruleDao().insertRuleParam(session, rule.getDefinition(), param);
     return rule;
   }
 

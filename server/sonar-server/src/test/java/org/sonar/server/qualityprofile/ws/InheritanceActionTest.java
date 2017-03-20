@@ -194,7 +194,7 @@ public class InheritanceActionTest {
     RuleDto rule = RuleTesting.newRuleDto()
       .setSeverity("MINOR")
       .setLanguage(profile1.getLanguage());
-    dbClient.ruleDao().insert(dbSession, rule);
+    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
     dbSession.commit();
 
     userSession.logIn()
@@ -227,7 +227,7 @@ public class InheritanceActionTest {
       .setStatus(RuleStatus.READY)
       .setUpdatedAt(now)
       .setCreatedAt(now);
-    dbClient.ruleDao().insert(dbSession, rule);
+    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
     return rule;
   }
 
