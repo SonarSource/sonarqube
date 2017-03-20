@@ -30,8 +30,7 @@ type Props = {
   selectedTags: Array<string>,
   onSearch: (string) => void,
   onSelect: (string) => void,
-  onUnselect: (string) => void,
-  popupCustomClass?: string
+  onUnselect: (string) => void
 };
 
 export default class TagsSelector extends React.PureComponent {

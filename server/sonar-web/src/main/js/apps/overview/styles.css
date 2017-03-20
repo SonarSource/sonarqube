@@ -313,6 +313,10 @@
   white-space: nowrap;
 }
 
+.overview-meta-tags {
+  position: relative;
+}
+
 .overview-meta-size-ncloc {
   display: inline-block;
   vertical-align: middle;

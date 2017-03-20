@@ -20,36 +20,45 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import MetaTags from '../MetaTags';
-import { click } from '../../../../helpers/testUtils';
 
-// TODO write the whole tests
-it('should match snapshot', () => {
-  const link = {
-    id: '1',
-    name: 'Foo',
-    url: 'http://example.com',
-    type: 'foo'
-  };
+const component = {
+  key: 'my-project',
+  tags: [],
+  configuration: {
+    showSettings: false
+  }
+};
 
-  expect(shallow(<MetaTags link={link} />)).toMatchSnapshot();
+const componentWithTags = {
+  key: 'my-second-project',
+  tags: ['foo', 'bar'],
+  configuration: {
+    showSettings: true
+  }
+};
+
+const mouseEvent = {
+  stopPropagation: () => {}
+};
+
+it('should render without tags and admin rights', () => {
+  expect(shallow(<MetaTags component={component} />)).toMatchSnapshot();
 });
 
-it('should expand and collapse link', () => {
-  const link = {
-    id: '1',
-    name: 'Foo',
-    url: 'scm:git:git@github.com',
-    type: 'foo'
-  };
+it('should render with tags and admin rights', () => {
+  expect(shallow(<MetaTags component={componentWithTags} />)).toMatchSnapshot();
+});
 
-  const wrapper = shallow(<MetaTags link={link} />);
+
+it('should open the tag selector on click', () => {
+  const wrapper = shallow(<MetaTags component={componentWithTags} />);
   expect(wrapper).toMatchSnapshot();
 
-  // expand
-  click(wrapper.find('a'));
+  // open
+  wrapper.find('button').simulate('click', mouseEvent);
   expect(wrapper).toMatchSnapshot();
 
-  // collapse
-  click(wrapper.find('a'));
+  // close
+  wrapper.find('button').simulate('click', mouseEvent);
   expect(wrapper).toMatchSnapshot();
 });

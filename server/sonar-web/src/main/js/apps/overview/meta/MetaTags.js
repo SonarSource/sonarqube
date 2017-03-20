@@ -26,9 +26,7 @@ import ProjectTagsSelectorContainer from '../../projects/components/ProjectTagsS
 
 type Props = {
   component: {
-    id: string,
     key: string,
-    qualifier: string,
     tags: Array<string>,
     configuration?: {
       showSettings?: boolean
@@ -100,8 +98,7 @@ export default class MetaTags extends React.PureComponent {
 
     return (
       <div
-        className="overview-meta-card"
-        style={{ position: 'relative' }}
+        className="overview-meta-card overview-meta-tags "
         ref={card => this.card = card}
       >
         <button

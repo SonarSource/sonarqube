@@ -19,25 +19,23 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import MultiSelect from '../MultiSelect';
+import TagsSelector from '../TagsSelector';
 
 const props = {
-  selectedElements: ['bar'],
-  elements: [],
+  open: true,
+  position: { left: 0, top: 0 },
+  tags: ['foo', 'bar', 'baz'],
+  selectedTags: ['bar'],
   onSearch: () => {},
   onSelect: () => {},
   onUnselect: () => {}
 };
 
-const elements = ['foo', 'bar', 'baz'];
+it('should render with selected tags', () => {
+  const tagSelector = shallow(<TagsSelector {...props} />);
+  expect(tagSelector).toMatchSnapshot();
+});
 
-it('should render multiselect with selected elements', () => {
-  const multiselect = shallow(<MultiSelect {...props} />);
-  expect(multiselect).toMatchSnapshot();
-  multiselect.setProps({ elements });
-  expect(multiselect).toMatchSnapshot();
-  multiselect.setState({ active: { idx: 2, value: 'baz' } });
-  expect(multiselect).toMatchSnapshot();
-  multiselect.setState({ query: 'test' });
-  expect(multiselect).toMatchSnapshot();
+it('should render without tags at all', () => {
+  expect(shallow(<TagsSelector {...props} tags={[]} selectedTags={[]} />)).toMatchSnapshot();
 });
