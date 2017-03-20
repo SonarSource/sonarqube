@@ -38,6 +38,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -76,9 +77,13 @@ public class RemoveMemberActionTest {
   @Before
   public void setUp() {
     organization = db.organizations().insert();
+    project = db.components().insertProject(organization);
+
     user = db.users().insertUser();
     db.organizations().addMember(organization, user);
-    project = db.components().insertProject(organization);
+
+    UserDto adminUser = db.users().insertAdminByUserPermission(organization);
+    db.organizations().addMember(organization, adminUser);
   }
 
   @Test
@@ -158,8 +163,10 @@ public class RemoveMemberActionTest {
 
     call(organization.getKey(), user.getLogin());
 
-    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(anotherUser.getId());
-    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(user.getId());
+    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId())).extracting(PermissionTemplateUserDto::getUserId)
+      .containsOnly(anotherUser.getId());
+    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId)
+      .containsOnly(user.getId());
   }
 
   @Test
@@ -279,6 +286,34 @@ public class RemoveMemberActionTest {
     expectedException.expect(ForbiddenException.class);
 
     call(organization.getKey(), user.getLogin());
+  }
+
+  @Test
+  public void remove_org_admin_is_allowed_when_another_org_admin_exists() throws Exception {
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto admin1 = db.users().insertAdminByUserPermission(anotherOrganization);
+    db.organizations().addMember(anotherOrganization, admin1);
+    UserDto admin2 = db.users().insertAdminByUserPermission(anotherOrganization);
+    db.organizations().addMember(anotherOrganization, admin2);
+
+    call(anotherOrganization.getKey(), admin1.getLogin());
+
+    assertNotAMember(anotherOrganization.getUuid(), admin1.getId());
+    assertMember(anotherOrganization.getUuid(), admin2.getId());
+  }
+
+  @Test
+  public void fail_to_remove_last_organization_admin() {
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto admin = db.users().insertAdminByUserPermission(anotherOrganization);
+    db.organizations().addMember(anotherOrganization, admin);
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(anotherOrganization, user);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The last administrator member cannot be removed");
+
+    call(anotherOrganization.getKey(), admin.getLogin());
   }
 
   private TestResponse call(@Nullable String organizationKey, @Nullable String login) {

@@ -129,7 +129,7 @@ public class DeactivateAction implements UsersWsAction {
       .map(OrganizationDto::getKey)
       .sorted()
       .collect(Collectors.joining(", "));
-    throw BadRequestException.create(format("User is last administrator of organizations [%s], and cannot be deactivated", keys));
+    throw BadRequestException.create(format("User '%s' is last administrator of organizations [%s], and cannot be deactivated", user.getLogin(), keys));
   }
 
   private List<String> selectOrganizationsWithNoMoreAdministrators(DbSession dbSession, UserDto user) {
