@@ -111,39 +111,7 @@
       r.updated_at desc
   </select>
 
-  <update id="update" parameterType="Rule">
-    update rules set
-      plugin_rule_key=#{ruleKey,jdbcType=VARCHAR},
-      plugin_name=#{repositoryKey,jdbcType=VARCHAR},
-      description=#{description,jdbcType=VARCHAR},
-      description_format=#{descriptionFormat,jdbcType=VARCHAR},
-      status=#{status,jdbcType=VARCHAR},
-      name=#{name,jdbcType=VARCHAR},
-      plugin_config_key=#{configKey,jdbcType=VARCHAR},
-      priority=#{severity,jdbcType=INTEGER},
-      is_template=#{isTemplate,jdbcType=BOOLEAN},
-      language=#{language,jdbcType=VARCHAR},
-      template_id=#{templateId,jdbcType=INTEGER},
-      note_data=#{noteData,jdbcType=CLOB},
-      note_user_login=#{noteUserLogin,jdbcType=VARCHAR},
-      note_created_at=#{noteCreatedAt,jdbcType=TIMESTAMP},
-      note_updated_at=#{noteUpdatedAt,jdbcType=TIMESTAMP},
-      remediation_function=#{remediationFunction,jdbcType=VARCHAR},
-      def_remediation_function=#{defRemediationFunction,jdbcType=VARCHAR},
-      remediation_gap_mult=#{remediationGapMultiplier,jdbcType=VARCHAR},
-      def_remediation_gap_mult=#{defRemediationGapMultiplier,jdbcType=VARCHAR},
-      remediation_base_effort=#{remediationBaseEffort,jdbcType=VARCHAR},
-      def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
-      gap_description=#{gapDescription,jdbcType=VARCHAR},
-      tags=#{tagsField,jdbcType=VARCHAR},
-      system_tags=#{systemTagsField,jdbcType=VARCHAR},
-      rule_type=#{type,jdbcType=TINYINT},
-      updated_at=#{updatedAt,jdbcType=BIGINT}
-    where
-      id=#{id,jdbcType=INTEGER}
-  </update>
-
-  <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="org.sonar.db.rule.RuleDefinitionDto" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules (
       plugin_rule_key,
       plugin_name,
@@ -156,20 +124,12 @@
       is_template,
       language,
       template_id,
-      remediation_function,
       def_remediation_function,
-      remediation_gap_mult,
       def_remediation_gap_mult,
-      remediation_base_effort,
       def_remediation_base_effort,
       gap_description,
-      tags,
       system_tags,
       rule_type,
-      note_data,
-      note_user_login,
-      note_created_at,
-      note_updated_at,
       created_at,
       updated_at
     )
@@ -185,24 +145,55 @@
       #{isTemplate,jdbcType=BOOLEAN},
       #{language,jdbcType=VARCHAR},
       #{templateId,jdbcType=INTEGER},
-      #{remediationFunction,jdbcType=VARCHAR},
       #{defRemediationFunction,jdbcType=VARCHAR},
-      #{remediationGapMultiplier,jdbcType=VARCHAR},
       #{defRemediationGapMultiplier,jdbcType=VARCHAR},
-      #{remediationBaseEffort,jdbcType=VARCHAR},
       #{defRemediationBaseEffort,jdbcType=VARCHAR},
       #{gapDescription,jdbcType=VARCHAR},
-      #{tagsField,jdbcType=VARCHAR},
       #{systemTagsField,jdbcType=VARCHAR},
       #{type,jdbcType=INTEGER},
-      #{noteData,jdbcType=CLOB},
-      #{noteUserLogin,jdbcType=VARCHAR},
-      #{noteCreatedAt,jdbcType=TIMESTAMP},
-      #{noteUpdatedAt,jdbcType=TIMESTAMP},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
   </insert>
+
+  <update id="updateDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto">
+    update rules set
+      plugin_rule_key=#{ruleKey,jdbcType=VARCHAR},
+      plugin_name=#{repositoryKey,jdbcType=VARCHAR},
+      description=#{description,jdbcType=VARCHAR},
+      description_format=#{descriptionFormat,jdbcType=VARCHAR},
+      status=#{status,jdbcType=VARCHAR},
+      name=#{name,jdbcType=VARCHAR},
+      plugin_config_key=#{configKey,jdbcType=VARCHAR},
+      priority=#{severity,jdbcType=INTEGER},
+      is_template=#{isTemplate,jdbcType=BOOLEAN},
+      language=#{language,jdbcType=VARCHAR},
+      template_id=#{templateId,jdbcType=INTEGER},
+      def_remediation_function=#{defRemediationFunction,jdbcType=VARCHAR},
+      def_remediation_gap_mult=#{defRemediationGapMultiplier,jdbcType=VARCHAR},
+      def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
+      gap_description=#{gapDescription,jdbcType=VARCHAR},
+      system_tags=#{systemTagsField,jdbcType=VARCHAR},
+      rule_type=#{type,jdbcType=TINYINT},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      id=#{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
+    update rules set
+      note_data=#{noteData,jdbcType=CLOB},
+      note_user_login=#{noteUserLogin,jdbcType=VARCHAR},
+      note_created_at=#{noteCreatedAt,jdbcType=TIMESTAMP},
+      note_updated_at=#{noteUpdatedAt,jdbcType=TIMESTAMP},
+      remediation_function=#{remediationFunction,jdbcType=VARCHAR},
+      remediation_gap_mult=#{remediationGapMultiplier,jdbcType=VARCHAR},
+      remediation_base_effort=#{remediationBaseEffort,jdbcType=VARCHAR},
+      tags=#{tagsField,jdbcType=VARCHAR},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      id=#{ruleId,jdbcType=INTEGER}
+  </update>
 
   <delete id="deleteParams" parameterType="Integer">
     delete from
