@@ -21,7 +21,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import PageHeaderContainer from '../../projects/components/PageHeaderContainer';
 import FavoriteProjectsContainer from '../../projects/components/FavoriteProjectsContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
@@ -48,7 +47,6 @@ class OrganizationFavoriteProjects extends React.Component {
     return (
       <div id="projects-page" className="page page-limited">
         <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube" />
-        <PageHeaderContainer organization={this.props.organization} />
         <FavoriteProjectsContainer
           location={this.props.location}
           organization={this.props.organization}

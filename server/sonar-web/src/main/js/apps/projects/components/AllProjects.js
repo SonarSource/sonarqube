@@ -59,10 +59,12 @@ export default class AllProjects extends React.Component {
   render() {
     const isFiltered = Object.keys(this.state.query).some(key => this.state.query[key] != null);
 
+    const top = this.props.organization ? 95 : 30;
+
     return (
       <div className="page-with-sidebar page-with-left-sidebar projects-page">
         <aside className="page-sidebar-fixed page-sidebar-sticky projects-sidebar">
-          <div className="page-sidebar-sticky-inner">
+          <div className="page-sidebar-sticky-inner" style={{ top }}>
             <PageSidebar
               query={this.state.query}
               isFavorite={this.props.isFavorite}
