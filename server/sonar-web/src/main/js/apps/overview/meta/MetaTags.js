@@ -53,12 +53,14 @@ export default class MetaTags extends React.PureComponent {
   };
 
   componentDidMount() {
-    const buttonPos = this.tagsList.getBoundingClientRect();
-    const cardPos = this.card.getBoundingClientRect();
-    this.setState({ popupPosition: this.getPopupPos(buttonPos, cardPos) });
+    if (this.canUpdateTags()) {
+      const buttonPos = this.tagsList.getBoundingClientRect();
+      const cardPos = this.card.getBoundingClientRect();
+      this.setState({ popupPosition: this.getPopupPos(buttonPos, cardPos) });
 
-    window.addEventListener('keydown', this.handleKey, false);
-    window.addEventListener('click', this.handleOutsideClick, false);
+      window.addEventListener('keydown', this.handleKey, false);
+      window.addEventListener('click', this.handleOutsideClick, false);
+    }
   }
 
   componentWillUnmount() {
@@ -85,6 +87,11 @@ export default class MetaTags extends React.PureComponent {
     this.setState(state => ({ popupOpen: !state.popupOpen }));
   };
 
+  canUpdateTags() {
+    const { configuration } = this.props.component;
+    return configuration && configuration.showSettings;
+  }
+
   getPopupPos(eltPos: { height: number, width: number }, containerPos: { width: number }) {
     return {
       top: eltPos.height,
@@ -93,35 +100,42 @@ export default class MetaTags extends React.PureComponent {
   }
 
   render() {
-    const { tags, configuration, key } = this.props.component;
+    const { tags, key } = this.props.component;
     const { popupOpen, popupPosition } = this.state;
 
-    return (
-      <div
-        className="overview-meta-card overview-meta-tags "
-        ref={card => this.card = card}
-      >
-        <button
-          className="button-link"
-          onClick={this.handleClick}
-          ref={tagsList => this.tagsList = tagsList}
-        >
-          <TagsList
-            tags={tags.length ? tags : [translate('no_tags')]}
-            allowUpdate={configuration && configuration.showSettings}
-            allowMultiLine={true}
-          />
-        </button>
-        {configuration &&
-          configuration.showSettings &&
+    if (this.canUpdateTags()) {
+      return (
+        <div className="overview-meta-card overview-meta-tags" ref={card => this.card = card}>
+          <button
+            className="button-link"
+            onClick={this.handleClick}
+            ref={tagsList => this.tagsList = tagsList}
+          >
+            <TagsList
+              tags={tags.length ? tags : [translate('no_tags')]}
+              allowUpdate={true}
+              allowMultiLine={true}
+            />
+          </button>
           <ProjectTagsSelectorContainer
             ref={tagsSelector => this.tagsSelector = tagsSelector}
             open={popupOpen}
             position={popupPosition}
             project={key}
             selectedTags={tags}
-          />}
-      </div>
-    );
+          />
+        </div>
+      );
+    } else {
+      return (
+        <div className="overview-meta-card overview-meta-tags">
+          <TagsList
+            tags={tags.length ? tags : [translate('no_tags')]}
+            allowUpdate={false}
+            allowMultiLine={true}
+          />
+        </div>
+      );
+    }
   }
 }

@@ -186,7 +186,7 @@ export const setProjectTags = (project, tags) =>
     const previousTags = getState().components.byKey[project].tags;
     dispatch(receiveProjectTags(project, tags));
     return apiSetProjectTags({ project, tags: tags.join(',') }).then(
-      () => {},
+      null,
       error => {
         dispatch(receiveProjectTags(project, previousTags));
         onFail(dispatch)(error);
