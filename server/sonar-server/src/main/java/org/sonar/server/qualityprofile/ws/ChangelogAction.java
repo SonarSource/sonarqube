@@ -33,8 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileRef;
 
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
@@ -46,13 +44,13 @@ public class ChangelogAction implements QProfileWsAction {
   static final String PARAM_TO = "to";
 
   private final ChangelogLoader changelogLoader;
-  private final QProfileFactory profileFactory;
+  private final QProfileWsSupport wsSupport;
   private final Languages languages;
   private DbClient dbClient;
 
-  public ChangelogAction(ChangelogLoader changelogLoader, QProfileFactory profileFactory, Languages languages, DbClient dbClient) {
+  public ChangelogAction(ChangelogLoader changelogLoader, QProfileWsSupport wsSupport, Languages languages, DbClient dbClient) {
     this.changelogLoader = changelogLoader;
-    this.profileFactory = profileFactory;
+    this.wsSupport = wsSupport;
     this.languages = languages;
     this.dbClient = dbClient;
   }
@@ -66,7 +64,10 @@ public class ChangelogAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-changelog.json"));
 
-    QProfileRef.defineParams(wsAction, languages);
+    QProfileWsSupport.createOrganizationParam(wsAction)
+      .setSince("6.4");
+
+    QProfileReference.defineParams(wsAction, languages);
 
     wsAction.addPagingParams(50, MAX_LIMIT);
 
@@ -81,8 +82,9 @@ public class ChangelogAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    QProfileReference reference = QProfileReference.from(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
+      QualityProfileDto profile = wsSupport.getProfile(dbSession, reference);
 
       QProfileChangeQuery query = new QProfileChangeQuery(profile.getKey());
       Date since = parseStartingDateOrDateTime(request.param(PARAM_SINCE));
