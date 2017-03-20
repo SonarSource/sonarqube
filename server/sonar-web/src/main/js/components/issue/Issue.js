@@ -65,6 +65,12 @@ class Issue extends React.PureComponent {
     if (!prevProps.selected && this.props.selected) {
       this.bindShortcuts();
     }
+
+    // $FlowFixMe resolution doesn't exist in type `Model`
+    const { resolution } = this.props.issue;
+    if (!prevProps.issue.resolution && ['FALSE-POSITIVE', 'WONTFIX'].includes(resolution)) {
+      this.issueView.comment({ fromTransition: true });
+    }
   }
 
   componentWillUnmount() {
