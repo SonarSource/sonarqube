@@ -36,6 +36,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -45,6 +46,8 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganization;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -79,6 +82,7 @@ public class SearchActionMediumTest {
   private DbSession dbSession;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
@@ -89,6 +93,8 @@ public class SearchActionMediumTest {
     dbSession = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
+    this.defaultOrganization = db.organizationDao().selectByUuid(dbSession, defaultOrganization.getUuid()).get();
   }
 
   @After
@@ -127,9 +133,9 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_2_rules() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+    ruleDao.insert(dbSession, RuleTesting.newXooX1(defaultOrganization)
       .setType(RuleType.BUG));
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+    ruleDao.insert(dbSession, RuleTesting.newXooX2(defaultOrganization)
       .setType(RuleType.VULNERABILITY));
     dbSession.commit();
     ruleIndexer.index();
