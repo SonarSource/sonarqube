@@ -29,7 +29,8 @@ type Props = {
   component: {
     id: string,
     key: string,
-    qualifier: string
+    qualifier: string,
+    tags: Array<string>
   },
   router: Object
 };

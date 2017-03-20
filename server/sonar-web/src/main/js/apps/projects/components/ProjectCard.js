@@ -26,6 +26,7 @@ import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import Organization from '../../../components/shared/Organization';
+import TagsList from '../../../components/ui/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class ProjectCard extends React.PureComponent {
@@ -35,7 +36,10 @@ export default class ProjectCard extends React.PureComponent {
     project?: {
       analysisDate?: string,
       key: string,
-      name: string
+      name: string,
+      tags: Array<string>,
+      isFavorite?: boolean,
+      organization?: string
     }
   };
 
@@ -74,6 +78,7 @@ export default class ProjectCard extends React.PureComponent {
               {project.name}
             </Link>
           </h2>
+          {project.tags.length > 0 && <TagsList tags={project.tags} />}
         </div>
 
         {isProjectAnalyzed

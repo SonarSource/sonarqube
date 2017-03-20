@@ -1,0 +1,20 @@
+.tags-list {
+  padding-left: 6px;
+}
+
+.tags-list i {
+  padding-left: 4px;
+}
+
+.tags-list i::before {
+  font-size: 12px;
+}
+
+.tags-list span {
+  display: inline-block;
+  vertical-align: text-top;
+  max-width: 220px;
+  padding-left: 4px;
+  margin-top: 2px;
+  opacity: 0.6;
+}
