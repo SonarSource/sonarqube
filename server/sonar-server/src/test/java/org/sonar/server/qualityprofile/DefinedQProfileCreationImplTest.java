@@ -133,7 +133,7 @@ public class DefinedQProfileCreationImplTest {
   }
 
   @Test
-  public void create_deletes_qp_if_already_exists() {
+  public void create_does_not_update_existing_profile_if_it_already_exists() {
     OrganizationDto organization = dbTester.organizations().insert();
     DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", false);
     long date = 2_456_789L;
@@ -149,8 +149,7 @@ public class DefinedQProfileCreationImplTest {
     dbSession.commit();
 
     QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, "foo1");
-    assertThat(dto.getId()).isNotEqualTo(existing.getId());
-    assertThat(dto.getKey()).isNotEqualTo(existing.getKey());
+    assertThat(dto.getId()).isEqualTo(existing.getId());
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(1);
   }
 
