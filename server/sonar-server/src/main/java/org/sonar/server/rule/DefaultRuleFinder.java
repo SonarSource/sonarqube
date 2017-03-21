@@ -90,7 +90,7 @@ public class DefaultRuleFinder implements RuleFinder {
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, new ArrayList<>(ruleKeys));
+      List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, defaultOrganizationProvider.get().getUuid(), new ArrayList<>(ruleKeys));
       return convertToRuleApi(dbSession, ruleDtos);
     }
   }

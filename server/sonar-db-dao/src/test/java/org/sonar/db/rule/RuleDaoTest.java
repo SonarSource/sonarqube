@@ -155,11 +155,24 @@ public class RuleDaoTest {
   @Test
   public void selectByKeys() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
+    String organizationUuid = "org-1";
 
-    assertThat(underTest.selectByKeys(dbTester.getSession(), Collections.<RuleKey>emptyList())).isEmpty();
-    assertThat(underTest.selectByKeys(dbTester.getSession(), asList(RuleKey.of("NOT", "FOUND")))).isEmpty();
+    assertThat(underTest.selectByKeys(dbTester.getSession(), organizationUuid, Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectByKeys(dbTester.getSession(), organizationUuid, asList(RuleKey.of("NOT", "FOUND")))).isEmpty();
 
-    List<RuleDto> rules = underTest.selectByKeys(dbTester.getSession(), asList(RuleKey.of("java", "S001"), RuleKey.of("java", "OTHER")));
+    List<RuleDto> rules = underTest.selectByKeys(dbTester.getSession(), organizationUuid, asList(RuleKey.of("java", "S001"), RuleKey.of("java", "OTHER")));
+    assertThat(rules).hasSize(1);
+    assertThat(rules.get(0).getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectDefinitionByKeys() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectDefinitionByKeys(dbTester.getSession(), Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectDefinitionByKeys(dbTester.getSession(), asList(RuleKey.of("NOT", "FOUND")))).isEmpty();
+
+    List<RuleDefinitionDto> rules = underTest.selectDefinitionByKeys(dbTester.getSession(), asList(RuleKey.of("java", "S001"), RuleKey.of("java", "OTHER")));
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).getId()).isEqualTo(1);
   }

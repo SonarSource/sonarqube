@@ -54,6 +54,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -110,13 +111,16 @@ public class SearchAction implements RulesWsAction {
   private final RuleIndex ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapper mapper;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper) {
+  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
     this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
     this.mapper = mapper;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -352,7 +356,7 @@ public class SearchAction implements RulesWsAction {
     List<RuleKey> ruleKeys = result.getIds();
     // rule order is managed by ES
     Map<RuleKey, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
-      dbClient.ruleDao().selectByKeys(dbSession, ruleKeys), RuleDto::getKey);
+      dbClient.ruleDao().selectByKeys(dbSession, defaultOrganizationProvider.get().getUuid(), ruleKeys), RuleDto::getKey);
     List<RuleDto> rules = new ArrayList<>();
     for (RuleKey ruleKey : ruleKeys) {
       RuleDto rule = rulesByRuleKey.get(ruleKey);

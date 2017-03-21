@@ -34,7 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Objects.requireNonNull;
@@ -71,9 +71,9 @@ public class ChangelogLoader {
 
     Set<RuleKey> ruleKeys = changes.stream().filter(c -> c.ruleKey != null).map(c -> c.ruleKey).collect(Collectors.toSet());
     Map<RuleKey, String> ruleNamesByKeys = dbClient.ruleDao()
-      .selectByKeys(dbSession, Lists.newArrayList(ruleKeys))
+      .selectDefinitionByKeys(dbSession, Lists.newArrayList(ruleKeys))
       .stream()
-      .collect(java.util.stream.Collectors.toMap(RuleDto::getKey, RuleDto::getName));
+      .collect(java.util.stream.Collectors.toMap(RuleDefinitionDto::getKey, RuleDefinitionDto::getName));
 
     changes.forEach(c -> {
       c.userName = userNamesByLogins.get(c.userLogin);
