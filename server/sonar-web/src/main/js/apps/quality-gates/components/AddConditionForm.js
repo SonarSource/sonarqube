@@ -43,8 +43,10 @@ export default function AddConditionForm({ metrics, onSelect }) {
   // use "disabled" property to emulate optgroups
   const optionsWithDomains = [];
   options.forEach((option, index, options) => {
+    let notThere;
     const previous = index > 0 ? options[index - 1] : null;
     if (!previous || previous.domain !== option.domain) {
+      notThere = {};
       optionsWithDomains.push({
         value: option.domain,
         label: getLocalizedMetricDomain(option.domain),
@@ -52,6 +54,7 @@ export default function AddConditionForm({ metrics, onSelect }) {
       });
     }
     optionsWithDomains.push(option);
+    notThere.name = "name";
   });
 
   return (
