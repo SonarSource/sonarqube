@@ -46,11 +46,11 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -160,12 +160,10 @@ public class ComponentAction implements NavigationWsAction {
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isFavorite", isFavourite(session, component));
-
+    List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
+    writeExtensions(json, component, pages);
     if (analysis != null) {
-      json.prop("version", analysis.getVersion())
-        .prop("snapshotDate", DateUtils.formatDateTime(new Date(analysis.getCreatedAt())));
-      List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
-      writeExtensions(json, component, pages);
+      json.prop("version", analysis.getVersion()).prop("snapshotDate", DateUtils.formatDateTime(new Date(analysis.getCreatedAt())));
     }
   }
 
