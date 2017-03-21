@@ -58,7 +58,12 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -173,6 +178,43 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_measures_on_view() throws Exception {
+    ComponentDto view = newView(db.getDefaultOrganization());
+    SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(view);
+    setBrowsePermissionOnUser(view);
+    MetricDto coverage = insertCoverageMetric();
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, view, viewSnapshot).setValue(15.5d));
+    db.commit();
+
+    SearchWsResponse result = call(singletonList(view.key()), singletonList("coverage"));
+
+    List<Measure> measures = result.getMeasuresList();
+    assertThat(measures).hasSize(1);
+    Measure measure = measures.get(0);
+    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getValue()).isEqualTo("15.5");
+  }
+
+  @Test
+  public void return_measures_on_sub_view() throws Exception {
+    ComponentDto view = newView(db.getDefaultOrganization());
+    SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(view);
+    ComponentDto subView = db.components().insertComponent(newSubView(view));
+    setBrowsePermissionOnUser(view);
+    MetricDto coverage = insertCoverageMetric();
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, subView, viewSnapshot).setValue(15.5d));
+    db.commit();
+
+    SearchWsResponse result = call(singletonList(subView.key()), singletonList("coverage"));
+
+    List<Measure> measures = result.getMeasuresList();
+    assertThat(measures).hasSize(1);
+    Measure measure = measures.get(0);
+    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getValue()).isEqualTo("15.5");
+  }
+
+  @Test
   public void only_returns_authorized_projects() {
     MetricDto metricDto = insertComplexityMetric();
     ComponentDto project1 = newProjectDto(db.getDefaultOrganization());
@@ -273,6 +315,56 @@ public class SearchActionTest {
     expectedException.expectMessage("101 projects provided, more than maximum authorized (100)");
 
     call(keys, singletonList("complexity"));
+  }
+
+  @Test
+  public void does_not_fail_on_100_projects() {
+    List<String> keys = IntStream.rangeClosed(1, 100)
+      .mapToObj(i -> db.components().insertProject())
+      .map(ComponentDto::key)
+      .collect(Collectors.toList());
+    insertComplexityMetric();
+
+    call(keys, singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_module() {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    setBrowsePermissionOnUser(project);
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only component of qualifiers [TRK, VW, SVW] are allowed");
+
+    call(singletonList(module.key()), singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_directory() {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "dir"));
+    setBrowsePermissionOnUser(project);
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only component of qualifiers [TRK, VW, SVW] are allowed");
+
+    call(singletonList(dir.key()), singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_file() {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    setBrowsePermissionOnUser(project);
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only component of qualifiers [TRK, VW, SVW] are allowed");
+
+    call(singletonList(file.key()), singletonList("complexity"));
   }
 
   @Test
@@ -403,7 +495,7 @@ public class SearchActionTest {
       newMeasureDto(complexity, project2, projectSnapshot2)
         .setValue(35.0d)
         .setVariation(0.0d),
-      newMeasureDto(complexity, project1, projectSnapshot3)
+      newMeasureDto(complexity, project3, projectSnapshot3)
         .setValue(42.0d));
 
     MetricDto ncloc = insertNclocMetric();
