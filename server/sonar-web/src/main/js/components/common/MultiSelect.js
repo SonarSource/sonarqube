@@ -49,7 +49,7 @@ export default class MultiSelect extends React.PureComponent {
 
   componentDidMount() {
     this.updateUnselectedElements(this.props);
-    this.container && this.container.addEventListener('keydown', this.handleKeyboard);
+    this.container && this.container.addEventListener('keydown', this.handleKeyboard, true);
   }
 
   componentWillUnmount() {
@@ -62,6 +62,10 @@ export default class MultiSelect extends React.PureComponent {
       this.props.selectedElements !== nextProps.selectedElements
     ) {
       this.updateUnselectedElements(nextProps);
+      const totalElements = this.getAllElements(nextProps, this.state).length;
+      if (this.state.activeIdx >= totalElements) {
+        this.setState({ activeIdx: totalElements - 1 });
+      }
     }
   }
 
@@ -71,15 +75,14 @@ export default class MultiSelect extends React.PureComponent {
 
   handleSelectChange = (item: string, selected: boolean) => {
     if (selected) {
-      this.props.onSelect(item);
+      this.onSelectItem(item);
     } else {
-      this.props.onUnselect(item);
+      this.onUnselectItem(item);
     }
   };
 
   handleSearchChange = ({ target }: { target: HTMLInputElement }) => {
-    this.setState({ query: target.value, activeIdx: 0 });
-    this.props.onSearch(target.value);
+    this.onSearchQuery(target.value);
   };
 
   handleElementHover = (element: string) => {
@@ -92,20 +95,35 @@ export default class MultiSelect extends React.PureComponent {
     switch (evt.keyCode) {
       case 40: // down
         this.setState(this.selectNextElement);
+        evt.preventDefault();
         break;
       case 38: // up
         this.setState(this.selectPreviousElement);
+        evt.preventDefault();
         break;
       case 13: // return
         if (this.state.activeIdx >= 0) {
-          this.toggleSelect(
-            this.getAllElements(this.props, this.state)[this.state.activeIdx],
-            this.props
-          );
+          this.toggleSelect(this.getAllElements(this.props, this.state)[this.state.activeIdx]);
         }
         break;
     }
   };
+
+  onSearchQuery(query: string) {
+    this.setState({ query, activeIdx: 0 });
+    this.props.onSearch(query);
+  }
+
+  onSelectItem(item: string) {
+    if (this.isNewElement(item, this.props)) {
+      this.onSearchQuery('');
+    }
+    this.props.onSelect(item);
+  }
+
+  onUnselectItem(item: string) {
+    this.props.onUnselect(item);
+  }
 
   isNewElement(elem: string, { selectedElements, elements }: Props) {
     return elem && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
@@ -150,11 +168,11 @@ export default class MultiSelect extends React.PureComponent {
     }
   };
 
-  toggleSelect(item: string, props: Props) {
-    if (props.selectedElements.indexOf(item) === -1) {
-      props.onSelect(item);
+  toggleSelect(item: string) {
+    if (this.props.selectedElements.indexOf(item) === -1) {
+      this.onSelectItem(item);
     } else {
-      props.onUnselect(item);
+      this.onUnselectItem(item);
     }
   }
 
@@ -181,16 +199,18 @@ export default class MultiSelect extends React.PureComponent {
         </div>
         <ul className="menu">
           {selectedElements.length > 0 &&
-            selectedElements.map(element => (
-              <MultiSelectOption
-                key={element}
-                element={element}
-                selected={true}
-                active={activeElement === element}
-                onSelectChange={this.handleSelectChange}
-                onHover={this.handleElementHover}
-              />
-            ))}
+            selectedElements
+              .filter(element => element.includes(query))
+              .map(element => (
+                <MultiSelectOption
+                  key={element}
+                  element={element}
+                  selected={true}
+                  active={activeElement === element}
+                  onSelectChange={this.handleSelectChange}
+                  onHover={this.handleElementHover}
+                />
+              ))}
           {unselectedElements.length > 0 &&
             unselectedElements.map(element => (
               <MultiSelectOption

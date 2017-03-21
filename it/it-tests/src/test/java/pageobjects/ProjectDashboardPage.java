@@ -68,7 +68,6 @@ public class ProjectDashboardPage {
   public ProjectDashboardPage shouldBeEditable() {
     SelenideElement tagsElem = this.getTagsMeta();
     tagsElem.$("button").shouldBe(visible);
-    tagsElem.$("div.multi-select").shouldBe(exist);
     return this;
   }
 

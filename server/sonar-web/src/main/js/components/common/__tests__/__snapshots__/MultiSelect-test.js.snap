@@ -140,13 +140,6 @@ exports[`test should render multiselect with selected elements 4`] = `
   <ul
     className="menu">
     <MultiSelectOption
-      active={true}
-      custom={false}
-      element="bar"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      selected={true} />
-    <MultiSelectOption
       active={false}
       custom={false}
       element="foo"

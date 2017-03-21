@@ -108,13 +108,13 @@ public class ProjectDashboardTest {
     page
       .shouldHaveTags("foo")
       .sendKeysToTagsInput("test")
-      .getTagAtIdx(1).should(hasText("+ test")).click();
+      .getTagAtIdx(0).should(hasText("+ test")).click();
     page
       .shouldHaveTags("foo", "test")
       .getTagAtIdx(1).should(hasText("test"));
     page
       .sendKeysToTagsInput(Keys.ENTER)
-      .shouldHaveTags("foo");
+      .shouldHaveTags("test");
   }
 
   @Test
