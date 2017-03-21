@@ -71,19 +71,19 @@ export default class QualityGateCondition extends React.Component {
   }
 
   getUrlForBugsOrVulnerabilities(type: string, sinceLeakPeriod: boolean) {
-    const RATING_TO_SEVERITIES_MAPPING = {
-      '1': 'BLOCKER,CRITICAL,MAJOR,MINOR',
-      '2': 'BLOCKER,CRITICAL,MAJOR',
-      '3': 'BLOCKER,CRITICAL',
-      '4': 'BLOCKER'
-    };
+    const RATING_TO_SEVERITIES_MAPPING = [
+      'BLOCKER,CRITICAL,MAJOR,MINOR',
+      'BLOCKER,CRITICAL,MAJOR',
+      'BLOCKER,CRITICAL',
+      'BLOCKER'
+    ];
 
     const { condition } = this.props;
     const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
 
     return this.getIssuesUrl(sinceLeakPeriod, {
       types: type,
-      severities: RATING_TO_SEVERITIES_MAPPING[threshold]
+      severities: RATING_TO_SEVERITIES_MAPPING[Number(threshold) - 1]
     });
   }
 

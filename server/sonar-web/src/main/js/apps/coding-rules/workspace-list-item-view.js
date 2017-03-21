@@ -36,8 +36,8 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   },
 
   events: {
-    'click': 'selectCurrent',
-    'dblclick': 'openRule',
+    click: 'selectCurrent',
+    dblclick: 'openRule',
     'click .js-rule': 'openRule',
     'click .js-rule-filter': 'onRuleFilterClick',
     'click .coding-rules-detail-quality-profile-activate': 'activate',

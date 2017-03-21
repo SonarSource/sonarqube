@@ -46,7 +46,7 @@ export const Bubble = React.createClass({
     if (this.props.tooltip) {
       tooltipAttrs = {
         'data-toggle': 'tooltip',
-        'title': this.props.tooltip
+        title: this.props.tooltip
       };
     }
     return (

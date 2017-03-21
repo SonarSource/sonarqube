@@ -99,7 +99,7 @@ export default class Filter extends React.PureComponent {
       'search-navigator-facet',
       'projects-facet',
       {
-        'active': this.isSelected(option),
+        active: this.isSelected(option),
         'search-navigator-facet-half': this.props.halfWidth,
         'search-navigator-facet-highlight-under': this.highlightUnder(option)
       },

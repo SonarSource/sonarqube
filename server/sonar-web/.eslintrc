@@ -72,7 +72,7 @@
     "prefer-arrow-callback": 2,
     "prefer-const": 2,
     "prefer-spread": 2,
-    "quote-props": [2, "consistent"],
+    "quote-props": [2, "as-needed"],
     "quotes": [2, "single"],
     "rest-spread-spacing": 2,
     "semi": [2, "always"],

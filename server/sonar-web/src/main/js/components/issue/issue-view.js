@@ -47,7 +47,7 @@ export default Marionette.ItemView.extend({
 
   events() {
     return {
-      'click': 'handleClick',
+      click: 'handleClick',
       'click .js-issue-comment': 'onComment',
       'click .js-issue-comment-edit': 'editComment',
       'click .js-issue-comment-delete': 'deleteComment',

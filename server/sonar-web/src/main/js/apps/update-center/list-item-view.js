@@ -32,8 +32,8 @@ export default Marionette.ItemView.extend({
 
   modelEvents: {
     'change:_hidden': 'toggleDisplay',
-    'change': 'onModelChange',
-    'request': 'onRequest'
+    change: 'onModelChange',
+    request: 'onRequest'
   },
 
   events: {

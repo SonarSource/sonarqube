@@ -22,10 +22,10 @@ import Backbone from 'backbone';
 export default Backbone.Router.extend({
   routes: {
     '': 'index',
-    'installed': 'showInstalled',
-    'updates': 'showUpdates',
-    'available': 'showAvailable',
-    'system': 'showSystemUpgrades'
+    installed: 'showInstalled',
+    updates: 'showUpdates',
+    available: 'showAvailable',
+    system: 'showSystemUpgrades'
   },
 
   initialize(options) {
