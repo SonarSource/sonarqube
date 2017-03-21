@@ -19,7 +19,6 @@
  */
 package it.measure;
 
-import com.codeborne.selenide.SelenideElement;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
@@ -34,10 +33,8 @@ import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.ProjectDashboardPage;
 
-import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
@@ -86,17 +83,15 @@ public class ProjectDashboardTest {
     );
 
     ProjectDashboardPage page = nav.openProjectDashboard("sample");
-
-    SelenideElement tags = page.getTags();
-    tags.$(".tags-list > span").should(hasText("foo, bar, baz"));
-    tags.$("button").shouldNot(exist);
-    tags.$("div.multi-select").shouldNot(exist);
+    page
+      .shouldHaveTags("foo", "bar", "baz")
+      .shouldNotBeEditable();
   }
 
   @Test
   public void display_tags_with_edit() {
     executeBuild("shared/xoo-sample", "sample-with-tags", "Sample with tags");
-    // Add some tags to the project
+    // Add some tags to another project to have them in the list
     wsClient.wsConnector().call(
             new PostRequest("api/project_tags/set")
                     .setParam("project", "sample-with-tags")
@@ -105,19 +100,21 @@ public class ProjectDashboardTest {
 
     executeBuild("shared/xoo-sample", "sample", "Sample");
     ProjectDashboardPage page = nav.logIn().asAdmin().openProjectDashboard("sample");
-
-    SelenideElement tags = page.getTags();
-    tags.$(".tags-list > span").should(hasText("No tags"));
-    tags.$("button").shouldBe(visible).click();
-    tags.$("div.multi-select").shouldBe(visible);
-    tags.$$("ul.menu a").get(2).click();
-    tags.$(".tags-list > span").should(hasText("foo"));
-    tags.$("input").sendKeys("test");
-    tags.$$("ul.menu a").get(1).should(hasText("+ test")).click();
-    tags.$(".tags-list > span").should(hasText("foo, test"));
-    tags.$$("ul.menu a").get(1).should(hasText("test"));
-    tags.$("input").sendKeys(Keys.ENTER);
-    tags.$(".tags-list > span").should(hasText("foo"));
+    page
+      .shouldHaveTags("No tags")
+      .shouldBeEditable()
+      .openTagEditor()
+      .getTagAtIdx(2).click();
+    page
+      .shouldHaveTags("foo")
+      .sendKeysToTagsInput("test")
+      .getTagAtIdx(1).should(hasText("+ test")).click();
+    page
+      .shouldHaveTags("foo", "test")
+      .getTagAtIdx(1).should(hasText("test"));
+    page
+      .sendKeysToTagsInput(Keys.ENTER)
+      .shouldHaveTags("foo");
   }
 
   @Test

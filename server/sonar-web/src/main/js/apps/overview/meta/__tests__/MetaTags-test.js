@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
+import { click } from '../../../../helpers/testUtils';
 import MetaTags from '../MetaTags';
 
 const component = {
@@ -37,10 +38,6 @@ const componentWithTags = {
   }
 };
 
-const mouseEvent = {
-  stopPropagation: () => {}
-};
-
 it('should render without tags and admin rights', () => {
   expect(shallow(<MetaTags component={component} />)).toMatchSnapshot();
 });
@@ -55,10 +52,10 @@ it('should open the tag selector on click', () => {
   expect(wrapper).toMatchSnapshot();
 
   // open
-  wrapper.find('button').simulate('click', mouseEvent);
+  click(wrapper.find('button'));
   expect(wrapper).toMatchSnapshot();
 
   // close
-  wrapper.find('button').simulate('click', mouseEvent);
+  click(wrapper.find('button'));
   expect(wrapper).toMatchSnapshot();
 });

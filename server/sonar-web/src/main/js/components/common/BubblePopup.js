@@ -23,7 +23,6 @@ import classNames from 'classnames';
 export default class BubblePopup extends React.PureComponent {
   static propsType = {
     children: React.PropTypes.object.isRequired,
-    open: React.PropTypes.bool.isRequired,
     position: React.PropTypes.object.isRequired,
     customClass: React.PropTypes.string
   };
@@ -34,10 +33,7 @@ export default class BubblePopup extends React.PureComponent {
 
   render() {
     const popupClass = classNames('bubble-popup', this.props.customClass);
-    const popupStyle = {
-      ...this.props.position,
-      display: this.props.open ? 'block' : 'none'
-    };
+    const popupStyle = { ...this.props.position };
 
     return (
       <div className={popupClass} style={popupStyle}>

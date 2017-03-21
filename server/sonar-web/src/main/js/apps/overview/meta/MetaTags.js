@@ -19,7 +19,6 @@
  */
 //@flow
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
 import ProjectTagsSelectorContainer from '../../projects/components/ProjectTagsSelectorContainer';
@@ -76,8 +75,7 @@ export default class MetaTags extends React.PureComponent {
   };
 
   handleOutsideClick = (evt: SyntheticInputEvent) => {
-    const domNode = ReactDOM.findDOMNode(this.tagsSelector);
-    if (!domNode || !domNode.contains(evt.target)) {
+    if (!this.tagsSelector || !this.tagsSelector.contains(evt.target)) {
       this.setState({ popupOpen: false });
     }
   };
@@ -117,13 +115,14 @@ export default class MetaTags extends React.PureComponent {
               allowMultiLine={true}
             />
           </button>
-          <ProjectTagsSelectorContainer
-            ref={tagsSelector => this.tagsSelector = tagsSelector}
-            open={popupOpen}
-            position={popupPosition}
-            project={key}
-            selectedTags={tags}
-          />
+          {popupOpen &&
+            <div ref={tagsSelector => this.tagsSelector = tagsSelector}>
+              <ProjectTagsSelectorContainer
+                position={popupPosition}
+                project={key}
+                selectedTags={tags}
+              />
+            </div>}
         </div>
       );
     } else {

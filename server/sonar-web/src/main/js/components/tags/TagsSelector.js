@@ -24,7 +24,6 @@ import MultiSelect from '../common/MultiSelect';
 import './TagsList.css';
 
 type Props = {
-  open: boolean,
   position: {},
   tags: Array<string>,
   selectedTags: Array<string>,
@@ -39,7 +38,6 @@ export default class TagsSelector extends React.PureComponent {
   render() {
     return (
       <BubblePopup
-        open={this.props.open}
         position={this.props.position}
         customClass="bubble-popup-bottom-right bubble-popup-menu"
       >

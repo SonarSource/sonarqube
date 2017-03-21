@@ -22,14 +22,11 @@ import React from 'react';
 import BubblePopup from '../BubblePopup';
 
 const props = {
-  open: false,
   position: { top: 0, right: 0 },
   customClass: 'custom'
 };
 
 it('should render popup', () => {
   const popup = shallow(<BubblePopup {...props}><span>test</span></BubblePopup>);
-  expect(popup).toMatchSnapshot();
-  popup.setProps({ open: true });
   expect(popup).toMatchSnapshot();
 });

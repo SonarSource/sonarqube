@@ -49,6 +49,9 @@ class ProjectTagsSelectorContainer extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     this.onSearch = debounce(this.onSearch, 250);
+  }
+
+  componentDidMount() {
     this.onSearch('');
   }
 

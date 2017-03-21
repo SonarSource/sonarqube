@@ -25,7 +25,7 @@ import { parseError } from '../../code/utils';
 import { receiveComponents, receiveProjectTags } from '../../../store/components/actions';
 import { receiveProjects, receiveMoreProjects } from './projectsDuck';
 import { updateState } from './stateDuck';
-import { getProjectsAppState } from '../../../store/rootReducer';
+import { getProjectsAppState, getComponent } from '../../../store/rootReducer';
 import { getMeasuresForProjects } from '../../../api/measures';
 import { receiveComponentsMeasures } from '../../../store/measures/actions';
 import { convertToQueryData } from './utils';
@@ -183,7 +183,7 @@ export const fetchMoreProjects = (query, isFavorite, organization) =>
 
 export const setProjectTags = (project, tags) =>
   (dispatch, getState) => {
-    const previousTags = getState().components.byKey[project].tags;
+    const previousTags = getComponent(getState(), project).tags;
     dispatch(receiveProjectTags(project, tags));
     return apiSetProjectTags({ project, tags: tags.join(',') }).then(
       null,

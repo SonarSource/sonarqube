@@ -78,7 +78,7 @@ export default class ProjectCard extends React.PureComponent {
               {project.name}
             </Link>
           </h2>
-          {project.tags.length > 0 && <TagsList tags={project.tags} />}
+          {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
 
         {isProjectAnalyzed

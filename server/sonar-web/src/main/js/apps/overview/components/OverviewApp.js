@@ -104,7 +104,6 @@ export default class OverviewApp extends React.Component {
   }
 
   componentWillUnmount() {
-    console.warn(`unmounted overview`); // eslint-disable-line
     this.mounted = false;
     document.querySelector('html').classList.remove('dashboard-page');
   }

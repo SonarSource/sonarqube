@@ -22,7 +22,6 @@ import React from 'react';
 import TagsSelector from '../TagsSelector';
 
 const props = {
-  open: true,
   position: { left: 0, top: 0 },
   tags: ['foo', 'bar', 'baz'],
   selectedTags: ['bar'],

@@ -34,6 +34,7 @@ const elements = ['foo', 'bar', 'baz'];
 it('should render multiselect with selected elements', () => {
   const multiselect = shallow(<MultiSelect {...props} />);
   expect(multiselect).toMatchSnapshot();
+  expect(document.activeElement).toBe(multiselect.find('input'));
   multiselect.setProps({ elements });
   expect(multiselect).toMatchSnapshot();
   multiselect.setState({ active: { idx: 2, value: 'baz' } });
