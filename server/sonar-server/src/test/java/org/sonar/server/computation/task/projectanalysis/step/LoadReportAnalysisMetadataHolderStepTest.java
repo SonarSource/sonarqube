@@ -61,13 +61,13 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   private ComputationStep underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY, dbTester.getDefaultOrganization().getUuid());
     underTest = createStep(defaultOrgCeTask);
   }
 
   @Test
-  public void set_root_component_ref() throws Exception {
+  public void set_root_component_ref() {
     reportReader.setMetadata(
       newBatchReportBuilder()
         .setRootComponentRef(1)
@@ -79,7 +79,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void set_analysis_date() throws Exception {
+  public void set_analysis_date() {
     reportReader.setMetadata(
       newBatchReportBuilder()
         .setAnalysisDate(ANALYSIS_DATE)
@@ -91,7 +91,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void set_branch() throws Exception {
+  public void set_branch() {
     reportReader.setMetadata(
       newBatchReportBuilder()
         .setBranch(BRANCH)
@@ -106,7 +106,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void set_null_branch_when_nothing_in_the_report() throws Exception {
+  public void set_null_branch_when_nothing_in_the_report() {
     reportReader.setMetadata(
       newBatchReportBuilder()
         .build());
@@ -117,7 +117,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void set_cross_project_duplication_to_true() throws Exception {
+  public void set_cross_project_duplication_to_true() {
     reportReader.setMetadata(
       newBatchReportBuilder()
         .setCrossProjectDuplicationActivated(true)
@@ -129,7 +129,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void set_cross_project_duplication_to_false() throws Exception {
+  public void set_cross_project_duplication_to_false() {
     reportReader.setMetadata(
       newBatchReportBuilder()
         .setCrossProjectDuplicationActivated(false)
@@ -141,7 +141,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void set_cross_project_duplication_to_false_when_nothing_in_the_report() throws Exception {
+  public void set_cross_project_duplication_to_false_when_nothing_in_the_report() {
     reportReader.setMetadata(
       newBatchReportBuilder()
         .build());
@@ -207,7 +207,6 @@ public class LoadReportAnalysisMetadataHolderStepTest {
       nonDefaultOrganizationDto.getKey() + ") than the default one (" + dbTester.getDefaultOrganization().getKey() + ")");
 
     underTest.execute();
-
   }
 
   @Test
@@ -257,6 +256,56 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     assertThat(organization.getUuid()).isEqualTo(nonDefaultOrganizationDto.getUuid());
     assertThat(organization.getKey()).isEqualTo(nonDefaultOrganizationDto.getKey());
     assertThat(organization.getName()).isEqualTo(nonDefaultOrganizationDto.getName());
+  }
+
+  @Test
+  public void execute_ensures_that_report_has_quality_profiles_matching_the_project_organization() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
+    metadataBuilder.setOrganizationKey(organization.getKey());
+    metadataBuilder.getMutableQprofilesPerLanguage().put("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
+    reportReader.setMetadata(metadataBuilder.build());
+
+    dbTester.qualityProfiles().insert(organization, p -> p.setLanguage("js"), p -> p.setKey("p1"));
+
+    ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, organization.getUuid()));
+
+    // no errors
+    underTest.execute();
+  }
+
+  @Test
+  public void execute_fails_with_MessageException_when_report_has_quality_profiles_on_other_organizations() {
+    OrganizationDto organization1 = dbTester.organizations().insert();
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
+    metadataBuilder.setOrganizationKey(organization1.getKey());
+    metadataBuilder.getMutableQprofilesPerLanguage().put("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("jsInOrg1").setName("Sonar way").setLanguage("js").build());
+    metadataBuilder.getMutableQprofilesPerLanguage().put("php", ScannerReport.Metadata.QProfile.newBuilder().setKey("phpInOrg2").setName("PHP way").setLanguage("php").build());
+    reportReader.setMetadata(metadataBuilder.build());
+
+    dbTester.qualityProfiles().insert(organization1, p -> p.setLanguage("js"), p -> p.setKey("jsInOrg1"));
+    dbTester.qualityProfiles().insert(organization2, p -> p.setLanguage("php"), p -> p.setKey("phpInOrg2"));
+
+    ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, organization1.getUuid()));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Quality profiles with following keys don't exist in organization [" + organization1.getKey() + "]: phpInOrg2");
+
+    underTest.execute();
+  }
+
+  @Test
+  public void execute_does_not_fail_when_report_has_a_quality_profile_that_does_not_exist_anymore() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
+    metadataBuilder.setOrganizationKey(organization.getKey());
+    metadataBuilder.getMutableQprofilesPerLanguage().put("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
+    reportReader.setMetadata(metadataBuilder.build());
+
+    ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, organization.getUuid()));
+
+    underTest.execute();
   }
 
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {
