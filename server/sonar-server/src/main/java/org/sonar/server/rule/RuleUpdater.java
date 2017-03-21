@@ -44,6 +44,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
@@ -59,11 +60,13 @@ public class RuleUpdater {
   private final DbClient dbClient;
   private final RuleIndexer ruleIndexer;
   private final System2 system;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system) {
+  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.ruleIndexer = ruleIndexer;
     this.system = system;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
@@ -106,7 +109,7 @@ public class RuleUpdater {
   private Context newContext(RuleUpdate change) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Context context = new Context();
-      context.rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getRuleKey());
+      context.rule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationProvider.get().getUuid(), change.getRuleKey());
       if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }

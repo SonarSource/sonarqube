@@ -42,8 +42,16 @@ public class RuleDao implements Dao {
     return Optional.fromNullable(mapper(session).selectDefinitionByKey(key));
   }
 
-  public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
+  public RuleDto selectOrFailByKey(DbSession session, String organizationUuid, RuleKey key) {
     RuleDto rule = mapper(session).selectByKey(key);
+    if (rule == null) {
+      throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
+    }
+    return rule;
+  }
+
+  public RuleDefinitionDto selectOrFailDefinitionByKey(DbSession session, RuleKey key) {
+    RuleDefinitionDto rule = mapper(session).selectDefinitionByKey(key);
     if (rule == null) {
       throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
     }

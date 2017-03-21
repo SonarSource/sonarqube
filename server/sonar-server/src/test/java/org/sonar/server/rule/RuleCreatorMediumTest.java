@@ -35,12 +35,14 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -65,12 +67,14 @@ public class RuleCreatorMediumTest {
   RuleCreator creator = tester.get(RuleCreator.class);
   RuleIndex ruleIndex = tester.get(RuleIndex.class);
   RuleIndexer ruleIndexer;
+  private String defaultOrganizationUuid;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
+    defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
   }
 
   @After
@@ -94,7 +98,7 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationUuid, customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
@@ -274,7 +278,7 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    RuleDto result = db.ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    RuleDefinitionDto result = db.ruleDao().selectOrFailDefinitionByKey(dbSession, customRuleKey);
     assertThat(result.getKey()).isEqualTo(RuleKey.of("java", key));
     assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
 

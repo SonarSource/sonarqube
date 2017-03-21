@@ -39,6 +39,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.SearchOptions;
@@ -455,9 +456,9 @@ public class RuleActivatorMediumTest {
 
   @Test
   public void fail_to_activate_if_rule_with_removed_status() {
-    RuleDto ruleDto = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
+    RuleDefinitionDto ruleDto = db.ruleDao().selectOrFailDefinitionByKey(dbSession, XOO_X1);
     ruleDto.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, ruleDto.getDefinition());
+    db.ruleDao().update(dbSession, ruleDto);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -551,9 +552,9 @@ public class RuleActivatorMediumTest {
     activate(activation, XOO_P1_KEY);
 
     // set rule as removed
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
+    RuleDefinitionDto rule = db.ruleDao().selectOrFailDefinitionByKey(dbSession, XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, rule.getDefinition());
+    db.ruleDao().update(dbSession, rule);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -1023,9 +1024,9 @@ public class RuleActivatorMediumTest {
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123"));
 
     // mark rule x1 as REMOVED
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
+    RuleDefinitionDto rule = db.ruleDao().selectOrFailDefinitionByKey(dbSession, XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, rule.getDefinition());
+    db.ruleDao().update(dbSession, rule);
     dbSession.commit();
     dbSession.clearCache();
 
