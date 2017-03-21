@@ -19,32 +19,36 @@
  */
 // @flow
 import React from 'react';
-import ViewSelect from './ViewSelect';
+import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
+import { VISUALIZATIONS } from '../utils';
 
-export default class PageHeader extends React.Component {
+export default class VisualizationsHeader extends React.PureComponent {
   props: {
-    loading: boolean,
-    onViewChange: (string) => void,
-    total?: number,
-    view: string
+    onVisualizationChange: (string) => void,
+    visualization: string
+  };
+
+  handleChange = (option: { value: string }) => {
+    this.props.onVisualizationChange(option.value);
   };
 
   render() {
+    const options = VISUALIZATIONS.map(option => ({
+      value: option,
+      label: translate('metric', option, 'name')
+    }));
+
     return (
-      <header className="page-header">
-        <ViewSelect onChange={this.props.onViewChange} view={this.props.view} />
-
-        <div className="page-actions projects-page-actions">
-          {!!this.props.loading && <i className="spinner spacer-right" />}
-
-          {this.props.total != null &&
-            <span>
-              <strong id="projects-total">{this.props.total}</strong>
-              {' '}
-              {translate('projects._projects')}
-            </span>}
-        </div>
+      <header className="boxed-group-header">
+        <Select
+          className="input-medium"
+          clearable={false}
+          onChange={this.handleChange}
+          options={options}
+          searchable={false}
+          value={this.props.visualization}
+        />
       </header>
     );
   }

@@ -1,0 +1,19 @@
+exports[`test should render options 1`] = `
+<RadioToggle
+  disabled={false}
+  name="view"
+  onCheck={[Function]}
+  options={
+    Array [
+      Object {
+        "label": "projects.view.list",
+        "value": "list",
+      },
+      Object {
+        "label": "projects.view.visualizations",
+        "value": "visualizations",
+      },
+    ]
+  }
+  value="visualizations" />
+`;

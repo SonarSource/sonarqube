@@ -50,7 +50,10 @@ export default class ProjectCard extends React.PureComponent {
       return null;
     }
 
-    const areProjectMeasuresLoaded = this.props.measures != null;
+    // check reliability_rating because only some measures can be loaded
+    // if coming from visualizations tab
+    const areProjectMeasuresLoaded = this.props.measures != null &&
+      this.props.measures['reliability_rating'] != null;
     const isProjectAnalyzed = project.analysisDate != null;
     const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
 
