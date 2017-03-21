@@ -19,6 +19,8 @@
  */
 package org.sonarqube.ws.client.measure;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,7 +37,7 @@ public class SearchRequestTest {
   SearchRequest.Builder underTest = SearchRequest.builder();
 
   @Test
-  public void with_component_keys() {
+  public void create_request() {
     SearchRequest result = underTest
       .setMetricKeys(singletonList("metric"))
       .setProjectKeys(singletonList("key"))
@@ -43,6 +45,16 @@ public class SearchRequestTest {
 
     assertThat(result.getMetricKeys()).containsExactly("metric");
     assertThat(result.getProjectKeys()).containsExactly("key");
+  }
+
+  @Test
+  public void create_request_with_100_keys() {
+    SearchRequest result = underTest
+      .setMetricKeys(singletonList("metric"))
+      .setProjectKeys(IntStream.rangeClosed(1, 100).mapToObj(Integer::toString).collect(Collectors.toList()))
+      .build();
+
+    assertThat(result.getProjectKeys()).hasSize(100);
   }
 
   @Test
@@ -73,6 +85,17 @@ public class SearchRequestTest {
     underTest
       .setMetricKeys(singletonList("metric"))
       .setProjectKeys(emptyList())
+      .build();
+  }
+
+  @Test
+  public void fail_when_component_keys_contains_more_than_100_keys() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("101 projects provided, more than maximum authorized (100)");
+
+    underTest
+      .setMetricKeys(singletonList("metric"))
+      .setProjectKeys(IntStream.rangeClosed(1, 101).mapToObj(Integer::toString).collect(Collectors.toList()))
       .build();
   }
 

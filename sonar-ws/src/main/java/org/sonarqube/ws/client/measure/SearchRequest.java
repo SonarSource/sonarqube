@@ -68,7 +68,7 @@ public class SearchRequest {
       checkArgument(metricKeys != null && !metricKeys.isEmpty(), "Metric keys must be provided");
       checkArgument(projectKeys != null && !projectKeys.isEmpty(), "Project keys must be provided");
       int nbComponents = projectKeys.size();
-      checkArgument(nbComponents < MAX_NB_PROJECTS,
+      checkArgument(nbComponents <= MAX_NB_PROJECTS,
         "%s projects provided, more than maximum authorized (%s)", nbComponents, MAX_NB_PROJECTS);
       return new SearchRequest(this);
     }

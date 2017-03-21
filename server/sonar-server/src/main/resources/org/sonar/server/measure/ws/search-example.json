@@ -17,6 +17,11 @@
       "component": "MY_PROJECT_2"
     },
     {
+      "metric": "complexity",
+      "value": "42",
+      "component": "MY_PROJECT_3"
+    },
+    {
       "metric": "ncloc",
       "value": "114",
       "component": "MY_PROJECT_1"

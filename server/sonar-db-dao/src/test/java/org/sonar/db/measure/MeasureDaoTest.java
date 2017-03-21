@@ -20,6 +20,7 @@
 package org.sonar.db.measure;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -123,7 +124,7 @@ public class MeasureDaoTest {
 
     // project 1
     insertMeasure("P1_M1", LAST_ANALYSIS_UUID, project1.uuid(), NCLOC_METRIC_ID);
-    insertMeasure("P1_M1", LAST_ANALYSIS_UUID, project1.uuid(), COVERAGE_METRIC_ID);
+    insertMeasure("P1_M2", LAST_ANALYSIS_UUID, project1.uuid(), COVERAGE_METRIC_ID);
     insertMeasure("P1_M3", OTHER_ANALYSIS_UUID, project1.uuid(), NCLOC_METRIC_ID);
     // project 2
     insertMeasure("P2_M1", project2LastAnalysisUuid, project2.uuid(), NCLOC_METRIC_ID);
@@ -195,7 +196,7 @@ public class MeasureDaoTest {
     // projects measures of last analysis
     verifyMeasures(MeasureQuery.builder().setProjectUuids(singletonList(project1.uuid())).setMetricId(NCLOC_METRIC_ID), "P1_M1");
     verifyMeasures(MeasureQuery.builder().setProjectUuids(asList(project1.uuid(), project2.uuid())).setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)),
-      "P1_M1", "P2_M1", "P2_M2", "P2_M2");
+      "P1_M1", "P1_M2", "P2_M1", "P2_M2", "P2_M2");
     verifyMeasures(MeasureQuery.builder().setProjectUuids(asList(project1.uuid(), project2.uuid(), "UNKNOWN")).setMetricId(NCLOC_METRIC_ID), "P1_M1", "P2_M1");
 
     // projects measures of none last analysis
@@ -370,6 +371,54 @@ public class MeasureDaoTest {
       new PastMeasureQuery(project.uuid(), singletonList(NCLOC_METRIC_ID), previousAnalysisDate, lastAnalysisDate + 1_000L));
 
     assertThat(result).hasSize(2).extracting(MeasureDto::getData).containsOnly("PROJECT_M1", "PROJECT_M2");
+  }
+
+  @Test
+  public void selectByComponentsAndMetrics() {
+    ComponentDto project1 = db.components().insertProject(db.getDefaultOrganization(), "P1");
+    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
+    db.components().insertComponent(newFileDto(module).setUuid("C1"));
+    db.components().insertComponent(newFileDto(module).setUuid("C2"));
+    insertAnalysis(LAST_ANALYSIS_UUID, project1.uuid(), true);
+    insertAnalysis(OTHER_ANALYSIS_UUID, project1.uuid(), false);
+
+    String project2LastAnalysisUuid = "P2_LAST_ANALYSIS";
+    ComponentDto project2 = db.components().insertProject(db.getDefaultOrganization(), "P2");
+    insertAnalysis(project2LastAnalysisUuid, project2.uuid(), true);
+
+    // project 1
+    insertMeasure("P1_M1", LAST_ANALYSIS_UUID, project1.uuid(), NCLOC_METRIC_ID);
+    insertMeasure("P1_M2", LAST_ANALYSIS_UUID, project1.uuid(), COVERAGE_METRIC_ID);
+    insertMeasure("P1_M3", OTHER_ANALYSIS_UUID, project1.uuid(), NCLOC_METRIC_ID);
+    // project 2
+    insertMeasure("P2_M1", project2LastAnalysisUuid, project2.uuid(), NCLOC_METRIC_ID);
+    insertMeasure("P2_M2", project2LastAnalysisUuid, project2.uuid(), COVERAGE_METRIC_ID);
+    // component C1
+    insertMeasure("M1", OTHER_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
+    insertMeasure("M2", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
+    insertMeasure("M3", LAST_ANALYSIS_UUID, "C1", COVERAGE_METRIC_ID);
+    insertMeasureOnPerson("M4", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID, A_PERSON_ID);
+    insertMeasureOnPerson("M5", OTHER_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID, 123L);
+    // component C2
+    insertMeasure("M6", LAST_ANALYSIS_UUID, "C2", NCLOC_METRIC_ID);
+    db.commit();
+
+    assertThat(underTest.selectByComponentsAndMetrics(db.getSession(), Collections.emptyList(), Collections.emptyList())).isEmpty();
+
+    // Measures of component C1
+    assertThat(underTest.selectByComponentsAndMetrics(db.getSession(), singletonList("C1"), singletonList(NCLOC_METRIC_ID))).extracting(MeasureDto::getData).containsOnly("M2");
+    assertThat(underTest.selectByComponentsAndMetrics(db.getSession(), singletonList("C1"), asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID))).extracting(MeasureDto::getData)
+      .containsOnly("M2", "M3");
+
+    // ncloc measures of components C1, C2
+    assertThat(underTest.selectByComponentsAndMetrics(db.getSession(), asList("C1", "C2"), asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID))).extracting(MeasureDto::getData)
+      .containsOnly("M2", "M3", "M6");
+
+    // projects measures of last analysis
+    assertThat(underTest.selectByComponentsAndMetrics(db.getSession(), singletonList("P1"), singletonList(NCLOC_METRIC_ID))).extracting(MeasureDto::getData)
+      .containsOnly("P1_M1");
+    assertThat(underTest.selectByComponentsAndMetrics(db.getSession(), asList("P1", "P2"), asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID))).extracting(MeasureDto::getData)
+      .containsOnly("P1_M1", "P1_M2", "P2_M1", "P2_M2");
   }
 
   private Optional<MeasureDto> selectSingle(MeasureQuery.Builder query) {

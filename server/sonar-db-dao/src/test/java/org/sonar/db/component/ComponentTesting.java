@@ -75,6 +75,11 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.SUBVIEW);
   }
 
+  public static ComponentDto newSubView(ComponentDto viewOrSubView) {
+    String uuid = Uuids.createFast();
+    return newSubView(viewOrSubView, uuid, "KEY_" + uuid);
+  }
+
   public static ComponentDto newModuleDto(String uuid, ComponentDto parentModuleOrProject) {
     return newChildComponent(uuid, parentModuleOrProject, parentModuleOrProject)
       .setModuleUuidPath(parentModuleOrProject.moduleUuidPath() + uuid + UUID_PATH_SEPARATOR)
