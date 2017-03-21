@@ -58,17 +58,20 @@ public class RuleDao implements Dao {
     return rule;
   }
 
-  /**
-   * Retrieves a Rule by its id.
-   *
-   * Used by Views.
-   */
-  public Optional<RuleDto> selectById(long id, DbSession session) {
+  public Optional<RuleDto> selectById(long id, String organizationUuid, DbSession session) {
     return Optional.fromNullable(mapper(session).selectById(id));
   }
 
-  public List<RuleDto> selectByIds(DbSession session, List<Integer> ids) {
+  public Optional<RuleDefinitionDto> selectDefinitionById(long id, DbSession session) {
+    return Optional.fromNullable(mapper(session).selectDefinitionById(id));
+  }
+
+  public List<RuleDto> selectByIds(DbSession session, String organizationUuid, List<Integer> ids) {
     return executeLargeInputs(ids, mapper(session)::selectByIds);
+  }
+
+  public List<RuleDefinitionDto> selectDefinitionByIds(DbSession session, List<Integer> ids) {
+    return executeLargeInputs(ids, mapper(session)::selectDefinitionByIds);
   }
 
   /**

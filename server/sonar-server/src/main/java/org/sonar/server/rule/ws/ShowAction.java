@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -98,9 +99,9 @@ public class ShowAction implements RulesWsAction {
       Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, defaultOrganizationUuid, key);
       checkFoundWithOptional(optionalRule, "Rule not found: " + key);
       RuleDto rule = optionalRule.get();
-      List<RuleDto> templateRules = new ArrayList<>();
+      List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
       if (rule.getTemplateId() != null) {
-        Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+        Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
         if (templateRule.isPresent()) {
           templateRules.add(templateRule.get());
         }

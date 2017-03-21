@@ -42,6 +42,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -232,7 +233,7 @@ public class RuleUpdater {
       RuleDto customRule = context.rule;
       Integer templateId = customRule.getTemplateId();
       checkNotNull(templateId, "Rule '%s' has no persisted template!", customRule);
-      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(templateId, dbSession);
+      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(templateId, dbSession);
       if (!templateRule.isPresent()) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
           customRule.getTemplateId(), customRule.getKey()));

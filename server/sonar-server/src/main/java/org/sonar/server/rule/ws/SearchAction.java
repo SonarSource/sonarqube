@@ -48,6 +48,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
@@ -364,7 +365,7 @@ public class SearchAction implements RulesWsAction {
       .transform(RuleDtoToTemplateId.INSTANCE)
       .filter(Predicates.notNull())
       .toList();
-    List<RuleDto> templateRules = dbClient.ruleDao().selectByIds(dbSession, templateRuleIds);
+    List<RuleDefinitionDto> templateRules = dbClient.ruleDao().selectDefinitionByIds(dbSession, templateRuleIds);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds);
     return new SearchResult()
       .setRules(rules)
@@ -473,7 +474,7 @@ public class SearchAction implements RulesWsAction {
   static class SearchResult {
     private List<RuleDto> rules;
     private final ListMultimap<Integer, RuleParamDto> ruleParamsByRuleId;
-    private final Map<Integer, RuleDto> templateRulesByRuleId;
+    private final Map<Integer, RuleDefinitionDto> templateRulesByRuleId;
     private Long total;
     private Facets facets;
 
@@ -504,13 +505,13 @@ public class SearchAction implements RulesWsAction {
       return this;
     }
 
-    public Map<Integer, RuleDto> getTemplateRulesByRuleId() {
+    public Map<Integer, RuleDefinitionDto> getTemplateRulesByRuleId() {
       return templateRulesByRuleId;
     }
 
-    public SearchResult setTemplateRules(List<RuleDto> templateRules) {
+    public SearchResult setTemplateRules(List<RuleDefinitionDto> templateRules) {
       templateRulesByRuleId.clear();
-      for (RuleDto templateRule : templateRules) {
+      for (RuleDefinitionDto templateRule : templateRules) {
         templateRulesByRuleId.put(templateRule.getId(), templateRule);
       }
       return this;

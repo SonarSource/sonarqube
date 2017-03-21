@@ -387,9 +387,9 @@ public class RegisterRules implements Startable {
     for (RuleDto customRule : customRules) {
       Integer templateId = customRule.getTemplateId();
       checkNotNull(templateId, "Template id of the custom rule '%s' is null", customRule);
-      Optional<RuleDto> template = dbClient.ruleDao().selectById(templateId, session);
+      Optional<RuleDefinitionDto> template = dbClient.ruleDao().selectDefinitionById(templateId, session);
       if (template.isPresent() && template.get().getStatus() != RuleStatus.REMOVED) {
-        if (updateCustomRuleFromTemplateRule(customRule, template.get().getDefinition())) {
+        if (updateCustomRuleFromTemplateRule(customRule, template.get())) {
           update(session, customRule.getDefinition());
         }
       } else {

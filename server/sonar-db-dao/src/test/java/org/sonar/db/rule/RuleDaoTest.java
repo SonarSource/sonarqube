@@ -83,9 +83,20 @@ public class RuleDaoTest {
   @Test
   public void selectById() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
+    String organizationUuid = "org-1";
 
-    assertThat(underTest.selectById(55l, dbTester.getSession())).isAbsent();
-    Optional<RuleDto> ruleDtoOptional = underTest.selectById(1l, dbTester.getSession());
+    assertThat(underTest.selectById(55l, organizationUuid, dbTester.getSession())).isAbsent();
+    Optional<RuleDto> ruleDtoOptional = underTest.selectById(1l, organizationUuid, dbTester.getSession());
+    assertThat(ruleDtoOptional).isPresent();
+    assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectDefinitionById() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectDefinitionById(55l, dbTester.getSession())).isAbsent();
+    Optional<RuleDefinitionDto> ruleDtoOptional = underTest.selectDefinitionById(1l, dbTester.getSession());
     assertThat(ruleDtoOptional).isPresent();
     assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
   }
@@ -94,11 +105,23 @@ public class RuleDaoTest {
   public void selectByIds() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1))).hasSize(1);
-    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1, 2))).hasSize(2);
-    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1, 2, 3))).hasSize(2);
+    String organizationUuid = "org-1";
+    assertThat(underTest.selectByIds(dbTester.getSession(), organizationUuid, asList(1))).hasSize(1);
+    assertThat(underTest.selectByIds(dbTester.getSession(), organizationUuid, asList(1, 2))).hasSize(2);
+    assertThat(underTest.selectByIds(dbTester.getSession(), organizationUuid, asList(1, 2, 3))).hasSize(2);
 
-    assertThat(underTest.selectByIds(dbTester.getSession(), asList(123))).isEmpty();
+    assertThat(underTest.selectByIds(dbTester.getSession(), organizationUuid, asList(123))).isEmpty();
+  }
+
+  @Test
+  public void selectDefinitionByIds() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectDefinitionByIds(dbTester.getSession(), asList(1))).hasSize(1);
+    assertThat(underTest.selectDefinitionByIds(dbTester.getSession(), asList(1, 2))).hasSize(2);
+    assertThat(underTest.selectDefinitionByIds(dbTester.getSession(), asList(1, 2, 3))).hasSize(2);
+
+    assertThat(underTest.selectDefinitionByIds(dbTester.getSession(), asList(123))).isEmpty();
   }
 
   @Test
