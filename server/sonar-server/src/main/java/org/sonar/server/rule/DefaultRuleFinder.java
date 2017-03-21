@@ -40,6 +40,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -50,10 +51,12 @@ public class DefaultRuleFinder implements RuleFinder {
 
   private final DbClient dbClient;
   private final RuleDao ruleDao;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DefaultRuleFinder(DbClient dbClient) {
+  public DefaultRuleFinder(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.ruleDao = dbClient.ruleDao();
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -96,7 +99,7 @@ public class DefaultRuleFinder implements RuleFinder {
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, key);
+      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, defaultOrganizationProvider.get().getUuid(), key);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       } else {

@@ -35,6 +35,13 @@ public class RuleDbTester {
     this.db = db;
   }
 
+  public RuleDefinitionDto insertRule(RuleDefinitionDto ruleDto) {
+    RuleDao ruleDao = db.getDbClient().ruleDao();
+    ruleDao.insert(db.getSession(), ruleDto);
+    db.commit();
+    return ruleDto;
+  }
+
   public RuleDto insertRule(RuleDto ruleDto) {
     RuleDao ruleDao = db.getDbClient().ruleDao();
     ruleDao.insert(db.getSession(), ruleDto.getDefinition());

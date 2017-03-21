@@ -39,7 +39,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -345,7 +345,7 @@ public class RuleActivator {
   /**
    * Deactivate a rule on a Quality profile WITHOUT committing db session, WITHOUT checking permissions, and forcing removal of inherited rules
    */
-  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
+  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDefinitionDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRuleId(dbSession, ruleDto.getId());
     for (ActiveRuleDto activeRule : activeRules) {

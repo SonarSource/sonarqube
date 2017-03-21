@@ -416,7 +416,7 @@ public class ChangeParentActionTest {
   }
 
   private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
-    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule.getDefinition())
       .setSeverity(rule.getSeverityString());
     dbClient.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();

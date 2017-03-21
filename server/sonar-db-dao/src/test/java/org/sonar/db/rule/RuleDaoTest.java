@@ -49,21 +49,33 @@ import static org.assertj.guava.api.Assertions.assertThat;
 
 public class RuleDaoTest {
 
+  private static final String ORGANIZATION_UUID = "org-1";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  RuleDao underTest = dbTester.getDbClient().ruleDao();
+  private RuleDao underTest = dbTester.getDbClient().ruleDao();
 
   @Test
   public void selectByKey() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectByKey(dbTester.getSession(), RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
+    assertThat(underTest.selectByKey(dbTester.getSession(), ORGANIZATION_UUID, RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
 
-    Optional<RuleDto> rule = underTest.selectByKey(dbTester.getSession(), RuleKey.of("java", "S001"));
+    Optional<RuleDto> rule = underTest.selectByKey(dbTester.getSession(), ORGANIZATION_UUID, RuleKey.of("java", "S001"));
+    assertThat(rule.isPresent()).isTrue();
+    assertThat(rule.get().getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectDefinitionByKey() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectDefinitionByKey(dbTester.getSession(), RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
+
+    Optional<RuleDefinitionDto> rule = underTest.selectDefinitionByKey(dbTester.getSession(), RuleKey.of("java", "S001"));
     assertThat(rule.isPresent()).isTrue();
     assertThat(rule.get().getId()).isEqualTo(1);
   }

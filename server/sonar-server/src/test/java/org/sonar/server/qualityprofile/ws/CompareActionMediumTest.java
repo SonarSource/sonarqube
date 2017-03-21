@@ -86,11 +86,11 @@ public class CompareActionMediumTest {
   public void compare_nominal() throws Exception {
     createRepository("blah", "xoo", "Blah");
 
-    RuleDto rule1 = createRule("xoo", "rule1");
-    RuleDto rule2 = createRule("xoo", "rule2");
-    RuleDto rule3 = createRule("xoo", "rule3");
-    RuleDto rule4 = createRuleWithParam("xoo", "rule4");
-    RuleDto rule5 = createRule("xoo", "rule5");
+    RuleDefinitionDto rule1 = createRule("xoo", "rule1");
+    RuleDefinitionDto rule2 = createRule("xoo", "rule2");
+    RuleDefinitionDto rule3 = createRule("xoo", "rule3");
+    RuleDefinitionDto rule4 = createRuleWithParam("xoo", "rule4");
+    RuleDefinitionDto rule5 = createRule("xoo", "rule5");
 
     /*
      * Profile 1:
@@ -127,7 +127,7 @@ public class CompareActionMediumTest {
 
   @Test
   public void compare_param_on_left() throws Exception {
-    RuleDto rule1 = createRuleWithParam("xoo", "rule1");
+    RuleDefinitionDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
     QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRuleWithParam(rule1, profile1, "polop");
@@ -143,7 +143,7 @@ public class CompareActionMediumTest {
 
   @Test
   public void compare_param_on_right() throws Exception {
-    RuleDto rule1 = createRuleWithParam("xoo", "rule1");
+    RuleDefinitionDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
     QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRule(rule1, profile1);
@@ -196,7 +196,7 @@ public class CompareActionMediumTest {
     return profile;
   }
 
-  private RuleDto createRule(String lang, String id) {
+  private RuleDefinitionDto createRule(String lang, String id) {
     RuleDto rule = RuleDto.createFor(RuleKey.of("blah", id))
       .setName(StringUtils.capitalize(id))
       .setLanguage(lang)
@@ -206,26 +206,26 @@ public class CompareActionMediumTest {
     db.ruleDao().insert(session, ruleDefinition);
     RuleParamDto param = RuleParamDto.createFor(ruleDefinition).setName("param_" + id).setType(RuleParamType.STRING.toString());
     db.ruleDao().insertRuleParam(session, ruleDefinition, param);
-    return rule;
+    return ruleDefinition;
   }
 
-  private RuleDto createRuleWithParam(String lang, String id) {
-    RuleDto rule = createRule(lang, id);
-    RuleParamDto param = RuleParamDto.createFor(rule.getDefinition())
+  private RuleDefinitionDto createRuleWithParam(String lang, String id) {
+    RuleDefinitionDto rule = createRule(lang, id);
+    RuleParamDto param = RuleParamDto.createFor(rule)
       .setName("param_" + id)
       .setType(RuleParamType.STRING.toString());
-    db.ruleDao().insertRuleParam(session, rule.getDefinition(), param);
+    db.ruleDao().insertRuleParam(session, rule, param);
     return rule;
   }
 
-  private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     db.activeRuleDao().insert(session, activeRule);
     return activeRule;
   }
 
-  private ActiveRuleDto createActiveRuleWithParam(RuleDto rule, QualityProfileDto profile, String value) {
+  private ActiveRuleDto createActiveRuleWithParam(RuleDefinitionDto rule, QualityProfileDto profile, String value) {
     ActiveRuleDto activeRule = createActiveRule(rule, profile);
     RuleParamDto paramDto = db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey()).get(0);
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(paramDto).setValue(value);
@@ -233,7 +233,7 @@ public class CompareActionMediumTest {
     return activeRule;
   }
 
-  private ActiveRuleDto createActiveRuleWithSeverity(RuleDto rule, QualityProfileDto profile, String severity) {
+  private ActiveRuleDto createActiveRuleWithSeverity(RuleDefinitionDto rule, QualityProfileDto profile, String severity) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(severity);
     db.activeRuleDao().insert(session, activeRule);

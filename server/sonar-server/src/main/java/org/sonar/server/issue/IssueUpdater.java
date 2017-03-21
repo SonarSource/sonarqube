@@ -28,7 +28,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.notification.NotificationManager;
 
@@ -46,7 +46,7 @@ public class IssueUpdater {
 
   public void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
     issueStorage.save(session, issue);
-    Optional<RuleDto> rule = getRuleByKey(session, issue.getRuleKey());
+    Optional<RuleDefinitionDto> rule = getRuleByKey(session, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, issue.projectUuid());
     notificationService.scheduleForSending(new IssueChangeNotification()
       .setIssue(issue)
@@ -57,8 +57,8 @@ public class IssueUpdater {
       .setComment(comment));
   }
 
-  private Optional<RuleDto> getRuleByKey(DbSession session, RuleKey ruleKey) {
-    Optional<RuleDto> rule = Optional.ofNullable(dbClient.ruleDao().selectByKey(session, ruleKey).orNull());
+  private Optional<RuleDefinitionDto> getRuleByKey(DbSession session, RuleKey ruleKey) {
+    Optional<RuleDefinitionDto> rule = Optional.ofNullable(dbClient.ruleDao().selectDefinitionByKey(session, ruleKey).orNull());
     return (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) ? rule : Optional.empty();
   }
 }

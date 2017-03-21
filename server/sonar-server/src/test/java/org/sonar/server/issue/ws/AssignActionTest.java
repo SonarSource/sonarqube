@@ -43,6 +43,8 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -77,11 +79,14 @@ public class AssignActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(db.getDbClient()));
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private AssignAction underTest = new AssignAction(system2, userSession, db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new IssueFieldsSetter(),
     new IssueUpdater(db.getDbClient(),
-      new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient()), db.getDbClient(), issueIndexer), mock(NotificationManager.class)),
+      new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), db.getDbClient(), issueIndexer),
+      mock(NotificationManager.class)
+    ),
     responseWriter);
   private WsActionTester ws = new WsActionTester(underTest);
 

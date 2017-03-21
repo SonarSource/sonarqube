@@ -322,8 +322,8 @@ public class SearchActionMediumTest {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    RuleDto rule = RuleTesting.newXooX1();
-    ruleDao.insert(dbSession, rule.getDefinition());
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
+    ruleDao.insert(dbSession, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
@@ -351,31 +351,30 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    RuleDto rule = RuleTesting.newXooX1();
-    RuleDefinitionDto definition = rule.getDefinition();
-    ruleDao.insert(dbSession, definition);
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
+    ruleDao.insert(dbSession, rule);
 
-    RuleParamDto param = RuleParamDto.createFor(definition)
+    RuleParamDto param = RuleParamDto.createFor(rule)
       .setDefaultValue("some value")
       .setType("string")
       .setDescription("My small description")
       .setName("my_var");
-    ruleDao.insertRuleParam(dbSession, definition, param);
+    ruleDao.insertRuleParam(dbSession, rule, param);
 
-    RuleParamDto param2 = RuleParamDto.createFor(definition)
+    RuleParamDto param2 = RuleParamDto.createFor(rule)
       .setDefaultValue("other value")
       .setType("integer")
       .setDescription("My small description")
       .setName("the_var");
-    ruleDao.insertRuleParam(dbSession, definition, param2);
+    ruleDao.insertRuleParam(dbSession, rule, param2);
 
     // SONAR-7083
-    RuleParamDto param3 = RuleParamDto.createFor(definition)
+    RuleParamDto param3 = RuleParamDto.createFor(rule)
       .setDefaultValue(null)
       .setType("string")
       .setDescription("Empty Param")
       .setName("empty_var");
-    ruleDao.insertRuleParam(dbSession, definition, param3);
+    ruleDao.insertRuleParam(dbSession, rule, param3);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
@@ -424,8 +423,8 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    RuleDto rule = RuleTesting.newXooX1();
-    ruleDao.insert(dbSession, rule.getDefinition());
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
+    ruleDao.insert(dbSession, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
@@ -449,24 +448,23 @@ public class SearchActionMediumTest {
   public void search_all_active_rules_params() throws Exception {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
-    RuleDto rule = RuleTesting.newXooX1();
-    RuleDefinitionDto definition = rule.getDefinition();
-    ruleDao.insert(dbSession, definition);
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
+    ruleDao.insert(dbSession, rule);
     dbSession.commit();
 
-    RuleParamDto param = RuleParamDto.createFor(definition)
+    RuleParamDto param = RuleParamDto.createFor(rule)
       .setDefaultValue("some value")
       .setType("string")
       .setDescription("My small description")
       .setName("my_var");
-    ruleDao.insertRuleParam(dbSession, definition, param);
+    ruleDao.insertRuleParam(dbSession, rule, param);
 
-    RuleParamDto param2 = RuleParamDto.createFor(definition)
+    RuleParamDto param2 = RuleParamDto.createFor(rule)
       .setDefaultValue("other value")
       .setType("integer")
       .setDescription("My small description")
       .setName("the_var");
-    ruleDao.insertRuleParam(dbSession, definition, param2);
+    ruleDao.insertRuleParam(dbSession, rule, param2);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
@@ -648,7 +646,7 @@ public class SearchActionMediumTest {
     result.assertJson(getClass(), "search_rules_with_deprecated_fields.json");
   }
 
-  private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDto rule) {
+  private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDefinitionDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
       .setInheritance(null)
       .setSeverity("BLOCKER");

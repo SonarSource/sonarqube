@@ -30,7 +30,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -65,8 +65,8 @@ public class RuleActivatorContextFactory {
     return context;
   }
 
-  private RuleDto initRule(RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession) {
-    Optional<RuleDto> rule = getRule(dbSession, ruleKey);
+  private RuleDefinitionDto initRule(RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession) {
+    Optional<RuleDefinitionDto> rule = getRule(dbSession, ruleKey);
     checkRequest(rule.isPresent(), "Rule not found: %s", ruleKey);
     context.setRule(rule.get());
     context.setRuleParams(db.ruleDao().selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
@@ -89,8 +89,8 @@ public class RuleActivatorContextFactory {
     }
   }
 
-  Optional<RuleDto> getRule(DbSession dbSession, RuleKey ruleKey) {
-    return Optional.ofNullable(db.ruleDao().selectByKey(dbSession, ruleKey).orNull());
+  Optional<RuleDefinitionDto> getRule(DbSession dbSession, RuleKey ruleKey) {
+    return Optional.ofNullable(db.ruleDao().selectDefinitionByKey(dbSession, ruleKey).orNull());
   }
 
   Optional<ActiveRuleDto> getActiveRule(DbSession session, ActiveRuleKey key) {
