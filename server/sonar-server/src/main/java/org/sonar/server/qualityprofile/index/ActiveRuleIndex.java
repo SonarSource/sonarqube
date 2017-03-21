@@ -63,8 +63,8 @@ public class ActiveRuleIndex extends BaseIndex {
   public Map<String, Long> countAllByQualityProfileKey() {
     return countByField(FIELD_ACTIVE_RULE_PROFILE_KEY,
       QueryBuilders.hasParentQuery(INDEX_TYPE_RULE.getType(),
-        QueryBuilders.boolQuery().mustNot(
-          QueryBuilders.termQuery(FIELD_RULE_STATUS, RuleStatus.REMOVED.name()))));
+        QueryBuilders.boolQuery()
+          .mustNot(QueryBuilders.termQuery(FIELD_RULE_STATUS, RuleStatus.REMOVED.name()))));
   }
 
   public Map<String, Long> countAllDeprecatedByQualityProfileKey() {

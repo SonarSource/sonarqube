@@ -37,11 +37,11 @@ import org.sonar.server.qualityprofile.ActiveRule;
 public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc> {
 
   private static final String[] FIELDS = {
-    // column 1
     "a.failure_level",
     "a.inheritance",
-    "r.plugin_rule_key",
     "r.plugin_name",
+    "r.plugin_rule_key",
+    "qp.organization_uuid",
     "qp.kee",
     "a.created_at",
     "a.updated_at"
@@ -72,19 +72,22 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
 
   @Override
   protected ActiveRuleDoc read(ResultSet rs) throws SQLException {
-    RuleKey ruleKey = RuleKey.of(rs.getString(4), rs.getString(3));
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(rs.getString(5), ruleKey);
+    int severity = rs.getInt(1);
+    String inheritance = rs.getString(2);
+    RuleKey ruleKey = RuleKey.of(rs.getString(3), rs.getString(4));
+    String organizationUuid = rs.getString(5);
+    String profileKey = rs.getString(6);
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profileKey, ruleKey);
 
     ActiveRuleDoc doc = new ActiveRuleDoc(activeRuleKey);
-
+    doc.setOrganizationUuid(organizationUuid);
     // all the fields must be present, even if value is null
-    doc.setSeverity(SeverityUtil.getSeverityFromOrdinal(rs.getInt(1)));
+    doc.setSeverity(SeverityUtil.getSeverityFromOrdinal(severity));
 
-    String inheritance = rs.getString(2);
     doc.setInheritance(inheritance == null ? ActiveRule.Inheritance.NONE.name() : inheritance);
 
-    doc.setCreatedAt(rs.getLong(6));
-    doc.setUpdatedAt(rs.getLong(7));
+    doc.setCreatedAt(rs.getLong(7));
+    doc.setUpdatedAt(rs.getLong(8));
     return doc;
   }
 
