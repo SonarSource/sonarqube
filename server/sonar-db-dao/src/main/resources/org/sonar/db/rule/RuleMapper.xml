@@ -63,9 +63,29 @@
       r.id=#{id,jdbcType=INTEGER}
   </select>
 
+  <select id="selectDefinitionById" parameterType="Long" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectDefinitionColumns"/>
+    from
+      rules r
+    where
+      r.id=#{id,jdbcType=INTEGER}
+  </select>
+
   <select id="selectByIds" parameterType="map" resultType="Rule">
     select
       <include refid="selectRuleColumns"/>
+    from
+      rules r
+    where
+      <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
+        r.id=#{id,jdbcType=INTEGER}
+      </foreach>
+  </select>
+
+  <select id="selectDefinitionByIds" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectDefinitionColumns"/>
     from
       rules r
     where

@@ -32,6 +32,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -166,9 +167,9 @@ public class CreateAction implements RulesWsAction {
   private Rules.CreateResponse createResponse(DbSession dbSession, RuleKey ruleKey) {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationUuid, ruleKey);
-    List<RuleDto> templateRules = new ArrayList<>();
+    List<RuleDefinitionDto> templateRules = new ArrayList<>();
     if (rule.getTemplateId() != null) {
-      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
       if (templateRule.isPresent()) {
         templateRules.add(templateRule.get());
       }
