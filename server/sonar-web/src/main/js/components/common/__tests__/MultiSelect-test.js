@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import React from 'react';
 import MultiSelect from '../MultiSelect';
 
@@ -34,11 +34,15 @@ const elements = ['foo', 'bar', 'baz'];
 it('should render multiselect with selected elements', () => {
   const multiselect = shallow(<MultiSelect {...props} />);
   expect(multiselect).toMatchSnapshot();
-  expect(document.activeElement).toBe(multiselect.find('input'));
   multiselect.setProps({ elements });
   expect(multiselect).toMatchSnapshot();
   multiselect.setState({ active: { idx: 2, value: 'baz' } });
   expect(multiselect).toMatchSnapshot();
   multiselect.setState({ query: 'test' });
   expect(multiselect).toMatchSnapshot();
+});
+
+it('should render with the focus inside the search input', () => {
+  const multiselect = mount(<MultiSelect {...props} />);
+  expect(multiselect.find('input').node).toBe(document.activeElement);
 });

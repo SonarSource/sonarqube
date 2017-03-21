@@ -1,7 +1,6 @@
 exports[`test should render with selected tags 1`] = `
 <BubblePopup
   customClass="bubble-popup-bottom-right bubble-popup-menu"
-  open={true}
   position={
     Object {
       "left": 0,
@@ -30,7 +29,6 @@ exports[`test should render with selected tags 1`] = `
 exports[`test should render without tags at all 1`] = `
 <BubblePopup
   customClass="bubble-popup-bottom-right bubble-popup-menu"
-  open={true}
   position={
     Object {
       "left": 0,

@@ -14,21 +14,6 @@ exports[`test should open the tag selector on click 1`] = `
         ]
       } />
   </button>
-  <Connect(ProjectTagsSelectorContainer)
-    open={false}
-    position={
-      Object {
-        "right": 0,
-        "top": 0,
-      }
-    }
-    project="my-second-project"
-    selectedTags={
-      Array [
-        "foo",
-        "bar",
-      ]
-    } />
 </div>
 `;
 
@@ -48,21 +33,22 @@ exports[`test should open the tag selector on click 2`] = `
         ]
       } />
   </button>
-  <Connect(ProjectTagsSelectorContainer)
-    open={true}
-    position={
-      Object {
-        "right": 0,
-        "top": 0,
+  <div>
+    <Connect(ProjectTagsSelectorContainer)
+      position={
+        Object {
+          "right": 0,
+          "top": 0,
+        }
       }
-    }
-    project="my-second-project"
-    selectedTags={
-      Array [
-        "foo",
-        "bar",
-      ]
-    } />
+      project="my-second-project"
+      selectedTags={
+        Array [
+          "foo",
+          "bar",
+        ]
+      } />
+  </div>
 </div>
 `;
 
@@ -82,21 +68,6 @@ exports[`test should open the tag selector on click 3`] = `
         ]
       } />
   </button>
-  <Connect(ProjectTagsSelectorContainer)
-    open={false}
-    position={
-      Object {
-        "right": 0,
-        "top": 0,
-      }
-    }
-    project="my-second-project"
-    selectedTags={
-      Array [
-        "foo",
-        "bar",
-      ]
-    } />
 </div>
 `;
 
@@ -116,21 +87,6 @@ exports[`test should render with tags and admin rights 1`] = `
         ]
       } />
   </button>
-  <Connect(ProjectTagsSelectorContainer)
-    open={false}
-    position={
-      Object {
-        "right": 0,
-        "top": 0,
-      }
-    }
-    project="my-second-project"
-    selectedTags={
-      Array [
-        "foo",
-        "bar",
-      ]
-    } />
 </div>
 `;
 

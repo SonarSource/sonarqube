@@ -62,6 +62,7 @@ exports[`test should display tags 1`] = `
     <TagsList
       allowMultiLine={false}
       allowUpdate={false}
+      customClass="spacer-left"
       tags={
         Array [
           "foo",
