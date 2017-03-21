@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
@@ -28,13 +26,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -46,7 +41,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 public class QProfileResetImpl implements QProfileReset {
@@ -55,34 +49,34 @@ public class QProfileResetImpl implements QProfileReset {
   private final QProfileFactory factory;
   private final RuleActivator activator;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final ProfileDefinition[] definitions;
+  private final DefinedQProfileRepository definedQProfileRepositories;
 
-  public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory, ProfileDefinition... definitions) {
+  public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory,
+    DefinedQProfileRepository definedQProfileRepository) {
     this.db = db;
     this.activator = activator;
     this.activeRuleIndexer = activeRuleIndexer;
     this.factory = factory;
-    this.definitions = definitions;
-  }
-
-  public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory) {
-    this(db, activator, activeRuleIndexer, factory, new ProfileDefinition[0]);
+    this.definedQProfileRepositories = definedQProfileRepository;
   }
 
   @Override
   public void resetLanguage(DbSession dbSession, OrganizationDto organization, String language) {
-    ListMultimap<QProfileName, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);
-    for (Map.Entry<QProfileName, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
-      QProfileName profileName = entry.getKey();
-      QualityProfileDto profile = factory.getOrCreate(dbSession, organization, profileName);
-      List<RuleActivation> activations = Lists.newArrayList();
-      for (RulesProfile def : entry.getValue()) {
-        for (ActiveRule activeRule : def.getActiveRules()) {
-          activations.add(getRuleActivation(dbSession, activeRule));
-        }
-      }
-      reset(dbSession, profile, activations);
-    }
+    definedQProfileRepositories.getQProfilesByLanguage()
+      .entrySet()
+      .stream()
+      .filter(entry -> entry.getKey().equals(language))
+      .map(Map.Entry::getValue)
+      .flatMap(List::stream)
+      .forEach(definedQProfile -> resetProfile(dbSession, organization, definedQProfile));
+  }
+
+  private void resetProfile(DbSession dbSession, OrganizationDto organization, DefinedQProfile definedQProfile) {
+    QualityProfileDto profile = factory.getOrCreate(dbSession, organization, definedQProfile.getQProfileName());
+
+    List<RuleActivation> activations = Lists.newArrayList();
+    definedQProfile.getActiveRules().forEach(activeRule -> activations.add(getRuleActivation(dbSession, activeRule)));
+    reset(dbSession, profile, activations);
   }
 
   private RuleActivation getRuleActivation(DbSession dbSession, ActiveRule activeRule) {
@@ -139,20 +133,4 @@ public class QProfileResetImpl implements QProfileReset {
     return result;
   }
 
-  private ListMultimap<QProfileName, RulesProfile> loadDefinitionsGroupedByName(String language) {
-    ListMultimap<QProfileName, RulesProfile> profilesByName = ArrayListMultimap.create();
-    for (ProfileDefinition definition : definitions) {
-      ValidationMessages validation = ValidationMessages.create();
-      RulesProfile profile = definition.createProfile(validation);
-      if (language.equals(profile.getLanguage())) {
-        processValidationMessages(validation);
-        profilesByName.put(new QProfileName(profile.getLanguage(), profile.getName()), profile);
-      }
-    }
-    return profilesByName;
-  }
-
-  private static void processValidationMessages(ValidationMessages messages) {
-    checkRequest(messages.getErrors().isEmpty(), messages.getErrors());
-  }
 }
