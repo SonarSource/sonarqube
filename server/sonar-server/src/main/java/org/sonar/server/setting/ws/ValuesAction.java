@@ -69,7 +69,7 @@ public class ValuesAction implements SettingsWsAction {
   private final ScannerSettings scannerSettings;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder,
-                      SettingsWsSupport settingsWsSupport, ScannerSettings scannerSettings) {
+    SettingsWsSupport settingsWsSupport, ScannerSettings scannerSettings) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
@@ -113,7 +113,7 @@ public class ValuesAction implements SettingsWsAction {
       ValuesRequest valuesRequest = toWsRequest(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
 
-      Set<String> keys = loadKeys(valuesRequest);
+      Set<String> keys = loadKeys(dbSession, valuesRequest);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
@@ -129,12 +129,12 @@ public class ValuesAction implements SettingsWsAction {
     return builder.build();
   }
 
-  private Set<String> loadKeys(ValuesRequest valuesRequest) {
+  private Set<String> loadKeys(DbSession dbSession, ValuesRequest valuesRequest) {
     List<String> keys = valuesRequest.getKeys();
-    if (!keys.isEmpty()) {
-      return new HashSet<>(keys);
+    if (keys.isEmpty()) {
+      return concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), scannerSettings.getScannerSettingKeys(dbSession).stream()).collect(Collectors.toSet());
     }
-    return concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), scannerSettings.getScannerSettingKeys().stream()).collect(Collectors.toSet());
+    return new HashSet<>(keys);
   }
 
   private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {

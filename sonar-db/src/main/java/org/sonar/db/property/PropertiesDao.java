@@ -36,8 +36,10 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.DatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PropertiesDao implements Dao {
@@ -168,6 +170,10 @@ public class PropertiesDao implements Dao {
 
   private List<PropertyDto> selectByKeys(DbSession session, Set<String> keys, @Nullable Long componentId) {
     return executeLargeInputs(keys, partitionKeys -> getMapper(session).selectByKeys(partitionKeys, componentId));
+  }
+
+  public List<PropertyDto> selectGlobalPropertiesByKeyQuery(DbSession session, String keyQuery) {
+    return getMapper(session).selectGlobalPropertiesByKeyQuery(buildLikeValue(keyQuery, WildcardPosition.BEFORE_AND_AFTER));
   }
 
   /**

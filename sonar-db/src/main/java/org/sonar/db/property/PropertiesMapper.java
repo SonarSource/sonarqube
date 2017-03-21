@@ -46,6 +46,8 @@ public interface PropertiesMapper {
   List<PropertyDto> selectDescendantModuleProperties(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
     @Param(value = "excludeDisabled") boolean excludeDisabled);
 
+  List<PropertyDto> selectGlobalPropertiesByKeyQuery(@Param("textQuery") String textQuery);
+
   void insertAsEmpty(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId,
     @Param("now") long now);
 

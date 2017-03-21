@@ -444,8 +444,7 @@ public class PropertiesDaoTest {
       .extracting("key", "resourceId").containsOnly(
         tuple(key, project.getId()),
         tuple(key, project2.getId()),
-        tuple(anotherKey, project2.getId())
-      );
+        tuple(anotherKey, project2.getId()));
 
     assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(123456789L))).isEmpty();
   }
@@ -482,6 +481,24 @@ public class PropertiesDaoTest {
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(123456789L))).isEmpty();
+  }
+
+  @Test
+  public void select_global_properties_by_key_query() throws SQLException {
+    // global
+    insertProperty("sonar.plugin1.licenseHash.secured", "one", null, null);
+    insertProperty("sonar.plugin2.licenseHash.secured", "two", null, null);
+    // on component and user
+    insertProperty("sonar.plugin1.licenseHash.secure", "one", 10L, null);
+    insertProperty("sonar.plugin1.licenseHash.secure", "two", 10L, 100L);
+
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), ".licenseHash.secured")).extracting(PropertyDto::getKey, PropertyDto::getValue)
+      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"), tuple("sonar.plugin2.licenseHash.secured", "two"));
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "plugin1.licenseHash.secured")).extracting(PropertyDto::getKey, PropertyDto::getValue)
+      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"));
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "plugin1")).extracting(PropertyDto::getKey, PropertyDto::getValue)
+      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"));
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "unknown")).isEmpty();
   }
 
   @Test

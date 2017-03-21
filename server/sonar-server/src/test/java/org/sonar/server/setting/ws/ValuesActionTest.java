@@ -34,8 +34,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -55,11 +53,8 @@ import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -93,8 +88,7 @@ public class ValuesActionTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private PropertyDefinitions definitions = new PropertyDefinitions();
   private SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
-  private PluginRepository repository = mock(PluginRepository.class);
-  private ScannerSettings scannerSettings = new ScannerSettings(definitions, repository);
+  private ScannerSettings scannerSettings = new ScannerSettings(db.getDbClient(), definitions);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
   private ComponentDto project;
@@ -104,10 +98,6 @@ public class ValuesActionTest {
 
   @Before
   public void setUp() throws Exception {
-    PluginInfo pluginInfo = mock(PluginInfo.class);
-    when(pluginInfo.getKey()).thenReturn("plugin");
-    when(repository.getPluginInfos()).thenReturn(singletonList(pluginInfo));
-    scannerSettings.start();
     OrganizationDto organizationDto = db.organizations().insert();
     project = componentDb.insertComponent(newProjectDto(organizationDto));
   }
