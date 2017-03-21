@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.db.rule.RuleMapper">
 
-  <sql id="selectColumns">
+  <sql id="selectDefinitionColumns">
     r.id,
     r.plugin_rule_key as "ruleKey",
     r.plugin_name as "repositoryKey",
@@ -16,34 +16,38 @@
     r.is_template as "isTemplate",
     r.language as "language",
     r.template_id as "templateId",
-    r.note_data as "noteData",
-    r.note_user_login as "noteUserLogin",
-    r.note_created_at as "noteCreatedAt",
-    r.note_updated_at as "noteUpdatedAt",
-    r.remediation_function as "remediationFunction",
     r.def_remediation_function as "defaultRemediationFunction",
-    r.remediation_gap_mult as "remediationGapMultiplier",
     r.def_remediation_gap_mult as "defaultRemediationGapMultiplier",
-    r.remediation_base_effort as "remediationBaseEffort",
     r.def_remediation_base_effort as "defaultRemediationBaseEffort",
     r.gap_description as "gapDescription",
-    r.tags as "tagsField",
     r.system_tags as "systemTagsField",
     r.rule_type as "type",
     r.created_at as "createdAt",
     r.updated_at as "updatedAt"
   </sql>
 
+  <sql id="selectRuleColumns">
+    <include refid="selectDefinitionColumns"/>,
+    r.note_data as "noteData",
+    r.note_user_login as "noteUserLogin",
+    r.note_created_at as "noteCreatedAt",
+    r.note_updated_at as "noteUpdatedAt",
+    r.remediation_function as "remediationFunction",
+    r.remediation_gap_mult as "remediationGapMultiplier",
+    r.remediation_base_effort as "remediationBaseEffort",
+    r.tags as "tagsField"
+  </sql>
+
   <select id="selectAll" resultType="Rule">
     select
-      <include refid="selectColumns"/>
+      <include refid="selectRuleColumns"/>
     from
       rules r
   </select>
 
   <select id="selectEnabled" resultType="Rule">
     select
-      <include refid="selectColumns"/>
+      <include refid="selectRuleColumns"/>
     from
       rules r
     where
@@ -52,7 +56,7 @@
 
   <select id="selectById" parameterType="Long" resultType="Rule">
     select
-      <include refid="selectColumns"/>
+      <include refid="selectRuleColumns"/>
     from
       rules r
     where
@@ -61,7 +65,7 @@
 
   <select id="selectByIds" parameterType="map" resultType="Rule">
     select
-      <include refid="selectColumns"/>
+      <include refid="selectRuleColumns"/>
     from
       rules r
     where
@@ -72,7 +76,17 @@
 
   <select id="selectByKey" parameterType="map" resultType="Rule">
     select
-      <include refid="selectColumns"/>
+      <include refid="selectRuleColumns"/>
+    from
+      rules r
+    where
+      r.plugin_name=#{repository,jdbcType=VARCHAR}
+      and r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectDefinitionByKey" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectDefinitionColumns"/>
     from
       rules r
     where
@@ -82,7 +96,7 @@
 
   <select id="selectByKeys" parameterType="map" resultType="Rule">
     select
-      <include refid="selectColumns"/>
+      <include refid="selectRuleColumns"/>
     from
       rules r
     where
@@ -93,7 +107,7 @@
 
   <select id="selectByQuery" parameterType="map" resultType="Rule">
     select
-      <include refid="selectColumns"/>
+      <include refid="selectRuleColumns"/>
     from
       rules r
     where

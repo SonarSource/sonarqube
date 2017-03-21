@@ -36,6 +36,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
@@ -94,7 +95,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void deactivate_rule() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
     session.commit();
     ruIndexer.index();
@@ -117,10 +118,10 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_deactivate_rule() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
-    RuleDto rule1 = createRule(profile.getLanguage(), "toto2");
-    RuleDto rule2 = createRule(profile.getLanguage(), "toto3");
-    RuleDto rule3 = createRule(profile.getLanguage(), "toto4");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto1");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "toto2");
+    RuleDefinitionDto rule2 = createRule(profile.getLanguage(), "toto3");
+    RuleDefinitionDto rule3 = createRule(profile.getLanguage(), "toto4");
     createActiveRule(rule0, profile);
     createActiveRule(rule2, profile);
     createActiveRule(rule3, profile);
@@ -146,8 +147,8 @@ public class QProfilesWsMediumTest {
   public void bulk_deactivate_rule_not_all() throws Exception {
     QualityProfileDto profile = createProfile("java");
     QualityProfileDto php = createProfile("php");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
-    RuleDto rule1 = createRule(profile.getLanguage(), "toto2");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto1");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "toto2");
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
     createActiveRule(rule0, php);
@@ -173,8 +174,8 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_deactivate_rule_by_profile() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "hello");
-    RuleDto rule1 = createRule(profile.getLanguage(), "world");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "hello");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "world");
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
     session.commit();
@@ -198,7 +199,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void activate_rule() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
     ruIndexer.index();
 
@@ -219,7 +220,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void activate_rule_diff_languages() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule("php", "toto");
+    RuleDefinitionDto rule = createRule("php", "toto");
     session.commit();
     ruIndexer.index();
 
@@ -242,7 +243,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void activate_rule_override_severity() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
     ruIndexer.index();
 
@@ -350,8 +351,8 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_activate_rule_by_query_with_severity() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "tata");
     session.commit();
     ruIndexer.index();
 
@@ -408,7 +409,7 @@ public class QProfilesWsMediumTest {
     QualityProfileDto subProfile = QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(session, profile, subProfile);
 
-    RuleDto rule = createRule(profile.getLanguage(), "rule");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "rule");
     ActiveRuleDto active1 = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     ActiveRuleDto active2 = ActiveRuleDto.createFor(subProfile, rule)
@@ -441,16 +442,16 @@ public class QProfilesWsMediumTest {
     return profile;
   }
 
-  private RuleDto createRule(String lang, String id) {
+  private RuleDefinitionDto createRule(String lang, String id) {
     RuleDto rule = RuleTesting.newDto(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
     db.ruleDao().insert(session, rule.getDefinition());
-    return rule;
+    return rule.getDefinition();
   }
 
-  private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     db.activeRuleDao().insert(session, activeRule);

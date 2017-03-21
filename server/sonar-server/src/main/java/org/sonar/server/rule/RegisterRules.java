@@ -474,7 +474,7 @@ public class RegisterRules implements Startable {
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        changes.addAll(ruleActivator.deactivate(session, rule));
+        changes.addAll(ruleActivator.deactivate(session, rule.getDefinition()));
       }
     }
     return changes;

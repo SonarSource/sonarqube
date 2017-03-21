@@ -31,6 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,10 +42,11 @@ public class DefaultRuleFinderTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
-  DbSession session = dbTester.getSession();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession session = dbTester.getSession();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
-  RuleDto rule1 = new RuleDto()
+  private RuleDto rule1 = new RuleDto()
     .setName("Check Header")
     .setConfigKey("Checker/Treewalker/HeaderCheck")
     .setRuleKey("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck")
@@ -51,7 +54,7 @@ public class DefaultRuleFinderTest {
     .setSeverity(4)
     .setStatus(RuleStatus.READY);
 
-  RuleDto rule2 = new RuleDto()
+  private RuleDto rule2 = new RuleDto()
     .setName("Disabled checked")
     .setConfigKey("Checker/Treewalker/DisabledCheck")
     .setRuleKey("DisabledCheck")
@@ -59,7 +62,7 @@ public class DefaultRuleFinderTest {
     .setSeverity(4)
     .setStatus(RuleStatus.REMOVED);
 
-  RuleDto rule3 = new RuleDto()
+  private RuleDto rule3 = new RuleDto()
     .setName("Check Annotation")
     .setConfigKey("Checker/Treewalker/AnnotationUseStyleCheck")
     .setRuleKey("com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck")
@@ -67,7 +70,7 @@ public class DefaultRuleFinderTest {
     .setSeverity(4)
     .setStatus(RuleStatus.READY);
 
-  RuleDto rule4 = new RuleDto()
+  private RuleDto rule4 = new RuleDto()
     .setName("Call Super First")
     .setConfigKey("rulesets/android.xml/CallSuperFirst")
     .setRuleKey("CallSuperFirst")
@@ -75,7 +78,7 @@ public class DefaultRuleFinderTest {
     .setSeverity(2)
     .setStatus(RuleStatus.READY);
 
-  DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient);
+  private DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient, defaultOrganizationProvider);
 
   @Before
   public void setup() {

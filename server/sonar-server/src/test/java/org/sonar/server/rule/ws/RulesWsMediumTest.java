@@ -114,7 +114,7 @@ public class RulesWsMediumTest {
     ruleDao.insert(session, rule.getDefinition());
     ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
 
-    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
+    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule.getDefinition()).setSeverity("BLOCKER");
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
 
     session.commit();

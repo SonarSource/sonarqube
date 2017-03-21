@@ -34,8 +34,12 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
 
-  public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
+  public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
     return Optional.fromNullable(mapper(session).selectByKey(key));
+  }
+
+  public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {
+    return Optional.fromNullable(mapper(session).selectDefinitionByKey(key));
   }
 
   public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {

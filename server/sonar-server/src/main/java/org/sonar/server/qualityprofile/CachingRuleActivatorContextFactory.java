@@ -32,11 +32,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 public class CachingRuleActivatorContextFactory extends RuleActivatorContextFactory implements Startable {
   private final DbClient dbClient;
-  private final Map<RuleKey, RuleDto> rulesByRuleKey = new HashMap<>();
+  private final Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();
   private final Cache<String, Map<RuleKey, ActiveRuleDto>> childrenByParentKey = CacheBuilder.newBuilder()
     .maximumSize(10)
     .build();
@@ -49,7 +49,7 @@ public class CachingRuleActivatorContextFactory extends RuleActivatorContextFact
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.ruleDao().selectAll(dbSession).forEach(rule -> rulesByRuleKey.put(rule.getKey(), rule));
+      dbClient.ruleDao().selectAll(dbSession).forEach(rule -> rulesByRuleKey.put(rule.getKey(), rule.getDefinition()));
     }
   }
 
@@ -59,7 +59,7 @@ public class CachingRuleActivatorContextFactory extends RuleActivatorContextFact
   }
 
   @Override
-  Optional<RuleDto> getRule(DbSession dbSession, RuleKey ruleKey) {
+  Optional<RuleDefinitionDto> getRule(DbSession dbSession, RuleKey ruleKey) {
     return Optional.ofNullable(rulesByRuleKey.get(ruleKey));
   }
 

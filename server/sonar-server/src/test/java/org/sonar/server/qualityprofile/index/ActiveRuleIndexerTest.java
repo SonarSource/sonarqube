@@ -32,7 +32,7 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
@@ -142,7 +142,7 @@ public class ActiveRuleIndexerTest {
     long now = 2000000L;
 
     // Index one active rule
-    RuleDto rule = RuleTesting.newDto(RULE_KEY_1);
+    RuleDefinitionDto rule = RuleTesting.newDto(RULE_KEY_1).getDefinition();
     dbTester.rules().insertRule(rule);
     QualityProfileDto profile = QualityProfileDto.createFor("qp")
       .setOrganizationUuid(organization.getUuid())
@@ -159,7 +159,7 @@ public class ActiveRuleIndexerTest {
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(activeRule.getKey().toString());
 
     // Index another active rule
-    RuleDto rule2 = RuleTesting.newDto(RULE_KEY_2);
+    RuleDefinitionDto rule2 = RuleTesting.newDto(RULE_KEY_2).getDefinition();
     dbTester.rules().insertRule(rule2);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profile, rule2).setSeverity(Severity.CRITICAL)
       .setCreatedAt(now).setUpdatedAt(now);

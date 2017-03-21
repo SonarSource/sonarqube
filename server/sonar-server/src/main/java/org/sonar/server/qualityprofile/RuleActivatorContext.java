@@ -31,7 +31,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -39,7 +39,7 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 class RuleActivatorContext {
 
   private final Date initDate = new Date();
-  private RuleDto rule;
+  private RuleDefinitionDto rule;
   private final Map<String, RuleParamDto> ruleParams = Maps.newHashMap();
   private QualityProfileDto profile;
   private ActiveRuleDto activeRule;
@@ -54,11 +54,11 @@ class RuleActivatorContext {
     return ActiveRuleKey.of(profile.getKee(), rule.getKey());
   }
 
-  RuleDto rule() {
+  RuleDefinitionDto rule() {
     return rule;
   }
 
-  RuleActivatorContext setRule(RuleDto rule) {
+  RuleActivatorContext setRule(RuleDefinitionDto rule) {
     this.rule = rule;
     return this;
   }

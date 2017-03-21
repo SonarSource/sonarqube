@@ -53,7 +53,7 @@ public class RuleDeleter {
 
       // For custom rule, first deactivate the rule on all profiles
       if (rule.getTemplateId() != null) {
-        ruleActivator.deactivate(dbSession, rule);
+        ruleActivator.deactivate(dbSession, rule.getDefinition());
       }
 
       rule.setStatus(RuleStatus.REMOVED);

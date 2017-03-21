@@ -37,7 +37,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -67,9 +67,9 @@ public class ActiveRuleDaoTest {
   private QualityProfileDto profile1 = QualityProfileDto.createFor("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
   private QualityProfileDto profile2 = QualityProfileDto.createFor("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
 
-  private RuleDto rule1 = RuleTesting.newDto(RuleTesting.XOO_X1);
-  private RuleDto rule2 = RuleTesting.newDto(RuleTesting.XOO_X2);
-  private RuleDto rule3 = RuleTesting.newDto(RuleTesting.XOO_X3);
+  private RuleDefinitionDto rule1 = RuleTesting.newDto(RuleTesting.XOO_X1).getDefinition();
+  private RuleDefinitionDto rule2 = RuleTesting.newDto(RuleTesting.XOO_X2).getDefinition();
+  private RuleDefinitionDto rule3 = RuleTesting.newDto(RuleTesting.XOO_X3).getDefinition();
 
   private RuleParamDto rule1Param1;
   private RuleParamDto rule1Param2;
@@ -99,21 +99,21 @@ public class ActiveRuleDaoTest {
       .setName("param1")
       .setDefaultValue("value1")
       .setType(RuleParamType.STRING.toString());
-    dbClient.ruleDao().insertRuleParam(dbSession, rule1.getDefinition(), rule1Param1);
+    dbClient.ruleDao().insertRuleParam(dbSession, rule1, rule1Param1);
 
     rule1Param2 = new RuleParamDto()
       .setRuleId(rule1.getId())
       .setName("param2")
       .setDefaultValue("2")
       .setType(RuleParamType.INTEGER.toString());
-    dbClient.ruleDao().insertRuleParam(dbSession, rule1.getDefinition(), rule1Param2);
+    dbClient.ruleDao().insertRuleParam(dbSession, rule1, rule1Param2);
 
     rule2Param1 = new RuleParamDto()
       .setRuleId(rule2.getId())
       .setName("param1")
       .setDefaultValue("1")
       .setType(RuleParamType.INTEGER.toString());
-    dbClient.ruleDao().insertRuleParam(dbSession, rule2.getDefinition(), rule2Param1);
+    dbClient.ruleDao().insertRuleParam(dbSession, rule2, rule2Param1);
 
     dbSession.commit();
   }
@@ -212,8 +212,8 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
-  public void select_by_profile_ignore_removed_rules() {
-    RuleDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
+  public void select_by_profile_ignore_removed_rules() throws Exception {
+    RuleDefinitionDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED).getDefinition();
     dbTester.rules().insertRule(removedRule);
     ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);
@@ -361,7 +361,7 @@ public class ActiveRuleDaoTest {
     assertThat(dbTester.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
   }
 
-  private static ActiveRuleDto newRow(QualityProfileDto profile, RuleDto rule) {
+  private static ActiveRuleDto newRow(QualityProfileDto profile, RuleDefinitionDto rule) {
     return createFor(profile, rule).setSeverity(BLOCKER);
   }
 
@@ -631,8 +631,8 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void test_countActiveRulesForRuleStatusByProfileKey_for_a_specified_organization() {
-    RuleDto betaRule1 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA));
-    RuleDto betaRule2 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA));
+    RuleDefinitionDto betaRule1 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA)).getDefinition();
+    RuleDefinitionDto betaRule2 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA)).getDefinition();
     dbTester.qualityProfiles().activateRule(profile1, rule1);
     dbTester.qualityProfiles().activateRule(profile2, betaRule1);
     dbTester.qualityProfiles().activateRule(profile2, betaRule2);

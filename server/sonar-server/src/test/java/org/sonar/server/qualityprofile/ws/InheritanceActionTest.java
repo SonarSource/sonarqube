@@ -37,6 +37,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
@@ -115,9 +116,9 @@ public class InheritanceActionTest {
 
   @Test
   public void inheritance_nominal() throws Exception {
-    RuleDto rule1 = createRule("xoo", "rule1");
-    RuleDto rule2 = createRule("xoo", "rule2");
-    RuleDto rule3 = createRule("xoo", "rule3");
+    RuleDefinitionDto rule1 = createRule("xoo", "rule1");
+    RuleDefinitionDto rule2 = createRule("xoo", "rule2");
+    RuleDefinitionDto rule3 = createRule("xoo", "rule3");
 
     /*
      * groupWide (2) <- companyWide (2) <- buWide (2, 1 overriding) <- (forProject1 (2), forProject2 (2))
@@ -219,7 +220,7 @@ public class InheritanceActionTest {
     ruleActivator.setParent(dbSession, parent.getKey(), profile.getKey());
   }
 
-  private RuleDto createRule(String lang, String id) {
+  private RuleDefinitionDto createRule(String lang, String id) {
     long now = new Date().getTime();
     RuleDto rule = RuleTesting.newDto(RuleKey.of("blah", id))
       .setLanguage(lang)
@@ -228,10 +229,10 @@ public class InheritanceActionTest {
       .setUpdatedAt(now)
       .setCreatedAt(now);
     dbClient.ruleDao().insert(dbSession, rule.getDefinition());
-    return rule;
+    return rule.getDefinition();
   }
 
-  private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QualityProfileDto profile) {
     long now = new Date().getTime();
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString())
@@ -241,7 +242,7 @@ public class InheritanceActionTest {
     return activeRule;
   }
 
-  private void overrideActiveRuleSeverity(RuleDto rule, QualityProfileDto profile, String severity) {
+  private void overrideActiveRuleSeverity(RuleDefinitionDto rule, QualityProfileDto profile, String severity) {
     ruleActivator.activate(dbSession, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKey());
     dbSession.commit();
     activeRuleIndexer.index();

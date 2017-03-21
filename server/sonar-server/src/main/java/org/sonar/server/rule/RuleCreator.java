@@ -76,9 +76,9 @@ public class RuleCreator {
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
 
-    Optional<RuleDto> existingRule = loadRule(customRuleKey, dbSession);
+    Optional<RuleDefinitionDto> existingRule = loadRule(customRuleKey, dbSession);
     if (existingRule.isPresent()) {
-      updateExistingRule(existingRule.get().getDefinition(), newRule, dbSession);
+      updateExistingRule(existingRule.get(), newRule, dbSession);
     } else {
       createCustomRule(customRuleKey, newRule, templateRule, dbSession);
     }
@@ -146,8 +146,8 @@ public class RuleCreator {
     }
   }
 
-  private Optional<RuleDto> loadRule(RuleKey ruleKey, DbSession dbSession) {
-    return dbClient.ruleDao().selectByKey(dbSession, ruleKey);
+  private Optional<RuleDefinitionDto> loadRule(RuleKey ruleKey, DbSession dbSession) {
+    return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
   }
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
