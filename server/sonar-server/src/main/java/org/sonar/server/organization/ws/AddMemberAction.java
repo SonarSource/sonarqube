@@ -32,6 +32,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.index.UserIndexer;
 
 import static java.lang.String.format;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
@@ -43,10 +44,12 @@ import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 public class AddMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final UserIndexer userIndexer;
 
-  public AddMemberAction(DbClient dbClient, UserSession userSession) {
+  public AddMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.userIndexer = userIndexer;
   }
 
   @Override
@@ -95,6 +98,7 @@ public class AddMemberAction implements OrganizationsWsAction {
 
       dbClient.organizationMemberDao().insert(dbSession, organizationMember);
       dbSession.commit();
+      userIndexer.index(user.getLogin());
     }
 
     response.noContent();

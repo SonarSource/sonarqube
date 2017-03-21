@@ -20,21 +20,30 @@
 
 package org.sonar.server.organization.ws;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -52,11 +61,15 @@ public class AddMemberActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  private UserIndex userIndex = new UserIndex(es.client());
+  @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, userSession));
+
+  private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client())));
 
   private OrganizationDto organization;
   private UserDto user;
@@ -93,10 +106,13 @@ public class AddMemberActionTest {
   }
 
   @Test
-  public void add_member_in_db() {
+  public void add_member_in_db_and_user_index() {
     call(organization.getKey(), user.getLogin());
 
     assertMember(organization.getUuid(), user.getId());
+    List<UserDoc> userDocs = userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs();
+    assertThat(userDocs).hasSize(1);
+    assertThat(userDocs.get(0).organizationUuids()).containsOnly(organization.getUuid());
   }
 
   @Test
