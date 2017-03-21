@@ -42,18 +42,17 @@ public class DefinedQProfileCreationImpl implements DefinedQProfileCreation {
   @Override
   public void create(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
     QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, qualityProfile.getName(), qualityProfile.getLanguage(), session);
-    if (profileDto != null) {
-      changes.addAll(profileFactory.deleteTree(session, profileDto.getKey(), true));
-    }
-    QualityProfileDto newQProfileDto = profileFactory.create(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
-    for (org.sonar.api.rules.ActiveRule activeRule : qualityProfile.getActiveRules()) {
-      RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-      RuleActivation activation = new RuleActivation(ruleKey);
-      activation.setSeverity(activeRule.getSeverity() != null ? activeRule.getSeverity().name() : null);
-      for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-        activation.setParameter(param.getKey(), param.getValue());
+    if (profileDto == null) {
+      profileDto = profileFactory.create(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
+      for (org.sonar.api.rules.ActiveRule activeRule : qualityProfile.getActiveRules()) {
+        RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
+        RuleActivation activation = new RuleActivation(ruleKey);
+        activation.setSeverity(activeRule.getSeverity() != null ? activeRule.getSeverity().name() : null);
+        for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+          activation.setParameter(param.getKey(), param.getValue());
+        }
+        changes.addAll(ruleActivator.activate(session, activation, profileDto));
       }
-      changes.addAll(ruleActivator.activate(session, activation, newQProfileDto));
     }
 
     LoadedTemplateDto template = new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType());
