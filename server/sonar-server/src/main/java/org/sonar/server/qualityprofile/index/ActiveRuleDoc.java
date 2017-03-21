@@ -27,6 +27,7 @@ import org.sonar.server.qualityprofile.ActiveRule;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_ORGANIZATION_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
@@ -41,7 +42,7 @@ public class ActiveRuleDoc extends BaseDoc {
   private final ActiveRuleKey key;
 
   public ActiveRuleDoc(ActiveRuleKey key) {
-    super(Maps.newHashMapWithExpectedSize(8));
+    super(Maps.newHashMapWithExpectedSize(9));
     checkNotNull(key, "ActiveRuleKey cannot be null");
     this.key = key;
     setField(FIELD_ACTIVE_RULE_KEY, key.toString());
@@ -67,6 +68,15 @@ public class ActiveRuleDoc extends BaseDoc {
 
   public ActiveRuleKey key() {
     return key;
+  }
+
+  String organizationUuid() {
+    return getField(FIELD_ACTIVE_ORGANIZATION_UUID);
+  }
+
+  public ActiveRuleDoc setOrganizationUuid(String s) {
+    setField(FIELD_ACTIVE_ORGANIZATION_UUID, s);
+    return this;
   }
 
   String severity() {

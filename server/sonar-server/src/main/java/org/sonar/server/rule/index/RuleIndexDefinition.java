@@ -65,6 +65,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   // Active rule fields
   public static final IndexType INDEX_TYPE_ACTIVE_RULE = new IndexType(INDEX, "activeRule");
+  public static final String FIELD_ACTIVE_ORGANIZATION_UUID = "organizationUuid";
   public static final String FIELD_ACTIVE_RULE_KEY = "key";
   public static final String FIELD_ACTIVE_RULE_REPOSITORY = "repo";
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";
@@ -92,6 +93,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.setEnableSource(false);
     activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.INDEX_TYPE_RULE.getType()));
 
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_ORGANIZATION_UUID).disableNorms().build();
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY).build();
