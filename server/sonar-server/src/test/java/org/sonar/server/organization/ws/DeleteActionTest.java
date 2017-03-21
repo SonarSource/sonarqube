@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -33,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentCleanerService;
@@ -41,6 +43,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
+import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -49,8 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 
 public class DeleteActionTest {
 
@@ -66,7 +70,8 @@ public class DeleteActionTest {
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-  private DeleteAction underTest = new DeleteAction(userSession, dbTester.getDbClient(), defaultOrganizationProvider, componentCleanerService, organizationFlags);
+  private QProfileFactory qProfileFactory = new QProfileFactory(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
+  private DeleteAction underTest = new DeleteAction(userSession, dbTester.getDbClient(), defaultOrganizationProvider, componentCleanerService, organizationFlags, qProfileFactory);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -273,6 +278,23 @@ public class DeleteActionTest {
       .extracting(row -> (String) row.get("role"))
       .doesNotContain("u1", "u3", "u4", "u5")
       .contains("not deleted u1", "not deleted u3", "not deleted u4", "not deleted u5");
+  }
+
+  @Test
+  public void request_also_deletes_quality_profiles_of_specified_organization() {
+    OrganizationDto org = dbTester.organizations().insert();
+    OrganizationDto otherOrg = dbTester.organizations().insert();
+    QualityProfileDto profileInOrg = dbTester.qualityProfiles().insert(org);
+    QualityProfileDto profileInOtherOrg = dbTester.qualityProfiles().insert(otherOrg);
+
+    logInAsAdministrator(org);
+
+    sendRequest(org);
+
+    verifyOrganizationDoesNotExist(org);
+    assertThat(dbTester.select("select kee as \"profileKey\" from rules_profiles"))
+      .extracting(row -> (String) row.get("profileKey"))
+      .containsOnly(profileInOtherOrg.getKey());
   }
 
   private void verifyOrganizationDoesNotExist(OrganizationDto organization) {
