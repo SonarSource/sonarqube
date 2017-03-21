@@ -45,9 +45,9 @@
       rules r
   </select>
 
-  <select id="selectEnabled" resultType="Rule">
+  <select id="selectEnabled" resultType="org.sonar.db.rule.RuleDefinitionDto">
     select
-      <include refid="selectRuleColumns"/>
+      <include refid="selectDefinitionColumns"/>
     from
       rules r
     where
