@@ -31,10 +31,11 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.user.UserSession;
+
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 public class AppAction implements RulesWsAction {
 
@@ -42,34 +43,42 @@ public class AppAction implements RulesWsAction {
   private final DbClient dbClient;
   private final I18n i18n;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final RuleWsSupport wsSupport;
 
-  public AppAction(Languages languages, DbClient dbClient, I18n i18n, UserSession userSession,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public AppAction(Languages languages, DbClient dbClient, I18n i18n, UserSession userSession, RuleWsSupport wsSupport) {
     this.languages = languages;
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.wsSupport = wsSupport;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("app")
+    WebService.NewAction action = controller.createAction("app")
       .setDescription("Get data required for rendering the page 'Coding Rules'.")
       .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.5")
       .setInternal(true)
       .setHandler(this);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setSince("6.4")
+      .setExampleValue("my-org");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      addPermissions(json);
-      addProfiles(json, dbSession);
+      addPermissions(organization, json);
+      addProfiles(dbSession, organization, json);
       addLanguages(json);
       addRuleRepositories(json, dbSession);
       addStatuses(json);
@@ -77,14 +86,14 @@ public class AppAction implements RulesWsAction {
     }
   }
 
-  private void addPermissions(JsonWriter json) {
-    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+  private void addPermissions(OrganizationDto organization, JsonWriter json) {
+    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
     json.prop("canWrite", canWrite);
   }
 
-  private void addProfiles(JsonWriter json, DbSession dbSession) {
+  private void addProfiles(DbSession dbSession, OrganizationDto organization, JsonWriter json) {
     json.name("qualityprofiles").beginArray();
-    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(dbSession))) {
+    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession, organization)) {
       if (languageIsSupported(profile)) {
         json
           .beginObject()
@@ -130,12 +139,5 @@ public class AppAction implements RulesWsAction {
       }
     }
     json.endObject();
-  }
-
-  private OrganizationDto getDefaultOrganization(DbSession dbSession) {
-    String defaultOrganizationKey = defaultOrganizationProvider.get().getKey();
-    return dbClient.organizationDao()
-      .selectByKey(dbSession, defaultOrganizationKey)
-      .orElseThrow(() -> new IllegalStateException("Cannot find default organization with key "+defaultOrganizationKey));
   }
 }

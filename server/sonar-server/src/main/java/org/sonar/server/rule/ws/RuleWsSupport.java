@@ -19,18 +19,27 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 @ServerSide
 public class RuleWsSupport {
+
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleWsSupport(UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public RuleWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
@@ -40,4 +49,13 @@ public class RuleWsSupport {
       .checkLoggedIn()
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
+
+  public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
+    String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
+      .orElseGet(defaultOrganizationProvider.get()::getKey);
+    return WsUtils.checkFoundWithOptional(
+      dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
+      "No organization with key '%s'", organizationOrDefaultKey);
+  }
+
 }
