@@ -161,7 +161,6 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     if (process != null) {
       process.stop(1, TimeUnit.MINUTES);
     }
-
   }
 
   /**

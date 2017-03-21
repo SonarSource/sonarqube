@@ -82,6 +82,7 @@ public final class ClusterProperties {
     if (!enabled) {
       return;
     }
+
     // Test validity of port
     checkArgument(
       port > 0 && port < 65_536,
