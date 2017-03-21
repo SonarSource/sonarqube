@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -44,9 +45,8 @@ public class DeleteActionTest {
 
   private RuleDeleter ruleDeleter = mock(RuleDeleter.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private RuleWsSupport ruleWsSupport = new RuleWsSupport(userSession, defaultOrganizationProvider);
+  private RuleWsSupport ruleWsSupport = new RuleWsSupport(mock(DbClient.class), userSession, defaultOrganizationProvider);
   private WsTester tester = new WsTester(new RulesWs(new DeleteAction(ruleDeleter, ruleWsSupport)));
-
 
   @Test
   public void delete_custom_rule() throws Exception {
