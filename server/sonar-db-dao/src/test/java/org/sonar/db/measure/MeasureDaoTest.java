@@ -19,7 +19,6 @@
  */
 package org.sonar.db.measure;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -205,103 +204,6 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void selectByQuery_with_handler() {
-    ComponentDto project1 = db.components().insertProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
-    db.components().insertComponent(newFileDto(module).setUuid("C1"));
-    db.components().insertComponent(newFileDto(module).setUuid("C2"));
-    insertAnalysis(LAST_ANALYSIS_UUID, project1.uuid(), true);
-    insertAnalysis(OTHER_ANALYSIS_UUID, project1.uuid(), false);
-
-    String project2LastAnalysisUuid = "P2_LAST_ANALYSIS";
-    ComponentDto project2 = db.components().insertProject();
-    insertAnalysis(project2LastAnalysisUuid, project2.uuid(), true);
-
-    // project 1
-    insertMeasure("P1_M1", LAST_ANALYSIS_UUID, project1.uuid(), NCLOC_METRIC_ID);
-    insertMeasure("P1_M1", LAST_ANALYSIS_UUID, project1.uuid(), COVERAGE_METRIC_ID);
-    insertMeasure("P1_M3", OTHER_ANALYSIS_UUID, project1.uuid(), NCLOC_METRIC_ID);
-    // project 2
-    insertMeasure("P2_M1", project2LastAnalysisUuid, project2.uuid(), NCLOC_METRIC_ID);
-    insertMeasure("P2_M2", project2LastAnalysisUuid, project2.uuid(), COVERAGE_METRIC_ID);
-    // component C1
-    insertMeasure("M1", OTHER_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
-    insertMeasure("M2", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
-    insertMeasure("M3", LAST_ANALYSIS_UUID, "C1", COVERAGE_METRIC_ID);
-    insertMeasureOnPerson("M4", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID, A_PERSON_ID);
-    insertMeasureOnPerson("M5", OTHER_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID, 123L);
-    // component C2
-    insertMeasure("M6", LAST_ANALYSIS_UUID, "C2", NCLOC_METRIC_ID);
-    db.commit();
-
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuids(project1.uuid(), emptyList()));
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("MISSING_COMPONENT"));
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setProjectUuids(emptyList()));
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setProjectUuids(singletonList("MISSING_COMPONENT")));
-
-    // all measures of component C1 of last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1"), "M2", "M3");
-    // all measures of component C1 of non last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(OTHER_ANALYSIS_UUID), "M1");
-    // all measures of component C1 of last analysis by UUID
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID), "M2", "M3");
-
-    // ncloc measure of component C1 of last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setMetricId(NCLOC_METRIC_ID), "M2");
-    // ncloc measure of component C1 of non last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(OTHER_ANALYSIS_UUID).setMetricId(NCLOC_METRIC_ID), "M1");
-    // ncloc measure of component C1 of last analysis by UUID
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID).setMetricId(NCLOC_METRIC_ID), "M2");
-
-    // multiple measures of component C1 of last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)), "M2", "M3");
-    // multiple measures of component C1 of non last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(OTHER_ANALYSIS_UUID).setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)), "M1");
-    // multiple measures of component C1 of last analysis by UUID
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID).setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)), "M2",
-      "M3");
-
-    // missing measure of component C1 of last analysis
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setMetricId(COMPLEXITY_METRIC_ID));
-    // missing measure of component C1 of non last analysis
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(OTHER_ANALYSIS_UUID).setMetricId(COMPLEXITY_METRIC_ID));
-    // missing measure of component C1 of last analysis by UUID
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID).setMetricId(COMPLEXITY_METRIC_ID));
-
-    // ncloc measures of components C1, C2 and C3 (which does not exist) of last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuids(project1.uuid(), asList("C1", "C2", "C3")), "M2", "M3", "M6");
-    // ncloc measures of components C1, C2 and C3 (which does not exist) of non last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuids(project1.uuid(), asList("C1", "C2", "C3")).setAnalysisUuid(OTHER_ANALYSIS_UUID), "M1");
-    // ncloc measures of components C1, C2 and C3 (which does not exist) of last analysis by UUID
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuids(project1.uuid(), asList("C1", "C2", "C3")).setAnalysisUuid(LAST_ANALYSIS_UUID), "M2", "M3", "M6");
-
-    // measures of missing developer of component C1 of last analysis
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setPersonId(123L));
-    // measures of missing developer of component C1 of non last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(OTHER_ANALYSIS_UUID).setPersonId(123L), "M5");
-    // measures of missing developer of component C1 of last analysis by UUID
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID).setPersonId(123L));
-
-    // developer measures of component C1 of last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setPersonId(A_PERSON_ID), "M4");
-    // developer measures of component C1 of non last analysis
-    verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(OTHER_ANALYSIS_UUID).setPersonId(A_PERSON_ID));
-    // developer measures of component C1 of last analysis by UUID
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID).setPersonId(A_PERSON_ID), "M4");
-
-    // projects measures of last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setProjectUuids(singletonList(project1.uuid())).setMetricId(NCLOC_METRIC_ID), "P1_M1");
-    verifyMeasuresWithHandler(MeasureQuery.builder().setProjectUuids(asList(project1.uuid(), project2.uuid())).setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)),
-      "P1_M1", "P2_M1", "P2_M2", "P2_M2");
-    verifyMeasuresWithHandler(MeasureQuery.builder().setProjectUuids(asList(project1.uuid(), project2.uuid(), "UNKNOWN")).setMetricId(NCLOC_METRIC_ID), "P1_M1", "P2_M1");
-
-    // projects measures of none last analysis
-    verifyMeasuresWithHandler(MeasureQuery.builder().setProjectUuids(singletonList(project1.uuid())).setMetricId(NCLOC_METRIC_ID).setAnalysisUuid(OTHER_ANALYSIS_UUID), "P1_M3");
-    verifyMeasuresWithHandler(MeasureQuery.builder().setProjectUuids(asList(project1.uuid(), project2.uuid())).setMetricId(NCLOC_METRIC_ID).setAnalysisUuid(OTHER_ANALYSIS_UUID),
-      "P1_M3");
-  }
-
-  @Test
   public void selectSingle() {
     ComponentDto project = db.components().insertProject();
     db.components().insertComponent(newFileDto(project).setUuid("C1"));
@@ -479,34 +381,13 @@ public class MeasureDaoTest {
     assertThat(measures).extracting(MeasureDto::getData).containsOnly(expectedIds);
   }
 
-  private void verifyMeasuresWithHandler(MeasureQuery.Builder query, String... expectedIds) {
-    List<MeasureDto> measures = getMeasuresWithHandler(query);
-    assertThat(measures).extracting(MeasureDto::getData).containsOnly(expectedIds);
-  }
-
   private void verifyZeroMeasures(MeasureQuery.Builder query) {
     assertThat(underTest.selectByQuery(db.getSession(), query.build())).isEmpty();
-  }
-
-  private void verifyZeroMeasuresWithHandler(MeasureQuery.Builder query) {
-    List<MeasureDto> measures = getMeasuresWithHandler(query);
-    assertThat(measures).isEmpty();
   }
 
   private void verifyMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery, String... expectedIds) {
     assertThat(underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build()))
       .extracting(MeasureDto::getData).containsOnly(expectedIds);
-  }
-
-  private void verifyZeroMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery) {
-    assertThat(underTest.selectTreeByQuery(db.getSession(), baseComponent,
-      measureQuery.build())).isEmpty();
-  }
-
-  private List<MeasureDto> getMeasuresWithHandler(MeasureQuery.Builder query) {
-    List<MeasureDto> measures = new ArrayList<>();
-    underTest.selectByQuery(db.getSession(), query.build(), resultContext -> measures.add((MeasureDto) resultContext.getResultObject()));
-    return measures;
   }
 
   private void insertMeasure(String id, String analysisUuid, String componentUuid, int metricId) {

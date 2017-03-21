@@ -22,7 +22,6 @@ package org.sonar.db.measure;
 import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
 
 public interface MeasureMapper {
 
@@ -31,12 +30,6 @@ public interface MeasureMapper {
   List<MeasureDto> selectByQueryOnComponents(@Param("query") MeasureQuery query);
 
   List<MeasureDto> selectByQueryOnSingleComponent(@Param("query") MeasureQuery query);
-
-  void selectByQueryOnProjects(@Param("query") MeasureQuery query, ResultHandler resultHandler);
-
-  void selectByQueryOnComponents(@Param("query") MeasureQuery query, ResultHandler resultHandler);
-
-  void selectByQueryOnSingleComponent(@Param("query") MeasureQuery query, ResultHandler resultHandler);
 
   List<MeasureDto> selectTreeByQuery(@Param("query") MeasureTreeQuery measureQuery, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
 

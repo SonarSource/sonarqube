@@ -24,14 +24,12 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
-import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class MeasureDao implements Dao {
 
@@ -77,29 +75,6 @@ public class MeasureDao implements Dao {
         });
     }
     return mapper(dbSession).selectByQueryOnSingleComponent(query);
-  }
-
-  public void selectByQuery(DbSession dbSession, MeasureQuery query, ResultHandler resultHandler) {
-    if (query.returnsEmpty()) {
-      return;
-    }
-    if (query.isOnComponents()) {
-      executeLargeInputsWithoutOutput(
-        query.getComponentUuids(),
-        componentUuids -> {
-          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
-          mapper(dbSession).selectByQueryOnComponents(pageQuery, resultHandler);
-        });
-    }
-    if (query.isOnProjects()) {
-      executeLargeInputsWithoutOutput(
-        query.getProjectUuids(),
-        projectUuids -> {
-          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
-          mapper(dbSession).selectByQueryOnProjects(pageQuery, resultHandler);
-        });
-    }
-    mapper(dbSession).selectByQueryOnSingleComponent(query, resultHandler);
   }
 
   public List<MeasureDto> selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query) {
