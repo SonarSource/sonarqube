@@ -43,6 +43,7 @@ import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse.Group;
 import org.sonarqube.ws.client.user.GroupsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
@@ -55,6 +56,8 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_ORGANIZATION;
 
 public class GroupsAction implements UsersWsAction {
+
+  private static final int MAX_PAGE_SIZE = 500;
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -126,13 +129,15 @@ public class GroupsAction implements UsersWsAction {
   }
 
   private static GroupsRequest toGroupsRequest(Request request) {
+    int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
+    checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
     return GroupsRequest.builder()
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setSelected(request.mandatoryParam(SELECTED))
       .setQuery(request.param(TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(PAGE))
-      .setPageSize(request.mandatoryParamAsInt(PAGE_SIZE))
+      .setPageSize(pageSize)
       .build();
   }
 

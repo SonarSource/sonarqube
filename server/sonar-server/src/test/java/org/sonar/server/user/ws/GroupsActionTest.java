@@ -226,6 +226,19 @@ public class GroupsActionTest {
   }
 
   @Test
+  public void fail_when_page_size_is_greater_than_500() throws Exception {
+    UserDto user = insertUser();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'ps' parameter must be less than 500");
+
+    call(ws.newRequest()
+      .setParam("login", user.getLogin())
+      .setParam(Param.PAGE_SIZE, "501")
+    );
+  }
+
+  @Test
   public void fail_on_missing_permission() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
     userSession.logIn().addPermission(ADMINISTER, organizationDto);
