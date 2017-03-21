@@ -50,7 +50,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -290,7 +290,7 @@ public class BulkChangeAction implements IssuesWsAction {
     private final Collection<DefaultIssue> issues;
     private final Map<String, ComponentDto> projectsByUuid;
     private final Map<String, ComponentDto> componentsByUuid;
-    private final Map<RuleKey, RuleDto> rulesByKey;
+    private final Map<RuleKey, RuleDefinitionDto> rulesByKey;
     private final List<Action> availableActions;
 
     BulkChangeData(DbSession dbSession, Request request) {
@@ -307,9 +307,9 @@ public class BulkChangeAction implements IssuesWsAction {
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
           .collect(uniqueIndex(ComponentDto::uuid, identity()));
-      this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
+      this.rulesByKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
-        .collect(uniqueIndex(RuleDto::getKey, identity()));
+        .collect(uniqueIndex(RuleDefinitionDto::getKey, identity()));
 
       this.availableActions = actions.stream()
         .filter(action -> propertiesByActions.containsKey(action.key()))

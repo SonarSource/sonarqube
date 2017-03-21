@@ -74,12 +74,12 @@ public class RuleDao implements Dao {
     return executeLargeInputs(ids, mapper(session)::selectDefinitionByIds);
   }
 
-  /**
-   * Select rules by keys, whatever their status. Returns an empty list
-   * if the list of {@code keys} is empty, without any db round trip.
-   */
-  public List<RuleDto> selectByKeys(DbSession session, Collection<RuleKey> keys) {
+  public List<RuleDto> selectByKeys(DbSession session, String organizationUuid, Collection<RuleKey> keys) {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
+  }
+
+  public List<RuleDefinitionDto> selectDefinitionByKeys(DbSession session, Collection<RuleKey> keys) {
+    return executeLargeInputs(keys, mapper(session)::selectDefinitionByKeys);
   }
 
   public void selectEnabled(DbSession session, ResultHandler resultHandler) {

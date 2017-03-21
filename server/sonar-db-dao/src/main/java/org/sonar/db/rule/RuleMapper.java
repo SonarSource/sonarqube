@@ -45,6 +45,8 @@ public interface RuleMapper {
 
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
+  List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);
+
   List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);
 
   void insert(RuleDefinitionDto ruleDefinitionDto);

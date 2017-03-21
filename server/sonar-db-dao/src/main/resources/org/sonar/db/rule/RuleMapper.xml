@@ -125,6 +125,17 @@
       </foreach>
   </select>
 
+  <select id="selectDefinitionByKeys" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectDefinitionColumns"/>
+    from
+      rules r
+    where
+      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+        (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
+      </foreach>
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="Rule">
     select
       <include refid="selectRuleColumns"/>
