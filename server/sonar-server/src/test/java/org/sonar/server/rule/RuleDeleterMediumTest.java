@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.QProfileTesting;
@@ -104,7 +105,7 @@ public class RuleDeleterMediumTest {
     deleter.delete(customRule.getKey());
 
     // Verify custom rule have status REMOVED
-    RuleDto customRuleReloaded = dao.selectOrFailByKey(dbSession, customRule.getKey());
+    RuleDefinitionDto customRuleReloaded = dao.selectOrFailDefinitionByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(customRuleReloaded.getUpdatedAt()).isNotEqualTo(PAST);

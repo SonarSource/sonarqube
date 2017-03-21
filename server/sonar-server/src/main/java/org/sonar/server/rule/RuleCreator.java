@@ -41,6 +41,7 @@ import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
@@ -55,12 +56,14 @@ public class RuleCreator {
   private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
   private final TypeValidations typeValidations;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleCreator(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations) {
+  public RuleCreator(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
     this.typeValidations = typeValidations;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public RuleKey create(DbSession dbSession, NewCustomRule newRule) {
@@ -68,7 +71,8 @@ public class RuleCreator {
     if (templateKey == null) {
       throw new IllegalArgumentException("Rule template key should not be null");
     }
-    RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, templateKey);
+    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+    RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationUuid, templateKey);
     if (!templateRule.isTemplate()) {
       throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
     }

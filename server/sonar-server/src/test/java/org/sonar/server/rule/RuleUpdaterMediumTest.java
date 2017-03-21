@@ -49,6 +49,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
@@ -76,12 +77,14 @@ public class RuleUpdaterMediumTest {
   RuleDao ruleDao = tester.get(RuleDao.class);
   DbSession dbSession = db.openSession(false);
   RuleIndex ruleIndex = tester.get(RuleIndex.class);
+  private String defaultOrganizationUuid;
 
   RuleUpdater underTest = tester.get(RuleUpdater.class);
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
+    defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
   }
 
   @After
@@ -122,7 +125,7 @@ public class RuleUpdaterMediumTest {
     underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getTags()).containsOnly("tag1");
@@ -153,7 +156,7 @@ public class RuleUpdaterMediumTest {
     underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getNoteCreatedAt()).isNotNull();
@@ -178,7 +181,7 @@ public class RuleUpdaterMediumTest {
     underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getNoteData()).isNull();
     assertThat(rule.getNoteUserLogin()).isNull();
     assertThat(rule.getNoteCreatedAt()).isNull();
@@ -198,7 +201,7 @@ public class RuleUpdaterMediumTest {
     underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getTags()).containsOnly("bug");
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -220,7 +223,7 @@ public class RuleUpdaterMediumTest {
     underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -245,7 +248,7 @@ public class RuleUpdaterMediumTest {
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationGapMultiplier()).isNull();
     assertThat(rule.getRemediationBaseEffort()).isEqualTo("1min");
@@ -270,7 +273,7 @@ public class RuleUpdaterMediumTest {
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(rule.getRemediationGapMultiplier()).isEqualTo("2d");
     assertThat(rule.getRemediationBaseEffort()).isNull();
@@ -295,7 +298,7 @@ public class RuleUpdaterMediumTest {
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationGapMultiplier()).isNull();
     assertThat(rule.getRemediationBaseEffort()).isEqualTo("10min");
@@ -323,7 +326,7 @@ public class RuleUpdaterMediumTest {
     dbSession.clearCache();
 
     // verify debt is coming from default values
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RULE_KEY);
     assertThat(rule.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(rule.getDefaultRemediationGapMultiplier()).isEqualTo("1d");
     assertThat(rule.getDefaultRemediationBaseEffort()).isEqualTo("5min");
@@ -368,7 +371,7 @@ public class RuleUpdaterMediumTest {
     dbSession.clearCache();
 
     // Verify custom rule is updated
-    RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, customRule.getKey());
+    RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getName()).isEqualTo("New name");
     assertThat(customRuleReloaded.getDescription()).isEqualTo("New description");

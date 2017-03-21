@@ -105,18 +105,28 @@ public class RuleDaoTest {
   public void selectOrFailByKey() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    RuleDto rule = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("java", "S001"));
+    RuleDefinitionDto rule = underTest.selectOrFailDefinitionByKey(dbTester.getSession(), RuleKey.of("java", "S001"));
     assertThat(rule.getId()).isEqualTo(1);
   }
 
   @Test
   public void selectOrFailByKey_fails_if_rule_not_found() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
     thrown.expect(RowNotFoundException.class);
     thrown.expectMessage("Rule with key 'NOT:FOUND' does not exist");
 
+    underTest.selectOrFailByKey(dbTester.getSession(), "org-1", RuleKey.of("NOT", "FOUND"));
+  }
+
+  @Test
+  public void selectOrFailDefinitionByKey_fails_if_rule_not_found() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("NOT", "FOUND"));
+    thrown.expect(RowNotFoundException.class);
+    thrown.expectMessage("Rule with key 'NOT:FOUND' does not exist");
+
+    underTest.selectOrFailDefinitionByKey(dbTester.getSession(), RuleKey.of("NOT", "FOUND"));
   }
 
   @Test
@@ -208,7 +218,7 @@ public class RuleDaoTest {
     underTest.insert(dbTester.getSession(), newRule);
     dbTester.getSession().commit();
 
-    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
+    RuleDefinitionDto ruleDto = underTest.selectOrFailDefinitionByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
     assertThat(ruleDto.getId()).isNotNull();
     assertThat(ruleDto.getName()).isEqualTo("new name");
     assertThat(ruleDto.getDescription()).isEqualTo("new description");
@@ -221,18 +231,10 @@ public class RuleDaoTest {
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
-    assertThat(ruleDto.getNoteData()).isNull();
-    assertThat(ruleDto.getNoteUserLogin()).isNull();
-    assertThat(ruleDto.getNoteCreatedAt()).isNull();
-    assertThat(ruleDto.getNoteUpdatedAt()).isNull();
-    assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationGapMultiplier()).isNull();
     assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationBaseEffort()).isNull();
     assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
-    assertThat(ruleDto.getTags()).isEmpty();
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
@@ -267,7 +269,7 @@ public class RuleDaoTest {
     underTest.update(dbTester.getSession(), ruleToUpdate);
     dbTester.getSession().commit();
 
-    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
+    RuleDefinitionDto ruleDto = underTest.selectOrFailDefinitionByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
     assertThat(ruleDto.getName()).isEqualTo("new name");
     assertThat(ruleDto.getDescription()).isEqualTo("new description");
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
@@ -279,18 +281,10 @@ public class RuleDaoTest {
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
-    assertThat(ruleDto.getNoteData()).isNull();
-    assertThat(ruleDto.getNoteUserLogin()).isNull();
-    assertThat(ruleDto.getNoteCreatedAt()).isNull();
-    assertThat(ruleDto.getNoteUpdatedAt()).isNull();
-    assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationGapMultiplier()).isNull();
     assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationBaseEffort()).isNull();
     assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
-    assertThat(ruleDto.getTags()).isEmpty();
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
@@ -301,8 +295,10 @@ public class RuleDaoTest {
   public void update_RuleMetadataDto() {
     dbTester.prepareDbUnit(getClass(), "update.xml");
 
+    String organizationUuid = "org-1";
     RuleMetadataDto ruleToUpdate = new RuleMetadataDto()
       .setRuleId(1)
+      .setOrganizationUuid(organizationUuid)
       .setNoteData("My note")
       .setNoteUserLogin("admin")
       .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
@@ -316,7 +312,7 @@ public class RuleDaoTest {
     underTest.update(dbTester.getSession(), ruleToUpdate);
     dbTester.getSession().commit();
 
-    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"));
+    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organizationUuid, RuleKey.of("checkstyle", "AvoidNull"));
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getDescriptionFormat()).isNull();
@@ -374,8 +370,7 @@ public class RuleDaoTest {
   @Test
   public void insert_parameter() {
     dbTester.prepareDbUnit(getClass(), "insert_parameter.xml");
-    RuleDefinitionDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"))
-      .getDefinition();
+    RuleDefinitionDto rule1 = underTest.selectOrFailDefinitionByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
 
     RuleParamDto param = RuleParamDto.createFor(rule1)
       .setName("max")
@@ -393,8 +388,7 @@ public class RuleDaoTest {
   public void update_parameter() {
     dbTester.prepareDbUnit(getClass(), "update_parameter.xml");
 
-    RuleDefinitionDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"))
-      .getDefinition();
+    RuleDefinitionDto rule1 = underTest.selectOrFailDefinitionByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"));
 
     List<RuleParamDto> params = underTest.selectRuleParamsByRuleKey(dbTester.getSession(), rule1.getKey());
     assertThat(params).hasSize(1);

@@ -30,7 +30,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -95,7 +95,7 @@ public class NewIssuesNotification extends Notification {
     List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
     for (int i = 0; i < 5 && i < metricStats.size(); i++) {
       String ruleKey = metricStats.get(i).getElement();
-      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, RuleKey.parse(ruleKey));
+      RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, RuleKey.parse(ruleKey));
       String name = rule.getName() + " (" + rule.getLanguage() + ")";
       setFieldValue(metric + DOT + (i + 1) + LABEL, name);
       setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
