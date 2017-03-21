@@ -54,7 +54,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private final AtomicBoolean restartDisabled = new AtomicBoolean(false);
   private final EnumMap<ProcessId, SQProcess> processesById = new EnumMap<>(ProcessId.class);
   private final AtomicInteger operationalCountDown = new AtomicInteger();
-  private final AtomicInteger stopCountDown = new AtomicInteger();
+  private final AtomicInteger stopCountDown = new AtomicInteger(0);
   private StopperThread stopperThread;
   private RestarterThread restarterThread;
   private long processWatcherDelayMs = SQProcess.DEFAULT_WATCHER_DELAY_MS;
@@ -91,7 +91,6 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       processesById.put(process.getProcessId(), process);
     }
     operationalCountDown.set(processesById.size());
-    stopCountDown.set(processesById.size());
 
     tryToStartAll();
   }
@@ -223,8 +222,16 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
 
   @Override
   public void onProcessState(ProcessId processId, Lifecycle.State to) {
-    if (to == Lifecycle.State.STOPPED) {
-      onProcessStop(processId);
+    switch (to) {
+      case STOPPED:
+        onProcessStop(processId);
+        break;
+      case STARTING:
+        stopCountDown.incrementAndGet();
+        break;
+      default:
+        // Nothing to do
+        break;
     }
   }
 
