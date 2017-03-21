@@ -20,14 +20,18 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
@@ -41,6 +45,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.transformValues;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.core.util.stream.Collectors.toList;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.
@@ -79,12 +84,32 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     checkProjectKeyConsistency(reportMetadata);
     Organization organization = toOrganization(ceTask.getOrganizationUuid());
     checkOrganizationKeyConsistency(reportMetadata, organization);
+    checkQualityProfilesConsistency(reportMetadata, organization);
 
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
     mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
     mutableAnalysisMetadataHolder.setQProfilesByLanguage(transformValues(reportMetadata.getQprofilesPerLanguage(), TO_COMPUTE_QPROFILE));
     mutableAnalysisMetadataHolder.setOrganization(organization);
+  }
+
+  /**
+   * Check that the Quality profiles sent by scanner correctly relate to the project organization.
+   */
+  private void checkQualityProfilesConsistency(ScannerReport.Metadata metadata, Organization organization) {
+    List<String> profileKeys = metadata.getQprofilesPerLanguage().values().stream()
+      .map(QProfile::getKey)
+      .collect(toList(metadata.getQprofilesPerLanguage().size()));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<QualityProfileDto> profiles = dbClient.qualityProfileDao().selectByKeys(dbSession, profileKeys);
+      String badKeys = profiles.stream()
+        .filter(p -> !p.getOrganizationUuid().equals(organization.getUuid()))
+        .map(p -> p.getKey())
+        .collect(Collectors.join(Joiner.on(", ")));
+      if (!badKeys.isEmpty()) {
+        throw MessageException.of(format("Quality profiles with following keys don't exist in organization [%s]: %s", organization.getKey(), badKeys));
+      }
+    }
   }
 
   private void checkProjectKeyConsistency(ScannerReport.Metadata reportMetadata) {
