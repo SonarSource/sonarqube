@@ -23,14 +23,17 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -48,14 +51,16 @@ public class DeleteAction implements OrganizationsWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final ComponentCleanerService componentCleanerService;
   private final OrganizationFlags organizationFlags;
+  private final QProfileFactory qProfileFactory;
 
   public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags) {
+    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags, QProfileFactory qProfileFactory) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.componentCleanerService = componentCleanerService;
     this.organizationFlags = organizationFlags;
+    this.qProfileFactory = qProfileFactory;
   }
 
   @Override
@@ -99,6 +104,7 @@ public class DeleteAction implements OrganizationsWsAction {
       deleteProjects(dbSession, organization);
       deletePermissions(dbSession, organization);
       deleteGroups(dbSession, organization);
+      deleteQualityProfiles(dbSession, organization);
       deleteOrganization(dbSession, organization);
 
       response.noContent();
@@ -121,6 +127,15 @@ public class DeleteAction implements OrganizationsWsAction {
 
   private void deleteGroups(DbSession dbSession, OrganizationDto organization) {
     dbClient.groupDao().deleteByOrganization(dbSession, organization.getUuid());
+    dbSession.commit();
+  }
+
+  private void deleteQualityProfiles(DbSession dbSession, OrganizationDto organization) {
+    List<QualityProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession, organization);
+    List<String> profileKeys = profiles.stream()
+      .map(QualityProfileDto::getKey)
+      .collect(Collectors.toArrayList(profiles.size()));
+    qProfileFactory.deleteByKeys(dbSession, profileKeys);
     dbSession.commit();
   }
 
