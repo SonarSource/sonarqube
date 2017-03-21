@@ -108,5 +108,4 @@ public class RemoveMemberAction implements OrganizationsWsAction {
       organizationDto.getUuid(), ADMINISTER.getKey(), user.getId());
     checkRequest(remainingAdmins > 0, "The last administrator member cannot be removed");
   }
-
 }

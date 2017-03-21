@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserIndexDefinitionTest {
 
-  IndexDefinition.IndexDefinitionContext underTest = new IndexDefinition.IndexDefinitionContext();
+  private IndexDefinition.IndexDefinitionContext underTest = new IndexDefinition.IndexDefinitionContext();
 
   @Test
   public void define() {

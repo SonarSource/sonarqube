@@ -90,12 +90,13 @@ public class SearchMembersActionTest {
   public void search_members_of_default_organization() {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     OrganizationDto anotherOrganization = db.organizations().insert();
-    UserDto user = insertUser();
-    UserDto anotherUser = insertUser();
-    UserDto userInAnotherOrganization = insertUser();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
+    UserDto userInAnotherOrganization = db.users().insertUser();
     db.organizations().addMember(defaultOrganization, user);
     db.organizations().addMember(defaultOrganization, anotherUser);
     db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
+    indexAllUsers();
 
     SearchMembersWsResponse result = call();
 
@@ -110,12 +111,13 @@ public class SearchMembersActionTest {
   public void search_members_of_specified_organization() {
     OrganizationDto organization = db.organizations().insert();
     OrganizationDto anotherOrganization = db.organizations().insert();
-    UserDto user = insertUser();
-    UserDto anotherUser = insertUser();
-    UserDto userInAnotherOrganization = insertUser();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
+    UserDto userInAnotherOrganization = db.users().insertUser();
     db.organizations().addMember(organization, user);
     db.organizations().addMember(organization, anotherUser);
     db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
+    indexAllUsers();
     request.setOrganization(organization.getKey());
 
     SearchMembersWsResponse result = call();
@@ -130,8 +132,8 @@ public class SearchMembersActionTest {
   @Test
   public void return_avatar() {
     UserDto user = db.users().insertUser(u -> u.setEmail("email@domain.com"));
-    indexer.index(user.getLogin());
     db.organizations().addMember(db.getDefaultOrganization(), user);
+    indexer.index(user.getLogin());
 
     SearchMembersWsResponse result = call();
 
@@ -140,10 +142,11 @@ public class SearchMembersActionTest {
 
   @Test
   public void do_not_return_group_count_if_no_admin_permission() {
-    UserDto user = insertUser();
+    UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
     db.organizations().addMember(db.getDefaultOrganization(), user);
+    indexAllUsers();
 
     SearchMembersWsResponse result = call();
 
@@ -153,8 +156,8 @@ public class SearchMembersActionTest {
   @Test
   public void return_group_counts_if_org_admin() {
     userSession.addPermission(OrganizationPermission.ADMINISTER, db.getDefaultOrganization());
-    UserDto user = insertUser();
-    UserDto anotherUser = insertUser();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
     IntStream.range(0, 10)
       .mapToObj(i -> db.users().insertGroup())
       .forEach(g -> db.users().insertMembers(g, user));
@@ -164,6 +167,7 @@ public class SearchMembersActionTest {
     db.organizations().addMember(db.getDefaultOrganization(), user);
     db.organizations().addMember(db.getDefaultOrganization(), anotherUser);
     db.organizations().addMember(anotherOrganization, user);
+    indexAllUsers();
 
     SearchMembersWsResponse result = call();
 
@@ -176,12 +180,13 @@ public class SearchMembersActionTest {
   public void search_non_members() {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     OrganizationDto anotherOrganization = db.organizations().insert();
-    UserDto user = insertUser();
-    UserDto anotherUser = insertUser();
-    UserDto userInAnotherOrganization = insertUser();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
+    UserDto userInAnotherOrganization = db.users().insertUser();
     db.organizations().addMember(anotherOrganization, user);
     db.organizations().addMember(anotherOrganization, anotherUser);
     db.organizations().addMember(defaultOrganization, userInAnotherOrganization);
+    indexAllUsers();
     request.setSelected(WebService.SelectionMode.DESELECTED.value());
 
     SearchMembersWsResponse result = call();
@@ -200,6 +205,7 @@ public class SearchMembersActionTest {
       db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
+    indexAllUsers();
     request.setPage(2).setPageSize(3);
 
     SearchMembersWsResponse result = call();
@@ -218,6 +224,7 @@ public class SearchMembersActionTest {
       db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
+    indexAllUsers();
     request.setQuery("_9");
 
     SearchMembersWsResponse result = call();
@@ -232,6 +239,7 @@ public class SearchMembersActionTest {
       db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
+    indexAllUsers();
     request.setQuery("_9");
 
     SearchMembersWsResponse result = call();
@@ -248,6 +256,7 @@ public class SearchMembersActionTest {
       db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
+    indexAllUsers();
     request.setQuery("_9");
 
     SearchMembersWsResponse result = call();
@@ -263,6 +272,7 @@ public class SearchMembersActionTest {
     indexer.index(grace.getLogin());
     db.organizations().addMember(db.getDefaultOrganization(), ada);
     db.organizations().addMember(db.getDefaultOrganization(), grace);
+    indexAllUsers();
 
     String result = ws.newRequest().execute().getInput();
 
@@ -318,11 +328,8 @@ public class SearchMembersActionTest {
     assertThat(selected.defaultValue()).isEqualTo("selected");
   }
 
-  private UserDto insertUser() {
-    UserDto userDto = db.users().insertUser();
-    indexer.index(userDto.getLogin());
-
-    return userDto;
+  private void indexAllUsers() {
+    indexer.indexOnStartup(indexer.getIndexTypes());
   }
 
   private SearchMembersWsResponse call() {

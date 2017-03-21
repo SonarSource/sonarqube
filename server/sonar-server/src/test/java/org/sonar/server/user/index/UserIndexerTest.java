@@ -35,26 +35,26 @@ public class UserIndexerTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   @Test
   public void index_nothing() {
     UserIndexer indexer = createIndexer();
     indexer.indexOnStartup(null);
-    assertThat(esTester.countDocuments(UserIndexDefinition.INDEX_TYPE_USER)).isEqualTo(0L);
+    assertThat(es.countDocuments(UserIndexDefinition.INDEX_TYPE_USER)).isEqualTo(0L);
   }
 
   @Test
   public void index_everything() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
+    db.prepareDbUnit(getClass(), "index.xml");
 
     UserIndexer indexer = createIndexer();
     indexer.indexOnStartup(null);
 
-    List<UserDoc> docs = esTester.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
     UserDoc doc = docs.get(0);
     assertThat(doc.login()).isEqualTo("user1");
@@ -68,17 +68,17 @@ public class UserIndexerTest {
 
   @Test
   public void index_single_user() {
-    UserDto user = dbTester.users().insertUser();
+    UserDto user = db.users().insertUser();
 
     UserIndexer indexer = createIndexer();
     indexer.indexOnStartup(null);
 
-    List<UserDoc> docs = esTester.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
     assertThat(docs).extracting(UserDoc::login).containsExactly(user.getLogin());
   }
 
   private UserIndexer createIndexer() {
-    return new UserIndexer(dbTester.getDbClient(), esTester.client());
+    return new UserIndexer(db.getDbClient(), es.client());
   }
 }

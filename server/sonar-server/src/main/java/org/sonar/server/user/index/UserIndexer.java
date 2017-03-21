@@ -52,12 +52,12 @@ public class UserIndexer implements StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(null, Size.REGULAR);
+    doIndex(null, Size.LARGE);
   }
 
   public void index(String login) {
     requireNonNull(login);
-    doIndex(login, Size.LARGE);
+    doIndex(login, Size.REGULAR);
   }
 
   private void doIndex(@Nullable String login, Size bulkSize) {

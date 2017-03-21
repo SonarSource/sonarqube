@@ -23,8 +23,11 @@ package org.sonar.db.organization;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class OrganizationMemberDao implements Dao {
   private static OrganizationMemberMapper mapper(DbSession dbSession) {
@@ -55,4 +58,21 @@ public class OrganizationMemberDao implements Dao {
     return mapper(dbSession).selectOrganizationUuidsByUser(userId);
   }
 
+  /**
+   *
+   * @param loginOrganizationConsumer {@link BiConsumer}<String,String> (login, organization uuid)
+   */
+  public void selectForUserIndexing(DbSession dbSession, List<String> logins, BiConsumer<String, String> loginOrganizationConsumer) {
+    executeLargeInputsWithoutOutput(logins, list -> mapper(dbSession).selectForIndexing(list)
+      .forEach(row -> loginOrganizationConsumer.accept(row.get("login"), row.get("organizationUuid"))));
+  }
+
+  /**
+   *
+   * @param loginOrganizationConsumer {@link BiConsumer}<String,String> (login, organization uuid)
+   */
+  public void selectAllForUserIndexing(DbSession dbSession, BiConsumer<String, String> loginOrganizationConsumer) {
+    mapper(dbSession).selectAllForIndexing()
+      .forEach(row -> loginOrganizationConsumer.accept(row.get("login"), row.get("organizationUuid")));
+  }
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user.index;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,6 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 import org.sonar.db.user.UserDto;
+
+import static java.util.Collections.singletonList;
 
 /**
  * Scrolls over table USERS and reads documents to populate the user index
@@ -47,11 +51,13 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from users u ";
-
   private static final String LOGIN_FILTER = " WHERE u.login=?";
 
-  private UserResultSetIterator(PreparedStatement stmt) throws SQLException {
+  private final ListMultimap<String, String> organizationUuidsByLogins;
+
+  private UserResultSetIterator(PreparedStatement stmt, ListMultimap<String, String> organizationUuidsByLogins) throws SQLException {
     super(stmt);
+    this.organizationUuidsByLogins = organizationUuidsByLogins;
   }
 
   static UserResultSetIterator create(DbClient dbClient, DbSession session, @Nullable String login) {
@@ -59,7 +65,15 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
       String sql = createSql(login);
       PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
       setParameter(stmt, login);
-      return new UserResultSetIterator(stmt);
+
+      ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();
+      if (login == null) {
+        dbClient.organizationMemberDao().selectAllForUserIndexing(session, organizationUuidsByLogin::put);
+      } else {
+        dbClient.organizationMemberDao().selectForUserIndexing(session, singletonList(login), organizationUuidsByLogin::put);
+      }
+
+      return new UserResultSetIterator(stmt, organizationUuidsByLogin);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all users", e);
     }
@@ -79,7 +93,7 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
 
   @Override
   protected UserDoc read(ResultSet rs) throws SQLException {
-    UserDoc doc = new UserDoc(Maps.<String, Object>newHashMapWithExpectedSize(7));
+    UserDoc doc = new UserDoc(Maps.newHashMapWithExpectedSize(8));
 
     String login = rs.getString(1);
 
@@ -91,6 +105,7 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
     doc.setScmAccounts(UserDto.decodeScmAccounts(rs.getString(5)));
     doc.setCreatedAt(rs.getLong(6));
     doc.setUpdatedAt(rs.getLong(7));
+    doc.setOrganizationUuids(organizationUuidsByLogins.get(login));
     return doc;
   }
 

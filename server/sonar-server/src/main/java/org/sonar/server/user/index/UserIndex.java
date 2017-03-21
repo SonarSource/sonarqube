@@ -57,6 +57,7 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_NAME;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS;
 
 @ServerSide
@@ -140,12 +141,10 @@ public class UserIndex {
       .addSort(FIELD_NAME, SortOrder.ASC);
 
     BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, true));
-
-    userQuery.getLogins().ifPresent(
-      logins -> filter.must(termsQuery(FIELD_LOGIN, userQuery.getLogins().get())));
-
-    userQuery.getExcludedLogins().ifPresent(
-      excludedLogins -> filter.mustNot(termsQuery(FIELD_LOGIN, userQuery.getExcludedLogins().get())));
+    userQuery.getOrganizationUuid()
+      .ifPresent(o -> filter.must(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
+    userQuery.getExcludedOrganizationUuid()
+      .ifPresent(o -> filter.mustNot(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
 
     QueryBuilder esQuery = matchAllQuery();
     Optional<String> textQuery = userQuery.getTextQuery();

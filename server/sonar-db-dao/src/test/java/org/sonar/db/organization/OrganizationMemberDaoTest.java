@@ -20,10 +20,13 @@
 
 package org.sonar.db.organization;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,6 +37,7 @@ import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class OrganizationMemberDaoTest {
   @Rule
@@ -85,6 +89,38 @@ public class OrganizationMemberDaoTest {
     assertThat(underTest.selectOrganizationUuidsByUser(dbSession, 512)).containsOnly(organizationDto1.getUuid(), organizationDto2.getUuid())
       .doesNotContain(organizationDto3.getUuid());
     assertThat(underTest.selectOrganizationUuidsByUser(dbSession, 123)).isEmpty();
+  }
+
+  @Test
+  public void select_for_indexing() {
+    OrganizationDto org1 = db.organizations().insert(o -> o.setUuid("ORG_1"));
+    OrganizationDto org2 = db.organizations().insert(o -> o.setUuid("ORG_2"));
+    UserDto user1 = db.users().insertUser("L_1");
+    UserDto user2 = db.users().insertUser("L_2");
+    db.organizations().addMember(org1, user1);
+    db.organizations().addMember(org1, user2);
+    db.organizations().addMember(org2, user1);
+    List<Tuple> result = new ArrayList<>();
+
+    underTest.selectForUserIndexing(dbSession, Arrays.asList("L_1", "L_2"), (login, org) -> result.add(tuple(login, org)));
+
+    assertThat(result).containsOnly(tuple("L_1", "ORG_1"), tuple("L_1", "ORG_2"), tuple("L_2", "ORG_1"));
+  }
+
+  @Test
+  public void select_all_for_indexing() {
+    OrganizationDto org1 = db.organizations().insert(o -> o.setUuid("ORG_1"));
+    OrganizationDto org2 = db.organizations().insert(o -> o.setUuid("ORG_2"));
+    UserDto user1 = db.users().insertUser("L_1");
+    UserDto user2 = db.users().insertUser("L_2");
+    db.organizations().addMember(org1, user1);
+    db.organizations().addMember(org1, user2);
+    db.organizations().addMember(org2, user1);
+    List<Tuple> result = new ArrayList<>();
+
+    underTest.selectAllForUserIndexing(dbSession, (login, org) -> result.add(tuple(login, org)));
+
+    assertThat(result).containsOnly(tuple("L_1", "ORG_1"), tuple("L_1", "ORG_2"), tuple("L_2", "ORG_1"));
   }
 
   @Test

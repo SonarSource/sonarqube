@@ -30,6 +30,22 @@
     where om.user_id = #{userId, jdbcType=INTEGER}
   </select>
 
+  <select id="selectForIndexing" resultType="hashmap">
+    select u.login as "login", om.organization_uuid as "organizationUuid"
+    from organization_members om
+     inner join users u on om.user_id=u.id
+    where u.login in
+    <foreach collection="logins" open="(" close=")" item="login" separator=",">
+      #{login, jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+  <select id="selectAllForIndexing" resultType="hashmap">
+    select u.login as "login", om.organization_uuid as "organizationUuid"
+    from organization_members om
+    inner join users u on om.user_id=u.id
+  </select>
+
   <insert id="insert" parameterType="OrganizationMember" useGeneratedKeys="false">
     insert into organization_members
     (

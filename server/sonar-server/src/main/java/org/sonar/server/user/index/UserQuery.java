@@ -20,8 +20,6 @@
 
 package org.sonar.server.user.index;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -31,25 +29,25 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @Immutable
 public class UserQuery {
   private final String textQuery;
-  private final List<String> logins;
-  private final List<String> excludedLogins;
+  private final String organizationUuid;
+  private final String excludedOrganizationUuid;
 
   private UserQuery(Builder builder) {
     this.textQuery = builder.textQuery;
-    this.logins = builder.logins == null ? null : ImmutableList.copyOf(builder.logins);
-    this.excludedLogins = builder.excludedLogins == null ? null : ImmutableList.copyOf(builder.excludedLogins);
+    this.organizationUuid = builder.organizationUuid;
+    this.excludedOrganizationUuid = builder.excludedOrganizationUuid;
   }
 
   public Optional<String> getTextQuery() {
     return Optional.ofNullable(textQuery);
   }
 
-  public Optional<List<String>> getLogins() {
-    return Optional.ofNullable(logins);
+  public Optional<String> getOrganizationUuid() {
+    return Optional.ofNullable(organizationUuid);
   }
 
-  public Optional<List<String>> getExcludedLogins() {
-    return Optional.ofNullable(excludedLogins);
+  public Optional<String> getExcludedOrganizationUuid() {
+    return Optional.ofNullable(excludedOrganizationUuid);
   }
 
   public static Builder builder() {
@@ -58,8 +56,8 @@ public class UserQuery {
 
   public static class Builder {
     private String textQuery;
-    private List<String> logins;
-    private List<String> excludedLogins;
+    private String organizationUuid;
+    private String excludedOrganizationUuid;
 
     private Builder() {
       // enforce factory method
@@ -74,13 +72,19 @@ public class UserQuery {
       return this;
     }
 
-    public Builder setLogins(@Nullable List<String> logins) {
-      this.logins = logins;
+    /**
+     * Include only users that are members of the organizationUuid
+     */
+    public Builder setOrganizationUuid(@Nullable String organizationUuid) {
+      this.organizationUuid = organizationUuid;
       return this;
     }
 
-    public Builder setExcludedLogins(@Nullable List<String> excludedLogins) {
-      this.excludedLogins = excludedLogins;
+    /**
+     * Include only users that are not members of the excludedOrganizationUuid
+     */
+    public Builder setExcludedOrganizationUuid(@Nullable String excludedOrganizationUuid) {
+      this.excludedOrganizationUuid = excludedOrganizationUuid;
       return this;
     }
   }

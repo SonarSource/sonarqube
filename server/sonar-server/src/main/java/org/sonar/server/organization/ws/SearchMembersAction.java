@@ -98,9 +98,8 @@ public class SearchMembersAction implements OrganizationsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = getOrganization(dbSession, request.param("organization"));
-      List<String> memberLogins = dbClient.organizationMemberDao().selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
 
-      UserQuery.Builder userQuery = buildUserQuery(request, memberLogins);
+      UserQuery.Builder userQuery = buildUserQuery(request, organization);
       SearchOptions searchOptions = buildSearchOptions(request);
 
       SearchResult<UserDoc> searchResults = userIndex.search(userQuery.build(), searchOptions);
@@ -143,7 +142,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
     return response.build();
   }
 
-  private static UserQuery.Builder buildUserQuery(Request request, List<String> memberLogins) {
+  private static UserQuery.Builder buildUserQuery(Request request, OrganizationDto organization) {
     UserQuery.Builder userQuery = UserQuery.builder();
     String textQuery = request.param(Param.TEXT_QUERY);
     checkArgument(textQuery == null || textQuery.length() >= 2, "Query length must be greater than or equal to 2");
@@ -151,9 +150,9 @@ public class SearchMembersAction implements OrganizationsWsAction {
 
     SelectionMode selectionMode = SelectionMode.fromParam(request.mandatoryParam(Param.SELECTED));
     if (SelectionMode.DESELECTED.equals(selectionMode)) {
-      userQuery.setExcludedLogins(memberLogins);
+      userQuery.setExcludedOrganizationUuid(organization.getUuid());
     } else {
-      userQuery.setLogins(memberLogins);
+      userQuery.setOrganizationUuid(organization.getUuid());
     }
     return userQuery;
   }
