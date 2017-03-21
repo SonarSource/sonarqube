@@ -41,4 +41,10 @@ public class ProjectDashboardPage {
     element.shouldBe(visible);
     return element;
   }
+
+  public SelenideElement getTags() {
+    SelenideElement element = $(".overview-meta-tags");
+    element.shouldBe(visible);
+    return element;
+  }
 }
