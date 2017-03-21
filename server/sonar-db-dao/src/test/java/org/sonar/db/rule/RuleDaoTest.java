@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -190,29 +189,20 @@ public class RuleDaoTest {
   public void selectEnabled_with_ResultHandler() {
     dbTester.prepareDbUnit(getClass(), "selectEnabled.xml");
 
-    final List<RuleDto> rules = new ArrayList<>();
-    ResultHandler resultHandler = new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext resultContext) {
-        rules.add((RuleDto) resultContext.getResultObject());
-      }
-    };
+    final List<RuleDefinitionDto> rules = new ArrayList<>();
+    ResultHandler resultHandler = resultContext -> rules.add((RuleDefinitionDto) resultContext.getResultObject());
     underTest.selectEnabled(dbTester.getSession(), resultHandler);
 
     assertThat(rules.size()).isEqualTo(1);
-    RuleDto ruleDto = rules.get(0);
+    RuleDefinitionDto ruleDto = rules.get(0);
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.HTML);
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
-    assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
-    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
     assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
   }
