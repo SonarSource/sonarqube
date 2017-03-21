@@ -17,15 +17,7 @@ exports[`test should render multiselect with selected elements 1`] = `
       value="" />
   </div>
   <ul
-    className="menu">
-    <MultiSelectOption
-      active={true}
-      custom={false}
-      element="bar"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      selected={true} />
-  </ul>
+    className="menu" />
 </div>
 `;
 
@@ -50,7 +42,7 @@ exports[`test should render multiselect with selected elements 2`] = `
   <ul
     className="menu">
     <MultiSelectOption
-      active={true}
+      active={false}
       custom={false}
       element="bar"
       onHover={[Function]}
@@ -95,7 +87,7 @@ exports[`test should render multiselect with selected elements 3`] = `
   <ul
     className="menu">
     <MultiSelectOption
-      active={true}
+      active={false}
       custom={false}
       element="bar"
       onHover={[Function]}
@@ -109,7 +101,7 @@ exports[`test should render multiselect with selected elements 3`] = `
       onSelectChange={[Function]}
       selected={false} />
     <MultiSelectOption
-      active={false}
+      active={true}
       custom={false}
       element="baz"
       onHover={[Function]}
@@ -142,12 +134,19 @@ exports[`test should render multiselect with selected elements 4`] = `
     <MultiSelectOption
       active={false}
       custom={false}
+      element="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={true} />
+    <MultiSelectOption
+      active={false}
+      custom={false}
       element="foo"
       onHover={[Function]}
       onSelectChange={[Function]}
       selected={false} />
     <MultiSelectOption
-      active={false}
+      active={true}
       custom={false}
       element="baz"
       onHover={[Function]}

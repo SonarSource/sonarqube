@@ -33,6 +33,7 @@ type Props = {
 
 type State = {
   query: string,
+  selectedElements: Array<string>,
   unselectedElements: Array<string>,
   activeIdx: number
 };
@@ -43,11 +44,13 @@ export default class MultiSelect extends React.PureComponent {
   props: Props;
   state: State = {
     query: '',
+    selectedElements: [],
     unselectedElements: [],
     activeIdx: 0
   };
 
   componentDidMount() {
+    this.updateSelectedElements(this.props);
     this.updateUnselectedElements(this.props);
     this.container && this.container.addEventListener('keydown', this.handleKeyboard, true);
   }
@@ -61,7 +64,9 @@ export default class MultiSelect extends React.PureComponent {
       this.props.elements !== nextProps.elements ||
       this.props.selectedElements !== nextProps.selectedElements
     ) {
+      this.updateSelectedElements(nextProps);
       this.updateUnselectedElements(nextProps);
+
       const totalElements = this.getAllElements(nextProps, this.state).length;
       if (this.state.activeIdx >= totalElements) {
         this.setState({ activeIdx: totalElements - 1 });
@@ -129,6 +134,18 @@ export default class MultiSelect extends React.PureComponent {
     return elem && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
   }
 
+  updateSelectedElements(props: Props) {
+    this.setState((state: State) => {
+      if (state.query) {
+        return {
+          selectedElements: [...props.selectedElements.filter(elem => elem.includes(state.query))]
+        };
+      } else {
+        return { selectedElements: [...props.selectedElements] };
+      }
+    });
+  }
+
   updateUnselectedElements(props: Props) {
     this.setState({
       unselectedElements: difference(props.elements, props.selectedElements)
@@ -137,9 +154,9 @@ export default class MultiSelect extends React.PureComponent {
 
   getAllElements(props: Props, state: State) {
     if (this.isNewElement(state.query, props)) {
-      return [...props.selectedElements, ...state.unselectedElements, state.query];
+      return [...state.selectedElements, ...state.unselectedElements, state.query];
     } else {
-      return [...props.selectedElements, ...state.unselectedElements];
+      return [...state.selectedElements, ...state.unselectedElements];
     }
   }
 
@@ -177,8 +194,7 @@ export default class MultiSelect extends React.PureComponent {
   }
 
   render() {
-    const { selectedElements } = this.props;
-    const { query, activeIdx, unselectedElements } = this.state;
+    const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
 
     return (
@@ -199,18 +215,16 @@ export default class MultiSelect extends React.PureComponent {
         </div>
         <ul className="menu">
           {selectedElements.length > 0 &&
-            selectedElements
-              .filter(element => element.includes(query))
-              .map(element => (
-                <MultiSelectOption
-                  key={element}
-                  element={element}
-                  selected={true}
-                  active={activeElement === element}
-                  onSelectChange={this.handleSelectChange}
-                  onHover={this.handleElementHover}
-                />
-              ))}
+            selectedElements.map(element => (
+              <MultiSelectOption
+                key={element}
+                element={element}
+                selected={true}
+                active={activeElement === element}
+                onSelectChange={this.handleSelectChange}
+                onHover={this.handleElementHover}
+              />
+            ))}
           {unselectedElements.length > 0 &&
             unselectedElements.map(element => (
               <MultiSelectOption

@@ -33,10 +33,13 @@ const elements = ['foo', 'bar', 'baz'];
 
 it('should render multiselect with selected elements', () => {
   const multiselect = shallow(<MultiSelect {...props} />);
+  // Will not have any element in the list since its filled with componentDidMount the first time
   expect(multiselect).toMatchSnapshot();
+
+  // Will have some elements
   multiselect.setProps({ elements });
   expect(multiselect).toMatchSnapshot();
-  multiselect.setState({ active: { idx: 2, value: 'baz' } });
+  multiselect.setState({ activeIdx: 2 });
   expect(multiselect).toMatchSnapshot();
   multiselect.setState({ query: 'test' });
   expect(multiselect).toMatchSnapshot();

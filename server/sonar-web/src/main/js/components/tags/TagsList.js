@@ -40,7 +40,7 @@ export default class TagsList extends React.PureComponent {
   render() {
     const { tags, allowUpdate } = this.props;
     const spanClass = classNames({
-      'note': !allowUpdate,
+      note: !allowUpdate,
       'text-ellipsis': !this.props.allowMultiLine
     });
     const tagListClass = classNames('tags-list', this.props.customClass);
