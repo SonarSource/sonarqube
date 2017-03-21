@@ -24,28 +24,24 @@ import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
 public class DbVersion64 implements DbVersion {
-
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(1600, "Add PROJECTS.TAGS", AddTagsToProjects.class)
-      .add(1601, "Set PROJECTS.COPY_COMPONENT_UUID on local views", SetCopyComponentUuidOnLocalViews.class)
-      .add(1602, "Add RULES_PROFILES.ORGANIZATION_UUID", AddQualityProfileOrganizationUuid.class)
-      .add(1603, "Set RULES_PROFILES.ORGANIZATION_UUID to default", SetQualityProfileOrganizationUuidToDefault.class)
-      .add(1604, "Make RULES_PROFILES.ORGANIZATION_UUID not nullable", MakeQualityProfileOrganizationUuidNotNullable.class)
-
-      .add(1605, "Drop unique index on RULES_PROFILES.KEE", DropUniqueIndexOnQualityProfileKey.class)
-      .add(1606, "Make RULES_PROFILES.ORGANIZATION_UUID and KEE unique", MakeQualityProfileOrganizationUuidAndKeyUnique.class)
-
-      .add(1607, "Create ORGANIZATION_MEMBERS table", CreateOrganizationMembersTable.class)
-      .add(1608, "Populate ORGANIZATION_MEMBERS table", PopulateOrganizationMembersTable.class)
-
-      .add(1609, "Drop unique index on RULES_PROFILES.ORGANIZATION_UUID and KEE", DropUniqueIndexOnQualityProfileOrganizationUuidAndKey.class)
-      .add(1610, "Make RULES_PROFILES.KEE unique", MakeQualityProfileKeyUnique.class)
-
-      .add(1611, "Clean LOADED_TEMPLATES rows without type", CleanLoadedTemplateOrphans.class)
-      .add(1612, "Extend size of column LOADED_TEMPLATES.TEMPLATE_TYPE", ExtendLoadedTemplateTypeColumn.class)
-      .add(1613, "Add index LOADED_TEMPLATES_TYPE", AddIndexLoadedTemplatesType.class)
-      .add(1614, "Upgrade loaded template entries for quality profiles", UpgradeQualityTemplateLoadedTemplates.class);
+        .add(1600, "Add PROJECTS.TAGS", AddTagsToProjects.class)
+        .add(1601, "Set PROJECTS.COPY_COMPONENT_UUID on local views", SetCopyComponentUuidOnLocalViews.class)
+        .add(1602, "Add RULES_PROFILES.ORGANIZATION_UUID", AddQualityProfileOrganizationUuid.class)
+        .add(1603, "Set RULES_PROFILES.ORGANIZATION_UUID to default", SetQualityProfileOrganizationUuidToDefault.class)
+        .add(1604, "Make RULES_PROFILES.ORGANIZATION_UUID not nullable", MakeQualityProfileOrganizationUuidNotNullable.class)
+        .add(1605, "Drop unique index on RULES_PROFILES.KEE", DropUniqueIndexOnQualityProfileKey.class)
+        .add(1606, "Make RULES_PROFILES.ORGANIZATION_UUID and KEE unique", MakeQualityProfileOrganizationUuidAndKeyUnique.class)
+        .add(1607, "Create ORGANIZATION_MEMBERS table", CreateOrganizationMembersTable.class)
+        .add(1608, "Populate ORGANIZATION_MEMBERS table", PopulateOrganizationMembersTable.class)
+        .add(1609, "Drop unique index on RULES_PROFILES.ORGANIZATION_UUID and KEE", DropUniqueIndexOnQualityProfileOrganizationUuidAndKey.class)
+        .add(1610, "Make RULES_PROFILES.KEE unique", MakeQualityProfileKeyUnique.class)
+        .add(1611, "Clean LOADED_TEMPLATES rows without type", CleanLoadedTemplateOrphans.class)
+        .add(1612, "Extend size of column LOADED_TEMPLATES.TEMPLATE_TYPE", ExtendLoadedTemplateTypeColumn.class)
+        .add(1613, "Add index LOADED_TEMPLATES_TYPE", AddIndexLoadedTemplatesType.class)
+        .add(1614, "Upgrade loaded template entries for quality profiles", UpgradeQualityTemplateLoadedTemplates.class)
+        .add(1615, "Create table RULES_METADATA", CreateRulesMetadata.class);
   }
 }
