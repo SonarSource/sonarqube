@@ -19,11 +19,9 @@
  */
 package org.sonar.server.rule.ws;
 
-import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
@@ -43,10 +41,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class AppActionTest {
@@ -63,9 +57,8 @@ public class AppActionTest {
 
   private Languages languages = new Languages(LANG1, LANG2);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private I18n i18n = mock(I18n.class);
   private RuleWsSupport wsSupport = new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
-  private AppAction underTest = new AppAction(languages, db.getDbClient(), i18n, userSession, wsSupport);
+  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession, wsSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -221,8 +214,6 @@ public class AppActionTest {
     RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
     db.getDbClient().ruleRepositoryDao().insert(db.getSession(), asList(repo1, repo2));
     db.getSession().commit();
-    when(i18n.message(isA(Locale.class), anyString(), anyString())).thenAnswer(
-      invocation -> invocation.getArguments()[1]);
   }
 
   private void insertQualityProfiles(OrganizationDto organization) {

@@ -19,11 +19,8 @@
  */
 package org.sonar.server.rule.ws;
 
-import java.util.Locale;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -41,14 +38,12 @@ public class AppAction implements RulesWsAction {
 
   private final Languages languages;
   private final DbClient dbClient;
-  private final I18n i18n;
   private final UserSession userSession;
   private final RuleWsSupport wsSupport;
 
-  public AppAction(Languages languages, DbClient dbClient, I18n i18n, UserSession userSession, RuleWsSupport wsSupport) {
+  public AppAction(Languages languages, DbClient dbClient, UserSession userSession, RuleWsSupport wsSupport) {
     this.languages = languages;
     this.dbClient = dbClient;
-    this.i18n = i18n;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
   }
@@ -81,7 +76,6 @@ public class AppAction implements RulesWsAction {
       addProfiles(dbSession, organization, json);
       addLanguages(json);
       addRuleRepositories(json, dbSession);
-      addStatuses(json);
       json.endObject().close();
     }
   }
@@ -129,15 +123,5 @@ public class AppAction implements RulesWsAction {
         .prop("language", r.getLanguage())
         .endObject());
     json.endArray();
-  }
-
-  private void addStatuses(JsonWriter json) {
-    json.name("statuses").beginObject();
-    for (RuleStatus status : RuleStatus.values()) {
-      if (status != RuleStatus.REMOVED) {
-        json.prop(status.toString(), i18n.message(Locale.getDefault(), "rules.status." + status.toString().toLowerCase(Locale.ENGLISH), status.toString()));
-      }
-    }
-    json.endObject();
   }
 }
