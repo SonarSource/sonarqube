@@ -49,7 +49,7 @@ public class CachingRuleActivatorContextFactory extends RuleActivatorContextFact
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.ruleDao().selectAll(dbSession).forEach(rule -> rulesByRuleKey.put(rule.getKey(), rule.getDefinition()));
+      dbClient.ruleDao().selectAllDefinitions(dbSession).forEach(rule -> rulesByRuleKey.put(rule.getKey(), rule));
     }
   }
 

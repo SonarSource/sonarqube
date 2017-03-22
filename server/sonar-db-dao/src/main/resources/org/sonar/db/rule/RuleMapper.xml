@@ -45,6 +45,13 @@
       rules r
   </select>
 
+  <select id="selectAllDefinitions" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectDefinitionColumns"/>
+    from
+      rules r
+  </select>
+
   <select id="selectEnabled" resultType="org.sonar.db.rule.RuleDefinitionDto">
     select
       <include refid="selectDefinitionColumns"/>
