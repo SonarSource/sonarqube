@@ -25,6 +25,7 @@ import org.sonar.db.Database;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,6 @@ public class DropRememberMeColumnsFromUsersTest {
     DdlChange.Context context = mock(DdlChange.Context.class);
     underTest.execute(context);
 
-    verify(context).execute("ALTER TABLE users DROP COLUMN remember_token, DROP COLUMN remember_token_expires_at");
+    verify(context).execute(singletonList("ALTER TABLE users DROP COLUMN remember_token, DROP COLUMN remember_token_expires_at"));
   }
 }

@@ -43,7 +43,7 @@ public class DropUnusedMeasuresColumnsTest {
   public void generate_sql_on_postgresql() {
     when(database.getDialect()).thenReturn(new PostgreSql());
     assertThat(underTest.generateSql())
-      .isEqualTo(
+      .containsOnly(
         "ALTER TABLE project_measures DROP COLUMN rules_category_id, DROP COLUMN tendency, DROP COLUMN measure_date, DROP COLUMN url, DROP COLUMN rule_priority, DROP COLUMN characteristic_id, DROP COLUMN rule_id");
   }
 

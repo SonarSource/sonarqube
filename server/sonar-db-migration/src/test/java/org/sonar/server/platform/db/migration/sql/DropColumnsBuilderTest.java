@@ -32,32 +32,34 @@ public class DropColumnsBuilderTest {
 
   @Test
   public void drop_columns_on_mysql() {
-    assertThat(new DropColumnsBuilder(new MySql(), "issues", "date_in_ms", "name")
-      .build()).isEqualTo("ALTER TABLE issues DROP COLUMN date_in_ms, DROP COLUMN name");
+    assertThat(new DropColumnsBuilder(new MySql(), "issues", "date_in_ms", "name").build())
+      .containsOnly("ALTER TABLE issues DROP COLUMN date_in_ms, DROP COLUMN name");
   }
 
   @Test
   public void drop_columns_on_oracle() {
-    assertThat(new DropColumnsBuilder(new Oracle(), "issues", "date_in_ms", "name")
-      .build()).isEqualTo("ALTER TABLE issues DROP (date_in_ms, name)");
+    assertThat(new DropColumnsBuilder(new Oracle(), "issues", "date_in_ms", "name").build())
+      .containsOnly("ALTER TABLE issues DROP (date_in_ms, name)");
   }
 
   @Test
   public void drop_columns_on_postgresql() {
-    assertThat(new DropColumnsBuilder(new PostgreSql(), "issues", "date_in_ms", "name")
-      .build()).isEqualTo("ALTER TABLE issues DROP COLUMN date_in_ms, DROP COLUMN name");
+    assertThat(new DropColumnsBuilder(new PostgreSql(), "issues", "date_in_ms", "name").build())
+      .containsOnly("ALTER TABLE issues DROP COLUMN date_in_ms, DROP COLUMN name");
   }
 
   @Test
   public void drop_columns_on_mssql() {
-    assertThat(new DropColumnsBuilder(new MsSql(), "issues", "date_in_ms", "name")
-      .build()).isEqualTo("ALTER TABLE issues DROP COLUMN date_in_ms, name");
+    assertThat(new DropColumnsBuilder(new MsSql(), "issues", "date_in_ms", "name").build())
+      .containsOnly("ALTER TABLE issues DROP COLUMN date_in_ms, name");
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void fail_to_drop_columns_on_h2() {
-    new DropColumnsBuilder(new H2(), "issues", "date_in_ms", "name")
-      .build();
+  @Test
+  public void drop_columns_on_h2() {
+    assertThat(new DropColumnsBuilder(new H2(), "issues", "date_in_ms", "name").build())
+      .containsOnly(
+        "ALTER TABLE issues DROP COLUMN date_in_ms",
+        "ALTER TABLE issues DROP COLUMN name");
   }
 
 }
