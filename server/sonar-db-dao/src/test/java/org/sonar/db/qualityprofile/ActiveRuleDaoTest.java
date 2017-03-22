@@ -21,6 +21,7 @@ package org.sonar.db.qualityprofile;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,6 +45,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -598,5 +600,84 @@ public class ActiveRuleDaoTest {
     dbSession.commit();
 
     underTest.deleteParamsByRuleParam(dbSession, rule1.getId(), "unknown");
+  }
+
+  @Test
+  public void test_countActiveRulesByProfileKey_for_a_specified_organization() {
+    dbTester.qualityProfiles().activateRule(profile1, rule1);
+    dbTester.qualityProfiles().activateRule(profile1, rule2);
+    dbTester.qualityProfiles().activateRule(profile2, rule1);
+
+    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
+
+    assertThat(counts).containsOnly(
+      entry(profile1.getKey(), 2L),
+      entry(profile2.getKey(), 1L));
+  }
+
+  @Test
+  public void countActiveRulesByProfileKey_returns_empty_map_if_organization_does_not_exist() {
+    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, OrganizationTesting.newOrganizationDto());
+
+    assertThat(counts).isEmpty();
+  }
+
+  @Test
+  public void countActiveRulesByProfileKey_returns_empty_map_if_profile_does_not_have_active_rules() {
+    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
+
+    assertThat(counts).isEmpty();
+  }
+
+  @Test
+  public void test_countActiveRulesForRuleStatusByProfileKey_for_a_specified_organization() {
+    RuleDto betaRule1 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA));
+    RuleDto betaRule2 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA));
+    dbTester.qualityProfiles().activateRule(profile1, rule1);
+    dbTester.qualityProfiles().activateRule(profile2, betaRule1);
+    dbTester.qualityProfiles().activateRule(profile2, betaRule2);
+
+    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.BETA);
+
+    assertThat(counts).containsOnly(entry(profile2.getKey(), 2L));
+  }
+
+  @Test
+  public void countActiveRulesForRuleStatusByProfileKey_returns_empty_map_if_organization_does_not_exist() {
+    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileKey(dbSession, OrganizationTesting.newOrganizationDto(), RuleStatus.READY);
+
+    assertThat(counts).isEmpty();
+  }
+
+  @Test
+  public void countActiveRulesForRuleStatusByProfileKey_returns_empty_map_if_profile_does_not_have_rules_with_specified_status() {
+    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED);
+
+    assertThat(counts).isEmpty();
+  }
+
+  @Test
+  public void test_countActiveRulesForInheritanceByProfileKey_for_a_specified_organization() {
+    dbTester.qualityProfiles().activateRule(profile1, rule1);
+    dbTester.qualityProfiles().activateRule(profile2, rule1, ar -> ar.setInheritance(ActiveRuleDto.OVERRIDES));
+    dbTester.qualityProfiles().activateRule(profile2, rule2, ar -> ar.setInheritance(ActiveRuleDto.INHERITED));
+
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+
+    assertThat(counts).containsOnly(entry(profile2.getKey(), 1L));
+  }
+
+  @Test
+  public void countActiveRulesForInheritanceByProfileKey_returns_empty_map_if_organization_does_not_exist() {
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, OrganizationTesting.newOrganizationDto(), ActiveRuleDto.OVERRIDES);
+
+    assertThat(counts).isEmpty();
+  }
+
+  @Test
+  public void countActiveRulesForInheritanceByProfileKey_returns_empty_map_if_profile_does_not_have_rules_with_specified_status() {
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+
+    assertThat(counts).isEmpty();
   }
 }

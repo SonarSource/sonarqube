@@ -19,10 +19,8 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,19 +50,16 @@ import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.search.FacetValue;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class InheritanceActionTest {
@@ -98,10 +93,8 @@ public class InheritanceActionTest {
     underTest = new InheritanceAction(
       dbClient,
       new QProfileLookup(dbClient),
-      new ActiveRuleIndex(esClient),
       new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
-      new Languages()
-    );
+      new Languages());
     wsActionTester = new WsActionTester(underTest);
     ruleActivator = new RuleActivator(
       System2.INSTANCE,
@@ -110,15 +103,13 @@ public class InheritanceActionTest {
       new RuleActivatorContextFactory(dbClient),
       new TypeValidations(new ArrayList<>()),
       activeRuleIndexer,
-      userSession
-    );
+      userSession);
     service = new QProfileService(
       dbClient,
       activeRuleIndexer,
       ruleActivator,
       userSession,
-      defaultOrganizationProvider
-    );
+      defaultOrganizationProvider);
     organization = dbTester.organizations().insert();
   }
 
@@ -215,14 +206,6 @@ public class InheritanceActionTest {
 
     userSession.logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
-
-    Map<String, Multimap<String, FacetValue>> stats = underTest.getAllProfileStats(dbSession, organization);
-
-    assertThat(stats.size()).isEqualTo(2);
-    assertThat(stats.get(profile1.getKey()).size()).isEqualTo(3);
-    assertThat(stats.get(profile1.getKey()).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).size()).isEqualTo(1);
-    assertThat(stats.get(profile1.getKey()).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).size()).isEqualTo(1);
-    assertThat(stats.get(profile1.getKey()).get("countActiveRules").size()).isEqualTo(1);
   }
 
   private QualityProfileDto createProfile(String lang, String name, String key) {

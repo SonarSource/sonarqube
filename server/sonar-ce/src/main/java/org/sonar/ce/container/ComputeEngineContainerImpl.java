@@ -122,7 +122,6 @@ import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.property.InternalPropertiesImpl;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -240,7 +239,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // rules/qprofiles
       RuleIndex.class,
-      ActiveRuleIndex.class,
 
       // issues
       IssueIndex.class,
