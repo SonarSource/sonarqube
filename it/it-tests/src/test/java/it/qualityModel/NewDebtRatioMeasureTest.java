@@ -128,7 +128,7 @@ public class NewDebtRatioMeasureTest {
   }
 
   private void defineQualityProfile(String qualityProfileKey) {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measure/" + qualityProfileKey + ".xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/measure/" + qualityProfileKey + ".xml").getPath(), null);
   }
 
   private void runSampleProjectAnalysis(String projectVersion, String... properties) {

@@ -37,6 +37,7 @@ import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
+import util.ItUtils;
 import util.user.UserRule;
 
 import static java.util.Collections.singletonList;
@@ -114,7 +115,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     issuesService = newAdminWsClient(ORCHESTRATOR).issues();
 
     setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", null);
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml").getPath(), null);
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "Sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line-profile");
 

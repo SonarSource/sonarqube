@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasureAsDouble;
@@ -66,7 +67,7 @@ public class MaintainabilityMeasureTest {
 
   @Test
   public void verify_maintainability_measures_when_code_smells_rules_activated() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
@@ -98,7 +99,7 @@ public class MaintainabilityMeasureTest {
 
   @Test
   public void verify_reliability_measures_when_no_code_smells_rule() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/without-type-code-smells.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/without-type-code-smells.xml").getPath(), null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-code-smells");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 

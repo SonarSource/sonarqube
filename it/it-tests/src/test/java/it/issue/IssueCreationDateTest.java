@@ -187,7 +187,7 @@ public class IssueCreationDateTest extends AbstractIssueTest {
   }
 
   private void analysis(QProfile qProfile, SourceCode sourceCode, ScannerFeature... scm) {
-    server.restoreProfile(FileLocation.ofClasspath(qProfile.path));
+    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath(qProfile.path).getPath(), null);
     server.associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, LANGUAGE_XOO, SAMPLE_QUALITY_PROFILE_NAME);
 
     SonarScanner scanner = SonarScanner.create(projectDir(sourceCode.path));

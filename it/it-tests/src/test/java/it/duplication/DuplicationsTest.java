@@ -30,6 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.ItUtils;
 import util.issue.IssueRule;
 
 import static java.util.Collections.singletonList;
@@ -55,7 +56,7 @@ public class DuplicationsTest {
   public static void analyzeProjects() {
     orchestrator.resetData();
 
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml").getPath(), null);
     analyzeProject(DUPLICATIONS);
     analyzeProject(DUPLICATIONS_WITH_EXCLUSIONS, "sonar.cpd.exclusions", "**/File*");
 

@@ -36,6 +36,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
+import util.ItUtils;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
@@ -54,7 +55,7 @@ public class IssuePermissionTest {
   public void init() {
     orchestrator.resetData();
 
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/authorisation/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/authorisation/one-issue-per-line-profile.xml").getPath(), null);
 
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");

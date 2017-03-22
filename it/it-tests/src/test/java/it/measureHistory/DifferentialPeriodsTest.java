@@ -30,6 +30,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
+import util.ItUtils;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +83,7 @@ public class DifferentialPeriodsTest {
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -15)));
 
     // Second analysis -> issues will be created
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml").getPath(), null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
@@ -112,7 +113,7 @@ public class DifferentialPeriodsTest {
       "sonar.modules", "module_a");
 
     // Second analysis, 20 days ago, issues will be created
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml").getPath(), null);
     orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "one-issue-per-line");
     runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
       "sonar.projectDate", formatDate(addDays(new Date(), -20)),
@@ -134,7 +135,7 @@ public class DifferentialPeriodsTest {
       "sonar.modules", "module_a");
 
     // Second analysis, 20 days ago
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml").getPath(), null);
     orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "one-issue-per-line");
     runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
       "sonar.projectDate", formatDate(addDays(new Date(), -20)),

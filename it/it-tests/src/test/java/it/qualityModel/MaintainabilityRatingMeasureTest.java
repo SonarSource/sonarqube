@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasureAsDouble;
@@ -59,7 +60,7 @@ public class MaintainabilityRatingMeasureTest {
 
   @Test
   public void sqale_rating_measures() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
@@ -74,7 +75,7 @@ public class MaintainabilityRatingMeasureTest {
 
   @Test
   public void sqale_debt_ratio_measures() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
@@ -89,7 +90,7 @@ public class MaintainabilityRatingMeasureTest {
 
   @Test
   public void use_development_cost_parameter() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml").getPath(), null);
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -105,7 +106,7 @@ public class MaintainabilityRatingMeasureTest {
 
   @Test
   public void use_language_specific_parameters() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml").getPath(), null);
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "one-issue-per-line");
 
@@ -123,7 +124,7 @@ public class MaintainabilityRatingMeasureTest {
 
   @Test
   public void use_rating_grid_parameter() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml").getPath(), null);
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -139,7 +140,7 @@ public class MaintainabilityRatingMeasureTest {
 
   @Test
   public void effort_to_reach_maintainability_rating_a() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 

@@ -50,8 +50,8 @@ public class MultiLanguageTest {
    */
   @Test
   public void test_sonar_runner_inspection() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/MultiLanguageTest/one-issue-per-line.xml"));
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/MultiLanguageTest/one-issue-per-line-xoo2.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/analysis/MultiLanguageTest/one-issue-per-line.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/analysis/MultiLanguageTest/one-issue-per-line-xoo2.xml").getPath(), null);
 
     orchestrator.getServer().provisionProject("multi-language-sample", "multi-language-sample");
 

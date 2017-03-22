@@ -429,7 +429,7 @@ public class IssuesModeTest {
   }
 
   private void restoreProfile(String fileName) {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/IssuesModeTest/" + fileName));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/analysis/IssuesModeTest/" + fileName).getPath(), null);
   }
 
   private SonarScanner configureRunnerIssues(String projectDir, @Nullable File homeDir, String... props) throws IOException {

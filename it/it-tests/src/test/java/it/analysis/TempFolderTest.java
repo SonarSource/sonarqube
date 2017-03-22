@@ -50,7 +50,7 @@ public class TempFolderTest {
   @Before
   public void deleteData() {
     orchestrator.resetData();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/TempFolderTest/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/analysis/TempFolderTest/one-issue-per-line.xml").getPath(), null);
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
   }

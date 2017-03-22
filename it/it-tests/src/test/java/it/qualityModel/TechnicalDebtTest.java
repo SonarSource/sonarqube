@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -52,7 +53,7 @@ public class TechnicalDebtTest {
    */
   @Test
   public void technical_debt_on_issue() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml").getPath(), null);
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 

@@ -45,6 +45,7 @@ import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequ
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -65,7 +66,7 @@ public class PermissionSearchTest {
   public static void analyzeProject() {
     orchestrator.resetData();
 
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/authorisation/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/authorisation/one-issue-per-line-profile.xml").getPath(), null);
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");

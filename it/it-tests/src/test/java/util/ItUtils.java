@@ -33,7 +33,9 @@ import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -69,6 +71,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 
@@ -338,9 +341,35 @@ public class ItUtils {
     return ComponentNavigation.parse(content);
   }
 
-  public static File findFileInClasspath(String classpathRelativeFilename) throws URISyntaxException {
+  public static void restoreProfile(Orchestrator orchestrator, String classpathRelativeFilename) {
+    restoreProfile(orchestrator, classpathRelativeFilename, null);
+  }
+
+  public static void restoreProfile(Orchestrator orchestrator, String classpathRelativeFilename, String organization) {
+    WsClient adminWsClient = newAdminWsClient(orchestrator);
+    restoreProfile(adminWsClient, classpathRelativeFilename, organization);
+  }
+
+  public static void restoreProfile(WsClient adminWsClient, String classpathRelativeFilename, String organization) {
+    adminWsClient
+      .qualityProfiles()
+      .restoreProfile(
+        RestoreWsRequest.builder()
+          .setBackup(findFileInClasspath(classpathRelativeFilename))
+          .setOrganization(organization)
+          .build());
+  }
+
+  public static File findFileInClasspath(String classpathRelativeFilename) {
     ResourceLocation location = FileLocation.ofClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml");
-    return new File(ItUtils.class.getResource(location.getPath()).toURI());
+    URL url = ItUtils.class.getResource(location.getPath());
+    URI uri;
+    try {
+      uri = url.toURI();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException("Cannot find quality profile xml file '" + classpathRelativeFilename + "' in classpath");
+    }
+    return new File(uri);
   }
 
   public static class ComponentNavigation {

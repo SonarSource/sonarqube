@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.WsMeasures;
+import util.ItUtils;
 
 import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +61,7 @@ public class SecurityMeasureTest {
 
   @Test
   public void verify_security_measures_when_vulnerability_rules_activated() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
@@ -73,7 +74,7 @@ public class SecurityMeasureTest {
 
   @Test
   public void verify_security_measures_when_no_vulnerability_rule() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/without-type-vulnerability.xml"));
+    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/without-type-vulnerability.xml").getPath(), null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-vulnerability");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 

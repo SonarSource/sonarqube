@@ -23,6 +23,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
@@ -38,7 +39,7 @@ public class IssueFilterTest extends AbstractIssueTest {
   public void resetData() {
     ORCHESTRATOR.resetData();
 
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/IssueFilterTest/with-many-rules.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/IssueFilterTest/with-many-rules.xml").getPath(), null);
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "project");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
   }

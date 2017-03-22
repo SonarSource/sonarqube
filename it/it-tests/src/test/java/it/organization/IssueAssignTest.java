@@ -22,7 +22,6 @@ package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category3Suite;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.After;
@@ -42,7 +41,6 @@ import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
-import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
 import util.ItUtils;
 import util.issue.IssueRule;
 import util.user.UserRule;
@@ -96,7 +94,7 @@ public class IssueAssignTest {
 
     orchestrator.getServer().post("api/organizations/enable_support", emptyMap());
     createOrganization(ORGANIZATION_KEY);
-    restoreProfile(ORGANIZATION_KEY);
+    ItUtils.restoreProfile(orchestrator, "/organization/IssueAssignTest/one-issue-per-file-profile.xml", ORGANIZATION_KEY);
   }
 
   @After
@@ -164,14 +162,6 @@ public class IssueAssignTest {
 
   private void createOrganization(String organizationKey) {
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(organizationKey).setName(organizationKey).build()).getOrganization();
-  }
-
-  private void restoreProfile(String organization) throws URISyntaxException {
-    adminClient.qualityProfiles().restoreProfile(
-      RestoreWsRequest.builder()
-        .setBackup(ItUtils.findFileInClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml"))
-        .setOrganization(organization)
-        .build());
   }
 
   private void provisionAndAnalyseProject(String projectKey, String organization) {

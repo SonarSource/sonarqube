@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
@@ -44,7 +45,7 @@ public class IssueMeasureTest extends AbstractIssueTest {
   @Test
   public void issues_by_severity_measures() {
     ORCHESTRATOR.getServer().provisionProject(MULTI_MODULE_SAMPLE_PROJECT_KEY, MULTI_MODULE_SAMPLE_PROJECT_KEY);
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/with-many-rules.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/with-many-rules.xml").getPath(), null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(MULTI_MODULE_SAMPLE_PROJECT_KEY, "xoo", "with-many-rules");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
@@ -68,7 +69,7 @@ public class IssueMeasureTest extends AbstractIssueTest {
   @Test
   public void issues_by_resolution_and_status_measures() {
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml").getPath(), null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "one-issue-per-line-profile");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
@@ -118,7 +119,7 @@ public class IssueMeasureTest extends AbstractIssueTest {
     String testKey = "sample-with-tests:src/test/xoo/sample/SampleTest.xoo";
 
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-file-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/one-issue-per-file-profile.xml").getPath(), null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-file-profile");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample-with-tests");
 
