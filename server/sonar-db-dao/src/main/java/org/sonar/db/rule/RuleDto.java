@@ -19,7 +19,6 @@
  */
 package org.sonar.db.rule;
 
-import java.util.Date;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -234,13 +233,43 @@ public class RuleDto {
     return this;
   }
 
+  public Set<String> getSystemTags() {
+    return definition.getSystemTags();
+  }
+
+  /**
+   * Used in MyBatis mapping.
+   */
+  private void setSystemTagsField(String s) {
+    definition.setSystemTagsField(s);
+  }
+
   public long getCreatedAt() {
     return definition.getCreatedAt();
   }
 
   public RuleDto setCreatedAt(long createdAt) {
     definition.setCreatedAt(createdAt);
+    metadata.setCreatedAt(createdAt);
     return this;
+  }
+
+  /**
+   * Used in MyBatis mapping.
+   */
+  private void setCreatedAtFromDefinition(@Nullable Long createdAt) {
+    if (createdAt != null && createdAt > definition.getCreatedAt()) {
+      setCreatedAt(createdAt);
+    }
+  }
+
+  /**
+   * Used in MyBatis mapping.
+   */
+  private void setCreatedAtFromMetadata(@Nullable Long createdAt) {
+    if (createdAt != null && createdAt > definition.getCreatedAt()) {
+      setCreatedAt(createdAt);
+    }
   }
 
   public long getUpdatedAt() {
@@ -251,6 +280,24 @@ public class RuleDto {
     definition.setUpdatedAt(updatedAt);
     metadata.setUpdatedAt(updatedAt);
     return this;
+  }
+
+  /**
+   * Used in MyBatis mapping.
+   */
+  private void setUpdatedAtFromDefinition(@Nullable Long updatedAt) {
+    if (updatedAt != null && updatedAt > definition.getUpdatedAt()) {
+      setUpdatedAt(updatedAt);
+    }
+  }
+
+  /**
+   * Used in MyBatis mapping.
+   */
+  private void setUpdatedAtFromMetadata(@Nullable Long updatedAt) {
+    if (updatedAt != null && updatedAt > definition.getUpdatedAt()) {
+      setUpdatedAt(updatedAt);
+    }
   }
 
   public String getOrganizationUuid() {
@@ -283,21 +330,21 @@ public class RuleDto {
   }
 
   @CheckForNull
-  public Date getNoteCreatedAt() {
+  public Long getNoteCreatedAt() {
     return metadata.getNoteCreatedAt();
   }
 
-  public RuleDto setNoteCreatedAt(@Nullable Date noteCreatedAt) {
+  public RuleDto setNoteCreatedAt(@Nullable Long noteCreatedAt) {
     metadata.setNoteCreatedAt(noteCreatedAt);
     return this;
   }
 
   @CheckForNull
-  public Date getNoteUpdatedAt() {
+  public Long getNoteUpdatedAt() {
     return metadata.getNoteUpdatedAt();
   }
 
-  public RuleDto setNoteUpdatedAt(@Nullable Date noteUpdatedAt) {
+  public RuleDto setNoteUpdatedAt(@Nullable Long noteUpdatedAt) {
     metadata.setNoteUpdatedAt(noteUpdatedAt);
     return this;
   }
@@ -336,16 +383,11 @@ public class RuleDto {
     return metadata.getTags();
   }
 
+  /**
+   * Used in MyBatis mapping.
+   */
   private void setTagsField(String s) {
     metadata.setTagsField(s);
-  }
-
-  public Set<String> getSystemTags() {
-    return definition.getSystemTags();
-  }
-
-  private void setSystemTagsField(String s) {
-    definition.setSystemTagsField(s);
   }
 
   public RuleDto setTags(Set<String> tags) {

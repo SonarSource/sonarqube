@@ -30,6 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -66,11 +67,11 @@ public class ShowActionMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn()
     .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
 
-  WsTester wsTester;
-
-  RuleService ruleService;
-  RuleDao ruleDao;
-  DbSession session;
+  private WsTester wsTester;
+  private RuleService ruleService;
+  private RuleDao ruleDao;
+  private DbSession session;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
@@ -79,6 +80,7 @@ public class ShowActionMediumTest {
     ruleService = tester.get(RuleService.class);
     ruleDao = tester.get(RuleDao.class);
     session = tester.get(DbClient.class).openSession(false);
+    defaultOrganization = tester.get(DbClient.class).organizationDao().selectByUuid(session, defaultOrganizationProvider.get().getUuid()).get();
   }
 
   @After
@@ -88,7 +90,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setDescriptionFormat(Format.HTML)
@@ -114,7 +116,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_default_debt_infos() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
@@ -141,7 +143,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_overridden_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
@@ -166,7 +168,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_default_and_overridden_debt_infos() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
@@ -234,7 +236,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_deprecated_rule_rem_function_fields() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)

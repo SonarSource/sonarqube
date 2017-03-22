@@ -103,6 +103,7 @@ public class UpdateActionMediumTest {
   @Test
   public void update_custom_rule_with_deprecated_remediation_function_parameters() throws Exception {
     RuleDto rule = RuleTesting.newXooX1()
+      .setOrganizationUuid(defaultOrganization.getUuid())
       .setDefaultRemediationFunction(LINEAR_OFFSET.toString())
       .setDefaultRemediationGapMultiplier("10d")
       .setDefaultRemediationBaseEffort("5min")

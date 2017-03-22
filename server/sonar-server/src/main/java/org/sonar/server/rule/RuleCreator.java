@@ -177,8 +177,10 @@ public class RuleCreator {
     Set<String> tags = templateRuleDto.getTags();
     if (!tags.isEmpty()) {
       RuleMetadataDto ruleMetadata = new RuleMetadataDto()
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .setRuleId(ruleDefinition.getId())
         .setTags(tags)
+        .setCreatedAt(system2.now())
         .setUpdatedAt(system2.now());
       dbClient.ruleDao().update(dbSession, ruleMetadata);
     }

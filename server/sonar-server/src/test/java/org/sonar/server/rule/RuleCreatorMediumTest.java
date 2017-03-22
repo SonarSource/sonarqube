@@ -34,6 +34,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
@@ -61,20 +62,22 @@ public class RuleCreatorMediumTest {
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbSession dbSession;
-  DbClient db = tester.get(DbClient.class);
-  RuleDao dao = tester.get(RuleDao.class);
-  RuleCreator creator = tester.get(RuleCreator.class);
-  RuleIndex ruleIndex = tester.get(RuleIndex.class);
-  RuleIndexer ruleIndexer;
-  private String defaultOrganizationUuid;
+  private DbSession dbSession;
+  private DbClient db = tester.get(DbClient.class);
+  private RuleDao dao = tester.get(RuleDao.class);
+  private RuleCreator creator = tester.get(RuleCreator.class);
+  private RuleIndex ruleIndex = tester.get(RuleIndex.class);
+  private RuleIndexer ruleIndexer;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
+    DbClient dbClient = tester.get(DbClient.class);
+    dbSession = dbClient.openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
-    defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
+    String defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
+    defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid).get();
   }
 
   @After
@@ -98,7 +101,7 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationUuid, customRuleKey);
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, defaultOrganization.getUuid(), customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
@@ -499,7 +502,7 @@ public class RuleCreatorMediumTest {
   }
 
   private RuleDto createTemplateRule() {
-    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setIsTemplate(true)
       .setLanguage("java")
       .setConfigKey("S001")

@@ -100,7 +100,7 @@ public class RuleTesting {
     return newDto(ruleKey, null);
   }
 
-  private static RuleDto newDto(RuleKey ruleKey, @Nullable OrganizationDto organization) {
+  public static RuleDto newDto(RuleKey ruleKey, @Nullable OrganizationDto organization) {
     RuleDto res = new RuleDto()
       .setRuleKey(ruleKey.rule())
       .setRepositoryKey(ruleKey.repository())

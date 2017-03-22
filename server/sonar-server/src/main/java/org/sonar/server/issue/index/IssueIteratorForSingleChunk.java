@@ -65,7 +65,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "i.resolution",
     "i.severity",
 
-    // column 11
+    // column 11RegisterRulesMediumTest
     "i.manual_severity",
     "i.checksum",
     "i.status",
