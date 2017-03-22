@@ -220,11 +220,12 @@ public class RuleDaoTest {
   public void select_by_query() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create())).hasSize(2);
-    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withKey("S001"))).hasSize(1);
-    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withConfigKey("S1"))).hasSize(1);
-    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withRepositoryKey("java"))).hasSize(2);
-    assertThat(underTest.selectByQuery(dbTester.getSession(),
+    String organizationUuid = "org-1";
+    assertThat(underTest.selectByQuery(dbTester.getSession(), organizationUuid, RuleQuery.create())).hasSize(2);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), organizationUuid, RuleQuery.create().withKey("S001"))).hasSize(1);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), organizationUuid, RuleQuery.create().withConfigKey("S1"))).hasSize(1);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), organizationUuid, RuleQuery.create().withRepositoryKey("java"))).hasSize(2);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), organizationUuid,
       RuleQuery.create().withKey("S001").withConfigKey("S1").withRepositoryKey("java"))).hasSize(1);
   }
 
