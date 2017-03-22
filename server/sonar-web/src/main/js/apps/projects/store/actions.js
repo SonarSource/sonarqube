@@ -48,6 +48,7 @@ const METRICS = [
 ];
 
 const METRICS_BY_VISUALIZATION = {
+  quality: ['reliability_rating', 'security_rating', 'coverage', 'ncloc', 'sqale_index'],
   // x, y, size, color
   bugs: ['ncloc', 'reliability_remediation_effort', 'bugs', 'reliability_rating'],
   vulnerabilities: ['ncloc', 'security_remediation_effort', 'vulnerabilities', 'security_rating'],
@@ -102,7 +103,7 @@ const onReceiveOrganizations = dispatch =>
 
 const defineMetrics = query => {
   if (query.view === 'visualizations') {
-    return METRICS_BY_VISUALIZATION[query.visualization || 'bugs'];
+    return METRICS_BY_VISUALIZATION[query.visualization || 'quality'];
   } else {
     return METRICS;
   }

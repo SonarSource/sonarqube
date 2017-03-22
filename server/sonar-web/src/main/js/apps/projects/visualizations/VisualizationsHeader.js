@@ -36,7 +36,9 @@ export default class VisualizationsHeader extends React.PureComponent {
   render() {
     const options = VISUALIZATIONS.map(option => ({
       value: option,
-      label: translate('metric', option, 'name')
+      label: option === 'quality'
+        ? translate('projects.quality_model')
+        : translate('metric', option, 'name')
     }));
 
     return (

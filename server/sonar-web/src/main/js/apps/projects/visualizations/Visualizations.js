@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import VisualizationsHeader from './VisualizationsHeader';
+import QualityModel from './QualityModel';
 import Bugs from './Bugs';
 import Vulnerabilities from './Vulnerabilities';
 import CodeSmells from './CodeSmells';
@@ -40,6 +41,7 @@ export default class Visualizations extends React.PureComponent {
 
   renderVisualization(projects: Array<*>) {
     const visualizationToComponent = {
+      quality: QualityModel,
       bugs: Bugs,
       vulnerabilities: Vulnerabilities,
       code_smells: CodeSmells,

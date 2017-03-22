@@ -94,7 +94,7 @@ export default class AllProjects extends React.Component {
     const isFiltered = Object.keys(query).some(key => query[key] != null);
 
     const view = query.view || 'list';
-    const visualization = query.visualization || 'bugs';
+    const visualization = query.visualization || 'quality';
 
     const top = this.props.organization ? 95 : 30;
 
