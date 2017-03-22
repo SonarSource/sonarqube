@@ -20,11 +20,13 @@
 
 package org.sonar.server.organization.ws;
 
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -39,6 +41,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -47,6 +50,9 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -62,6 +68,8 @@ public class DeleteActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -72,7 +80,11 @@ public class DeleteActionTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileFactory qProfileFactory = new QProfileFactory(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
-  private DeleteAction underTest = new DeleteAction(userSession, db.getDbClient(), defaultOrganizationProvider, componentCleanerService, organizationFlags, qProfileFactory);
+  private UserIndex userIndex = new UserIndex(es.client());
+  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+
+  private DeleteAction underTest = new DeleteAction(userSession, dbClient, defaultOrganizationProvider, componentCleanerService, organizationFlags, userIndexer, qProfileFactory);
+
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -290,6 +302,7 @@ public class DeleteActionTest {
     db.organizations().addMember(org, user1);
     db.organizations().addMember(otherOrg, user1);
     db.organizations().addMember(org, user2);
+    userIndexer.index(Arrays.asList(user1.getLogin(), user2.getLogin()));
     logInAsAdministrator(org);
 
     sendRequest(org);
@@ -298,6 +311,8 @@ public class DeleteActionTest {
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), org.getUuid(), user1.getId())).isNotPresent();
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), org.getUuid(), user2.getId())).isNotPresent();
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), otherOrg.getUuid(), user1.getId())).isPresent();
+    assertThat(userIndex.getNullableByLogin(user1.getLogin()).organizationUuids()).doesNotContain(org.getUuid()).contains(otherOrg.getUuid());
+    assertThat(userIndex.getNullableByLogin(user2.getLogin()).organizationUuids()).isEmpty();
   }
 
   @Test

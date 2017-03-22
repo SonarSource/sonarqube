@@ -35,6 +35,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.index.UserIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
@@ -51,15 +52,17 @@ public class DeleteAction implements OrganizationsWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final ComponentCleanerService componentCleanerService;
   private final OrganizationFlags organizationFlags;
+  private final UserIndexer userIndexer;
   private final QProfileFactory qProfileFactory;
 
   public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags, QProfileFactory qProfileFactory) {
+    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags, UserIndexer userIndexer, QProfileFactory qProfileFactory) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.componentCleanerService = componentCleanerService;
     this.organizationFlags = organizationFlags;
+    this.userIndexer = userIndexer;
     this.qProfileFactory = qProfileFactory;
   }
 
@@ -140,9 +143,11 @@ public class DeleteAction implements OrganizationsWsAction {
   }
 
   private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {
+    List<String> logins = dbClient.organizationMemberDao().selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationMemberDao().deleteByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationDao().deleteByUuid(dbSession, organization.getUuid());
     dbSession.commit();
+    userIndexer.index(logins);
   }
 
   private static void preventDeletionOfDefaultOrganization(String key, DefaultOrganization defaultOrganization) {
