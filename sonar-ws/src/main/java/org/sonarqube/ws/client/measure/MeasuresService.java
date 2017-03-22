@@ -23,6 +23,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
+import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
@@ -44,6 +45,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_TO;
@@ -96,5 +98,12 @@ public class MeasuresService extends BaseService {
       .setParam(Param.PAGE_SIZE, request.getPageSize());
 
     return call(getRequest, SearchHistoryResponse.parser());
+  }
+
+  public SearchWsResponse search(SearchRequest request) {
+    GetRequest getRequest = new GetRequest(path(ACTION_SEARCH_HISTORY))
+      .setParam(PARAM_PROJECT_KEYS, inlineMultipleParamValue(request.getProjectKeys()))
+      .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()));
+    return call(getRequest, SearchWsResponse.parser());
   }
 }

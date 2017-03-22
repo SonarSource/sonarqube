@@ -30,6 +30,7 @@ import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -43,6 +44,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_TO;
@@ -137,6 +139,23 @@ public class MeasuresServiceTest {
       .hasParam(PARAM_TO, VALUE_TO)
       .hasParam("p", VALUE_PAGE)
       .hasParam("ps", VALUE_PAGE_SIZE)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void search() {
+    SearchRequest request = SearchRequest.builder()
+      .setProjectKeys(asList("P1", "P2"))
+      .setMetricKeys(asList("ncloc", "complexity"))
+      .build();
+
+    underTest.search(request);
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(WsMeasures.SearchWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam(PARAM_PROJECT_KEYS, "P1,P2")
+      .hasParam(PARAM_METRIC_KEYS, "ncloc,complexity")
       .andNoOtherParam();
   }
 }
