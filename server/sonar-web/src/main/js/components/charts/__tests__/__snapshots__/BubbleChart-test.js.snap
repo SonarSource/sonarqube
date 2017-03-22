@@ -1,0 +1,311 @@
+exports[`test should display bubbles 1`] = `
+<BubbleChart
+  displayXGrid={true}
+  displayXTicks={true}
+  displayYGrid={true}
+  displayYTicks={true}
+  formatXTick={[Function]}
+  formatYTick={[Function]}
+  height={100}
+  items={
+    Array [
+      Object {
+        "size": 7,
+        "x": 1,
+        "y": 10,
+      },
+      Object {
+        "size": 5,
+        "x": 2,
+        "y": 30,
+      },
+      Object {
+        "size": 2,
+        "x": 3,
+        "y": 20,
+      },
+    ]
+  }
+  padding={
+    Array [
+      10,
+      10,
+      10,
+      10,
+    ]
+  }
+  sizeRange={
+    Array [
+      5,
+      45,
+    ]
+  }>
+  <AutoSizer
+    disableHeight={true}
+    onResize={[Function]}>
+    <div
+      style={
+        Object {
+          "overflow": "visible",
+          "width": 0,
+        }
+      }>
+      <svg
+        className="bubble-chart"
+        height={100}
+        width={0}>
+        <g
+          transform="translate(10, 10)">
+          <g>
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={51.666666666666664}
+              y1={61.66666666666666}
+              y2={33.57142857142858} />
+            <line
+              className="bubble-chart-grid"
+              x1={30}
+              x2={30}
+              y1={61.66666666666666}
+              y2={33.57142857142858} />
+            <line
+              className="bubble-chart-grid"
+              x1={8.333333333333336}
+              x2={8.333333333333336}
+              y1={61.66666666666666}
+              y2={33.57142857142858} />
+            <line
+              className="bubble-chart-grid"
+              x1={-13.33333333333334}
+              x2={-13.33333333333334}
+              y1={61.66666666666666}
+              y2={33.57142857142858} />
+            <line
+              className="bubble-chart-grid"
+              x1={-35}
+              x2={-35}
+              y1={61.66666666666666}
+              y2={33.57142857142858} />
+            <line
+              className="bubble-chart-grid"
+              x1={-56.66666666666668}
+              x2={-56.66666666666668}
+              y1={61.66666666666666}
+              y2={33.57142857142858} />
+            <line
+              className="bubble-chart-grid"
+              x1={-78.33333333333334}
+              x2={-78.33333333333334}
+              y1={61.66666666666666}
+              y2={33.57142857142858} />
+          </g>
+          <g>
+            <text
+              className="bubble-chart-tick"
+              dy="1.5em"
+              x={51.666666666666664}
+              y={80} />
+            <text
+              className="bubble-chart-tick"
+              dy="1.5em"
+              x={30}
+              y={80}>
+              0.5
+            </text>
+            <text
+              className="bubble-chart-tick"
+              dy="1.5em"
+              x={8.333333333333336}
+              y={80}>
+              1
+            </text>
+            <text
+              className="bubble-chart-tick"
+              dy="1.5em"
+              x={-13.33333333333334}
+              y={80}>
+              1.5
+            </text>
+            <text
+              className="bubble-chart-tick"
+              dy="1.5em"
+              x={-35}
+              y={80}>
+              2
+            </text>
+            <text
+              className="bubble-chart-tick"
+              dy="1.5em"
+              x={-56.66666666666668}
+              y={80}>
+              2.5
+            </text>
+            <text
+              className="bubble-chart-tick"
+              dy="1.5em"
+              x={-78.33333333333334}
+              y={80}>
+              3
+            </text>
+          </g>
+          <g>
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={-78.33333333333334}
+              y1={61.66666666666666}
+              y2={61.66666666666666} />
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={-78.33333333333334}
+              y1={56.98412698412698}
+              y2={56.98412698412698} />
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={-78.33333333333334}
+              y1={52.3015873015873}
+              y2={52.3015873015873} />
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={-78.33333333333334}
+              y1={47.61904761904762}
+              y2={47.61904761904762} />
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={-78.33333333333334}
+              y1={42.93650793650794}
+              y2={42.93650793650794} />
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={-78.33333333333334}
+              y1={38.25396825396825}
+              y2={38.25396825396825} />
+            <line
+              className="bubble-chart-grid"
+              x1={51.666666666666664}
+              x2={-78.33333333333334}
+              y1={33.57142857142858}
+              y2={33.57142857142858} />
+          </g>
+          <g>
+            <text
+              className="bubble-chart-tick bubble-chart-tick-y"
+              dx="-0.5em"
+              dy="0.3em"
+              x={0}
+              y={61.66666666666666} />
+            <text
+              className="bubble-chart-tick bubble-chart-tick-y"
+              dx="-0.5em"
+              dy="0.3em"
+              x={0}
+              y={56.98412698412698}>
+              5
+            </text>
+            <text
+              className="bubble-chart-tick bubble-chart-tick-y"
+              dx="-0.5em"
+              dy="0.3em"
+              x={0}
+              y={52.3015873015873}>
+              10
+            </text>
+            <text
+              className="bubble-chart-tick bubble-chart-tick-y"
+              dx="-0.5em"
+              dy="0.3em"
+              x={0}
+              y={47.61904761904762}>
+              15
+            </text>
+            <text
+              className="bubble-chart-tick bubble-chart-tick-y"
+              dx="-0.5em"
+              dy="0.3em"
+              x={0}
+              y={42.93650793650794}>
+              20
+            </text>
+            <text
+              className="bubble-chart-tick bubble-chart-tick-y"
+              dx="-0.5em"
+              dy="0.3em"
+              x={0}
+              y={38.25396825396825}>
+              25
+            </text>
+            <text
+              className="bubble-chart-tick bubble-chart-tick-y"
+              dx="-0.5em"
+              dy="0.3em"
+              x={0}
+              y={33.57142857142858}>
+              30
+            </text>
+          </g>
+          <Bubble
+            r={45}
+            x={8.333333333333336}
+            y={52.3015873015873}>
+            <g>
+              <circle
+                className="bubble-chart-bubble"
+                onClick={[Function]}
+                r={45}
+                style={
+                  Object {
+                    "fill": undefined,
+                    "stroke": undefined,
+                  }
+                }
+                transform="translate(8.333333333333336, 52.3015873015873)" />
+            </g>
+          </Bubble>
+          <Bubble
+            r={33.57142857142858}
+            x={-35}
+            y={33.57142857142858}>
+            <g>
+              <circle
+                className="bubble-chart-bubble"
+                onClick={[Function]}
+                r={33.57142857142858}
+                style={
+                  Object {
+                    "fill": undefined,
+                    "stroke": undefined,
+                  }
+                }
+                transform="translate(-35, 33.57142857142858)" />
+            </g>
+          </Bubble>
+          <Bubble
+            r={16.428571428571427}
+            x={-78.33333333333334}
+            y={42.93650793650794}>
+            <g>
+              <circle
+                className="bubble-chart-bubble"
+                onClick={[Function]}
+                r={16.428571428571427}
+                style={
+                  Object {
+                    "fill": undefined,
+                    "stroke": undefined,
+                  }
+                }
+                transform="translate(-78.33333333333334, 42.93650793650794)" />
+            </g>
+          </Bubble>
+        </g>
+      </svg>
+    </div>
+  </AutoSizer>
+</BubbleChart>
+`;

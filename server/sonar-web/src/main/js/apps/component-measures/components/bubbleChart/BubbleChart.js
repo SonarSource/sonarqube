@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import Spinner from './../Spinner';
-import { BubbleChart as OriginalBubbleChart } from '../../../../components/charts/bubble-chart';
+import OriginalBubbleChart from '../../../../components/charts/BubbleChart';
 import bubbles from '../../config/bubbles';
 import { getComponentLeaves } from '../../../../api/components';
 import { formatMeasure } from '../../../../helpers/measures';
