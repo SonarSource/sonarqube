@@ -19,6 +19,8 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
 import org.sonar.db.DbTester;
 
 public class RuleDbTester {
@@ -27,6 +29,15 @@ public class RuleDbTester {
 
   public RuleDbTester(DbTester db) {
     this.db = db;
+  }
+
+  /**
+   * Create and persist a rule with random values.
+   */
+  public RuleDto insertRule(Consumer<RuleDto>... consumers) {
+    RuleDto rule = RuleTesting.newRuleDto();
+    Arrays.stream(consumers).forEach(c -> c.accept(rule));
+    return insertRule(rule);
   }
 
   public RuleDto insertRule(RuleDto ruleDto) {

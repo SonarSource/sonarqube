@@ -164,5 +164,28 @@
     from active_rule_parameters p
   </select>
 
+  <select id="countActiveRulesByProfileKey" resultType="KeyLongValue" parameterType="map">
+    select p.kee as "key", count(ar.id) as "value" from active_rules ar
+    inner join rules_profiles p on p.id = ar.profile_id
+    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    group by p.kee
+  </select>
+
+  <select id="countActiveRulesForRuleStatusByProfileKey" resultType="KeyLongValue" parameterType="map">
+    select p.kee as "key", count(ar.id) as "value" from active_rules ar
+    inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules r on r.id = ar.rule_id
+    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    and r.status = #{ruleStatus, jdbcType=VARCHAR}
+    group by p.kee
+  </select>
+
+  <select id="countActiveRulesForInheritanceByProfileKey" resultType="KeyLongValue" parameterType="map">
+    select p.kee as "key", count(ar.id) as "value" from active_rules ar
+    inner join rules_profiles p on p.id = ar.profile_id
+    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    and ar.inheritance = #{inheritance, jdbcType=VARCHAR}
+    group by p.kee
+  </select>
 </mapper>
 

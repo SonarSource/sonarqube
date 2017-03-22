@@ -17,24 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.index;
+package org.sonar.db;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.sonar.api.rule.Severity;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.rule.RuleTesting;
+import java.util.List;
+import java.util.Map;
 
-public class ActiveRuleDocTesting {
+import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 
-  public static ActiveRuleDoc newDoc() {
-    return newDoc(ActiveRuleKey.of("sonar-way", RuleTesting.XOO_X1));
+public class KeyLongValue {
+
+  private String key;
+  private Long value;
+
+  public String getKey() {
+    return key;
   }
 
-  public static ActiveRuleDoc newDoc(ActiveRuleKey key) {
-    return new ActiveRuleDoc(key)
-      .setOrganizationUuid(RandomStringUtils.random(40))
-      .setSeverity(Severity.CRITICAL)
-      .setInheritance(null).setCreatedAt(150000000L)
-      .setUpdatedAt(160000000L);
+  public Long getValue() {
+    return value;
+  }
+
+  /**
+   * This method does not keep order of list.
+   */
+  public static Map<String, Long> toMap(List<KeyLongValue> values) {
+    return values
+      .stream()
+      .collect(uniqueIndex(KeyLongValue::getKey, KeyLongValue::getValue, values.size()));
   }
 }

@@ -22,10 +22,14 @@ package org.sonar.db.qualityprofile;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -150,7 +154,7 @@ public class ActiveRuleDao implements Dao {
     deleteParamById(session, activeRuleParam.getId());
   }
 
-  public void deleteParamById(DbSession session, int id){
+  public void deleteParamById(DbSession session, int id) {
     mapper(session).deleteParameter(id);
   }
 
@@ -174,6 +178,21 @@ public class ActiveRuleDao implements Dao {
         }
       }
     }
+  }
+
+  public Map<String, Long> countActiveRulesByProfileKey(DbSession dbSession, OrganizationDto organization) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesByProfileKey(organization.getUuid()));
+  }
+
+  public Map<String, Long> countActiveRulesForRuleStatusByProfileKey(DbSession dbSession, OrganizationDto organization, RuleStatus ruleStatus) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesForRuleStatusByProfileKey(organization.getUuid(), ruleStatus));
+  }
+
+  public Map<String, Long> countActiveRulesForInheritanceByProfileKey(DbSession dbSession, OrganizationDto organization, String inheritance) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesForInheritanceByProfileKey(organization.getUuid(), inheritance));
   }
 
   private static ActiveRuleMapper mapper(DbSession session) {

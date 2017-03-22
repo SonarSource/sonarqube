@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,7 +32,6 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
@@ -54,14 +54,12 @@ public class SearchAction implements QProfileWsAction {
 
   private final SearchDataLoader dataLoader;
   private final Languages languages;
-  private final ActiveRuleIndex activeRuleIndex;
   private final DbClient dbClient;
   private final QProfileWsSupport wsSupport;
 
-  public SearchAction(SearchDataLoader dataLoader, Languages languages, ActiveRuleIndex activeRuleIndex, DbClient dbClient, QProfileWsSupport wsSupport) {
+  public SearchAction(SearchDataLoader dataLoader, Languages languages, DbClient dbClient, QProfileWsSupport wsSupport) {
     this.dataLoader = dataLoader;
     this.languages = languages;
-    this.activeRuleIndex = activeRuleIndex;
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
   }
@@ -93,7 +91,7 @@ public class SearchAction implements QProfileWsAction {
     action
       .createParam(PARAM_DEFAULTS)
       .setDescription(format("Return the quality profile marked as default for each language. " +
-          "If provided, then the parameters '%s', '%s' must not be set.",
+        "If provided, then the parameters '%s', '%s' must not be set.",
         PARAM_LANGUAGE, PARAM_PROJECT_KEY))
       .setDefaultValue(false)
       .setBooleanPossibleValues();
@@ -132,8 +130,8 @@ public class SearchAction implements QProfileWsAction {
       return new SearchData()
         .setOrganization(organization)
         .setProfiles(dataLoader.findProfiles(dbSession, request, organization))
-        .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
-        .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
+        .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileKey(dbSession, organization))
+        .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED))
         .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession));
     }
   }

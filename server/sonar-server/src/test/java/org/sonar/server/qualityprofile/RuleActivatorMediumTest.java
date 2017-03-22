@@ -43,7 +43,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -92,7 +91,6 @@ public class RuleActivatorMediumTest {
 
   RuleIndexer ruleIndexer;
 
-  ActiveRuleIndex activeRuleIndex;
   ActiveRuleIndexer activeRuleIndexer;
 
   QualityProfileDto profileDto;
@@ -103,7 +101,6 @@ public class RuleActivatorMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     ruleActivator = tester.get(RuleActivator.class);
-    activeRuleIndex = tester.get(ActiveRuleIndex.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     ruleIndexer = tester.get(RuleIndexer.class);
 

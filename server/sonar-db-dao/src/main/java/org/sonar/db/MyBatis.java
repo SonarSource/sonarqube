@@ -151,6 +151,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
+    confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
     confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
