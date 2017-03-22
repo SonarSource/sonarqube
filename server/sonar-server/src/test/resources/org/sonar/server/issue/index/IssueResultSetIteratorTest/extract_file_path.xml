@@ -1,6 +1,5 @@
 <dataset>
-  <rules tags="[null]"
-         system_tags="[null]"
+  <rules system_tags="[null]"
          id="200"
          name="Avoid Cycles"
          plugin_rule_key="AvoidCycles"
