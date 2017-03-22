@@ -29,6 +29,7 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationValidation;
@@ -101,9 +102,10 @@ public class CreateAction implements OrganizationsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       organizationFlags.checkEnabled(dbSession);
+      UserDto currentUser = dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin());
       OrganizationDto organization = organizationCreation.create(
         dbSession,
-        userSession.getUserId(),
+        currentUser,
         newOrganizationBuilder()
           .setName(name)
           .setKey(key)

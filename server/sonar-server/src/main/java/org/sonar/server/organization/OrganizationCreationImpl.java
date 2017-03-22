@@ -51,6 +51,7 @@ import org.sonar.server.qualityprofile.DefinedQProfile;
 import org.sonar.server.qualityprofile.DefinedQProfileCreation;
 import org.sonar.server.qualityprofile.DefinedQProfileRepository;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.user.index.UserIndexer;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -68,22 +69,24 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   private final DefinedQProfileRepository definedQProfileRepository;
   private final DefinedQProfileCreation definedQProfileCreation;
   private final ActiveRuleIndexer activeRuleIndexer;
+  private final UserIndexer userIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
-    OrganizationValidation organizationValidation, Settings settings,
+    OrganizationValidation organizationValidation, Settings settings, UserIndexer userIndexer,
     DefinedQProfileRepository definedQProfileRepository, DefinedQProfileCreation definedQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.organizationValidation = organizationValidation;
     this.settings = settings;
+    this.userIndexer = userIndexer;
     this.definedQProfileRepository = definedQProfileRepository;
     this.definedQProfileCreation = definedQProfileCreation;
     this.activeRuleIndexer = activeRuleIndexer;
   }
 
   @Override
-  public OrganizationDto create(DbSession dbSession, int creatorUserId, NewOrganization newOrganization) throws KeyConflictException {
+  public OrganizationDto create(DbSession dbSession, UserDto userCreator, NewOrganization newOrganization) throws KeyConflictException {
     validate(newOrganization);
     String key = newOrganization.getKey();
     if (organizationKeyIsUsed(dbSession, key)) {
@@ -92,15 +95,16 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, dto -> {
     });
-    insertOrganizationMember(dbSession, organization, creatorUserId);
+    insertOrganizationMember(dbSession, organization, userCreator.getId());
     GroupDto group = insertOwnersGroup(dbSession, organization);
     insertDefaultTemplate(dbSession, organization, group);
     List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
-    addCurrentUserToGroup(dbSession, group, creatorUserId);
+    addCurrentUserToGroup(dbSession, group, userCreator.getId());
 
     dbSession.commit();
 
     // Elasticsearch is updated when DB session is committed
+    userIndexer.index(userCreator.getLogin());
     activeRuleIndexer.index(activeRuleChanges);
 
     return organization;
@@ -135,6 +139,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     // Elasticsearch is updated when DB session is committed
     activeRuleIndexer.index(activeRuleChanges);
+    userIndexer.index(newUser.getLogin());
 
     return Optional.of(organization);
   }

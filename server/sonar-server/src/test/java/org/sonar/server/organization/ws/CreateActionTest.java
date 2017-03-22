@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -46,6 +47,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.OrganizationCreation;
@@ -57,6 +59,9 @@ import org.sonar.server.qualityprofile.DefinedQProfileCreation;
 import org.sonar.server.qualityprofile.DefinedQProfileRepository;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -83,6 +88,8 @@ public class CreateActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
@@ -91,12 +98,25 @@ public class CreateActionTest {
     .setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
-  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings,
+  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private UserIndex userIndex = new UserIndex(es.client());
+  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings, userIndexer,
       mock(DefinedQProfileRepository.class), mock(DefinedQProfileCreation.class), mock(ActiveRuleIndexer.class));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
+
+  private UserDto user;
+
   private CreateAction underTest = new CreateAction(settings, userSession, dbClient, new OrganizationsWsSupport(organizationValidation), organizationValidation,
     organizationCreation, organizationFlags);
+
   private WsActionTester wsTester = new WsActionTester(underTest);
+
+  @Before
+  public void setUp() {
+    user = dbTester.users().insertUser();
+    userIndexer.index(user.getLogin());
+    userSession.logIn(user);
+  }
 
   @Test
   public void verify_define() {
@@ -192,7 +212,7 @@ public class CreateActionTest {
 
   @Test
   public void request_succeeds_if_user_is_not_system_administrator_and_logged_in_users_can_create_organizations() {
-    userSession.logIn();
+    userSession.logIn(user);
     settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
 
@@ -503,6 +523,7 @@ public class CreateActionTest {
     executeRequest("orgFoo");
 
     assertThat(dbClient.organizationMemberDao().select(dbSession, SOME_UUID, user.getId())).isPresent();
+    assertThat(userIndex.getNullableByLogin(user.getLogin()).organizationUuids()).contains(SOME_UUID);
   }
 
   @Test
@@ -609,6 +630,6 @@ public class CreateActionTest {
   }
 
   private void logInAsSystemAdministrator() {
-    userSession.logIn().setSystemAdministrator();
+    userSession.logIn(user).setSystemAdministrator();
   }
 }
