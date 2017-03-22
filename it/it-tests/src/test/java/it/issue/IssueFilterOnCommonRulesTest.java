@@ -47,7 +47,7 @@ public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
   @Before
   public void resetData() {
     ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/IssueFilterOnCommonRulesTest/xoo-common-rules-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/IssueFilterOnCommonRulesTest/xoo-common-rules-profile.xml", null);
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "Sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "xoo-common-rules");
 

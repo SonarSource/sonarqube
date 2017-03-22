@@ -63,7 +63,7 @@ public class TimeMachineTest {
   public static void initialize() {
     orchestrator.resetData();
     initPeriod();
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/measureHistory/one-issue-per-line-profile.xml", null);
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     analyzeProject("measure/xoo-history-v1", FIRST_ANALYSIS_DATE);

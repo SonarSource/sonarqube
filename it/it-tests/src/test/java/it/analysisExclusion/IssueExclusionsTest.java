@@ -22,7 +22,6 @@ package it.analysisExclusion;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.util.Map;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
+import static util.ItUtils.restoreProfile;
 
 public class IssueExclusionsTest {
 
@@ -233,7 +233,7 @@ public class IssueExclusionsTest {
   }
 
   protected BuildResult scan(String... properties) {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/exclusions/IssueExclusionsTest/with-many-rules.xml").getPath(), null);
+    restoreProfile(orchestrator, "/exclusions/IssueExclusionsTest/with-many-rules.xml", null);
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-exclusions",
       "Sonar :: Integration Tests :: Multi-modules With Exclusions");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-exclusions", "xoo", "with-many-rules");

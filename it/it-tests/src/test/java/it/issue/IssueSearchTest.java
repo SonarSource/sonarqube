@@ -19,7 +19,6 @@
  */
 package it.issue;
 
-import com.sonar.orchestrator.locator.FileLocation;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -39,7 +38,6 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
-import util.ItUtils;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -47,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonarqube.ws.Issues.SearchWsResponse;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 import static util.ItUtils.toDate;
@@ -65,7 +64,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   public static void prepareData() {
     ORCHESTRATOR.resetData();
 
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/with-many-rules.xml").getPath(), null);
+    restoreProfile(ORCHESTRATOR, "/issue/with-many-rules.xml", null);
 
     // Launch 2 analysis to have more than 100 issues in total
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);

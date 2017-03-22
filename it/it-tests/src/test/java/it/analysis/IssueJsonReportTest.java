@@ -48,6 +48,7 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newWsClient;
+import static util.ItUtils.restoreProfile;
 
 public class IssueJsonReportTest {
 
@@ -66,7 +67,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void issue_line() throws IOException {
-    ItUtils.restoreProfile(orchestrator, getResource("one-issue-per-line.xml").getPath(), null);
+    restoreProfile(orchestrator, "one-issue-per-line.xml", null);
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -100,7 +101,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void precise_issue_location() throws IOException {
-    ItUtils.restoreProfile(orchestrator, getResource("multiline.xml").getPath(), null);
+    restoreProfile(orchestrator, "multiline.xml", null);
     orchestrator.getServer().provisionProject("sample-multiline", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample-multiline", "xoo", "multiline");
 
@@ -134,7 +135,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void test_json_report_no_server_analysis() throws Exception {
-    ItUtils.restoreProfile(orchestrator, getResource("one-issue-per-line.xml").getPath(), null);
+    restoreProfile(orchestrator, "one-issue-per-line.xml", null);
     orchestrator.getServer().provisionProject("sample", "tracking");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -156,7 +157,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void test_json_report() throws Exception {
-    ItUtils.restoreProfile(orchestrator, getResource("one-issue-per-line.xml").getPath(), null);
+    restoreProfile(orchestrator, "one-issue-per-line.xml", null);
     orchestrator.getServer().provisionProject("sample", "tracking");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -183,7 +184,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void test_json_report_on_branch() throws Exception {
-    ItUtils.restoreProfile(orchestrator, getResource("one-issue-per-line.xml").getPath(), null);
+    restoreProfile(orchestrator, getResource("one-issue-per-line.xml").getPath(), null);
     orchestrator.getServer().provisionProject("sample:mybranch", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample:mybranch", "xoo", "one-issue-per-line");
 
@@ -217,7 +218,7 @@ public class IssueJsonReportTest {
    */
   @Test
   public void test_json_report_on_sub_module() throws Exception {
-    ItUtils.restoreProfile(orchestrator, getResource("one-issue-per-line.xml").getPath(), null);
+    restoreProfile(orchestrator, "one-issue-per-line.xml", null);
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Multi-module sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 
@@ -254,7 +255,7 @@ public class IssueJsonReportTest {
    */
   @Test
   public void test_json_report_on_root_module() throws Exception {
-    ItUtils.restoreProfile(orchestrator, getResource("/one-issue-per-line.xml").getPath(), null);
+    restoreProfile(orchestrator, "/one-issue-per-line.xml", null);
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 

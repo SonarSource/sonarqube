@@ -61,7 +61,7 @@ public class ReliabilityMeasureTest {
 
   @Test
   public void verify_reliability_measures_when_bug_rules_activated() {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/with-many-rules.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
@@ -74,7 +74,7 @@ public class ReliabilityMeasureTest {
 
   @Test
   public void verify_reliability_measures_when_no_bug_rule() {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/without-type-bug.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/without-type-bug.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-bug");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 

@@ -50,7 +50,7 @@ public class IssuesPageTest {
   public static void prepareData() {
     ORCHESTRATOR.resetData();
 
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/with-many-rules.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/with-many-rules.xml", null);
 
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");

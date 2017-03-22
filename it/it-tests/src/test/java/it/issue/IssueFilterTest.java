@@ -39,7 +39,7 @@ public class IssueFilterTest extends AbstractIssueTest {
   public void resetData() {
     ORCHESTRATOR.resetData();
 
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/IssueFilterTest/with-many-rules.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/IssueFilterTest/with-many-rules.xml", null);
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "project");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
   }

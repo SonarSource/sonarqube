@@ -57,7 +57,7 @@ public class TechnicalDebtInIssueChangelogTest {
 
   @Test
   public void display_debt_in_issue_changelog() throws Exception {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/one-issue-per-file.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/one-issue-per-file.xml", null);
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-file");
 

@@ -58,7 +58,7 @@ public class CrossModuleDuplicationsTest {
   @Before
   public void setUpProject() throws IOException {
     orchestrator.resetData();
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/duplication/xoo-duplication-profile.xml", null);
 
     FileUtils.copyDirectory(ItUtils.projectDir(PROJECT_DIR), temp.getRoot());
     projectDir = temp.getRoot();

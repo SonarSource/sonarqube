@@ -22,7 +22,6 @@ package it.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +49,7 @@ public class TempFolderTest {
   @Before
   public void deleteData() {
     orchestrator.resetData();
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/analysis/TempFolderTest/one-issue-per-line.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/analysis/TempFolderTest/one-issue-per-line.xml", null);
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
   }

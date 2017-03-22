@@ -53,7 +53,7 @@ public class TechnicalDebtTest {
    */
   @Test
   public void technical_debt_on_issue() throws Exception {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/one-issue-per-line.xml", null);
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 

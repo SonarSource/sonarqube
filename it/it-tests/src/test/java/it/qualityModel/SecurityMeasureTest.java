@@ -61,7 +61,7 @@ public class SecurityMeasureTest {
 
   @Test
   public void verify_security_measures_when_vulnerability_rules_activated() {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/with-many-rules.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
@@ -74,7 +74,7 @@ public class SecurityMeasureTest {
 
   @Test
   public void verify_security_measures_when_no_vulnerability_rule() {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/without-type-vulnerability.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/without-type-vulnerability.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-vulnerability");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 

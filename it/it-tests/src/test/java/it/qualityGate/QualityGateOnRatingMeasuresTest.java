@@ -83,7 +83,7 @@ public class QualityGateOnRatingMeasuresTest {
       .setOperator("GT")
       .setWarning("3")
       .build());
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
 
     runProjectAnalysis(orchestrator, "qualitygate/xoo-sample");
@@ -108,7 +108,7 @@ public class QualityGateOnRatingMeasuresTest {
     assertThat(getGateStatusMeasure().getValue()).isEqualTo("OK");
 
     // Run second analysis with some rules that makes Security Rating to E -> quality gate is red
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
     runProjectAnalysis(orchestrator, "qualitygate/xoo-sample");
     assertThat(getGateStatusMeasure().getValue()).isEqualTo("ERROR");

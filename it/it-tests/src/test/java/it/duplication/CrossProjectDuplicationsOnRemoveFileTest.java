@@ -20,7 +20,6 @@
 package it.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
@@ -46,7 +45,7 @@ public class CrossProjectDuplicationsOnRemoveFileTest {
   @BeforeClass
   public static void analyzeProjects() {
     orchestrator.resetData();
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/duplication/xoo-duplication-profile.xml", null);
 
     analyzeProject(ORIGIN_PROJECT, "duplications/cross-project/origin");
     analyzeProject(DUPLICATE_PROJECT, "duplications/cross-project/duplicate");

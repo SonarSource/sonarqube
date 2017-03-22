@@ -41,7 +41,7 @@ public class IssueChangelogTest extends AbstractIssueTest {
   @Before
   public void prepareData() {
     ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/IssueChangelogTest/one-issue-per-line-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/IssueChangelogTest/one-issue-per-line-profile.xml", null);
     ORCHESTRATOR.getServer().provisionProject("sample", "sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     adminClient = newAdminWsClient(ORCHESTRATOR);

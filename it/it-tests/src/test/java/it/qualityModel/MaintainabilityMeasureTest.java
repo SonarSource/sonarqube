@@ -67,7 +67,7 @@ public class MaintainabilityMeasureTest {
 
   @Test
   public void verify_maintainability_measures_when_code_smells_rules_activated() {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/with-many-rules.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/with-many-rules.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
@@ -99,7 +99,7 @@ public class MaintainabilityMeasureTest {
 
   @Test
   public void verify_reliability_measures_when_no_code_smells_rule() {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/qualityModel/without-type-code-smells.xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/without-type-code-smells.xml", null);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-code-smells");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 

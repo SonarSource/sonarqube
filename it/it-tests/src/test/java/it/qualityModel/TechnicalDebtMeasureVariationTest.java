@@ -145,7 +145,7 @@ public class TechnicalDebtMeasureVariationTest {
   }
 
   private void defineQualityProfile(String qualityProfileKey) {
-    ItUtils.restoreProfile(orchestrator, FileLocation.ofClasspath("/measure/" + qualityProfileKey + ".xml").getPath(), null);
+    ItUtils.restoreProfile(orchestrator, "/measure/" + qualityProfileKey + ".xml", null);
   }
 
   private void runSampleProjectAnalysis(String... properties) {

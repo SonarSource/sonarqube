@@ -62,7 +62,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperty("sonar.projectDate", "2013-01-01"));
 
     // Execute a analysis now with some issues
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/one-issue-per-line-profile.xml", null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
@@ -80,7 +80,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
   public void new_issues_measures_should_be_zero_on_project_when_no_new_issues_since_x_days() throws Exception {
     setServerProperty(ORCHESTRATOR, "sonar.leak.period", "30");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/one-issue-per-line-profile.xml", null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
 
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"))
@@ -99,7 +99,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
   public void new_issues_measures_consistent_with_variations() throws Exception {
     setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_analysis");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/one-issue-per-line-profile.xml", null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
 
     // Execute an analysis in the past to have a past snapshot
@@ -129,13 +129,13 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
 
     // First analysis without module b
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/NewIssuesMeasureTest/profile1.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/NewIssuesMeasureTest/profile1.xml", null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile1");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
       .setProperties("sonar.modules", "module_a"));
 
     // Second analysis with module b and with a new rule activated to have new issues on module a since last analysis
-    ItUtils.restoreProfile(ORCHESTRATOR, FileLocation.ofClasspath("/issue/NewIssuesMeasureTest/profile2.xml").getPath(), null);
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/NewIssuesMeasureTest/profile2.xml", null);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile2");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
