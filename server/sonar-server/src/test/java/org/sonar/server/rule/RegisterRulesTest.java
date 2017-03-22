@@ -42,6 +42,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -71,7 +72,6 @@ public class RegisterRulesTest {
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
-
   @org.junit.Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
@@ -84,7 +84,7 @@ public class RegisterRulesTest {
   @Before
   public void before() {
     when(system.now()).thenReturn(DATE1.getTime());
-    ruleIndexer = new RuleIndexer(system, dbClient, esTester.client());
+    ruleIndexer = new RuleIndexer(system, dbClient, esTester.client(), TestDefaultOrganizationProvider.from(dbTester));
     ruleIndex = new RuleIndex(esTester.client());
     activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
   }

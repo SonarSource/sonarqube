@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,7 +103,7 @@ public class RuleIndexerTest {
   }
 
   private RuleIndexer createIndexer() {
-    return new RuleIndexer(system2, dbTester.getDbClient(), esTester.client());
+    return new RuleIndexer(system2, dbTester.getDbClient(), esTester.client(), TestDefaultOrganizationProvider.from(dbTester));
   }
 
 }

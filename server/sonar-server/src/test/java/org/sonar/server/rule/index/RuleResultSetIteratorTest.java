@@ -21,6 +21,7 @@ package org.sonar.server.rule.index;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -42,48 +43,53 @@ public class RuleResultSetIteratorTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private RuleDto templateRule;
+  private RuleDefinitionDto customRule;
 
-  DbSession dbSession = dbTester.getSession();
+  @Before
+  public void setUp() throws Exception {
+    templateRule = new RuleDto()
+        .setRuleKey("S001")
+        .setRepositoryKey("xoo")
+        .setConfigKey("S1")
+        .setName("Null Pointer")
+        .setDescription("S001 desc")
+        .setDescriptionFormat(RuleDto.Format.HTML)
+        .setLanguage("xoo")
+        .setSeverity(Severity.BLOCKER)
+        .setStatus(RuleStatus.READY)
+        .setIsTemplate(true)
+        .setSystemTags(newHashSet("cwe"))
+        .setType(RuleType.BUG)
+        .setCreatedAt(1500000000000L)
+        .setUpdatedAt(1600000000000L)
+        .setOrganizationUuid(dbTester.getDefaultOrganization().getUuid())
+        .setTags(newHashSet("performance"));
 
-  RuleDto templateRule = new RuleDto()
-    .setRuleKey("S001")
-    .setRepositoryKey("xoo")
-    .setConfigKey("S1")
-    .setName("Null Pointer")
-    .setDescription("S001 desc")
-    .setDescriptionFormat(RuleDto.Format.HTML)
-    .setLanguage("xoo")
-    .setSeverity(Severity.BLOCKER)
-    .setStatus(RuleStatus.READY)
-    .setIsTemplate(true)
-    .setSystemTags(newHashSet("cwe"))
-    .setType(RuleType.BUG)
-    .setCreatedAt(1500000000000L)
-    .setUpdatedAt(1600000000000L)
-    .setOrganizationUuid("foo-org")
-    .setTags(newHashSet("performance"));
-
-  RuleDefinitionDto customRule = new RuleDefinitionDto()
-    .setRuleKey("S002")
-    .setRepositoryKey("xoo")
-    .setConfigKey("S2")
-    .setName("Slow")
-    .setDescription("*S002 desc*")
-    .setDescriptionFormat(RuleDto.Format.MARKDOWN)
-    .setLanguage("xoo")
-    .setSeverity(Severity.MAJOR)
-    .setStatus(RuleStatus.BETA)
-    .setIsTemplate(false)
-    .setType(RuleType.CODE_SMELL)
-    .setCreatedAt(2000000000000L)
-    .setUpdatedAt(2100000000000L);
+    customRule = new RuleDefinitionDto()
+        .setRuleKey("S002")
+        .setRepositoryKey("xoo")
+        .setConfigKey("S2")
+        .setName("Slow")
+        .setDescription("*S002 desc*")
+        .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+        .setLanguage("xoo")
+        .setSeverity(Severity.MAJOR)
+        .setStatus(RuleStatus.BETA)
+        .setIsTemplate(false)
+        .setType(RuleType.CODE_SMELL)
+        .setCreatedAt(2000000000000L)
+        .setUpdatedAt(2100000000000L);
+  }
 
   @Test
   public void iterator_over_one_rule() {
     dbTester.rules().insertRule(templateRule);
 
-    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    String organizationUuid = dbTester.getDefaultOrganization().getUuid();
+    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), organizationUuid, 0L);
     Map<String, RuleDoc> rulesByKey = rulesByKey(it);
     it.close();
 
@@ -112,7 +118,8 @@ public class RuleResultSetIteratorTest {
     dbClient.ruleDao().insert(dbSession, customRule);
     dbSession.commit();
 
-    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    String organizationUuid = dbTester.getDefaultOrganization().getUuid();
+    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), organizationUuid, 0L);
     Map<String, RuleDoc> rulesByKey = rulesByKey(it);
     it.close();
 
@@ -155,7 +162,8 @@ public class RuleResultSetIteratorTest {
     dbClient.ruleDao().insert(dbSession, customRule.setTemplateId(templateRule.getId()));
     dbSession.commit();
 
-    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    String organizationUuid = dbTester.getDefaultOrganization().getUuid();
+    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), organizationUuid, 0L);
     Map<String, RuleDoc> rulesByKey = rulesByKey(it);
     it.close();
 
@@ -175,7 +183,8 @@ public class RuleResultSetIteratorTest {
     dbTester.rules().insertRule(templateRule.setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
-    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    String organizationUuid = dbTester.getDefaultOrganization().getUuid();
+    RuleResultSetIterator it = RuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), organizationUuid, 0L);
     Map<String, RuleDoc> rulesByKey = rulesByKey(it);
     it.close();
 
