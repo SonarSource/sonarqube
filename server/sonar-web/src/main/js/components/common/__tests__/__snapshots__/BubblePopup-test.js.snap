@@ -1,0 +1,16 @@
+exports[`test should render popup 1`] = `
+<div
+  className="bubble-popup custom"
+  style={
+    Object {
+      "right": 0,
+      "top": 0,
+    }
+  }>
+  <span>
+    test
+  </span>
+  <div
+    className="bubble-popup-arrow" />
+</div>
+`;

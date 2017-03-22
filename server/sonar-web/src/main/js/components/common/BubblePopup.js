@@ -17,24 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const click = element => {
-  return element.simulate('click', {
-    target: { blur() {} },
-    currentTarget: { blur() {} },
-    preventDefault() {},
-    stopPropagation() {}
-  });
-};
+import React from 'react';
+import classNames from 'classnames';
 
-export const submit = element => {
-  return element.simulate('submit', {
-    preventDefault() {}
-  });
-};
+export default class BubblePopup extends React.PureComponent {
+  static propsType = {
+    children: React.PropTypes.object.isRequired,
+    position: React.PropTypes.object.isRequired,
+    customClass: React.PropTypes.string
+  };
 
-export const change = (element, value) => {
-  return element.simulate('change', {
-    target: { value },
-    currentTarget: { value }
-  });
-};
+  static defaultProps = {
+    customClass: ''
+  };
+
+  render() {
+    const popupClass = classNames('bubble-popup', this.props.customClass);
+    const popupStyle = { ...this.props.position };
+
+    return (
+      <div className={popupClass} style={popupStyle}>
+        {this.props.children}
+        <div className="bubble-popup-arrow" />
+      </div>
+    );
+  }
+}

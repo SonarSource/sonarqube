@@ -90,16 +90,16 @@ export default class OverviewApp extends React.Component {
   componentDidMount() {
     this.mounted = true;
     document.querySelector('html').classList.add('dashboard-page');
-    this.loadMeasures(this.props.component).then(() => this.loadHistory(this.props.component));
+    this.loadMeasures(this.props.component.key).then(() => this.loadHistory(this.props.component));
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate(nextProps) {
-    if (this.props.component !== nextProps.component) {
-      this.loadMeasures(nextProps.component).then(() => this.loadHistory(nextProps.component));
+  componentDidUpdate(prevProps) {
+    if (this.props.component.key !== prevProps.component.key) {
+      this.loadMeasures(this.props.component.key).then(() => this.loadHistory(this.props.component));
     }
   }
 
@@ -108,10 +108,10 @@ export default class OverviewApp extends React.Component {
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  loadMeasures(component) {
+  loadMeasures(componentKey) {
     this.setState({ loading: true });
 
-    return getMeasuresAndMeta(component.key, METRICS, {
+    return getMeasuresAndMeta(componentKey, METRICS, {
       additionalFields: 'metrics,periods'
     }).then(r => {
       if (this.mounted) {

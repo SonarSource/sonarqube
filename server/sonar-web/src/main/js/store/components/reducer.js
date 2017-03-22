@@ -20,12 +20,19 @@
 import { combineReducers } from 'redux';
 import keyBy from 'lodash/keyBy';
 import uniq from 'lodash/uniq';
-import { RECEIVE_COMPONENTS } from './actions';
+import { RECEIVE_COMPONENTS, RECEIVE_PROJECT_TAGS } from './actions';
 
 const byKey = (state = {}, action = {}) => {
   if (action.type === RECEIVE_COMPONENTS) {
     const changes = keyBy(action.components, 'key');
     return { ...state, ...changes };
+  }
+
+  if (action.type === RECEIVE_PROJECT_TAGS) {
+    const project = state[action.project];
+    if (project) {
+      return { ...state, [action.project]: { ...project, tags: action.tags } };
+    }
   }
 
   return state;

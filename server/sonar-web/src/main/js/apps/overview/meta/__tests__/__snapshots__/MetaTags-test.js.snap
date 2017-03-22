@@ -1,0 +1,105 @@
+exports[`test should open the tag selector on click 1`] = `
+<div
+  className="overview-meta-card overview-meta-tags">
+  <button
+    className="button-link"
+    onClick={[Function]}>
+    <TagsList
+      allowMultiLine={true}
+      allowUpdate={true}
+      tags={
+        Array [
+          "foo",
+          "bar",
+        ]
+      } />
+  </button>
+</div>
+`;
+
+exports[`test should open the tag selector on click 2`] = `
+<div
+  className="overview-meta-card overview-meta-tags">
+  <button
+    className="button-link"
+    onClick={[Function]}>
+    <TagsList
+      allowMultiLine={true}
+      allowUpdate={true}
+      tags={
+        Array [
+          "foo",
+          "bar",
+        ]
+      } />
+  </button>
+  <div>
+    <Connect(ProjectTagsSelectorContainer)
+      position={
+        Object {
+          "right": 0,
+          "top": 0,
+        }
+      }
+      project="my-second-project"
+      selectedTags={
+        Array [
+          "foo",
+          "bar",
+        ]
+      } />
+  </div>
+</div>
+`;
+
+exports[`test should open the tag selector on click 3`] = `
+<div
+  className="overview-meta-card overview-meta-tags">
+  <button
+    className="button-link"
+    onClick={[Function]}>
+    <TagsList
+      allowMultiLine={true}
+      allowUpdate={true}
+      tags={
+        Array [
+          "foo",
+          "bar",
+        ]
+      } />
+  </button>
+</div>
+`;
+
+exports[`test should render with tags and admin rights 1`] = `
+<div
+  className="overview-meta-card overview-meta-tags">
+  <button
+    className="button-link"
+    onClick={[Function]}>
+    <TagsList
+      allowMultiLine={true}
+      allowUpdate={true}
+      tags={
+        Array [
+          "foo",
+          "bar",
+        ]
+      } />
+  </button>
+</div>
+`;
+
+exports[`test should render without tags and admin rights 1`] = `
+<div
+  className="overview-meta-card overview-meta-tags">
+  <TagsList
+    allowMultiLine={true}
+    allowUpdate={false}
+    tags={
+      Array [
+        "no_tags",
+      ]
+    } />
+</div>
+`;

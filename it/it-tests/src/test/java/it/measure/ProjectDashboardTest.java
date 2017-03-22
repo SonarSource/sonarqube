@@ -25,22 +25,32 @@ import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.openqa.selenium.Keys;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.ProjectDashboardPage;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
 public class ProjectDashboardTest {
-
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
+
+  private static WsClient wsClient;
+
   @Before
-  public void resetData() throws Exception {
+  public void setUp() throws Exception {
+    wsClient = newAdminWsClient(orchestrator);
     orchestrator.resetData();
   }
 
@@ -55,7 +65,6 @@ public class ProjectDashboardTest {
   public void display_size() {
     executeBuild("shared/xoo-sample", "sample", "Sample");
 
-    Navigation nav = Navigation.get(orchestrator);
     ProjectDashboardPage page = nav.openProjectDashboard("sample");
 
     page.getLinesOfCode().should(hasText("13"));
@@ -63,9 +72,54 @@ public class ProjectDashboardTest {
   }
 
   @Test
+  public void display_tags_without_edit() {
+    executeBuild("shared/xoo-sample", "sample", "Sample");
+
+    // Add some tags to the project
+    wsClient.wsConnector().call(
+      new PostRequest("api/project_tags/set")
+        .setParam("project", "sample")
+        .setParam("tags", "foo,bar,baz")
+    );
+
+    ProjectDashboardPage page = nav.openProjectDashboard("sample");
+    page
+      .shouldHaveTags("foo", "bar", "baz")
+      .shouldNotBeEditable();
+  }
+
+  @Test
+  public void display_tags_with_edit() {
+    executeBuild("shared/xoo-sample", "sample-with-tags", "Sample with tags");
+    // Add some tags to another project to have them in the list
+    wsClient.wsConnector().call(
+            new PostRequest("api/project_tags/set")
+                    .setParam("project", "sample-with-tags")
+                    .setParam("tags", "foo,bar,baz")
+    );
+
+    executeBuild("shared/xoo-sample", "sample", "Sample");
+    ProjectDashboardPage page = nav.logIn().asAdmin().openProjectDashboard("sample");
+    page
+      .shouldHaveTags("No tags")
+      .shouldBeEditable()
+      .openTagEditor()
+      .getTagAtIdx(2).click();
+    page
+      .shouldHaveTags("foo")
+      .sendKeysToTagsInput("test")
+      .getTagAtIdx(0).should(hasText("+ test")).click();
+    page
+      .shouldHaveTags("foo", "test")
+      .getTagAtIdx(1).should(hasText("test"));
+    page
+      .sendKeysToTagsInput(Keys.ENTER)
+      .shouldHaveTags("test");
+  }
+
+  @Test
   @Ignore("there is no more place to show the error")
   public void display_a_nice_error_when_requesting_unknown_project() {
-    Navigation nav = Navigation.get(orchestrator);
     nav.open("/dashboard/index?id=unknown");
     nav.getErrorMessage().should(text("The requested project does not exist. Either it has never been analyzed successfully or it has been deleted."));
     // TODO verify that on global homepage

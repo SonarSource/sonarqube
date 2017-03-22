@@ -1,0 +1,164 @@
+exports[`test should render multiselect with selected elements 1`] = `
+<div
+  className="multi-select">
+  <div
+    className="search-box menu-search">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search-new" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="" />
+  </div>
+  <ul
+    className="menu" />
+</div>
+`;
+
+exports[`test should render multiselect with selected elements 2`] = `
+<div
+  className="multi-select">
+  <div
+    className="search-box menu-search">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search-new" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="" />
+  </div>
+  <ul
+    className="menu">
+    <MultiSelectOption
+      active={false}
+      custom={false}
+      element="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={true} />
+    <MultiSelectOption
+      active={false}
+      custom={false}
+      element="foo"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={false} />
+    <MultiSelectOption
+      active={false}
+      custom={false}
+      element="baz"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={false} />
+  </ul>
+</div>
+`;
+
+exports[`test should render multiselect with selected elements 3`] = `
+<div
+  className="multi-select">
+  <div
+    className="search-box menu-search">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search-new" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="" />
+  </div>
+  <ul
+    className="menu">
+    <MultiSelectOption
+      active={false}
+      custom={false}
+      element="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={true} />
+    <MultiSelectOption
+      active={false}
+      custom={false}
+      element="foo"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={false} />
+    <MultiSelectOption
+      active={true}
+      custom={false}
+      element="baz"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={false} />
+  </ul>
+</div>
+`;
+
+exports[`test should render multiselect with selected elements 4`] = `
+<div
+  className="multi-select">
+  <div
+    className="search-box menu-search">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search-new" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="test" />
+  </div>
+  <ul
+    className="menu">
+    <MultiSelectOption
+      active={false}
+      custom={false}
+      element="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={true} />
+    <MultiSelectOption
+      active={false}
+      custom={false}
+      element="foo"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={false} />
+    <MultiSelectOption
+      active={true}
+      custom={false}
+      element="baz"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={false} />
+    <MultiSelectOption
+      active={false}
+      custom={true}
+      element="test"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={false} />
+  </ul>
+</div>
+`;

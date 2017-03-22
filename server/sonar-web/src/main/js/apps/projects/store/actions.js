@@ -19,13 +19,13 @@
  */
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
-import { searchProjects } from '../../../api/components';
+import { searchProjects, setProjectTags as apiSetProjectTags } from '../../../api/components';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { parseError } from '../../code/utils';
-import { receiveComponents } from '../../../store/components/actions';
+import { receiveComponents, receiveProjectTags } from '../../../store/components/actions';
 import { receiveProjects, receiveMoreProjects } from './projectsDuck';
 import { updateState } from './stateDuck';
-import { getProjectsAppState } from '../../../store/rootReducer';
+import { getProjectsAppState, getComponent } from '../../../store/rootReducer';
 import { getMeasuresForProjects } from '../../../api/measures';
 import { receiveComponentsMeasures } from '../../../store/measures/actions';
 import { convertToQueryData } from './utils';
@@ -179,4 +179,17 @@ export const fetchMoreProjects = (query, isFavorite, organization) =>
       f: 'analysisDate'
     });
     return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
+  };
+
+export const setProjectTags = (project, tags) =>
+  (dispatch, getState) => {
+    const previousTags = getComponent(getState(), project).tags;
+    dispatch(receiveProjectTags(project, tags));
+    return apiSetProjectTags({ project, tags: tags.join(',') }).then(
+      null,
+      error => {
+        dispatch(receiveProjectTags(project, previousTags));
+        onFail(dispatch)(error);
+      }
+    );
   };

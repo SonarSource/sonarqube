@@ -17,24 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const click = element => {
-  return element.simulate('click', {
-    target: { blur() {} },
-    currentTarget: { blur() {} },
-    preventDefault() {},
-    stopPropagation() {}
-  });
+import { shallow } from 'enzyme';
+import React from 'react';
+import BubblePopup from '../BubblePopup';
+
+const props = {
+  position: { top: 0, right: 0 },
+  customClass: 'custom'
 };
 
-export const submit = element => {
-  return element.simulate('submit', {
-    preventDefault() {}
-  });
-};
-
-export const change = (element, value) => {
-  return element.simulate('change', {
-    target: { value },
-    currentTarget: { value }
-  });
-};
+it('should render popup', () => {
+  const popup = shallow(<BubblePopup {...props}><span>test</span></BubblePopup>);
+  expect(popup).toMatchSnapshot();
+});

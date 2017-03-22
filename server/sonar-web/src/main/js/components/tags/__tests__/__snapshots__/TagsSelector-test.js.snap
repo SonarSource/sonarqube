@@ -1,0 +1,47 @@
+exports[`test should render with selected tags 1`] = `
+<BubblePopup
+  customClass="bubble-popup-bottom-right bubble-popup-menu"
+  position={
+    Object {
+      "left": 0,
+      "top": 0,
+    }
+  }>
+  <MultiSelect
+    elements={
+      Array [
+        "foo",
+        "bar",
+        "baz",
+      ]
+    }
+    onSearch={[Function]}
+    onSelect={[Function]}
+    onUnselect={[Function]}
+    selectedElements={
+      Array [
+        "bar",
+      ]
+    }
+    validateSearchInput={[Function]} />
+</BubblePopup>
+`;
+
+exports[`test should render without tags at all 1`] = `
+<BubblePopup
+  customClass="bubble-popup-bottom-right bubble-popup-menu"
+  position={
+    Object {
+      "left": 0,
+      "top": 0,
+    }
+  }>
+  <MultiSelect
+    elements={Array []}
+    onSearch={[Function]}
+    onSelect={[Function]}
+    onUnselect={[Function]}
+    selectedElements={Array []}
+    validateSearchInput={[Function]} />
+</BubblePopup>
+`;

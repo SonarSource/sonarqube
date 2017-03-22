@@ -17,37 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
+import { shallow } from 'enzyme';
 import React from 'react';
-import classNames from 'classnames';
-import './TagsList.css';
+import MultiSelectOption from '../MultiSelectOption';
 
-type Props = {
-  tags: Array<string>,
-  allowUpdate: boolean,
-  allowMultiLine: boolean
+const props = {
+  element: 'mytag',
+  selected: false,
+  custom: false,
+  active: false,
+  onSelectChange: () => {},
+  onHover: () => {}
 };
 
-export default class TagsList extends React.PureComponent {
-  props: Props;
+it('should render standard tag', () => {
+  expect(shallow(<MultiSelectOption {...props} />)).toMatchSnapshot();
+});
 
-  static defaultProps = {
-    allowUpdate: false,
-    allowMultiLine: false
-  };
+it('should render selected tag', () => {
+  expect(shallow(<MultiSelectOption {...props} selected={true} />)).toMatchSnapshot();
+});
 
-  render() {
-    const { tags, allowUpdate } = this.props;
-    const spanClass = classNames('note', {
-      'text-ellipsis': !this.props.allowMultiLine
-    });
+it('should render custom tag', () => {
+  expect(shallow(<MultiSelectOption {...props} custom={true} />)).toMatchSnapshot();
+});
 
-    return (
-      <span className="tags-list" title={tags.join(', ')}>
-        <i className="icon-tags icon-half-transparent" />
-        <span className={spanClass}>{tags.join(', ')}</span>
-        {allowUpdate && <i className="icon-dropdown icon-half-transparent" />}
-      </span>
-    );
-  }
-}
+it('should render active tag', () => {
+  expect(shallow(<MultiSelectOption {...props} selected={true} active={true} />)).toMatchSnapshot();
+});
