@@ -21,6 +21,7 @@ package org.sonar.server.user.index;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
@@ -32,7 +33,9 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.StartupIndexer;
 
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
 public class UserIndexer implements StartupIndexer {
@@ -52,35 +55,52 @@ public class UserIndexer implements StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
-    doIndex(null, Size.LARGE);
+    doIndex(newBulkIndexer(Size.LARGE), null);
   }
 
   public void index(String login) {
     requireNonNull(login);
-    doIndex(login, Size.REGULAR);
+    doIndex(newBulkIndexer(Size.REGULAR), singletonList(login));
   }
 
-  private void doIndex(@Nullable String login, Size bulkSize) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
-    bulk.setSize(bulkSize);
+  public void index(List<String> logins) {
+    requireNonNull(logins);
+    if (logins.isEmpty()) {
+      return;
+    }
 
+    doIndex(newBulkIndexer(Size.REGULAR), logins);
+  }
+
+  private void doIndex(BulkIndexer bulk, @Nullable List<String> logins) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      try (UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession, login)) {
-        doIndex(bulk, rowIt);
+      if (logins == null) {
+        processLogins(bulk, dbSession, null);
+      } else {
+        executeLargeInputsWithoutOutput(logins, l -> processLogins(bulk, dbSession, l));
       }
     }
   }
 
-  private static long doIndex(BulkIndexer bulk, Iterator<UserDoc> users) {
-    long maxUpdatedAt = 0L;
+  private void processLogins(BulkIndexer bulk, DbSession dbSession, @Nullable List<String> logins) {
+    try (UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession, logins)) {
+      processResultSet(bulk, rowIt);
+    }
+  }
+
+  private static void processResultSet(BulkIndexer bulk, Iterator<UserDoc> users) {
     bulk.start();
     while (users.hasNext()) {
       UserDoc user = users.next();
       bulk.add(newIndexRequest(user));
-      maxUpdatedAt = Math.max(maxUpdatedAt, user.updatedAt());
     }
     bulk.stop();
-    return maxUpdatedAt;
+  }
+
+  private BulkIndexer newBulkIndexer(Size bulkSize) {
+    final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
+    bulk.setSize(bulkSize);
+    return bulk;
   }
 
   private static IndexRequest newIndexRequest(UserDoc user) {
