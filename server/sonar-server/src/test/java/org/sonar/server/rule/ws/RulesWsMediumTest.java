@@ -141,13 +141,13 @@ public class RulesWsMediumTest {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(session, profile);
 
-    RuleDto rule = RuleTesting.newXooX1()
+    RuleDto rule = RuleTesting.newXooX1(defaultOrganization)
       .setTags(ImmutableSet.of("hello", "world"))
       .setSystemTags(Collections.<String>emptySet());
     ruleDao.insert(session, rule.getDefinition());
     ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
 
-    RuleDto rule2 = RuleTesting.newXooX2()
+    RuleDto rule2 = RuleTesting.newXooX2(defaultOrganization)
       .setTags(ImmutableSet.of("hello", "java"))
       .setSystemTags(ImmutableSet.of("sys1"));
     ruleDao.insert(session, rule2.getDefinition());

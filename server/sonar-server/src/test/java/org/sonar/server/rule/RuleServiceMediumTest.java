@@ -29,9 +29,11 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -54,12 +56,14 @@ public class RuleServiceMediumTest {
   private RuleService service = tester.get(RuleService.class);
   private DbSession dbSession;
   private RuleIndexer ruleIndexer;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
+    defaultOrganization = tester.get(DbClient.class).organizationDao().selectByUuid(dbSession, tester.get(DefaultOrganizationProvider.class).get().getUuid()).get();
   }
 
   @After
@@ -110,7 +114,7 @@ public class RuleServiceMediumTest {
   }
 
   private void insertRule(RuleKey key, Set<String> tags, Set<String> systemTags) {
-    RuleDto ruleDto = RuleTesting.newDto(key).setTags(tags).setSystemTags(systemTags);
+    RuleDto ruleDto = RuleTesting.newDto(key, defaultOrganization).setTags(tags).setSystemTags(systemTags);
     dao.insert(dbSession, ruleDto.getDefinition());
     dao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();

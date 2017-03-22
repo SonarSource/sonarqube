@@ -20,7 +20,6 @@
 package org.sonar.db.rule;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -35,12 +34,13 @@ public class RuleMetadataDto {
   private String organizationUuid;
   private String noteData;
   private String noteUserLogin;
-  private Date noteCreatedAt;
-  private Date noteUpdatedAt;
+  private Long noteCreatedAt;
+  private Long noteUpdatedAt;
   private String remediationFunction;
   private String remediationGapMultiplier;
   private String remediationBaseEffort;
   private String tags;
+  private long createdAt;
   private long updatedAt;
 
   public int getRuleId() {
@@ -82,21 +82,21 @@ public class RuleMetadataDto {
   }
 
   @CheckForNull
-  public Date getNoteCreatedAt() {
+  public Long getNoteCreatedAt() {
     return noteCreatedAt;
   }
 
-  public RuleMetadataDto setNoteCreatedAt(@Nullable Date noteCreatedAt) {
+  public RuleMetadataDto setNoteCreatedAt(@Nullable Long noteCreatedAt) {
     this.noteCreatedAt = noteCreatedAt;
     return this;
   }
 
   @CheckForNull
-  public Date getNoteUpdatedAt() {
+  public Long getNoteUpdatedAt() {
     return noteUpdatedAt;
   }
 
-  public RuleMetadataDto setNoteUpdatedAt(@Nullable Date noteUpdatedAt) {
+  public RuleMetadataDto setNoteUpdatedAt(@Nullable Long noteUpdatedAt) {
     this.noteUpdatedAt = noteUpdatedAt;
     return this;
   }
@@ -150,6 +150,15 @@ public class RuleMetadataDto {
     tags = s;
   }
 
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  public RuleMetadataDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
   public long getUpdatedAt() {
     return updatedAt;
   }
@@ -172,6 +181,7 @@ public class RuleMetadataDto {
       ", remediationGapMultiplier='" + remediationGapMultiplier + '\'' +
       ", remediationBaseEffort='" + remediationBaseEffort + '\'' +
       ", tags='" + tags + '\'' +
+      ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
       '}';
   }

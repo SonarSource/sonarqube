@@ -227,7 +227,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1()
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationGapMultiplier("1h")
       .setDefaultRemediationBaseEffort("15min")
@@ -247,7 +247,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1()
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationGapMultiplier("1h")
       .setDefaultRemediationBaseEffort("15min")
@@ -267,7 +267,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1()
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationGapMultiplier("1h")
       .setDefaultRemediationBaseEffort("15min")
@@ -494,7 +494,7 @@ public class SearchActionMediumTest {
   public void get_note_as_markdown_and_html() throws Exception {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
-    RuleDto rule = RuleTesting.newXooX1().setNoteData("this is *bold*");
+    RuleDto rule = RuleTesting.newXooX1(defaultOrganization).setNoteData("this is *bold*");
     ruleDao.insert(dbSession, rule.getDefinition());
     ruleDao.update(dbSession, rule.getMetadata().setRuleId(rule.getId()));
 
@@ -626,7 +626,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_rules_with_deprecated_fields() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1()
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
         .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setDefaultRemediationGapMultiplier("1h")
         .setDefaultRemediationBaseEffort("15min")
