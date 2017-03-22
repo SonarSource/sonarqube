@@ -136,7 +136,6 @@
     "jsx-a11y/tabindex-no-positive": 2,
 
     "react/jsx-boolean-value": [2, "always"],
-    "react/jsx-closing-bracket-location": 2,
     "react/jsx-curly-spacing": [2, "never"],
     "react/jsx-equals-spacing": [2, "never"],
     "react/jsx-key": 2,
