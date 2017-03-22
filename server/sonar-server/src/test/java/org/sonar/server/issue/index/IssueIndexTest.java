@@ -49,6 +49,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -96,7 +97,7 @@ public class IssueIndexTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(tester.client(), new IssueIteratorFactory(null));
   private ViewIndexer viewIndexer = new ViewIndexer(null, tester.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(system2, null, tester.client());
+  private RuleIndexer ruleIndexer = new RuleIndexer(system2, null, tester.client(), TestDefaultOrganizationProvider.fromUuid("org-1"));
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
   private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));

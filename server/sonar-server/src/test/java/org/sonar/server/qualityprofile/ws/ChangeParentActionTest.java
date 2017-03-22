@@ -100,16 +100,16 @@ public class ChangeParentActionTest {
     dbSession = dbTester.getSession();
     EsClient esClient = esTester.client();
     ruleIndex = new RuleIndex(esClient);
+    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     ruleIndexer = new RuleIndexer(
       System2.INSTANCE,
       dbClient,
-      esClient
-    );
+      esClient,
+      defaultOrganizationProvider);
     activeRuleIndexer = new ActiveRuleIndexer(
       System2.INSTANCE,
       dbClient,
-      esClient
-    );
+      esClient);
     RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
     ruleActivator = new RuleActivator(
@@ -119,8 +119,7 @@ public class ChangeParentActionTest {
       ruleActivatorContextFactory,
       typeValidations,
       activeRuleIndexer,
-      userSessionRule
-    );
+      userSessionRule);
     underTest = new ChangeParentAction(
       dbClient,
       new RuleActivator(
@@ -130,16 +129,13 @@ public class ChangeParentActionTest {
         ruleActivatorContextFactory,
         typeValidations,
         activeRuleIndexer,
-        userSessionRule
-      ),
+        userSessionRule),
       new Languages(),
       new QProfileWsSupport(
         dbClient,
         userSessionRule,
-        TestDefaultOrganizationProvider.from(dbTester)
-      ),
-      userSessionRule
-    );
+        TestDefaultOrganizationProvider.from(dbTester)),
+      userSessionRule);
     wsActionTester = new WsActionTester(underTest);
     organization = dbTester.organizations().insert();
     userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
