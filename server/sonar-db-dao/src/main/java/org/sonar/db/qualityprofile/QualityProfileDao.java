@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -32,6 +31,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -184,17 +184,8 @@ public class QualityProfileDao implements Dao {
     return mapper(session).selectProjects(profileName, language);
   }
 
-  /**
-   * @deprecated provide organization
-   */
-  @Deprecated
-  public Map<String, Long> countProjectsByProfileKey(DbSession dbSession) {
-    Map<String, Long> countByKey = new HashMap<>();
-    QualityProfileMapper mapper = mapper(dbSession);
-    for (QualityProfileProjectCount count : mapper.countProjectsByProfile()) {
-      countByKey.put(count.getProfileKey(), count.getProjectCount());
-    }
-    return countByKey;
+  public Map<String, Long> countProjectsByProfileKey(DbSession dbSession, OrganizationDto organization) {
+    return KeyLongValue.toMap(mapper(dbSession).countProjectsByProfileKey(organization.getUuid()));
   }
 
   public void insertProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
