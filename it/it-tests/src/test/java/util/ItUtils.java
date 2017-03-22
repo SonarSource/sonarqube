@@ -29,9 +29,11 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -334,6 +336,11 @@ public class ItUtils {
     String content = newWsClient(orchestrator).wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", componentKey)).failIfNotSuccessful()
       .content();
     return ComponentNavigation.parse(content);
+  }
+
+  public static File findFileInClasspath(String classpathRelativeFilename) throws URISyntaxException {
+    ResourceLocation location = FileLocation.ofClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml");
+    return new File(ItUtils.class.getResource(location.getPath()).toURI());
   }
 
   public static class ComponentNavigation {

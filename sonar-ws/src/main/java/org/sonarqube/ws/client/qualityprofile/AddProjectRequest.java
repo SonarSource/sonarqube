@@ -19,14 +19,18 @@
  */
 package org.sonarqube.ws.client.qualityprofile;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
+import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class AddProjectRequest {
 
   private final String language;
+  private final Optional<String> organization;
   private final String profileName;
   private final String profileKey;
   private final String projectKey;
@@ -34,6 +38,7 @@ public class AddProjectRequest {
 
   private AddProjectRequest(Builder builder) {
     this.language = builder.language;
+    this.organization = requireNonNull(builder.organization);
     this.profileName = builder.profileName;
     this.profileKey = builder.profileKey;
     this.projectKey = builder.projectKey;
@@ -43,6 +48,10 @@ public class AddProjectRequest {
   @CheckForNull
   public String getLanguage() {
     return language;
+  }
+
+  public Optional<String> getOrganization() {
+    return organization;
   }
 
   @CheckForNull
@@ -71,6 +80,7 @@ public class AddProjectRequest {
 
   public static class Builder {
     private String language;
+    private Optional<String> organization = Optional.empty();
     private String profileName;
     private String profileKey;
     private String projectKey;
@@ -82,6 +92,11 @@ public class AddProjectRequest {
 
     public Builder setLanguage(@Nullable String language) {
       this.language = language;
+      return this;
+    }
+
+    public Builder setOrganization(@Nullable String organization) {
+      this.organization = Optional.ofNullable(organization);
       return this;
     }
 

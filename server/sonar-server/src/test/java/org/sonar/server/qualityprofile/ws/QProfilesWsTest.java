@@ -33,13 +33,14 @@ import org.sonar.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 
 public class QProfilesWsTest {
   @Rule
@@ -116,7 +117,7 @@ public class QProfilesWsTest {
 
   @Test
   public void define_activate_rule_action() {
-    WebService.Action restoreProfiles = controller.action(RuleActivationActions.ACTIVATE_ACTION);
+    WebService.Action restoreProfiles = controller.action(ACTION_ACTIVATE_RULE);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
     assertThat(restoreProfiles.params()).hasSize(5);
@@ -124,7 +125,7 @@ public class QProfilesWsTest {
 
   @Test
   public void define_deactivate_rule_action() {
-    WebService.Action restoreProfiles = controller.action(RuleActivationActions.DEACTIVATE_ACTION);
+    WebService.Action restoreProfiles = controller.action(ACTION_DEACTIVATE_RULE);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
     assertThat(restoreProfiles.params()).hasSize(2);
