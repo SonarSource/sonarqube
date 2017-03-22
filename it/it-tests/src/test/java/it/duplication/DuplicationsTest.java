@@ -21,7 +21,6 @@ package it.duplication;
 
 import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -30,6 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.ItUtils;
 import util.issue.IssueRule;
 
 import static java.util.Collections.singletonList;
@@ -55,7 +55,7 @@ public class DuplicationsTest {
   public static void analyzeProjects() {
     orchestrator.resetData();
 
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, "/duplication/xoo-duplication-profile.xml");
     analyzeProject(DUPLICATIONS);
     analyzeProject(DUPLICATIONS_WITH_EXCLUSIONS, "sonar.cpd.exclusions", "**/File*");
 

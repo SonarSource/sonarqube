@@ -22,7 +22,6 @@ package it.dbCleaner;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.util.Calendar;
 import java.util.Date;
@@ -73,7 +72,7 @@ public class PurgeTest {
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/dbCleaner/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, "/dbCleaner/one-issue-per-line-profile.xml");
 
     setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", null);
     setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", null);

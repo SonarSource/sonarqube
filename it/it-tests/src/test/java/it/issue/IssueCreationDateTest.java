@@ -21,7 +21,6 @@ package it.issue;
 
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.container.Server;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -187,7 +186,7 @@ public class IssueCreationDateTest extends AbstractIssueTest {
   }
 
   private void analysis(QProfile qProfile, SourceCode sourceCode, ScannerFeature... scm) {
-    server.restoreProfile(FileLocation.ofClasspath(qProfile.path));
+    ItUtils.restoreProfile(ORCHESTRATOR, qProfile.path);
     server.associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, LANGUAGE_XOO, SAMPLE_QUALITY_PROFILE_NAME);
 
     SonarScanner scanner = SonarScanner.create(projectDir(sourceCode.path));

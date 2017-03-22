@@ -19,7 +19,6 @@
  */
 package it.issue;
 
-import com.sonar.orchestrator.locator.FileLocation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.ItUtils;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,8 +49,8 @@ public class IssueTrackingTest extends AbstractIssueTest {
   @Before
   public void prepareData() {
     ORCHESTRATOR.resetData();
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/issue-on-tag-foobar.xml"));
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/IssueTrackingTest/one-issue-per-module-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/issue-on-tag-foobar.xml");
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/IssueTrackingTest/one-issue-per-module-profile.xml");
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
     adminClient = newAdminWsClient(ORCHESTRATOR);
   }

@@ -22,7 +22,6 @@ package it.duplication;
 import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +57,7 @@ public class CrossModuleDuplicationsTest {
   @Before
   public void setUpProject() throws IOException {
     orchestrator.resetData();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, "/duplication/xoo-duplication-profile.xml");
 
     FileUtils.copyDirectory(ItUtils.projectDir(PROJECT_DIR), temp.getRoot());
     projectDir = temp.getRoot();

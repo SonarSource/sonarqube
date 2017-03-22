@@ -20,7 +20,6 @@
 package it.qualityGate;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +32,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasure;
@@ -82,7 +82,7 @@ public class QualityGateOnRatingMeasuresTest {
       .setOperator("GT")
       .setWarning("3")
       .build());
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, "/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml");
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
 
     runProjectAnalysis(orchestrator, "qualitygate/xoo-sample");
@@ -107,7 +107,7 @@ public class QualityGateOnRatingMeasuresTest {
     assertThat(getGateStatusMeasure().getValue()).isEqualTo("OK");
 
     // Run second analysis with some rules that makes Security Rating to E -> quality gate is red
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, "/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml");
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
     runProjectAnalysis(orchestrator, "qualitygate/xoo-sample");
     assertThat(getGateStatusMeasure().getValue()).isEqualTo("ERROR");

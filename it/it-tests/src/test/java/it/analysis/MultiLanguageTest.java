@@ -22,7 +22,6 @@ package it.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.util.Map;
 import org.junit.After;
@@ -50,8 +49,8 @@ public class MultiLanguageTest {
    */
   @Test
   public void test_sonar_runner_inspection() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/MultiLanguageTest/one-issue-per-line.xml"));
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/MultiLanguageTest/one-issue-per-line-xoo2.xml"));
+    ItUtils.restoreProfile(orchestrator, "/analysis/MultiLanguageTest/one-issue-per-line.xml");
+    ItUtils.restoreProfile(orchestrator, "/analysis/MultiLanguageTest/one-issue-per-line-xoo2.xml");
 
     orchestrator.getServer().provisionProject("multi-language-sample", "multi-language-sample");
 

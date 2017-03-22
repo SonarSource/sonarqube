@@ -21,13 +21,13 @@ package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.WsMeasures;
+import util.ItUtils;
 
 import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +60,7 @@ public class ReliabilityMeasureTest {
 
   @Test
   public void verify_reliability_measures_when_bug_rules_activated() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/with-many-rules.xml");
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
@@ -73,7 +73,7 @@ public class ReliabilityMeasureTest {
 
   @Test
   public void verify_reliability_measures_when_no_bug_rule() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/without-type-bug.xml"));
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/without-type-bug.xml");
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-bug");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 

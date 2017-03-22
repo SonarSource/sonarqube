@@ -22,7 +22,6 @@ package it.measureHistory;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import java.util.Arrays;
 import java.util.Date;
@@ -63,7 +62,7 @@ public class TimeMachineTest {
   public static void initialize() {
     orchestrator.resetData();
     initPeriod();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, "/measureHistory/one-issue-per-line-profile.xml");
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     analyzeProject("measure/xoo-history-v1", FIRST_ANALYSIS_DATE);

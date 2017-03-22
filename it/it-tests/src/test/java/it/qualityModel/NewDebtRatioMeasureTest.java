@@ -20,7 +20,6 @@
 package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.Date;
 import javax.annotation.Nullable;
@@ -128,7 +127,7 @@ public class NewDebtRatioMeasureTest {
   }
 
   private void defineQualityProfile(String qualityProfileKey) {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measure/" + qualityProfileKey + ".xml"));
+    ItUtils.restoreProfile(orchestrator, "/measure/" + qualityProfileKey + ".xml");
   }
 
   private void runSampleProjectAnalysis(String projectVersion, String... properties) {

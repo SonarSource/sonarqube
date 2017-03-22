@@ -20,12 +20,12 @@
 package it.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
@@ -45,7 +45,7 @@ public class CrossProjectDuplicationsOnRemoveFileTest {
   @BeforeClass
   public static void analyzeProjects() {
     orchestrator.resetData();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, "/duplication/xoo-duplication-profile.xml");
 
     analyzeProject(ORIGIN_PROJECT, "duplications/cross-project/origin");
     analyzeProject(DUPLICATE_PROJECT, "duplications/cross-project/duplicate");

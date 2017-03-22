@@ -23,7 +23,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -183,7 +182,7 @@ public class ProjectAnalysisRule extends ExternalResource {
     private void setQualityProfileIfNecessary() {
       if (this.qualityProfile != null) {
         if (this.qualityProfile != Profile.XOO_EMPTY_PROFILE) {
-          orchestrator.getServer().restoreProfile(FileLocation.ofClasspath(this.qualityProfile.getRelativePath()));
+          ItUtils.restoreProfile(orchestrator, this.qualityProfile.getRelativePath());
         }
         orchestrator.getServer().associateProjectToQualityProfile(
           this.projectState.getProjectKey(),

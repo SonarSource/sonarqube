@@ -26,7 +26,6 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.build.SonarScannerInstaller;
 import com.sonar.orchestrator.config.FileSystem;
-import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.version.Version;
 import it.Category3Suite;
 import java.io.File;
@@ -429,7 +428,7 @@ public class IssuesModeTest {
   }
 
   private void restoreProfile(String fileName) {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/IssuesModeTest/" + fileName));
+    ItUtils.restoreProfile(orchestrator, "/analysis/IssuesModeTest/" + fileName);
   }
 
   private SonarScanner configureRunnerIssues(String projectDir, @Nullable File homeDir, String... props) throws IOException {

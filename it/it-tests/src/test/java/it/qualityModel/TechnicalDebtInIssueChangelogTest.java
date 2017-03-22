@@ -21,7 +21,6 @@ package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.List;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.Issues;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -56,7 +56,7 @@ public class TechnicalDebtInIssueChangelogTest {
 
   @Test
   public void display_debt_in_issue_changelog() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-file.xml"));
+    ItUtils.restoreProfile(orchestrator, "/qualityModel/one-issue-per-file.xml");
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-file");
 

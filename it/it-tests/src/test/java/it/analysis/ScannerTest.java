@@ -22,7 +22,6 @@ package it.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class ScannerTest {
   @Before
   public void deleteData() {
     orchestrator.resetData();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/BatchTest/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, "/analysis/BatchTest/one-issue-per-line.xml");
   }
 
   /**

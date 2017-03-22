@@ -20,7 +20,6 @@
 package it.issue;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -29,6 +28,7 @@ import org.junit.Test;
 import pageobjects.Navigation;
 import pageobjects.issues.Issue;
 import pageobjects.issues.IssuesPage;
+import util.ItUtils;
 import util.user.UserRule;
 
 import static util.ItUtils.runProjectAnalysis;
@@ -49,7 +49,7 @@ public class IssuesPageTest {
   public static void prepareData() {
     ORCHESTRATOR.resetData();
 
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/with-many-rules.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/with-many-rules.xml");
 
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");

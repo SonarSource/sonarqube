@@ -19,7 +19,6 @@
  */
 package it.issue;
 
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +26,7 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog;
 import org.sonarqube.ws.client.WsClient;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -40,7 +40,7 @@ public class IssueChangelogTest extends AbstractIssueTest {
   @Before
   public void prepareData() {
     ORCHESTRATOR.resetData();
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/IssueChangelogTest/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/IssueChangelogTest/one-issue-per-line-profile.xml");
     ORCHESTRATOR.getServer().provisionProject("sample", "sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     adminClient = newAdminWsClient(ORCHESTRATOR);

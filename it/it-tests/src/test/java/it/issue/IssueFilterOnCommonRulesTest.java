@@ -19,7 +19,6 @@
  */
 package it.issue;
 
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.ItUtils;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
   @Before
   public void resetData() {
     ORCHESTRATOR.resetData();
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/IssueFilterOnCommonRulesTest/xoo-common-rules-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/IssueFilterOnCommonRulesTest/xoo-common-rules-profile.xml");
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "Sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "xoo-common-rules");
 
