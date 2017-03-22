@@ -66,7 +66,7 @@ public class QProfilesWsTest {
       new BulkRuleActivationActions(profileService, null),
       new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
-      new SearchAction(null, languages, null, dbClient, wsSupport ),
+      new SearchAction(null, languages, dbClient, wsSupport),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
       new ChangelogAction(null, wsSupport, languages, dbClient),
@@ -74,7 +74,7 @@ public class QProfilesWsTest {
       new CompareAction(null, null, languages),
       new DeleteAction(languages, null, null, userSessionRule, wsSupport),
       new ExportersAction(),
-      new InheritanceAction(null, null, null, null, languages),
+      new InheritanceAction(null, null, null, languages),
       new RenameAction(dbClient, userSessionRule))).controller(QProfilesWs.API_ENDPOINT);
   }
 

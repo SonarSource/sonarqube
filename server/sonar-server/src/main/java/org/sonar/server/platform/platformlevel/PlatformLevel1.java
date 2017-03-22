@@ -48,7 +48,6 @@ import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.cluster.ClusterImpl;
 import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -109,7 +108,6 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // rules/qprofiles
       RuleIndex.class,
-      ActiveRuleIndex.class,
 
       // issues
       IssueIndex.class,
