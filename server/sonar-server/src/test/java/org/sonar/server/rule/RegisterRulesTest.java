@@ -94,7 +94,7 @@ public class RegisterRulesTest {
     execute(new FakeRepositoryV1());
 
     // verify db
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(2);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), dbTester.getDefaultOrganization().getUuid(), RULE_KEY1);
     assertThat(rule1.getName()).isEqualTo("One");
     assertThat(rule1.getDescription()).isEqualTo("Description of One");
@@ -138,7 +138,7 @@ public class RegisterRulesTest {
   @Test
   public void update_and_remove_rules_on_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(2);
     assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(RULE_KEY1.toString(), RULE_KEY2.toString());
 
     // user adds tags and sets markdown note
@@ -323,7 +323,7 @@ public class RegisterRulesTest {
   @Test
   public void do_not_update_rules_when_no_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(2);
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV1());
@@ -337,7 +337,7 @@ public class RegisterRulesTest {
   @Test
   public void do_not_update_already_removed_rules() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(2);
     assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(RULE_KEY1.toString(), RULE_KEY2.toString());
 
     String organizationUuid = dbTester.getDefaultOrganization().getUuid();
@@ -380,9 +380,9 @@ public class RegisterRulesTest {
   @Test
   public void manage_repository_extensions() {
     execute(new FindbugsRepository(), new FbContribRepository());
-    List<RuleDto> rules = dbClient.ruleDao().selectAll(dbTester.getSession());
+    List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(dbTester.getSession());
     assertThat(rules).hasSize(2);
-    for (RuleDto rule : rules) {
+    for (RuleDefinitionDto rule : rules) {
       assertThat(rule.getRepositoryKey()).isEqualTo("findbugs");
     }
   }
@@ -402,9 +402,9 @@ public class RegisterRulesTest {
     // Synchronize rule without tag
     execute(new FindbugsRepository());
 
-    List<RuleDto> rules = dbClient.ruleDao().selectAll(dbTester.getSession());
+    List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(dbTester.getSession());
     assertThat(rules).hasSize(1);
-    RuleDto result = rules.get(0);
+    RuleDefinitionDto result = rules.get(0);
     assertThat(result.getKey()).isEqualTo(RuleKey.of("findbugs", "rule1"));
     assertThat(result.getSystemTags()).isEmpty();
   }

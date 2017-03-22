@@ -86,8 +86,12 @@ public class RuleDao implements Dao {
     mapper(session).selectEnabled(resultHandler);
   }
 
-  public List<RuleDto> selectAll(DbSession session) {
+  public List<RuleDto> selectAll(DbSession session, String organizationUuid) {
     return mapper(session).selectAll();
+  }
+
+  public List<RuleDefinitionDto> selectAllDefinitions(DbSession session) {
+    return mapper(session).selectAllDefinitions();
   }
 
   public List<RuleDto> selectByQuery(DbSession session, RuleQuery ruleQuery) {

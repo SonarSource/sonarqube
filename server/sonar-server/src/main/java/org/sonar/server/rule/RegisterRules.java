@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -29,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,9 +48,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
@@ -94,7 +90,7 @@ public class RegisterRules implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     DbSession session = dbClient.openSession(false);
     try {
-      Map<RuleKey, RuleDto> allRules = loadRules(session);
+      Map<RuleKey, RuleDefinitionDto> allRules = loadRules(session);
 
       RulesDefinition.Context context = defLoader.load();
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
@@ -105,7 +101,7 @@ public class RegisterRules implements Startable {
           session.commit();
         }
       }
-      List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
+      List<RuleDefinitionDto> activeRules = processRemainingDbRules(allRules.values(), session);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
       session.commit();
 
@@ -133,11 +129,11 @@ public class RegisterRules implements Startable {
     // nothing
   }
 
-  private void registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDto> allRules, DbSession session) {
+  private void registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, DbSession session) {
     RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
-    RuleDto existingRule = allRules.remove(ruleKey);
-    RuleDefinitionDto rule = existingRule == null ? createRuleDto(ruleDef, session) : existingRule.getDefinition();
+    RuleDefinitionDto existingRule = allRules.remove(ruleKey);
+    RuleDefinitionDto rule = existingRule == null ? createRuleDto(ruleDef, session) : existingRule;
 
     boolean executeUpdate = false;
     if (mergeRule(ruleDef, rule)) {
@@ -159,9 +155,9 @@ public class RegisterRules implements Startable {
     mergeParams(ruleDef, rule, session);
   }
 
-  private Map<RuleKey, RuleDto> loadRules(DbSession session) {
-    Map<RuleKey, RuleDto> rules = new HashMap<>();
-    for (RuleDto rule : dbClient.ruleDao().selectAll(session)) {
+  private Map<RuleKey, RuleDefinitionDto> loadRules(DbSession session) {
+    Map<RuleKey, RuleDefinitionDto> rules = new HashMap<>();
+    for (RuleDefinitionDto rule : dbClient.ruleDao().selectAllDefinitions(session)) {
       rules.put(rule.getKey(), rule);
     }
     return rules;
@@ -371,12 +367,12 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private List<RuleDto> processRemainingDbRules(Collection<RuleDto> existingRules, DbSession session) {
+  private List<RuleDefinitionDto> processRemainingDbRules(Collection<RuleDefinitionDto> existingRules, DbSession session) {
     // custom rules check status of template, so they must be processed at the end
-    List<RuleDto> customRules = newArrayList();
-    List<RuleDto> removedRules = newArrayList();
+    List<RuleDefinitionDto> customRules = newArrayList();
+    List<RuleDefinitionDto> removedRules = newArrayList();
 
-    for (RuleDto rule : existingRules) {
+    for (RuleDefinitionDto rule : existingRules) {
       if (rule.getTemplateId() != null) {
         customRules.add(rule);
       } else if (rule.getStatus() != RuleStatus.REMOVED) {
@@ -384,13 +380,13 @@ public class RegisterRules implements Startable {
       }
     }
 
-    for (RuleDto customRule : customRules) {
+    for (RuleDefinitionDto customRule : customRules) {
       Integer templateId = customRule.getTemplateId();
       checkNotNull(templateId, "Template id of the custom rule '%s' is null", customRule);
       Optional<RuleDefinitionDto> template = dbClient.ruleDao().selectDefinitionById(templateId, session);
       if (template.isPresent() && template.get().getStatus() != RuleStatus.REMOVED) {
         if (updateCustomRuleFromTemplateRule(customRule, template.get())) {
-          update(session, customRule.getDefinition());
+          update(session, customRule);
         }
       } else {
         removeRule(session, removedRules, customRule);
@@ -401,20 +397,21 @@ public class RegisterRules implements Startable {
     return removedRules;
   }
 
-  private void removeRule(DbSession session, List<RuleDto> removedRules, RuleDto rule) {
+  private void removeRule(DbSession session, List<RuleDefinitionDto> removedRules, RuleDefinitionDto rule) {
     LOG.info(String.format("Disable rule %s", rule.getKey()));
     rule.setStatus(RuleStatus.REMOVED);
     rule.setSystemTags(Collections.emptySet());
-    rule.setTags(Collections.emptySet());
-    update(session, rule.getDefinition());
-    update(session, rule.getMetadata());
+    update(session, rule);
+    // FIXME resetting the tags for all organizations must be handled a different way
+//    rule.setTags(Collections.emptySet());
+//    update(session, rule.getMetadata());
     removedRules.add(rule);
     if (removedRules.size() % 100 == 0) {
       session.commit();
     }
   }
 
-  private static boolean updateCustomRuleFromTemplateRule(RuleDto customRule, RuleDefinitionDto templateRule) {
+  private static boolean updateCustomRuleFromTemplateRule(RuleDefinitionDto customRule, RuleDefinitionDto templateRule) {
     boolean changed = false;
     if (!StringUtils.equals(customRule.getLanguage(), templateRule.getLanguage())) {
       customRule.setLanguage(templateRule.getLanguage());
@@ -462,19 +459,14 @@ public class RegisterRules implements Startable {
    * The side effect of this approach is that extended repositories will not be managed the same way.
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
-  private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDto> removedRules, RulesDefinition.Context context) {
-    List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
-      @Override
-      public String apply(@Nonnull RulesDefinition.Repository input) {
-        return input.key();
-      }
-    }));
+  private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDefinitionDto> removedRules, RulesDefinition.Context context) {
+    List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), RulesDefinition.Repository::key));
 
     List<ActiveRuleChange> changes = new ArrayList<>();
-    for (RuleDto rule : removedRules) {
+    for (RuleDefinitionDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        changes.addAll(ruleActivator.deactivate(session, rule.getDefinition()));
+        changes.addAll(ruleActivator.deactivate(session, rule));
       }
     }
     return changes;
@@ -485,8 +477,4 @@ public class RegisterRules implements Startable {
     dbClient.ruleDao().update(session, rule);
   }
 
-  private void update(DbSession session, RuleMetadataDto rule) {
-    rule.setUpdatedAt(system2.now());
-    dbClient.ruleDao().update(session, rule);
-  }
 }

@@ -180,7 +180,16 @@ public class RuleDaoTest {
   public void selectAll() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<RuleDto> ruleDtos = underTest.selectAll(dbTester.getSession());
+    List<RuleDto> ruleDtos = underTest.selectAll(dbTester.getSession(), "org-1");
+
+    assertThat(ruleDtos).extracting("id").containsOnly(1, 2, 10);
+  }
+
+  @Test
+  public void selectAllDefinitions() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    List<RuleDefinitionDto> ruleDtos = underTest.selectAllDefinitions(dbTester.getSession());
 
     assertThat(ruleDtos).extracting("id").containsOnly(1, 2, 10);
   }
