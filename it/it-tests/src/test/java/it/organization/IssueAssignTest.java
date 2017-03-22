@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -55,7 +54,6 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
-@Ignore
 public class IssueAssignTest {
 
   @Test
@@ -69,6 +67,7 @@ public class IssueAssignTest {
 
     assertThat(issueRule.getRandomIssue().getAssignee()).isEqualTo(ASSIGNEE_LOGIN);
   }
+
   private final static String SAMPLE_PROJECT_KEY = "sample";
   private final static String ORGANIZATION_KEY = "organization-key";
   private final static String OTHER_ORGANIZATION_KEY = "other-organization-key";
@@ -148,6 +147,7 @@ public class IssueAssignTest {
   @Test
   public void bulk_assign_issues_to_user_being_only_member_of_same_organization_as_project_issue_organization() throws Exception {
     createOrganization(OTHER_ORGANIZATION_KEY);
+    restoreProfile(OTHER_ORGANIZATION_KEY);
     userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
     // User is only member of "organization-key", not of "other-organization-key"
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
@@ -190,8 +190,13 @@ public class IssueAssignTest {
 
   private void analyseProject(String projectKey, String organization) {
     addQualityProfileToProject(organization, projectKey);
-    runProjectAnalysis(orchestrator, "issue/xoo-with-scm", "sonar.projectKey", projectKey,
-      "sonar.organization", organization, "sonar.login", "admin", "sonar.password", "admin", "sonar.scm.disabled", "false", "sonar.scm.provider", "xoo");
+    runProjectAnalysis(orchestrator, "issue/xoo-with-scm",
+      "sonar.projectKey", projectKey,
+      "sonar.organization", organization,
+      "sonar.login", "admin",
+      "sonar.password", "admin",
+      "sonar.scm.disabled", "false",
+      "sonar.scm.provider", "xoo");
   }
 
   private void addQualityProfileToProject(String organization, String projectKey) {
