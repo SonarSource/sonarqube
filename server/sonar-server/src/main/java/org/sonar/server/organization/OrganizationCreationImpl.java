@@ -95,10 +95,13 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     insertOrganizationMember(dbSession, organization, creatorUserId);
     GroupDto group = insertOwnersGroup(dbSession, organization);
     insertDefaultTemplate(dbSession, organization, group);
-    insertQualityProfiles(dbSession, organization);
+    List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
     addCurrentUserToGroup(dbSession, group, creatorUserId);
 
     dbSession.commit();
+
+    // Elasticsearch is updated when DB session is committed
+    activeRuleIndexer.index(activeRuleChanges);
 
     return organization;
   }
@@ -126,9 +129,12 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization);
     insertOrganizationMember(dbSession, organization, newUser.getId());
-    insertQualityProfiles(dbSession, organization);
+    List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
 
     dbSession.commit();
+
+    // Elasticsearch is updated when DB session is committed
+    activeRuleIndexer.index(activeRuleChanges);
 
     return Optional.of(organization);
   }
@@ -242,13 +248,13 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group == null ? null : group.getId(), permission);
   }
 
-  private void insertQualityProfiles(DbSession dbSession, OrganizationDto organization) {
+  private List<ActiveRuleChange> insertQualityProfiles(DbSession dbSession, OrganizationDto organization) {
     List<ActiveRuleChange> changes = new ArrayList<>();
     definedQProfileRepository.getQProfilesByLanguage().entrySet()
       .stream()
       .flatMap(entry -> entry.getValue().stream())
       .forEach(profile -> insertQualityProfile(dbSession, profile, organization, changes));
-    activeRuleIndexer.index(changes);
+    return changes;
   }
 
   private void insertQualityProfile(DbSession dbSession, DefinedQProfile profile, OrganizationDto organization, List<ActiveRuleChange> changes) {
