@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.index.UserIndexer;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
@@ -43,10 +44,12 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class RemoveMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final UserIndexer userIndexer;
 
-  public RemoveMemberAction(DbClient dbClient, UserSession userSession) {
+  public RemoveMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.userIndexer = userIndexer;
   }
 
   @Override
@@ -101,6 +104,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
 
     dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userId);
     dbSession.commit();
+    userIndexer.index(user.getLogin());
   }
 
   private void ensureLastAdminIsNotRemoved(DbSession dbSession, OrganizationDto organizationDto, UserDto user) {

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,10 +39,14 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -64,11 +69,16 @@ public class RemoveMemberActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new RemoveMemberAction(dbClient, userSession));
+  private UserIndex userIndex = new UserIndex(es.client());
+  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+
+  private WsActionTester ws = new WsActionTester(new RemoveMemberAction(dbClient, userSession, userIndexer));
 
   private OrganizationDto organization;
   private ComponentDto project;
@@ -81,9 +91,11 @@ public class RemoveMemberActionTest {
 
     user = db.users().insertUser();
     db.organizations().addMember(organization, user);
+    userIndexer.index(user.getLogin());
 
     UserDto adminUser = db.users().insertAdminByUserPermission(organization);
     db.organizations().addMember(organization, adminUser);
+    userIndexer.index(adminUser.getLogin());
   }
 
   @Test
@@ -112,12 +124,12 @@ public class RemoveMemberActionTest {
   }
 
   @Test
-  public void remove_member_from_db() {
-    assertMember(organization.getUuid(), user.getId());
+  public void remove_member_from_db_and_user_index() {
+    assertMember(organization.getUuid(), user);
 
     call(organization.getKey(), user.getLogin());
 
-    assertNotAMember(organization.getUuid(), user.getId());
+    assertNotAMember(organization.getUuid(), user);
   }
 
   @Test
@@ -125,7 +137,7 @@ public class RemoveMemberActionTest {
     UserDto anotherUser = db.users().insertUser();
     OrganizationDto anotherOrganization = db.organizations().insert();
     ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
-    assertMember(organization.getUuid(), user.getId());
+    assertMember(organization.getUuid(), user);
     db.users().insertPermissionOnUser(organization, user, ADMINISTER);
     db.users().insertPermissionOnUser(organization, user, SCAN);
     db.users().insertPermissionOnUser(anotherOrganization, user, ADMINISTER);
@@ -141,7 +153,7 @@ public class RemoveMemberActionTest {
 
     call(organization.getKey(), user.getLogin());
 
-    assertNotAMember(organization.getUuid(), user.getId());
+    assertNotAMember(organization.getUuid(), user);
     assertOrgPermissionsOfUser(user, organization);
     assertOrgPermissionsOfUser(user, anotherOrganization, ADMINISTER, SCAN);
     assertOrgPermissionsOfUser(anotherUser, organization, ADMINISTER, SCAN);
@@ -230,7 +242,7 @@ public class RemoveMemberActionTest {
 
     call(organization.getKey(), user.getLogin());
 
-    assertMember(anotherOrg.getUuid(), user.getId());
+    assertMember(anotherOrg.getUuid(), user);
   }
 
   @Test
@@ -239,7 +251,7 @@ public class RemoveMemberActionTest {
 
     call(organization.getKey(), user.getLogin());
 
-    assertNotAMember(organization.getUuid(), user.getId());
+    assertNotAMember(organization.getUuid(), user);
   }
 
   @Test
@@ -293,13 +305,15 @@ public class RemoveMemberActionTest {
     OrganizationDto anotherOrganization = db.organizations().insert();
     UserDto admin1 = db.users().insertAdminByUserPermission(anotherOrganization);
     db.organizations().addMember(anotherOrganization, admin1);
+    userIndexer.index(admin1.getLogin());
     UserDto admin2 = db.users().insertAdminByUserPermission(anotherOrganization);
     db.organizations().addMember(anotherOrganization, admin2);
+    userIndexer.index(admin2.getLogin());
 
     call(anotherOrganization.getKey(), admin1.getLogin());
 
-    assertNotAMember(anotherOrganization.getUuid(), admin1.getId());
-    assertMember(anotherOrganization.getUuid(), admin2.getId());
+    assertNotAMember(anotherOrganization.getUuid(), admin1);
+    assertMember(anotherOrganization.getUuid(), admin2);
   }
 
   @Test
@@ -324,12 +338,14 @@ public class RemoveMemberActionTest {
     return request.execute();
   }
 
-  private void assertNotAMember(String organizationUuid, int userId) {
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)).isNotPresent();
+  private void assertNotAMember(String organizationUuid, UserDto user) {
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isNotPresent();
+    assertThat(userIndex.getNullableByLogin(user.getLogin()).organizationUuids()).doesNotContain(organizationUuid);
   }
 
-  private void assertMember(String organizationUuid, int userId) {
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)).isPresent();
+  private void assertMember(String organizationUuid, UserDto user) {
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isPresent();
+    assertThat(userIndex.getNullableByLogin(user.getLogin()).organizationUuids()).contains(organizationUuid);
   }
 
   private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {
