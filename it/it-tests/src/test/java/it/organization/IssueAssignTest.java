@@ -21,8 +21,8 @@
 package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.After;
@@ -34,12 +34,15 @@ import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.AssignRequest;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
+import org.sonarqube.ws.client.project.CreateRequest;
+import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
+import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
+import util.ItUtils;
 import util.issue.IssueRule;
 import util.user.UserRule;
 
@@ -53,9 +56,21 @@ import static util.ItUtils.setServerProperty;
 
 public class IssueAssignTest {
 
+  @Test
+  public void auto_assign_issues_to_user_if_default_assignee_is_member_of_project_organization() throws Exception {
+    userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
+    adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
+    provisionProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
+    setServerProperty(orchestrator, "sample", "sonar.issues.defaultAssigneeLogin", ASSIGNEE_LOGIN);
+
+    analyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
+
+    assertThat(issueRule.getRandomIssue().getAssignee()).isEqualTo(ASSIGNEE_LOGIN);
+  }
   private final static String SAMPLE_PROJECT_KEY = "sample";
   private final static String ORGANIZATION_KEY = "organization-key";
   private final static String OTHER_ORGANIZATION_KEY = "other-organization-key";
+
   private static final String ASSIGNEE_LOGIN = "bob";
 
   @Rule
@@ -79,8 +94,7 @@ public class IssueAssignTest {
 
     orchestrator.getServer().post("api/organizations/enable_support", emptyMap());
     createOrganization(ORGANIZATION_KEY);
-
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml"));
+    restoreProfile(ORGANIZATION_KEY);
   }
 
   @After
@@ -88,18 +102,6 @@ public class IssueAssignTest {
     adminClient.organizations().search(org.sonarqube.ws.client.organization.SearchWsRequest.builder().setOrganizations(ORGANIZATION_KEY, OTHER_ORGANIZATION_KEY).build())
       .getOrganizationsList()
       .forEach(organization -> adminClient.organizations().delete(organization.getKey()));
-  }
-
-  @Test
-  public void auto_assign_issues_to_user_if_default_assignee_is_member_of_project_organization() throws Exception {
-    userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
-    adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
-    provisionProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
-    setServerProperty(orchestrator, "sample", "sonar.issues.defaultAssigneeLogin", ASSIGNEE_LOGIN);
-
-    analyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
-
-    assertThat(issueRule.getRandomIssue().getAssignee()).isEqualTo(ASSIGNEE_LOGIN);
   }
 
   @Test
@@ -162,18 +164,41 @@ public class IssueAssignTest {
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(organizationKey).setName(organizationKey).build()).getOrganization();
   }
 
+  private void restoreProfile(String organization) throws URISyntaxException {
+    adminClient.qualityProfiles().restoreProfile(
+      RestoreWsRequest.builder()
+        .setBackup(ItUtils.findFileInClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml"))
+        .setOrganization(organization)
+        .build());
+  }
+
   private void provisionAndAnalyseProject(String projectKey, String organization) {
     provisionProject(projectKey, organization);
     analyseProject(projectKey, organization);
   }
 
   private void provisionProject(String projectKey, String organization) {
-    adminClient.wsConnector().call(new PostRequest("/api/projects/create").setParam("key", projectKey).setParam("name", projectKey).setParam("organization", organization));
+    adminClient.projects().create(
+      CreateRequest.builder()
+        .setKey(projectKey)
+        .setName(projectKey)
+        .setOrganization(organization)
+        .build());
   }
 
   private void analyseProject(String projectKey, String organization) {
-    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-file-profile");
+    addQualityProfileToProject(organization, projectKey);
     runProjectAnalysis(orchestrator, "issue/xoo-with-scm", "sonar.projectKey", projectKey,
       "sonar.organization", organization, "sonar.login", "admin", "sonar.password", "admin", "sonar.scm.disabled", "false", "sonar.scm.provider", "xoo");
+  }
+
+  private void addQualityProfileToProject(String organization, String projectKey) {
+    adminClient.qualityProfiles().addProject(
+      AddProjectRequest.builder()
+        .setProjectKey(projectKey)
+        .setOrganization(organization)
+        .setLanguage("xoo")
+        .setProfileName("one-issue-per-file-profile")
+        .build());
   }
 }

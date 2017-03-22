@@ -41,10 +41,10 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
 
 public class RestoreAction implements QProfileWsAction {
-
-  private static final String PARAM_BACKUP = "backup";
 
   private final DbClient dbClient;
   private final QProfileBackuper backuper;
@@ -62,7 +62,7 @@ public class RestoreAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("restore")
+    WebService.NewAction action = controller.createAction(ACTION_RESTORE)
       .setSince("5.2")
       .setDescription("Restore a quality profile using an XML file. The restored profile name is taken from the backup file, " +
         "so if a profile with the same name and language already exists, it will be overwritten. " +

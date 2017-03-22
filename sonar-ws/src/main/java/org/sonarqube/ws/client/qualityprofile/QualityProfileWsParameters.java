@@ -23,6 +23,21 @@ public class QualityProfileWsParameters {
 
   public static final String CONTROLLER_QUALITY_PROFILES = "api/qualityprofiles";
 
+  public static final String ACTION_ACTIVATE_RULE = "activate_rule";
+  public interface ActivateActionParameters {
+    String PARAM_PROFILE_KEY = "profile_key";
+    String PARAM_RULE_KEY = "rule_key";
+    String PARAM_SEVERITY = "severity";
+    String PARAM_RESET = "reset";
+    String PARAM_PARAMS = "params";
+  }
+
+  public static final String ACTION_RESTORE = "restore";
+  public interface RestoreActionParameters {
+    String PARAM_BACKUP = "backup";
+  }
+
+  public static final String ACTION_DEACTIVATE_RULE = "deactivate_rule";
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_ADD_PROJECT = "add_project";
   public static final String ACTION_REMOVE_PROJECT = "remove_project";
