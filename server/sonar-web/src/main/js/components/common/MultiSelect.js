@@ -28,7 +28,8 @@ type Props = {
   elements: Array<string>,
   onSearch: (string) => void,
   onSelect: (string) => void,
-  onUnselect: (string) => void
+  onUnselect: (string) => void,
+  validateSearchInput: (string) => string
 };
 
 type State = {
@@ -49,14 +50,14 @@ export default class MultiSelect extends React.PureComponent {
     activeIdx: 0
   };
 
+  static defaultProps = {
+    validateSearchInput: (value: string) => value
+  };
+
   componentDidMount() {
     this.updateSelectedElements(this.props);
     this.updateUnselectedElements(this.props);
-    this.container && this.container.addEventListener('keydown', this.handleKeyboard, true);
-  }
-
-  componentWillUnmount() {
-    this.container && this.container.removeEventListener('keydown', this.handleKeyboard);
+    this.container.addEventListener('keydown', this.handleKeyboard, true);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -78,6 +79,10 @@ export default class MultiSelect extends React.PureComponent {
     this.searchInput && this.searchInput.focus();
   }
 
+  componentWillUnmount() {
+    this.container.removeEventListener('keydown', this.handleKeyboard);
+  }
+
   handleSelectChange = (item: string, selected: boolean) => {
     if (selected) {
       this.onSelectItem(item);
@@ -87,7 +92,7 @@ export default class MultiSelect extends React.PureComponent {
   };
 
   handleSearchChange = ({ target }: { target: HTMLInputElement }) => {
-    this.onSearchQuery(target.value);
+    this.onSearchQuery(this.props.validateSearchInput(target.value));
   };
 
   handleElementHover = (element: string) => {

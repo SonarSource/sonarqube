@@ -33,7 +33,13 @@ type Props = {
 };
 
 export default class TagsSelector extends React.PureComponent {
+  validateTag: (string) => string;
   props: Props;
+
+  validateTag(value: string) {
+    // Allow only a-z, 0-9, '+', '-', '#', '.'
+    return value.toLowerCase().replace(/[^a-z0-9\+\-#.]/gi, '');
+  }
 
   render() {
     return (
@@ -47,6 +53,7 @@ export default class TagsSelector extends React.PureComponent {
           onSearch={this.props.onSearch}
           onSelect={this.props.onSelect}
           onUnselect={this.props.onUnselect}
+          validateSearchInput={this.validateTag}
         />
       </BubblePopup>
     );

@@ -31,10 +31,20 @@ const props = {
 };
 
 it('should render with selected tags', () => {
-  const tagSelector = shallow(<TagsSelector {...props} />);
-  expect(tagSelector).toMatchSnapshot();
+  const tagsSelector = shallow(<TagsSelector {...props} />);
+  expect(tagsSelector).toMatchSnapshot();
 });
 
 it('should render without tags at all', () => {
   expect(shallow(<TagsSelector {...props} tags={[]} selectedTags={[]} />)).toMatchSnapshot();
+});
+
+it('should validate tags correctly', () => {
+  const validChars = 'abcdefghijklmnopqrstuvwxyz0123456789+-#.';
+  const tagsSelector = shallow(<TagsSelector {...props} />).instance();
+  expect(tagsSelector.validateTag('test')).toBe('test');
+  expect(tagsSelector.validateTag(validChars)).toBe(validChars);
+  expect(tagsSelector.validateTag(validChars.toUpperCase())).toBe(validChars);
+  expect(tagsSelector.validateTag('T E$ST')).toBe('test');
+  expect(tagsSelector.validateTag('T E$st!^àéèing1')).toBe('testing1');
 });
