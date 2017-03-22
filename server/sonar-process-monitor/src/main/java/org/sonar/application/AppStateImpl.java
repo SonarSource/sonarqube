@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 
 public class AppStateImpl implements AppState {
@@ -63,6 +64,11 @@ public class AppStateImpl implements AppState {
   @Override
   public void registerSonarQubeVersion(String sonarqubeVersion) {
     // Nothing to do on non clustered version
+  }
+
+  @Override
+  public String getLeaderHostName() {
+    return NetworkUtils.getHostName();
   }
 
   @Override

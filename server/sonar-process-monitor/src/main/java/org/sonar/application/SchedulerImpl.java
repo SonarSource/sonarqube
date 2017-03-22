@@ -117,6 +117,8 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       tryToStartProcess(process, () -> javaCommandFactory.createWebCommand(false));
     } else if (appState.tryToLockWebLeader()) {
       tryToStartProcess(process, () -> javaCommandFactory.createWebCommand(true));
+    } else {
+      LOG.info("Waiting for initialization from " + appState.getLeaderHostName());
     }
   }
 

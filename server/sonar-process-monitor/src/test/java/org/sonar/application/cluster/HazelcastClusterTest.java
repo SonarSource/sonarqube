@@ -32,6 +32,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 
@@ -70,6 +71,23 @@ public class HazelcastClusterTest {
       HazelcastInstance hzInstance = createHazelcastClient(hzCluster);
       hzInstance.getAtomicReference(LEADER).set("aaaa");
       assertThat(hzCluster.tryToLockWebLeader()).isEqualTo(false);
+    }
+  }
+
+  @Test
+  public void when_no_leader_getLeaderHostName_must_return_NO_LEADER() {
+    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
+      assertThat(hzCluster.getLeaderHostName()).isEqualTo("No leader");
+    }
+  }
+
+  @Test
+  public void when_no_leader_getLeaderHostName_must_return_the_hostname() {
+    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
+      assertThat(hzCluster.tryToLockWebLeader()).isTrue();
+      assertThat(hzCluster.getLeaderHostName()).isEqualTo(NetworkUtils.getHostName());
     }
   }
 
