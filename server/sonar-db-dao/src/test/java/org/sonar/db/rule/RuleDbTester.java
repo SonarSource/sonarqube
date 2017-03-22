@@ -38,6 +38,9 @@ public class RuleDbTester {
     return ruleDto;
   }
 
+  /**
+   * Create and persist a rule with random values.
+   */
   public RuleDto insertRule() {
     return insertRule(rule -> {
     });
