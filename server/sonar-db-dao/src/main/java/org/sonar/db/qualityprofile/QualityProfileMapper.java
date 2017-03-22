@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
 
@@ -67,7 +68,7 @@ public interface QualityProfileMapper {
 
   List<String> selectUuidsOfAssociatedProjects(@Param("profileKey") String profileKey);
 
-  List<QualityProfileProjectCount> countProjectsByProfile();
+  List<KeyLongValue> countProjectsByProfileKey(@Param("organizationUuid") String organizationUuid);
 
   QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
 
