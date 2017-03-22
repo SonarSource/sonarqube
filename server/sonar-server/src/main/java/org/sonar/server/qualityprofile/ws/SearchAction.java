@@ -132,7 +132,7 @@ public class SearchAction implements QProfileWsAction {
         .setProfiles(dataLoader.findProfiles(dbSession, request, organization))
         .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileKey(dbSession, organization))
         .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED))
-        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession));
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession, organization));
     }
   }
 

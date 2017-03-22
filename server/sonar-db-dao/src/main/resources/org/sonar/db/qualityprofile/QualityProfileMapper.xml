@@ -198,13 +198,14 @@
     ORDER BY pj.name ASC
   </select>
 
-  <select id="countProjectsByProfile" resultType="org.sonar.db.qualityprofile.QualityProfileProjectCount">
-    SELECT pp.profile_key as profileKey, count(projects.id) as projectCount
-    FROM projects projects
-    INNER JOIN project_qprofiles pp ON pp.project_uuid=projects.uuid
-    INNER JOIN rules_profiles prof ON pp.profile_key=prof.kee
-    WHERE projects.enabled=${_true}
-    GROUP BY pp.profile_key
+  <select id="countProjectsByProfileKey" resultType="KeyLongValue" parameterType="map">
+    select pp.profile_key as "key", count(projects.id) as "value"
+    from projects projects
+    inner join project_qprofiles pp ON pp.project_uuid = projects.uuid
+    inner join rules_profiles prof ON pp.profile_key = prof.kee
+    where projects.enabled = ${_true}
+    and prof.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    group by pp.profile_key
   </select>
 
   <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
