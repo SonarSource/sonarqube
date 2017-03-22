@@ -237,7 +237,7 @@ public class QualityProfileDaoTest {
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParentKee()).isNull();
 
-    assertThat(underTest.selectById(dbTester.getSession(),555)).isNull();
+    assertThat(underTest.selectById(dbTester.getSession(), 555)).isNull();
   }
 
   @Test
@@ -277,12 +277,21 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void count_projects_by_profile() {
-    dbTester.prepareDbUnit(getClass(), "projects.xml");
+  public void countProjectsByProfileKey() {
+    QualityProfileDto profileWithoutProjects = dbTester.qualityProfiles().insert(organization);
+    QualityProfileDto profileWithProjects = dbTester.qualityProfiles().insert(organization);
+    ComponentDto project1 = dbTester.components().insertProject(organization);
+    ComponentDto project2 = dbTester.components().insertProject(organization);
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profileWithProjects);
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profileWithProjects);
 
-    assertThat(underTest.countProjectsByProfileKey(dbTester.getSession())).containsOnly(
-      MapEntry.entry("java_sonar_way", 2L),
-      MapEntry.entry("js_sonar_way", 2L));
+    OrganizationDto otherOrg = dbTester.organizations().insert();
+    QualityProfileDto profileInOtherOrg = dbTester.qualityProfiles().insert(otherOrg);
+    ComponentDto projectInOtherOrg = dbTester.components().insertProject(otherOrg);
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(projectInOtherOrg, profileInOtherOrg);
+
+    assertThat(underTest.countProjectsByProfileKey(dbTester.getSession(), organization)).containsOnly(
+      MapEntry.entry(profileWithProjects.getKey(), 2L));
   }
 
   @Test
