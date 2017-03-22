@@ -36,10 +36,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.dbutils.QueryRunner;
@@ -367,6 +369,14 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     }
   }
 
+  public void assertColumnDoesNotExist(String table, String column) throws SQLException {
+    try (Connection connection = getConnection();
+      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+      ResultSet res = stmt.executeQuery()) {
+      assertThat(getColumnNames(res)).doesNotContain(column);
+    }
+  }
+
   public void assertTableDoesNotExist(String table) {
     try (Connection connection = getConnection()) {
       boolean tableExists = DatabaseUtils.tableExists(table, connection);
@@ -507,6 +517,20 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to get column index");
+    }
+  }
+
+  private Set<String> getColumnNames(ResultSet res) {
+    try {
+      Set<String> columnNames = new HashSet<>();
+      ResultSetMetaData meta = res.getMetaData();
+      int numCol = meta.getColumnCount();
+      for (int i = 1; i < numCol + 1; i++) {
+        columnNames.add(meta.getColumnLabel(i).toLowerCase());
+      }
+      return columnNames;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to get column names");
     }
   }
 
