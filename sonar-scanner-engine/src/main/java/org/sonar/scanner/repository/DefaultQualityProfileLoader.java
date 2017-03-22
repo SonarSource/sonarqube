@@ -19,50 +19,60 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.ScannerUtils;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
-import org.apache.commons.io.IOUtils;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.client.GetRequest;
-import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.client.GetRequest;
+
+import static org.sonar.scanner.util.ScannerUtils.encodeForUrl;
 
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
-  private ScannerWsClient wsClient;
+  private final Settings settings;
+  private final ScannerWsClient wsClient;
 
-  public DefaultQualityProfileLoader(ScannerWsClient wsClient) {
+  public DefaultQualityProfileLoader(Settings settings, ScannerWsClient wsClient) {
+    this.settings = settings;
     this.wsClient = wsClient;
   }
 
   @Override
   public List<QualityProfile> loadDefault(@Nullable String profileName) {
-    String url = WS_URL + "?defaults=true";
+    StringBuilder url = new StringBuilder(WS_URL + "?defaults=true");
     if (profileName != null) {
-      url += "&profileName=" + ScannerUtils.encodeForUrl(profileName);
+      url.append("&profileName=").append(encodeForUrl(profileName));
     }
-    return loadResource(url);
+    getOrganizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
+    return call(url.toString());
   }
 
   @Override
   public List<QualityProfile> load(String projectKey, @Nullable String profileName) {
-    String url = WS_URL + "?projectKey=" + ScannerUtils.encodeForUrl(projectKey);
+    StringBuilder url = new StringBuilder(WS_URL + "?projectKey=").append(encodeForUrl(projectKey));
     if (profileName != null) {
-      url += "&profileName=" + ScannerUtils.encodeForUrl(profileName);
+      url.append("&profileName=").append(encodeForUrl(profileName));
     }
-    return loadResource(url);
+    getOrganizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
+    return call(url.toString());
   }
 
-  private List<QualityProfile> loadResource(String url) {
+  private Optional<String> getOrganizationKey() {
+    return Optional.ofNullable(settings.getString("sonar.organization"));
+  }
+
+  private List<QualityProfile> call(String url) {
     GetRequest getRequest = new GetRequest(url);
     InputStream is = wsClient.call(getRequest).contentStream();
-    SearchWsResponse profiles = null;
+    SearchWsResponse profiles;
 
     try {
       profiles = SearchWsResponse.parseFrom(is);
