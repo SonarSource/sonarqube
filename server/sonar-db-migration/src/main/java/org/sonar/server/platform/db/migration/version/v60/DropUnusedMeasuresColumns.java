@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v60;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
+import java.util.List;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
@@ -48,7 +49,7 @@ public class DropUnusedMeasuresColumns extends DdlChange {
   }
 
   @VisibleForTesting
-  String generateSql() {
+  List<String> generateSql() {
     return new DropColumnsBuilder(getDatabase().getDialect(), "project_measures",
       "rules_category_id", "tendency", "measure_date", "url", "rule_priority", "characteristic_id", "rule_id")
         .build();
