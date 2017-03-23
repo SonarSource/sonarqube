@@ -105,9 +105,9 @@ public class RegisterRulesTest {
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.BETA);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1.getTime());
-    assertThat(rule1.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
-    assertThat(rule1.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(rule1.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(rule1.getDefRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
+    assertThat(rule1.getDefRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(rule1.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(rule1.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), RULE_KEY1);

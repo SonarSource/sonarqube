@@ -309,14 +309,14 @@ public class RuleMapper {
 
   @CheckForNull
   private static DebtRemediationFunction defaultDebtRemediationFunction(final RuleDto ruleDto) {
-    final String function = ruleDto.getDefaultRemediationFunction();
+    final String function = ruleDto.getDefRemediationFunction();
     if (function == null || function.isEmpty()) {
       return null;
     } else {
       return new DefaultDebtRemediationFunction(
         DebtRemediationFunction.Type.valueOf(function.toUpperCase(Locale.ENGLISH)),
-        ruleDto.getDefaultRemediationGapMultiplier(),
-        ruleDto.getDefaultRemediationBaseEffort());
+        ruleDto.getDefRemediationGapMultiplier(),
+        ruleDto.getDefRemediationBaseEffort());
     }
   }
 
