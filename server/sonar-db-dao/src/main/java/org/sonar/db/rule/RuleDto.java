@@ -175,32 +175,32 @@ public class RuleDto {
   }
 
   @CheckForNull
-  public String getDefaultRemediationFunction() {
-    return definition.getDefaultRemediationFunction();
+  public String getDefRemediationFunction() {
+    return definition.getDefRemediationFunction();
   }
 
-  public RuleDto setDefaultRemediationFunction(@Nullable String defaultRemediationFunction) {
-    definition.setDefaultRemediationFunction(defaultRemediationFunction);
+  public RuleDto setDefRemediationFunction(@Nullable String defaultRemediationFunction) {
+    definition.setDefRemediationFunction(defaultRemediationFunction);
     return this;
   }
 
   @CheckForNull
-  public String getDefaultRemediationGapMultiplier() {
-    return definition.getDefaultRemediationGapMultiplier();
+  public String getDefRemediationGapMultiplier() {
+    return definition.getDefRemediationGapMultiplier();
   }
 
-  public RuleDto setDefaultRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
-    definition.setDefaultRemediationGapMultiplier(defaultRemediationGapMultiplier);
+  public RuleDto setDefRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
+    definition.setDefRemediationGapMultiplier(defaultRemediationGapMultiplier);
     return this;
   }
 
   @CheckForNull
-  public String getDefaultRemediationBaseEffort() {
-    return definition.getDefaultRemediationBaseEffort();
+  public String getDefRemediationBaseEffort() {
+    return definition.getDefRemediationBaseEffort();
   }
 
-  public RuleDto setDefaultRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
-    definition.setDefaultRemediationBaseEffort(defaultRemediationBaseEffort);
+  public RuleDto setDefRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
+    definition.setDefRemediationBaseEffort(defaultRemediationBaseEffort);
     return this;
   }
 

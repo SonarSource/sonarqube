@@ -86,9 +86,9 @@ public class UpdateActionMediumTest {
   @Test
   public void update_rule_remediation_function() throws Exception {
     RuleDto rule = RuleTesting.newXooX1()
-      .setDefaultRemediationFunction(LINEAR.toString())
-      .setDefaultRemediationGapMultiplier("10d")
-      .setDefaultRemediationBaseEffort(null);
+      .setDefRemediationFunction(LINEAR.toString())
+      .setDefRemediationGapMultiplier("10d")
+      .setDefRemediationBaseEffort(null);
     ruleDao.insert(session, rule.getDefinition());
     session.commit();
 
@@ -104,9 +104,9 @@ public class UpdateActionMediumTest {
   public void update_custom_rule_with_deprecated_remediation_function_parameters() throws Exception {
     RuleDto rule = RuleTesting.newXooX1()
       .setOrganizationUuid(defaultOrganization.getUuid())
-      .setDefaultRemediationFunction(LINEAR_OFFSET.toString())
-      .setDefaultRemediationGapMultiplier("10d")
-      .setDefaultRemediationBaseEffort("5min")
+      .setDefRemediationFunction(LINEAR_OFFSET.toString())
+      .setDefRemediationGapMultiplier("10d")
+      .setDefRemediationBaseEffort("5min")
       .setRemediationFunction(LINEAR_OFFSET.toString())
       .setRemediationGapMultiplier("15min")
       .setRemediationBaseEffort("3h");

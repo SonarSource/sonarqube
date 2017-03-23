@@ -201,31 +201,31 @@ public class RuleDefinitionDto {
   }
 
   @CheckForNull
-  public String getDefaultRemediationFunction() {
+  public String getDefRemediationFunction() {
     return defRemediationFunction;
   }
 
-  public RuleDefinitionDto setDefaultRemediationFunction(@Nullable String defaultRemediationFunction) {
+  public RuleDefinitionDto setDefRemediationFunction(@Nullable String defaultRemediationFunction) {
     this.defRemediationFunction = defaultRemediationFunction;
     return this;
   }
 
   @CheckForNull
-  public String getDefaultRemediationGapMultiplier() {
+  public String getDefRemediationGapMultiplier() {
     return defRemediationGapMultiplier;
   }
 
-  public RuleDefinitionDto setDefaultRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
+  public RuleDefinitionDto setDefRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
     this.defRemediationGapMultiplier = defaultRemediationGapMultiplier;
     return this;
   }
 
   @CheckForNull
-  public String getDefaultRemediationBaseEffort() {
+  public String getDefRemediationBaseEffort() {
     return defRemediationBaseEffort;
   }
 
-  public RuleDefinitionDto setDefaultRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
+  public RuleDefinitionDto setDefRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
     this.defRemediationBaseEffort = defaultRemediationBaseEffort;
     return this;
   }

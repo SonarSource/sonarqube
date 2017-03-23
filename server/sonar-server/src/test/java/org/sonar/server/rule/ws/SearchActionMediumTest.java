@@ -228,9 +228,9 @@ public class SearchActionMediumTest {
   @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() throws Exception {
     RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("15min")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setRemediationGapMultiplier("2h")
       .setRemediationBaseEffort("25min");
@@ -248,9 +248,9 @@ public class SearchActionMediumTest {
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
     RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("15min")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("5min");
@@ -268,9 +268,9 @@ public class SearchActionMediumTest {
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
     RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("15min")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setRemediationGapMultiplier("1h")
       .setRemediationBaseEffort(null);
@@ -627,9 +627,9 @@ public class SearchActionMediumTest {
   @Test
   public void search_rules_with_deprecated_fields() throws Exception {
     RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationGapMultiplier("1h")
-        .setDefaultRemediationBaseEffort("15min")
+        .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefRemediationGapMultiplier("1h")
+        .setDefRemediationBaseEffort("15min")
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setRemediationGapMultiplier("2h")
         .setRemediationBaseEffort("25min");

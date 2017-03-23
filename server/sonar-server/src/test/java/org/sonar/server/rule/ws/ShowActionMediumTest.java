@@ -123,9 +123,9 @@ public class ShowActionMediumTest {
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationGapMultiplier("5d")
-      .setDefaultRemediationBaseEffort("10h")
+      .setDefRemediationFunction("LINEAR_OFFSET")
+      .setDefRemediationGapMultiplier("5d")
+      .setDefRemediationBaseEffort("10h")
       .setRemediationFunction(null)
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort(null);
@@ -150,9 +150,9 @@ public class ShowActionMediumTest {
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction(null)
-      .setDefaultRemediationGapMultiplier(null)
-      .setDefaultRemediationBaseEffort(null)
+      .setDefRemediationFunction(null)
+      .setDefRemediationGapMultiplier(null)
+      .setDefRemediationBaseEffort(null)
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
@@ -175,9 +175,9 @@ public class ShowActionMediumTest {
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction("LINEAR")
-      .setDefaultRemediationGapMultiplier("5min")
-      .setDefaultRemediationBaseEffort(null)
+      .setDefRemediationFunction("LINEAR")
+      .setDefRemediationGapMultiplier("5min")
+      .setDefRemediationBaseEffort(null)
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
@@ -201,9 +201,9 @@ public class ShowActionMediumTest {
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction(null)
-      .setDefaultRemediationGapMultiplier(null)
-      .setDefaultRemediationBaseEffort(null);
+      .setDefRemediationFunction(null)
+      .setDefRemediationGapMultiplier(null)
+      .setDefRemediationBaseEffort(null);
     ruleDao.insert(session, ruleDto.getDefinition());
     session.commit();
     session.clearCache();
@@ -243,9 +243,9 @@ public class ShowActionMediumTest {
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationGapMultiplier("6d")
-      .setDefaultRemediationBaseEffort("11h")
+      .setDefRemediationFunction("LINEAR_OFFSET")
+      .setDefRemediationGapMultiplier("6d")
+      .setDefRemediationBaseEffort("11h")
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");

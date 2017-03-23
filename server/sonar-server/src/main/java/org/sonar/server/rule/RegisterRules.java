@@ -275,16 +275,16 @@ public class RegisterRules implements Startable {
     @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
     boolean changed = false;
 
-    if (!StringUtils.equals(dto.getDefaultRemediationFunction(), remediationFunction)) {
-      dto.setDefaultRemediationFunction(remediationFunction);
+    if (!StringUtils.equals(dto.getDefRemediationFunction(), remediationFunction)) {
+      dto.setDefRemediationFunction(remediationFunction);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationGapMultiplier(), remediationCoefficient)) {
-      dto.setDefaultRemediationGapMultiplier(remediationCoefficient);
+    if (!StringUtils.equals(dto.getDefRemediationGapMultiplier(), remediationCoefficient)) {
+      dto.setDefRemediationGapMultiplier(remediationCoefficient);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationBaseEffort(), remediationOffset)) {
-      dto.setDefaultRemediationBaseEffort(remediationOffset);
+    if (!StringUtils.equals(dto.getDefRemediationBaseEffort(), remediationOffset)) {
+      dto.setDefRemediationBaseEffort(remediationOffset);
       changed = true;
     }
     if (!StringUtils.equals(dto.getGapDescription(), effortToFixDescription)) {
@@ -421,16 +421,16 @@ public class RegisterRules implements Startable {
       customRule.setConfigKey(templateRule.getConfigKey());
       changed = true;
     }
-    if (!StringUtils.equals(customRule.getDefaultRemediationFunction(), templateRule.getDefaultRemediationFunction())) {
-      customRule.setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction());
+    if (!StringUtils.equals(customRule.getDefRemediationFunction(), templateRule.getDefRemediationFunction())) {
+      customRule.setDefRemediationFunction(templateRule.getDefRemediationFunction());
       changed = true;
     }
-    if (!StringUtils.equals(customRule.getDefaultRemediationGapMultiplier(), templateRule.getDefaultRemediationGapMultiplier())) {
-      customRule.setDefaultRemediationGapMultiplier(templateRule.getDefaultRemediationGapMultiplier());
+    if (!StringUtils.equals(customRule.getDefRemediationGapMultiplier(), templateRule.getDefRemediationGapMultiplier())) {
+      customRule.setDefRemediationGapMultiplier(templateRule.getDefRemediationGapMultiplier());
       changed = true;
     }
-    if (!StringUtils.equals(customRule.getDefaultRemediationBaseEffort(), templateRule.getDefaultRemediationBaseEffort())) {
-      customRule.setDefaultRemediationBaseEffort(templateRule.getDefaultRemediationBaseEffort());
+    if (!StringUtils.equals(customRule.getDefRemediationBaseEffort(), templateRule.getDefRemediationBaseEffort())) {
+      customRule.setDefRemediationBaseEffort(templateRule.getDefRemediationBaseEffort());
       changed = true;
     }
     if (!StringUtils.equals(customRule.getGapDescription(), templateRule.getGapDescription())) {

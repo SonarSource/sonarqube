@@ -266,9 +266,9 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.HTML);
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
-    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
@@ -309,9 +309,9 @@ public class RuleDaoTest {
       .setIsTemplate(true)
       .setLanguage("dart")
       .setTemplateId(3)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setDefaultRemediationGapMultiplier("5d")
-      .setDefaultRemediationBaseEffort("10h")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+      .setDefRemediationGapMultiplier("5d")
+      .setDefRemediationBaseEffort("10h")
       .setGapDescription("squid.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG)
@@ -333,9 +333,9 @@ public class RuleDaoTest {
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
-    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
@@ -360,9 +360,9 @@ public class RuleDaoTest {
       .setIsTemplate(true)
       .setLanguage("dart")
       .setTemplateId(3)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setDefaultRemediationGapMultiplier("5d")
-      .setDefaultRemediationBaseEffort("10h")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+      .setDefRemediationGapMultiplier("5d")
+      .setDefRemediationBaseEffort("10h")
       .setGapDescription("squid.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG)
@@ -383,9 +383,9 @@ public class RuleDaoTest {
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
-    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
-    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
@@ -432,11 +432,11 @@ public class RuleDaoTest {
     assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
     assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
-    assertThat(ruleDto.getDefaultRemediationFunction()).isNull();
+    assertThat(ruleDto.getDefRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isNull();
+    assertThat(ruleDto.getDefRemediationGapMultiplier()).isNull();
     assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
-    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isNull();
+    assertThat(ruleDto.getDefRemediationBaseEffort()).isNull();
     assertThat(ruleDto.getGapDescription()).isNull();
     assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
     assertThat(ruleDto.getSystemTags()).isEmpty();
@@ -489,11 +489,11 @@ public class RuleDaoTest {
     assertThat(ruleDto.getNoteCreatedAt()).isNull();
     assertThat(ruleDto.getNoteUpdatedAt()).isNull();
     assertThat(ruleDto.getRemediationFunction()).isNull();
-    assertThat(ruleDto.getDefaultRemediationFunction()).isNull();
+    assertThat(ruleDto.getDefRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationGapMultiplier()).isNull();
-    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isNull();
+    assertThat(ruleDto.getDefRemediationGapMultiplier()).isNull();
     assertThat(ruleDto.getRemediationBaseEffort()).isNull();
-    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isNull();
+    assertThat(ruleDto.getDefRemediationBaseEffort()).isNull();
     assertThat(ruleDto.getGapDescription()).isNull();
     assertThat(ruleDto.getTags()).isEmpty();
     assertThat(ruleDto.getSystemTags()).isEmpty();
@@ -521,11 +521,11 @@ public class RuleDaoTest {
     assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
     assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
-    assertThat(ruleDto.getDefaultRemediationFunction()).isNull();
+    assertThat(ruleDto.getDefRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isNull();
+    assertThat(ruleDto.getDefRemediationGapMultiplier()).isNull();
     assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
-    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isNull();
+    assertThat(ruleDto.getDefRemediationBaseEffort()).isNull();
     assertThat(ruleDto.getGapDescription()).isNull();
     assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
     assertThat(ruleDto.getSystemTags()).isEmpty();

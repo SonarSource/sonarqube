@@ -220,9 +220,9 @@ public class RuleUpdater {
 
   private static boolean isSameAsDefaultFunction(DebtRemediationFunction fn, RuleDto rule) {
     return new EqualsBuilder()
-      .append(fn.type().name(), rule.getDefaultRemediationFunction())
-      .append(fn.gapMultiplier(), rule.getDefaultRemediationGapMultiplier())
-      .append(fn.baseEffort(), rule.getDefaultRemediationBaseEffort())
+      .append(fn.type().name(), rule.getDefRemediationFunction())
+      .append(fn.gapMultiplier(), rule.getDefRemediationGapMultiplier())
+      .append(fn.baseEffort(), rule.getDefRemediationBaseEffort())
       .isEquals();
   }
 
