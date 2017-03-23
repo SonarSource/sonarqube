@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+import { translate } from '../../helpers/l10n';
+
 const LOCALSTORAGE_KEY = 'sonarqube.projects.default';
 const LOCALSTORAGE_FAVORITE = 'favorite';
 const LOCALSTORAGE_ALL = 'all';
@@ -44,3 +46,16 @@ const save = (value: string) => {
 export const saveAll = () => save(LOCALSTORAGE_ALL);
 
 export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);
+
+export const VISUALIZATIONS = [
+  'quality',
+  'bugs',
+  'vulnerabilities',
+  'code_smells',
+  'uncovered_lines',
+  'duplicated_blocks'
+];
+
+export const localizeSorting = (sort?: string) => {
+  return translate('projects.sort', sort || 'name');
+};

@@ -181,3 +181,25 @@
 .search-navigator-facet-highlight-under.active ~ .search-navigator-facet .projects-facet-bar-inner {
   background-color: #4b9fd5;
 }
+
+.projects-visualization {
+  position: relative;
+  height: 600px;
+  margin-top: 15px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.projects-visualization .measure-details-bubble-chart-axis.y {
+  width: 300px;
+  left: 15px;
+  margin-top: 150px;
+  transform-origin: 0 0;
+  text-align: center;
+}
+
+.projects-visualizations-footer {
+  padding: 15px 0;
+  color: #777;
+  font-size: 12px;
+  text-align: center;
+}

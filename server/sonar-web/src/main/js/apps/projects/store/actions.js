@@ -34,6 +34,7 @@ import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
 
 const PAGE_SIZE = 50;
+const PAGE_SIZE_VISUALIZATIONS = 99;
 
 const METRICS = [
   'alert_status',
@@ -45,6 +46,16 @@ const METRICS = [
   'ncloc',
   'ncloc_language_distribution'
 ];
+
+const METRICS_BY_VISUALIZATION = {
+  quality: ['reliability_rating', 'security_rating', 'coverage', 'ncloc', 'sqale_index'],
+  // x, y, size, color
+  bugs: ['ncloc', 'reliability_remediation_effort', 'bugs', 'reliability_rating'],
+  vulnerabilities: ['ncloc', 'security_remediation_effort', 'vulnerabilities', 'security_rating'],
+  code_smells: ['ncloc', 'sqale_index', 'code_smells', 'sqale_rating'],
+  uncovered_lines: ['complexity', 'coverage', 'uncovered_lines'],
+  duplicated_blocks: ['ncloc', 'duplicated_lines', 'duplicated_blocks']
+};
 
 const FACETS = [
   'reliability_rating',
@@ -90,14 +101,23 @@ const onReceiveOrganizations = dispatch =>
     dispatch(receiveOrganizations(response.organizations));
   };
 
-const fetchProjectMeasures = projects =>
+const defineMetrics = query => {
+  if (query.view === 'visualizations') {
+    return METRICS_BY_VISUALIZATION[query.visualization || 'quality'];
+  } else {
+    return METRICS;
+  }
+};
+
+const fetchProjectMeasures = (projects, query) =>
   dispatch => {
     if (!projects.length) {
       return Promise.resolve();
     }
 
     const projectKeys = projects.map(project => project.key);
-    return getMeasuresForProjects(projectKeys, METRICS).then(
+    const metrics = defineMetrics(query);
+    return getMeasuresForProjects(projectKeys, metrics).then(
       onReceiveMeasures(dispatch, projectKeys),
       onFail(dispatch)
     );
@@ -124,13 +144,13 @@ const handleFavorites = (dispatch, projects) => {
   }
 };
 
-const onReceiveProjects = dispatch =>
+const onReceiveProjects = (dispatch, query) =>
   response => {
     dispatch(receiveComponents(response.components));
     dispatch(receiveProjects(response.components, response.facets));
     handleFavorites(dispatch, response.components);
     Promise.all([
-      dispatch(fetchProjectMeasures(response.components)),
+      dispatch(fetchProjectMeasures(response.components, query)),
       dispatch(fetchProjectOrganizations(response.components))
     ]).then(() => {
       dispatch(updateState({ loading: false }));
@@ -143,13 +163,13 @@ const onReceiveProjects = dispatch =>
     );
   };
 
-const onReceiveMoreProjects = dispatch =>
+const onReceiveMoreProjects = (dispatch, query) =>
   response => {
     dispatch(receiveComponents(response.components));
     dispatch(receiveMoreProjects(response.components));
     handleFavorites(dispatch, response.components);
     Promise.all([
-      dispatch(fetchProjectMeasures(response.components)),
+      dispatch(fetchProjectMeasures(response.components, query)),
       dispatch(fetchProjectOrganizations(response.components))
     ]).then(() => {
       dispatch(updateState({ loading: false }));
@@ -160,12 +180,13 @@ const onReceiveMoreProjects = dispatch =>
 export const fetchProjects = (query, isFavorite, organization) =>
   dispatch => {
     dispatch(updateState({ loading: true }));
+    const ps = query.view === 'visualizations' ? PAGE_SIZE_VISUALIZATIONS : PAGE_SIZE;
     const data = convertToQueryData(query, isFavorite, organization, {
-      ps: PAGE_SIZE,
+      ps,
       facets: FACETS.join(),
       f: 'analysisDate'
     });
-    return searchProjects(data).then(onReceiveProjects(dispatch), onFail(dispatch));
+    return searchProjects(data).then(onReceiveProjects(dispatch, query), onFail(dispatch));
   };
 
 export const fetchMoreProjects = (query, isFavorite, organization) =>
@@ -178,7 +199,7 @@ export const fetchMoreProjects = (query, isFavorite, organization) =>
       p: pageIndex + 1,
       f: 'analysisDate'
     });
-    return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
+    return searchProjects(data).then(onReceiveMoreProjects(dispatch, query), onFail(dispatch));
   };
 
 export const setProjectTags = (project, tags) =>

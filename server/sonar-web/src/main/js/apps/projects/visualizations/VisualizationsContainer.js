@@ -17,16 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
-export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
+import { connect } from 'react-redux';
+import Visualizations from './Visualizations';
+import {
+  getProjects,
+  getComponent,
+  getComponentMeasures,
+  getOrganizationByKey,
+  getProjectsAppState
+} from '../../../store/rootReducer';
 
-export const CHART_COLORS_RANGE_PERCENT = ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f'];
-export const CHART_REVERSED_COLORS_RANGE_PERCENT = [
-  '#d4333f',
-  '#ed7d20',
-  '#eabe06',
-  '#b0d513',
-  '#00aa00'
-];
+const mapStateToProps = state => {
+  const projectKeys = getProjects(state) || [];
+  const projects = projectKeys.map(key => {
+    const component = getComponent(state, key);
+    return {
+      ...component,
+      measures: getComponentMeasures(state, key) || {},
+      organization: getOrganizationByKey(state, component.organization)
+    };
+  });
+  const appState = getProjectsAppState(state);
+  return { projects, total: appState.total };
+};
 
-export const RATING_COLORS = ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#e00'];
+export default connect(mapStateToProps)(Visualizations);
