@@ -46,7 +46,8 @@ public class QProfilesWsModule extends Module {
       RemoveProjectAction.class,
       RestoreAction.class,
       RestoreBuiltInAction.class,
-      RuleActivationActions.class,
+      ActivateRuleAction.class,
+      DeactivateRuleAction.class,
       SearchAction.class,
       SetDefaultAction.class
       );

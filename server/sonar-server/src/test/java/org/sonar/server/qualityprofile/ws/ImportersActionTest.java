@@ -33,7 +33,7 @@ public class ImportersActionTest {
   @Test
   public void importers_nominal() throws Exception {
     WsTester wsTester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class),
+      mock(BulkRuleActivationActions.class),
       new ImportersAction(createImporters())));
 
     wsTester.newGetRequest("api/qualityprofiles", "importers").execute().assertJson(getClass(), "importers.json");

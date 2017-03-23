@@ -32,6 +32,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -49,11 +50,11 @@ public class QProfileWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public String getOrganizationKey(DbSession dbSession, QualityProfileDto profile) {
+  public OrganizationDto getOrganization(DbSession dbSession, QualityProfileDto profile) {
+    requireNonNull(profile);
     String organizationUuid = profile.getOrganizationUuid();
     return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-      .orElseThrow(() -> new IllegalStateException("Cannot load organization with uuid=" + organizationUuid))
-      .getKey();
+      .orElseThrow(() -> new IllegalStateException("Cannot load organization with uuid=" + organizationUuid));
   }
 
   public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
@@ -114,7 +115,7 @@ public class QProfileWsSupport {
       OrganizationDto org = getOrganizationByKey(dbSession, ref.getOrganizationKey().orElse(null));
       profile = dbClient.qualityProfileDao().selectByNameAndLanguage(org, ref.getName(), ref.getLanguage(), dbSession);
       checkFound(profile, "Quality Profile for language '%s' and name '%s' does not exist%s", ref.getLanguage(), ref.getName(),
-        ref.getOrganizationKey().map(o -> " in organization '"+o+"'").orElse(""));
+        ref.getOrganizationKey().map(o -> " in organization '" + o + "'").orElse(""));
     }
     return profile;
   }

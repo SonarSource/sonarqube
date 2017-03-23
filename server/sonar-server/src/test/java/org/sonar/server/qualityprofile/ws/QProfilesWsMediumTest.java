@@ -32,6 +32,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -75,6 +77,7 @@ public class QProfilesWsMediumTest {
   private WsTester wsTester;
   private RuleIndexer ruIndexer = tester.get(RuleIndexer.class);
   private ActiveRuleIndexer activeRuIndexer = tester.get(ActiveRuleIndexer.class);
+  private OrganizationDto organization;
 
   @Before
   public void setUp() {
@@ -85,6 +88,8 @@ public class QProfilesWsMediumTest {
 
     ruIndexer = tester.get(RuleIndexer.class);
     activeRuIndexer = tester.get(ActiveRuleIndexer.class);
+    organization = OrganizationTesting.newOrganizationDto().setKey("org-123");
+    db.organizationDao().insert(session, organization);
   }
 
   @After
@@ -405,8 +410,8 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void reset() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    QualityProfileDto subProfile = QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY);
+    QualityProfileDto profile = QProfileTesting.newXooP1(organization);
+    QualityProfileDto subProfile = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(session, profile, subProfile);
 
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "rule");
@@ -437,7 +442,7 @@ public class QProfilesWsMediumTest {
   }
 
   private QualityProfileDto createProfile(String lang) {
-    QualityProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, "P" + lang), "p" + lang);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto(organization, new QProfileName(lang, "P" + lang), "p" + lang);
     db.qualityProfileDao().insert(session, profile);
     return profile;
   }
