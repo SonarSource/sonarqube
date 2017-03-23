@@ -49,7 +49,10 @@ export default class WebApiApp extends React.PureComponent {
     this.mounted = true;
     this.scrollToAction = this.scrollToAction.bind(this);
     this.fetchList();
-    document.getElementById('footer').classList.add('search-navigator-footer');
+    const footer = document.getElementById('footer');
+    if (footer) {
+      footer.classList.add('search-navigator-footer');
+    }
   }
 
   componentDidUpdate() {
@@ -59,7 +62,10 @@ export default class WebApiApp extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
-    document.getElementById('footer').classList.remove('search-navigator-footer');
+    const footer = document.getElementById('footer');
+    if (footer) {
+      footer.classList.remove('search-navigator-footer');
+    }
   }
 
   fetchList(cb?: () => void) {
