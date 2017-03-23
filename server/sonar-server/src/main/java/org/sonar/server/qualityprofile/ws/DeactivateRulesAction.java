@@ -23,10 +23,13 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.BulkChangeResult;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.ws.RuleQueryFactory;
+import org.sonar.server.user.UserSession;
 
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
 
 @ServerSide
@@ -37,12 +40,17 @@ public class DeactivateRulesAction implements QProfileWsAction {
 
   public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
 
-  private final QProfileService profileService;
   private final RuleQueryFactory ruleQueryFactory;
+  private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final RuleActivator ruleActivator;
 
-  public DeactivateRulesAction(QProfileService profileService, RuleQueryFactory ruleQueryFactory) {
-    this.profileService = profileService;
+  public DeactivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider,
+    RuleActivator ruleActivator) {
     this.ruleQueryFactory = ruleQueryFactory;
+    this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.ruleActivator = ruleActivator;
   }
 
   public void define(WebService.NewController controller) {
@@ -63,9 +71,15 @@ public class DeactivateRulesAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    BulkChangeResult result = profileService.bulkDeactivate(
-      ruleQueryFactory.createRuleQuery(request),
-      request.mandatoryParam(PROFILE_KEY));
+    verifyAdminPermission();
+    BulkChangeResult result = ruleActivator.bulkDeactivate(ruleQueryFactory.createRuleQuery(request), request.mandatoryParam(PROFILE_KEY));
     BulkChangeWsResponse.writeResponse(result, response);
+  }
+
+  private void verifyAdminPermission() {
+    // FIXME check for the permission of the appropriate organization, not the default one
+    userSession
+      .checkLoggedIn()
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 }

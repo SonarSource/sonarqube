@@ -33,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -52,7 +51,6 @@ public class QProfilesWsTest {
 
   @Before
   public void setUp() {
-    QProfileService profileService = mock(QProfileService.class);
     DbClient dbClient = mock(DbClient.class);
 
     Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);

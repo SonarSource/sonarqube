@@ -45,7 +45,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
-import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -76,7 +75,6 @@ public class InheritanceActionTest {
   private InheritanceAction underTest;
   private WsActionTester wsActionTester;
   private RuleActivator ruleActivator;
-  private QProfileService service;
   private OrganizationDto organization;
 
   @Before
@@ -101,10 +99,6 @@ public class InheritanceActionTest {
       new TypeValidations(new ArrayList<>()),
       activeRuleIndexer,
       userSession);
-    service = new QProfileService(
-      ruleActivator,
-      userSession,
-      defaultOrganizationProvider);
     organization = dbTester.organizations().insert();
   }
 

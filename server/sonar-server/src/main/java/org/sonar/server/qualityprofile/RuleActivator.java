@@ -398,7 +398,7 @@ public class RuleActivator {
     return value;
   }
 
-  BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
+  public BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
     DbSession dbSession = db.openSession(false);
     BulkChangeResult result = new BulkChangeResult();
     try {
@@ -428,7 +428,7 @@ public class RuleActivator {
     return result;
   }
 
-  BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
+  public BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
     DbSession dbSession = db.openSession(false);
     BulkChangeResult result = new BulkChangeResult();
     try {
