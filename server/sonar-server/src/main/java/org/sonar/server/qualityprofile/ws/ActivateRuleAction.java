@@ -30,9 +30,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -108,7 +105,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkPermission(dbSession, profileKey);
+      wsSupport.checkPermission(dbSession, profileKey);
       List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileKey);
       dbSession.commit();
       activeRuleIndexer.index(changes);
@@ -117,11 +114,5 @@ public class ActivateRuleAction implements QProfileWsAction {
 
   private static RuleKey readRuleKey(Request request) {
     return RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
-  }
-
-  private void checkPermission(DbSession dbSession, String qualityProfileKey) {
-    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
-    OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
-    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 }
