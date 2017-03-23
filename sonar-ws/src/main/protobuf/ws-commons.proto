@@ -72,17 +72,6 @@ enum RuleStatus {
   REMOVED = 3;
 }
 
-message User {
-  optional string login = 1;
-  optional string name = 2;
-  optional string email = 3;
-  optional bool active = 4;
-}
-
-message Users {
-  repeated User users = 1;
-}
-
 // Lines start at 1 and line offsets start at 0
 message TextRange {
   // Start line. Should never be absent

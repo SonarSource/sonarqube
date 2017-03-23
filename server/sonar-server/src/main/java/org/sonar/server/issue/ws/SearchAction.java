@@ -126,7 +126,8 @@ public class SearchAction implements IssuesWsAction {
           "At most one of the following parameters can be provided at the same time: %s, %s, %s, %s, %s<br>" +
           "Since 5.5, response field 'debt' has been renamed to 'effort'.<br>" +
           "Since 5.5, response field 'actionPlan' has been removed.<br>" +
-          "Since 5.5, response field 'reporter' has been removed, as manual issue feature has been dropped.",
+          "Since 5.5, response field 'reporter' has been removed, as manual issue feature has been dropped." +
+          "Since 6.3, response field 'email' has been replaced by 'avatar'",
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
       .setResponseExample(getClass().getResource("search-example.json"));

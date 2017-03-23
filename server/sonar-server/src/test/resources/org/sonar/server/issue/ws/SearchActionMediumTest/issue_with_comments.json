@@ -29,13 +29,12 @@
     {
       "login": "fabrice",
       "name": "Fabrice",
-      "email": "fabrice@email.com",
+      "avatar": "1c7a5823d4ad91e32a88f91242d2c9c2",
       "active": true
     },
     {
       "login": "john",
       "name": "John",
-      "email": "",
       "active": true
     }
   ]
