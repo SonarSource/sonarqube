@@ -143,7 +143,7 @@ public class ChangeParentActionTest {
 
   @Test
   public void define_change_parent_action() {
-    WebService.Action changeParent = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), underTest))
+    WebService.Action changeParent = new WsTester(new QProfilesWs(mock(BulkRuleActivationActions.class), underTest))
       .action(QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES, "change_parent");
     assertThat(changeParent).isNotNull();
     assertThat(changeParent.isPost()).isTrue();
