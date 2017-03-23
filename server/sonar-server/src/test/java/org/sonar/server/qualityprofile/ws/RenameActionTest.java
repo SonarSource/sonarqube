@@ -68,7 +68,6 @@ public class RenameActionTest {
       dbClient,
       userSessionRule);
     tester = new WsTester(new QProfilesWs(
-      mock(BulkRuleActivationActions.class),
       underTest));
     organization = db.organizations().insert();
 

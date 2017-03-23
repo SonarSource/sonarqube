@@ -25,14 +25,11 @@ import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.server.ws.WsTester;
 
-import static org.mockito.Mockito.mock;
-
 public class ExportersActionTest {
 
   @Test
   public void importers_nominal() throws Exception {
     WsTester wsTester = new WsTester(new QProfilesWs(
-      mock(BulkRuleActivationActions.class),
       new ExportersAction(createExporters())));
 
     wsTester.newGetRequest("api/qualityprofiles", "exporters").execute().assertJson(getClass(), "exporters.json");
