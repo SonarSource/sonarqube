@@ -133,10 +133,9 @@ public class CreateAction implements QProfileWsAction {
         result.add(exporters.importXml(profile, importerKey, contentToImport, dbSession));
       }
     }
-    String organizationKey = qProfileWsSupport.getOrganizationKey(dbSession, result.profile());
     dbSession.commit();
     activeRuleIndexer.index(result.getChanges());
-    return buildResponse(result, organizationKey);
+    return buildResponse(result, organization);
   }
 
   private static CreateRequest toRequest(Request request, OrganizationDto organization) {
@@ -147,10 +146,10 @@ public class CreateAction implements QProfileWsAction {
     return builder.build();
   }
 
-  private CreateWsResponse buildResponse(QProfileResult result, String organizationKey) {
+  private CreateWsResponse buildResponse(QProfileResult result, OrganizationDto organization) {
     String language = result.profile().getLanguage();
     CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
-      .setOrganization(organizationKey)
+      .setOrganization(organization.getKey())
       .setKey(result.profile().getKey())
       .setName(result.profile().getName())
       .setLanguage(language)
