@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.List;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,71 +32,39 @@ import org.sonar.server.rule.ws.RuleQueryFactory;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
 
 @ServerSide
-public class BulkRuleActivationActions {
+public class DeactivateRulesAction implements QProfileWsAction {
 
   public static final String PROFILE_KEY = "profile_key";
   public static final String SEVERITY = "activation_severity";
 
-  public static final String BULK_ACTIVATE_ACTION = "activate_rules";
   public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
 
   private final QProfileService profileService;
   private final RuleQueryFactory ruleQueryFactory;
 
-  public BulkRuleActivationActions(QProfileService profileService, RuleQueryFactory ruleQueryFactory) {
+  public DeactivateRulesAction(QProfileService profileService, RuleQueryFactory ruleQueryFactory) {
     this.profileService = profileService;
     this.ruleQueryFactory = ruleQueryFactory;
   }
 
-  void define(WebService.NewController controller) {
-    defineActivateAction(controller);
-    defineDeactivateAction(controller);
-  }
-
-  private void defineActivateAction(WebService.NewController controller) {
-    WebService.NewAction activate = controller
-      .createAction(BULK_ACTIVATE_ACTION)
-      .setDescription("Bulk-activate rules on one or several Quality profiles")
-      .setPost(true)
-      .setSince("4.4")
-      .setHandler(this::bulkActivate);
-
-    defineRuleSearchParameters(activate);
-    defineProfileKeyParameter(activate);
-
-    activate.createParam(SEVERITY)
-      .setDescription("Optional severity of rules activated in bulk")
-      .setPossibleValues(Severity.ALL);
-  }
-
-  private void defineDeactivateAction(WebService.NewController controller) {
+  public void define(WebService.NewController controller) {
     WebService.NewAction deactivate = controller
       .createAction(BULK_DEACTIVATE_ACTION)
       .setDescription("Bulk deactivate rules on Quality profiles")
       .setPost(true)
       .setSince("4.4")
-      .setHandler(this::bulkDeactivate);
+      .setHandler(this);
 
     defineRuleSearchParameters(deactivate);
-    defineProfileKeyParameter(deactivate);
-  }
 
-  private static void defineProfileKeyParameter(WebService.NewAction action) {
-    action.createParam(PROFILE_KEY)
+    deactivate.createParam(PROFILE_KEY)
       .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see the api/qprofiles documentation")
       .setRequired(true)
       .setExampleValue("java:MyProfile");
   }
 
-  private void bulkActivate(Request request, Response response) {
-    BulkChangeResult result = profileService.bulkActivate(
-      ruleQueryFactory.createRuleQuery(request),
-      request.mandatoryParam(PROFILE_KEY),
-      request.param(SEVERITY));
-    writeResponse(result, response);
-  }
-
-  private void bulkDeactivate(Request request, Response response) {
+  @Override
+  public void handle(Request request, Response response) throws Exception {
     BulkChangeResult result = profileService.bulkDeactivate(
       ruleQueryFactory.createRuleQuery(request),
       request.mandatoryParam(PROFILE_KEY));

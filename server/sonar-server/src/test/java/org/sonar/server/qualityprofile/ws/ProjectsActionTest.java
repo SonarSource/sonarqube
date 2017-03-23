@@ -39,8 +39,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
 
-import static org.mockito.Mockito.mock;
-
 public class ProjectsActionTest {
 
   @Rule
@@ -61,7 +59,6 @@ public class ProjectsActionTest {
   private ComponentDto project4;
 
   private WsTester wsTester = new WsTester(new QProfilesWs(
-    mock(BulkRuleActivationActions.class),
     new ProjectsAction(dbClient, userSessionRule)));
 
   @Before

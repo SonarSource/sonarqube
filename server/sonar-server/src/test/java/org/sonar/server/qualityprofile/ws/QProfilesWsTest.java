@@ -39,7 +39,6 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 
 public class QProfilesWsTest {
   @Rule
@@ -61,7 +60,6 @@ public class QProfilesWsTest {
     ProfileImporter[] importers = createImporters(languages);
 
     controller = new WsTester(new QProfilesWs(
-      new BulkRuleActivationActions(profileService, null),
       new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
       new SearchAction(null, languages, dbClient, wsSupport),
@@ -129,14 +127,6 @@ public class QProfilesWsTest {
     assertThat(projects.isPost()).isFalse();
     assertThat(projects.params()).hasSize(5);
     assertThat(projects.responseExampleAsString()).isNotEmpty();
-  }
-
-  @Test
-  public void define_bulk_deactivate_rule_action() {
-    WebService.Action restoreProfiles = controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.isPost()).isTrue();
-    assertThat(restoreProfiles.params()).hasSize(18);
   }
 
   @Test

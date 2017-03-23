@@ -63,7 +63,7 @@ public class ChangelogActionMockTest {
 
   @Before
   public void before() {
-    wsTester = new WsTester(new QProfilesWs(mock(BulkRuleActivationActions.class),
+    wsTester = new WsTester(new QProfilesWs(mock(ActivateRulesAction.class),
       new ChangelogAction(changelogLoader, wsSupport, new Languages(), dbTester.getDbClient())));
     organization = dbTester.organizations().insert();
   }

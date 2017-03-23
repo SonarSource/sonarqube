@@ -21,18 +21,16 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.server.ws.WebService;
 
+import static java.util.Arrays.stream;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
 
 public class QProfilesWs implements WebService {
 
   public static final String API_ENDPOINT = CONTROLLER_QUALITY_PROFILES;
 
-  private final BulkRuleActivationActions bulkRuleActivationActions;
   private final QProfileWsAction[] actions;
 
-  public QProfilesWs(BulkRuleActivationActions bulkRuleActivationActions,
-    QProfileWsAction... actions) {
-    this.bulkRuleActivationActions = bulkRuleActivationActions;
+  public QProfilesWs(QProfileWsAction... actions) {
     this.actions = actions;
   }
 
@@ -42,10 +40,8 @@ public class QProfilesWs implements WebService {
       .setDescription("Manage quality profiles.")
       .setSince("4.4");
 
-    bulkRuleActivationActions.define(controller);
-    for (QProfileWsAction action : actions) {
-      action.define(controller);
-    }
+    stream(actions)
+      .forEach(action -> action.define(controller));
 
     controller.done();
   }

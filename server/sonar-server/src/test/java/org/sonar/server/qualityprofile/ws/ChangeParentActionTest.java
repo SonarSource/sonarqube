@@ -64,7 +64,6 @@ import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -143,7 +142,7 @@ public class ChangeParentActionTest {
 
   @Test
   public void define_change_parent_action() {
-    WebService.Action changeParent = new WsTester(new QProfilesWs(mock(BulkRuleActivationActions.class), underTest))
+    WebService.Action changeParent = new WsTester(new QProfilesWs(underTest))
       .action(QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES, "change_parent");
     assertThat(changeParent).isNotNull();
     assertThat(changeParent.isPost()).isTrue();
