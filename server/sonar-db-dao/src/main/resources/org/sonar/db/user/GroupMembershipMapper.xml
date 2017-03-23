@@ -78,6 +78,7 @@
   <sql id="userCommonClauses">
     FROM users u
     LEFT JOIN groups_users gu ON gu.user_id=u.id AND gu.group_id=#{groupId}
+    INNER JOIN organization_members om ON u.id=om.user_id AND om.organization_uuid=#{organizationUuid}
     <where>
       <choose>
         <when test="query.membership() == 'IN'">

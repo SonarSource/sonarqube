@@ -82,6 +82,7 @@ public class UsersAction implements UserGroupsWsAction {
 
       UserMembershipQuery query = UserMembershipQuery.builder()
         .groupId(group.getId())
+        .organizationUuid(group.getOrganizationUuid())
         .memberSearch(queryString)
         .membership(getMembership(selected))
         .pageIndex(page)

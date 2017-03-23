@@ -142,6 +142,7 @@ public class UpdateAction implements UserGroupsWsAction {
   private void writeResponse(DbSession dbSession, Request request, Response response, OrganizationDto organization, GroupDto group) {
     UserMembershipQuery query = UserMembershipQuery.builder()
       .groupId(group.getId())
+      .organizationUuid(organization.getUuid())
       .membership(UserMembershipQuery.IN)
       .build();
     int membersCount = dbClient.groupMembershipDao().countMembers(dbSession, query);
