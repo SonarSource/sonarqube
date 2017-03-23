@@ -19,37 +19,22 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.ws.WsActionTester;
 
-public class QProfilesWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      QProfileWsSupport.class,
-      AddProjectAction.class,
-      BackupAction.class,
-      BulkRuleActivationActions.class,
-      CompareAction.class,
-      CopyAction.class,
-      ChangelogAction.class,
-      ChangelogLoader.class,
-      ChangeParentAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      ExportAction.class,
-      ExportersAction.class,
-      ImportersAction.class,
-      InheritanceAction.class,
-      QProfilesWs.class,
-      ProjectsAction.class,
-      RenameAction.class,
-      RemoveProjectAction.class,
-      RestoreAction.class,
-      RestoreBuiltInAction.class,
-      RuleActivationAction.class,
-      RuleDeactivationAction.class,
-      SearchAction.class,
-      SetDefaultAction.class
-      );
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+public class RuleDeactivationActionTest {
+
+  @Test
+  public void define_deactivate_rule_action() {
+    RuleDeactivationAction action = new RuleDeactivationAction(mock(QProfileService.class));
+    WebService.Action definition = new WsActionTester(action).getDef();
+    assertThat(definition).isNotNull();
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("profile_key", "rule_key");
   }
 }
