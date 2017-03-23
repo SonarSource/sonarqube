@@ -19,12 +19,10 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.ws.RuleQueryFactory;
@@ -68,27 +66,6 @@ public class DeactivateRulesAction implements QProfileWsAction {
     BulkChangeResult result = profileService.bulkDeactivate(
       ruleQueryFactory.createRuleQuery(request),
       request.mandatoryParam(PROFILE_KEY));
-    writeResponse(result, response);
-  }
-
-  private static void writeResponse(BulkChangeResult result, Response response) {
-    JsonWriter json = response.newJsonWriter().beginObject();
-    json.prop("succeeded", result.countSucceeded());
-    json.prop("failed", result.countFailed());
-    writeErrors(json, result.getErrors());
-    json.endObject().close();
-  }
-
-  private static void writeErrors(JsonWriter json, List<String> errorMessages) {
-    if (errorMessages.isEmpty()) {
-      return;
-    }
-    json.name("errors").beginArray();
-    errorMessages.forEach(message -> {
-      json.beginObject();
-      json.prop("msg", message);
-      json.endObject();
-    });
-    json.endArray();
+    BulkChangeWsResponse.writeResponse(result, response);
   }
 }
