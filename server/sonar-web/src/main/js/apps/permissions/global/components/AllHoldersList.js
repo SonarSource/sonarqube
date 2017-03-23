@@ -118,7 +118,7 @@ type OwnProps = {
   organization?: { key: string }
 };
 
-const mapDispatchToProps = (dispatch, ownProps: OwnProps) => {
+const mapDispatchToProps = (dispatch: Function, ownProps: OwnProps) => {
   const organizationKey = ownProps.organization ? ownProps.organization.key : undefined;
   return {
     loadHolders: () => dispatch(loadHolders(organizationKey)),
