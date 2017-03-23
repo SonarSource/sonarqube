@@ -73,7 +73,9 @@ public class QProfileService {
    */
   public List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
     verifyAdminPermission();
-    return ruleActivator.deactivate(key);
+    try (DbSession dbSession = db.openSession(false)) {
+      return ruleActivator.deactivateAndUpdateIndex(dbSession, key);
+    }
   }
 
   public BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profile, @Nullable String severity) {
