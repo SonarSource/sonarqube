@@ -61,7 +61,6 @@ public class ProjectsActionTest {
   private ComponentDto project4;
 
   private WsTester wsTester = new WsTester(new QProfilesWs(
-    mock(RuleActivationActions.class),
     mock(BulkRuleActivationActions.class),
     new ProjectsAction(dbClient, userSessionRule)));
 
