@@ -27,7 +27,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -45,9 +44,7 @@ public class ActivateRulesActionTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(dbTester));
-  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private ActivateRulesAction underTest = new ActivateRulesAction(null, null);
+  private ActivateRulesAction underTest = new ActivateRulesAction(null, null, TestDefaultOrganizationProvider.from(dbTester), ruleActivator);
   private WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test
