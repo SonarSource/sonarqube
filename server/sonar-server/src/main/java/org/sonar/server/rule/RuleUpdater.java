@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,8 +41,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
@@ -59,11 +60,13 @@ public class RuleUpdater {
   private final DbClient dbClient;
   private final RuleIndexer ruleIndexer;
   private final System2 system;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system) {
+  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.ruleIndexer = ruleIndexer;
     this.system = system;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
@@ -90,11 +93,11 @@ public class RuleUpdater {
       return false;
     }
 
-    Context context = newContext(update);
+    RuleDto rule = getRuleDto(update);
     // validate only the changes, not all the rule fields
-    apply(update, context, userSession);
-    update(dbSession, context.rule);
-    updateParameters(dbSession, update, context);
+    apply(update, rule, userSession);
+    update(dbSession, rule);
+    updateParameters(dbSession, update, rule);
     dbSession.commit();
     ruleIndexer.index();
     return true;
@@ -103,133 +106,132 @@ public class RuleUpdater {
   /**
    * Load all the DTOs required for validating changes and updating rule
    */
-  private Context newContext(RuleUpdate change) {
+  private RuleDto getRuleDto(RuleUpdate change) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Context context = new Context();
-      context.rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getRuleKey());
-      if (RuleStatus.REMOVED == context.rule.getStatus()) {
+      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationProvider.get().getUuid(), change.getRuleKey());
+      if (RuleStatus.REMOVED == rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
-      return context;
+      return rule;
     }
   }
 
-  private void apply(RuleUpdate update, Context context, UserSession userSession) {
+  private void apply(RuleUpdate update, RuleDto rule, UserSession userSession) {
     if (update.isChangeName()) {
-      updateName(update, context);
+      updateName(update, rule);
     }
     if (update.isChangeDescription()) {
-      updateDescription(update, context);
+      updateDescription(update, rule);
     }
     if (update.isChangeSeverity()) {
-      updateSeverity(update, context);
+      updateSeverity(update, rule);
     }
     if (update.isChangeStatus()) {
-      updateStatus(update, context);
+      updateStatus(update, rule);
     }
     if (update.isChangeMarkdownNote()) {
-      updateMarkdownNote(update, context, userSession);
+      updateMarkdownNote(update, rule, userSession);
     }
     if (update.isChangeTags()) {
-      updateTags(update, context);
+      updateTags(update, rule);
     }
     // order is important -> sub-characteristic must be set
     if (update.isChangeDebtRemediationFunction()) {
-      updateDebtRemediationFunction(update, context);
+      updateDebtRemediationFunction(update, rule);
     }
   }
 
-  private static void updateName(RuleUpdate update, Context context) {
+  private static void updateName(RuleUpdate update, RuleDto rule) {
     String name = update.getName();
     if (isNullOrEmpty(name)) {
       throw new IllegalArgumentException("The name is missing");
     }
-    context.rule.setName(name);
+    rule.setName(name);
   }
 
-  private static void updateDescription(RuleUpdate update, Context context) {
+  private static void updateDescription(RuleUpdate update, RuleDto rule) {
     String description = update.getMarkdownDescription();
     if (isNullOrEmpty(description)) {
       throw new IllegalArgumentException("The description is missing");
     }
-    context.rule.setDescription(description);
-    context.rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
+    rule.setDescription(description);
+    rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
   }
 
-  private static void updateSeverity(RuleUpdate update, Context context) {
+  private static void updateSeverity(RuleUpdate update, RuleDto rule) {
     String severity = update.getSeverity();
     if (isNullOrEmpty(severity) || !Severity.ALL.contains(severity)) {
       throw new IllegalArgumentException("The severity is invalid");
     }
-    context.rule.setSeverity(severity);
+    rule.setSeverity(severity);
   }
 
-  private static void updateStatus(RuleUpdate update, Context context) {
+  private static void updateStatus(RuleUpdate update, RuleDto rule) {
     RuleStatus status = update.getStatus();
     if (status == null) {
       throw new IllegalArgumentException("The status is missing");
     }
-    context.rule.setStatus(status);
+    rule.setStatus(status);
   }
 
-  private static void updateTags(RuleUpdate update, Context context) {
+  private static void updateTags(RuleUpdate update, RuleDto rule) {
     Set<String> tags = update.getTags();
     if (tags == null || tags.isEmpty()) {
-      context.rule.setTags(Collections.emptySet());
+      rule.setTags(Collections.emptySet());
     } else {
-      RuleTagHelper.applyTags(context.rule, tags);
+      RuleTagHelper.applyTags(rule, tags);
     }
   }
 
-  private static void updateDebtRemediationFunction(RuleUpdate update, Context context) {
+  private static void updateDebtRemediationFunction(RuleUpdate update, RuleDto rule) {
     DebtRemediationFunction function = update.getDebtRemediationFunction();
     if (function == null) {
-      context.rule.setRemediationFunction(null);
-      context.rule.setRemediationGapMultiplier(null);
-      context.rule.setRemediationBaseEffort(null);
+      rule.setRemediationFunction(null);
+      rule.setRemediationGapMultiplier(null);
+      rule.setRemediationBaseEffort(null);
     } else {
-      if (isSameAsDefaultFunction(function, context.rule)) {
+      if (isSameAsDefaultFunction(function, rule)) {
         // reset to default
-        context.rule.setRemediationFunction(null);
-        context.rule.setRemediationGapMultiplier(null);
-        context.rule.setRemediationBaseEffort(null);
+        rule.setRemediationFunction(null);
+        rule.setRemediationGapMultiplier(null);
+        rule.setRemediationBaseEffort(null);
       } else {
-        context.rule.setRemediationFunction(function.type().name());
-        context.rule.setRemediationGapMultiplier(function.gapMultiplier());
-        context.rule.setRemediationBaseEffort(function.baseEffort());
+        rule.setRemediationFunction(function.type().name());
+        rule.setRemediationGapMultiplier(function.gapMultiplier());
+        rule.setRemediationBaseEffort(function.baseEffort());
       }
     }
   }
 
-  private void updateMarkdownNote(RuleUpdate update, Context context, UserSession userSession) {
+  private void updateMarkdownNote(RuleUpdate update, RuleDto rule, UserSession userSession) {
     if (isBlank(update.getMarkdownNote())) {
-      context.rule.setNoteData(null);
-      context.rule.setNoteCreatedAt(null);
-      context.rule.setNoteUpdatedAt(null);
-      context.rule.setNoteUserLogin(null);
+      rule.setNoteData(null);
+      rule.setNoteCreatedAt(null);
+      rule.setNoteUpdatedAt(null);
+      rule.setNoteUserLogin(null);
     } else {
-      Date now = new Date(system.now());
-      context.rule.setNoteData(update.getMarkdownNote());
-      context.rule.setNoteCreatedAt(context.rule.getNoteCreatedAt() != null ? context.rule.getNoteCreatedAt() : now);
-      context.rule.setNoteUpdatedAt(now);
-      context.rule.setNoteUserLogin(userSession.getLogin());
+      long now = system.now();
+      rule.setNoteData(update.getMarkdownNote());
+      rule.setNoteCreatedAt(rule.getNoteCreatedAt() != null ? rule.getNoteCreatedAt() : now);
+      rule.setNoteUpdatedAt(now);
+      rule.setNoteUserLogin(userSession.getLogin());
     }
   }
 
   private static boolean isSameAsDefaultFunction(DebtRemediationFunction fn, RuleDto rule) {
     return new EqualsBuilder()
-      .append(fn.type().name(), rule.getDefaultRemediationFunction())
-      .append(fn.gapMultiplier(), rule.getDefaultRemediationGapMultiplier())
-      .append(fn.baseEffort(), rule.getDefaultRemediationBaseEffort())
+      .append(fn.type().name(), rule.getDefRemediationFunction())
+      .append(fn.gapMultiplier(), rule.getDefRemediationGapMultiplier())
+      .append(fn.baseEffort(), rule.getDefRemediationBaseEffort())
       .isEquals();
   }
 
-  private void updateParameters(DbSession dbSession, RuleUpdate update, Context context) {
+  private void updateParameters(DbSession dbSession, RuleUpdate update, RuleDto rule) {
     if (update.isChangeParameters() && update.isCustomRule()) {
-      RuleDto customRule = context.rule;
+      RuleDto customRule = rule;
       Integer templateId = customRule.getTemplateId();
       checkNotNull(templateId, "Rule '%s' has no persisted template!", customRule);
-      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(templateId, dbSession);
+      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(templateId, dbSession);
       if (!templateRule.isPresent()) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
           customRule.getTemplateId(), customRule.getKey()));
@@ -260,7 +262,7 @@ public class RuleUpdater {
 
       // Update rule param
       ruleParamDto.setDefaultValue(value);
-      dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
+      dbClient.ruleDao().updateRuleParam(dbSession, customRule.getDefinition(), ruleParamDto);
 
       if (value != null) {
         // Update linked active rule params or create new one
@@ -341,17 +343,10 @@ public class RuleUpdater {
     }
   }
 
-  /**
-   * Data loaded before update
-   */
-  private static class Context {
-    private RuleDto rule;
-
-  }
-
   private void update(DbSession session, RuleDto rule) {
     rule.setUpdatedAt(system.now());
-    dbClient.ruleDao().update(session, rule);
+    dbClient.ruleDao().update(session, rule.getDefinition());
+    dbClient.ruleDao().update(session, rule.getMetadata());
   }
 
 }

@@ -40,6 +40,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -50,17 +51,19 @@ public class DefaultRuleFinder implements RuleFinder {
 
   private final DbClient dbClient;
   private final RuleDao ruleDao;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DefaultRuleFinder(DbClient dbClient) {
+  public DefaultRuleFinder(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.ruleDao = dbClient.ruleDao();
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findById(int ruleId) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<RuleDto> rule = ruleDao.selectById(ruleId, dbSession);
+      Optional<RuleDto> rule = ruleDao.selectById(ruleId, defaultOrganizationProvider.get().getUuid(), dbSession);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       }
@@ -75,7 +78,7 @@ public class DefaultRuleFinder implements RuleFinder {
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> ruleDtos = ruleDao.selectByIds(dbSession, new ArrayList<>(ruleIds));
+      List<RuleDto> ruleDtos = ruleDao.selectByIds(dbSession, defaultOrganizationProvider.get().getUuid(), new ArrayList<>(ruleIds));
       return convertToRuleApi(dbSession, ruleDtos);
     }
   }
@@ -87,7 +90,7 @@ public class DefaultRuleFinder implements RuleFinder {
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, new ArrayList<>(ruleKeys));
+      List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, defaultOrganizationProvider.get().getUuid(), new ArrayList<>(ruleKeys));
       return convertToRuleApi(dbSession, ruleDtos);
     }
   }
@@ -96,7 +99,7 @@ public class DefaultRuleFinder implements RuleFinder {
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, key);
+      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, defaultOrganizationProvider.get().getUuid(), key);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       } else {
@@ -114,7 +117,7 @@ public class DefaultRuleFinder implements RuleFinder {
   @Override
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
+      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, defaultOrganizationProvider.get().getUuid(), query);
       if (!rules.isEmpty()) {
         RuleDto rule = rules.get(0);
         return toRule(rule, ruleDao.selectRuleParamsByRuleKey(dbSession, rule.getKey()));
@@ -126,7 +129,7 @@ public class DefaultRuleFinder implements RuleFinder {
   @Override
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
+      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, defaultOrganizationProvider.get().getUuid(), query);
       if (rules.isEmpty()) {
         return Collections.emptyList();
       }

@@ -42,6 +42,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -74,16 +75,19 @@ public class RegisterRulesMediumTest {
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(TESTER);
 
-  DbClient db = TESTER.get(DbClient.class);
-  DbSession dbSession = TESTER.get(DbClient.class).openSession(false);
+  private DbClient db = TESTER.get(DbClient.class);
+  private DbSession dbSession = TESTER.get(DbClient.class).openSession(false);
 
-  RuleIndex ruleIndex = TESTER.get(RuleIndex.class);
-  RuleDao ruleDao = db.ruleDao();
+  private RuleIndex ruleIndex = TESTER.get(RuleIndex.class);
+  private RuleDao ruleDao = db.ruleDao();
+
+  private String defaultOrganizationUuid;
 
   @Before
   public void before() {
     TESTER.clearDbAndIndexes();
     dbSession.clearCache();
+    defaultOrganizationUuid = TESTER.get(DefaultOrganizationProvider.class).get().getUuid();
   }
 
   @After
@@ -221,7 +225,7 @@ public class RegisterRulesMediumTest {
         repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1");
       }
     });
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RuleTesting.XOO_X1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
     assertThat(rule.getTags()).isEmpty();
 
@@ -229,20 +233,20 @@ public class RegisterRulesMediumTest {
     TESTER.get(RuleUpdater.class).update(dbSession, RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), userSessionRule);
     dbSession.clearCache();
 
-    rule = ruleDao.selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
+    rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RuleTesting.XOO_X1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
     assertThat(rule.getTags()).containsOnly("tag2");
 
-    // Definition updated -> user tag "tag2" becomes a system tag
-    register(new Rules() {
-      @Override
-      public void init(RulesDefinition.NewRepository repository) {
-        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1", "tag2");
-      }
-    });
-    rule = ruleDao.selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
-    assertThat(rule.getSystemTags()).containsOnly("tag1", "tag2");
-    assertThat(rule.getTags()).isEmpty();
+    // FIXME: not supported anymore because information specific to an organization: Definition updated -> user tag "tag2" becomes a system tag
+//    register(new Rules() {
+//      @Override
+//      public void init(RulesDefinition.NewRepository repository) {
+//        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1", "tag2");
+//      }
+//    });
+//    rule = ruleDao.selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
+//    assertThat(rule.getSystemTags()).containsOnly("tag1", "tag2");
+//    assertThat(rule.getTags()).isEmpty();
   }
 
   @Test
@@ -261,10 +265,10 @@ public class RegisterRulesMediumTest {
           .setDescription("format parameter");
       }
     });
-    RuleDto template = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
+    RuleDefinitionDto template = ruleDao.selectOrFailDefinitionByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -289,12 +293,12 @@ public class RegisterRulesMediumTest {
     });
 
     // Verify custom rule has been restore from the template
-    RuleDto customRule = ruleDao.selectOrFailByKey(dbSession, customRuleKey);
+    RuleDefinitionDto customRule = ruleDao.selectOrFailDefinitionByKey(dbSession, customRuleKey);
     assertThat(customRule.getLanguage()).isEqualTo("xoo");
     assertThat(customRule.getConfigKey()).isEqualTo("new_internal");
     assertThat(customRule.getSeverityString()).isEqualTo(Severity.BLOCKER);
     assertThat(customRule.getStatus()).isEqualTo(RuleStatus.BETA);
-    assertThat(customRule.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
+    assertThat(customRule.getDefRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(customRule.getGapDescription()).isEqualTo("Effort");
 
     assertThat(ruleIndex.search(new RuleQuery().setKey(customRuleKey.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
@@ -317,22 +321,22 @@ public class RegisterRulesMediumTest {
       }
     };
     register(rules);
-    RuleDto template = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
+    RuleDefinitionDto template = ruleDao.selectOrFailDefinitionByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("format", "txt")));
 
-    Long updatedAt = ruleDao.selectOrFailByKey(dbSession, customRuleKey).getUpdatedAt();
+    Long updatedAt = ruleDao.selectOrFailDefinitionByKey(dbSession, customRuleKey).getUpdatedAt();
 
     register(rules);
 
     // Verify custom rule has been restore from the template
-    RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, customRuleKey);
+    RuleDefinitionDto customRuleReloaded = ruleDao.selectOrFailDefinitionByKey(dbSession, customRuleKey);
     assertThat(customRuleReloaded.getUpdatedAt()).isEqualTo(updatedAt);
   }
 
@@ -352,10 +356,10 @@ public class RegisterRulesMediumTest {
           .setDescription("format parameter");
       }
     });
-    RuleDto templateRule = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
+    RuleDefinitionDto templateRule = ruleDao.selectOrFailDefinitionByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -400,28 +404,28 @@ public class RegisterRulesMediumTest {
       }
     };
     register(rules);
-    RuleDto templateRule = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
+    RuleDefinitionDto templateRule = ruleDao.selectOrFailDefinitionByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(dbSession, NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("format", "txt")));
-    assertThat(ruleDao.selectOrFailByKey(dbSession, customRuleKey).getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(ruleDao.selectOrFailDefinitionByKey(dbSession, customRuleKey).getStatus()).isEqualTo(RuleStatus.READY);
 
     // Restart without template
     register(null);
 
     // Verify custom rule is removed
-    assertThat(ruleDao.selectOrFailByKey(dbSession, templateRule.getKey()).getStatus()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(ruleDao.selectOrFailByKey(dbSession, customRuleKey).getStatus()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(ruleDao.selectOrFailDefinitionByKey(dbSession, templateRule.getKey()).getStatus()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(ruleDao.selectOrFailDefinitionByKey(dbSession, customRuleKey).getStatus()).isEqualTo(RuleStatus.REMOVED);
 
     // Re-install template
     register(rules);
-    assertThat(ruleDao.selectOrFailByKey(dbSession, templateRule.getKey()).getStatus()).isEqualTo(RuleStatus.READY);
-    assertThat(ruleDao.selectOrFailByKey(dbSession, customRuleKey).getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(ruleDao.selectOrFailDefinitionByKey(dbSession, templateRule.getKey()).getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(ruleDao.selectOrFailDefinitionByKey(dbSession, customRuleKey).getStatus()).isEqualTo(RuleStatus.READY);
   }
 
   interface Rules {

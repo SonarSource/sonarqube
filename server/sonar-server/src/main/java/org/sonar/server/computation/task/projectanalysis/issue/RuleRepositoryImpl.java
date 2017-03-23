@@ -27,6 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -39,9 +40,11 @@ public class RuleRepositoryImpl implements RuleRepository {
   private Map<Integer, Rule> rulesById;
 
   private final DbClient dbClient;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public RuleRepositoryImpl(DbClient dbClient) {
+  public RuleRepositoryImpl(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -95,7 +98,8 @@ public class RuleRepositoryImpl implements RuleRepository {
   private void loadRulesFromDb(DbSession dbSession) {
     ImmutableMap.Builder<RuleKey, Rule> rulesByKeyBuilder = ImmutableMap.builder();
     ImmutableMap.Builder<Integer, Rule> rulesByIdBuilder = ImmutableMap.builder();
-    for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession)) {
+    String organizationUuid = analysisMetadataHolder.getOrganization().getUuid();
+    for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession, organizationUuid)) {
       Rule rule = new RuleImpl(ruleDto);
       rulesByKeyBuilder.put(ruleDto.getKey(), rule);
       rulesByIdBuilder.put(ruleDto.getId(), rule);

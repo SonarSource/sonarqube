@@ -22,7 +22,7 @@ package org.sonar.server.ws;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.Paging;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Common;
 
@@ -43,7 +43,7 @@ public class WsResponseCommonFormat {
       .setTotal(paging.total());
   }
 
-  public Common.Rule.Builder formatRule(RuleDto rule) {
+  public Common.Rule.Builder formatRule(RuleDefinitionDto rule) {
     Common.Rule.Builder builder = Common.Rule.newBuilder()
       .setKey(rule.getKey().toString())
       .setName(nullToEmpty(rule.getName()))

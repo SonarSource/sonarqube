@@ -175,7 +175,11 @@ public class IssueServiceMediumTest {
   }
 
   private RuleDto newRule(RuleDto rule) {
-    tester.get(RuleDao.class).insert(session, rule);
+    RuleDao ruleDao = tester.get(RuleDao.class);
+    ruleDao.insert(session, rule.getDefinition());
+    if (rule.getOrganizationUuid() != null) {
+      ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
+    }
     session.commit();
     ruleIndexer.index();
     return rule;
@@ -194,7 +198,7 @@ public class IssueServiceMediumTest {
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project),
-      GroupIdOrAnyone.forAnyone(organization.getUuid()));
+        GroupIdOrAnyone.forAnyone(organization.getUuid()));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
     userSessionRule.logIn();
 

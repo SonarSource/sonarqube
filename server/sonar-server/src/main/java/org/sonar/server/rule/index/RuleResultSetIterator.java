@@ -53,7 +53,7 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
     "r.priority",
     "r.status",
     "r.is_template",
-    "r.tags",
+    "rm.tags",
     "r.system_tags",
 
     // column 11
@@ -67,7 +67,8 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
   };
 
   private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM rules r " +
-    "LEFT OUTER JOIN rules t ON t.id=r.template_id";
+    "LEFT OUTER JOIN rules t ON t.id=r.template_id " +
+    "LEFT OUTER JOIN rules_metadata rm ON rm.rule_id = r.id and rm.organization_uuid=?";
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE r.updated_at>?";
 
@@ -77,12 +78,13 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
     super(stmt);
   }
 
-  static RuleResultSetIterator create(DbClient dbClient, DbSession session, long afterDate) {
+  static RuleResultSetIterator create(DbClient dbClient, DbSession session, String organizationUuid, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
       PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
+      stmt.setString(1, organizationUuid);
       if (afterDate > 0L) {
-        stmt.setLong(1, afterDate);
+        stmt.setLong(2, afterDate);
       }
       return new RuleResultSetIterator(stmt);
     } catch (SQLException e) {
@@ -92,7 +94,7 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
 
   @Override
   protected RuleDoc read(ResultSet rs) throws SQLException {
-    RuleDoc doc = new RuleDoc(Maps.<String, Object>newHashMapWithExpectedSize(16));
+    RuleDoc doc = new RuleDoc(Maps.newHashMapWithExpectedSize(16));
 
     String ruleKey = rs.getString(1);
     String repositoryKey = rs.getString(2);

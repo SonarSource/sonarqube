@@ -51,6 +51,8 @@ import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -88,6 +90,7 @@ public class DoTransitionActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = dbTester.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
   private RuleDbTester ruleDbTester = new RuleDbTester(dbTester);
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
@@ -99,7 +102,7 @@ public class DoTransitionActionTest {
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, issueIndexer), mock(NotificationManager.class));
+    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class), defaultOrganizationProvider);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter);
   private WsActionTester tester = new WsActionTester(underTest);

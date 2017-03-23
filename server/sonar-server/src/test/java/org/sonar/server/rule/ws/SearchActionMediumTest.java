@@ -20,7 +20,6 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
 import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
@@ -36,15 +35,19 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganization;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -74,21 +77,22 @@ public class SearchActionMediumTest {
   private static final String API_SEARCH_METHOD = "search";
 
   private DbClient db;
-  private RulesWs ws;
   private RuleDao ruleDao;
   private DbSession dbSession;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     ruleDao = tester.get(RuleDao.class);
-    ws = tester.get(RulesWs.class);
     dbSession = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
+    this.defaultOrganization = db.organizationDao().selectByUuid(dbSession, defaultOrganization.getUuid()).get();
   }
 
   @After
@@ -107,8 +111,8 @@ public class SearchActionMediumTest {
 
   @Test
   public void filter_by_key_rules() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2());
+    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
+    ruleDao.insert(dbSession, RuleTesting.newXooX2().getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -127,10 +131,14 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_2_rules() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setType(RuleType.BUG));
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()
-      .setType(RuleType.VULNERABILITY));
+    RuleDto rule1 = RuleTesting.newXooX1(defaultOrganization)
+        .setType(RuleType.BUG);
+    ruleDao.insert(dbSession, rule1.getDefinition());
+    ruleDao.update(dbSession, rule1.getMetadata().setRuleId(rule1.getId()));
+    RuleDto rule2 = RuleTesting.newXooX2(defaultOrganization)
+        .setType(RuleType.VULNERABILITY);
+    ruleDao.insert(dbSession, rule2.getDefinition());
+    ruleDao.update(dbSession, rule2.getMetadata().setRuleId(rule2.getId()));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -143,13 +151,13 @@ public class SearchActionMediumTest {
   @Test
   public void search_2_rules_with_fields_selection() throws Exception {
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setType(RuleType.CODE_SMELL))
-    ;
+      .setType(RuleType.CODE_SMELL)
+      .getDefinition());
     ruleDao.insert(dbSession, RuleTesting.newXooX2()
       .setType(RuleType.BUG)
       .setDescription("A *Xoo* rule")
-      .setDescriptionFormat(RuleDto.Format.MARKDOWN))
-    ;
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -163,8 +171,8 @@ public class SearchActionMediumTest {
   public void return_mandatory_fields_even_when_setting_f_param() throws Exception {
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
       .setName("Rule x1")
-      .setType(RuleType.CODE_SMELL))
-    ;
+      .setType(RuleType.CODE_SMELL)
+      .getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -176,7 +184,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_lang_field() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1());
+    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -191,7 +199,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_lang_name_field() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1());
+    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -206,7 +214,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_lang_key_field_when_language_name_is_not_available() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RuleKey.of("other", "rule")).setLanguage("unknown"));
+    ruleDao.insert(dbSession, RuleTesting.newDto(RuleKey.of("other", "rule")).setLanguage("unknown").getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -219,13 +227,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("15min")
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setRemediationGapMultiplier("2h")
-      .setRemediationBaseEffort("25min"));
+      .setRemediationBaseEffort("25min");
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -237,13 +247,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("15min")
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort("5min"));
+      .setRemediationBaseEffort("5min");
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -255,13 +267,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("15min")
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setRemediationGapMultiplier("1h")
-      .setRemediationBaseEffort(null));
+      .setRemediationBaseEffort(null);
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -274,10 +288,10 @@ public class SearchActionMediumTest {
   @Test
   public void search_template_rules() throws Exception {
     RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
-    ruleDao.insert(dbSession, templateRule);
+    ruleDao.insert(dbSession, templateRule.getDefinition());
     RuleDto rule = RuleTesting.newXooX2();
     rule.setTemplateId(templateRule.getId());
-    ruleDao.insert(dbSession, rule);
+    ruleDao.insert(dbSession, rule.getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -291,8 +305,8 @@ public class SearchActionMediumTest {
   @Test
   public void search_custom_rules_from_template_key() throws Exception {
     RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
-    ruleDao.insert(dbSession, templateRule);
-    ruleDao.insert(dbSession, RuleTesting.newXooX2().setTemplateId(templateRule.getId()));
+    ruleDao.insert(dbSession, templateRule.getDefinition());
+    ruleDao.insert(dbSession, RuleTesting.newXooX2().setTemplateId(templateRule.getId()).getDefinition());
     dbSession.commit();
     ruleIndexer.index();
 
@@ -308,7 +322,7 @@ public class SearchActionMediumTest {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    RuleDto rule = RuleTesting.newXooX1();
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
     ruleDao.insert(dbSession, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
@@ -337,7 +351,7 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    RuleDto rule = RuleTesting.newXooX1();
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
     ruleDao.insert(dbSession, rule);
 
     RuleParamDto param = RuleParamDto.createFor(rule)
@@ -409,7 +423,7 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    RuleDto rule = RuleTesting.newXooX1();
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
     ruleDao.insert(dbSession, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
@@ -434,7 +448,7 @@ public class SearchActionMediumTest {
   public void search_all_active_rules_params() throws Exception {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
-    RuleDto rule = RuleTesting.newXooX1();
+    RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
     ruleDao.insert(dbSession, rule);
     dbSession.commit();
 
@@ -480,8 +494,9 @@ public class SearchActionMediumTest {
   public void get_note_as_markdown_and_html() throws Exception {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
-    RuleDto rule = RuleTesting.newXooX1().setNoteData("this is *bold*");
-    ruleDao.insert(dbSession, rule);
+    RuleDto rule = RuleTesting.newXooX1(defaultOrganization).setNoteData("this is *bold*");
+    ruleDao.insert(dbSession, rule.getDefinition());
+    ruleDao.update(dbSession, rule.getMetadata().setRuleId(rule.getId()));
 
     dbSession.commit();
     ruleIndexer.index();
@@ -496,11 +511,11 @@ public class SearchActionMediumTest {
   @Test
   public void filter_by_tags() throws Exception {
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setTags(Collections.<String>emptySet())
-      .setSystemTags(ImmutableSet.of("tag1")));
+      .setSystemTags(ImmutableSet.of("tag1"))
+      .getDefinition());
     ruleDao.insert(dbSession, RuleTesting.newXooX2()
-      .setTags(Collections.<String>emptySet())
-      .setSystemTags(ImmutableSet.of("tag2")));
+      .setSystemTags(ImmutableSet.of("tag2"))
+      .getDefinition());
 
     dbSession.commit();
     ruleIndexer.index();
@@ -530,9 +545,9 @@ public class SearchActionMediumTest {
 
   @Test
   public void statuses_facet_should_be_sticky() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2().setStatus(RuleStatus.BETA));
-    ruleDao.insert(dbSession, RuleTesting.newXooX3().setStatus(RuleStatus.DEPRECATED));
+    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
+    ruleDao.insert(dbSession, RuleTesting.newXooX2().setStatus(RuleStatus.BETA).getDefinition());
+    ruleDao.insert(dbSession, RuleTesting.newXooX3().setStatus(RuleStatus.DEPRECATED).getDefinition());
 
     dbSession.commit();
     ruleIndexer.index();
@@ -545,9 +560,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void sort_by_name() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1().setName("Dodgy - Consider returning a zero length array rather than null "));
-    ruleDao.insert(dbSession, RuleTesting.newXooX2().setName("Bad practice - Creates an empty zip file entry"));
-    ruleDao.insert(dbSession, RuleTesting.newXooX3().setName("XPath rule"));
+    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+      .setName("Dodgy - Consider returning a zero length array rather than null ")
+      .getDefinition());
+    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+      .setName("Bad practice - Creates an empty zip file entry")
+      .getDefinition());
+    ruleDao.insert(dbSession, RuleTesting.newXooX3()
+      .setName("XPath rule")
+      .getDefinition());
 
     dbSession.commit();
     ruleIndexer.index();
@@ -576,10 +597,12 @@ public class SearchActionMediumTest {
     Date since = new Date();
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
       .setUpdatedAt(since.getTime())
-      .setCreatedAt(since.getTime()));
+      .setCreatedAt(since.getTime())
+      .getDefinition());
     ruleDao.insert(dbSession, RuleTesting.newXooX2()
       .setUpdatedAt(since.getTime())
-      .setCreatedAt(since.getTime()));
+      .setCreatedAt(since.getTime())
+      .getDefinition());
 
     dbSession.commit();
     dbSession.clearCache();
@@ -603,13 +626,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_rules_with_deprecated_fields() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("15min")
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setRemediationGapMultiplier("2h")
-      .setRemediationBaseEffort("25min"));
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
+        .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefRemediationGapMultiplier("1h")
+        .setDefRemediationBaseEffort("15min")
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setRemediationGapMultiplier("2h")
+        .setRemediationBaseEffort("25min");
+    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -621,7 +646,7 @@ public class SearchActionMediumTest {
     result.assertJson(getClass(), "search_rules_with_deprecated_fields.json");
   }
 
-  private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDto rule) {
+  private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDefinitionDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
       .setInheritance(null)
       .setSeverity("BLOCKER");

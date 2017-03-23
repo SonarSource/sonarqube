@@ -28,6 +28,7 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UPDATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
@@ -35,10 +36,13 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 public class RuleIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
+  public RuleIndexer(System2 system2, DbClient dbClient, EsClient esClient,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     super(system2, esClient, 300, INDEX_TYPE_RULE, FIELD_RULE_UPDATED_AT);
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -53,7 +57,8 @@ public class RuleIndexer extends BaseIndexer {
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
     long maxDate;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RuleResultSetIterator rowIt = RuleResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
+      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+      RuleResultSetIterator rowIt = RuleResultSetIterator.create(dbClient, dbSession, defaultOrganizationUuid, lastUpdatedAt);
       maxDate = doIndex(bulk, rowIt);
       rowIt.close();
       return maxDate;

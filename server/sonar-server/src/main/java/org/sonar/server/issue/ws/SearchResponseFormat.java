@@ -40,7 +40,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
@@ -276,9 +276,9 @@ public class SearchResponseFormat {
 
   private Common.Rules.Builder formatRules(SearchResponseData data) {
     Common.Rules.Builder wsRules = Common.Rules.newBuilder();
-    List<RuleDto> rules = data.getRules();
+    List<RuleDefinitionDto> rules = data.getRules();
     if (rules != null) {
-      for (RuleDto rule : rules) {
+      for (RuleDefinitionDto rule : rules) {
         wsRules.addRules(commonFormat.formatRule(rule));
       }
     }

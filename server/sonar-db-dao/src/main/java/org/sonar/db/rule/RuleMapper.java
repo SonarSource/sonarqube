@@ -27,29 +27,39 @@ import org.sonar.api.rules.RuleQuery;
 
 public interface RuleMapper {
 
-  List<RuleDto> selectAll();
+  List<RuleDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
-  List<RuleDto> selectAll(ResultHandler resultHandler);
-
-  List<RuleDto> selectEnabled();
+  List<RuleDefinitionDto> selectAllDefinitions();
 
   void selectEnabled(ResultHandler resultHandler);
 
-  RuleDto selectById(long id);
+  RuleDto selectById(@Param("organizationUuid") String organizationUuid, @Param("id") long id);
 
-  List<RuleDto> selectByIds(@Param("ids") List<Integer> ids);
+  RuleDefinitionDto selectDefinitionById(long id);
 
-  RuleDto selectByKey(RuleKey ruleKey);
+  List<RuleDto> selectByIds(@Param("organizationUuid") String organizationUuid, @Param("ids") List<Integer> ids);
 
-  List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
+  List<RuleDefinitionDto> selectDefinitionByIds(@Param("ids") List<Integer> ids);
 
-  RuleDto selectByName(String name);
+  RuleDto selectByKey(@Param("organizationUuid") String organizationUuid, @Param("ruleKey") RuleKey ruleKey);
 
-  List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);
+  RuleDefinitionDto selectDefinitionByKey(RuleKey ruleKey);
 
-  void update(RuleDto rule);
+  List<RuleDto> selectByKeys(@Param("organizationUuid") String organizationUuid, @Param("ruleKeys") List<RuleKey> keys);
 
-  void insert(RuleDto rule);
+  List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);
+
+  List<RuleDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") RuleQuery ruleQuery);
+
+  void insertDefinition(RuleDefinitionDto ruleDefinitionDto);
+
+  void updateDefinition(RuleDefinitionDto ruleDefinitionDto);
+
+  int countMetadata(RuleMetadataDto ruleMetadataDto);
+
+  void insertMetadata(RuleMetadataDto ruleMetadataDto);
+
+  void updateMetadata(RuleMetadataDto ruleMetadataDto);
 
   List<RuleParamDto> selectParamsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 

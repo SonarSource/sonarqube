@@ -37,8 +37,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.RuleUpdate;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.user.UserSession;
@@ -71,14 +73,16 @@ public class UpdateAction implements RulesWsAction {
   private final RuleMapper mapper;
   private final UserSession userSession;
   private final RuleWsSupport ruleWsSupport;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public UpdateAction(DbClient dbClient, RuleUpdater ruleUpdater, RuleMapper mapper, UserSession userSession,
-    RuleWsSupport ruleWsSupport) {
+                      RuleWsSupport ruleWsSupport, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.ruleUpdater = ruleUpdater;
     this.mapper = mapper;
     this.userSession = userSession;
     this.ruleWsSupport = ruleWsSupport;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -163,17 +167,18 @@ public class UpdateAction implements RulesWsAction {
     ruleWsSupport.checkQProfileAdminPermission();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RuleUpdate update = readRequest(dbSession, request);
+      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+      RuleUpdate update = readRequest(dbSession, request, defaultOrganizationUuid);
       ruleUpdater.update(dbSession, update, userSession);
-      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey());
+      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey(), defaultOrganizationUuid);
 
       writeProtobuf(updateResponse, request, response);
     }
   }
 
-  private RuleUpdate readRequest(DbSession dbSession, Request request) {
+  private RuleUpdate readRequest(DbSession dbSession, Request request, String organizationUuid) {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    RuleUpdate update = createRuleUpdate(dbSession, key);
+    RuleUpdate update = createRuleUpdate(dbSession, key, organizationUuid);
     readTags(request, update);
     readMarkdownNote(request, update);
     readDebt(request, update);
@@ -201,8 +206,8 @@ public class UpdateAction implements RulesWsAction {
     return update;
   }
 
-  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key) {
-    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, key);
+  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, String organizationUuid) {
+    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, organizationUuid, key);
     checkFoundWithOptional(optionalRule, "This rule does not exists : " + key);
     RuleDto rule = optionalRule.get();
     if (rule.getTemplateId() != null) {
@@ -247,13 +252,13 @@ public class UpdateAction implements RulesWsAction {
     }
   }
 
-  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key) {
-    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, key);
+  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key, String organizationUuid) {
+    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, organizationUuid, key);
     checkFoundWithOptional(optionalRule, "Rule not found: " + key);
     RuleDto rule = optionalRule.get();
-    List<RuleDto> templateRules = new ArrayList<>();
+    List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
     if (rule.getTemplateId() != null) {
-      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
       if (templateRule.isPresent()) {
         templateRules.add(templateRule.get());
       }

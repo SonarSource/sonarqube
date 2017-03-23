@@ -37,7 +37,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -67,9 +67,9 @@ public class ActiveRuleDaoTest {
   private QualityProfileDto profile1 = QualityProfileDto.createFor("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
   private QualityProfileDto profile2 = QualityProfileDto.createFor("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
 
-  private RuleDto rule1 = RuleTesting.newDto(RuleTesting.XOO_X1);
-  private RuleDto rule2 = RuleTesting.newDto(RuleTesting.XOO_X2);
-  private RuleDto rule3 = RuleTesting.newDto(RuleTesting.XOO_X3);
+  private RuleDefinitionDto rule1 = RuleTesting.newDto(RuleTesting.XOO_X1).getDefinition();
+  private RuleDefinitionDto rule2 = RuleTesting.newDto(RuleTesting.XOO_X2).getDefinition();
+  private RuleDefinitionDto rule3 = RuleTesting.newDto(RuleTesting.XOO_X3).getDefinition();
 
   private RuleParamDto rule1Param1;
   private RuleParamDto rule1Param2;
@@ -91,9 +91,9 @@ public class ActiveRuleDaoTest {
 
     dbClient.qualityProfileDao().insert(dbSession, profile1);
     dbClient.qualityProfileDao().insert(dbSession, profile2);
-    dbClient.ruleDao().insert(dbSession, rule1);
-    dbClient.ruleDao().insert(dbSession, rule2);
-    dbClient.ruleDao().insert(dbSession, rule3);
+    dbTester.rules().insertRule(rule1);
+    dbTester.rules().insertRule(rule2);
+    dbTester.rules().insertRule(rule3);
 
     rule1Param1 = new RuleParamDto()
       .setName("param1")
@@ -212,9 +212,9 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
-  public void select_by_profile_ignore_removed_rules() {
-    RuleDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
-    dbClient.ruleDao().insert(dbTester.getSession(), removedRule);
+  public void select_by_profile_ignore_removed_rules() throws Exception {
+    RuleDefinitionDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED).getDefinition();
+    dbTester.rules().insertRule(removedRule);
     ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();
@@ -361,7 +361,7 @@ public class ActiveRuleDaoTest {
     assertThat(dbTester.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
   }
 
-  private static ActiveRuleDto newRow(QualityProfileDto profile, RuleDto rule) {
+  private static ActiveRuleDto newRow(QualityProfileDto profile, RuleDefinitionDto rule) {
     return createFor(profile, rule).setSeverity(BLOCKER);
   }
 
@@ -631,8 +631,8 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void test_countActiveRulesForRuleStatusByProfileKey_for_a_specified_organization() {
-    RuleDto betaRule1 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA));
-    RuleDto betaRule2 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA));
+    RuleDefinitionDto betaRule1 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA)).getDefinition();
+    RuleDefinitionDto betaRule2 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA)).getDefinition();
     dbTester.qualityProfiles().activateRule(profile1, rule1);
     dbTester.qualityProfiles().activateRule(profile2, betaRule1);
     dbTester.qualityProfiles().activateRule(profile2, betaRule2);

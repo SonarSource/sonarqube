@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Clob;
@@ -35,10 +36,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.dbutils.QueryRunner;
@@ -60,6 +63,7 @@ import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.asList;
@@ -88,7 +92,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
       SQLException nextException = e.getNextException();
       if (nextException != null) {
         throw new IllegalStateException("Fail to execute sql: " + sql,
-            new SQLException(e.getMessage(), nextException.getSQLState(), nextException.getErrorCode(), nextException));
+          new SQLException(e.getMessage(), nextException.getSQLState(), nextException.getErrorCode(), nextException));
       }
       throw new IllegalStateException("Fail to execute sql: " + sql, e);
     } catch (Exception e) {
@@ -98,7 +102,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
 
   public void executeDdl(String ddl) {
     try (Connection connection = getConnection();
-         Statement stmt = connection.createStatement()) {
+      Statement stmt = connection.createStatement()) {
       stmt.execute(ddl);
     } catch (SQLException e) {
       throw new IllegalStateException("Failed to execute DDL: " + ddl, e);
@@ -137,10 +141,10 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     }
 
     String sql = "insert into " + table.toLowerCase(Locale.ENGLISH) + " (" +
-        COMMA_JOINER.join(valuesByColumn.keySet()) +
-        ") values (" +
-        COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
-        ")";
+      COMMA_JOINER.join(valuesByColumn.keySet()) +
+      ") values (" +
+      COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
+      ")";
     executeUpdateSql(sql, valuesByColumn.values().toArray(new Object[valuesByColumn.size()]));
   }
 
@@ -167,11 +171,11 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
 
   protected int countSql(String sql, ConnectionSupplier connectionSupplier) {
     checkArgument(StringUtils.contains(sql, "count("),
-        "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
+      "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
     try (
-        ConnectionSupplier supplier = connectionSupplier;
-        PreparedStatement stmt = supplier.get().prepareStatement(sql);
-        ResultSet rs = stmt.executeQuery()) {
+      ConnectionSupplier supplier = connectionSupplier;
+      PreparedStatement stmt = supplier.get().prepareStatement(sql);
+      ResultSet rs = stmt.executeQuery()) {
       if (rs.next()) {
         return rs.getInt(1);
       }
@@ -188,9 +192,9 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
 
   protected List<Map<String, Object>> select(String selectSql, ConnectionSupplier connectionSupplier) {
     try (
-        ConnectionSupplier supplier = connectionSupplier;
-        PreparedStatement stmt = supplier.get().prepareStatement(selectSql);
-        ResultSet rs = stmt.executeQuery()) {
+      ConnectionSupplier supplier = connectionSupplier;
+      PreparedStatement stmt = supplier.get().prepareStatement(selectSql);
+      ResultSet rs = stmt.executeQuery()) {
       return getHashMap(rs);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + selectSql, e);
@@ -346,8 +350,8 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
 
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize, @Nullable Boolean isNullable) {
     try (Connection connection = getConnection();
-         PreparedStatement stmt = connection.prepareStatement("select * from " + table);
-         ResultSet res = stmt.executeQuery()) {
+      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+      ResultSet res = stmt.executeQuery()) {
       Integer columnIndex = getColumnIndex(res, column);
       if (columnIndex == null) {
         fail("The column '" + column + "' does not exist");
@@ -362,6 +366,14 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to check column", e);
+    }
+  }
+
+  public void assertColumnDoesNotExist(String table, String column) throws SQLException {
+    try (Connection connection = getConnection();
+      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+      ResultSet res = stmt.executeQuery()) {
+      assertThat(getColumnNames(res)).doesNotContain(column);
     }
   }
 
@@ -390,7 +402,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
 
   private void assertIndexImpl(String tableName, String indexName, boolean expectedUnique, String expectedColumn, String... expectedSecondaryColumns) {
     try (Connection connection = getConnection();
-         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> onColumns = new ArrayList<>();
       while (rs.next()) {
         if (indexName.equalsIgnoreCase(rs.getString("INDEX_NAME"))) {
@@ -410,7 +422,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
    */
   public void assertIndexDoesNotExist(String tableName, String indexName) {
     try (Connection connection = getConnection();
-         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> indices = new ArrayList<>();
       while (rs.next()) {
         indices.add(rs.getString("INDEX_NAME").toLowerCase(Locale.ENGLISH));
@@ -448,7 +460,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
   private PK pkOf(Connection connection, String tableName) throws SQLException {
     try (ResultSet resultSet = connection.getMetaData().getPrimaryKeys(null, null, tableName)) {
       String pkName = null;
-      ArrayList<String> columnNames = null;
+      List<PkColumn> columnNames = null;
       while (resultSet.next()) {
         if (columnNames == null) {
           pkName = resultSet.getString("PK_NAME");
@@ -456,12 +468,38 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
         } else {
           assertThat(pkName).as("Multiple primary keys found").isEqualTo(resultSet.getString("PK_NAME"));
         }
-        columnNames.add(resultSet.getInt("KEY_SEQ") - 1, resultSet.getString("COLUMN_NAME"));
+        columnNames.add(new PkColumn(resultSet.getInt("KEY_SEQ") - 1, resultSet.getString("COLUMN_NAME")));
       }
       if (columnNames == null) {
         return null;
       }
-      return new PK(pkName, columnNames);
+      return new PK(
+        pkName,
+        columnNames.stream()
+          .sorted(PkColumn.ORDERING_BY_INDEX)
+          .map(PkColumn::getName)
+          .collect(Collectors.toList()));
+    }
+  }
+
+  private static final class PkColumn {
+    private static final Ordering<PkColumn> ORDERING_BY_INDEX = Ordering.natural().onResultOf(PkColumn::getIndex);
+
+    /** 0-based */
+    private final int index;
+    private final String name;
+
+    private PkColumn(int index, String name) {
+      this.index = index;
+      this.name = name;
+    }
+
+    public int getIndex() {
+      return index;
+    }
+
+    public String getName() {
+      return name;
     }
   }
 
@@ -479,6 +517,20 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to get column index");
+    }
+  }
+
+  private Set<String> getColumnNames(ResultSet res) {
+    try {
+      Set<String> columnNames = new HashSet<>();
+      ResultSetMetaData meta = res.getMetaData();
+      int numCol = meta.getColumnCount();
+      for (int i = 1; i < numCol + 1; i++) {
+        columnNames.add(meta.getColumnLabel(i).toLowerCase());
+      }
+      return columnNames;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to get column names");
     }
   }
 

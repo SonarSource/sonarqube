@@ -27,7 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
@@ -82,7 +82,7 @@ public class QualityProfileDbTester {
     dbSession.commit();
   }
 
-  public void activateRule(QualityProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto>... consumers) {
+  public void activateRule(QualityProfileDto profile, RuleDefinitionDto rule, Consumer<ActiveRuleDto>... consumers) {
     ActiveRuleDto activeRule = createFor(profile, rule).setSeverity(MAJOR);
     for (Consumer<ActiveRuleDto> consumer : consumers) {
       consumer.accept(activeRule);

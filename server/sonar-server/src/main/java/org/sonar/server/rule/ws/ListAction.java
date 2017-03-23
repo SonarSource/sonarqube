@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Rules.ListResponse;
 
@@ -55,7 +55,7 @@ public class ListAction implements RulesWsAction {
     final ListResponse.Rule.Builder ruleBuilder = ListResponse.Rule.newBuilder();
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.ruleDao().selectEnabled(dbSession, resultContext -> {
-        RuleDto dto = (RuleDto) resultContext.getResultObject();
+        RuleDefinitionDto dto = (RuleDefinitionDto) resultContext.getResultObject();
         ruleBuilder
           .clear()
           .setRepository(dto.getRepositoryKey())

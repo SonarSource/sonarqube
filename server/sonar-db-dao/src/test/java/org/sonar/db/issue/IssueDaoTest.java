@@ -149,7 +149,7 @@ public class IssueDaoTest {
   }
 
   private void prepareTables() {
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RULE);
+    dbTester.rules().insertRule(RULE);
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = dbTester.components().insertProject(organizationDto, (t) -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
     dbTester.components().insertComponent(ComponentTesting.newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));

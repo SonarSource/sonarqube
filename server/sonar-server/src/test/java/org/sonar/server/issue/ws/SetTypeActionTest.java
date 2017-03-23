@@ -47,6 +47,8 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -71,28 +73,26 @@ public class SetTypeActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create();
-
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
 
   private System2 system2 = mock(System2.class);
 
   private DbClient dbClient = dbTester.getDbClient();
 
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
-
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
 
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, issueIndexer), mock(NotificationManager.class)),
+      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class), defaultOrganizationProvider),
     responseWriter));
 
   @Test

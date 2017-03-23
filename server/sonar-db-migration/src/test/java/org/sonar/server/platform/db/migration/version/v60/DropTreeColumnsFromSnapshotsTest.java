@@ -25,6 +25,7 @@ import org.sonar.db.Database;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,7 +43,8 @@ public class DropTreeColumnsFromSnapshotsTest {
     underTest.execute(context);
 
     verify(context).execute(
-      "ALTER TABLE snapshots DROP COLUMN parent_snapshot_id, DROP COLUMN scope, DROP COLUMN qualifier, DROP COLUMN root_snapshot_id, DROP COLUMN path, DROP COLUMN depth, DROP COLUMN root_component_uuid");
+      singletonList(
+        "ALTER TABLE snapshots DROP COLUMN parent_snapshot_id, DROP COLUMN scope, DROP COLUMN qualifier, DROP COLUMN root_snapshot_id, DROP COLUMN path, DROP COLUMN depth, DROP COLUMN root_component_uuid"));
   }
 
 }

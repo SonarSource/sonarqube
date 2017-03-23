@@ -33,7 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.workflow.Transition;
 
@@ -48,7 +48,7 @@ public class SearchResponseData {
 
   private Long effortTotal = null;
   private List<UserDto> users = null;
-  private List<RuleDto> rules = null;
+  private List<RuleDefinitionDto> rules = null;
   private final Map<String, String> organizationKeysByUuid = new HashMap<>();
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
   private final ListMultimap<String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
@@ -81,7 +81,7 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public List<RuleDto> getRules() {
+  public List<RuleDefinitionDto> getRules() {
     return rules;
   }
 
@@ -119,7 +119,7 @@ public class SearchResponseData {
     this.users = users;
   }
 
-  public void setRules(@Nullable List<RuleDto> rules) {
+  public void setRules(@Nullable List<RuleDefinitionDto> rules) {
     this.rules = rules;
   }
 
