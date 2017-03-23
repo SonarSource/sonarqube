@@ -22,8 +22,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { addVersion } from '../../actions';
 import AddEventForm from './AddEventForm';
+import type { Analysis } from '../../../../store/projectActivity/duck';
 
-const AddVersionForm = props => (
+type Props = {
+  addEvent: () => Promise<*>,
+  analysis: Analysis
+};
+
+const AddVersionForm = (props: Props) => (
   <AddEventForm {...props} addEventButtonText="project_activity.add_version" />
 );
 

@@ -20,12 +20,12 @@
 // @flow
 import React from 'react';
 import Modal from 'react-modal';
-import type { Analysis, Event } from '../../../../store/projectActivity/duck';
+import type { Event } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
 
 type Props = {
-  analysis: Analysis,
-  deleteEvent: () => Promise<*>,
+  analysis: string,
+  deleteEvent: (string, string) => Promise<*>,
   event: Event,
   removeEventButtonText: string,
   removeEventQuestion: string,
@@ -36,7 +36,7 @@ type State = {
   processing: boolean
 };
 
-export default class RemoveVersionForm extends React.Component {
+export default class RemoveEventForm extends React.Component {
   mounted: boolean;
   props: Props;
 

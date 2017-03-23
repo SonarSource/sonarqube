@@ -22,8 +22,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import ChangeEventForm from './ChangeEventForm';
 import { changeEvent } from '../../actions';
+import type { Event } from '../../../../store/projectActivity/duck';
 
-const ChangeVersionForm = props => (
+type Props = {
+  changeEvent: () => Promise<*>,
+  event: Event,
+  onClose: () => void
+};
+
+const ChangeVersionForm = (props: Props) => (
   <ChangeEventForm {...props} changeEventButtonText="project_activity.change_version" />
 );
 
