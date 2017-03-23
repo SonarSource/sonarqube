@@ -19,9 +19,11 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -31,12 +33,10 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.QProfileRef;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.FacetValue;
 
@@ -46,15 +46,15 @@ public class InheritanceAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final QProfileLookup profileLookup;
-  private final QProfileLoader profileLoader;
-  private final QProfileFactory profileFactory;
+  private final ActiveRuleIndex activeRuleIndex;
+  private final QProfileWsSupport wsSupport;
   private final Languages languages;
 
-  public InheritanceAction(DbClient dbClient, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, Languages languages) {
+  public InheritanceAction(DbClient dbClient, QProfileLookup profileLookup, ActiveRuleIndex activeRuleIndex, QProfileWsSupport wsSupport, Languages languages) {
     this.dbClient = dbClient;
     this.profileLookup = profileLookup;
-    this.profileLoader = profileLoader;
-    this.profileFactory = profileFactory;
+    this.activeRuleIndex = activeRuleIndex;
+    this.wsSupport = wsSupport;
     this.languages = languages;
   }
 
@@ -66,25 +66,34 @@ public class InheritanceAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-inheritance.json"));
 
-    QProfileRef.defineParams(inheritance, languages);
+    QProfileWsSupport.createOrganizationParam(inheritance)
+      .setSince("6.4");
+    QProfileReference.defineParams(inheritance, languages);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
-      List<QProfile> ancestors = profileLookup.ancestors(profile, dbSession);
+    QProfileReference reference = QProfileReference.from(request);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityProfileDto profile = wsSupport.getProfile(dbSession, reference);
+      String organizationUuid = profile.getOrganizationUuid();
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+        .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' for quality profile '%s'", organizationUuid, profile.getKee())));
+      List<QualityProfileDto> ancestors = profileLookup.ancestors(profile, dbSession);
       List<QualityProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKey());
-      Map<String, Multimap<String, FacetValue>> profileStats = profileLoader.getAllProfileStats();
+      Map<String, Multimap<String, FacetValue>> profileStats = getAllProfileStats(dbSession, organization);
 
       writeResponse(response.newJsonWriter(), profile, ancestors, children, profileStats);
-    } finally {
-      dbSession.close();
     }
   }
 
-  private void writeResponse(JsonWriter json, QualityProfileDto profile, List<QProfile> ancestors, List<QualityProfileDto> children,
+  @VisibleForTesting
+  Map<String, Multimap<String, FacetValue>> getAllProfileStats(DbSession dbSession, OrganizationDto organization) {
+    List<String> keys = dbClient.qualityProfileDao().selectAll(dbSession, organization).stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
+    return activeRuleIndex.getStatsByProfileKeys(keys);
+  }
+
+  private static void writeResponse(JsonWriter json, QualityProfileDto profile, List<QualityProfileDto> ancestors, List<QualityProfileDto> children,
     Map<String, Multimap<String, FacetValue>> profileStats) {
     json.beginObject();
     writeProfile(json, profile, profileStats);
@@ -93,22 +102,22 @@ public class InheritanceAction implements QProfileWsAction {
     json.endObject().close();
   }
 
-  private void writeProfile(JsonWriter json, QualityProfileDto profile, Map<String, Multimap<String, FacetValue>> profileStats) {
+  private static void writeProfile(JsonWriter json, QualityProfileDto profile, Map<String, Multimap<String, FacetValue>> profileStats) {
     String profileKey = profile.getKey();
     json.name("profile");
     writeProfileAttributes(json, profileKey, profile.getName(), profile.getParentKee(), profileStats);
   }
 
-  private void writeAncestors(JsonWriter json, List<QProfile> ancestors, Map<String, Multimap<String, FacetValue>> profileStats) {
+  private static void writeAncestors(JsonWriter json, List<QualityProfileDto> ancestors, Map<String, Multimap<String, FacetValue>> profileStats) {
     json.name("ancestors").beginArray();
-    for (QProfile ancestor : ancestors) {
-      String ancestorKey = ancestor.key();
-      writeProfileAttributes(json, ancestorKey, ancestor.name(), ancestor.parent(), profileStats);
+    for (QualityProfileDto ancestor : ancestors) {
+      String ancestorKey = ancestor.getKey();
+      writeProfileAttributes(json, ancestorKey, ancestor.getName(), ancestor.getParentKee(), profileStats);
     }
     json.endArray();
   }
 
-  private void writeChildren(JsonWriter json, List<QualityProfileDto> children, Map<String, Multimap<String, FacetValue>> profileStats) {
+  private static void writeChildren(JsonWriter json, List<QualityProfileDto> children, Map<String, Multimap<String, FacetValue>> profileStats) {
     json.name("children").beginArray();
     for (QualityProfileDto child : children) {
       String childKey = child.getKey();
@@ -117,7 +126,7 @@ public class InheritanceAction implements QProfileWsAction {
     json.endArray();
   }
 
-  private void writeProfileAttributes(JsonWriter json, String key, String name, @Nullable String parentKey, Map<String, Multimap<String, FacetValue>> profileStats) {
+  private static void writeProfileAttributes(JsonWriter json, String key, String name, @Nullable String parentKey, Map<String, Multimap<String, FacetValue>> profileStats) {
     json.beginObject();
     json.prop("key", key)
       .prop("name", name)
@@ -126,7 +135,7 @@ public class InheritanceAction implements QProfileWsAction {
     json.endObject();
   }
 
-  private void writeStats(JsonWriter json, String profileKey, Map<String, Multimap<String, FacetValue>> profileStats) {
+  private static void writeStats(JsonWriter json, String profileKey, Map<String, Multimap<String, FacetValue>> profileStats) {
     if (profileStats.containsKey(profileKey)) {
       Multimap<String, FacetValue> ancestorStats = profileStats.get(profileKey);
       json.prop("activeRuleCount", getActiveRuleCount(ancestorStats));
@@ -136,7 +145,7 @@ public class InheritanceAction implements QProfileWsAction {
     }
   }
 
-  private Long getActiveRuleCount(Multimap<String, FacetValue> profileStats) {
+  private static Long getActiveRuleCount(Multimap<String, FacetValue> profileStats) {
     Long result = null;
     if (profileStats.containsKey(COUNT_ACTIVE_RULES)) {
       result = profileStats.get(COUNT_ACTIVE_RULES).iterator().next().getValue();
@@ -144,7 +153,7 @@ public class InheritanceAction implements QProfileWsAction {
     return result;
   }
 
-  private Long getOverridingRuleCount(Multimap<String, FacetValue> profileStats) {
+  private static Long getOverridingRuleCount(Multimap<String, FacetValue> profileStats) {
     Long result = null;
     if (profileStats.containsKey(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE)) {
       for (FacetValue value : profileStats.get(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE)) {

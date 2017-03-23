@@ -21,74 +21,88 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.apache.commons.lang.RandomStringUtils;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.util.Slug;
+import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
-import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
- * Create, delete, rename and set as default profile.
+ * Create, delete and set as default profile.
  */
 public class QProfileFactory {
 
   private final DbClient db;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final UuidFactory uuidFactory;
+  private final System2 system2;
 
-  public QProfileFactory(DbClient db, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public QProfileFactory(DbClient db, UuidFactory uuidFactory, System2 system2) {
     this.db = db;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.uuidFactory = uuidFactory;
+    this.system2 = system2;
   }
 
   // ------------- CREATION
 
-  QualityProfileDto getOrCreate(DbSession dbSession, QProfileName name) {
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
+  QualityProfileDto getOrCreate(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+    requireNonNull(organization);
+    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
-      profile = doCreate(dbSession, name);
+      profile = doCreate(dbSession, organization, name, false);
     }
     return profile;
   }
 
-  public QualityProfileDto create(DbSession dbSession, QProfileName name) {
-    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
+  /**
+   * Create the quality profile in DB with the specified name.
+   *
+   * @throws BadRequestException if a quality profile with the specified name already exists
+   */
+  public QualityProfileDto checkAndCreate(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+    requireNonNull(organization);
+    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     checkRequest(dto == null, "Quality profile already exists: %s", name);
-    return doCreate(dbSession, name);
+    return doCreate(dbSession, organization, name, false);
   }
 
-  private QualityProfileDto doCreate(DbSession dbSession, QProfileName name) {
+  /**
+   * Create the quality profile in DB with the specified name.
+   *
+   * A DB error will be thrown if the quality profile already exists.
+   */
+  public QualityProfileDto create(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
+    return doCreate(dbSession, requireNonNull(organization), name, isDefault);
+  }
+
+  private static OrganizationDto requireNonNull(@Nullable OrganizationDto organization) {
+    Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
+    return organization;
+  }
+
+  private QualityProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
-    Date now = new Date();
-    for (int i = 0; i < 20; i++) {
-      String key = Slug.slugify(String.format("%s %s %s", name.getLanguage(), name.getName(), RandomStringUtils.randomNumeric(5)));
-      QualityProfileDto dto = QualityProfileDto.createFor(key)
-        .setName(name.getName())
-        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
-        .setLanguage(name.getLanguage())
-        .setRulesUpdatedAtAsDate(now);
-      if (db.qualityProfileDao().selectByKey(dbSession, dto.getKey()) == null) {
-        db.qualityProfileDao().insert(dbSession, dto);
-        return dto;
-      }
-    }
-
-    throw new IllegalStateException("Failed to create an unique quality profile for " + name);
+    Date now = new Date(system2.now());
+    QualityProfileDto dto = QualityProfileDto.createFor(uuidFactory.create())
+      .setName(name.getName())
+      .setOrganizationUuid(organization.getUuid())
+      .setLanguage(name.getLanguage())
+      .setDefault(isDefault)
+      .setRulesUpdatedAtAsDate(now);
+    db.qualityProfileDao().insert(dbSession, dto);
+    return dto;
   }
 
   // ------------- DELETION
@@ -128,96 +142,9 @@ public class QProfileFactory {
 
   // ------------- DEFAULT PROFILE
 
-  public List<QualityProfileDto> getDefaults(DbSession session, Collection<String> languageKeys) {
-    return db.qualityProfileDao().selectDefaultProfiles(session, languageKeys);
-  }
-
-  public void setDefault(String profileKey) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      setDefault(dbSession, profileKey);
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  void setDefault(DbSession dbSession, String profileKey) {
-    checkRequest(StringUtils.isNotBlank(profileKey), "Profile key must be set");
-    QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
-    if (profile == null) {
-      throw new NotFoundException("Quality profile not found: " + profileKey);
-    }
-    setDefault(dbSession, profile);
-    dbSession.commit();
-  }
-
-  private void setDefault(DbSession session, QualityProfileDto profile) {
-    QualityProfileDto previousDefault = db.qualityProfileDao().selectDefaultProfile(session, profile.getLanguage());
-    if (previousDefault != null) {
-      db.qualityProfileDao().update(session, previousDefault.setDefault(false));
-    }
-    db.qualityProfileDao().update(session, profile.setDefault(true));
-  }
-
-  public QualityProfileDto find(DbSession dbSession, QProfileRef ref) {
-    if (ref.hasKey()) {
-      return findByKey(dbSession, ref.getKey());
-    }
-    return findByName(dbSession, ref.getLanguage(), ref.getName());
-  }
-
-  private QualityProfileDto findByKey(DbSession dbSession, String profileKey) {
-    QualityProfileDto profile;
-    profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
-    return checkFound(profile, "Unable to find a profile for with key '%s'", profileKey);
-  }
-
-  private QualityProfileDto findByName(DbSession dbSession, String language, String profileName) {
-    QualityProfileDto profile;
-    profile = db.qualityProfileDao().selectByNameAndLanguage(profileName, language, dbSession);
-    return checkFound(profile, "Unable to find a profile for language '%s' with name '%s'", language, profileName);
-  }
-
-  @CheckForNull
-  public QualityProfileDto getByProjectAndLanguage(DbSession session, String projectKey, String language) {
-    return db.qualityProfileDao().selectByProjectAndLanguage(session, projectKey, language);
-  }
-
-  public List<QualityProfileDto> getByProjectAndLanguages(DbSession session, String projectKey, Set<String> languageKeys) {
-    return db.qualityProfileDao().selectByProjectAndLanguages(session, projectKey, languageKeys);
-  }
-
-  public List<QualityProfileDto> getByNameAndLanguages(DbSession session, String name, Collection<String> languages) {
-    return db.qualityProfileDao().selectByNameAndLanguages(name, languages, session);
-  }
-
   private static void checkNotDefault(QualityProfileDto p) {
     if (p.isDefault()) {
       throw BadRequestException.create("The profile marked as default can not be deleted: " + p.getKey());
-    }
-  }
-
-  // ------------- RENAME
-
-  public boolean rename(String key, String newName) {
-    checkRequest(StringUtils.isNotBlank(newName), "Name must be set");
-    checkRequest(newName.length() < 100, String.format("Name is too long (>%d characters)", 100));
-    DbSession dbSession = db.openSession(false);
-    try {
-      QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, key);
-      if (profile == null) {
-        throw new NotFoundException("Quality profile not found: " + key);
-      }
-      if (!StringUtils.equals(newName, profile.getName())) {
-        checkRequest(db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) == null, "Quality profile already exists: %s", newName);
-        profile.setName(newName);
-        db.qualityProfileDao().update(dbSession, profile);
-        dbSession.commit();
-        return true;
-      }
-      return false;
-    } finally {
-      dbSession.close();
     }
   }
 }

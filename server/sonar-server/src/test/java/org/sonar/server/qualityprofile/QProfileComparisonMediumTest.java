@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.MapDifference.ValueDifference;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
@@ -40,6 +38,8 @@ import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class QProfileComparisonMediumTest {
 
@@ -90,7 +90,7 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_empty_profiles() {
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isEmpty();
@@ -110,7 +110,7 @@ public class QProfileComparisonMediumTest {
     ruleActivator.activate(dbSession, commonActivation, right);
     dbSession.commit();
 
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
@@ -125,7 +125,7 @@ public class QProfileComparisonMediumTest {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), left);
     dbSession.commit();
 
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isEmpty();
@@ -140,7 +140,7 @@ public class QProfileComparisonMediumTest {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), right);
     dbSession.commit();
 
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isEmpty();
@@ -156,7 +156,7 @@ public class QProfileComparisonMediumTest {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule2.getKey()), right);
     dbSession.commit();
 
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isEmpty();
@@ -172,7 +172,7 @@ public class QProfileComparisonMediumTest {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setSeverity(Severity.BLOCKER), right);
     dbSession.commit();
 
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isEmpty();
@@ -193,7 +193,7 @@ public class QProfileComparisonMediumTest {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("max", "30"), right);
     dbSession.commit();
 
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isEmpty();
@@ -217,7 +217,7 @@ public class QProfileComparisonMediumTest {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("min", "5"), right);
     dbSession.commit();
 
-    QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
     assertThat(result.same()).isEmpty();
@@ -232,15 +232,5 @@ public class QProfileComparisonMediumTest {
     assertThat(activeRuleDiff.paramDifference().entriesDiffering()).isEmpty();
     assertThat(activeRuleDiff.paramDifference().entriesOnlyOnLeft()).containsExactly(MapEntry.entry("max", "20"));
     assertThat(activeRuleDiff.paramDifference().entriesOnlyOnRight()).containsExactly(MapEntry.entry("min", "5"));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_on_unknown_left() {
-    comparison.compare("polop", right.getKey());
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_on_unknown_right() {
-    comparison.compare(left.getKey(), "polop");
   }
 }

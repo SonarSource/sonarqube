@@ -34,6 +34,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -62,8 +63,8 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
-  public List<QualityProfileDto> selectAll(DbSession session) {
-    return mapper(session).selectAll();
+  public List<QualityProfileDto> selectAll(DbSession session, OrganizationDto organization) {
+    return mapper(session).selectAll(organization.getUuid());
   }
 
   public void insert(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
@@ -101,13 +102,13 @@ public class QualityProfileDao implements Dao {
     mapper.delete(profileId);
   }
 
-  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, mapper(session)::selectDefaultProfiles);
+  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
+    return executeLargeInputs(languageKeys, chunk -> mapper(session).selectDefaultProfiles(organization.getUuid(), chunk));
   }
 
   @CheckForNull
-  public QualityProfileDto selectDefaultProfile(DbSession session, String language) {
-    return mapper(session).selectDefaultProfile(language);
+  public QualityProfileDto selectDefaultProfile(DbSession session, OrganizationDto organization, String language) {
+    return mapper(session).selectDefaultProfile(organization.getUuid(), language);
   }
 
   @CheckForNull
@@ -115,12 +116,12 @@ public class QualityProfileDao implements Dao {
     return mapper(session).selectByProjectAndLanguage(projectKey, language);
   }
 
-  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, String projectKey, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(projectKey, input));
+  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, String projectKey, Collection<String> languageKeys) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), projectKey, input));
   }
 
-  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, String language) {
-    return mapper(dbSession).selectByLanguage(language);
+  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
+    return mapper(dbSession).selectByLanguage(organization.getUuid(), language);
   }
 
   @CheckForNull
@@ -149,19 +150,44 @@ public class QualityProfileDao implements Dao {
     return descendants;
   }
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   @CheckForNull
   public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
-    return mapper(session).selectByNameAndLanguage(name, language);
+    return mapper(session).selectByNameAndLanguage(null, name, language);
   }
 
+  @CheckForNull
+  public QualityProfileDto selectByNameAndLanguage(OrganizationDto organization, String name, String language, DbSession session) {
+    return mapper(session).selectByNameAndLanguage(organization.getUuid(), name, language);
+  }
+
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public List<QualityProfileDto> selectByNameAndLanguages(String name, Collection<String> languageKeys, DbSession session) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(name, input));
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(null, name, input));
   }
 
+  public List<QualityProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organization.getUuid(), name, input));
+  }
+
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {
     return mapper(session).selectProjects(profileName, language);
   }
 
+  /**
+   * @deprecated provide organization
+   */
+  @Deprecated
   public Map<String, Long> countProjectsByProfileKey(DbSession dbSession) {
     Map<String, Long> countByKey = new HashMap<>();
     QualityProfileMapper mapper = mapper(dbSession);
@@ -202,8 +228,11 @@ public class QualityProfileDao implements Dao {
     return mapper(session).selectProjectAssociations(profileKey, nameQuery);
   }
 
-  private String sqlQueryString(@Nullable String query) {
-    return query == null ? "%" : "%" + query.toUpperCase(Locale.ENGLISH) + "%";
+  private static String sqlQueryString(@Nullable String query) {
+    if (query == null) {
+      return "%";
+    }
+    return "%" + query.toUpperCase(Locale.ENGLISH) + "%";
   }
 
   private static QualityProfileMapper mapper(DbSession session) {

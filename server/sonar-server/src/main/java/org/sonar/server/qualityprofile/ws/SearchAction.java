@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +28,11 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -36,17 +41,29 @@ import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.*;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 
 public class SearchAction implements QProfileWsAction {
 
   private final SearchDataLoader dataLoader;
   private final Languages languages;
+  private final ActiveRuleIndex activeRuleIndex;
+  private final DbClient dbClient;
+  private final QProfileWsSupport wsSupport;
 
-  public SearchAction(SearchDataLoader dataLoader, Languages languages) {
+  public SearchAction(SearchDataLoader dataLoader, Languages languages, ActiveRuleIndex activeRuleIndex, DbClient dbClient, QProfileWsSupport wsSupport) {
     this.dataLoader = dataLoader;
     this.languages = languages;
+    this.activeRuleIndex = activeRuleIndex;
+    this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -56,6 +73,9 @@ public class SearchAction implements QProfileWsAction {
       .setDescription("List quality profiles.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
+
+    QProfileWsSupport.createOrganizationParam(action)
+      .setSince("6.4");
 
     action
       .createParam(PARAM_LANGUAGE)
@@ -91,31 +111,61 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
-    return  new SearchWsRequest()
+    return new SearchWsRequest()
+      .setOrganizationKey(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setProfileName(request.param(PARAM_PROFILE_NAME))
       .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
       .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest request) {
-    SearchData data = dataLoader.load(request);
+  @VisibleForTesting
+  SearchWsResponse doHandle(SearchWsRequest request) {
+    validateRequest(request);
+    SearchData data = load(request);
     return buildResponse(data);
   }
 
+  private SearchData load(SearchWsRequest request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.getOrganizationKey());
+      return new SearchData()
+        .setOrganization(organization)
+        .setProfiles(dataLoader.findProfiles(dbSession, request, organization))
+        .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
+        .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession));
+    }
+  }
+
+  private static void validateRequest(SearchWsRequest request) {
+    boolean hasLanguage = request.getLanguage() != null;
+    boolean isDefault = request.getDefaults();
+    boolean hasComponentKey = request.getProjectKey() != null;
+    boolean hasProfileName = request.getProfileName() != null;
+
+    checkRequest(!hasLanguage || (!hasComponentKey && !hasProfileName && !isDefault),
+      "The language parameter cannot be provided at the same time than the component key or profile name.");
+    checkRequest(!isDefault || !hasComponentKey, "The default parameter cannot be provided at the same time than the component key.");
+    checkRequest(!hasProfileName || hasComponentKey || isDefault, "The name parameter requires either projectKey or defaults to be set.");
+  }
+
   private SearchWsResponse buildResponse(SearchData data) {
-    List<QProfile> profiles = data.getProfiles();
-    Map<String, QProfile> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfile::key, identity()));
+    List<QualityProfileDto> profiles = data.getProfiles();
+    Map<String, QualityProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QualityProfileDto::getKey, identity()));
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
-    for (QProfile profile : profiles) {
+    for (QualityProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
-      String profileKey = profile.key();
+      String profileKey = profile.getKey();
+      if (profile.getOrganizationUuid() != null) {
+        profileBuilder.setOrganization(data.getOrganization().getKey());
+      }
       profileBuilder.setKey(profileKey);
-      if (profile.name() != null) {
-        profileBuilder.setName(profile.name());
+      if (profile.getName() != null) {
+        profileBuilder.setName(profile.getName());
       }
       if (profile.getRulesUpdatedAt() != null) {
         profileBuilder.setRulesUpdatedAt(profile.getRulesUpdatedAt());
@@ -134,15 +184,15 @@ public class SearchAction implements QProfileWsAction {
 
       writeLanguageFields(profileBuilder, profile);
       writeParentFields(profileBuilder, profile, profilesByKey);
-      profileBuilder.setIsInherited(profile.isInherited());
+      profileBuilder.setIsInherited(profile.getParentKee() != null);
       profileBuilder.setIsDefault(profile.isDefault());
     }
 
     return response.build();
   }
 
-  private void writeLanguageFields(QualityProfile.Builder profileBuilder, QProfile profile) {
-    String languageKey = profile.language();
+  private void writeLanguageFields(QualityProfile.Builder profileBuilder, QualityProfileDto profile) {
+    String languageKey = profile.getLanguage();
     if (languageKey == null) {
       return;
     }
@@ -154,16 +204,16 @@ public class SearchAction implements QProfileWsAction {
     }
   }
 
-  private static void writeParentFields(QualityProfile.Builder profileBuilder, QProfile profile, Map<String, QProfile> profilesByKey) {
-    String parentKey = profile.parent();
+  private static void writeParentFields(QualityProfile.Builder profileBuilder, QualityProfileDto profile, Map<String, QualityProfileDto> profilesByKey) {
+    String parentKey = profile.getParentKee();
     if (parentKey == null) {
       return;
     }
 
     profileBuilder.setParentKey(parentKey);
-    QProfile parent = profilesByKey.get(parentKey);
-    if (parent != null && parent.name() != null) {
-      profileBuilder.setParentName(parent.name());
+    QualityProfileDto parent = profilesByKey.get(parentKey);
+    if (parent != null && parent.getName() != null) {
+      profileBuilder.setParentName(parent.getName());
     }
   }
 }

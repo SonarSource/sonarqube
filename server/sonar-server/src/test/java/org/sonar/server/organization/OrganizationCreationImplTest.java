@@ -19,12 +19,14 @@
  */
 package org.sonar.server.organization;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -38,15 +40,24 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
+import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.qualityprofile.DefinedQProfile;
+import org.sonar.server.qualityprofile.DefinedQProfileCreationRule;
+import org.sonar.server.qualityprofile.DefinedQProfileRepositoryRule;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
 
@@ -74,6 +85,10 @@ public class OrganizationCreationImplTest {
   public DbTester dbTester = DbTester.create(system2);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DefinedQProfileRepositoryRule definedQProfileRepositoryRule = new DefinedQProfileRepositoryRule();
+  @Rule
+  public DefinedQProfileCreationRule definedQProfileCreationRule = new DefinedQProfileCreationRule();
 
   private DbSession dbSession = dbTester.getSession();
 
@@ -82,8 +97,10 @@ public class OrganizationCreationImplTest {
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
   private MapSettings settings = new MapSettings();
+  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
 
-  private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings);
+  private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings,
+    definedQProfileRepositoryRule, definedQProfileCreationRule, activeRuleIndexer);
 
   @Test
   public void create_throws_NPE_if_NewOrganization_arg_is_null() throws OrganizationCreation.KeyConflictException {
@@ -99,15 +116,6 @@ public class OrganizationCreationImplTest {
       .thenThrow(exceptionThrownByOrganizationValidation);
 
     createThrowsExceptionThrownByOrganizationValidation();
-  }
-
-  private void createThrowsExceptionThrownByOrganizationValidation() throws OrganizationCreation.KeyConflictException {
-    try {
-      underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
-      fail(exceptionThrownByOrganizationValidation + " should have been thrown");
-    } catch (IllegalArgumentException e) {
-      assertThat(e).isSameAs(exceptionThrownByOrganizationValidation);
-    }
   }
 
   @Test
@@ -131,6 +139,25 @@ public class OrganizationCreationImplTest {
     createThrowsExceptionThrownByOrganizationValidation();
   }
 
+  private void createThrowsExceptionThrownByOrganizationValidation() throws OrganizationCreation.KeyConflictException {
+    try {
+      underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
+      fail(exceptionThrownByOrganizationValidation + " should have been thrown");
+    } catch (IllegalArgumentException e) {
+      assertThat(e).isSameAs(exceptionThrownByOrganizationValidation);
+    }
+  }
+
+  @Test
+  public void create_fails_with_ISE_if_DefinedQProfileRepository_has_not_been_initialized() throws OrganizationCreation.KeyConflictException {
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("initialize must be called first");
+
+    underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
+  }
+
   @Test
   public void create_fails_with_KeyConflictException_if_org_with_key_in_NewOrganization_arg_already_exists_in_db() throws OrganizationCreation.KeyConflictException {
     dbTester.organizations().insertForKey(FULL_POPULATED_NEW_ORGANIZATION.getKey());
@@ -144,6 +171,7 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_creates_unguarded_organization_with_properties_from_NewOrganization_arg() throws OrganizationCreation.KeyConflictException {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
 
@@ -163,8 +191,8 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
     UserDto user = dbTester.users().insertUser();
-
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, user.getId(), FULL_POPULATED_NEW_ORGANIZATION);
 
@@ -174,6 +202,7 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_does_not_require_description_url_and_avatar_to_be_non_null() throws OrganizationCreation.KeyConflictException {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, SOME_USER_ID, newOrganizationBuilder()
       .setKey("key")
@@ -193,6 +222,7 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_creates_default_template_for_new_organization() throws OrganizationCreation.KeyConflictException {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
 
@@ -214,10 +244,41 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
 
     assertThat(dbClient.organizationMemberDao().select(dbSession, SOME_UUID, SOME_USER_ID)).isPresent();
+  }
+
+  @Test
+  public void create_creates_QualityProfile_for_each_DefinedQProfile_in_repository_and_index_ActiveRule_changes_in_order() throws OrganizationCreation.KeyConflictException {
+    DefinedQProfile definedQProfile1 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp1");
+    DefinedQProfile definedQProfile2 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp2");
+    DefinedQProfile definedQProfile3 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp3");
+    DefinedQProfile definedQProfile4 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp4");
+    definedQProfileRepositoryRule.initialize();
+    ActiveRuleChange[] changes = {newActiveRuleChange("0"), newActiveRuleChange("1"), newActiveRuleChange("2"), newActiveRuleChange("3"), newActiveRuleChange("4")};
+    definedQProfileCreationRule.addChanges();
+    definedQProfileCreationRule.addChanges(changes[2], changes[1], changes[4]);
+    definedQProfileCreationRule.addChanges(changes[3]);
+    definedQProfileCreationRule.addChanges(changes[0]);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+
+    underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
+    assertThat(definedQProfileCreationRule.getCallLogs())
+      .hasSize(4)
+      .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(organization.getUuid());
+    assertThat(definedQProfileCreationRule.getCallLogs())
+      .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
+      .extracting(DefinedQProfile::getName)
+      .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
+    verify(activeRuleIndexer).index(Arrays.asList(changes[2], changes[1], changes[4], changes[3], changes[0]));
+    verifyNoMoreInteractions(activeRuleIndexer);
   }
 
   @Test
@@ -255,6 +316,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
@@ -292,6 +354,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
@@ -306,6 +369,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
@@ -337,6 +401,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
@@ -362,6 +427,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
@@ -376,6 +442,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
@@ -391,6 +458,7 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
@@ -406,12 +474,50 @@ public class OrganizationCreationImplTest {
     when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
+    definedQProfileRepositoryRule.initialize();
 
     underTest.createForUser(dbSession, user);
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
     assertThat(organization.getDescription()).isEqualTo(login + "'s personal organization");
+  }
+
+  @Test
+  public void createForUser_creates_QualityProfile_for_each_DefinedQProfile_in_repository_and_index_ActiveRule_changes_in_order() throws OrganizationCreation.KeyConflictException {
+    UserDto user = dbTester.users().insertUser(A_LOGIN);
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    DefinedQProfile definedQProfile1 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp1");
+    DefinedQProfile definedQProfile2 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp2");
+    DefinedQProfile definedQProfile3 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp3");
+    DefinedQProfile definedQProfile4 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp4");
+    definedQProfileRepositoryRule.initialize();
+    ActiveRuleChange[] changes = {newActiveRuleChange("0"), newActiveRuleChange("1"), newActiveRuleChange("2"), newActiveRuleChange("3"), newActiveRuleChange("4")};
+    definedQProfileCreationRule.addChanges();
+    definedQProfileCreationRule.addChanges(changes[2], changes[1], changes[4]);
+    definedQProfileCreationRule.addChanges(changes[3]);
+    definedQProfileCreationRule.addChanges(changes[0]);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(definedQProfileCreationRule.getCallLogs())
+        .hasSize(4)
+        .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
+        .extracting(OrganizationDto::getUuid)
+        .containsOnly(organization.getUuid());
+    assertThat(definedQProfileCreationRule.getCallLogs())
+        .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
+        .extracting(DefinedQProfile::getName)
+        .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
+    verify(activeRuleIndexer).index(Arrays.asList(changes[2], changes[1], changes[4], changes[3], changes[0]));
+    verifyNoMoreInteractions(activeRuleIndexer);
+  }
+
+  private static ActiveRuleChange newActiveRuleChange(String id) {
+    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")));
   }
 
   private void enableCreatePersonalOrg(boolean flag) {

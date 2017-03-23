@@ -29,9 +29,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileRestoreSummary;
 import org.sonar.server.ws.WsAction;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -44,11 +48,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class OldRestoreAction implements WsAction {
 
   private static final String PARAM_BACKUP = "backup";
+
+  private final DbClient dbClient;
   private final QProfileBackuper backuper;
   private final Languages languages;
   private final QProfileWsSupport qProfileWsSupport;
 
-  public OldRestoreAction(QProfileBackuper backuper, Languages languages, QProfileWsSupport qProfileWsSupport) {
+  public OldRestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, QProfileWsSupport qProfileWsSupport) {
+    this.dbClient = dbClient;
     this.backuper = backuper;
     this.languages = languages;
     this.qProfileWsSupport = qProfileWsSupport;
@@ -77,10 +84,11 @@ public class OldRestoreAction implements WsAction {
     InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
     InputStreamReader reader = null;
 
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       checkArgument(backup != null, "A backup file must be provided");
       reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
-      BulkChangeResult result = backuper.restore(reader, null);
+      OrganizationDto defaultOrg = qProfileWsSupport.getOrganizationByKey(dbSession, null);
+      QProfileRestoreSummary result = backuper.restore(dbSession, reader, defaultOrg, null);
       writeResponse(response.newJsonWriter(), result);
     } finally {
       IOUtils.closeQuietly(reader);
@@ -88,26 +96,26 @@ public class OldRestoreAction implements WsAction {
     }
   }
 
-  private void writeResponse(JsonWriter json, BulkChangeResult result) {
-    QualityProfileDto profile = result.profile();
-    if (profile != null) {
-      String languageKey = profile.getLanguage();
-      Language language = languages.get(languageKey);
+  private void writeResponse(JsonWriter json, QProfileRestoreSummary result) {
+    QualityProfileDto profile = result.getProfile();
+    String languageKey = profile.getLanguage();
+    Language language = languages.get(languageKey);
 
-      JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
-      jsonProfile
-        .prop("key", profile.getKey())
-        .prop("name", profile.getName())
-        .prop("language", languageKey)
-        .prop("isDefault", false)
-        .prop("isInherited", false);
-      if (language != null) {
-        jsonProfile.prop("languageName", language.getName());
-      }
-      jsonProfile.endObject();
+    JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
+    jsonProfile
+      .prop("key", profile.getKey())
+      .prop("name", profile.getName())
+      .prop("language", languageKey)
+      .prop("isDefault", false)
+      .prop("isInherited", false);
+    if (language != null) {
+      jsonProfile.prop("languageName", language.getName());
     }
-    json.prop("ruleSuccesses", result.countSucceeded());
-    json.prop("ruleFailures", result.countFailed());
+    jsonProfile.endObject();
+
+    BulkChangeResult ruleChanges = result.getRuleChanges();
+    json.prop("ruleSuccesses", ruleChanges.countSucceeded());
+    json.prop("ruleFailures", ruleChanges.countFailed());
     json.endObject().close();
   }
 }

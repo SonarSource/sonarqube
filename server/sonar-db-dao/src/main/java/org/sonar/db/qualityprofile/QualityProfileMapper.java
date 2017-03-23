@@ -32,17 +32,17 @@ public interface QualityProfileMapper {
 
   void delete(int id);
 
-  List<QualityProfileDto> selectAll();
+  List<QualityProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
-  QualityProfileDto selectDefaultProfile(@Param("language") String language);
+  QualityProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
-  List<QualityProfileDto> selectDefaultProfiles(@Param("languages") List<String> languages);
+  List<QualityProfileDto> selectDefaultProfiles(@Param("organizationUuid") String organizationUuid, @Param("languages") List<String> languages);
 
   @CheckForNull
-  QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
+  QualityProfileDto selectByNameAndLanguage(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("language") String language);
 
-  List<QualityProfileDto> selectByNameAndLanguages(@Param("name") String name, @Param("languages") List<String> languages);
+  List<QualityProfileDto> selectByNameAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("languages") List<String> languages);
 
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
@@ -50,7 +50,7 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectByKey(String key);
 
-  List<QualityProfileDto> selectByLanguage(String language);
+  List<QualityProfileDto> selectByLanguage(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
   List<QualityProfileDto> selectByKeys(@Param("keys") List<String> keys);
 
@@ -67,11 +67,10 @@ public interface QualityProfileMapper {
 
   List<QualityProfileProjectCount> countProjectsByProfile();
 
-  QualityProfileDto selectByProjectIdAndLanguage(@Param("projectId") Long projectId, @Param("language") String language);
-
   QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
 
-  List<QualityProfileDto> selectByProjectAndLanguages(@Param("projectKey") String projectKey, @Param("languages") List<String> input);
+  List<QualityProfileDto> selectByProjectAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("projectKey") String projectKey,
+    @Param("languages") List<String> input);
 
   void insertProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 

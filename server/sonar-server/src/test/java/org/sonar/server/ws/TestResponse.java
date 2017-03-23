@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.CheckForNull;
 
 public class TestResponse {
 
@@ -45,5 +46,10 @@ public class TestResponse {
 
   public int getStatus() {
     return dumbResponse.stream().status();
+  }
+
+  @CheckForNull
+  public String getHeader(String headerKey) {
+    return dumbResponse.getHeader(headerKey);
   }
 }

@@ -602,7 +602,9 @@ public class ProjectDataLoaderMediumTest {
   }
 
   private void addDefaultProfile() {
-    QualityProfileDto profileDto = newQProfileDto("org-123", QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    QualityProfileDto profileDto = newQProfileDto(organizationDto, QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       formatDateTime(new Date())).setDefault(true);
     dbClient.qualityProfileDao().insert(dbSession, profileDto);
   }

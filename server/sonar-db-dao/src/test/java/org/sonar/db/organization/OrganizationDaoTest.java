@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.assertj.core.util.Lists;
@@ -36,11 +37,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -50,6 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.Pagination.all;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.organization.OrganizationQuery.returnAll;
 
@@ -299,19 +304,19 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectByQuery_returns_empty_when_table_is_empty() {
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 1, 1)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(2).andSize(1))).isEmpty();
   }
 
   @Test
   public void selectByQuery_returns_single_row_of_table_when_requesting_first_page_of_size_1_or_more() {
     insertOrganization(ORGANIZATION_DTO_1);
 
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 0, 1))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(1).andSize(1)))
       .hasSize(1)
       .extracting("uuid")
       .containsOnly(ORGANIZATION_DTO_1.getUuid());
 
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(1).andSize(10)))
       .hasSize(1)
       .extracting("uuid")
       .containsOnly(ORGANIZATION_DTO_1.getUuid());
@@ -321,9 +326,9 @@ public class OrganizationDaoTest {
   public void selectByQuery_returns_empty_on_table_with_single_row_when_not_requesting_the_first_page() {
     insertOrganization(ORGANIZATION_DTO_1);
 
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 1, 1)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), Math.abs(new Random().nextInt(10)) + 1, 1)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 1, 10)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(2).andSize(1))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(Math.abs(new Random().nextInt(10)) + 2).andSize(1))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(2).andSize(10))).isEmpty();
   }
 
   @Test
@@ -336,40 +341,40 @@ public class OrganizationDaoTest {
     insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid5").setKey("key-5"));
     insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid4").setKey("key-4"));
 
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 0, 1))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(1).andSize(1)))
       .extracting("uuid", "key")
       .containsExactly(tuple("uuid4", "key-4"));
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 1, 1))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(2).andSize(1)))
       .extracting("uuid", "key")
       .containsExactly(tuple("uuid5", "key-5"));
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 2, 1))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(3).andSize(1)))
       .extracting("uuid", "key")
       .containsExactly(tuple("uuid2", "key-2"));
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 3, 1))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(4).andSize(1)))
       .extracting("uuid", "key")
       .containsExactly(tuple("uuid1", "key-1"));
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 4, 1))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(5).andSize(1)))
       .extracting("uuid", "key")
       .containsExactly(tuple("uuid3", "key-3"));
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 5, 1))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(6).andSize(1)))
       .isEmpty();
 
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 0, 5))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(1).andSize(5)))
       .extracting("uuid")
       .containsExactly("uuid4", "uuid5", "uuid2", "uuid1", "uuid3");
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 5, 5))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(6).andSize(5)))
       .isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 0, 3))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(1).andSize(3)))
       .extracting("uuid")
       .containsExactly("uuid4", "uuid5", "uuid2");
-    assertThat(underTest.selectByQuery(dbSession, returnAll(), 3, 3))
+    assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(2).andSize(3)))
       .extracting("uuid")
       .containsExactly("uuid1", "uuid3");
   }
 
   @Test
   public void selectByQuery_with_keys_returns_empty_when_table_is_empty() {
-    assertThat(underTest.selectByQuery(dbSession, newQueryWithKeys("key1", "key2"), 1, 1))
+    assertThat(underTest.selectByQuery(dbSession, newQueryWithKeys("key1", "key2"), forPage(2).andSize(1)))
       .isEmpty();
   }
 
@@ -379,10 +384,10 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_2);
 
     OrganizationQuery organizationQuery = newQueryWithKeys(ORGANIZATION_DTO_1.getKey(), ORGANIZATION_DTO_2.getKey());
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, 0, 1))
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(1).andSize(1)))
       .hasSize(1);
 
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(1).andSize(10)))
       .hasSize(2)
       .extracting(OrganizationDto::getUuid)
       .containsOnly(ORGANIZATION_DTO_1.getUuid(), ORGANIZATION_DTO_2.getUuid());
@@ -394,7 +399,7 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_2);
 
     OrganizationQuery organizationQuery = newOrganizationQueryBuilder().setKeys(Lists.emptyList()).build();
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(1).andSize(10)))
       .extracting(OrganizationDto::getUuid)
       .containsOnly(ORGANIZATION_DTO_1.getUuid(), ORGANIZATION_DTO_2.getUuid());
   }
@@ -405,7 +410,7 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_2);
 
     OrganizationQuery organizationQuery = newQueryWithKeys(PERMISSION_1, PERMISSION_2, "dog");
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(1).andSize(10)))
       .isEmpty();
   }
 
@@ -415,7 +420,7 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_2);
 
     OrganizationQuery organizationQuery = newQueryWithKeys(ORGANIZATION_DTO_1.getKey(), PERMISSION_1, ORGANIZATION_DTO_2.getKey(), PERMISSION_2, "dog");
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(1).andSize(10)))
       .hasSize(2)
       .extracting(OrganizationDto::getUuid)
       .containsOnly(ORGANIZATION_DTO_1.getUuid(), ORGANIZATION_DTO_2.getUuid());
@@ -427,9 +432,9 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_2);
 
     OrganizationQuery organizationQuery = newQueryWithKeys(ORGANIZATION_DTO_1.getKey(), ORGANIZATION_DTO_2.getKey());
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, 2, 2)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, Math.abs(new Random().nextInt(10)) + 2, 1)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, organizationQuery, 2, 10)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(2).andSize(2))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(Math.abs(new Random().nextInt(10)) + 3).andSize(1))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, organizationQuery, forPage(3).andSize(10))).isEmpty();
   }
 
   @Test
@@ -443,33 +448,33 @@ public class OrganizationDaoTest {
     insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid4").setKey("key-4"));
     OrganizationQuery allExistingKeys = newQueryWithKeys("key-1", "key-2", "key-3", "key-4", "key-5");
 
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 0, 1))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(1).andSize(1)))
       .extracting(OrganizationDto::getUuid, OrganizationDto::getKey)
       .containsExactly(tuple("uuid4", "key-4"));
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 1, 1))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(2).andSize(1)))
       .extracting(OrganizationDto::getUuid, OrganizationDto::getKey)
       .containsExactly(tuple("uuid5", "key-5"));
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 2, 1))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(3).andSize(1)))
       .extracting(OrganizationDto::getUuid, OrganizationDto::getKey)
       .containsExactly(tuple("uuid2", "key-2"));
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 3, 1))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(4).andSize(1)))
       .extracting(OrganizationDto::getUuid, OrganizationDto::getKey)
       .containsExactly(tuple("uuid1", "key-1"));
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 4, 1))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(5).andSize(1)))
       .extracting(OrganizationDto::getUuid, OrganizationDto::getKey)
       .containsExactly(tuple("uuid3", "key-3"));
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 5, 1))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(6).andSize(1)))
       .isEmpty();
 
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 0, 5))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(1).andSize(5)))
       .extracting(OrganizationDto::getUuid)
       .containsExactly("uuid4", "uuid5", "uuid2", "uuid1", "uuid3");
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 5, 5))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(2).andSize(5)))
       .isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 0, 3))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(1).andSize(3)))
       .extracting(OrganizationDto::getUuid)
       .containsExactly("uuid4", "uuid5", "uuid2");
-    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, 3, 3))
+    assertThat(underTest.selectByQuery(dbSession, allExistingKeys, forPage(2).andSize(3)))
       .extracting(OrganizationDto::getUuid)
       .containsExactly("uuid1", "uuid3");
   }
@@ -839,6 +844,88 @@ public class OrganizationDaoTest {
     assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
+  }
+
+  @Test
+  public void selectOrganizationsWithoutLoadedTemplate_returns_empty_if_there_is_no_organization() {
+    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "type1", all());
+
+    assertThat(organizationDtos).isEmpty();
+  }
+
+  @Test
+  public void selectOrganizationsWithoutLoadedTemplate_returns_all_organizations_if_loaded_template_table_is_empty() {
+    int organizationCount = Math.abs(new Random().nextInt(20)) + 1;
+    String[] organizationUuids = IntStream.range(0, organizationCount).mapToObj(i -> "uuid_" + i).toArray(String[]::new);
+    Arrays.stream(organizationUuids).forEach(uuid -> dbTester.organizations().insertForUuid(uuid));
+
+    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "type1", all());
+
+    assertThat(organizationDtos)
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(organizationUuids);
+  }
+
+  @Test
+  public void selectOrganizationsWithoutLoadedTemplate_returns_all_organizations_but_those_with_loaded_template_with_specified_type_and_org_uuid_as_key() {
+    int organizationCount = Math.abs(new Random().nextInt(20)) + 5;
+    String[] organizationUuids = IntStream.range(0, organizationCount).mapToObj(i -> "uuid_" + i).toArray(String[]::new);
+    Arrays.stream(organizationUuids).forEach(uuid -> dbTester.organizations().insertForUuid(uuid));
+    String loadedTemplateType = "type1";
+    dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto(organizationUuids[0], loadedTemplateType), dbSession);
+    dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto(organizationUuids[1], "foo"), dbSession);
+    // matching is case sensitive
+    dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto(organizationUuids[2], loadedTemplateType.toUpperCase()), dbSession);
+    dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto(organizationUuids[3], loadedTemplateType), dbSession);
+    dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto(organizationUuids[4] + " not exactly the uuid", loadedTemplateType), dbSession);
+    dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto("foo", loadedTemplateType), dbSession);
+    dbTester.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto("", loadedTemplateType), dbSession);
+    dbTester.commit();
+
+    List<OrganizationDto> organizationDtos = underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, loadedTemplateType, all());
+
+    assertThat(organizationDtos)
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(
+        Arrays.stream(organizationUuids)
+          .filter(s -> !s.equals(organizationUuids[0]) && !s.equals(organizationUuids[3]))
+          .toArray(String[]::new));
+  }
+
+  @Test
+  public void selectOrganizationsWithoutLoadedTemplate_is_paginated() {
+    AlwaysIncreasingSystem2 alwaysIncreasingSystem2 = new AlwaysIncreasingSystem2(500);
+    when(system2.now()).thenAnswer(t -> alwaysIncreasingSystem2.now());
+    IntStream.range(1, 31).forEach(i -> dbTester.organizations().insertForUuid("" + i));
+
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", all()))
+      .extracting(dto -> Integer.valueOf(dto.getUuid()))
+      .hasSize(30)
+      .allMatch(i -> i > 0 && i <= 30);
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(1).andSize(30)))
+      .extracting(dto -> Integer.valueOf(dto.getUuid()))
+      .hasSize(30)
+      .allMatch(i -> i > 0 && i <= 30);
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(1).andSize(10)))
+      .extracting(dto -> Integer.valueOf(dto.getUuid()))
+      .hasSize(10)
+      .allMatch(i -> i > 0 && i <= 10);
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(2).andSize(10)))
+      .extracting(dto -> Integer.valueOf(dto.getUuid()))
+      .hasSize(10)
+      .allMatch(i -> i > 10 && i <= 20);
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(5).andSize(5)))
+      .extracting(dto -> Integer.valueOf(dto.getUuid()))
+      .hasSize(5)
+      .allMatch(i -> i > 20 && i <= 25);
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(6).andSize(5)))
+      .extracting(dto -> Integer.valueOf(dto.getUuid()))
+      .hasSize(5)
+      .allMatch(i -> i > 25 && i <= 30);
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(7).andSize(5)))
+      .isEmpty();
+    assertThat(underTest.selectOrganizationsWithoutLoadedTemplate(dbSession, "foo", forPage(2).andSize(50)))
+      .isEmpty();
   }
 
   private void expectDtoCanNotBeNull() {

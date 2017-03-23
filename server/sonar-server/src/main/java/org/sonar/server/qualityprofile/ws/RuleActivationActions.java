@@ -26,21 +26,21 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.RuleActivation;
 
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PARAMS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_RESET;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_SEVERITY;
+
 @ServerSide
 public class RuleActivationActions {
-
-  public static final String PROFILE_KEY = "profile_key";
-  public static final String RULE_KEY = "rule_key";
-  public static final String SEVERITY = "severity";
-  public static final String RESET = "reset";
-  public static final String PARAMS = "params";
-
-  public static final String ACTIVATE_ACTION = "activate_rule";
-  public static final String DEACTIVATE_ACTION = "deactivate_rule";
 
   private final QProfileService service;
 
@@ -55,7 +55,7 @@ public class RuleActivationActions {
 
   private void defineActivateAction(WebService.NewController controller) {
     WebService.NewAction activate = controller
-      .createAction(ACTIVATE_ACTION)
+      .createAction(ACTION_ACTIVATE_RULE)
       .setDescription("Activate a rule on a Quality profile")
       .setHandler(this::activate)
       .setPost(true)
@@ -63,15 +63,15 @@ public class RuleActivationActions {
 
     defineActiveRuleKeyParameters(activate);
 
-    activate.createParam(SEVERITY)
-      .setDescription(String.format("Severity. Ignored if parameter %s is true.", RESET))
+    activate.createParam(PARAM_SEVERITY)
+      .setDescription(String.format("Severity. Ignored if parameter %s is true.", PARAM_RESET))
       .setPossibleValues(Severity.ALL);
 
-    activate.createParam(PARAMS)
+    activate.createParam(PARAM_PARAMS)
       .setDescription(String.format("Parameters as semi-colon list of <key>=<value>, for example " +
-        "'<code>params=key1=v1;key2=v2</code>'. Ignored if parameter %s is true.", RESET));
+        "'<code>params=key1=v1;key2=v2</code>'. Ignored if parameter %s is true.", PARAM_RESET));
 
-    activate.createParam(RESET)
+    activate.createParam(PARAM_RESET)
       .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile " +
         "or from rule default values.")
       .setBooleanPossibleValues();
@@ -79,7 +79,7 @@ public class RuleActivationActions {
 
   private void defineDeactivateAction(WebService.NewController controller) {
     WebService.NewAction deactivate = controller
-      .createAction(DEACTIVATE_ACTION)
+      .createAction(ACTION_DEACTIVATE_RULE)
       .setDescription("Deactivate a rule on a Quality profile")
       .setHandler(this::deactivate)
       .setPost(true)
@@ -88,12 +88,12 @@ public class RuleActivationActions {
   }
 
   private static void defineActiveRuleKeyParameters(WebService.NewAction action) {
-    action.createParam(PROFILE_KEY)
+    action.createParam(PARAM_PROFILE_KEY)
       .setDescription("Key of Quality profile, can be obtained through <code>api/profiles/list</code>")
       .setRequired(true)
-      .setExampleValue("java-sonar-way-80423");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
-    action.createParam(RULE_KEY)
+    action.createParam(PARAM_RULE_KEY)
       .setDescription("Key of the rule")
       .setRequired(true)
       .setExampleValue("squid:AvoidCycles");
@@ -102,22 +102,22 @@ public class RuleActivationActions {
   private void activate(Request request, Response response) {
     RuleKey ruleKey = readRuleKey(request);
     RuleActivation activation = new RuleActivation(ruleKey);
-    activation.setSeverity(request.param(SEVERITY));
-    String params = request.param(PARAMS);
+    activation.setSeverity(request.param(PARAM_SEVERITY));
+    String params = request.param(PARAM_PARAMS);
     if (params != null) {
       activation.setParameters(KeyValueFormat.parse(params));
     }
-    activation.setReset(Boolean.TRUE.equals(request.paramAsBoolean(RESET)));
-    service.activate(request.mandatoryParam(PROFILE_KEY), activation);
+    activation.setReset(Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET)));
+    service.activate(request.mandatoryParam(PARAM_PROFILE_KEY), activation);
   }
 
   private void deactivate(Request request, Response response) {
     RuleKey ruleKey = readRuleKey(request);
-    service.deactivate(ActiveRuleKey.of(request.mandatoryParam(PROFILE_KEY), ruleKey));
+    service.deactivate(ActiveRuleKey.of(request.mandatoryParam(PARAM_PROFILE_KEY), ruleKey));
   }
 
   private static RuleKey readRuleKey(Request request) {
-    return RuleKey.parse(request.mandatoryParam(RULE_KEY));
+    return RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
   }
 
 }

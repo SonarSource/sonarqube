@@ -19,8 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
@@ -50,14 +51,6 @@ public class RuleActivatorContextFactory {
     return create(ruleKey, session, context);
   }
 
-  RuleActivatorContext create(QProfileName profileName, RuleKey ruleKey, DbSession session) {
-    RuleActivatorContext context = new RuleActivatorContext();
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), session);
-    checkRequest(profile != null, "Quality profile not found: %s", profileName);
-    context.setProfile(profile);
-    return create(ruleKey, session, context);
-  }
-
   RuleActivatorContext create(QualityProfileDto profile, RuleKey ruleKey, DbSession session) {
     return create(ruleKey, session, new RuleActivatorContext().setProfile(profile));
   }
@@ -73,7 +66,7 @@ public class RuleActivatorContextFactory {
   }
 
   private RuleDto initRule(RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession) {
-    Optional<RuleDto> rule = db.ruleDao().selectByKey(dbSession, ruleKey);
+    Optional<RuleDto> rule = getRule(dbSession, ruleKey);
     checkRequest(rule.isPresent(), "Rule not found: %s", ruleKey);
     context.setRule(rule.get());
     context.setRuleParams(db.ruleDao().selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
@@ -82,17 +75,29 @@ public class RuleActivatorContextFactory {
 
   private void initActiveRules(String profileKey, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
     ActiveRuleKey key = ActiveRuleKey.of(profileKey, ruleKey);
-    Optional<ActiveRuleDto> activeRule = db.activeRuleDao().selectByKey(session, key);
+    Optional<ActiveRuleDto> activeRule = getActiveRule(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule.isPresent()) {
-      activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleId(session, activeRule.get().getId());
+      activeRuleParams = getActiveRuleParams(session, activeRule.get());
     }
     if (parent) {
-      context.setParentActiveRule(activeRule.orNull());
+      context.setParentActiveRule(activeRule.orElse(null));
       context.setParentActiveRuleParams(activeRuleParams);
     } else {
-      context.setActiveRule(activeRule.orNull());
+      context.setActiveRule(activeRule.orElse(null));
       context.setActiveRuleParams(activeRuleParams);
     }
+  }
+
+  Optional<RuleDto> getRule(DbSession dbSession, RuleKey ruleKey) {
+    return Optional.ofNullable(db.ruleDao().selectByKey(dbSession, ruleKey).orNull());
+  }
+
+  Optional<ActiveRuleDto> getActiveRule(DbSession session, ActiveRuleKey key) {
+    return Optional.ofNullable(db.activeRuleDao().selectByKey(session, key).orNull());
+  }
+
+  List<ActiveRuleParamDto> getActiveRuleParams(DbSession session, ActiveRuleDto activeRuleDto) {
+    return db.activeRuleDao().selectParamsByActiveRuleId(session, activeRuleDto.getId());
   }
 }
