@@ -46,12 +46,12 @@ public class GroupMembershipDao implements Dao {
   }
 
   public List<UserMembershipDto> selectMembers(DbSession session, UserMembershipQuery query, int offset, int limit) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId());
+    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId(), "organizationUuid", query.organizationUuid());
     return mapper(session).selectMembers(params, new RowBounds(offset, limit));
   }
 
   public int countMembers(DbSession session, UserMembershipQuery query) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId());
+    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId(), "organizationUuid", query.organizationUuid());
     return mapper(session).countMembers(params);
   }
 

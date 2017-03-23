@@ -413,7 +413,10 @@ public class OrganizationCreationImplTest {
       .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
     List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
       dbSession,
-      UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
+      UserMembershipQuery.builder()
+        .organizationUuid(organization.getUuid())
+        .groupId(groupDto.getId())
+        .membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
     assertThat(members)
       .extracting(UserMembershipDto::getLogin)
       .containsOnly(user.getLogin());

@@ -75,6 +75,7 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.users().insertMember(group, user);
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
