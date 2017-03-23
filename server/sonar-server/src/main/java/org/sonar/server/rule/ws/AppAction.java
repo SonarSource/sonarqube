@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -40,12 +41,15 @@ public class AppAction implements RulesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final RuleWsSupport wsSupport;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public AppAction(Languages languages, DbClient dbClient, UserSession userSession, RuleWsSupport wsSupport) {
+  public AppAction(Languages languages, DbClient dbClient, UserSession userSession, RuleWsSupport wsSupport,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.languages = languages;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -81,8 +85,9 @@ public class AppAction implements RulesWsAction {
   }
 
   private void addPermissions(OrganizationDto organization, JsonWriter json) {
-    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-    json.prop("canWrite", canWrite);
+    boolean isAdminister = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+    json.prop("canWrite", isAdminister);
+    json.prop("canCustomizeRule", isAdminister && organization.getUuid().equals(defaultOrganizationProvider.get().getUuid()));
   }
 
   private void addProfiles(DbSession dbSession, OrganizationDto organization, JsonWriter json) {
