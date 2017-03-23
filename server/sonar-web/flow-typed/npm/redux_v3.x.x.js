@@ -10,7 +10,7 @@ declare module 'redux' {
 
   */
 
-  declare type Dispatch<A: { type: $Subtype<string> }> = (action: A) => A;
+  declare type Dispatch<A: { type: $Subtype<string> }> = (action: A | (Dispatch<A> => mixed)) => A;
 
   declare type MiddlewareAPI<S, A> = {
     dispatch: Dispatch<A>;
