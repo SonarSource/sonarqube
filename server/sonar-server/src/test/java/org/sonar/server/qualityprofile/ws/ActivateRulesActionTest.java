@@ -19,19 +19,29 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 
 public class ActivateRulesActionTest {
 
@@ -44,8 +54,18 @@ public class ActivateRulesActionTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
-  private ActivateRulesAction underTest = new ActivateRulesAction(null, null, TestDefaultOrganizationProvider.from(dbTester), ruleActivator);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(dbTester));
+  private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class);
+  private ActivateRulesAction underTest = new ActivateRulesAction(ruleQueryFactory, userSession, ruleActivator, wsSupport, dbClient);
   private WsActionTester wsActionTester = new WsActionTester(underTest);
+  private OrganizationDto defaultOrganization;
+  private OrganizationDto organization;
+
+  @Before
+  public void before() {
+    defaultOrganization = dbTester.getDefaultOrganization();
+    organization = dbTester.organizations().insert();
+  }
 
   @Test
   public void define_bulk_activate_rule_action() {
@@ -73,5 +93,27 @@ public class ActivateRulesActionTest {
       "activation",
       "severities"
     );
+  }
+
+  @Test
+  public void should_fail_if_not_logged_in() {
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam("profile_key", randomAlphanumeric(UUID_SIZE));
+
+    thrown.expect(UnauthorizedException.class);
+    request.execute();
+  }
+
+  @Test
+  public void should_fail_if_not_organization_quality_profile_administrator() {
+    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam("profile_key", qualityProfile.getKey());
+
+    thrown.expect(ForbiddenException.class);
+    request.execute();
   }
 }

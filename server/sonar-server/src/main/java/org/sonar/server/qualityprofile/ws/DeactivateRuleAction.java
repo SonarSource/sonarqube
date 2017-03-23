@@ -27,10 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
@@ -78,15 +75,9 @@ public class DeactivateRuleAction implements QProfileWsAction {
     String qualityProfileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkPermission(dbSession, qualityProfileKey);
+      wsSupport.checkPermission(dbSession, qualityProfileKey);
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(qualityProfileKey, ruleKey);
       ruleActivator.deactivateAndUpdateIndex(dbSession, activeRuleKey);
     }
-  }
-
-  private void checkPermission(DbSession dbSession, String qualityProfileKey) {
-    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
-    OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
-    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 }

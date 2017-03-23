@@ -26,6 +26,10 @@ import org.sonar.server.qualityprofile.BulkChangeResult;
 
 class BulkChangeWsResponse {
 
+  private BulkChangeWsResponse() {
+    // use static methods
+  }
+
   static void writeResponse(BulkChangeResult result, Response response) {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());

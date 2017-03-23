@@ -23,13 +23,13 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
 
 @ServerSide
@@ -38,24 +38,25 @@ public class DeactivateRulesAction implements QProfileWsAction {
   public static final String PROFILE_KEY = "profile_key";
   public static final String SEVERITY = "activation_severity";
 
-  public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
+  public static final String DEACTIVATE_RULES_ACTION = "deactivate_rules";
 
   private final RuleQueryFactory ruleQueryFactory;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final RuleActivator ruleActivator;
+  private final QProfileWsSupport wsSupport;
+  private final DbClient dbClient;
 
-  public DeactivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider,
-    RuleActivator ruleActivator) {
+  public DeactivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, RuleActivator ruleActivator, QProfileWsSupport wsSupport, DbClient dbClient) {
     this.ruleQueryFactory = ruleQueryFactory;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.ruleActivator = ruleActivator;
+    this.wsSupport = wsSupport;
+    this.dbClient = dbClient;
   }
 
   public void define(WebService.NewController controller) {
     WebService.NewAction deactivate = controller
-      .createAction(BULK_DEACTIVATE_ACTION)
+      .createAction(DEACTIVATE_RULES_ACTION)
       .setDescription("Bulk deactivate rules on Quality profiles")
       .setPost(true)
       .setSince("4.4")
@@ -71,15 +72,12 @@ public class DeactivateRulesAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    verifyAdminPermission();
-    BulkChangeResult result = ruleActivator.bulkDeactivate(ruleQueryFactory.createRuleQuery(request), request.mandatoryParam(PROFILE_KEY));
+    String qualityProfileKey = request.mandatoryParam(PROFILE_KEY);
+    userSession.checkLoggedIn();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      wsSupport.checkPermission(dbSession, qualityProfileKey);
+    }
+    BulkChangeResult result = ruleActivator.bulkDeactivate(ruleQueryFactory.createRuleQuery(request), qualityProfileKey);
     BulkChangeWsResponse.writeResponse(result, response);
-  }
-
-  private void verifyAdminPermission() {
-    // FIXME check for the permission of the appropriate organization, not the default one
-    userSession
-      .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 }

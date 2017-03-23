@@ -139,7 +139,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.BULK_DEACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     WsTester.Result result = request.execute();
     session.clearCache();
@@ -166,7 +166,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.BULK_DEACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     WsTester.Result result = request.execute();
     session.clearCache();
@@ -191,7 +191,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.BULK_DEACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "hello");
     WsTester.Result result = request.execute();
@@ -284,7 +284,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.BULK_ACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(PARAM_LANGUAGES, "java");
     request.execute().assertJson(getClass(), "bulk_activate_rule.json");
@@ -309,7 +309,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.BULK_ACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, php.getKey());
     request.setParam(PARAM_LANGUAGES, "php");
     request.execute().assertJson(getClass(), "bulk_activate_rule_not_all.json");
@@ -333,7 +333,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule with query returning 0 hits
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.BULK_ACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "php");
     request.execute();
@@ -343,7 +343,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
 
     // 1. Activate Rule with query returning 1 hits
-    request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.BULK_ACTIVATE_ACTION);
+    request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "world");
     request.execute();
@@ -370,7 +370,7 @@ public class QProfilesWsMediumTest {
       new SearchOptions()).getIds()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.BULK_ACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
     request.setParam(ActivateRulesAction.PROFILE_KEY, profile.getKey());
     request.setParam(ActivateRulesAction.SEVERITY, "MINOR");
     request.execute();
@@ -397,7 +397,7 @@ public class QProfilesWsMediumTest {
     ruIndexer.index();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.BULK_ACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
     request.setParam(PARAM_PROFILE_KEY, javaProfile.getKey());
     request.setParam(PARAM_QPROFILE, javaProfile.getKey());
     request.setParam("activation", "false");

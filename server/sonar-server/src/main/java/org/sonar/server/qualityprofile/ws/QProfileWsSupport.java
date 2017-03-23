@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService.NewParam;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
@@ -118,5 +119,11 @@ public class QProfileWsSupport {
         ref.getOrganizationKey().map(o -> " in organization '" + o + "'").orElse(""));
     }
     return profile;
+  }
+
+  public void checkPermission(DbSession dbSession, String qualityProfileKey) {
+    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
+    OrganizationDto organization = getOrganization(dbSession, qualityProfile);
+    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 }
