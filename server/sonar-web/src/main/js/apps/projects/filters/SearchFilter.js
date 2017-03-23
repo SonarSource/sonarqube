@@ -63,7 +63,7 @@ export default class SearchFilter extends React.PureComponent {
   render() {
     const { userQuery } = this.state;
     const inputClassName = classNames('input-super-large', {
-      touched: userQuery && userQuery.length < 2
+      touched: userQuery != null && userQuery.length < 2
     });
 
     return (
