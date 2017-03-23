@@ -78,13 +78,13 @@ public class DeactivateRuleAction implements QProfileWsAction {
     String qualityProfileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkPermission(qualityProfileKey, dbSession);
+      checkPermission(dbSession, qualityProfileKey);
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(qualityProfileKey, ruleKey);
       ruleActivator.deactivateAndUpdateIndex(dbSession, activeRuleKey);
     }
   }
 
-  private void checkPermission(String qualityProfileKey, DbSession dbSession) {
+  private void checkPermission(DbSession dbSession, String qualityProfileKey) {
     QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
     OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);

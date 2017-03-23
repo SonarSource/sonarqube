@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.List;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
@@ -27,8 +28,16 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.user.UserSession;
 
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PARAMS;
@@ -40,10 +49,18 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 @ServerSide
 public class ActivateRuleAction implements QProfileWsAction {
 
-  private final QProfileService service;
+  private final DbClient dbClient;
+  private final RuleActivator ruleActivator;
+  private final UserSession userSession;
+  private final QProfileWsSupport wsSupport;
+  private final ActiveRuleIndexer activeRuleIndexer;
 
-  public ActivateRuleAction(QProfileService service) {
-    this.service = service;
+  public ActivateRuleAction(DbClient dbClient, RuleActivator ruleActivator, UserSession userSession, QProfileWsSupport wsSupport, ActiveRuleIndexer activeRuleIndexer) {
+    this.dbClient = dbClient;
+    this.ruleActivator = ruleActivator;
+    this.userSession = userSession;
+    this.wsSupport = wsSupport;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   public void define(WebService.NewController controller) {
@@ -88,10 +105,23 @@ public class ActivateRuleAction implements QProfileWsAction {
       activation.setParameters(KeyValueFormat.parse(params));
     }
     activation.setReset(Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET)));
-    service.activate(request.mandatoryParam(PARAM_PROFILE_KEY), activation);
+    String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
+    userSession.checkLoggedIn();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      checkPermission(dbSession, profileKey);
+      List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileKey);
+      dbSession.commit();
+      activeRuleIndexer.index(changes);
+    }
   }
 
   private static RuleKey readRuleKey(Request request) {
     return RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
+  }
+
+  private void checkPermission(DbSession dbSession, String qualityProfileKey) {
+    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
+    OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
+    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 }
