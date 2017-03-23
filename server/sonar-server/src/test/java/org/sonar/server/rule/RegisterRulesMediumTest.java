@@ -49,9 +49,9 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
@@ -124,7 +124,7 @@ public class RegisterRulesMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    TESTER.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
+    TESTER.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
 
     // Restart, repo xoo still exists -> deactivate x1
     register(new Rules() {
@@ -155,7 +155,8 @@ public class RegisterRulesMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    TESTER.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
+    TESTER.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
+    dbSession.commit();
 
     // Restart without xoo
     register(null);
@@ -191,7 +192,8 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setParameter("format", "txt");
-    TESTER.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
+    TESTER.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
+    dbSession.commit();
 
     // Default value of "min" is changed, "format" is removed, "format2" is added, "max" is added with a default value
     register(new Rules() {
@@ -231,7 +233,7 @@ public class RegisterRulesMediumTest {
 
     // User adds tag
     TESTER.get(RuleUpdater.class).update(dbSession, RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), userSessionRule);
-    dbSession.clearCache();
+    dbSession.commit();
 
     rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RuleTesting.XOO_X1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");

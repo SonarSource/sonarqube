@@ -36,7 +36,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -59,9 +58,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
-
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class InheritanceActionTest {
 
@@ -106,8 +102,6 @@ public class InheritanceActionTest {
       activeRuleIndexer,
       userSession);
     service = new QProfileService(
-      dbClient,
-      activeRuleIndexer,
       ruleActivator,
       userSession,
       defaultOrganizationProvider);
@@ -175,38 +169,6 @@ public class InheritanceActionTest {
   public void fail_if_not_found() throws Exception {
     wsActionTester.newRequest()
       .setMethod("GET").setParam("profileKey", "polop").execute();
-  }
-
-  @Test
-  public void stat_for_all_profiles() {
-    userSession.logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
-
-    String language = randomAlphanumeric(20);
-
-    QualityProfileDto profile1 = QualityProfileTesting.newQualityProfileDto()
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage(language);
-    QualityProfileDto profile2 = QualityProfileTesting.newQualityProfileDto()
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage(language);
-    dbClient.qualityProfileDao().insert(dbSession, profile1, profile2);
-
-    RuleDto rule = RuleTesting.newRuleDto()
-      .setSeverity("MINOR")
-      .setLanguage(profile1.getLanguage());
-    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
-    dbSession.commit();
-
-    userSession.logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, dbTester.getDefaultOrganization().getUuid());
-
-    service.activate(profile1.getKey(), new RuleActivation(rule.getKey()).setSeverity("MINOR"));
-    service.activate(profile2.getKey(), new RuleActivation(rule.getKey()).setSeverity("BLOCKER"));
-    activeRuleIndexer.index();
-
-    userSession.logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
   }
 
   private QualityProfileDto createProfile(String lang, String name, String key) {

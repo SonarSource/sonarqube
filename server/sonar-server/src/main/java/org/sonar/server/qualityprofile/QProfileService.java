@@ -19,13 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.user.UserSession;
 
@@ -34,36 +30,14 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 @ServerSide
 public class QProfileService {
 
-  private final DbClient db;
-  private final ActiveRuleIndexer activeRuleIndexer;
   private final RuleActivator ruleActivator;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator,
-    UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
-    this.db = db;
-    this.activeRuleIndexer = activeRuleIndexer;
+  public QProfileService(RuleActivator ruleActivator, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.ruleActivator = ruleActivator;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
-  }
-
-  /**
-   * Activate a rule on a Quality profile. Update configuration (severity/parameters) if the rule is already
-   * activated.
-   */
-  public List<ActiveRuleChange> activate(String profileKey, RuleActivation activation) {
-    verifyAdminPermission();
-    DbSession dbSession = db.openSession(false);
-    try {
-      List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileKey);
-      dbSession.commit();
-      activeRuleIndexer.index(changes);
-      return changes;
-    } finally {
-      dbSession.close();
-    }
   }
 
   public BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profile, @Nullable String severity) {
