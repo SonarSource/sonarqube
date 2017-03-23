@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -64,17 +63,6 @@ public class QProfileService {
       return changes;
     } finally {
       dbSession.close();
-    }
-  }
-
-  /**
-   * Deactivate a rule on a Quality profile. Does nothing if the rule is not activated, but
-   * fails if the rule or the profile does not exist.
-   */
-  public List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
-    verifyAdminPermission();
-    try (DbSession dbSession = db.openSession(false)) {
-      return ruleActivator.deactivateAndUpdateIndex(dbSession, key);
     }
   }
 

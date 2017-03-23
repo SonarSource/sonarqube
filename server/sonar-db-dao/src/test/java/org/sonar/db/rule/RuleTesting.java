@@ -163,4 +163,7 @@ public class RuleTesting {
       .setType(templateRule.getType());
   }
 
+  public static RuleKey randomRuleKey() {
+    return RuleKey.of(randomAlphanumeric(5), randomAlphanumeric(5));
+  }
 }

@@ -25,8 +25,14 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.user.UserSession;
 
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY;
@@ -35,10 +41,16 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 @ServerSide
 public class RuleDeactivationAction implements QProfileWsAction {
 
-  private final QProfileService service;
+  private final DbClient dbClient;
+  private final RuleActivator ruleActivator;
+  private final UserSession userSession;
+  private final QProfileWsSupport wsSupport;
 
-  public RuleDeactivationAction(QProfileService service) {
-    this.service = service;
+  public RuleDeactivationAction(DbClient dbClient, RuleActivator ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
+    this.dbClient = dbClient;
+    this.ruleActivator = ruleActivator;
+    this.userSession = userSession;
+    this.wsSupport = wsSupport;
   }
 
   public void define(WebService.NewController controller) {
@@ -62,11 +74,19 @@ public class RuleDeactivationAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    RuleKey ruleKey = readRuleKey(request);
-    service.deactivate(ActiveRuleKey.of(request.mandatoryParam(PARAM_PROFILE_KEY), ruleKey));
+    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
+    String qualityProfileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
+    userSession.checkLoggedIn();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      checkPermission(qualityProfileKey, dbSession);
+      ActiveRuleKey activeRuleKey = ActiveRuleKey.of(qualityProfileKey, ruleKey);
+      ruleActivator.deactivateAndUpdateIndex(dbSession, activeRuleKey);
+    }
   }
 
-  private static RuleKey readRuleKey(Request request) {
-    return RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
+  private void checkPermission(String qualityProfileKey, DbSession dbSession) {
+    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
+    OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
+    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 }

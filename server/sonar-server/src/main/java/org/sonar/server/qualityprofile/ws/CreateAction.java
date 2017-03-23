@@ -133,7 +133,7 @@ public class CreateAction implements QProfileWsAction {
         result.add(exporters.importXml(profile, importerKey, contentToImport, dbSession));
       }
     }
-    String organizationKey = qProfileWsSupport.getOrganizationKey(dbSession, result.profile());
+    String organizationKey = qProfileWsSupport.getOrganization(dbSession, result.profile()).getKey();
     dbSession.commit();
     activeRuleIndexer.index(result.getChanges());
     return buildResponse(result, organizationKey);
