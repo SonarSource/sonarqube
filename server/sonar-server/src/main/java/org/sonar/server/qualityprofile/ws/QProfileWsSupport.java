@@ -75,15 +75,6 @@ public class QProfileWsSupport {
   }
 
   /**
-   * @deprecated should not be required anymore, once all quality profile webservices are migrated to use organizations.
-   */
-  @Deprecated
-  public OrganizationDto getDefaultOrganization(DbSession dbSession) {
-    return dbClient.organizationDao().selectByKey(dbSession, defaultOrganizationProvider.get().getKey())
-      .orElseThrow(() -> new IllegalStateException("Could not find default organization"));
-  }
-
-  /**
    * Get the Quality profile specified by the reference {@code ref}.
    *
    * @throws org.sonar.server.exceptions.NotFoundException if the specified organization or profile do not exist
