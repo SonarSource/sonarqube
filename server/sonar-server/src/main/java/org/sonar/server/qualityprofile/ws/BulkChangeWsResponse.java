@@ -19,10 +19,10 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.util.List;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.BulkChangeResult;
+import org.sonar.server.ws.WebServiceEngine;
 
 class BulkChangeWsResponse {
 
@@ -34,20 +34,7 @@ class BulkChangeWsResponse {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());
     json.prop("failed", result.countFailed());
-    writeErrors(json, result.getErrors());
+    WebServiceEngine.writeErrors(json, result.getErrors());
     json.endObject().close();
-  }
-
-  private static void writeErrors(JsonWriter json, List<String> errorMessages) {
-    if (errorMessages.isEmpty()) {
-      return;
-    }
-    json.name("errors").beginArray();
-    errorMessages.forEach(message -> {
-      json.beginObject();
-      json.prop("msg", message);
-      json.endObject();
-    });
-    json.endArray();
   }
 }

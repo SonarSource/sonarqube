@@ -51,7 +51,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -452,13 +451,13 @@ public class RuleUpdaterMediumTest {
     ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam3);
 
     // Create a quality profile
-    QualityProfileDto profileDto = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto profileDto = QProfileTesting.newXooP1(defaultOrganization);
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 
     // Activate the custom rule
     RuleActivation activation = new RuleActivation(customRule.getKey()).setSeverity(Severity.BLOCKER);
-    tester.get(RuleActivator.class).activate(dbSession, activation, get(QProfileTesting.XOO_P1_NAME));
+    tester.get(RuleActivator.class).activate(dbSession, activation, profileDto);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -595,10 +594,6 @@ public class RuleUpdaterMediumTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
     }
-  }
-
-  private QualityProfileDto get(QProfileName profileName) {
-    return db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), dbSession);
   }
 
   private static Map<String, RuleParamDto> paramsByKey(List<RuleParamDto> params) {

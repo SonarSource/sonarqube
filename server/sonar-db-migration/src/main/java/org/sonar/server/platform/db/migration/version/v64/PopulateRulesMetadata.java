@@ -29,6 +29,8 @@ import org.sonar.server.platform.db.migration.step.Select;
 import org.sonar.server.platform.db.migration.step.SqlStatement;
 import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
 
+import static java.util.Optional.ofNullable;
+
 public class PopulateRulesMetadata extends DataChange {
   private final DefaultOrganizationUuid defaultOrganizationUuid;
   private final System2 system2;
@@ -113,14 +115,14 @@ public class PopulateRulesMetadata extends DataChange {
       .setString(2, defaultOrganizationUuid)
       .setString(3, noteData)
       .setString(4, noteUserLogin)
-      .setLong(5, noteCreatedAt == null ? null : noteCreatedAt.getTime())
-      .setLong(6, noteUpdatedAt == null ? null : noteUpdatedAt.getTime())
+      .setLong(5, ofNullable(noteCreatedAt).map(Date::getTime).orElse(null))
+      .setLong(6, ofNullable(noteUpdatedAt).map(Date::getTime).orElse(null))
       .setString(7, remediationFunction)
       .setString(8, remediationGapMultiplier)
       .setString(9, remediationBaseEffort)
       .setString(10, tags)
-      .setLong(11, createdAt == null ? now : createdAt)
-      .setLong(12, updatedAt == null ? now : updatedAt);
+      .setLong(11, ofNullable(createdAt).orElse(now))
+      .setLong(12, ofNullable(updatedAt).orElse(now));
     return true;
   }
 }

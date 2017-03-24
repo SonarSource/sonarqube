@@ -87,7 +87,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
   public void index(List<ActiveRuleChange> changes) {
     deleteKeys(changes.stream()
       .filter(c -> c.getType().equals(ActiveRuleChange.Type.DEACTIVATED))
-      .map(c -> c.getKey())
+      .map(ActiveRuleChange::getKey)
       .collect(Collectors.toList(changes.size())));
 
     index();

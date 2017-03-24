@@ -104,7 +104,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
       List<QualityProfileDto> profiles = dbClient.qualityProfileDao().selectByKeys(dbSession, profileKeys);
       String badKeys = profiles.stream()
         .filter(p -> !p.getOrganizationUuid().equals(organization.getUuid()))
-        .map(p -> p.getKey())
+        .map(QualityProfileDto::getKey)
         .collect(Collectors.join(Joiner.on(", ")));
       if (!badKeys.isEmpty()) {
         throw MessageException.of(format("Quality profiles with following keys don't exist in organization [%s]: %s", organization.getKey(), badKeys));

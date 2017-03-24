@@ -58,7 +58,7 @@ public class DropColumnsBuilder {
       case Oracle.ID:
         return Collections.singletonList(getOracleStatement());
       case H2.ID:
-        return Arrays.stream(columns).map(column -> getMsSQLStatement(column)).collect(Collectors.toList(columns.length));
+        return Arrays.stream(columns).map(this::getMsSQLStatement).collect(Collectors.toList(columns.length));
       default:
         throw new IllegalStateException(String.format("Unsupported database '%s'", dialect.getId()));
     }

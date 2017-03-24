@@ -43,7 +43,6 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -80,11 +79,12 @@ public class RegisterQualityProfilesMediumTest {
     tester.start();
     DbClient dbClient = dbClient();
     dbSession = dbClient.openSession(false);
+    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, getDefaultOrganization(tester, dbClient, dbSession))).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage("Basic", "xoo", dbSession);
+    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
+    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     // Check ActiveRules in DB
@@ -127,12 +127,12 @@ public class RegisterQualityProfilesMediumTest {
     tester.start();
     DbClient dbClient = dbClient();
     dbSession = dbClient.openSession(false);
-    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient, dbSession);
+    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, getDefaultOrganization(tester, dbClient, dbSession))).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage("Basic", "xoo", dbSession);
+    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
+    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     // Check Default Profile
@@ -164,10 +164,11 @@ public class RegisterQualityProfilesMediumTest {
     tester.start();
     DbClient dbClient = dbClient();
     dbSession = dbClient().openSession(false);
+    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, getDefaultOrganization(tester, dbClient(), dbSession))).hasSize(0);
+    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(0);
   }
 
   @Test
@@ -185,9 +186,10 @@ public class RegisterQualityProfilesMediumTest {
   public void mark_profile_as_default() {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
     tester.start();
-    dbSession = dbClient().openSession(false);
+    DbClient dbClient = dbClient();
+    dbSession = dbClient.openSession(false);
+    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
-    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient(), dbSession);
     verifyDefaultProfile(organization, "xoo", "two");
   }
 
@@ -196,9 +198,10 @@ public class RegisterQualityProfilesMediumTest {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false),
       new SimpleProfileDefinition("Other way", false));
     tester.start();
-    dbSession = dbClient().openSession(false);
+    DbClient dbClient = dbClient();
+    dbSession = dbClient.openSession(false);
+    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
-    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient(), dbSession);
     verifyDefaultProfile(organization, "xoo", "Sonar way");
   }
 
@@ -206,9 +209,9 @@ public class RegisterQualityProfilesMediumTest {
   public void do_not_reset_default_profile_if_still_valid() {
     tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
     tester.start();
+    DbClient dbClient = dbClient();
     dbSession = dbClient().openSession(false);
-
-    OrganizationDto organization = QProfileTesting.getDefaultOrganization(tester, dbClient(), dbSession);
+    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
     QualityProfileDao dao = dbClient().qualityProfileDao();
     dao.update(dbSession, dao.selectDefaultProfile(dbSession, organization, "xoo")
@@ -231,13 +234,14 @@ public class RegisterQualityProfilesMediumTest {
   public void clean_up_profiles_if_missing_loaded_template() {
     tester = new ServerTester().withEsIndexes().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
-
+    DbClient dbClient = dbClient();
     dbSession = dbClient().openSession(false);
-    String defaultOrganizationUuid = tester.getContainer().getComponentByType(DefaultOrganizationProvider.class).get().getUuid();
+    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
+
     String loadedTemplateType = computeLoadedTemplateType(new QProfileName("xoo", "Basic"));
-    dbClient().loadedTemplateDao().delete(dbSession, loadedTemplateType, defaultOrganizationUuid);
+    dbClient().loadedTemplateDao().delete(dbSession, loadedTemplateType, organization.getUuid());
     dbSession.commit();
-    assertThat(dbClient().loadedTemplateDao().countByTypeAndKey(loadedTemplateType, defaultOrganizationUuid, dbSession)).isEqualTo(0);
+    assertThat(dbClient().loadedTemplateDao().countByTypeAndKey(loadedTemplateType, organization.getUuid(), dbSession)).isEqualTo(0);
     dbSession.close();
 
     tester.get(Platform.class).restart();

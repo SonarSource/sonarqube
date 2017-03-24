@@ -25,6 +25,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
@@ -38,7 +39,7 @@ public class ProfilesWsTest {
   @Before
   public void setUp() {
     ws = new WsTester(new ProfilesWs(
-      new OldRestoreAction(mock(DbClient.class), mock(QProfileBackuper.class), mock(Languages.class), mock(QProfileWsSupport.class))));
+      new OldRestoreAction(mock(DbClient.class), mock(QProfileBackuper.class), mock(Languages.class), mock(QProfileWsSupport.class), mock(UserSession.class))));
   }
 
   @Test

@@ -37,6 +37,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -64,7 +65,6 @@ import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_NAME;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_NAME;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P3_NAME;
-import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 import static org.sonar.server.qualityprofile.QProfileTesting.newXooP1;
 import static org.sonar.server.qualityprofile.QProfileTesting.newXooP2;
 
@@ -101,7 +101,8 @@ public class QProfileBackuperMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     ruleIndexer.index();
-    organization = getDefaultOrganization(tester, db, dbSession);
+    this.organization = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(dbSession, organization);
   }
 
   @After
@@ -149,7 +150,7 @@ public class QProfileBackuperMediumTest {
       organization, null);
 
     // Check in db
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
+    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profile.getKey());
@@ -372,7 +373,7 @@ public class QProfileBackuperMediumTest {
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
     assertThat(activeRules).hasSize(0);
 
-    QualityProfileDto target = db.qualityProfileDao().selectByNameAndLanguage("P3", "xoo", dbSession);
+    QualityProfileDto target = db.qualityProfileDao().selectByNameAndLanguage(organization, "P3", "xoo", dbSession);
     assertThat(target).isNotNull();
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, target.getKey())).hasSize(1);
   }
@@ -385,12 +386,12 @@ public class QProfileBackuperMediumTest {
 
     dbSession.clearCache();
     assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(0);
-    List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(tester, db, dbSession));
+    List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, organization);
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
   }
 
   private QualityProfileDto get(QProfileName profileName) {
-    return db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), dbSession);
+    return db.qualityProfileDao().selectByNameAndLanguage(organization, profileName.getName(), profileName.getLanguage(), dbSession);
   }
 }

@@ -44,10 +44,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.server.qualityprofile.QProfileRef.PARAM_PROFILE_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 import static org.sonar.server.qualityprofile.ws.ChangelogAction.PARAM_SINCE;
 import static org.sonar.server.qualityprofile.ws.ChangelogAction.PARAM_TO;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
 
 public class ChangelogActionMockTest {
 
