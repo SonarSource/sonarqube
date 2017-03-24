@@ -27,7 +27,6 @@ var paths = require('../paths');
 var config = require('./webpack.config.base');
 var getClientEnvironment = require('../env');
 
-var publicPath = '';
 var webContext = '';
 var env = getClientEnvironment();
 
@@ -53,7 +52,6 @@ config.entry.vendor.unshift(require.resolve('react-dev-utils/webpackHotDevClient
 config.output.pathinfo = true;
 
 // This is the URL that app is served from.
-config.output.publicPath = publicPath;
 config.output.filename = 'js/[name].js';
 config.output.chunkFilename = 'js/[name].chunk.js';
 
@@ -72,7 +70,7 @@ config.plugins = [
   // Generates an `index.html` file with the <script> injected.
   new HtmlWebpackPlugin({
     inject: false,
-    template: paths.appHtml,
+    template: paths.appHtml
   }),
 
   // Makes some environment variables available to the JS code, for example:
