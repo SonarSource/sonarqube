@@ -17,52 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+//@flow
+import React from 'react';
+import MembersListItem from './MembersListItem';
+import type { Member } from '../../../store/organizationsMembers/actions';
+import type { Organization } from '../../../store/organizations/duck';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-  white-space: nowrap;
-}
+type Props = {
+  members: Array<Member>,
+  organization?: Organization
+};
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
+export default class MembersList extends React.PureComponent {
+  props: Props;
 
-  & ~ .note {
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  render() {
+    return (
+      <table className="data zebra">
+        <tbody>
+          {this.props.members.map(member => (
+            <MembersListItem key={member.login} member={member} organization={this.props.organization} />
+          ))}
+        </tbody>
+      </table>
+    );
   }
-
-  &.touched ~ .note {
-    opacity: 1;
-  }
-}
-
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
 }

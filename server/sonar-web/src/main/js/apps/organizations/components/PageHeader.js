@@ -17,52 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+//@flow
+import React from 'react';
+import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-  white-space: nowrap;
-}
+type Props = {
+  loading: boolean,
+  total?: number,
+  children?: {}
+};
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
+export default class PageHeader extends React.PureComponent {
+  props: Props;
 
-  & ~ .note {
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  render() {
+    return (
+      <header className="page-header">
+        {this.props.loading && <i className="spinner" />}
+        {this.props.children}
+        {this.props.total != null &&
+          <span className="page-totalcount">
+            <strong>{formatMeasure(this.props.total, 'INT')}</strong>
+            {' '}
+            {translate('organization.members.member(s)')}
+          </span>}
+      </header>
+    );
   }
-
-  &.touched ~ .note {
-    opacity: 1;
-  }
-}
-
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
 }
