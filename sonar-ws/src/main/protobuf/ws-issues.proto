@@ -191,9 +191,11 @@ message ChangelogWsResponse {
   message Changelog {
     optional string user = 1;
     optional string userName = 2;
-    optional string email = 3;
+    // Email is no more returned since 6.3
+    optional string deprecatedEmail = 3;
     optional string creationDate = 4;
     repeated Diff diffs = 5;
+    optional string avatar = 6;
 
     message Diff {
       optional string key = 1;

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.hash.Hashing;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,8 @@ import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.ENGLISH;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -116,7 +119,7 @@ public class ChangelogAction implements IssuesWsAction {
       if (user != null) {
         changelogBuilder.setUser(user.getLogin());
         changelogBuilder.setUserName(user.getName());
-        setNullable(emptyToNull(user.getEmail()), changelogBuilder::setEmail);
+        setNullable(emptyToNull(user.getEmail()), c -> changelogBuilder.setAvatar(hash(c)));
       }
       change.diffs().entrySet().stream()
         .map(toWsDiff(results))
@@ -141,6 +144,10 @@ public class ChangelogAction implements IssuesWsAction {
       }
       return diffBuilder.build();
     };
+  }
+
+  private static String hash(String text) {
+    return Hashing.md5().hashString(text.toLowerCase(ENGLISH), UTF_8).toString();
   }
 
   private class ChangeLogResults {

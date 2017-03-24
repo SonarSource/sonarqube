@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Throwables;
+import com.google.common.hash.Hashing;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -44,6 +45,8 @@ import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog.Diff;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.ENGLISH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -80,7 +83,7 @@ public class ChangelogActionTest {
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).getUser()).isNotNull().isEqualTo(user.getLogin());
     assertThat(result.getChangelogList().get(0).getUserName()).isNotNull().isEqualTo(user.getName());
-    assertThat(result.getChangelogList().get(0).getEmail()).isNotNull().isEqualTo(user.getEmail());
+    assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo(hash(user.getEmail()));
     assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
     assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue).containsOnly(tuple("severity", "MAJOR", "BLOCKER"));
   }
@@ -129,7 +132,7 @@ public class ChangelogActionTest {
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).getUser()).isNotNull().isEqualTo(user.getLogin());
     assertThat(result.getChangelogList().get(0).getUserName()).isNotNull().isEqualTo(user.getName());
-    assertThat(result.getChangelogList().get(0).hasEmail()).isFalse();
+    assertThat(result.getChangelogList().get(0).hasAvatar()).isFalse();
   }
 
   @Test
@@ -143,7 +146,7 @@ public class ChangelogActionTest {
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).hasUser()).isFalse();
     assertThat(result.getChangelogList().get(0).hasUserName()).isFalse();
-    assertThat(result.getChangelogList().get(0).hasEmail()).isFalse();
+    assertThat(result.getChangelogList().get(0).hasAvatar()).isFalse();
     assertThat(result.getChangelogList().get(0).getDiffsList()).isNotEmpty();
   }
 
@@ -158,7 +161,7 @@ public class ChangelogActionTest {
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).hasUser()).isFalse();
     assertThat(result.getChangelogList().get(0).hasUserName()).isFalse();
-    assertThat(result.getChangelogList().get(0).hasEmail()).isFalse();
+    assertThat(result.getChangelogList().get(0).hasAvatar()).isFalse();
     assertThat(result.getChangelogList().get(0).getDiffsList()).isNotEmpty();
   }
 
@@ -289,6 +292,10 @@ public class ChangelogActionTest {
     ComponentDto project = db.components().insertProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return newDto(rule, file, project);
+  }
+
+  private static String hash(String text) {
+    return Hashing.md5().hashString(text.toLowerCase(ENGLISH), UTF_8).toString();
   }
 
 }
