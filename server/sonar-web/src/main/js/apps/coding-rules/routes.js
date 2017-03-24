@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute } from 'react-router';
-import CodingRulesAppContainer from './components/CodingRulesAppContainer';
+const routes = [
+  {
+    indexRoute: {
+      getComponent(_, callback) {
+        require.ensure([], require => {
+          callback(null, require('./components/CodingRulesAppContainer').default);
+        });
+      }
+    }
+  }
+];
 
-export default <IndexRoute component={CodingRulesAppContainer} />;
+export default routes;

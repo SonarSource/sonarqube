@@ -17,23 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, IndexRoute } from 'react-router';
-import App from './components/App';
-import DefaultPageSelector from './components/DefaultPageSelector';
-import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 import { saveAll } from './utils';
 
-export default (
-  <Route component={App}>
-    <IndexRoute component={DefaultPageSelector} />
-    <Route
-      path="all"
-      onEnter={(_, replace) => {
-        saveAll();
-        replace('/projects');
-      }}
-    />
-    <Route path="favorite" component={FavoriteProjectsContainer} />
-  </Route>
-);
+const routes = [
+  {
+    getComponent(_, callback) {
+      require.ensure([], require => callback(null, require('./components/App').default));
+    },
+    childRoutes: [
+      {
+        getIndexRoute(_, callback) {
+          require.ensure([], require =>
+            callback(null, { component: require('./components/DefaultPageSelector').default }));
+        }
+      },
+      {
+        path: 'all',
+        onEnter(_, replace) {
+          saveAll();
+          replace('/projects');
+        }
+      },
+      {
+        path: 'favorite',
+        getComponent(_, callback) {
+          require.ensure([], require =>
+            callback(null, require('./components/FavoriteProjectsContainer').default));
+        }
+      }
+    ]
+  }
+];
+
+export default routes;

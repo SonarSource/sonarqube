@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute } from 'react-router';
-import GlobalPermissionsApp from './global/components/App';
-import ProjectPermissionsApp from './project/components/App';
-import forSingleOrganization from '../organizations/forSingleOrganization';
+export const globalPermissionsRoutes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require => {
+        const GlobalPermissionsApp = require('./global/components/App').default;
+        const forSingleOrganization = require('../organizations/forSingleOrganization').default;
+        const component = forSingleOrganization(GlobalPermissionsApp);
+        callback(null, { component });
+      });
+    }
+  }
+];
 
-export const globalPermissionsRoutes = (
-  <IndexRoute component={forSingleOrganization(GlobalPermissionsApp)} />
-);
-
-export const projectPermissionsRoutes = <IndexRoute component={ProjectPermissionsApp} />;
+export const projectPermissionsRoutes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require =>
+        callback(null, { component: require('./project/components/App').default }));
+    }
+  }
+];

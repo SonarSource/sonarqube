@@ -25,6 +25,7 @@ import PageSidebar from './PageSidebar';
 import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
 import { getProjectUrl } from '../../../helpers/urls';
+import '../styles.css';
 
 export default class AllProjects extends React.Component {
   static propTypes = {

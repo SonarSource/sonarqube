@@ -17,25 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, IndexRoute, Redirect } from 'react-router';
-import AppContainer from './components/AppContainer';
-import ProfileContainer from './components/ProfileContainer';
-import HomeContainer from './home/HomeContainer';
-import ProfileDetails from './details/ProfileDetails';
-import ChangelogContainer from './changelog/ChangelogContainer';
-import ComparisonContainer from './compare/ComparisonContainer';
+const routes = [
+  {
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./components/AppContainer').default);
+      });
+    },
+    getIndexRoute(_, callback) {
+      require.ensure([], require => {
+        callback(null, { component: require('./home/HomeContainer').default });
+      });
+    },
+    childRoutes: [
+      {
+        getComponent(_, callback) {
+          require.ensure([], require => {
+            callback(null, require('./components/ProfileContainer').default);
+          });
+        },
+        childRoutes: [
+          {
+            path: 'show',
+            getComponent(_, callback) {
+              require.ensure([], require => {
+                callback(null, require('./details/ProfileDetails').default);
+              });
+            }
+          },
+          {
+            path: 'changelog',
+            getComponent(_, callback) {
+              require.ensure([], require => {
+                callback(null, require('./changelog/ChangelogContainer').default);
+              });
+            }
+          },
+          {
+            path: 'compare',
+            getComponent(_, callback) {
+              require.ensure([], require => {
+                callback(null, require('./compare/ComparisonContainer').default);
+              });
+            }
+          }
+        ]
+      }
+    ]
+  }
+];
 
-export default (
-  <Route component={AppContainer}>
-    <Redirect from="/profiles/index" to="/profiles" />
-
-    <IndexRoute component={HomeContainer} />
-
-    <Route component={ProfileContainer}>
-      <Route path="show" component={ProfileDetails} />
-      <Route path="changelog" component={ChangelogContainer} />
-      <Route path="compare" component={ComparisonContainer} />
-    </Route>
-  </Route>
-);
+export default routes;

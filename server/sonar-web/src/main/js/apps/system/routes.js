@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute, Redirect } from 'react-router';
-import Main from './main';
-
-export default [
-  <Redirect key="redirect" from="/system/index" to="/system" />,
-  <IndexRoute key="index" component={Main} />
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require => callback(null, { component: require('./main').default }));
+    }
+  }
 ];
+
+export default routes;

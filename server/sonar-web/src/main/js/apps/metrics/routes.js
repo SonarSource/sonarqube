@@ -17,8 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute } from 'react-router';
-import MetricsAppContainer from './components/MetricsAppContainer';
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require =>
+        callback(null, { component: require('./components/MetricsAppContainer').default }));
+    }
+  }
+];
 
-export default <IndexRoute component={MetricsAppContainer} />;
+export default routes;

@@ -17,9 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute } from 'react-router';
-import AppContainer from './components/AppContainer';
-import forSingleOrganization from '../organizations/forSingleOrganization';
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require => {
+        const AppContainer = require('./components/AppContainer').default;
+        const forSingleOrganization = require('../organizations/forSingleOrganization').default;
+        const component = forSingleOrganization(AppContainer);
+        callback(null, { component });
+      });
+    }
+  }
+];
 
-export default <IndexRoute component={forSingleOrganization(AppContainer)} />;
+export default routes;

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute, Redirect } from 'react-router';
-import AppContainer from './components/AppContainer';
-
-export default [
-  <Redirect key="redirect" from="/dashboard/index" to="/dashboard" />,
-  <IndexRoute key="index" component={AppContainer} />
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require =>
+        callback(null, { component: require('./components/AppContainer').default }));
+    }
+  }
 ];
+
+export default routes;

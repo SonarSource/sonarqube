@@ -17,33 +17,82 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, IndexRoute, IndexRedirect } from 'react-router';
-import AppContainer from './app/AppContainer';
-import HomeContainer from './home/HomeContainer';
-import AllMeasuresContainer from './home/AllMeasuresContainer';
-import DomainMeasuresContainer from './home/DomainMeasuresContainer';
-import MeasureDetailsContainer from './details/MeasureDetailsContainer';
-import ListViewContainer from './details/drilldown/ListViewContainer';
-import TreeViewContainer from './details/drilldown/TreeViewContainer';
-import MeasureHistoryContainer from './details/history/MeasureHistoryContainer';
-import MeasureTreemapContainer from './details/treemap/MeasureTreemapContainer';
-import { checkHistoryExistence } from './hooks';
-import './styles.css';
+const routes = [
+  {
+    getComponent(_, callback) {
+      require.ensure([], require => callback(null, require('./app/AppContainer').default));
+    },
+    childRoutes: [
+      {
+        getComponent(_, callback) {
+          require.ensure([], require => callback(null, require('./home/HomeContainer').default));
+        },
+        childRoutes: [
+          {
+            getIndexRoute(_, callback) {
+              require.ensure([], require =>
+                callback(null, { component: require('./home/AllMeasuresContainer').default }));
+            }
+          },
+          {
+            path: 'domain/:domainName',
+            getComponent(_, callback) {
+              require.ensure([], require =>
+                callback(null, require('./home/DomainMeasuresContainer').default));
+            }
+          }
+        ]
+      },
+      {
+        path: 'metric/:metricKey',
+        getComponent(_, callback) {
+          require.ensure([], require =>
+            callback(null, require('./details/MeasureDetailsContainer').default));
+        },
+        childRoutes: [
+          {
+            indexRoute: {
+              onEnter(nextState, replace) {
+                const { params, location } = nextState;
+                replace({
+                  pathname: `/component_measures/metric/${params.metricKey}/list`,
+                  query: location.query
+                });
+              }
+            }
+          },
+          {
+            path: 'list',
+            getComponent(_, callback) {
+              require.ensure([], require =>
+                callback(null, require('./details/drilldown/ListViewContainer').default));
+            }
+          },
+          {
+            path: 'tree',
+            getComponent(_, callback) {
+              require.ensure([], require =>
+                callback(null, require('./details/drilldown/TreeViewContainer').default));
+            }
+          },
+          {
+            path: 'history',
+            getComponent(_, callback) {
+              require.ensure([], require =>
+                callback(null, require('./details/history/MeasureHistoryContainer').default));
+            }
+          },
+          {
+            path: 'treemap',
+            getComponent(_, callback) {
+              require.ensure([], require =>
+                callback(null, require('./details/treemap/MeasureTreemapContainer').default));
+            }
+          }
+        ]
+      }
+    ]
+  }
+];
 
-export default (
-  <Route component={AppContainer}>
-    <Route component={HomeContainer}>
-      <IndexRoute component={AllMeasuresContainer} />
-      <Route path="domain/:domainName" component={DomainMeasuresContainer} />
-    </Route>
-
-    <Route path="metric/:metricKey" component={MeasureDetailsContainer}>
-      <IndexRedirect to="list" />
-      <Route path="list" component={ListViewContainer} />
-      <Route path="tree" component={TreeViewContainer} />
-      <Route path="history" component={MeasureHistoryContainer} onEnter={checkHistoryExistence} />
-      <Route path="treemap" component={MeasureTreemapContainer} />
-    </Route>
-  </Route>
-);
+export default routes;

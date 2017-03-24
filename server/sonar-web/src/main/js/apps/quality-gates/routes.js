@@ -17,17 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, IndexRoute, Redirect } from 'react-router';
-import QualityGatesAppContainer from './containers/QualityGatesAppContainer';
-import Intro from './components/Intro';
-import DetailsContainer from './containers/DetailsContainer';
+const routes = [
+  {
+    getComponent(_, callback) {
+      require.ensure([], require =>
+        callback(null, require('./containers/QualityGatesAppContainer').default));
+    },
+    childRoutes: [
+      {
+        getIndexRoute(_, callback) {
+          require.ensure([], require =>
+            callback(null, { component: require('./components/Intro').default }));
+        }
+      },
+      {
+        path: 'show/:id',
+        getComponent(_, callback) {
+          require.ensure([], require =>
+            callback(null, require('./containers/DetailsContainer').default));
+        }
+      }
+    ]
+  }
+];
 
-export default (
-  <Route component={QualityGatesAppContainer}>
-    <Redirect from="/quality_gates/index" to="/quality_gates/" />
-
-    <IndexRoute component={Intro} />
-    <Route path="show/:id" component={DetailsContainer} />
-  </Route>
-);
+export default routes;

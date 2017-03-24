@@ -17,11 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute, Route } from 'react-router';
-import WebApiApp from './components/WebApiApp';
-
-export default [
-  <IndexRoute key="index" component={WebApiApp} />,
-  <Route key="splat" path="**" component={WebApiApp} />
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require =>
+        callback(null, { component: require('./components/WebApiApp').default }));
+    }
+  },
+  {
+    path: '**',
+    getComponent(_, callback) {
+      require.ensure([], require => callback(null, require('./components/WebApiApp').default));
+    }
+  }
 ];
+
+export default routes;

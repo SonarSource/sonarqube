@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, IndexRedirect } from 'react-router';
 import OrganizationPage from './components/OrganizationPage';
 import OrganizationProjects from './components/OrganizationProjects';
 import OrganizationFavoriteProjects from './components/OrganizationFavoriteProjects';
@@ -30,18 +28,40 @@ import OrganizationPermissionTemplates from './components/OrganizationPermission
 import OrganizationProjectsManagement from './components/OrganizationProjectsManagement';
 import OrganizationDelete from './components/OrganizationDelete';
 
-export default (
-  <Route path=":organizationKey" component={OrganizationPage}>
-    <IndexRedirect to="projects" />
-    <Route path="projects" component={OrganizationProjects} />
-    <Route path="projects/favorite" component={OrganizationFavoriteProjects} />
-    <Route component={OrganizationAdmin}>
-      <Route path="delete" component={OrganizationDelete} />
-      <Route path="edit" component={OrganizationEdit} />
-      <Route path="groups" component={OrganizationGroups} />
-      <Route path="permissions" component={OrganizationPermissions} />
-      <Route path="permission_templates" component={OrganizationPermissionTemplates} />
-      <Route path="projects_management" component={OrganizationProjectsManagement} />
-    </Route>
-  </Route>
-);
+const routes = [
+  {
+    path: ':organizationKey',
+    component: OrganizationPage,
+    childRoutes: [
+      {
+        indexRoute: {
+          onEnter(nextState, replace) {
+            const { params } = nextState;
+            replace(`/organizations/${params.organizationKey}/projects`);
+          }
+        }
+      },
+      {
+        path: 'projects',
+        component: OrganizationProjects
+      },
+      {
+        path: 'projects/favorite',
+        component: OrganizationFavoriteProjects
+      },
+      {
+        component: OrganizationAdmin,
+        childRoutes: [
+          { path: 'delete', component: OrganizationDelete },
+          { path: 'edit', component: OrganizationEdit },
+          { path: 'groups', component: OrganizationGroups },
+          { path: 'permissions', component: OrganizationPermissions },
+          { path: 'permission_templates', component: OrganizationPermissionTemplates },
+          { path: 'projects_management', component: OrganizationProjectsManagement }
+        ]
+      }
+    ]
+  }
+];
+
+export default routes;
