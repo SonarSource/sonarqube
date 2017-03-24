@@ -62,43 +62,43 @@ exports[`test should display bubbles 1`] = `
               x1={51.666666666666664}
               x2={51.666666666666664}
               y1={61.66666666666666}
-              y2={33.57142857142858} />
+              y2={33.57142857142857} />
             <line
               className="bubble-chart-grid"
               x1={30}
               x2={30}
               y1={61.66666666666666}
-              y2={33.57142857142858} />
+              y2={33.57142857142857} />
             <line
               className="bubble-chart-grid"
               x1={8.333333333333336}
               x2={8.333333333333336}
               y1={61.66666666666666}
-              y2={33.57142857142858} />
+              y2={33.57142857142857} />
             <line
               className="bubble-chart-grid"
-              x1={-13.33333333333334}
-              x2={-13.33333333333334}
+              x1={-13.333333333333336}
+              x2={-13.333333333333336}
               y1={61.66666666666666}
-              y2={33.57142857142858} />
+              y2={33.57142857142857} />
             <line
               className="bubble-chart-grid"
-              x1={-35}
-              x2={-35}
+              x1={-34.99999999999999}
+              x2={-34.99999999999999}
               y1={61.66666666666666}
-              y2={33.57142857142858} />
+              y2={33.57142857142857} />
             <line
               className="bubble-chart-grid"
               x1={-56.66666666666668}
               x2={-56.66666666666668}
               y1={61.66666666666666}
-              y2={33.57142857142858} />
+              y2={33.57142857142857} />
             <line
               className="bubble-chart-grid"
               x1={-78.33333333333334}
               x2={-78.33333333333334}
               y1={61.66666666666666}
-              y2={33.57142857142858} />
+              y2={33.57142857142857} />
           </g>
           <g>
             <text
@@ -123,14 +123,14 @@ exports[`test should display bubbles 1`] = `
             <text
               className="bubble-chart-tick"
               dy="1.5em"
-              x={-13.33333333333334}
+              x={-13.333333333333336}
               y={80}>
               1.5
             </text>
             <text
               className="bubble-chart-tick"
               dy="1.5em"
-              x={-35}
+              x={-34.99999999999999}
               y={80}>
               2
             </text>
@@ -160,8 +160,8 @@ exports[`test should display bubbles 1`] = `
               className="bubble-chart-grid"
               x1={51.666666666666664}
               x2={-78.33333333333334}
-              y1={56.98412698412698}
-              y2={56.98412698412698} />
+              y1={56.98412698412697}
+              y2={56.98412698412697} />
             <line
               className="bubble-chart-grid"
               x1={51.666666666666664}
@@ -172,8 +172,8 @@ exports[`test should display bubbles 1`] = `
               className="bubble-chart-grid"
               x1={51.666666666666664}
               x2={-78.33333333333334}
-              y1={47.61904761904762}
-              y2={47.61904761904762} />
+              y1={47.61904761904761}
+              y2={47.61904761904761} />
             <line
               className="bubble-chart-grid"
               x1={51.666666666666664}
@@ -190,8 +190,8 @@ exports[`test should display bubbles 1`] = `
               className="bubble-chart-grid"
               x1={51.666666666666664}
               x2={-78.33333333333334}
-              y1={33.57142857142858}
-              y2={33.57142857142858} />
+              y1={33.57142857142857}
+              y2={33.57142857142857} />
           </g>
           <g>
             <text
@@ -205,7 +205,7 @@ exports[`test should display bubbles 1`] = `
               dx="-0.5em"
               dy="0.3em"
               x={0}
-              y={56.98412698412698}>
+              y={56.98412698412697}>
               5
             </text>
             <text
@@ -221,7 +221,7 @@ exports[`test should display bubbles 1`] = `
               dx="-0.5em"
               dy="0.3em"
               x={0}
-              y={47.61904761904762}>
+              y={47.61904761904761}>
               15
             </text>
             <text
@@ -245,7 +245,7 @@ exports[`test should display bubbles 1`] = `
               dx="-0.5em"
               dy="0.3em"
               x={0}
-              y={33.57142857142858}>
+              y={33.57142857142857}>
               30
             </text>
           </g>
@@ -268,21 +268,21 @@ exports[`test should display bubbles 1`] = `
             </g>
           </Bubble>
           <Bubble
-            r={33.57142857142858}
-            x={-35}
-            y={33.57142857142858}>
+            r={33.57142857142857}
+            x={-34.99999999999999}
+            y={33.57142857142857}>
             <g>
               <circle
                 className="bubble-chart-bubble"
                 onClick={[Function]}
-                r={33.57142857142858}
+                r={33.57142857142857}
                 style={
                   Object {
                     "fill": undefined,
                     "stroke": undefined,
                   }
                 }
-                transform="translate(-35, 33.57142857142858)" />
+                transform="translate(-34.99999999999999, 33.57142857142857)" />
             </g>
           </Bubble>
           <Bubble

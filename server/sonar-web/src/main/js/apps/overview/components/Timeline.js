@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
+import { max } from 'd3-array';
 import { LineChart } from '../../../components/charts/line-chart';
 
 const HEIGHT = 80;
@@ -56,7 +56,7 @@ export default class Timeline extends React.Component {
       return { x: index, y: snapshot.value };
     });
 
-    const domain = [0, d3.max(this.props.history, d => d.value)];
+    const domain = [0, max(this.props.history, d => d.value)];
 
     return (
       <LineChart

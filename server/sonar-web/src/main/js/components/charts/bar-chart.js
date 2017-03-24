@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
+import { max } from 'd3-array';
+import { scaleLinear, scaleBand } from 'd3-scale';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
@@ -57,7 +58,7 @@ export const BarChart = React.createClass({
     }
     const ticks = this.props.xTicks.map((tick, index) => {
       const point = this.props.data[index];
-      const x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
+      const x = Math.round(xScale(point.x) + xScale.bandwidth() / 2);
       const y = yScale.range()[0];
       const d = this.props.data[index];
       const tooltipAtts = {};
@@ -67,15 +68,14 @@ export const BarChart = React.createClass({
       }
       return (
         <text
+          {...tooltipAtts}
           key={index}
           className="bar-chart-tick"
           x={x}
           y={y}
           dy="1.5em"
           onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
-          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-          {...tooltipAtts}
-        >
+          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}>
           {tick}
         </text>
       );
@@ -89,7 +89,7 @@ export const BarChart = React.createClass({
     }
     const ticks = this.props.xValues.map((value, index) => {
       const point = this.props.data[index];
-      const x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
+      const x = Math.round(xScale(point.x) + xScale.bandwidth() / 2);
       const y = yScale(point.y);
       const d = this.props.data[index];
       const tooltipAtts = {};
@@ -106,8 +106,7 @@ export const BarChart = React.createClass({
           dy="-1em"
           onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
           style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-          {...tooltipAtts}
-        >
+          {...tooltipAtts}>
           {value}
         </text>
       );
@@ -155,12 +154,12 @@ export const BarChart = React.createClass({
       (this.props.data.length - 1);
     const relativeInnerPadding = innerPadding / (innerPadding + this.props.barsWidth);
 
-    const maxY = d3.max(this.props.data, d => d.y);
-    const xScale = d3.scale
-      .ordinal()
+    const maxY = max(this.props.data, d => d.y);
+    const xScale = scaleBand()
       .domain(this.props.data.map(d => d.x))
-      .rangeBands([0, availableWidth], relativeInnerPadding, 0);
-    const yScale = d3.scale.linear().domain([0, maxY]).range([availableHeight, 0]);
+      .range([0, availableWidth])
+      .paddingInner(relativeInnerPadding);
+    const yScale = scaleLinear().domain([0, maxY]).range([availableHeight, 0]);
 
     return (
       <svg className="bar-chart" width={this.state.width} height={this.state.height}>

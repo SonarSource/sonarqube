@@ -12,7 +12,11 @@ module.exports = {
       'jquery',
       'underscore',
       'lodash',
-      'd3',
+      'd3-array',
+      'd3-hierarchy',
+      'd3-scale',
+      'd3-selection',
+      'd3-shape',
       'react',
       'react-dom',
       'backbone',
@@ -81,7 +85,6 @@ module.exports = {
       { test: require.resolve('underscore'), loader: 'expose?_' },
       { test: require.resolve('backbone'), loader: 'expose?Backbone' },
       { test: require.resolve('backbone.marionette'), loader: 'expose?Marionette' },
-      { test: require.resolve('d3'), loader: 'expose?d3' },
       { test: require.resolve('react'), loader: 'expose?React' },
       { test: require.resolve('react-dom'), loader: 'expose?ReactDOM' }
     ]
