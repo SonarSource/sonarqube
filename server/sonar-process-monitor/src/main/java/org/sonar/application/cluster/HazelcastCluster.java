@@ -30,10 +30,12 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.MapEvent;
+import com.hazelcast.core.Member;
 import com.hazelcast.core.ReplicatedMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.application.AppStateListener;
 import org.sonar.process.ProcessId;
 
@@ -194,6 +196,17 @@ public class HazelcastCluster implements AutoCloseable {
     // We are not using the partition group of Hazelcast, so disabling it
     hzConfig.getPartitionGroupConfig().setEnabled(false);
     return new HazelcastCluster(hzConfig);
+  }
+
+  String getLeaderHostName() {
+    String leaderId = (String) hzInstance.getAtomicReference(LEADER).get();
+    if (leaderId != null) {
+      Optional<Member> leader = hzInstance.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderId)).findFirst();
+      if (leader.isPresent()) {
+        return leader.get().getStringAttribute(HOSTNAME);
+      }
+    }
+    return "No leader";
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {

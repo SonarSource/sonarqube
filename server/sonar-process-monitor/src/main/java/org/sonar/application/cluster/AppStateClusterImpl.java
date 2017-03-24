@@ -90,6 +90,11 @@ public class AppStateClusterImpl implements AppState {
     hazelcastCluster.registerSonarQubeVersion(sonarqubeVersion);
   }
 
+  @Override
+  public String getLeaderHostName() {
+    return hazelcastCluster.getLeaderHostName();
+  }
+
   HazelcastCluster getHazelcastCluster() {
     return hazelcastCluster;
   }
