@@ -30,7 +30,7 @@ module.exports = {
       './src/main/js/libs/third-party/bootstrap/dropdown.js'
     ],
 
-    app: './src/main/js/app/index.js'
+    app: ['./src/main/js/app/index.js', './src/main/js/components/SourceViewer/SourceViewer.js']
   },
   output: {
     path: paths.appBuild,
