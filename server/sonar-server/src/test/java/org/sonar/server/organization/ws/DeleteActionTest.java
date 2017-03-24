@@ -42,6 +42,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -53,6 +54,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -311,8 +313,8 @@ public class DeleteActionTest {
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), org.getUuid(), user1.getId())).isNotPresent();
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), org.getUuid(), user2.getId())).isNotPresent();
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), otherOrg.getUuid(), user1.getId())).isPresent();
-    assertThat(userIndex.getNullableByLogin(user1.getLogin()).organizationUuids()).doesNotContain(org.getUuid()).contains(otherOrg.getUuid());
-    assertThat(userIndex.getNullableByLogin(user2.getLogin()).organizationUuids()).isEmpty();
+    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(org.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(0);
+    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(otherOrg.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(1);
   }
 
   @Test

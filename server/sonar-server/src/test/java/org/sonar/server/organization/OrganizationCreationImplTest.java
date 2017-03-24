@@ -47,16 +47,17 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.DefinedQProfile;
 import org.sonar.server.qualityprofile.DefinedQProfileCreationRule;
 import org.sonar.server.qualityprofile.DefinedQProfileRepositoryRule;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.user.index.UserQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -263,7 +264,6 @@ public class OrganizationCreationImplTest {
   public void create_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
     UserDto user = dbTester.users().insertUser();
     userIndexer.index(user.getLogin());
-    UserDoc userDoc = userIndex.getNullableByLogin(user.getLogin());
 
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     definedQProfileRepositoryRule.initialize();
@@ -272,7 +272,7 @@ public class OrganizationCreationImplTest {
     underTest.create(dbSession, someUser, FULL_POPULATED_NEW_ORGANIZATION);
 
     assertThat(dbClient.organizationMemberDao().select(dbSession, SOME_UUID, someUser.getId())).isPresent();
-    assertThat(userIndex.getNullableByLogin(someUser.getLogin()).organizationUuids()).contains(SOME_UUID);
+    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(SOME_UUID).setTextQuery(someUser.getLogin()).build(), new SearchOptions()).getTotal()).isEqualTo(1L);
   }
 
   @Test

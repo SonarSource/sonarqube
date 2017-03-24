@@ -40,6 +40,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,6 +48,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -340,7 +342,7 @@ public class RemoveMemberActionTest {
 
   private void assertNotAMember(String organizationUuid, UserDto user) {
     assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isNotPresent();
-    assertThat(userIndex.getNullableByLogin(user.getLogin()).organizationUuids()).doesNotContain(organizationUuid);
+    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(organizationUuid).setTextQuery(user.getLogin()).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   private void assertMember(String organizationUuid, UserDto user) {
