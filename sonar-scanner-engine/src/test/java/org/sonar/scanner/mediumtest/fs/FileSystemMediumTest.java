@@ -25,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Random;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -254,10 +256,10 @@ public class FileSystemMediumTest {
 
     Path testDir = baseDir.toPath().resolve("src").resolve("test");
     Files.createDirectories(testDir);
-    
+
     Path testXooFile = testDir.resolve("sample.java");
     Files.write(testXooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
-    
+
     Path xooFile = mainDir.resolve("sample.xoo");
     Files.write(xooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
 
@@ -308,10 +310,74 @@ public class FileSystemMediumTest {
     assertThat(logs.getAllAsString()).contains("1 file indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' indexed with language 'null'");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' generated metadata");
-    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
-    assertThat(result.getReportComponent(javaInputFile.key())).isNotNull();
+    DefaultInputFile inputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
+    assertThat(result.getReportComponent(inputFile.key())).isNotNull();
 
     tester2.stop();
+  }
+
+  @Test
+  public void lazyIssueExclusion() throws IOException {
+    LogOutputRecorder logs = new LogOutputRecorder();
+    ScannerMediumTester tester2 = ScannerMediumTester.builder()
+      .registerPlugin("xoo", new XooPlugin())
+      .addDefaultQProfile("xoo", "Sonar Way")
+      .addRules(new XooRulesDefinition())
+      .setLogOutput(logs)
+      .addActiveRule("xoo", "OneIssuePerFile", null, "OneIssuePerFile", "MAJOR", null, "xoo")
+      .build();
+    tester2.start();
+
+    builder = createBuilder();
+    builder.put("sonar.issue.ignore.allfile", "1")
+      .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern");
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File unknownFile = new File(srcDir, "myfile.binary");
+    byte[] b = new byte[512];
+    new Random().nextBytes(b);
+    FileUtils.writeByteArrayToFile(unknownFile, b);
+
+    tester2.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' indexed with language 'null'");
+    assertThat(logs.getAllAsString()).doesNotContain("Scanning com.foo.project:src/myfile.binary");
+    assertThat(logs.getAllAsString()).containsOnlyOnce("Scanning com.foo.project:src/sample.xoo");
+
+    tester2.stop();
+
+  }
+
+  @Test
+  public void preloadIssueExclusions() throws IOException {
+    builder = createBuilder();
+    builder.put("sonar.issue.ignore.allfile", "1")
+      .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern")
+      .put("sonar.preloadFileMetadata", "true");
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File unknownFile = new File(srcDir, "myfile.binary");
+    FileUtils.write(unknownFile, "some text");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).containsOnlyOnce("Scanning com.foo.project:src/myfile.binary");
   }
 
   @Test

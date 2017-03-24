@@ -34,7 +34,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class InputFileBuilder {
-  private static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
+  public static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
   private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
   private final String moduleKey;
   private final Path moduleBaseDir;
