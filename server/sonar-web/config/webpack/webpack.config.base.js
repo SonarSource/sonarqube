@@ -18,7 +18,12 @@ module.exports = {
       'backbone',
       'backbone.marionette',
       'moment',
-      'handlebars/runtime'
+      'handlebars/runtime',
+      './src/main/js/libs/third-party/jquery-ui.js',
+      './src/main/js/libs/third-party/select2.js',
+      './src/main/js/libs/third-party/keymaster.js',
+      './src/main/js/libs/third-party/bootstrap/tooltip.js',
+      './src/main/js/libs/third-party/bootstrap/dropdown.js'
     ],
 
     app: './src/main/js/app/index.js'
