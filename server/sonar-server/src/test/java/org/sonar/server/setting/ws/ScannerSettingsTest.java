@@ -19,44 +19,41 @@
  */
 package org.sonar.server.setting.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.PropertyType.LICENSE;
+import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
 public class ScannerSettingsTest {
 
-  private PropertyDefinitions definitions = new PropertyDefinitions();
-  private PluginRepository repository = mock(PluginRepository.class);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ScannerSettings underTest = new ScannerSettings(definitions, repository);
+  private PropertyDefinitions definitions = new PropertyDefinitions();
+
+  private ScannerSettings underTest = new ScannerSettings(db.getDbClient(), definitions);
 
   @Test
   public void return_license_keys() throws Exception {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("myplugin.license.secured").type(LICENSE).build()));
-    underTest.start();
 
-    assertThat(underTest.getScannerSettingKeys()).contains("myplugin.license.secured");
+    assertThat(underTest.getScannerSettingKeys(db.getSession())).contains("myplugin.license.secured");
   }
 
   @Test
   public void return_license_hash_keys() throws Exception {
-    PluginInfo pluginInfo = mock(PluginInfo.class);
-    when(pluginInfo.getKey()).thenReturn("myplugin");
-    when(repository.getPluginInfos()).thenReturn(singletonList(pluginInfo));
-    underTest.start();
+    db.properties().insertProperty(newGlobalPropertyDto("sonar.myplugin.licenseHash.secured", "hash"));
 
-    assertThat(underTest.getScannerSettingKeys()).contains("sonar.myplugin.licenseHash.secured");
+    assertThat(underTest.getScannerSettingKeys(db.getSession())).contains("sonar.myplugin.licenseHash.secured");
   }
 
   @Test
@@ -64,8 +61,7 @@ public class ScannerSettingsTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("myplugin.license.secured").type(LICENSE).build()));
-    underTest.start();
 
-    assertThat(underTest.getScannerSettingKeys()).contains("sonar.server_id", "sonar.core.id", "sonar.core.startTime");
+    assertThat(underTest.getScannerSettingKeys(db.getSession())).contains("sonar.server_id", "sonar.core.id", "sonar.core.startTime");
   }
 }
