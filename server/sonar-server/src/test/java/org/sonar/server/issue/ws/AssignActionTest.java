@@ -94,7 +94,6 @@ public class AssignActionTest {
   public void assign_to_someone() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
     UserDto userDto = db.users().insertUser("arthur");
-    addUserAsMemberOfDefaultOrganization(userDto);
 
     ws.newRequest()
       .setParam("issue", issue.getKey())
@@ -160,7 +159,6 @@ public class AssignActionTest {
   public void nothing_to_do_when_new_assignee_is_same_as_old_one() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
     UserDto userDto = db.users().insertUser(PREVIOUS_ASSIGNEE);
-    addUserAsMemberOfDefaultOrganization(userDto);
 
     ws.newRequest()
       .setParam("issue", issue.getKey())
@@ -258,7 +256,6 @@ public class AssignActionTest {
 
   private void setUserWithBrowsePermission(IssueDto issue) {
     UserDto currentUser = db.users().insertUser(CURRENT_USER_LOGIN);
-    addUserAsMemberOfDefaultOrganization(currentUser);
     userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(USER, issue.getProjectUuid());
   }
 
@@ -268,9 +265,4 @@ public class AssignActionTest {
     assertThat(issueReloaded.getIssueUpdateTime()).isEqualTo(NOW);
     assertThat(issueReloaded.getUpdatedAt()).isEqualTo(NOW);
   }
-
-  private void addUserAsMemberOfDefaultOrganization(UserDto user) {
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-  }
-
 }

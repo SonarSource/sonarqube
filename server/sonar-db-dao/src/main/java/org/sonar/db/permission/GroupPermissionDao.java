@@ -44,16 +44,16 @@ public class GroupPermissionDao implements Dao {
    * The virtual group "Anyone" may be returned as the value {@link DefaultGroups#ANYONE}.
    * @return group names, sorted in alphabetical order
    */
-  public List<String> selectGroupNamesByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
-    return mapper(dbSession).selectGroupNamesByQuery(organizationUuid, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+  public List<String> selectGroupNamesByQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).selectGroupNamesByQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
   /**
-   * Count the number of groups returned by {@link #selectGroupNamesByQuery(DbSession, String, PermissionQuery)},
+   * Count the number of groups returned by {@link #selectGroupNamesByQuery(DbSession, PermissionQuery)},
    * without applying pagination.
    */
-  public int countGroupsByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
-    return mapper(dbSession).countGroupsByQuery(organizationUuid, query);
+  public int countGroupsByQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).countGroupsByQuery(query);
   }
 
   /**
