@@ -22,7 +22,7 @@ import React from 'react';
 import { min, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { sortBy, uniq } from 'lodash';
-import { AutoSizer } from 'react-virtualized';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { TooltipsContainer } from '../mixins/tooltips-mixin';
 
 type Scale = {
