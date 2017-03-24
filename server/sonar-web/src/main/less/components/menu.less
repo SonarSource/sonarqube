@@ -59,6 +59,7 @@
     &:hover, &:focus {
       text-decoration: none;
       color: @baseFontColor;
+      background-color: @barBackgroundColor;
     }
   }
 
@@ -77,4 +78,19 @@
   padding: 4px 16px 0;
 
   .search-box-input { font-size: @smallFontSize; }
+}
+
+.menu-search ~ .menu {
+  > li > a {
+    &:hover, &:focus {
+      background-color: transparent;
+    }
+  }
+
+  > .active > a,
+  > li > .active {
+    &, &:hover, &:focus {
+      background-color: @barBackgroundColor;
+    }
+  }
 }
