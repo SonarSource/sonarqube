@@ -53,7 +53,7 @@ public class QProfileLookup {
 
   private void incrementAncestors(QualityProfileDto profile, List<QualityProfileDto> ancestors, DbSession session) {
     if (profile.getParentKee() != null) {
-      QualityProfileDto parentDto = db.qualityProfileDao().selectParentById(session, profile.getId());
+      QualityProfileDto parentDto = db.qualityProfileDao().selectByKey(session, profile.getParentKee());
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : " + profile.getId());
       }

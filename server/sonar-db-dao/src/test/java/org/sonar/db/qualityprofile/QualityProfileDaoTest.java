@@ -104,16 +104,6 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void delete() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    underTest.delete(dbSession, 1);
-    dbSession.commit();
-
-    dbTester.assertDbUnit(getClass(), "delete-result.xml", "rules_profiles");
-  }
-
-  @Test
   public void test_deleteByKeys() {
     QualityProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
     QualityProfileDto p2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
@@ -290,27 +280,6 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void get_by_id() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    QualityProfileDto dto = underTest.selectById(dbTester.getSession(), 1);
-    assertThat(dto.getId()).isEqualTo(1);
-    assertThat(dto.getName()).isEqualTo("Sonar Way");
-    assertThat(dto.getLanguage()).isEqualTo("java");
-    assertThat(dto.getParentKee()).isNull();
-
-    assertThat(underTest.selectById(dbTester.getSession(), 555)).isNull();
-  }
-
-  @Test
-  public void get_parent_by_id() {
-    dbTester.prepareDbUnit(getClass(), "inheritance.xml");
-
-    QualityProfileDto dto = underTest.selectParentById(dbSession, 1);
-    assertThat(dto.getId()).isEqualTo(3);
-  }
-
-  @Test
   public void find_children() {
     dbTester.prepareDbUnit(getClass(), "inheritance.xml");
 
@@ -329,14 +298,6 @@ public class QualityProfileDaoTest {
     assertThat(dto2.getName()).isEqualTo("Child2");
     assertThat(dto2.getLanguage()).isEqualTo("java");
     assertThat(dto2.getParentKee()).isEqualTo("java_parent");
-  }
-
-  @Test
-  public void test_selectUuidsOfAssociatedProjects() {
-    dbTester.prepareDbUnit(getClass(), "projects.xml");
-
-    assertThat(underTest.selectUuidsOfAssociatedProjects(dbTester.getSession(), "java_sonar_way")).containsExactlyInAnyOrder("A", "B");
-    assertThat(underTest.selectUuidsOfAssociatedProjects(dbTester.getSession(), "unknown")).isEmpty();
   }
 
   @Test

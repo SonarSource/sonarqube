@@ -59,10 +59,6 @@ public class ActiveRuleDao implements Dao {
     throw new RowNotFoundException(String.format("Active rule with key '%s' does not exist", key));
   }
 
-  public List<ActiveRuleDto> selectByKeys(DbSession dbSession, List<ActiveRuleKey> keys) {
-    return executeLargeInputs(keys, mapper(dbSession)::selectByKeys);
-  }
-
   public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, int ruleId) {
     return mapper(dbSession).selectByRuleId(ruleId);
   }
@@ -140,6 +136,10 @@ public class ActiveRuleDao implements Dao {
     return null;
   }
 
+  /**
+   * @deprecated currently used only by tests
+   */
+  @Deprecated
   public List<ActiveRuleParamDto> selectAllParams(DbSession dbSession) {
     return mapper(dbSession).selectAllParams();
   }

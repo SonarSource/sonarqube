@@ -47,10 +47,6 @@
     WHERE id=#{id}
   </update>
 
-  <update id="delete" parameterType="int">
-    DELETE FROM rules_profiles WHERE id=#{id}
-  </update>
-
   <update id="deleteByKeys" parameterType="String">
     delete from rules_profiles
     where kee in
@@ -82,9 +78,7 @@
     FROM rules_profiles p
     WHERE p.name=#{name, jdbcType=VARCHAR}
     AND p.language IN <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
-    <if test="organizationUuid != null">
-      AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    </if>
+    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByKey" parameterType="string" resultType="QualityProfile">
@@ -113,20 +107,6 @@
     ORDER BY p.name
   </select>
 
-  <select id="selectById" parameterType="Integer" resultType="QualityProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.id=#{id}
-  </select>
-
-  <select id="selectParentById" parameterType="int" resultType="QualityProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    INNER JOIN rules_profiles child ON child.parent_kee=p.kee and child.id=#{id}
-  </select>
-
   <select id="selectChildren" parameterType="string" resultType="QualityProfile">
     SELECT
     <include refid="profilesColumns"/>
@@ -151,14 +131,6 @@
     WHERE p.is_default=${_true}
     AND p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
     AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectUuidsOfAssociatedProjects" resultType="String">
-    select p.uuid
-    from projects p
-    join project_qprofiles pq ON pq.project_uuid = p.uuid
-    join rules_profiles rp ON pq.profile_key = rp.kee
-    where rp.kee = #{profileKey, jdbcType=VARCHAR}
   </select>
 
   <select id="selectSelectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
@@ -246,10 +218,6 @@
     <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
       #{profileKey, jdbcType=VARCHAR}
     </foreach>
-  </update>
-
-  <update id="deleteAllProjectProfileAssociation">
-    DELETE FROM project_qprofiles WHERE profile_key=#{profileKey}
   </update>
 
 </mapper>
