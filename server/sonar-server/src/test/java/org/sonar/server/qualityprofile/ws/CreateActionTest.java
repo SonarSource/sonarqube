@@ -117,7 +117,7 @@ public class CreateActionTest {
 
     CreateWsResponse response = executeRequest("New Profile", XOO_LANGUAGE);
 
-    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage("New Profile", XOO_LANGUAGE, dbSession);
+    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
     assertThat(dto.getKey()).isNotNull();
     assertThat(dto.getLanguage()).isEqualTo(XOO_LANGUAGE);
     assertThat(dto.getName()).isEqualTo("New Profile");
@@ -139,7 +139,7 @@ public class CreateActionTest {
 
     executeRequest("New Profile", XOO_LANGUAGE, ImmutableMap.of("xoo_lint", "<xml/>"));
 
-    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage("New Profile", XOO_LANGUAGE, dbSession);
+    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
     assertThat(dto.getKey()).isNotNull();
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, dto.getKey())).hasSize(1);
     assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(dto.getKey()).setActivation(true))).hasSize(1);

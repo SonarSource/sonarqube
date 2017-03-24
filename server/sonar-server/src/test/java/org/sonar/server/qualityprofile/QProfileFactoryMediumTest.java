@@ -79,7 +79,7 @@ public class QProfileFactoryMediumTest {
     assertThat(writtenDto.getId()).isNotNull();
 
     // reload the dto
-    QualityProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
+    QualityProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
     assertEqual(writtenDto, readDto);
 
     assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(1);

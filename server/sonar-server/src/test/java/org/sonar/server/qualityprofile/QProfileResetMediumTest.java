@@ -71,6 +71,7 @@ public class QProfileResetMediumTest {
   private DbClient db;
   private DbSession dbSession;
   private QProfileReset reset;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void before() {
@@ -78,6 +79,7 @@ public class QProfileResetMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     reset = tester.get(QProfileReset.class);
+    defaultOrganization = QProfileTesting.getDefaultOrganization(tester, db, dbSession);
   }
 
   @After
@@ -123,7 +125,7 @@ public class QProfileResetMediumTest {
       defProfile);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
+    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
 
     // Change the severity and the value of the parameter in the active rule
@@ -172,7 +174,7 @@ public class QProfileResetMediumTest {
       }
     }, defProfile);
 
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
+    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), RuleKey.of("xoo", "x1"));
 
     // Change param in the rule def
