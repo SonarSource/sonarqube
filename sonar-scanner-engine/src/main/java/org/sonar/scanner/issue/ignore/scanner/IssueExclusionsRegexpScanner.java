@@ -26,10 +26,12 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
-import java.io.File;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,30 +78,32 @@ public class IssueExclusionsRegexpScanner {
     currentLineExclusion = null;
   }
 
-  public void scan(String resource, File file, Charset sourcesEncoding) throws IOException {
+  public void scan(String resource, Path filePath, Charset encoding) throws IOException {
     LOG.debug("Scanning {}", resource);
     init();
 
-    List<String> lines = Files.readAllLines(file.toPath(), sourcesEncoding);
     int lineIndex = 0;
-    for (String line : lines) {
-      lineIndex++;
-      if (line.trim().length() == 0) {
-        continue;
-      }
-
-      // first check the single regexp patterns that can be used to totally exclude a file
-      for (java.util.regex.Pattern pattern : allFilePatterns) {
-        if (pattern.matcher(line).find()) {
-          exclusionPatternInitializer.getPatternMatcher().addPatternToExcludeResource(resource);
-          // nothing more to do on this file
-          LOG.debug("- Exclusion pattern '{}': every violation in this file will be ignored.", pattern);
-          return;
+    try (BufferedReader br = Files.newBufferedReader(filePath, encoding)) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        lineIndex++;
+        if (line.trim().length() == 0) {
+          continue;
         }
-      }
 
-      // then check the double regexps if we're still here
-      checkDoubleRegexps(line, lineIndex);
+        // first check the single regexp patterns that can be used to totally exclude a file
+        for (java.util.regex.Pattern pattern : allFilePatterns) {
+          if (pattern.matcher(line).find()) {
+            exclusionPatternInitializer.getPatternMatcher().addPatternToExcludeResource(resource);
+            // nothing more to do on this file
+            LOG.debug("- Exclusion pattern '{}': every issue in this file will be ignored.", pattern);
+            return;
+          }
+        }
+
+        // then check the double regexps if we're still here
+        checkDoubleRegexps(line, lineIndex);
+      }
     }
 
     if (currentMatcher != null && !currentMatcher.hasSecondPattern()) {

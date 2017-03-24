@@ -30,7 +30,7 @@ import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsRegexpScanner;
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -78,7 +78,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldDoNothing() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-no-regexp.txt").toURI()), UTF_8);
 
     verifyNoMoreInteractions(patternsInitializer);
@@ -86,7 +86,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldAddPatternToExcludeFile() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-single-regexp.txt").toURI()), UTF_8);
 
     verify(patternsInitializer).getPatternMatcher();
@@ -96,7 +96,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldAddPatternToExcludeFileEvenIfAlsoDoubleRegexps() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-single-regexp-and-double-regexp.txt").toURI()), UTF_8);
 
     verify(patternsInitializer).getPatternMatcher();
@@ -106,7 +106,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldAddPatternToExcludeLines() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp.txt").toURI()), UTF_8);
 
     Set<LineRange> lineRanges = Sets.newHashSet();
@@ -118,7 +118,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldAddPatternToExcludeLinesTillTheEnd() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-unfinished.txt").toURI()), UTF_8);
 
     Set<LineRange> lineRanges = Sets.newHashSet();
@@ -130,7 +130,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldAddPatternToExcludeSeveralLineRanges() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-twice.txt").toURI()), UTF_8);
 
     Set<LineRange> lineRanges = Sets.newHashSet();
@@ -143,7 +143,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldAddPatternToExcludeLinesWithWrongOrder() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-wrong-order.txt").toURI()), UTF_8);
 
     Set<LineRange> lineRanges = Sets.newHashSet();
@@ -155,7 +155,7 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Test
   public void shouldAddPatternToExcludeLinesWithMess() throws Exception {
-    regexpScanner.scan(javaFile, new File(Resources.getResource(
+    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
       "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-mess.txt").toURI()), UTF_8);
 
     Set<LineRange> lineRanges = Sets.newHashSet();

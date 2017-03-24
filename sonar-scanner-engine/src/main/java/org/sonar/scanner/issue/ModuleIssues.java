@@ -20,6 +20,8 @@
 package org.sonar.scanner.issue;
 
 import com.google.common.base.Strings;
+
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -30,6 +32,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
@@ -44,12 +47,14 @@ public class ModuleIssues {
   private final Rules rules;
   private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
+  private final IssueExclusionsLoader issueExclusionsLoader;
 
-  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher) {
+  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher, IssueExclusionsLoader issueExclusionsLoader) {
     this.activeRules = activeRules;
     this.rules = rules;
     this.filters = filters;
     this.reportPublisher = reportPublisher;
+    this.issueExclusionsLoader = issueExclusionsLoader;
   }
 
   public boolean initAndAddIssue(Issue issue) {
@@ -87,6 +92,13 @@ public class ModuleIssues {
     }
     applyFlows(builder, locationBuilder, textRangeBuilder, issue);
     ScannerReport.Issue rawIssue = builder.build();
+
+    if (issueExclusionsLoader.shouldExecute() && inputComponent.isFile()) {
+      InputFile inputFile = (InputFile) inputComponent;
+      if (!issueExclusionsLoader.isLoaded(inputFile)) {
+        issueExclusionsLoader.loadFile(inputFile);
+      }
+    }
 
     if (filters.accept(inputComponent.key(), rawIssue)) {
       write(inputComponent.batchId(), rawIssue);

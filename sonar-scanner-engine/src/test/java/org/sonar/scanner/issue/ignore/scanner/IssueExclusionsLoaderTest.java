@@ -19,8 +19,10 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
@@ -37,6 +40,8 @@ import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -64,12 +69,12 @@ public class IssueExclusionsLoaderTest {
 
   private DefaultFileSystem fs;
   private IssueExclusionsLoader scanner;
-  private File baseDir;
+  private Path baseDir;
 
   @Before
   public void before() throws Exception {
-    baseDir = temp.newFolder();
-    fs = new DefaultFileSystem(baseDir.toPath()).setEncoding(UTF_8);
+    baseDir = temp.newFolder().toPath();
+    fs = new DefaultFileSystem(baseDir).setEncoding(UTF_8);
     MockitoAnnotations.initMocks(this);
     scanner = new IssueExclusionsLoader(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
   }
@@ -96,25 +101,26 @@ public class IssueExclusionsLoaderTest {
     when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
     when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
     assertThat(scanner.shouldExecute()).isFalse();
-
   }
 
   @Test
   public void shouldAnalyzeProject() throws IOException {
-    File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
+    Path javaFile1 = baseDir.resolve("src/main/java/Foo.java");
     fs.add(new TestInputFileBuilder("polop", "src/main/java/Foo.java")
-      .setModuleBaseDir(baseDir.toPath())
+      .setModuleBaseDir(baseDir)
+      .setCharset(StandardCharsets.UTF_8)
       .setType(InputFile.Type.MAIN)
       .build());
-    File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
+    Path javaTestFile1 = baseDir.resolve("src/test/java/FooTest.java");
     fs.add(new TestInputFileBuilder("polop", "src/test/java/FooTest.java")
-      .setModuleBaseDir(baseDir.toPath())
+      .setModuleBaseDir(baseDir)
+      .setCharset(StandardCharsets.UTF_8)
       .setType(InputFile.Type.TEST)
       .build());
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
-    scanner.execute();
+    scanner.preLoadAllFiles();
 
     verify(inclusionPatternInitializer).initializePatternsForPath("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
     verify(inclusionPatternInitializer).initializePatternsForPath("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
@@ -125,16 +131,39 @@ public class IssueExclusionsLoaderTest {
   }
 
   @Test
+  public void isLoaded() {
+    DefaultInputFile inputFile1 = new TestInputFileBuilder("polop", "src/test/java/FooTest1.java")
+      .setModuleBaseDir(baseDir)
+      .setCharset(StandardCharsets.UTF_8)
+      .setType(InputFile.Type.TEST)
+      .build();
+    DefaultInputFile inputFile2 = new TestInputFileBuilder("polop", "src/test/java/FooTest2.java")
+      .setModuleBaseDir(baseDir)
+      .setCharset(StandardCharsets.UTF_8)
+      .setType(InputFile.Type.TEST)
+      .build();
+
+    when(inclusionPatternInitializer.getPathForComponent(inputFile1.key())).thenReturn(null);
+    when(inclusionPatternInitializer.getPathForComponent(inputFile2.key())).thenReturn("path1");
+
+    assertFalse(scanner.isLoaded(inputFile1));
+    assertTrue(scanner.isLoaded(inputFile2));
+
+  }
+
+  @Test
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() {
     fs.add(new TestInputFileBuilder("polop", "src/main/java/Foo.java")
       .setType(InputFile.Type.MAIN)
+      .setCharset(StandardCharsets.UTF_8)
       .build());
     fs.add(new TestInputFileBuilder("polop", "src/test/java/FooTest.java")
       .setType(InputFile.Type.TEST)
+      .setCharset(StandardCharsets.UTF_8)
       .build());
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
 
-    scanner.execute();
+    scanner.preLoadAllFiles();
 
     verify(inclusionPatternInitializer).initializePatternsForPath("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
     verify(inclusionPatternInitializer).initializePatternsForPath("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
@@ -145,10 +174,11 @@ public class IssueExclusionsLoaderTest {
 
   @Test
   public void shouldReportFailure() throws IOException {
-    File phpFile1 = new File(baseDir, "src/Foo.php");
+    Path phpFile1 = baseDir.resolve("src/Foo.php");
     fs.add(new TestInputFileBuilder("polop", "src/Foo.php")
-      .setModuleBaseDir(baseDir.toPath())
+      .setModuleBaseDir(baseDir)
       .setType(InputFile.Type.MAIN)
+      .setCharset(StandardCharsets.UTF_8)
       .build());
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
@@ -157,6 +187,6 @@ public class IssueExclusionsLoaderTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to read the source file");
 
-    scanner.execute();
+    scanner.preLoadAllFiles();
   }
 }
