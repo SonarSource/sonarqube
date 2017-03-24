@@ -36,9 +36,11 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsAction;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 /**
  * @deprecated will be deleted once Orchestrator do not rely on this WS
@@ -53,12 +55,14 @@ public class OldRestoreAction implements WsAction {
   private final QProfileBackuper backuper;
   private final Languages languages;
   private final QProfileWsSupport qProfileWsSupport;
+  private final UserSession userSession;
 
-  public OldRestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, QProfileWsSupport qProfileWsSupport) {
+  public OldRestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, QProfileWsSupport qProfileWsSupport, UserSession userSession) {
     this.dbClient = dbClient;
     this.backuper = backuper;
     this.languages = languages;
     this.qProfileWsSupport = qProfileWsSupport;
+    this.userSession = userSession;
   }
 
   @Override
@@ -79,15 +83,16 @@ public class OldRestoreAction implements WsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    qProfileWsSupport.checkQProfileAdminPermission();
+    userSession.checkLoggedIn();
 
     InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
+    checkArgument(backup != null, "A backup file must be provided");
     InputStreamReader reader = null;
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkArgument(backup != null, "A backup file must be provided");
-      reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
       OrganizationDto defaultOrg = qProfileWsSupport.getOrganizationByKey(dbSession, null);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrg);
+      reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
       QProfileRestoreSummary result = backuper.restore(dbSession, reader, defaultOrg, null);
       writeResponse(response.newJsonWriter(), result);
     } finally {

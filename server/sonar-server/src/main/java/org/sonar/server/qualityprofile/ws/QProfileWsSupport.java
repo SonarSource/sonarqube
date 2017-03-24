@@ -34,7 +34,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
@@ -64,24 +63,6 @@ public class QProfileWsSupport {
     return WsUtils.checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organization with key '%s'", organizationOrDefaultKey);
-  }
-
-  /**
-   * @deprecated provide orgnization
-   *
-   * Use this code instead:
-   * <pre>
-   *   userSession.checkLoggedIn();
-   *   ...
-   *   // open session, if needed to acquire organizationDto
-   *   userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organizationDto.getUuid());
-   * </pre>
-   */
-  @Deprecated
-  public void checkQProfileAdminPermission() {
-    userSession
-      .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 
   public static NewParam createOrganizationParam(NewAction action) {
