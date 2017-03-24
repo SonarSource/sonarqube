@@ -384,7 +384,7 @@ public class QProfileBackuperMediumTest {
       organization, null);
 
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(0);
+
     List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, getDefaultOrganization(tester, db, dbSession));
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
