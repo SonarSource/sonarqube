@@ -19,7 +19,7 @@
  */
 import $ from 'jquery';
 import moment from 'moment';
-import times from 'lodash/times';
+import { times } from 'lodash';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-creation-date-facet.hbs';
 import '../../../components/widgets/barchart';

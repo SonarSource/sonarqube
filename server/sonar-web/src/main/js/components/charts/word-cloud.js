@@ -19,7 +19,7 @@
  */
 import d3 from 'd3';
 import React from 'react';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const Word = React.createClass({

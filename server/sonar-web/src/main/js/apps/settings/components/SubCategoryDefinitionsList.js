@@ -20,8 +20,7 @@
 // @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
+import { groupBy, sortBy } from 'lodash';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 import { getSubCategoryName, getSubCategoryDescription } from '../utils';

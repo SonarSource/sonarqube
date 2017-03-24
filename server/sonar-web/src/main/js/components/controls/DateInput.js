@@ -19,7 +19,7 @@
  */
 import $ from 'jquery';
 import React from 'react';
-import pick from 'lodash/pick';
+import { pick } from 'lodash';
 import './styles.css';
 
 export default class DateInput extends React.Component {

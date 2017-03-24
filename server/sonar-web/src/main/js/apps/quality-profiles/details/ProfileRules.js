@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-import keyBy from 'lodash/keyBy';
+import { keyBy } from 'lodash';
 import ProfileRulesRow from './ProfileRulesRow';
 import { ProfileType } from '../propTypes';
 import { searchRules, takeFacet } from '../../../api/rules';

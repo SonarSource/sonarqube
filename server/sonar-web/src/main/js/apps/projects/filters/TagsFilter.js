@@ -19,9 +19,7 @@
  */
 //@flow
 import React from 'react';
-import debounce from 'lodash/debounce';
-import difference from 'lodash/difference';
-import sortBy from 'lodash/sortBy';
+import { debounce, difference, sortBy } from 'lodash';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';

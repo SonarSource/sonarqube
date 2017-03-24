@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import groupBy from 'lodash/groupBy';
-import uniq from 'lodash/uniq';
+import { groupBy, uniq } from 'lodash';
 import { searchProjects, setProjectTags as apiSetProjectTags } from '../../../api/components';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { parseError } from '../../code/utils';
@@ -206,11 +205,8 @@ export const setProjectTags = (project, tags) =>
   (dispatch, getState) => {
     const previousTags = getComponent(getState(), project).tags;
     dispatch(receiveProjectTags(project, tags));
-    return apiSetProjectTags({ project, tags: tags.join(',') }).then(
-      null,
-      error => {
-        dispatch(receiveProjectTags(project, previousTags));
-        onFail(dispatch)(error);
-      }
-    );
+    return apiSetProjectTags({ project, tags: tags.join(',') }).then(null, error => {
+      dispatch(receiveProjectTags(project, previousTags));
+      onFail(dispatch)(error);
+    });
   };

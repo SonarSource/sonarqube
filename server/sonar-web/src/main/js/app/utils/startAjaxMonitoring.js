@@ -21,7 +21,7 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import escapeHtml from 'escape-html';
-import uniqueId from 'lodash/uniqueId';
+import { uniqueId } from 'lodash';
 import { translate } from '../../helpers/l10n';
 import { getCSRFTokenName, getCSRFTokenValue } from '../../helpers/request';
 

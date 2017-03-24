@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import partition from 'lodash/partition';
-import sortBy from 'lodash/sortBy';
+import { partition, sortBy } from 'lodash';
 import MeasuresList from './MeasuresList';
 import { domains } from '../config/domains';
 import { getLocalizedMetricName } from '../../../helpers/l10n';

@@ -19,8 +19,7 @@
  */
 // @flow
 import { combineReducers } from 'redux';
-import uniqBy from 'lodash/uniqBy';
-import uniqWith from 'lodash/uniqWith';
+import { uniqBy, uniqWith } from 'lodash';
 
 export type Notification = {
   channel: string,
@@ -145,15 +144,16 @@ export default combineReducers({ notifications, channels, globalTypes, perProjec
 export const getGlobal = (state: State): NotificationsState =>
   state.notifications.filter(n => !n.project);
 
-export const getProjects = (state: State): Array<string> =>
-  uniqBy(
-    state.notifications.filter(n => n.project).map(n => ({
-      key: n.project,
-      name: n.projectName,
-      organization: n.organization
-    })),
-    project => project.key
-  );
+export const getProjects = (state: State): Array<{ key: string, name: string }> => {
+  // $FlowFixMe
+  const allProjects = state.notifications.filter(n => n.project != null).map(n => ({
+    key: n.project,
+    name: n.projectName,
+    organization: n.organization
+  }));
+
+  return uniqBy(allProjects, project => project.key);
+};
 
 export const getForProject = (state: State, project: string): NotificationsState =>
   state.notifications.filter(n => n.project === project);

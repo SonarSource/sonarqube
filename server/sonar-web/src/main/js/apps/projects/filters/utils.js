@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import each from 'lodash/each';
-import omitBy from 'lodash/omitBy';
-import isNil from 'lodash/isNil';
+import { each, isNil, omitBy } from 'lodash';
 
 export const getFilterUrl = (ownProps, part) => {
   const basePathName = ownProps.organization

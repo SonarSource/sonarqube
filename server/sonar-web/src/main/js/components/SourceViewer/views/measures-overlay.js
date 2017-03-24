@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
-import toPairs from 'lodash/toPairs';
+import { groupBy, sortBy, toPairs } from 'lodash';
 import ModalView from '../../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
 import { getMeasures } from '../../../api/measures';

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import RadioToggle from '../controls/RadioToggle';
 import { translate } from '../../helpers/l10n';
 

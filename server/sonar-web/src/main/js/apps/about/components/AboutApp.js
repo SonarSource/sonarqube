@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import keyBy from 'lodash/keyBy';
+import { keyBy } from 'lodash';
 import { Link } from 'react-router';
 import AboutProjects from './AboutProjects';
 import EntryIssueTypes from './EntryIssueTypes';
@@ -43,7 +43,7 @@ type State = {
   loading: boolean,
   projectsCount?: number,
   issueTypes?: {
-    [key: string]: {
+    [key: string]: ?{
       count: number
     }
   }
@@ -140,8 +140,7 @@ class AboutApp extends React.Component {
               <a
                 className="button"
                 href="https://redirect.sonarsource.com/doc/home.html"
-                target="_blank"
-              >
+                target="_blank">
                 {translate('about_page.read_documentation')}
               </a>
             </div>

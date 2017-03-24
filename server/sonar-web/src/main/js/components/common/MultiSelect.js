@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import difference from 'lodash/difference';
+import { difference } from 'lodash';
 import MultiSelectOption from './MultiSelectOption';
 import { translate } from '../../helpers/l10n';
 

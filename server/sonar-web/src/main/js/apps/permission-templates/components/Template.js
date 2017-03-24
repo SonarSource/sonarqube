@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import Helmet from 'react-helmet';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import TemplateHeader from './TemplateHeader';
 import TemplateDetails from './TemplateDetails';
 import HoldersList from '../../permissions/shared/components/HoldersList';

@@ -20,7 +20,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import { searchRules } from '../../../api/rules';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';

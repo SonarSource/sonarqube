@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 
 const SCROLLING_DURATION = 100;
 const SCROLLING_INTERVAL = 10;

@@ -20,8 +20,7 @@
 // @flow
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
-import debounce from 'lodash/debounce';
-import sortBy from 'lodash/sortBy';
+import { debounce, sortBy } from 'lodash';
 import SelectableCollectionView from '../../../../components/common/selectable-collection-view';
 import SearchItemTemplate from '../templates/nav-search-item.hbs';
 import EmptySearchTemplate from '../templates/nav-search-empty.hbs';

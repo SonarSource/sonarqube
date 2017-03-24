@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import debounce from 'lodash/debounce';
-import uniqBy from 'lodash/uniqBy';
+import { debounce, uniqBy } from 'lodash';
 import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-assign-form.hbs';
 import OptionTemplate from '../templates/issue-assign-form-option.hbs';

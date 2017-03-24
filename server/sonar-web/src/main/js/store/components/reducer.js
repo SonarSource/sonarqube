@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import keyBy from 'lodash/keyBy';
-import uniq from 'lodash/uniq';
+import { keyBy, uniq } from 'lodash';
 import { RECEIVE_COMPONENTS, RECEIVE_PROJECT_TAGS } from './actions';
 
 const byKey = (state = {}, action = {}) => {

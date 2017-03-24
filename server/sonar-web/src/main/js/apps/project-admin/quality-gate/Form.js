@@ -20,7 +20,7 @@
 import React from 'react';
 import Select from 'react-select';
 import shallowCompare from 'react-addons-shallow-compare';
-import some from 'lodash/some';
+import { some } from 'lodash';
 import { translate } from '../../../helpers/l10n';
 
 export default class Form extends React.Component {

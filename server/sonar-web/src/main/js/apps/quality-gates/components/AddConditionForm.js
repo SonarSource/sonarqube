@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import Select from 'react-select';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default function AddConditionForm({ metrics, onSelect }) {

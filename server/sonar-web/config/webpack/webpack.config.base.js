@@ -7,10 +7,11 @@ var autoprefixerOptions = require('../autoprefixer');
 
 module.exports = {
   entry: {
-    'vendor': [
+    vendor: [
       require.resolve('../polyfills'),
       'jquery',
       'underscore',
+      'lodash',
       'd3',
       'react',
       'react-dom',
@@ -20,13 +21,13 @@ module.exports = {
       'handlebars/runtime'
     ],
 
-    'app': './src/main/js/app/index.js'
+    app: './src/main/js/app/index.js'
   },
   output: {
     path: paths.appBuild,
     publicPath: '/',
     filename: 'js/[name].[chunkhash:8].js',
-    chunkFilename: 'js/[name].[chunkhash:8].chunk.js',
+    chunkFilename: 'js/[name].[chunkhash:8].chunk.js'
   },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
@@ -50,7 +51,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel',
-        exclude: /(node_modules|libs)/,
+        exclude: /(node_modules|libs)/
       },
       {
         test: /(blueimp-md5|numeral)/,
@@ -80,7 +81,7 @@ module.exports = {
       { test: require.resolve('react-dom'), loader: 'expose?ReactDOM' }
     ]
   },
-  postcss: function () {
+  postcss: function() {
     return [autoprefixer(autoprefixerOptions)];
   },
   // Some libraries import Node modules but don't use them in the browser.

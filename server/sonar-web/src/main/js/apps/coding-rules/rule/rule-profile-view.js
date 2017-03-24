@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import ProfileActivationView from './profile-activation-view';

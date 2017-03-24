@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import uniqueId from 'lodash/uniqueId';
+import { uniqueId } from 'lodash';
 
 type Level = 'ERROR' | 'SUCCESS';
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import union from 'lodash/union';
+import { union } from 'lodash';
 import ActionOptionsView from '../../components/common/action-options-view';
 import Template from './templates/coding-rules-rule-filter-form.hbs';
 

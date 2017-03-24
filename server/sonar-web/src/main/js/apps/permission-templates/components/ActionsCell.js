@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-import difference from 'lodash/difference';
+import { difference } from 'lodash';
 import Backbone from 'backbone';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
 import QualifierIcon from '../../../components/shared/qualifier-icon';

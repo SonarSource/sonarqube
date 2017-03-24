@@ -20,8 +20,7 @@
 // @flow
 import React from 'react';
 import d3 from 'd3';
-import sortBy from 'lodash/sortBy';
-import uniq from 'lodash/uniq';
+import { sortBy, uniq } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
 import { TooltipsContainer } from '../mixins/tooltips-mixin';
 
