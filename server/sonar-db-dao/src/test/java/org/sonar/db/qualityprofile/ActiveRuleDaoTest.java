@@ -146,19 +146,6 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
-  public void select_by_keys() {
-    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
-    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
-    underTest.insert(dbTester.getSession(), activeRule1);
-    underTest.insert(dbTester.getSession(), activeRule2);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey(), activeRule2.getKey()))).hasSize(2);
-    assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey()))).hasSize(1);
-    assertThat(underTest.selectByKeys(dbSession, asList(ActiveRuleKey.of(profile2.getKey(), rule1.getKey())))).isEmpty();
-  }
-
-  @Test
   public void select_by_rule() {
     ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
     ActiveRuleDto activeRule2 = createFor(profile2, rule1).setSeverity(BLOCKER);

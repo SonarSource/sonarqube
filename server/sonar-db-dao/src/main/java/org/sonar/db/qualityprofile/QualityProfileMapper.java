@@ -31,8 +31,6 @@ public interface QualityProfileMapper {
 
   void update(QualityProfileDto dto);
 
-  void delete(int id);
-
   void deleteByKeys(@Param("profileKeys") Collection<String> profileKeys);
 
   List<QualityProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
@@ -48,9 +46,6 @@ public interface QualityProfileMapper {
   List<QualityProfileDto> selectByNameAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("languages") List<String> languages);
 
   @CheckForNull
-  QualityProfileDto selectById(@Param("id") Integer id);
-
-  @CheckForNull
   QualityProfileDto selectByKey(String key);
 
   List<QualityProfileDto> selectByLanguage(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
@@ -59,14 +54,9 @@ public interface QualityProfileMapper {
 
   // INHERITANCE
 
-  @CheckForNull
-  QualityProfileDto selectParentById(int childId);
-
   List<QualityProfileDto> selectChildren(String key);
 
   // PROJECTS
-
-  List<String> selectUuidsOfAssociatedProjects(@Param("profileKey") String profileKey);
 
   List<KeyLongValue> countProjectsByProfileKey(@Param("organizationUuid") String organizationUuid);
 
@@ -80,8 +70,6 @@ public interface QualityProfileMapper {
   void updateProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey, @Param("oldProfileKey") String oldProfileKey);
 
   void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
-
-  void deleteAllProjectProfileAssociation(@Param("profileKey") String profileKey);
 
   void deleteProjectAssociationByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
 

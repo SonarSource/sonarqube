@@ -97,11 +97,6 @@ public class QualityProfileDao implements Dao {
     mapper.update(profile);
   }
 
-  public void delete(DbSession session, int profileId) {
-    QualityProfileMapper mapper = mapper(session);
-    mapper.delete(profileId);
-  }
-
   public List<QualityProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
     return executeLargeInputs(languageKeys, chunk -> mapper(session).selectDefaultProfiles(organization.getUuid(), chunk));
   }
@@ -122,16 +117,6 @@ public class QualityProfileDao implements Dao {
 
   public List<QualityProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
     return mapper(dbSession).selectByLanguage(organization.getUuid(), language);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectById(DbSession session, int id) {
-    return mapper(session).selectById(id);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectParentById(DbSession session, int childId) {
-    return mapper(session).selectParentById(childId);
   }
 
   public List<QualityProfileDto> selectChildren(DbSession session, String key) {
@@ -159,10 +144,6 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organization.getUuid(), name, input));
   }
 
-  public List<String> selectUuidsOfAssociatedProjects(DbSession dbSession, String profileKey) {
-    return mapper(dbSession).selectUuidsOfAssociatedProjects(profileKey);
-  }
-
   public Map<String, Long> countProjectsByProfileKey(DbSession dbSession, OrganizationDto organization) {
     return KeyLongValue.toMap(mapper(dbSession).countProjectsByProfileKey(organization.getUuid()));
   }
@@ -177,10 +158,6 @@ public class QualityProfileDao implements Dao {
 
   public void updateProjectProfileAssociation(String projectUuid, String newProfileKey, String oldProfileKey, DbSession session) {
     mapper(session).updateProjectProfileAssociation(projectUuid, newProfileKey, oldProfileKey);
-  }
-
-  public void deleteAllProjectProfileAssociation(String profileKey, DbSession session) {
-    mapper(session).deleteAllProjectProfileAssociation(profileKey);
   }
 
   public void deleteProjectAssociationsByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
