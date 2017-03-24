@@ -30,11 +30,17 @@ export default class SimpleContainer extends React.Component {
   };
 
   componentDidMount() {
-    document.querySelector('html').classList.add('dashboard-page');
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
   }
 
   componentWillUnmount() {
-    document.querySelector('html').classList.remove('dashboard-page');
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
   }
 
   render() {

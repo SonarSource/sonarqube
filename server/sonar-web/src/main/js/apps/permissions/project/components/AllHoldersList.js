@@ -128,7 +128,7 @@ type OwnProps = {
   }
 };
 
-const mapDispatchToProps = (dispatch, ownProps: OwnProps) => ({
+const mapDispatchToProps = (dispatch: Function, ownProps: OwnProps) => ({
   loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization)),
   onSearch: (projectKey, query) =>
     dispatch(updateQuery(projectKey, query, ownProps.project.organization)),

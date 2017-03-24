@@ -45,7 +45,10 @@ class App extends React.Component {
   state: State = { loaded: false };
 
   componentDidMount() {
-    document.querySelector('html').classList.add('dashboard-page');
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
     const componentKey = this.props.component ? this.props.component.key : null;
     this.props.fetchSettings(componentKey).then(() => {
       this.setState({ loaded: true });
@@ -64,7 +67,10 @@ class App extends React.Component {
   }
 
   componentWillUnmount() {
-    document.querySelector('html').classList.remove('dashboard-page');
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
   }
 
   render() {
