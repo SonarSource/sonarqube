@@ -17,52 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import React from 'react';
+import { shallow } from 'enzyme';
+import MembersList from '../MembersList';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-  white-space: nowrap;
-}
+const organization = { key: 'foo', name: 'Foo' };
+const members = [
+  { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 },
+  { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af', groupCount: 1 }
+];
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-
-  & ~ .note {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &.touched ~ .note {
-    opacity: 1;
-  }
-}
-
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
-}
+it('should render a list of members of an organization', () => {
+  const wrapper = shallow(
+    <MembersList
+      organization={organization}
+      members={members}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+});

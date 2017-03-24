@@ -153,6 +153,11 @@ export default class OrganizationNavigation extends React.Component {
                   {translate('projects.page')}
                 </Link>
               </li>
+              <li>
+                <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
+                  {translate('organization.members.page')}
+                </Link>
+              </li>
               {organization.canAdmin && this.renderAdministration()}
             </ul>
           </div>

@@ -1,0 +1,37 @@
+exports[`test should render a list of members of an organization 1`] = `
+<table
+  className="data zebra">
+  <tbody>
+    <MembersListItem
+      member={
+        Object {
+          "avatar": "",
+          "groupCount": 3,
+          "login": "admin",
+          "name": "Admin Istrator",
+        }
+      }
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        }
+      } />
+    <MembersListItem
+      member={
+        Object {
+          "avatar": "7daf6c79d4802916d83f6266e24850af",
+          "groupCount": 1,
+          "login": "john",
+          "name": "John Doe",
+        }
+      }
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        }
+      } />
+  </tbody>
+</table>
+`;

@@ -50,3 +50,19 @@ it('should not render', () => {
   );
   expect(avatar.is('img')).toBe(false);
 });
+
+it('should be able to render with hash only', () => {
+  const avatar = shallow(
+    <Avatar
+      enableGravatar={true}
+      gravatarServerUrl={gravatarServerUrl}
+      hash="7daf6c79d4802916d83f6266e24850af"
+      size={30}
+    />
+  );
+  expect(avatar.is('img')).toBe(true);
+  expect(avatar.prop('width')).toBe(30);
+  expect(avatar.prop('height')).toBe(30);
+  expect(avatar.prop('alt')).toBeUndefined();
+  expect(avatar.prop('src')).toBe('http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=60');
+});

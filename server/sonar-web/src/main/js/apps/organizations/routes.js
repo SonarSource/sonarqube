@@ -23,6 +23,7 @@ import OrganizationFavoriteProjects from './components/OrganizationFavoriteProje
 import OrganizationAdmin from './components/OrganizationAdmin';
 import OrganizationEdit from './components/OrganizationEdit';
 import OrganizationGroups from './components/OrganizationGroups';
+import OrganizationMembersContainer from './components/OrganizationMembersContainer';
 import OrganizationPermissions from './components/OrganizationPermissions';
 import OrganizationPermissionTemplates from './components/OrganizationPermissionTemplates';
 import OrganizationProjectsManagement from './components/OrganizationProjectsManagement';
@@ -48,6 +49,10 @@ const routes = [
       {
         path: 'projects/favorite',
         component: OrganizationFavoriteProjects
+      },
+      {
+        path: 'members',
+        component: OrganizationMembersContainer
       },
       {
         component: OrganizationAdmin,

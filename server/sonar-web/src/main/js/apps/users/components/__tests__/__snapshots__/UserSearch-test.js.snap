@@ -1,0 +1,99 @@
+exports[`test should display a help message when there is less than 2 characters 1`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom">
+  <div
+    className="search-box">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="" />
+    <span
+      className="note spacer-left text-middle">
+      select2.tooShort.2
+    </span>
+  </div>
+</div>
+`;
+
+exports[`test should display a help message when there is less than 2 characters 2`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom">
+  <div
+    className="search-box">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="foo" />
+    <span
+      className="note spacer-left text-middle">
+      select2.tooShort.2
+    </span>
+  </div>
+</div>
+`;
+
+exports[`test should render correctly without any search query 1`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom">
+  <div
+    className="search-box">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="" />
+    <span
+      className="note spacer-left text-middle">
+      select2.tooShort.2
+    </span>
+  </div>
+</div>
+`;
+
+exports[`test should render with a search query 1`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom">
+  <div
+    className="search-box">
+    <button
+      className="search-box-submit button-clean">
+      <i
+        className="icon-search" />
+    </button>
+    <input
+      autoComplete="off"
+      className="search-box-input"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value="" />
+    <span
+      className="note spacer-left text-middle">
+      select2.tooShort.2
+    </span>
+  </div>
+</div>
+`;

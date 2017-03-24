@@ -17,52 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import React from 'react';
+import { shallow } from 'enzyme';
+import PageHeader from '../PageHeader';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-  white-space: nowrap;
-}
+it('should render the members page header', () => {
+  const wrapper = shallow(
+    <PageHeader />
+  );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setProps({ loading: true });
+  expect(wrapper.find('.spinner')).toMatchSnapshot();
+});
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
+it('should render the members page header with the total', () => {
+  const wrapper = shallow(<PageHeader total="5" />);
+  expect(wrapper).toMatchSnapshot();
+});
 
-  & ~ .note {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &.touched ~ .note {
-    opacity: 1;
-  }
-}
-
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
-}
+it('should render its children', () => {
+  const wrapper = shallow(
+    <PageHeader loading={true} total="5">
+      <span>children test</span>
+    </PageHeader>
+  );
+  expect(wrapper).toMatchSnapshot();
+});
