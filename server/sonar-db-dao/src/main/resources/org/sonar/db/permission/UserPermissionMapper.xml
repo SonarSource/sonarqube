@@ -22,6 +22,7 @@
     from users u
     left join user_roles ur on ur.user_id = u.id
     left join projects p on ur.resource_id = p.id
+    inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <where>
       <if test="userLogins == null">
         and u.active = ${_true}
@@ -38,7 +39,7 @@
       </if>
       <!-- filter rows with user permissions -->
       <if test="query.withAtLeastOnePermission()">
-        and ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+        and ur.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
         and ur.role is not null
         <if test="query.componentUuid==null">
           and ur.resource_id is null

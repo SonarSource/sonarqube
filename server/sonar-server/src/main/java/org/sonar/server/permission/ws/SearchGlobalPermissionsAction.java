@@ -87,7 +87,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     OrganizationPermission.all()
       .map(OrganizationPermission::getKey)
       .forEach(permissionKey -> {
-        PermissionQuery query = permissionQuery(permissionKey);
+        PermissionQuery query = permissionQuery(permissionKey, org);
         response.addPermissions(
           permission
             .clear()
@@ -110,16 +110,17 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   }
 
   private int countGroups(DbSession dbSession, OrganizationDto org, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setPermission(permission).build();
-    return dbClient.groupPermissionDao().countGroupsByQuery(dbSession, org.getUuid(), query);
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(org.getUuid()).setPermission(permission).build();
+    return dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
   }
 
   private int countUsers(DbSession dbSession, OrganizationDto org, PermissionQuery permissionQuery) {
     return dbClient.userPermissionDao().countUsers(dbSession, org.getUuid(), permissionQuery);
   }
 
-  private static PermissionQuery permissionQuery(String permissionKey) {
+  private static PermissionQuery permissionQuery(String permissionKey, OrganizationDto org) {
     return PermissionQuery.builder()
+      .setOrganizationUuid(org.getUuid())
       .setPermission(permissionKey)
       .withAtLeastOnePermission()
       .build();

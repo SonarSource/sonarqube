@@ -112,7 +112,7 @@ public class AddMemberActionTest {
     assertMember(organization.getUuid(), user.getId());
     List<UserDoc> userDocs = userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs();
     assertThat(userDocs).hasSize(1);
-    assertThat(userDocs.get(0).organizationUuids()).containsOnly(organization.getUuid());
+    assertThat(userDocs.get(0).organizationUuids()).containsOnly(organization.getUuid(), db.getDefaultOrganization().getUuid());
   }
 
   @Test

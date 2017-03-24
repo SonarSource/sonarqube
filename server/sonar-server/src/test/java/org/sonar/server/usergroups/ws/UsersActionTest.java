@@ -119,8 +119,6 @@ public class UsersActionTest {
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -155,8 +153,6 @@ public class UsersActionTest {
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -173,8 +169,6 @@ public class UsersActionTest {
     UserDto graceHopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, adaLovelace);
     db.users().insertMember(group, graceHopper);
-    db.organizations().addMember(db.getDefaultOrganization(), adaLovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), graceHopper);
     loginAsAdminOnDefaultOrganization();
 
     String response = newUsersRequest().setParam(PARAM_GROUP_ID, group.getId().toString()).execute().outputAsString();
@@ -188,8 +182,6 @@ public class UsersActionTest {
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -210,8 +202,6 @@ public class UsersActionTest {
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -227,8 +217,6 @@ public class UsersActionTest {
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -253,8 +241,6 @@ public class UsersActionTest {
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace").setEmail("ada@email.com"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper").setEmail("grace@hopper.com"));
     db.users().insertMember(group, lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
-    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()

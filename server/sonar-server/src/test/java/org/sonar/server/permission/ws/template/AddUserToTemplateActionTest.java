@@ -61,17 +61,15 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void add_user_to_template() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), CODEVIEWER);
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, CODEVIEWER)).containsExactly(user.getLogin());
   }
 
   @Test
   public void add_user_to_template_by_name() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -80,7 +78,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
       .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
       .execute();
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, CODEVIEWER)).containsExactly(user.getLogin());
   }
 
   @Test
@@ -97,23 +95,21 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
       .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
       .execute();
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, CODEVIEWER)).containsExactly(user.getLogin());
   }
 
   @Test
   public void does_not_add_a_user_twice() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, ISSUE_ADMIN)).containsExactly(user.getLogin());
   }
 
   @Test
   public void fail_if_not_a_project_permission() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -123,7 +119,6 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_not_admin_of_default_organization() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
@@ -133,7 +128,6 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_user_missing() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -143,7 +137,6 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_permission_missing() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -153,7 +146,6 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_template_uuid_and_name_are_missing() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -163,7 +155,6 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_user_does_not_exist() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -174,7 +165,6 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_template_key_does_not_exist() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -185,7 +175,6 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_organization_does_not_exist() throws Exception {
-    addUserAsMemberOfDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -233,14 +222,10 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
     request.execute();
   }
 
-  private List<String> getLoginsInTemplateAndPermission(long templateId, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
+  private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, String permission) {
+    PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, templateId);
-  }
-
-  private void addUserAsMemberOfDefaultOrganization() {
-    db.organizations().addMember(db.getDefaultOrganization(), user);
+      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getId());
   }
 
   private void addUserAsMemberOfOrganization(OrganizationDto organization) {

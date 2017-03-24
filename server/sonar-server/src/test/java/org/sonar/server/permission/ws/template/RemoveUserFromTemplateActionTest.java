@@ -65,7 +65,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     loginAsAdmin(db.getDefaultOrganization());
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
-    assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).isEmpty();
+    assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).isEmpty();
   }
 
   @Test
@@ -77,7 +77,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
-    assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).isEmpty();
+    assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).isEmpty();
   }
 
   @Test
@@ -86,7 +86,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
-    assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).isEmpty();
+    assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).isEmpty();
   }
 
   @Test
@@ -96,8 +96,8 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     loginAsAdmin(db.getDefaultOrganization());
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
-    assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).isEmpty();
-    assertThat(getLoginsInTemplateAndPermission(template.getId(), ISSUE_ADMIN)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).isEmpty();
+    assertThat(getLoginsInTemplateAndPermission(template, ISSUE_ADMIN)).containsExactly(user.getLogin());
   }
 
   @Test
@@ -108,7 +108,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     loginAsAdmin(db.getDefaultOrganization());
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
-    assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).containsExactly("new-login");
+    assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).containsExactly("new-login");
   }
 
   @Test
@@ -200,10 +200,10 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     request.execute();
   }
 
-  private List<String> getLoginsInTemplateAndPermission(long templateId, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
+  private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, String permission) {
+    PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, templateId);
+      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getId());
   }
 
   private void addUserToTemplate(UserDto user, PermissionTemplateDto template, String permission) {

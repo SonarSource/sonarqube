@@ -67,41 +67,6 @@ public class TemplateUsersAction implements PermissionsWsAction {
     this.support = support;
   }
 
-  private static PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
-    String textQuery = wsRequest.param(TEXT_QUERY);
-    String permission = wsRequest.param(PARAM_PERMISSION);
-    PermissionQuery.Builder query = PermissionQuery.builder()
-      .setTemplate(template.getUuid())
-      .setPermission(permission != null ? validateProjectPermission(permission) : null)
-      .setPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
-      .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))
-      .setSearchQuery(textQuery);
-    if (textQuery == null) {
-      query.withAtLeastOnePermission();
-    }
-    return query.build();
-  }
-
-  private static WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
-    Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
-    permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
-
-    UsersWsResponse.Builder responseBuilder = UsersWsResponse.newBuilder();
-    users.forEach(user -> {
-      WsPermissions.User.Builder userResponse = responseBuilder.addUsersBuilder()
-        .setLogin(user.getLogin())
-        .addAllPermissions(permissionsByUserId.get(user.getId()));
-      setNullable(user.getEmail(), userResponse::setEmail);
-      setNullable(user.getName(), userResponse::setName);
-    });
-    responseBuilder.getPagingBuilder()
-      .setPageIndex(paging.pageIndex())
-      .setPageSize(paging.pageSize())
-      .setTotal(paging.total())
-      .build();
-    return responseBuilder.build();
-  }
-
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
@@ -139,6 +104,42 @@ public class TemplateUsersAction implements PermissionsWsAction {
       WsPermissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
     }
+  }
+
+  private static PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
+    String textQuery = wsRequest.param(TEXT_QUERY);
+    String permission = wsRequest.param(PARAM_PERMISSION);
+    PermissionQuery.Builder query = PermissionQuery.builder()
+      .setOrganizationUuid(template.getOrganizationUuid())
+      .setTemplate(template.getUuid())
+      .setPermission(permission != null ? validateProjectPermission(permission) : null)
+      .setPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
+      .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))
+      .setSearchQuery(textQuery);
+    if (textQuery == null) {
+      query.withAtLeastOnePermission();
+    }
+    return query.build();
+  }
+
+  private static WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
+    Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
+    permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
+
+    UsersWsResponse.Builder responseBuilder = UsersWsResponse.newBuilder();
+    users.forEach(user -> {
+      WsPermissions.User.Builder userResponse = responseBuilder.addUsersBuilder()
+        .setLogin(user.getLogin())
+        .addAllPermissions(permissionsByUserId.get(user.getId()));
+      setNullable(user.getEmail(), userResponse::setEmail);
+      setNullable(user.getName(), userResponse::setName);
+    });
+    responseBuilder.getPagingBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total())
+      .build();
+    return responseBuilder.build();
   }
 
   private List<UserDto> findUsers(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {

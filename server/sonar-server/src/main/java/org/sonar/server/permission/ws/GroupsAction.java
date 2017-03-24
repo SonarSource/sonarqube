@@ -98,10 +98,10 @@ public class GroupsAction implements PermissionsWsAction {
       Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
-      PermissionQuery query = buildPermissionQuery(request, projectId);
+      PermissionQuery query = buildPermissionQuery(request, org, projectId);
       // TODO validatePermission(groupsRequest.getPermission(), wsProjectRef);
       List<GroupDto> groups = findGroups(dbSession, org, query);
-      int total = dbClient.groupPermissionDao().countGroupsByQuery(dbSession, org.getUuid(), query);
+      int total = dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
       List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, org, groups, projectId);
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
       WsGroupsResponse groupsResponse = buildResponse(groups, groupsWithPermission, paging);
@@ -109,9 +109,10 @@ public class GroupsAction implements PermissionsWsAction {
     }
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, Optional<ProjectId> project) {
+  private static PermissionQuery buildPermissionQuery(Request request, OrganizationDto org, Optional<ProjectId> project) {
     String textQuery = request.param(Param.TEXT_QUERY);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+      .setOrganizationUuid(org.getUuid())
       .setPermission(request.param(PARAM_PERMISSION))
       .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
@@ -149,7 +150,7 @@ public class GroupsAction implements PermissionsWsAction {
   }
 
   private List<GroupDto> findGroups(DbSession dbSession, OrganizationDto org, PermissionQuery dbQuery) {
-    List<String> orderedNames = dbClient.groupPermissionDao().selectGroupNamesByQuery(dbSession, org.getUuid(), dbQuery);
+    List<String> orderedNames = dbClient.groupPermissionDao().selectGroupNamesByQuery(dbSession, dbQuery);
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, org.getUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
       groups.add(0, new GroupDto().setId(0).setName(DefaultGroups.ANYONE).setOrganizationUuid(org.getUuid()));

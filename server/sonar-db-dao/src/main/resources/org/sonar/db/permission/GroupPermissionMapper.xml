@@ -43,7 +43,7 @@
       from groups g
       left join group_roles gr on g.id = gr.group_id
       where
-      g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      g.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
 
     union all
 
@@ -51,7 +51,7 @@
     from group_roles gr
     <if test="query.withAtLeastOnePermission()">
       where
-      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      gr.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR} and
       gr.group_id is null
     </if>
 

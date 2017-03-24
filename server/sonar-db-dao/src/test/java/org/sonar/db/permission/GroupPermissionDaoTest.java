@@ -103,7 +103,7 @@ public class GroupPermissionDaoTest {
     GroupDto group1 = db.users().insertGroup(organizationDto, "Group-1");
     db.users().insertPermissionOnAnyone(organizationDto, SCAN);
 
-    assertThat(underTest.selectGroupNamesByQuery(dbSession, organizationDto.getUuid(), PermissionQuery.builder().build()))
+    assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery().setOrganizationUuid(organizationDto.getUuid()).build()))
       .containsExactly(ANYONE, group1.getName(), group2.getName(), group3.getName());
   }
 
@@ -117,15 +117,15 @@ public class GroupPermissionDaoTest {
     db.users().insertPermissionOnGroup(group1, PROVISION_PROJECTS);
 
     assertThat(underTest.countGroupsByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().build())).isEqualTo(4);
+      newQuery().build())).isEqualTo(4);
     assertThat(underTest.countGroupsByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().setPermission(PROVISION_PROJECTS.getKey()).build())).isEqualTo(1);
+      newQuery().setPermission(PROVISION_PROJECTS.getKey()).build())).isEqualTo(1);
     assertThat(underTest.countGroupsByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().withAtLeastOnePermission().build())).isEqualTo(2);
+      newQuery().withAtLeastOnePermission().build())).isEqualTo(2);
     assertThat(underTest.countGroupsByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().setSearchQuery("Group-").build())).isEqualTo(3);
+      newQuery().setSearchQuery("Group-").build())).isEqualTo(3);
     assertThat(underTest.countGroupsByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().setSearchQuery("Any").build())).isEqualTo(1);
+      newQuery().setSearchQuery("Any").build())).isEqualTo(1);
   }
 
   @Test
@@ -144,13 +144,13 @@ public class GroupPermissionDaoTest {
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      organizationDto.getUuid(), PermissionQuery.builder().setPermission(SCAN.getKey()).build())).containsExactly(ANYONE, group1.getName());
+      newQuery().setOrganizationUuid(organizationDto.getUuid()).setPermission(SCAN.getKey()).build())).containsExactly(ANYONE, group1.getName());
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      organizationDto.getUuid(), PermissionQuery.builder().setPermission(ADMINISTER.getKey()).build())).containsExactly(group3.getName());
+      newQuery().setOrganizationUuid(organizationDto.getUuid()).setPermission(ADMINISTER.getKey()).build())).containsExactly(group3.getName());
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      organizationDto.getUuid(), PermissionQuery.builder().setPermission(PROVISION_PROJECTS.getKey()).build())).containsExactly(ANYONE);
+      newQuery().setOrganizationUuid(organizationDto.getUuid()).setPermission(PROVISION_PROJECTS.getKey()).build())).containsExactly(ANYONE);
   }
 
   @Test
@@ -171,13 +171,13 @@ public class GroupPermissionDaoTest {
     db.users().insertProjectPermissionOnGroup(group3, SCAN_EXECUTION, anotherProject);
     db.users().insertPermissionOnGroup(group2, SCAN);
 
-    PermissionQuery.Builder builderOnComponent = PermissionQuery.builder().setComponentUuid(project.uuid());
+    PermissionQuery.Builder builderOnComponent = newQuery().setComponentUuid(project.uuid());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      defaultOrganizationUuid, builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
+      builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      defaultOrganizationUuid, builderOnComponent.setPermission(SCAN_EXECUTION).build())).containsOnlyOnce(group1.getName());
+      builderOnComponent.setPermission(SCAN_EXECUTION).build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      defaultOrganizationUuid, builderOnComponent.setPermission(USER).build())).containsOnlyOnce(ANYONE);
+      builderOnComponent.setPermission(USER).build())).containsOnlyOnce(ANYONE);
   }
 
   @Test
@@ -185,7 +185,7 @@ public class GroupPermissionDaoTest {
     IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertGroup(db.getDefaultOrganization(), i + "-name"));
 
     List<String> groupNames = underTest.selectGroupNamesByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().setPageIndex(2).setPageSize(3).build());
+      newQuery().setPageIndex(2).setPageSize(3).build());
     assertThat(groupNames).containsExactly("3-name", "4-name", "5-name");
   }
 
@@ -196,7 +196,7 @@ public class GroupPermissionDaoTest {
     db.users().insertPermissionOnGroup(group, SCAN);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().setSearchQuery("any").build())).containsOnlyOnce(ANYONE, group.getName());
+      newQuery().setSearchQuery("any").build())).containsOnlyOnce(ANYONE, group.getName());
   }
 
   @Test
@@ -204,7 +204,7 @@ public class GroupPermissionDaoTest {
     GroupDto group = db.users().insertGroup();
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      defaultOrganizationUuid, PermissionQuery.builder().build()))
+      newQuery().build()))
         .doesNotContain(ANYONE)
         .containsExactly(group.getName());
   }
@@ -459,6 +459,10 @@ public class GroupPermissionDaoTest {
     underTest.deleteByOrganization(dbSession, organization3.getUuid());
     dbSession.commit();
     verifyOrganizationUuidsInTable();
+  }
+
+  private PermissionQuery.Builder newQuery() {
+    return PermissionQuery.builder().setOrganizationUuid(db.getDefaultOrganization().getUuid());
   }
 
   private void verifyOrganizationUuidsInTable(String... organizationUuids) {

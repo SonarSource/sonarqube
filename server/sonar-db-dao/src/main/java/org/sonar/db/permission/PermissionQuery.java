@@ -27,6 +27,7 @@ import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
@@ -41,9 +42,11 @@ public class PermissionQuery {
   public static final int DEFAULT_PAGE_SIZE = 20;
   public static final int DEFAULT_PAGE_INDEX = 1;
 
+  // filter: return only the users or groups that are members of the organization
+  private final String organizationUuid;
   // filter: return only the users or groups who have this permission
   private final String permission;
-  // filter on project, else filter global permissions
+  // filter on project, else filter org permissions
   private final String componentUuid;
   private final String template;
 
@@ -60,6 +63,7 @@ public class PermissionQuery {
   private final int pageOffset;
 
   private PermissionQuery(Builder builder) {
+    this.organizationUuid = builder.organizationUuid;
     this.permission = builder.permission;
     this.withAtLeastOnePermission = builder.withAtLeastOnePermission;
     this.componentUuid = builder.componentUuid;
@@ -69,6 +73,10 @@ public class PermissionQuery {
     this.searchQueryToSqlLowercase = searchQueryToSql == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
     this.pageOffset = offset(builder.pageIndex, builder.pageSize);
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   @CheckForNull
@@ -120,6 +128,7 @@ public class PermissionQuery {
 
   public static class Builder {
     private String permission;
+    private String organizationUuid;
     private String componentUuid;
     private String template;
     private String searchQuery;
@@ -148,6 +157,11 @@ public class PermissionQuery {
       return this;
     }
 
+    public Builder setOrganizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
+    }
+
     public Builder setSearchQuery(@Nullable String s) {
       this.searchQuery = defaultIfBlank(s, null);
       return this;
@@ -169,6 +183,7 @@ public class PermissionQuery {
     }
 
     public PermissionQuery build() {
+      this.organizationUuid = requireNonNull(organizationUuid, "Organization UUID cannot be null");
       this.pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
       this.pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
       checkArgument(searchQuery == null || searchQuery.length() >= SEARCH_QUERY_MIN_LENGTH, "Search query should contains at least %s characters", SEARCH_QUERY_MIN_LENGTH);

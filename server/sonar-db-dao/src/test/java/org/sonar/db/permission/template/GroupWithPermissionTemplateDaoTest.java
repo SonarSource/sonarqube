@@ -80,7 +80,7 @@ public class GroupWithPermissionTemplateDaoTest {
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2"), organization, template))
       .containsOnly("Group-2");
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), organization, 123L))
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().build(), organization, 123L))
       .isEmpty();
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown"), organization, template))
       .isEmpty();
@@ -142,23 +142,23 @@ public class GroupWithPermissionTemplateDaoTest {
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), null, USER);
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
 
-    assertThat(countGroupNamesByQueryAndTemplate(builder(), organization, template))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()), organization, template))
       .isEqualTo(4);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission(), organization, template))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission(), organization, template))
       .isEqualTo(2);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER), organization, template)).isEqualTo(1);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER), organization, anotherTemplate))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setPermission(USER), organization, template)).isEqualTo(1);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setPermission(USER), organization, anotherTemplate))
       .isEqualTo(1);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU"), organization, template))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("groU"), organization, template))
       .isEqualTo(3);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo"), organization, template))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("nYo"), organization, template))
       .isEqualTo(1);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2"), organization, template))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("p-2"), organization, template))
       .isEqualTo(1);
 
-    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), organization, 123L))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().build(), organization, 123L))
       .isZero();
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown"), organization, template))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("unknown"), organization, template))
       .isZero();
   }
 
@@ -229,11 +229,11 @@ public class GroupWithPermissionTemplateDaoTest {
   }
 
   private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery.Builder queryBuilder, OrganizationDto organization, PermissionTemplateDto permissionTemplateDto) {
-    return selectGroupNamesByQueryAndTemplate(queryBuilder.build(), organization, permissionTemplateDto.getId());
+    return selectGroupNamesByQueryAndTemplate(queryBuilder.setOrganizationUuid(organization.getUuid()).build(), organization, permissionTemplateDto.getId());
   }
 
   private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery query, OrganizationDto organization, long templateId) {
-    return underTest.selectGroupNamesByQueryAndTemplate(session, query, organization.getUuid(), templateId);
+    return underTest.selectGroupNamesByQueryAndTemplate(session, query, templateId);
   }
 
   private int countGroupNamesByQueryAndTemplate(PermissionQuery.Builder queryBuilder, OrganizationDto organization, PermissionTemplateDto permissionTemplateDto) {

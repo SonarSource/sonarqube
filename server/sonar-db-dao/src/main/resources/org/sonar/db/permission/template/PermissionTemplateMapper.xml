@@ -135,6 +135,7 @@
   <sql id="userLoginsByQueryAndTemplate">
     FROM users u
     LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id AND ptu.template_id=#{templateId}
+    INNER JOIN organization_members om ON u.id=om.user_id AND om.organization_uuid=#{query.organizationUuid}
     <where>
       u.active = ${_true}
       <if test="query.getSearchQueryToSql() != null">
@@ -173,7 +174,7 @@
     LEFT JOIN perm_templates_groups ptg ON
       ptg.group_id=g.id
     where
-      g.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+      g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     UNION ALL
     SELECT
       0 AS group_id,

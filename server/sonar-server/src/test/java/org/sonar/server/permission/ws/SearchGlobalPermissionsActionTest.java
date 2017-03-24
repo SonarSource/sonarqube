@@ -70,6 +70,8 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     db.users().insertPermissionOnGroup(adminGroup, ADMINISTER);
     UserDto user = db.users().insertUser(newUserDto("user", "user-name"));
     UserDto adminUser = db.users().insertUser(newUserDto("admin", "admin-name"));
+    db.organizations().addMember(org, user);
+    db.organizations().addMember(org, adminUser);
     db.users().insertPermissionOnUser(org, user, PROVISION_PROJECTS);
     db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_PROFILES);
     db.users().insertPermissionOnUser(org, adminUser, ADMINISTER_QUALITY_PROFILES);
@@ -97,6 +99,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
     // to be ignored, by default organization is used when searching for permissions
     db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_GATES);
+    db.organizations().addMember(org, user);
 
     WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
       newRequest()

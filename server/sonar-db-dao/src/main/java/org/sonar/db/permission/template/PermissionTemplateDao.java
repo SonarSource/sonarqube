@@ -69,8 +69,8 @@ public class PermissionTemplateDao implements Dao {
     return mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, Collections.emptyList());
   }
 
-  public List<String> selectGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, String organizationUuid, long templateId) {
-    return mapper(session).selectGroupNamesByQueryAndTemplate(organizationUuid, templateId, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+  public List<String> selectGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, long templateId) {
+    return mapper(session).selectGroupNamesByQueryAndTemplate(templateId, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
   public int countGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, String organizationUuid, long templateId) {

@@ -51,7 +51,7 @@ public class UserResultSetIteratorTest {
       .setScmAccounts(Arrays.asList("user,2", "user_2"))
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(1_500_000_000_000L));
-    UserDto userDto3 = db.users().insertUser(u -> u
+    UserDto inactiveUser = db.users().insertUser(u -> u
       .setName("User3")
       .setLogin("user3")
       .setEmail(null)
@@ -78,7 +78,7 @@ public class UserResultSetIteratorTest {
     assertThat(user1.scmAccounts()).containsOnly("user_1", "u1");
     assertThat(user1.createdAt()).isEqualTo(1_500_000_000_000L);
     assertThat(user1.updatedAt()).isEqualTo(1_500_000_000_000L);
-    assertThat(user1.organizationUuids()).containsOnly("ORG_1", "ORG_2");
+    assertThat(user1.organizationUuids()).containsOnly("ORG_1", "ORG_2", db.getDefaultOrganization().getUuid());
 
     UserDoc user2 = usersByLogin.get("user2");
     assertThat(user2.name()).isEqualTo("User2");
@@ -87,7 +87,7 @@ public class UserResultSetIteratorTest {
     assertThat(user2.scmAccounts()).containsOnly("user,2", "user_2");
     assertThat(user2.createdAt()).isEqualTo(1_500_000_000_000L);
     assertThat(user2.updatedAt()).isEqualTo(1_500_000_000_000L);
-    assertThat(user2.organizationUuids()).containsOnly("ORG_1");
+    assertThat(user2.organizationUuids()).containsOnly("ORG_1", db.getDefaultOrganization().getUuid());
 
     UserDoc user3 = usersByLogin.get("user3");
     assertThat(user3.name()).isEqualTo("User3");

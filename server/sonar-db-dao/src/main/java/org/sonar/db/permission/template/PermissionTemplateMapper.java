@@ -72,8 +72,7 @@ public interface PermissionTemplateMapper {
 
   int countUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
-  List<String> selectGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid,
-    @Param("templateId") long templateId, @Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQueryAndTemplate(@Param("templateId") long templateId, @Param("query") PermissionQuery query, RowBounds rowBounds);
 
   int countGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
