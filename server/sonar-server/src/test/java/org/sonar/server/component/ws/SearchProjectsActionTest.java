@@ -136,7 +136,7 @@ public class SearchProjectsActionTest {
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
-    assertThat(organization.description()).isEqualTo("the organization to search projects in");
+    assertThat(organization.description()).isEqualTo("Organization key");
     assertThat(organization.since()).isEqualTo("6.3");
 
     Param sort = def.param("s");

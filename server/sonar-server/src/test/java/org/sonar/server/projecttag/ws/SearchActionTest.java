@@ -23,20 +23,25 @@ package org.sonar.server.projecttag.ws;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresDoc;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -65,17 +70,29 @@ public class SearchActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
+  @Rule
+  public DbTester db = DbTester.create();
+  private DbClient dbClient = db.getDbClient();
+
+  private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, projectMeasureIndexer);
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new AuthorizationTypeSupport(userSession));
+  private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(index));
+  private WsActionTester ws = new WsActionTester(new SearchAction(index, dbClient, organizationProvider));
+
+  @Before
+  public void setUp() {
+    db.organizations().insert(ORG);
+  }
 
   @Test
   public void json_example() throws IOException {
     index(newDoc().setTags(newArrayList("official", "offshore", "playoff")));
 
-    String result = ws.newRequest().execute().getInput();
+    String result = ws.newRequest()
+      .setParam("organization", ORG.getKey())
+      .execute().getInput();
 
     assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
@@ -86,7 +103,7 @@ public class SearchActionTest {
       newDoc().setTags(newArrayList("whatever-tag", "official", "offshore", "yet-another-tag", "playoff")),
       newDoc().setTags(newArrayList("offshore", "playoff")));
 
-    SearchResponse result = call("off", 2);
+    SearchResponse result = call(ORG.getKey(), "off", 2);
 
     assertThat(result.getTagsList()).containsOnly("offshore", "official");
   }
@@ -101,6 +118,27 @@ public class SearchActionTest {
   }
 
   @Test
+  public void search_on_default_org_is_not_provided() {
+    String defaultOrganization = organizationProvider.get().getUuid();
+
+    index(
+      newDoc().setOrganizationUuid(defaultOrganization).setTags(newArrayList("global", "analyzer")),
+      newDoc().setOrganizationUuid(ORG.getUuid()).setTags(newArrayList("local", "hardware")));
+
+    SearchResponse result = call(null, null, null);
+
+    assertThat(result.getTagsList()).containsOnly("global", "analyzer");
+  }
+
+  @Test
+  public void fail_if_organization_is_unknown() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organizationDto with key '42'");
+
+    call("42", null, null);
+  }
+
+  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 
@@ -109,7 +147,7 @@ public class SearchActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.since()).isEqualTo("6.4");
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("q", "ps");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("organization", "q", "ps");
   }
 
   private void index(ProjectMeasuresDoc... docs) {
@@ -121,6 +159,10 @@ public class SearchActionTest {
     }
   }
 
+  private static ProjectMeasuresDoc newDoc() {
+    return newDoc(newProjectDto(ORG));
+  }
+
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {
     return new ProjectMeasuresDoc()
       .setOrganizationUuid(project.getOrganizationUuid())
@@ -129,14 +171,11 @@ public class SearchActionTest {
       .setName(project.name());
   }
 
-  private static ProjectMeasuresDoc newDoc() {
-    return newDoc(newProjectDto(ORG));
-  }
-
-  private SearchResponse call(@Nullable String textQuery, @Nullable Integer pageSize) {
+  private SearchResponse call(@Nullable String organization, @Nullable String textQuery, @Nullable Integer pageSize) {
     TestRequest request = ws.newRequest().setMediaType(PROTOBUF);
     setNullable(textQuery, s -> request.setParam("q", s));
     setNullable(pageSize, ps -> request.setParam("ps", ps.toString()));
+    setNullable(organization, o -> request.setParam("organization", o));
 
     try {
       return SearchResponse.parseFrom(request.execute().getInputStream());

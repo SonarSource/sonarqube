@@ -306,7 +306,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     }
   }
 
-  public List<String> searchTags(@Nullable String textQuery, int pageSize) {
+  public List<String> searchTags(String organization, @Nullable String textQuery, int pageSize) {
     checkArgument(pageSize <= 100, "Page size must be lower than or equals to " + 100);
     if (pageSize == 0) {
       return emptyList();
@@ -323,7 +323,9 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
     SearchRequestBuilder searchQuery = getClient()
       .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
-      .setQuery(authorizationTypeSupport.createQueryFilter())
+      .setQuery(boolQuery()
+        .must(termQuery(FIELD_ORGANIZATION_UUID, organization))
+        .must(authorizationTypeSupport.createQueryFilter()))
       .setFetchSource(false)
       .setSize(0)
       .addAggregation(tagFacet);

@@ -113,7 +113,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setDescription("Comma-separated list of the fields to be returned in response")
       .setSince("6.4");
     action.createParam(PARAM_ORGANIZATION)
-      .setDescription("the organization to search projects in")
+      .setDescription("Organization key")
       .setRequired(false)
       .setInternal(true)
       .setSince("6.3");
