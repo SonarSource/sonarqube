@@ -112,7 +112,6 @@ export default class MetaTags extends React.PureComponent {
             <TagsList
               tags={tags.length ? tags : [translate('no_tags')]}
               allowUpdate={true}
-              allowMultiLine={true}
             />
           </button>
           {popupOpen &&

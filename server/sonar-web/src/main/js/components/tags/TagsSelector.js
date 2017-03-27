@@ -27,6 +27,7 @@ type Props = {
   position: {},
   tags: Array<string>,
   selectedTags: Array<string>,
+  listSize: number,
   onSearch: (string) => void,
   onSelect: (string) => void,
   onUnselect: (string) => void
@@ -45,11 +46,12 @@ export default class TagsSelector extends React.PureComponent {
     return (
       <BubblePopup
         position={this.props.position}
-        customClass="bubble-popup-bottom-right bubble-popup-menu"
+        customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
       >
         <MultiSelect
           elements={this.props.tags}
           selectedElements={this.props.selectedTags}
+          listSize={this.props.listSize}
           onSearch={this.props.onSearch}
           onSelect={this.props.onSelect}
           onUnselect={this.props.onUnselect}

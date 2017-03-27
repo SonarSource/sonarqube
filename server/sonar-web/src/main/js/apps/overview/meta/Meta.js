@@ -53,7 +53,7 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
 
       <MetaSize component={component} measures={measures} />
 
-      <MetaTags component={component} />
+      {isProject && <MetaTags component={component} />}
 
       {shouldShowQualityGate && <MetaQualityGate gate={qualityGate} />}
 

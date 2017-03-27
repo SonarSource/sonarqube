@@ -5,7 +5,7 @@ exports[`test should open the tag selector on click 1`] = `
     className="button-link"
     onClick={[Function]}>
     <TagsList
-      allowMultiLine={true}
+      allowMultiLine={false}
       allowUpdate={true}
       tags={
         Array [
@@ -24,7 +24,7 @@ exports[`test should open the tag selector on click 2`] = `
     className="button-link"
     onClick={[Function]}>
     <TagsList
-      allowMultiLine={true}
+      allowMultiLine={false}
       allowUpdate={true}
       tags={
         Array [
@@ -59,7 +59,7 @@ exports[`test should open the tag selector on click 3`] = `
     className="button-link"
     onClick={[Function]}>
     <TagsList
-      allowMultiLine={true}
+      allowMultiLine={false}
       allowUpdate={true}
       tags={
         Array [
@@ -78,7 +78,7 @@ exports[`test should render with tags and admin rights 1`] = `
     className="button-link"
     onClick={[Function]}>
     <TagsList
-      allowMultiLine={true}
+      allowMultiLine={false}
       allowUpdate={true}
       tags={
         Array [
