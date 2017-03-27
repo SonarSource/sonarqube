@@ -9,6 +9,8 @@
     cq.component_uuid as componentUuid,
     cq.status as status,
     cq.submitter_login as submitterLogin,
+    cq.worker_uuid as workerUuid,
+    cq.execution_count as executionCount,
     cq.started_at as startedAt,
     cq.created_at as createdAt,
     cq.updated_at as updatedAt
@@ -137,6 +139,8 @@
       component_uuid,
       status,
       submitter_login,
+      worker_uuid,
+      execution_count,
       started_at,
       created_at,
       updated_at
@@ -147,6 +151,8 @@
       #{componentUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{submitterLogin,jdbcType=VARCHAR},
+      #{workerUuid,jdbcType=VARCHAR},
+      #{executionCount,jdbcType=INTEGER},
       #{startedAt,jdbcType=BIGINT},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}

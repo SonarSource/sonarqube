@@ -26,9 +26,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 
@@ -36,6 +39,8 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
@@ -46,7 +51,11 @@ public class CeQueueDaoTest {
   private static final String TASK_UUID_2 = "TASK_2";
   private static final String COMPONENT_UUID_1 = "PROJECT_1";
   private static final String COMPONENT_UUID_2 = "PROJECT_2";
-  public static final String TASK_UUID_3 = "TASK_3";
+  private static final String TASK_UUID_3 = "TASK_3";
+  private static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
+  private static final String SUBMITTER_LOGIN = "henri";
+  private static final String WORKER_UUID = "worker uuid";
+  private static final int EXECUTION_COUNT = 42;
 
   private TestSystem2 system2 = new TestSystem2().setNow(INIT_TIME);
 
@@ -54,14 +63,61 @@ public class CeQueueDaoTest {
   public DbTester db = DbTester.create(system2);
 
   private CeQueueDao underTest = new CeQueueDao(system2);
-  private static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
 
   @Test
-  public void test_insert() {
-    insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING);
+  public void insert_populates_createdAt_and_updateAt_from_System2_with_same_value_if_any_is_not_set() {
+    System2 system2 = mock(System2.class);
+    CeQueueDao ceQueueDao = new CeQueueDao(system2);
+    long now = 1_334_333L;
+    CeQueueDto dto = new CeQueueDto()
+      .setTaskType(CeTaskTypes.REPORT)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setSubmitterLogin(SUBMITTER_LOGIN)
+      .setWorkerUuid(WORKER_UUID)
+      .setExecutionCount(EXECUTION_COUNT);
 
-    Optional<CeQueueDto> saved = underTest.selectByUuid(db.getSession(), TASK_UUID_1);
-    assertThat(saved.isPresent()).isTrue();
+    mockSystem2ForSingleCall(system2, now);
+    ceQueueDao.insert(db.getSession(), dto.setUuid(TASK_UUID_1));
+    mockSystem2ForSingleCall(system2, now);
+    ceQueueDao.insert(db.getSession(), dto.setUuid(TASK_UUID_2).setCreatedAt(8_000_999L).setUpdatedAt(0));
+    mockSystem2ForSingleCall(system2, now);
+    ceQueueDao.insert(db.getSession(), dto.setUuid(TASK_UUID_3).setCreatedAt(0).setUpdatedAt(8_000_999L));
+    mockSystem2ForSingleCall(system2, now);
+    String uuid4 = "uuid 4";
+    ceQueueDao.insert(db.getSession(), dto.setUuid(uuid4).setCreatedAt(6_888_777L).setUpdatedAt(8_000_999L));
+    db.getSession().commit();
+
+    Stream.of(TASK_UUID_1, TASK_UUID_2, TASK_UUID_3)
+      .forEach(uuid -> {
+        CeQueueDto saved = underTest.selectByUuid(db.getSession(), uuid).get();
+        assertThat(saved.getUuid()).isEqualTo(uuid);
+        assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
+        assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
+        assertThat(saved.getStatus()).isEqualTo(PENDING);
+        assertThat(saved.getSubmitterLogin()).isEqualTo(SUBMITTER_LOGIN);
+        assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID);
+        assertThat(saved.getExecutionCount()).isEqualTo(EXECUTION_COUNT);
+        assertThat(saved.getCreatedAt()).isEqualTo(now);
+        assertThat(saved.getUpdatedAt()).isEqualTo(now);
+        assertThat(saved.getStartedAt()).isNull();
+      });
+    CeQueueDto saved = underTest.selectByUuid(db.getSession(), uuid4).get();
+    assertThat(saved.getUuid()).isEqualTo(uuid4);
+    assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
+    assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
+    assertThat(saved.getStatus()).isEqualTo(PENDING);
+    assertThat(saved.getSubmitterLogin()).isEqualTo(SUBMITTER_LOGIN);
+    assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID);
+    assertThat(saved.getExecutionCount()).isEqualTo(EXECUTION_COUNT);
+    assertThat(saved.getCreatedAt()).isEqualTo(6_888_777L);
+    assertThat(saved.getUpdatedAt()).isEqualTo(8_000_999L);
+    assertThat(saved.getStartedAt()).isNull();
+  }
+
+  private void mockSystem2ForSingleCall(System2 system2, long now) {
+    Mockito.reset(system2);
+    when(system2.now()).thenReturn(now).thenThrow(new IllegalStateException("now should be called only once"));
   }
 
   @Test
@@ -75,6 +131,8 @@ public class CeQueueDaoTest {
     assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
     assertThat(saved.getStatus()).isEqualTo(PENDING);
     assertThat(saved.getSubmitterLogin()).isEqualTo("henri");
+    assertThat(saved.getWorkerUuid()).isNull();
+    assertThat(saved.getExecutionCount()).isEqualTo(0);
     assertThat(saved.getCreatedAt()).isEqualTo(INIT_TIME);
     assertThat(saved.getUpdatedAt()).isEqualTo(INIT_TIME);
     assertThat(saved.getStartedAt()).isNull();
@@ -357,6 +415,6 @@ public class CeQueueDaoTest {
   }
 
   private static Map<String, Object> rowMap(String uuid, CeQueueDto.Status status) {
-    return ImmutableMap.<String, Object>of("UUID", uuid, "STATUS", status.name());
+    return ImmutableMap.of("UUID", uuid, "STATUS", status.name());
   }
 }

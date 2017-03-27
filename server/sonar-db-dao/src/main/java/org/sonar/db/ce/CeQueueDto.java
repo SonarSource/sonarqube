@@ -19,7 +19,6 @@
  */
 package org.sonar.db.ce;
 
-import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -36,6 +35,14 @@ public class CeQueueDto {
   private String componentUuid;
   private Status status;
   private String submitterLogin;
+  /**
+   * UUID of the worker that is executing, or of the last worker that executed, the current task.
+   */
+  private String workerUuid;
+  /**
+   * This counter is incremented by 1 each time the tasks switches to status {@link Status#IN_PROGRESS IN_PROGRESS}.
+   */
+  private int executionCount = 0;
   private Long startedAt;
   private long createdAt;
   private long updatedAt;
@@ -91,6 +98,26 @@ public class CeQueueDto {
     return this;
   }
 
+  public String getWorkerUuid() {
+    return workerUuid;
+  }
+
+  public CeQueueDto setWorkerUuid(@Nullable String workerUuid) {
+    checkArgument(workerUuid == null || workerUuid.length() <= 40, "worker uuid is too long: %s", workerUuid);
+    this.workerUuid = workerUuid;
+    return this;
+  }
+
+  public int getExecutionCount() {
+    return executionCount;
+  }
+
+  public CeQueueDto setExecutionCount(int executionCount) {
+    checkArgument(executionCount >= 0, "execution count can't be < 0");
+    this.executionCount = executionCount;
+    return this;
+  }
+
   @CheckForNull
   public Long getStartedAt() {
     return startedAt;
@@ -121,16 +148,18 @@ public class CeQueueDto {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("uuid", uuid)
-      .add("taskType", taskType)
-      .add("componentUuid", componentUuid)
-      .add("status", status)
-      .add("submitterLogin", submitterLogin)
-      .add("startedAt", startedAt)
-      .add("createdAt", createdAt)
-      .add("updatedAt", updatedAt)
-      .toString();
+    return "CeQueueDto{" +
+      "uuid='" + uuid + '\'' +
+      ", taskType='" + taskType + '\'' +
+      ", componentUuid='" + componentUuid + '\'' +
+      ", status=" + status +
+      ", submitterLogin='" + submitterLogin + '\'' +
+      ", workerUuid='" + workerUuid + '\'' +
+      ", executionCount=" + executionCount +
+      ", startedAt=" + startedAt +
+      ", createdAt=" + createdAt +
+      ", updatedAt=" + updatedAt +
+      '}';
   }
 
   @Override
