@@ -60,5 +60,7 @@ public class DbVersion64 implements DbVersion {
     ;
       .add(1628, "Add columns CE_QUEUE.WORKER_UUID and EXECUTION_COUNT", AddCeQueueWorkerUuidAndExecutionCount.class);
       .add(1629, "Make CE_QUEUE.EXECUTION_COUNT not nullable", MakeCeQueueExecutionCountNotNullable.class);
+      .add(1630, "Add columns CE_ACTIVITY.WORKER_UUID and EXECUTION_COUNT", AddCeActivityWorkerUuidAndExecutionCount.class)
+      .add(1631, "Make columns CE_ACTIVITY.EXECUTION_COUNT not nullable", MakeCeActivityExecutionCountNotNullable.class);
   }
 }
