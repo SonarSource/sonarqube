@@ -46,11 +46,10 @@ public interface CeQueueMapper {
 
   void resetAllToPendingStatus(@Param("updatedAt") long updatedAt);
 
-  int updateIfStatus(@Param("uuid") String uuid,
-    @Param("newStatus") CeQueueDto.Status newStatus,
-    @Nullable @Param("startedAt") Long startedAt,
-    @Param("updatedAt") long updatedAt,
-    @Param("oldStatus") CeQueueDto.Status oldStatus);
+  int updateIf(@Param("uuid") String uuid,
+    @Param("new") UpdateIf.NewProperties newProperties,
+    @Param("old") UpdateIf.OldProperties oldProperties);
 
   void deleteByUuid(@Param("uuid") String uuid);
+
 }
