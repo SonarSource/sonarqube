@@ -36,6 +36,7 @@ type Project = {
 
 export default class SimpleBubbleChart extends React.PureComponent {
   props: {
+    displayOrganizations: boolean,
     projects: Array<Project>,
     sizeMetric: Metric,
     xMetric: Metric,
@@ -50,7 +51,7 @@ export default class SimpleBubbleChart extends React.PureComponent {
   }
 
   getTooltip(project: Project, x: number, y: number, size: number, color?: number) {
-    const fullProjectName = project.organization
+    const fullProjectName = this.props.displayOrganizations && project.organization
       ? `<div class="little-spacer-bottom">${project.organization.name} / <strong>${project.name}</strong></div>`
       : `<div class="little-spacer-bottom"><strong>${project.name}</strong></div>`;
 

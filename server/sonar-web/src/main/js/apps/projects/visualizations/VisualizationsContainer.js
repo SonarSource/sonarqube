@@ -24,7 +24,8 @@ import {
   getComponent,
   getComponentMeasures,
   getOrganizationByKey,
-  getProjectsAppState
+  getProjectsAppState,
+  areThereCustomOrganizations
 } from '../../../store/rootReducer';
 
 const mapStateToProps = state => {
@@ -38,7 +39,11 @@ const mapStateToProps = state => {
     };
   });
   const appState = getProjectsAppState(state);
-  return { projects, total: appState.total };
+  return {
+    projects,
+    total: appState.total,
+    displayOrganizations: areThereCustomOrganizations(state)
+  };
 };
 
 export default connect(mapStateToProps)(Visualizations);
