@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
+import Handlebars from 'handlebars/runtime';
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+function gravatarServer () {
+  const getStore = require('../../app/utils/getStore').default;
+  const { getSettingValue } = require('../../store/rootReducer');
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class IssueWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new IssueWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 30);
-  }
+  const store = getStore();
+  return (getSettingValue(store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;
 }
+
+module.exports = function (emailHash, size) {
+  // double the size for high pixel density screens
+  const url = gravatarServer().replace('{EMAIL_MD5}', emailHash).replace('{SIZE}', size * 2);
+  return new Handlebars.default.SafeString(
+    `<img class="rounded" src="${url}" width="${size}" height="${size}" alt="">`
+  );
+};

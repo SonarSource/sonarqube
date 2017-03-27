@@ -89,7 +89,7 @@
               <button class="button-link issue-action issue-action-with-options js-issue-assign">
                 {{#if assignee}}
                   {{#ifShowAvatars}}
-                    <span class="text-top">{{avatarHelper assigneeEmail 16}}</span>
+                    <span class="text-top">{{avatarHelperNew assigneeAvatar 16}}</span>
                   {{/ifShowAvatars}}
                 {{/if}}
                 <span class="issue-meta-label">{{#if assignee}}{{assigneeName}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i
@@ -98,7 +98,7 @@
             {{else}}
               {{#if assignee}}
                 {{#ifShowAvatars}}
-                  <span class="text-top">{{avatarHelper assigneeEmail 16}}</span>
+                  <span class="text-top">{{avatarHelperNew assigneeAvatar 16}}</span>
                 {{/ifShowAvatars}}
               {{/if}}
               <span class="issue-meta-label">{{#if assignee}}{{assigneeName}}{{else}}{{t 'unassigned'}}{{/if}}</span>
@@ -151,7 +151,7 @@
       {{#each comments}}
         <div class="issue-comment" data-comment-key="{{key}}">
           <div class="issue-comment-author" title="{{authorName}}">
-            {{#ifShowAvatars}}{{avatarHelper authorEmail 16}}{{else}}
+            {{#ifShowAvatars}}{{avatarHelperNew authorAvatar 16}}{{else}}
               <i class="icon-comment icon-half-transparent"></i>{{/ifShowAvatars}}&nbsp;{{authorName}}
           </div>
           <div class="issue-comment-text markdown">{{{show html htmlText}}}</div>

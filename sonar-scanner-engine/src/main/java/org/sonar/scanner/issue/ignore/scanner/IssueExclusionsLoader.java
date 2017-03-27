@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
-import java.nio.charset.Charset;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -34,8 +33,7 @@ public final class IssueExclusionsLoader {
   private final FileSystem fileSystem;
 
   public IssueExclusionsLoader(IssueExclusionsRegexpScanner regexpScanner, IssueExclusionPatternInitializer exclusionPatternInitializer,
-    IssueInclusionPatternInitializer inclusionPatternInitializer,
-    FileSystem fileSystem) {
+    IssueInclusionPatternInitializer inclusionPatternInitializer, FileSystem fileSystem) {
     this.regexpScanner = regexpScanner;
     this.exclusionPatternInitializer = exclusionPatternInitializer;
     this.inclusionPatternInitializer = inclusionPatternInitializer;
@@ -47,27 +45,29 @@ public final class IssueExclusionsLoader {
       || exclusionPatternInitializer.hasConfiguredPatterns();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void execute() {
-    Charset sourcesEncoding = fileSystem.encoding();
-
+  public void preLoadAllFiles() {
     for (InputFile inputFile : fileSystem.inputFiles(fileSystem.predicates().all())) {
-      try {
-        String componentEffectiveKey = ((DefaultInputFile) inputFile).key();
-        if (componentEffectiveKey != null) {
-          String path = inputFile.relativePath();
-          inclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
-          exclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
-          if (exclusionPatternInitializer.hasFileContentPattern()) {
-            regexpScanner.scan(componentEffectiveKey, inputFile.file(), sourcesEncoding);
-          }
-        }
-      } catch (Exception e) {
-        throw new IllegalStateException("Unable to read the source file : '" + inputFile.absolutePath() + "' with the charset : '"
-          + sourcesEncoding.name() + "'.", e);
+      loadFile(inputFile);
+    }
+  }
+
+  public boolean isLoaded(InputFile inputFile) {
+    String componentEffectiveKey = ((DefaultInputFile) inputFile).key();
+    return inclusionPatternInitializer.getPathForComponent(componentEffectiveKey) != null;
+  }
+
+  public void loadFile(InputFile inputFile) {
+    try {
+      String componentEffectiveKey = ((DefaultInputFile) inputFile).key();
+      String path = inputFile.relativePath();
+      inclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
+      exclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
+      if (exclusionPatternInitializer.hasFileContentPattern()) {
+        regexpScanner.scan(componentEffectiveKey, inputFile.path(), inputFile.charset());
       }
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to read the source file : '" + inputFile.absolutePath() + "' with the charset : '"
+        + inputFile.charset().name() + "'.", e);
     }
   }
 

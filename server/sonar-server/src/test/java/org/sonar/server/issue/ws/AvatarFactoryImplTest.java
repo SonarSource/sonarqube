@@ -17,18 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueWsModuleTest {
+public class AvatarFactoryImplTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AvatarFactoryImpl underTest = new AvatarFactoryImpl();
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new IssueWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 30);
+  public void create() throws Exception {
+    String avatar = underTest.create("john@doo.com");
+
+    assertThat(avatar).isEqualTo("9297bfb538f650da6143b604e82a355d");
+  }
+
+  @Test
+  public void create_is_case_insensitive() throws Exception {
+    assertThat(underTest.create("john@doo.com")).isEqualTo(underTest.create("John@Doo.com"));
+  }
+
+  @Test
+  public void fail_with_NP_when_email_is_null() throws Exception {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Email cannot be null");
+
+    underTest.create(null);
   }
 }

@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -35,6 +36,10 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.issue.IssueFilters;
 import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsRegexpScanner;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
 
@@ -206,7 +211,9 @@ public class ModuleIssuesTest {
    * Every rules and active rules has to be added in builders before creating ModuleIssues
    */
   private void initModuleIssues() {
-    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), filters, reportPublisher);
+    IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionsRegexpScanner.class), mock(IssueExclusionPatternInitializer.class),
+      mock(IssueInclusionPatternInitializer.class), mock(FileSystem.class));
+    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), filters, reportPublisher, issueExclusionsLoader);
   }
 
 }

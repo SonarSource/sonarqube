@@ -21,12 +21,14 @@ package org.sonar.scanner.phases;
 
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.config.Settings;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.FileSystemLogger;
+import org.sonar.scanner.scan.filesystem.InputFileBuilder;
 
 public abstract class AbstractPhaseExecutor {
 
@@ -39,10 +41,11 @@ public abstract class AbstractPhaseExecutor {
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
+  private final boolean preloadIssueExclusions;
 
   public AbstractPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, EventBus eventBus, FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader) {
+    IssueExclusionsLoader issueExclusionsLoader, Settings settings) {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
@@ -52,6 +55,7 @@ public abstract class AbstractPhaseExecutor {
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
+    this.preloadIssueExclusions = settings.getBoolean(InputFileBuilder.PRELOAD_FILE_METADATA_KEY);
   }
 
   /**
@@ -88,10 +92,10 @@ public abstract class AbstractPhaseExecutor {
   protected abstract void executeOnRoot();
 
   private void initIssueExclusions() {
-    if (issueExclusionsLoader.shouldExecute()) {
+    if (preloadIssueExclusions && issueExclusionsLoader.shouldExecute()) {
       String stepName = "Init issue exclusions";
       eventBus.fireEvent(new BatchStepEvent(stepName, true));
-      issueExclusionsLoader.execute();
+      issueExclusionsLoader.preLoadAllFiles();
       eventBus.fireEvent(new BatchStepEvent(stepName, false));
     }
   }

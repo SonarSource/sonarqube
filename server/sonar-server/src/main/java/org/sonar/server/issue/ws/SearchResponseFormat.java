@@ -52,22 +52,35 @@ import org.sonarqube.ws.Issues;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonarqube.ws.Issues.Actions;
+import static org.sonarqube.ws.Issues.Comment;
+import static org.sonarqube.ws.Issues.Comments;
+import static org.sonarqube.ws.Issues.Component;
+import static org.sonarqube.ws.Issues.Flow;
+import static org.sonarqube.ws.Issues.Issue;
+import static org.sonarqube.ws.Issues.Location;
+import static org.sonarqube.ws.Issues.Operation;
+import static org.sonarqube.ws.Issues.SearchWsResponse;
+import static org.sonarqube.ws.Issues.Transitions;
+import static org.sonarqube.ws.Issues.Users;
 
 public class SearchResponseFormat {
 
   private final Durations durations;
   private final WsResponseCommonFormat commonFormat;
   private final Languages languages;
+  private final AvatarFactory avatarFactory;
 
-  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages) {
+  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages, AvatarFactory avatarFactory) {
     this.durations = durations;
     this.commonFormat = commonFormat;
     this.languages = languages;
+    this.avatarFactory = avatarFactory;
   }
 
-  public Issues.SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
+  public SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
     Paging paging, @Nullable Facets facets) {
-    Issues.SearchWsResponse.Builder response = Issues.SearchWsResponse.newBuilder();
+    SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
     formatEffortTotal(data, response);
@@ -88,11 +101,11 @@ public class SearchResponseFormat {
     return response.build();
   }
 
-  public Issues.Operation formatOperation(SearchResponseData data) {
-    Issues.Operation.Builder response = Issues.Operation.newBuilder();
+  public Operation formatOperation(SearchResponseData data) {
+    Operation.Builder response = Operation.newBuilder();
 
     if (data.getIssues().size() == 1) {
-      Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
+      Issue.Builder issueBuilder = Issue.newBuilder();
       IssueDto dto = data.getIssues().get(0);
       formatIssue(issueBuilder, dto, data);
       formatIssueActions(data, issueBuilder, dto);
@@ -106,7 +119,7 @@ public class SearchResponseFormat {
     return response.build();
   }
 
-  private void formatEffortTotal(SearchResponseData data, Issues.SearchWsResponse.Builder response) {
+  private void formatEffortTotal(SearchResponseData data, SearchWsResponse.Builder response) {
     Long effort = data.getEffortTotal();
     if (effort != null) {
       response.setDebtTotal(effort);
@@ -114,7 +127,7 @@ public class SearchResponseFormat {
     }
   }
 
-  private void formatPaging(Paging paging, Issues.SearchWsResponse.Builder response) {
+  private void formatPaging(Paging paging, SearchWsResponse.Builder response) {
     response.setP(paging.pageIndex());
     response.setPs(paging.pageSize());
     response.setTotal(paging.total());
@@ -123,8 +136,8 @@ public class SearchResponseFormat {
 
   private List<Issues.Issue> formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data) {
     List<Issues.Issue> result = new ArrayList<>();
-    Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
-    for (IssueDto dto : data.getIssues()) {
+    Issue.Builder issueBuilder = Issue.newBuilder();
+    data.getIssues().forEach(dto -> {
       issueBuilder.clear();
       formatIssue(issueBuilder, dto, data);
       if (fields.contains(SearchAdditionalField.ACTIONS)) {
@@ -137,11 +150,11 @@ public class SearchResponseFormat {
         formatIssueComments(data, issueBuilder, dto);
       }
       result.add(issueBuilder.build());
-    }
+    });
     return result;
   }
 
-  private void formatIssue(Issues.Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
+  private void formatIssue(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
     setNullable(dto.getType(), issueBuilder::setType, Common.RuleType::valueOf);
 
@@ -179,7 +192,7 @@ public class SearchResponseFormat {
     setNullable(dto.getIssueCloseDate(), issueBuilder::setCloseDate, DateUtils::formatDateTime);
   }
 
-  private void completeIssueLocations(IssueDto dto, Issues.Issue.Builder issueBuilder) {
+  private void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder) {
     DbIssues.Locations locations = dto.parseLocations();
     if (locations == null) {
       return;
@@ -189,7 +202,7 @@ public class SearchResponseFormat {
       issueBuilder.setTextRange(convertTextRange(textRange));
     }
     for (DbIssues.Flow flow : locations.getFlowList()) {
-      Issues.Flow.Builder targetFlow = Issues.Flow.newBuilder();
+      Flow.Builder targetFlow = Flow.newBuilder();
       for (DbIssues.Location flowLocation : flow.getLocationList()) {
         targetFlow.addLocations(convertLocation(flowLocation));
       }
@@ -197,8 +210,8 @@ public class SearchResponseFormat {
     }
   }
 
-  private static Issues.Location convertLocation(DbIssues.Location source) {
-    Issues.Location.Builder target = Issues.Location.newBuilder();
+  private static Location convertLocation(DbIssues.Location source) {
+    Location.Builder target = Location.newBuilder();
     if (source.hasComponentId()) {
       target.setComponentId(source.getComponentId());
     }
@@ -230,8 +243,8 @@ public class SearchResponseFormat {
     return targetRange;
   }
 
-  private static void formatIssueTransitions(SearchResponseData data, Issues.Issue.Builder wsIssue, IssueDto dto) {
-    Issues.Transitions.Builder wsTransitions = Issues.Transitions.newBuilder();
+  private static void formatIssueTransitions(SearchResponseData data, Issue.Builder wsIssue, IssueDto dto) {
+    Transitions.Builder wsTransitions = Transitions.newBuilder();
     List<Transition> transitions = data.getTransitionsForIssueKey(dto.getKey());
     if (transitions != null) {
       for (Transition transition : transitions) {
@@ -241,8 +254,8 @@ public class SearchResponseFormat {
     wsIssue.setTransitions(wsTransitions);
   }
 
-  private static void formatIssueActions(SearchResponseData data, Issues.Issue.Builder wsIssue, IssueDto dto) {
-    Issues.Actions.Builder wsActions = Issues.Actions.newBuilder();
+  private static void formatIssueActions(SearchResponseData data, Issue.Builder wsIssue, IssueDto dto) {
+    Actions.Builder wsActions = Actions.newBuilder();
     List<String> actions = data.getActionsForIssueKey(dto.getKey());
     if (actions != null) {
       wsActions.addAllActions(actions);
@@ -250,11 +263,11 @@ public class SearchResponseFormat {
     wsIssue.setActions(wsActions);
   }
 
-  private static void formatIssueComments(SearchResponseData data, Issues.Issue.Builder wsIssue, IssueDto dto) {
-    Issues.Comments.Builder wsComments = Issues.Comments.newBuilder();
+  private static void formatIssueComments(SearchResponseData data, Issue.Builder wsIssue, IssueDto dto) {
+    Comments.Builder wsComments = Comments.newBuilder();
     List<IssueChangeDto> comments = data.getCommentsForIssueKey(dto.getKey());
     if (comments != null) {
-      Issues.Comment.Builder wsComment = Issues.Comment.newBuilder();
+      Comment.Builder wsComment = Comment.newBuilder();
       for (IssueChangeDto comment : comments) {
         String markdown = comment.getChangeData();
         wsComment
@@ -293,7 +306,7 @@ public class SearchResponseFormat {
     List<Issues.Component> result = new ArrayList<>();
     for (ComponentDto dto : components) {
       String uuid = dto.uuid();
-      Issues.Component.Builder builder = Issues.Component.newBuilder()
+      Component.Builder builder = Component.newBuilder()
         .setOrganization(data.getOrganizationKey(dto.getOrganizationUuid()))
         .setId(dto.getId())
         .setKey(dto.key())
@@ -322,15 +335,24 @@ public class SearchResponseFormat {
     return result;
   }
 
-  private Common.Users.Builder formatUsers(SearchResponseData data) {
-    Common.Users.Builder wsUsers = Common.Users.newBuilder();
+  private Users.Builder formatUsers(SearchResponseData data) {
+    Users.Builder wsUsers = Users.newBuilder();
     List<UserDto> users = data.getUsers();
     if (users != null) {
       for (UserDto user : users) {
-        wsUsers.addUsers(commonFormat.formatUser(user));
+        wsUsers.addUsers(formatUser(user));
       }
     }
     return wsUsers;
+  }
+
+  private Users.User.Builder formatUser(UserDto user) {
+    Users.User.Builder builder = Users.User.newBuilder()
+      .setLogin(user.getLogin())
+      .setName(nullToEmpty(user.getName()))
+      .setActive(user.isActive());
+    setNullable(user.getEmail(), email -> builder.setAvatar(avatarFactory.create(email)));
+    return builder;
   }
 
   private Issues.Languages.Builder formatLanguages() {
@@ -346,7 +368,7 @@ public class SearchResponseFormat {
     return wsLangs;
   }
 
-  private void formatFacets(Facets facets, Issues.SearchWsResponse.Builder wsSearch) {
+  private void formatFacets(Facets facets, SearchWsResponse.Builder wsSearch) {
     Common.Facets.Builder wsFacets = Common.Facets.newBuilder();
     Common.Facet.Builder wsFacet = Common.Facet.newBuilder();
     for (Map.Entry<String, LinkedHashMap<String, Long>> facet : facets.getAll().entrySet()) {

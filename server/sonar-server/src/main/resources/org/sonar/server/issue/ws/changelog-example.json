@@ -3,7 +3,7 @@
     {
       "user": "john.smith",
       "userName": "John Smith",
-      "email": "john@smith.com",
+      "avatar": "avatar",
       "creationDate": "2014-03-04T23:03:44+0100",
       "diffs": [
         {

@@ -37,7 +37,7 @@
     {{#if assignee}}
       <a href="#" class="issue-action-option" data-property="assignees" data-value="{{assignee}}">
         {{t "assigned_to"}}
-        {{#ifShowAvatars}}<span class="spacer-left">{{avatarHelper assigneeEmail 16}}</span>{{/ifShowAvatars}}
+        {{#ifShowAvatars}}<span class="spacer-left">{{avatarHelperNew assigneeAvatar 16}}</span>{{/ifShowAvatars}}
         {{assigneeName}}
       </a>
     {{else}}

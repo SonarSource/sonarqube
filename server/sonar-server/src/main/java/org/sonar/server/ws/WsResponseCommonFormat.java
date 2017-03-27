@@ -23,7 +23,6 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Common;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -57,11 +56,4 @@ public class WsResponseCommonFormat {
     return builder;
   }
 
-  public Common.User.Builder formatUser(UserDto user) {
-    return Common.User.newBuilder()
-      .setLogin(user.getLogin())
-      .setName(nullToEmpty(user.getName()))
-      .setEmail(nullToEmpty(user.getEmail()))
-      .setActive(user.isActive());
-  }
 }
