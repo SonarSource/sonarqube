@@ -28,11 +28,13 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -63,6 +65,9 @@ public class RuleDeleterMediumTest {
   ActiveRuleIndexer activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
   RuleDeleter deleter = tester.get(RuleDeleter.class);
   DbSession dbSession = tester.get(DbClient.class).openSession(false);
+  String defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
+  OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
+    .orElseThrow(() -> new IllegalStateException(String.format("Cannot find default organization '%s'", defaultOrganizationUuid)));
 
   @Before
   public void before() {
@@ -82,6 +87,11 @@ public class RuleDeleterMediumTest {
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST);
     dao.insert(dbSession, templateRule.getDefinition());
+    dbSession.commit();
+    ruleIndexer.index(organization, templateRule.getKey());
+
+    // Verify in index
+    assertThat(index.searchAll(new RuleQuery())).containsOnly(templateRule.getKey());
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule)
@@ -89,13 +99,16 @@ public class RuleDeleterMediumTest {
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST);
     dao.insert(dbSession, customRule.getDefinition());
+    dbSession.commit();
+    ruleIndexer.index(organization, customRule.getKey());
+
+    // Verify in index
+    assertThat(index.searchAll(new RuleQuery())).containsOnly(templateRule.getKey(), customRule.getKey());
 
     // Create a quality profile
     QualityProfileDto profileDto = QProfileTesting.newXooP1("org-123");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
-    dbSession.clearCache();
-    ruleIndexer.index();
     activeRuleIndexer.index();
 
     // Activate the custom rule

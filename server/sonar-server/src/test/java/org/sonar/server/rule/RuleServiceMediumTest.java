@@ -118,6 +118,6 @@ public class RuleServiceMediumTest {
     dao.insert(dbSession, ruleDto.getDefinition());
     dao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
-    ruleIndexer.index();
+    ruleIndexer.index(defaultOrganization, ruleDto.getKey());
   }
 }

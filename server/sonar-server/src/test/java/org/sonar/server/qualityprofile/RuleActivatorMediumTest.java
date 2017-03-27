@@ -20,10 +20,11 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +36,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -44,6 +46,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -52,6 +55,7 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -95,6 +99,7 @@ public class RuleActivatorMediumTest {
   ActiveRuleIndexer activeRuleIndexer;
 
   QualityProfileDto profileDto;
+  private OrganizationDto organization;
 
   @Before
   public void before() {
@@ -104,6 +109,8 @@ public class RuleActivatorMediumTest {
     ruleActivator = tester.get(RuleActivator.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     ruleIndexer = tester.get(RuleIndexer.class);
+    String defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
+    organization = db.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid).orElseThrow(() -> new IllegalStateException(String.format("Cannot find default organization '%s'", defaultOrganizationUuid)));
 
     // create pre-defined rules
     RuleDto javaRule = newDto(RuleKey.of("squid", "j1"))
@@ -112,10 +119,11 @@ public class RuleActivatorMediumTest {
     RuleDto xooRule2 = newXooX2().setSeverity("INFO");
     RuleDto xooTemplateRule1 = newTemplateRule(TEMPLATE_RULE_KEY)
       .setSeverity("MINOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, javaRule.getDefinition());
-    db.ruleDao().insert(dbSession, xooRule1.getDefinition());
-    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
-    db.ruleDao().insert(dbSession, xooTemplateRule1.getDefinition());
+
+    // store pre-defined rules in database
+    asList(javaRule, xooRule1, xooRule2, xooTemplateRule1).stream()
+      .map(RuleDto::getDefinition)
+      .forEach(definition -> db.ruleDao().insert(dbSession, definition));
     db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
@@ -123,18 +131,22 @@ public class RuleActivatorMediumTest {
     db.ruleDao().insertRuleParam(dbSession, xooTemplateRule1.getDefinition(), RuleParamDto.createFor(xooTemplateRule1.getDefinition())
       .setName("format").setType(RuleParamType.STRING.type()));
 
+    // create custom rule
     RuleDto xooCustomRule1 = newCustomRule(xooTemplateRule1).setRuleKey(CUSTOM_RULE_KEY.rule())
       .setSeverity("MINOR").setLanguage("xoo");
+
+    // store custom rule in database
     db.ruleDao().insert(dbSession, xooCustomRule1.getDefinition());
     db.ruleDao().insertRuleParam(dbSession, xooCustomRule1.getDefinition(), RuleParamDto.createFor(xooTemplateRule1.getDefinition())
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile P1
-    profileDto = QProfileTesting.newXooP1("org-123");
+    profileDto = QProfileTesting.newXooP1(organization);
     db.qualityProfileDao().insert(dbSession, profileDto);
+
+    // index all rules
     dbSession.commit();
-    dbSession.clearCache();
-    ruleIndexer.index();
+    ruleIndexer.index(organization, asList(javaRule, xooRule1, xooRule2, xooTemplateRule1, xooCustomRule1).stream().map(RuleDto::getKey).collect(Collectors.toList()));
   }
 
   @After
@@ -895,21 +907,24 @@ public class RuleActivatorMediumTest {
   public void bulk_activation() {
     // Generate more rules than the search's max limit
     int bulkSize = SearchOptions.MAX_LIMIT + 10;
+    List<RuleKey> keys = new ArrayList<>();
     for (int i = 0; i < bulkSize; i++) {
-      db.ruleDao().insert(dbSession, newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo").getDefinition());
+      RuleDefinitionDto ruleDefinitionDto = newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo").getDefinition();
+      db.ruleDao().insert(dbSession, ruleDefinitionDto);
+      keys.add(ruleDefinitionDto.getKey());
     }
     dbSession.commit();
-    ruleIndexer.index();
+    ruleIndexer.index(organization, keys);
 
     // 0. No active rules so far (base case) and plenty rules available
     verifyZeroActiveRules(XOO_P1_KEY);
     assertThat(tester.get(RuleIndex.class)
-      .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new SearchOptions()).getTotal())
+      .search(new RuleQuery().setRepositories(asList("bulk")), new SearchOptions()).getTotal())
         .isEqualTo(bulkSize);
 
     // 1. bulk activate all the rules
     BulkChangeResult result = ruleActivator.bulkActivate(
-      new RuleQuery().setRepositories(Arrays.asList("bulk")), XOO_P1_KEY, "MINOR");
+      new RuleQuery().setRepositories(asList("bulk")), XOO_P1_KEY, "MINOR");
 
     // 2. assert that all activation has been commit to DB and ES
     dbSession.clearCache();
@@ -927,7 +942,6 @@ public class RuleActivatorMediumTest {
     // 2. assert that all activations have been commit to DB and ES
     // -> xoo rules x1, x2 and custom1
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
     assertThat(result.countSucceeded()).isEqualTo(3);
     assertThat(result.countFailed()).isGreaterThan(0);

@@ -19,11 +19,11 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -35,6 +35,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
@@ -72,7 +73,9 @@ public class RuleCreator {
       throw new IllegalArgumentException("Rule template key should not be null");
     }
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationUuid, templateKey);
+    OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
+      .orElseThrow(() -> new IllegalStateException(String.format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
+    RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganization.getUuid(), templateKey);
     if (!templateRule.isTemplate()) {
       throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
     }
@@ -80,15 +83,12 @@ public class RuleCreator {
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
 
-    Optional<RuleDefinitionDto> existingRule = loadRule(customRuleKey, dbSession);
-    if (existingRule.isPresent()) {
-      updateExistingRule(existingRule.get(), newRule, dbSession);
-    } else {
-      createCustomRule(customRuleKey, newRule, templateRule, dbSession);
-    }
+    loadRule(customRuleKey, dbSession)
+      .map(existingRule -> updateExistingRule(existingRule, newRule, dbSession))
+      .orElseGet(() -> createCustomRule(customRuleKey, newRule, templateRule, dbSession));
 
     dbSession.commit();
-    ruleIndexer.index();
+    ruleIndexer.index(defaultOrganization, customRuleKey);
     return customRuleKey;
   }
 
@@ -151,7 +151,7 @@ public class RuleCreator {
   }
 
   private Optional<RuleDefinitionDto> loadRule(RuleKey ruleKey, DbSession dbSession) {
-    return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
+    return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey).transform(Optional::of).or(Optional::empty);
   }
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
@@ -174,6 +174,7 @@ public class RuleCreator {
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDefinition);
+
     Set<String> tags = templateRuleDto.getTags();
     if (!tags.isEmpty()) {
       RuleMetadataDto ruleMetadata = new RuleMetadataDto()
@@ -201,7 +202,7 @@ public class RuleCreator {
     dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private void updateExistingRule(RuleDefinitionDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
+  private RuleKey updateExistingRule(RuleDefinitionDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
@@ -213,6 +214,7 @@ public class RuleCreator {
     } else {
       throw new IllegalArgumentException(format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
     }
+    return ruleDto.getKey();
   }
 
 }

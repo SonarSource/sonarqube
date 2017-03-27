@@ -75,7 +75,7 @@ public class QProfilesWsMediumTest {
   private DbClient db;
   private DbSession session;
   private WsTester wsTester;
-  private RuleIndexer ruIndexer = tester.get(RuleIndexer.class);
+  private RuleIndexer ruleIndexer = tester.get(RuleIndexer.class);
   private ActiveRuleIndexer activeRuIndexer = tester.get(ActiveRuleIndexer.class);
   private OrganizationDto organization;
 
@@ -86,7 +86,7 @@ public class QProfilesWsMediumTest {
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
 
-    ruIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer = tester.get(RuleIndexer.class);
     activeRuIndexer = tester.get(ActiveRuleIndexer.class);
     organization = OrganizationTesting.newOrganizationDto().setKey("org-123");
     db.organizationDao().insert(session, organization);
@@ -103,7 +103,7 @@ public class QProfilesWsMediumTest {
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
     session.commit();
-    ruIndexer.index();
+    ruleIndexer.index(organization, rule.getKey());
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
@@ -132,7 +132,6 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule3, profile);
     createActiveRule(rule1, profile);
     session.commit();
-    ruIndexer.index();
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
@@ -159,7 +158,6 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule0, php);
     createActiveRule(rule1, php);
     session.commit();
-    ruIndexer.index();
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
@@ -184,7 +182,6 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
     session.commit();
-    ruIndexer.index();
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
@@ -206,7 +203,7 @@ public class QProfilesWsMediumTest {
     QualityProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
-    ruIndexer.index();
+    ruleIndexer.index(organization, rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -227,7 +224,7 @@ public class QProfilesWsMediumTest {
     QualityProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule("php", "toto");
     session.commit();
-    ruIndexer.index();
+    ruleIndexer.index(organization, rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -250,7 +247,7 @@ public class QProfilesWsMediumTest {
     QualityProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
-    ruIndexer.index();
+    ruleIndexer.index(organization, rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -278,7 +275,6 @@ public class QProfilesWsMediumTest {
     createRule(profile.getLanguage(), "hello");
     createRule(profile.getLanguage(), "world");
     session.commit();
-    ruIndexer.index();
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -303,7 +299,6 @@ public class QProfilesWsMediumTest {
     createRule(php.getLanguage(), "hello");
     createRule(php.getLanguage(), "world");
     session.commit();
-    ruIndexer.index();
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).isEmpty();
@@ -327,7 +322,6 @@ public class QProfilesWsMediumTest {
     createRule(profile.getLanguage(), "hello");
     createRule(profile.getLanguage(), "world");
     session.commit();
-    ruIndexer.index();
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -359,7 +353,6 @@ public class QProfilesWsMediumTest {
     RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto");
     RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "tata");
     session.commit();
-    ruIndexer.index();
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -394,7 +387,6 @@ public class QProfilesWsMediumTest {
     createRule(phpProfile.getLanguage(), "hello");
     createRule(phpProfile.getLanguage(), "world");
     session.commit();
-    ruIndexer.index();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
@@ -423,7 +415,6 @@ public class QProfilesWsMediumTest {
     db.activeRuleDao().insert(session, active2);
 
     session.commit();
-    ruIndexer.index();
     activeRuIndexer.index();
 
     // 0. assert rule child rule is minor
@@ -453,6 +444,8 @@ public class QProfilesWsMediumTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
     db.ruleDao().insert(session, rule.getDefinition());
+    session.commit();
+    ruleIndexer.index(organization, rule.getKey());
     return rule.getDefinition();
   }
 

@@ -48,10 +48,12 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.rule.index.RuleIteratorFactory;
 import org.sonar.server.rule.index.RuleQuery;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -84,7 +86,7 @@ public class RegisterRulesTest {
   @Before
   public void before() {
     when(system.now()).thenReturn(DATE1.getTime());
-    ruleIndexer = new RuleIndexer(system, dbClient, esTester.client(), TestDefaultOrganizationProvider.from(dbTester));
+    ruleIndexer = new RuleIndexer(esTester.client(), new RuleIteratorFactory(dbClient));
     ruleIndex = new RuleIndex(esTester.client());
     activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
   }
@@ -121,6 +123,47 @@ public class RegisterRulesTest {
 
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
+  }
+  @Test
+  public void insert_then_remove_rule() {
+    String ruleKey = randomAlphanumeric(5);
+
+    // register one rule
+    execute(context -> {
+      RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule(ruleKey)
+        .setName(randomAlphanumeric(5))
+        .setHtmlDescription(randomAlphanumeric(20));
+      repo.done();
+    });
+
+    // verify db
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession()))
+      .extracting(RuleDefinitionDto::getKey)
+      .extracting(RuleKey::rule)
+      .containsExactly(ruleKey);
+
+    // verify index
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
+      .extracting(RuleKey::rule)
+      .containsExactly(ruleKey);
+
+    // register no rule
+    execute(context -> context.createRepository("fake", "java").done());
+
+    // verify db
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession()))
+      .extracting(RuleDefinitionDto::getKey)
+      .extracting(RuleKey::rule)
+      .containsExactly(ruleKey);
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession()))
+      .extracting(RuleDefinitionDto::getStatus)
+      .containsExactly(RuleStatus.REMOVED);
+
+    // verify index
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
+      .extracting(RuleKey::rule)
+      .isEmpty();
   }
 
   @Test
@@ -414,7 +457,7 @@ public class RegisterRulesTest {
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system);
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system, TestDefaultOrganizationProvider.from(dbTester));
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();

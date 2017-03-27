@@ -81,7 +81,7 @@ public class SearchActionMediumTest {
   private DbSession dbSession;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
-  private OrganizationDto defaultOrganization;
+  private OrganizationDto defaultOrganizationDto;
 
   @Before
   public void setUp() {
@@ -92,7 +92,7 @@ public class SearchActionMediumTest {
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
-    this.defaultOrganization = db.organizationDao().selectByUuid(dbSession, defaultOrganization.getUuid()).get();
+    this.defaultOrganizationDto = db.organizationDao().selectByUuid(dbSession, defaultOrganization.getUuid()).get();
   }
 
   @After
@@ -111,10 +111,9 @@ public class SearchActionMediumTest {
 
   @Test
   public void filter_by_key_rules() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2().getDefinition());
+    insertRule(RuleTesting.newXooX1().getDefinition());
+    insertRule(RuleTesting.newXooX2().getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(PARAM_RULE_KEY, RuleTesting.XOO_X1.toString());
@@ -131,16 +130,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_2_rules() throws Exception {
-    RuleDto rule1 = RuleTesting.newXooX1(defaultOrganization)
-        .setType(RuleType.BUG);
-    ruleDao.insert(dbSession, rule1.getDefinition());
+    RuleDto rule1 = RuleTesting.newXooX1(defaultOrganizationDto)
+      .setType(RuleType.BUG);
+    insertRule(rule1.getDefinition());
     ruleDao.update(dbSession, rule1.getMetadata().setRuleId(rule1.getId()));
-    RuleDto rule2 = RuleTesting.newXooX2(defaultOrganization)
-        .setType(RuleType.VULNERABILITY);
-    ruleDao.insert(dbSession, rule2.getDefinition());
+    RuleDto rule2 = RuleTesting.newXooX2(defaultOrganizationDto)
+      .setType(RuleType.VULNERABILITY);
+    insertRule(rule2.getDefinition());
     ruleDao.update(dbSession, rule2.getMetadata().setRuleId(rule2.getId()));
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     WsTester.Result result = request.execute();
@@ -150,16 +148,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_2_rules_with_fields_selection() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+    insertRule(RuleTesting.newXooX1()
       .setType(RuleType.CODE_SMELL)
       .getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+    insertRule(RuleTesting.newXooX2()
       .setType(RuleType.BUG)
       .setDescription("A *Xoo* rule")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "name,htmlDesc,mdDesc");
     WsTester.Result result = request.execute();
@@ -169,12 +166,11 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_mandatory_fields_even_when_setting_f_param() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+    insertRule(RuleTesting.newXooX1()
       .setName("Rule x1")
       .setType(RuleType.CODE_SMELL)
       .getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "name");
     WsTester.Result result = request.execute();
@@ -184,9 +180,8 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_lang_field() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
+    insertRule(RuleTesting.newXooX1().getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "lang");
     WsTester.Result result = request.execute();
@@ -199,9 +194,8 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_lang_name_field() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
+    insertRule(RuleTesting.newXooX1().getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "langName");
     WsTester.Result result = request.execute();
@@ -214,9 +208,8 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_lang_key_field_when_language_name_is_not_available() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RuleKey.of("other", "rule")).setLanguage("unknown").getDefinition());
+    insertRule(RuleTesting.newDto(RuleKey.of("other", "rule")).setLanguage("unknown").getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "langName");
     WsTester.Result result = request.execute();
@@ -227,17 +220,16 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganizationDto)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
       .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setRemediationGapMultiplier("2h")
       .setRemediationBaseEffort("25min");
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    insertRule(ruleDto.getDefinition());
     ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.FIELDS, "debtRemFn,debtOverloaded,defaultDebtRemFn");
@@ -247,17 +239,16 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganizationDto)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
       .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("5min");
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    insertRule(ruleDto.getDefinition());
     ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.FIELDS, "debtRemFn,debtOverloaded,defaultDebtRemFn");
@@ -267,17 +258,16 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganizationDto)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
       .setDefRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setRemediationGapMultiplier("1h")
       .setRemediationBaseEffort(null);
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    insertRule(ruleDto.getDefinition());
     ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.FIELDS, "debtRemFn,debtOverloaded,defaultDebtRemFn");
@@ -288,12 +278,11 @@ public class SearchActionMediumTest {
   @Test
   public void search_template_rules() throws Exception {
     RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
-    ruleDao.insert(dbSession, templateRule.getDefinition());
+    insertRule(templateRule.getDefinition());
     RuleDto rule = RuleTesting.newXooX2();
     rule.setTemplateId(templateRule.getId());
-    ruleDao.insert(dbSession, rule.getDefinition());
+    insertRule(rule.getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.FIELDS, "isTemplate");
@@ -305,10 +294,9 @@ public class SearchActionMediumTest {
   @Test
   public void search_custom_rules_from_template_key() throws Exception {
     RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
-    ruleDao.insert(dbSession, templateRule.getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2().setTemplateId(templateRule.getId()).getDefinition());
+    insertRule(templateRule.getDefinition());
+    insertRule(RuleTesting.newXooX2().setTemplateId(templateRule.getId()).getDefinition());
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.FIELDS, "templateKey");
@@ -323,13 +311,13 @@ public class SearchActionMediumTest {
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
-    ruleDao.insert(dbSession, rule);
+    insertRule(rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
 
     dbSession.commit();
-    ruleIndexer.index();
+
     activeRuleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -352,7 +340,7 @@ public class SearchActionMediumTest {
     dbSession.commit();
 
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
-    ruleDao.insert(dbSession, rule);
+    insertRule(rule);
 
     RuleParamDto param = RuleParamDto.createFor(rule)
       .setDefaultValue("some value")
@@ -394,7 +382,7 @@ public class SearchActionMediumTest {
     tester.get(ActiveRuleDao.class).insertParam(dbSession, activeRule2, activeRuleParam3);
 
     dbSession.commit();
-    ruleIndexer.index();
+
     activeRuleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -424,7 +412,7 @@ public class SearchActionMediumTest {
     dbSession.commit();
 
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
-    ruleDao.insert(dbSession, rule);
+    insertRule(rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
@@ -432,7 +420,7 @@ public class SearchActionMediumTest {
     tester.get(ActiveRuleDao.class).insert(dbSession, activeRule2);
 
     dbSession.commit();
-    ruleIndexer.index();
+
     activeRuleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -449,7 +437,7 @@ public class SearchActionMediumTest {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
-    ruleDao.insert(dbSession, rule);
+    insertRule(rule);
     dbSession.commit();
 
     RuleParamDto param = RuleParamDto.createFor(rule)
@@ -478,7 +466,7 @@ public class SearchActionMediumTest {
     tester.get(ActiveRuleDao.class).insertParam(dbSession, activeRule, activeRuleParam2);
 
     dbSession.commit();
-    ruleIndexer.index();
+
     activeRuleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -494,12 +482,12 @@ public class SearchActionMediumTest {
   public void get_note_as_markdown_and_html() throws Exception {
     QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
-    RuleDto rule = RuleTesting.newXooX1(defaultOrganization).setNoteData("this is *bold*");
-    ruleDao.insert(dbSession, rule.getDefinition());
+    RuleDto rule = RuleTesting.newXooX1(defaultOrganizationDto).setNoteData("this is *bold*");
+    insertRule(rule.getDefinition());
     ruleDao.update(dbSession, rule.getMetadata().setRuleId(rule.getId()));
 
     dbSession.commit();
-    ruleIndexer.index();
+
     activeRuleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -510,15 +498,15 @@ public class SearchActionMediumTest {
 
   @Test
   public void filter_by_tags() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+    insertRule(RuleTesting.newXooX1()
       .setSystemTags(ImmutableSet.of("tag1"))
       .getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+    insertRule(RuleTesting.newXooX2()
       .setSystemTags(ImmutableSet.of("tag2"))
       .getDefinition());
 
     dbSession.commit();
-    ruleIndexer.index();
+
     activeRuleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -545,12 +533,12 @@ public class SearchActionMediumTest {
 
   @Test
   public void statuses_facet_should_be_sticky() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1().getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2().setStatus(RuleStatus.BETA).getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX3().setStatus(RuleStatus.DEPRECATED).getDefinition());
+    RuleDefinitionDto definition = RuleTesting.newXooX1().getDefinition();
+    insertRule(definition);
+    insertRule(RuleTesting.newXooX2().setStatus(RuleStatus.BETA).getDefinition());
+    insertRule(RuleTesting.newXooX3().setStatus(RuleStatus.DEPRECATED).getDefinition());
 
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(PARAM_STATUSES, "DEPRECATED");
@@ -560,18 +548,17 @@ public class SearchActionMediumTest {
 
   @Test
   public void sort_by_name() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+    insertRule(RuleTesting.newXooX1()
       .setName("Dodgy - Consider returning a zero length array rather than null ")
       .getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+    insertRule(RuleTesting.newXooX2()
       .setName("Bad practice - Creates an empty zip file entry")
       .getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX3()
+    insertRule(RuleTesting.newXooX3()
       .setName("XPath rule")
       .getDefinition());
 
     dbSession.commit();
-    ruleIndexer.index();
 
     // 1. Sort Name Asc
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -595,18 +582,17 @@ public class SearchActionMediumTest {
   @Test
   public void available_since() throws Exception {
     Date since = new Date();
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+    insertRule(RuleTesting.newXooX1()
       .setUpdatedAt(since.getTime())
       .setCreatedAt(since.getTime())
       .getDefinition());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+    insertRule(RuleTesting.newXooX2()
       .setUpdatedAt(since.getTime())
       .setCreatedAt(since.getTime())
       .getDefinition());
 
     dbSession.commit();
     dbSession.clearCache();
-    ruleIndexer.index();
 
     // 1. find today's rules
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -626,17 +612,16 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_rules_with_deprecated_fields() throws Exception {
-    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganization)
-        .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefRemediationGapMultiplier("1h")
-        .setDefRemediationBaseEffort("15min")
-        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setRemediationGapMultiplier("2h")
-        .setRemediationBaseEffort("25min");
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
+    RuleDto ruleDto = RuleTesting.newXooX1(defaultOrganizationDto)
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setRemediationGapMultiplier("2h")
+      .setRemediationBaseEffort("25min");
+    insertRule(ruleDto.getDefinition());
     ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
-    ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester()
       .newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
@@ -652,4 +637,9 @@ public class SearchActionMediumTest {
       .setSeverity("BLOCKER");
   }
 
+  private void insertRule(RuleDefinitionDto definition) {
+    ruleDao.insert(dbSession, definition);
+    dbSession.commit();
+    ruleIndexer.index(defaultOrganizationDto, definition.getKey());
+  }
 }

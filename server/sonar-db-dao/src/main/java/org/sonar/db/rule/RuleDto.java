@@ -34,8 +34,17 @@ public class RuleDto {
     HTML, MARKDOWN
   }
 
-  private final RuleDefinitionDto definition = new RuleDefinitionDto();
-  private final RuleMetadataDto metadata = new RuleMetadataDto();
+  private final RuleDefinitionDto definition;
+  private final RuleMetadataDto metadata;
+
+  public RuleDto() {
+    this(new RuleDefinitionDto(), new RuleMetadataDto());
+  }
+
+  public RuleDto(RuleDefinitionDto definition, RuleMetadataDto metadata) {
+    this.definition = definition;
+    this.metadata = metadata;
+  }
 
   public RuleDefinitionDto getDefinition() {
     return definition;
