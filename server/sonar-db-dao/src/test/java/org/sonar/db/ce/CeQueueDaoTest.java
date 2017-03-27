@@ -54,7 +54,8 @@ public class CeQueueDaoTest {
   private static final String TASK_UUID_3 = "TASK_3";
   private static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
   private static final String SUBMITTER_LOGIN = "henri";
-  private static final String WORKER_UUID = "worker uuid";
+  private static final String WORKER_UUID_1 = "worker uuid 1";
+  private static final String WORKER_UUID_2 = "worker uuid 2";
   private static final int EXECUTION_COUNT = 42;
 
   private TestSystem2 system2 = new TestSystem2().setNow(INIT_TIME);
@@ -62,30 +63,31 @@ public class CeQueueDaoTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
+  private System2 mockedSystem2 = mock(System2.class);
+
   private CeQueueDao underTest = new CeQueueDao(system2);
+  private CeQueueDao underTestWithSystem2Mock = new CeQueueDao(mockedSystem2);
 
   @Test
   public void insert_populates_createdAt_and_updateAt_from_System2_with_same_value_if_any_is_not_set() {
-    System2 system2 = mock(System2.class);
-    CeQueueDao ceQueueDao = new CeQueueDao(system2);
     long now = 1_334_333L;
     CeQueueDto dto = new CeQueueDto()
       .setTaskType(CeTaskTypes.REPORT)
       .setComponentUuid(COMPONENT_UUID_1)
       .setStatus(PENDING)
       .setSubmitterLogin(SUBMITTER_LOGIN)
-      .setWorkerUuid(WORKER_UUID)
+      .setWorkerUuid(WORKER_UUID_1)
       .setExecutionCount(EXECUTION_COUNT);
 
-    mockSystem2ForSingleCall(system2, now);
-    ceQueueDao.insert(db.getSession(), dto.setUuid(TASK_UUID_1));
-    mockSystem2ForSingleCall(system2, now);
-    ceQueueDao.insert(db.getSession(), dto.setUuid(TASK_UUID_2).setCreatedAt(8_000_999L).setUpdatedAt(0));
-    mockSystem2ForSingleCall(system2, now);
-    ceQueueDao.insert(db.getSession(), dto.setUuid(TASK_UUID_3).setCreatedAt(0).setUpdatedAt(8_000_999L));
-    mockSystem2ForSingleCall(system2, now);
+    mockSystem2ForSingleCall(now);
+    underTestWithSystem2Mock.insert(db.getSession(), dto.setUuid(TASK_UUID_1));
+    mockSystem2ForSingleCall(now);
+    underTestWithSystem2Mock.insert(db.getSession(), dto.setUuid(TASK_UUID_2).setCreatedAt(8_000_999L).setUpdatedAt(0));
+    mockSystem2ForSingleCall(now);
+    underTestWithSystem2Mock.insert(db.getSession(), dto.setUuid(TASK_UUID_3).setCreatedAt(0).setUpdatedAt(8_000_999L));
+    mockSystem2ForSingleCall(now);
     String uuid4 = "uuid 4";
-    ceQueueDao.insert(db.getSession(), dto.setUuid(uuid4).setCreatedAt(6_888_777L).setUpdatedAt(8_000_999L));
+    underTestWithSystem2Mock.insert(db.getSession(), dto.setUuid(uuid4).setCreatedAt(6_888_777L).setUpdatedAt(8_000_999L));
     db.getSession().commit();
 
     Stream.of(TASK_UUID_1, TASK_UUID_2, TASK_UUID_3)
@@ -96,7 +98,7 @@ public class CeQueueDaoTest {
         assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
         assertThat(saved.getStatus()).isEqualTo(PENDING);
         assertThat(saved.getSubmitterLogin()).isEqualTo(SUBMITTER_LOGIN);
-        assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID);
+        assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
         assertThat(saved.getExecutionCount()).isEqualTo(EXECUTION_COUNT);
         assertThat(saved.getCreatedAt()).isEqualTo(now);
         assertThat(saved.getUpdatedAt()).isEqualTo(now);
@@ -108,16 +110,11 @@ public class CeQueueDaoTest {
     assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
     assertThat(saved.getStatus()).isEqualTo(PENDING);
     assertThat(saved.getSubmitterLogin()).isEqualTo(SUBMITTER_LOGIN);
-    assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID);
+    assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
     assertThat(saved.getExecutionCount()).isEqualTo(EXECUTION_COUNT);
     assertThat(saved.getCreatedAt()).isEqualTo(6_888_777L);
     assertThat(saved.getUpdatedAt()).isEqualTo(8_000_999L);
     assertThat(saved.getStartedAt()).isNull();
-  }
-
-  private void mockSystem2ForSingleCall(System2 system2, long now) {
-    Mockito.reset(system2);
-    when(system2.now()).thenReturn(now).thenThrow(new IllegalStateException("now should be called only once"));
   }
 
   @Test
@@ -183,12 +180,56 @@ public class CeQueueDaoTest {
   }
 
   @Test
+  public void resetAllToPendingStatus_updates_updatedAt() {
+    long now = 1_334_333L;
+    insert(TASK_UUID_1, COMPONENT_UUID_1, IN_PROGRESS);
+    insert(TASK_UUID_2, COMPONENT_UUID_1, IN_PROGRESS);
+    mockSystem2ForSingleCall(now);
+
+    underTestWithSystem2Mock.resetAllToPendingStatus(db.getSession());
+
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1).get().getUpdatedAt()).isEqualTo(now);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2).get().getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
+  public void resetAllToPendingStatus_resets_startedAt() {
+    assertThat(insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING).getStartedAt()).isNull();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).get().getUuid()).isEqualTo(TASK_UUID_1);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1).get().getStartedAt()).isNotNull();
+
+    underTest.resetAllToPendingStatus(db.getSession());
+
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1).get().getStartedAt()).isNull();
+  }
+
+  @Test
+  public void resetAllToPendingStatus_does_not_reset_workerUuid_nor_executionCount() {
+    CeQueueDto dto = new CeQueueDto()
+      .setUuid(TASK_UUID_1)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setStatus(IN_PROGRESS)
+      .setSubmitterLogin(SUBMITTER_LOGIN)
+      .setWorkerUuid(WORKER_UUID_1)
+      .setExecutionCount(EXECUTION_COUNT);
+    underTest.insert(db.getSession(), dto);
+    db.commit();
+
+    underTest.resetAllToPendingStatus(db.getSession());
+
+    CeQueueDto saved = underTest.selectByUuid(db.getSession(), TASK_UUID_1).get();
+    assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
+    assertThat(saved.getExecutionCount()).isEqualTo(EXECUTION_COUNT);
+  }
+
+  @Test
   public void peek_none_if_no_pendings() throws Exception {
-    assertThat(underTest.peek(db.getSession()).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).isPresent()).isFalse();
 
     // not pending, but in progress
     insert(TASK_UUID_1, COMPONENT_UUID_1, IN_PROGRESS);
-    assertThat(underTest.peek(db.getSession()).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).isPresent()).isFalse();
   }
 
   @Test
@@ -201,21 +242,25 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, PENDING, TASK_UUID_2, PENDING);
 
     // peek first one
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession());
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
+    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
+    assertThat(peek.get().getExecutionCount()).isEqualTo(1);
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
 
     // peek second one
-    peek = underTest.peek(db.getSession());
+    peek = underTest.peek(db.getSession(), WORKER_UUID_2);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
+    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_2);
+    assertThat(peek.get().getExecutionCount()).isEqualTo(1);
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, IN_PROGRESS);
 
     // no more pendings
-    assertThat(underTest.peek(db.getSession()).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).isPresent()).isFalse();
   }
 
   @Test
@@ -225,19 +270,23 @@ public class CeQueueDaoTest {
     system2.setNow(INIT_TIME + 3_000_000);
     insert(TASK_UUID_2, COMPONENT_UUID_1, PENDING);
 
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession());
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
+    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
+    assertThat(peek.get().getExecutionCount()).isEqualTo(1);
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
 
     // do not peek second task as long as the first one is in progress
-    peek = underTest.peek(db.getSession());
+    peek = underTest.peek(db.getSession(), WORKER_UUID_1);
     assertThat(peek.isPresent()).isFalse();
 
     // first one is finished
     underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
-    peek = underTest.peek(db.getSession());
+    peek = underTest.peek(db.getSession(), WORKER_UUID_2);
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
+    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_2);
+    assertThat(peek.get().getExecutionCount()).isEqualTo(1);
   }
 
   @Test
@@ -372,7 +421,7 @@ public class CeQueueDaoTest {
     db.commit();
   }
 
-  private void insert(String uuid, String componentUuid, CeQueueDto.Status status) {
+  private CeQueueDto insert(String uuid, String componentUuid, CeQueueDto.Status status) {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid(uuid);
     dto.setTaskType(CeTaskTypes.REPORT);
@@ -381,6 +430,7 @@ public class CeQueueDaoTest {
     dto.setSubmitterLogin("henri");
     underTest.insert(db.getSession(), dto);
     db.getSession().commit();
+    return dto;
   }
 
   private static Iterable<Map<String, Object>> upperizeKeys(List<Map<String, Object>> select) {
@@ -416,5 +466,12 @@ public class CeQueueDaoTest {
 
   private static Map<String, Object> rowMap(String uuid, CeQueueDto.Status status) {
     return ImmutableMap.of("UUID", uuid, "STATUS", status.name());
+  }
+
+  private void mockSystem2ForSingleCall(long now) {
+    Mockito.reset(mockedSystem2);
+    when(mockedSystem2.now())
+      .thenReturn(now)
+      .thenThrow(new IllegalStateException("now should be called only once"));
   }
 }

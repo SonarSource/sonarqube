@@ -46,7 +46,7 @@ public interface InternalCeQueue extends CeQueue {
    *
    * <p>An unchecked exception may be thrown on technical errors (db connection, ...).</p>
    */
-  Optional<CeTask> peek();
+  Optional<CeTask> peek(String workerUuid);
 
   /**
    * Removes all the tasks from the queue, whatever their status. They are marked

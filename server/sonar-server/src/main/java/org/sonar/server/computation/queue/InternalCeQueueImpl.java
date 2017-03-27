@@ -43,6 +43,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
@@ -63,12 +64,14 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   }
 
   @Override
-  public Optional<CeTask> peek() {
+  public Optional<CeTask> peek(String workerUuid) {
+    requireNonNull(workerUuid, "workerUuid can't be null");
+
     if (peekPaused.get()) {
       return Optional.absent();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<CeQueueDto> dto = dbClient.ceQueueDao().peek(dbSession);
+      Optional<CeQueueDto> dto = dbClient.ceQueueDao().peek(dbSession, workerUuid);
       CeTask task = null;
       if (dto.isPresent()) {
         task = loadTask(dbSession, dto.get());
