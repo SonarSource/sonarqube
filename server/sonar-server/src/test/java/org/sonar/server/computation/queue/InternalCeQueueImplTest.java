@@ -56,6 +56,8 @@ import static org.mockito.Mockito.when;
 public class InternalCeQueueImplTest {
 
   private static final String AN_ANALYSIS_UUID = "U1";
+  private static final String WORKER_UUID_1 = "worker uuid 1";
+  private static final String WORKER_UUID_2 = "worker uuid 2";
 
   private System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
@@ -137,14 +139,22 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
+  public void peek_throws_NPE_if_workerUUid_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("workerUuid can't be null");
+
+    underTest.peek(null);
+  }
+
+  @Test
   public void test_remove() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    Optional<CeTask> peek = underTest.peek();
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null, null);
 
     // queue is empty
     assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), task.getUuid()).isPresent()).isFalse();
-    assertThat(underTest.peek().isPresent()).isFalse();
+    assertThat(underTest.peek(WORKER_UUID_2).isPresent()).isFalse();
 
     // available in history
     Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
@@ -173,7 +183,7 @@ public class InternalCeQueueImplTest {
   @Test
   public void remove_does_not_set_analysisUuid_in_CeActivity_when_CeTaskResult_has_no_analysis_uuid() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    Optional<CeTask> peek = underTest.peek();
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null), null);
 
     // available in history
@@ -186,7 +196,7 @@ public class InternalCeQueueImplTest {
   public void remove_sets_snapshotId_in_CeActivity_when_CeTaskResult_has_no_snapshot_id() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
 
-    Optional<CeTask> peek = underTest.peek();
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_2);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID), null);
 
     // available in history
@@ -200,7 +210,7 @@ public class InternalCeQueueImplTest {
     Throwable error = new NullPointerException("Fake NPE to test persistence to DB");
 
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    Optional<CeTask> peek = underTest.peek();
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
     Optional<CeActivityDto> activityDto = dbTester.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid());
@@ -230,14 +240,14 @@ public class InternalCeQueueImplTest {
   public void test_peek() throws Exception {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
 
-    Optional<CeTask> peek = underTest.peek();
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(peek.get().getComponentUuid()).isEqualTo("PROJECT_1");
 
     // no more pending tasks
-    peek = underTest.peek();
+    peek = underTest.peek(WORKER_UUID_2);
     assertThat(peek.isPresent()).isFalse();
   }
 
@@ -246,7 +256,7 @@ public class InternalCeQueueImplTest {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.pausePeek();
 
-    Optional<CeTask> peek = underTest.peek();
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     assertThat(peek.isPresent()).isFalse();
   }
 
@@ -271,7 +281,7 @@ public class InternalCeQueueImplTest {
     expectedException.expectMessage(startsWith("Task is in progress and can't be canceled"));
 
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    underTest.peek();
+    underTest.peek(WORKER_UUID_2);
 
     underTest.cancel(task.getUuid());
   }
@@ -281,7 +291,7 @@ public class InternalCeQueueImplTest {
     CeTask inProgressTask = submit(CeTaskTypes.REPORT, "PROJECT_1");
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, "PROJECT_2");
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, "PROJECT_3");
-    underTest.peek();
+    underTest.peek(WORKER_UUID_2);
 
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
