@@ -45,6 +45,7 @@ import static org.hamcrest.Matchers.startsWith;
 
 public class CeQueueImplTest {
 
+  private static final String WORKER_UUID = "workerUuid";
   private System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
   @Rule
@@ -146,7 +147,7 @@ public class CeQueueImplTest {
 
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
 
-    dbTester.getDbClient().ceQueueDao().peek(session);
+    dbTester.getDbClient().ceQueueDao().peek(session, WORKER_UUID);
 
     underTest.cancel(task.getUuid());
   }
@@ -157,7 +158,7 @@ public class CeQueueImplTest {
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, "PROJECT_2");
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, "PROJECT_3");
 
-    dbTester.getDbClient().ceQueueDao().peek(session);
+    dbTester.getDbClient().ceQueueDao().peek(session, WORKER_UUID);
 
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
