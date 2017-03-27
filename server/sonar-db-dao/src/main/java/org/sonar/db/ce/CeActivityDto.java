@@ -19,7 +19,6 @@
  */
 package org.sonar.db.ce;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -44,6 +43,8 @@ public class CeActivityDto {
   private boolean isLast;
   private String isLastKey;
   private String submitterLogin;
+  private String workerUuid;
+  private int executionCount;
   private long submittedAt;
   private Long startedAt;
   private Long executedAt;
@@ -86,6 +87,8 @@ public class CeActivityDto {
     this.componentUuid = queueDto.getComponentUuid();
     this.isLastKey = format("%s%s", taskType, Strings.nullToEmpty(componentUuid));
     this.submitterLogin = queueDto.getSubmitterLogin();
+    this.workerUuid = queueDto.getWorkerUuid();
+    this.executionCount = queueDto.getExecutionCount();
     this.submittedAt = queueDto.getCreatedAt();
     this.startedAt = queueDto.getStartedAt();
   }
@@ -216,6 +219,25 @@ public class CeActivityDto {
   }
 
   @CheckForNull
+  public String getWorkerUuid() {
+    return workerUuid;
+  }
+
+  public CeActivityDto setWorkerUuid(String workerUuid) {
+    this.workerUuid = workerUuid;
+    return this;
+  }
+
+  public int getExecutionCount() {
+    return executionCount;
+  }
+
+  public CeActivityDto setExecutionCount(int executionCount) {
+    this.executionCount = executionCount;
+    return this;
+  }
+
+  @CheckForNull
   public String getErrorMessage() {
     return errorMessage;
   }
@@ -257,24 +279,26 @@ public class CeActivityDto {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("uuid", uuid)
-      .add("taskType", taskType)
-      .add("componentUuid", componentUuid)
-      .add("analysisUuid", analysisUuid)
-      .add("status", status)
-      .add("isLast", isLast)
-      .add("isLastKey", isLastKey)
-      .add("submitterLogin", submitterLogin)
-      .add("submittedAt", submittedAt)
-      .add("startedAt", startedAt)
-      .add("executedAt", executedAt)
-      .add("createdAt", createdAt)
-      .add("updatedAt", updatedAt)
-      .add("executionTimeMs", executionTimeMs)
-      .add("errorMessage", errorMessage)
-      .add("errorStacktrace", errorStacktrace)
-      .add("hasScannerContext", hasScannerContext)
-      .toString();
+    return "CeActivityDto{" +
+      "uuid='" + uuid + '\'' +
+      ", componentUuid='" + componentUuid + '\'' +
+      ", analysisUuid='" + analysisUuid + '\'' +
+      ", status=" + status +
+      ", taskType='" + taskType + '\'' +
+      ", isLast=" + isLast +
+      ", isLastKey='" + isLastKey + '\'' +
+      ", submitterLogin='" + submitterLogin + '\'' +
+      ", workerUuid='" + workerUuid + '\'' +
+      ", executionCount=" + executionCount +
+      ", submittedAt=" + submittedAt +
+      ", startedAt=" + startedAt +
+      ", executedAt=" + executedAt +
+      ", createdAt=" + createdAt +
+      ", updatedAt=" + updatedAt +
+      ", executionTimeMs=" + executionTimeMs +
+      ", errorMessage='" + errorMessage + '\'' +
+      ", errorStacktrace='" + errorStacktrace + '\'' +
+      ", hasScannerContext=" + hasScannerContext +
+      '}';
   }
 }
