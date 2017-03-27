@@ -53,10 +53,13 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.rule.index.RuleIteratorFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+
+import static java.util.Arrays.asList;
 
 public class InheritanceActionTest {
 
@@ -82,7 +85,7 @@ public class InheritanceActionTest {
     dbClient = dbTester.getDbClient();
     dbSession = dbTester.getSession();
     esClient = esTester.client();
-    ruleIndexer = new RuleIndexer(System2.INSTANCE, dbClient, esClient, TestDefaultOrganizationProvider.fromUuid("org-1"));
+    ruleIndexer = new RuleIndexer(esClient, new RuleIteratorFactory(dbClient));
     activeRuleIndexer = new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     underTest = new InheritanceAction(
@@ -116,7 +119,7 @@ public class InheritanceActionTest {
     createActiveRule(rule2, groupWide);
 
     dbSession.commit();
-    ruleIndexer.index();
+    ruleIndexer.index(organization, asList(rule1.getKey(), rule2.getKey(), rule3.getKey()));
     activeRuleIndexer.index();
 
     QualityProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
