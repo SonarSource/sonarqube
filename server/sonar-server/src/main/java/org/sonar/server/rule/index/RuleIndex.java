@@ -19,9 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -33,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -109,7 +106,9 @@ public class RuleIndex extends BaseIndex {
   public static final String FACET_OLD_DEFAULT = "true";
 
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = ImmutableList.copyOf(
-    Collections2.filter(Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatusToString.INSTANCE), NotRemoved.INSTANCE));
+    Collections2.filter(
+      Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatus::toString),
+      input -> !RuleStatus.REMOVED.toString().equals(input)));
 
   public RuleIndex(EsClient client) {
     super(client);
@@ -137,7 +136,7 @@ public class RuleIndex extends BaseIndex {
     }
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
-    return new SearchIdResult<>(esSearch.get(), ToRuleKey.INSTANCE);
+    return new SearchIdResult<>(esSearch.get(), RuleKey::parse);
   }
 
   /**
@@ -160,7 +159,7 @@ public class RuleIndex extends BaseIndex {
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
     SearchResponse response = esSearch.get();
-    return scrollIds(getClient(), response.getScrollId(), ToRuleKey.INSTANCE);
+    return scrollIds(getClient(), response.getScrollId(), RuleKey::parse);
   }
 
   /* Build main query (search based) */
@@ -493,34 +492,6 @@ public class RuleIndex extends BaseIndex {
       aggregation.getBuckets().forEach(value -> terms.add(value.getKeyAsString()));
     }
     return terms;
-  }
-
-  private enum ToRuleKey implements Function<String, RuleKey> {
-    INSTANCE;
-
-    @Override
-    public RuleKey apply(@Nonnull String input) {
-      return RuleKey.parse(input);
-    }
-
-  }
-  private enum RuleStatusToString implements Function<RuleStatus, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull RuleStatus input) {
-      return input.toString();
-    }
-
-  }
-  private enum NotRemoved implements Predicate<String> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull String input) {
-      return !RuleStatus.REMOVED.toString().equals(input);
-    }
-
   }
 
   private static boolean isNotEmpty(@Nullable Collection list) {
