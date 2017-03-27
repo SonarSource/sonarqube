@@ -19,7 +19,7 @@
  */
 import Handlebars from 'handlebars/runtime';
 
-function gravatarServer () {
+function gravatarServer() {
   const getStore = require('../../app/utils/getStore').default;
   const { getSettingValue } = require('../../store/rootReducer');
 
@@ -27,7 +27,7 @@ function gravatarServer () {
   return (getSettingValue(store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;
 }
 
-module.exports = function (emailHash, size) {
+module.exports = function(emailHash, size) {
   // double the size for high pixel density screens
   const url = gravatarServer().replace('{EMAIL_MD5}', emailHash).replace('{SIZE}', size * 2);
   return new Handlebars.default.SafeString(
