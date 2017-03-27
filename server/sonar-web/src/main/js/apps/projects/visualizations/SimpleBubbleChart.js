@@ -118,6 +118,12 @@ export default class SimpleBubbleChart extends React.PureComponent {
           {translate('metric', yMetric.key, 'name')}
         </div>
         <div className="measure-details-bubble-chart-axis size">
+          {colorMetric != null && <span className="spacer-right">
+            {translateWithParameters(
+              'component_measures.legend.color_x',
+              translate('metric', colorMetric, 'name')
+            )}
+          </span>}
           {translateWithParameters(
             'component_measures.legend.size_x',
             translate('metric', sizeMetric.key, 'name')
