@@ -20,8 +20,7 @@
 // @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import debounce from 'lodash/debounce';
-import uniq from 'lodash/uniq';
+import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
 import Header from './Header';

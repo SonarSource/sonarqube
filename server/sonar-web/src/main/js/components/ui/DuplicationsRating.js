@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import inRange from 'lodash/inRange';
+import { inRange } from 'lodash';
 import './DuplicationsRating.css';
 
 export default class DuplicationsRating extends React.Component {
@@ -41,7 +41,7 @@ export default class DuplicationsRating extends React.Component {
       'duplications-rating-small': size === 'small',
       'duplications-rating-big': size === 'big',
       'duplications-rating-muted': muted,
-      'duplications-rating-A': inRange(value, 3),
+      'duplications-rating-A': inRange(value, 0, 3),
       'duplications-rating-B': inRange(value, 3, 5),
       'duplications-rating-C': inRange(value, 5, 10),
       'duplications-rating-D': inRange(value, 10, 20),

@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import flatMap from 'lodash/flatMap';
-import sumBy from 'lodash/sumBy';
+import { flatMap, sumBy } from 'lodash';
 import { createMap } from '../../../store/utils/generalReducers';
 import { actions } from './projectsDuck';
 import { mapMetricToProperty } from './utils';

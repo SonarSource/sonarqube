@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import { IndexLink } from 'react-router';
 import { getCategoryName } from '../utils';
 

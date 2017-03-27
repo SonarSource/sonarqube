@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import uniqBy from 'lodash/uniqBy';
+import { uniqBy } from 'lodash';
 import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerCode from './SourceViewerCode';
 import SourceViewerIssueLocations from './SourceViewerIssueLocations';

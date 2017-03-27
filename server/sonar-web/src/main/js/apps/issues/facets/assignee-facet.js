@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import CustomValuesFacet from './custom-values-facet';
 import Template from '../templates/facets/issues-assignee-facet.hbs';
 

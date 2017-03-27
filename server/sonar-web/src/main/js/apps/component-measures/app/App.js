@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import Spinner from './../components/Spinner';
+import '../styles.css';
 
 export default class App extends React.Component {
   state = { componentSet: false };

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import Spinner from './../../components/Spinner';
 import { getLeakValue } from '../../utils';
 import { Treemap } from '../../../../components/charts/treemap';
@@ -100,7 +101,7 @@ export default class MeasureTreemap extends React.Component {
     return `<div class="text-left">${inner}</div>`;
   }
   getPercentColorScale(metric) {
-    const color = d3.scale.linear().domain([0, 25, 50, 75, 100]);
+    const color = scaleLinear().domain([0, 25, 50, 75, 100]);
     color.range(
       metric.direction === 1
         ? ['#d4333f', '#ed7d20', '#eabe06', '#b0d513', '#00aa00']
@@ -109,14 +110,12 @@ export default class MeasureTreemap extends React.Component {
     return color;
   }
   getRatingColorScale() {
-    return d3.scale
-      .linear()
+    return scaleLinear()
       .domain([1, 2, 3, 4, 5])
       .range(['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']);
   }
   getLevelColorScale() {
-    return d3.scale
-      .ordinal()
+    return scaleOrdinal()
       .domain(['ERROR', 'WARN', 'OK', 'NONE'])
       .range(['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4']);
   }

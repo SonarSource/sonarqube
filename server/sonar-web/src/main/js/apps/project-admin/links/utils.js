@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import partition from 'lodash/partition';
-import sortBy from 'lodash/sortBy';
+import { partition, sortBy } from 'lodash';
 
 const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
 

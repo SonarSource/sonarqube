@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import Event from './Event';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 

@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import Modal from 'react-modal';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { translate } from '../../../helpers/l10n';

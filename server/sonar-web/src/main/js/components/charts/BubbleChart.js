@@ -19,10 +19,10 @@
  */
 // @flow
 import React from 'react';
-import d3 from 'd3';
-import sortBy from 'lodash/sortBy';
-import uniq from 'lodash/uniq';
-import { AutoSizer } from 'react-virtualized';
+import { min, max } from 'd3-array';
+import { scaleLinear } from 'd3-scale';
+import { sortBy, uniq } from 'lodash';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { TooltipsContainer } from '../mixins/tooltips-mixin';
 
 type Scale = {
@@ -115,16 +115,16 @@ export default class BubbleChart extends React.PureComponent {
   };
 
   getXRange(xScale: Scale, sizeScale: Scale, availableWidth: number) {
-    const minX = d3.min(this.props.items, d => xScale(d.x) - sizeScale(d.size));
-    const maxX = d3.max(this.props.items, d => xScale(d.x) + sizeScale(d.size));
+    const minX = min(this.props.items, d => xScale(d.x) - sizeScale(d.size));
+    const maxX = max(this.props.items, d => xScale(d.x) + sizeScale(d.size));
     const dMinX = minX < 0 ? xScale.range()[0] - minX : xScale.range()[0];
     const dMaxX = maxX > xScale.range()[1] ? maxX - xScale.range()[1] : 0;
     return [dMinX, availableWidth - dMaxX];
   }
 
   getYRange(yScale: Scale, sizeScale: Scale, availableHeight: number) {
-    const minY = d3.min(this.props.items, d => yScale(d.y) - sizeScale(d.size));
-    const maxY = d3.max(this.props.items, d => yScale(d.y) + sizeScale(d.size));
+    const minY = min(this.props.items, d => yScale(d.y) - sizeScale(d.size));
+    const maxY = max(this.props.items, d => yScale(d.y) + sizeScale(d.size));
     const dMinY = minY < 0 ? yScale.range()[1] - minY : yScale.range()[1];
     const dMaxY = maxY > yScale.range()[0] ? maxY - yScale.range()[0] : 0;
     return [availableHeight - dMaxY, dMinY];
@@ -215,19 +215,16 @@ export default class BubbleChart extends React.PureComponent {
     const availableWidth = width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.props.height - this.props.padding[0] - this.props.padding[2];
 
-    const xScale = d3.scale
-      .linear()
-      .domain(this.props.xDomain || [0, d3.max(this.props.items, d => d.x)])
+    const xScale = scaleLinear()
+      .domain(this.props.xDomain || [0, max(this.props.items, d => d.x)])
       .range([0, availableWidth])
       .nice();
-    const yScale = d3.scale
-      .linear()
-      .domain(this.props.yDomain || [0, d3.max(this.props.items, d => d.y)])
+    const yScale = scaleLinear()
+      .domain(this.props.yDomain || [0, max(this.props.items, d => d.y)])
       .range([availableHeight, 0])
       .nice();
-    const sizeScale = d3.scale
-      .linear()
-      .domain(this.props.sizeDomain || [0, d3.max(this.props.items, d => d.size)])
+    const sizeScale = scaleLinear()
+      .domain(this.props.sizeDomain || [0, max(this.props.items, d => d.size)])
       .range(this.props.sizeRange);
 
     const xScaleOriginal = xScale.copy();

@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import { translate } from '../../../helpers/l10n';
 import type { Organization } from '../../../store/organizations/duck';
 import { getOrganizationByKey } from '../../../store/rootReducer';

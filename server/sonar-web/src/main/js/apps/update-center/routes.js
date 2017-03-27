@@ -17,14 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute, Route } from 'react-router';
-import UpdateCenterAppContainer from './components/UpdateCenterAppContainer';
-
-export default [
-  <IndexRoute key="index" component={UpdateCenterAppContainer} />,
-  <Route key="installed" path="installed" component={UpdateCenterAppContainer} />,
-  <Route key="updates" path="updates" component={UpdateCenterAppContainer} />,
-  <Route key="available" path="available" component={UpdateCenterAppContainer} />,
-  <Route key="system" path="system" component={UpdateCenterAppContainer} />
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require =>
+        callback(null, { component: require('./components/UpdateCenterAppContainer').default }));
+    }
+  },
+  {
+    path: 'installed',
+    getComponent(_, callback) {
+      require.ensure([], require =>
+        callback(null, require('./components/UpdateCenterAppContainer').default));
+    }
+  },
+  {
+    path: 'updates',
+    getComponent(_, callback) {
+      require.ensure([], require =>
+        callback(null, require('./components/UpdateCenterAppContainer').default));
+    }
+  },
+  {
+    path: 'available',
+    getComponent(_, callback) {
+      require.ensure([], require =>
+        callback(null, require('./components/UpdateCenterAppContainer').default));
+    }
+  },
+  {
+    path: 'system',
+    getComponent(_, callback) {
+      require.ensure([], require =>
+        callback(null, require('./components/UpdateCenterAppContainer').default));
+    }
+  }
 ];
+
+export default routes;

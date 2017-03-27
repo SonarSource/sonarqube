@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import debounce from 'lodash/debounce';
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { debounce, uniq, without } from 'lodash';
 import Header from './header';
 import Search from './search';
 import Projects from './projects';

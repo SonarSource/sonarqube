@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import Checkbox from '../../../components/controls/Checkbox';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';

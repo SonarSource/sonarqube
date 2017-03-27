@@ -19,9 +19,7 @@
  */
 // @flow
 import { combineReducers } from 'redux';
-import omit from 'lodash/omit';
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { omit, uniq, without } from 'lodash';
 
 export type Organization = {
   avatar?: string,

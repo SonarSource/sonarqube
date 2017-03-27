@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import d3 from 'd3';
 import moment from 'moment';
 import React from 'react';
+import { extent, max } from 'd3-array';
+import { scaleLinear, scaleOrdinal, scaleTime } from 'd3-scale';
+import { line as d3Line } from 'd3-shape';
 import { ResizeMixin } from '../mixins/resize-mixin';
 import { TooltipsMixin } from '../mixins/tooltips-mixin';
 
@@ -49,11 +51,11 @@ const Timeline = React.createClass({
   },
 
   getRatingScale(availableHeight) {
-    return d3.scale.ordinal().domain([5, 4, 3, 2, 1]).rangePoints([availableHeight, 0]);
+    return scaleOrdinal().domain([5, 4, 3, 2, 1]).rangePoints([availableHeight, 0]);
   },
 
   getLevelScale(availableHeight) {
-    return d3.scale.ordinal().domain(['ERROR', 'WARN', 'OK']).rangePoints([availableHeight, 0]);
+    return scaleOrdinal().domain(['ERROR', 'WARN', 'OK']).rangePoints([availableHeight, 0]);
   },
 
   getYScale(availableHeight) {
@@ -62,10 +64,9 @@ const Timeline = React.createClass({
     } else if (this.props.metricType === 'LEVEL') {
       return this.getLevelScale(availableHeight);
     } else {
-      return d3.scale
-        .linear()
+      return scaleLinear()
         .range([availableHeight, 0])
-        .domain([0, d3.max(this.props.data, d => d.y || 0)])
+        .domain([0, max(this.props.data, d => d.y || 0)])
         .nice();
     }
   },
@@ -99,8 +100,7 @@ const Timeline = React.createClass({
             dx="-1em"
             dy="0.3em"
             textAnchor="end"
-            {...opts}
-          >
+            {...opts}>
             {this.props.formatYTick(tick)}
           </text>
           <line
@@ -154,12 +154,7 @@ const Timeline = React.createClass({
   },
 
   renderLine(xScale, yScale) {
-    const p = d3.svg
-      .line()
-      .x(d => xScale(d.x))
-      .y(d => yScale(d.y))
-      .interpolate(this.props.interpolate);
-
+    const p = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y)).interpolate(this.props.interpolate);
     return <path className="line-chart-path" d={p(this.props.data)} />;
   },
 
@@ -200,9 +195,8 @@ const Timeline = React.createClass({
     }
     const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
-    const xScale = d3.time
-      .scale()
-      .domain(d3.extent(this.props.data, d => d.x || 0))
+    const xScale = scaleTime()
+      .domain(extent(this.props.data, d => d.x || 0))
       .range([0, availableWidth])
       .clamp(true);
     const yScale = this.getYScale(availableHeight);

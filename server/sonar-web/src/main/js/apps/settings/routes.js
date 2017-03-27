@@ -17,17 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute, Route, Redirect } from 'react-router';
-import AppContainer from './components/AppContainer';
-import LicensesApp from './licenses/LicensesApp';
-import EncryptionAppContainer from './encryption/EncryptionAppContainer';
-import ServerIdAppContainer from './serverId/ServerIdAppContainer';
-
-export default [
-  <Redirect key="1" from="/settings/index" to="/settings" />,
-  <IndexRoute key="2" component={AppContainer} />,
-  <Route key="3" path="licenses" component={LicensesApp} />,
-  <Route key="4" path="encryption" component={EncryptionAppContainer} />,
-  <Route key="5" path="server_id" component={ServerIdAppContainer} />
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require => {
+        callback(null, { component: require('./components/AppContainer').default });
+      });
+    }
+  },
+  {
+    path: 'licenses',
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./licenses/LicensesApp').default);
+      });
+    }
+  },
+  {
+    path: 'encryption',
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./encryption/EncryptionAppContainer').default);
+      });
+    }
+  },
+  {
+    path: 'server_id',
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./serverId/ServerIdAppContainer').default);
+      });
+    }
+  }
 ];
+
+export default routes;

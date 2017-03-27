@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
-import sortBy from 'lodash/sortBy';
+import { max } from 'd3-array';
+import { scaleLinear } from 'd3-scale';
+import { sortBy } from 'lodash';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const Word = React.createClass({
@@ -67,9 +68,8 @@ export const WordCloud = React.createClass({
       return index % 2 * (len - index) + index / 2;
     });
 
-    const sizeScale = d3.scale
-      .linear()
-      .domain([0, d3.max(this.props.items, d => d.size)])
+    const sizeScale = scaleLinear()
+      .domain([0, max(this.props.items, d => d.size)])
       .range(this.props.sizeRange);
     const words = sortedItems.map((item, index) => (
       <Word

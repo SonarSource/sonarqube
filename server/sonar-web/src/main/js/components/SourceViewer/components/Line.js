@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import times from 'lodash/times';
+import { times } from 'lodash';
 import LineNumber from './LineNumber';
 import LineSCM from './LineSCM';
 import LineCoverage from './LineCoverage';

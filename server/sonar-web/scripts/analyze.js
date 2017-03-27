@@ -17,24 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const globalPermissionsRoutes = [
-  {
-    getIndexRoute(_, callback) {
-      require.ensure([], require => {
-        const GlobalPermissionsApp = require('./global/components/App').default;
-        const forSingleOrganization = require('../organizations/forSingleOrganization').default;
-        const component = forSingleOrganization(GlobalPermissionsApp);
-        callback(null, { component });
-      });
-    }
-  }
-];
+process.env.NODE_ENV = 'production';
 
-export const projectPermissionsRoutes = [
-  {
-    getIndexRoute(_, callback) {
-      require.ensure([], require =>
-        callback(null, { component: require('./project/components/App').default }));
-    }
+const webpack = require('webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const config = require('../config/webpack/webpack.config.prod');
+
+config.plugins.push(new BundleAnalyzerPlugin());
+
+webpack(config, err => {
+  if (err) {
+    console.log(err.message || err);
+    process.exit(1);
   }
-];
+});

@@ -19,7 +19,9 @@
  */
 import $ from 'jquery';
 import moment from 'moment';
-import d3 from 'd3';
+import { max } from 'd3-array';
+import { select } from 'd3-selection';
+import { scaleLinear, scaleBand } from 'd3-scale';
 
 function trans(left, top) {
   return `translate(${left}, ${top})`;
@@ -31,7 +33,6 @@ const defaults = function() {
   return {
     height: 140,
     color: '#1f77b4',
-    interpolate: 'basis',
 
     marginLeft: 1,
     marginRight: 1,
@@ -55,16 +56,16 @@ $.fn.barchart = function(data) {
       endDate: options.endDate ? moment(options.endDate) : null
     });
 
-    const container = d3.select(this);
+    const container = select(this);
     const svg = container
       .append('svg')
       .attr('width', options.width + 2)
       .attr('height', options.height + 2)
       .classed('sonar-d3', true);
     const plot = svg.append('g').classed('plot', true);
-    const xScale = d3.scale.ordinal().domain(data.map((d, i) => i));
-    const yScaleMax = d3.max(data, d => d.count);
-    const yScale = d3.scale.linear().domain([0, yScaleMax]);
+    const xScale = scaleBand().domain(data.map((d, i) => i));
+    const yScaleMax = max(data, d => d.count);
+    const yScale = scaleLinear().domain([0, yScaleMax]);
 
     Object.assign(options, {
       availableWidth: options.width - options.marginLeft - options.marginRight,
@@ -72,10 +73,10 @@ $.fn.barchart = function(data) {
     });
 
     plot.attr('transform', trans(options.marginLeft, options.marginTop));
-    xScale.rangeRoundBands([0, options.availableWidth], 0.05, 0);
+    xScale.rangeRound([0, options.availableWidth]).paddingInner(0.05);
     yScale.range([3, options.availableHeight]);
 
-    const barWidth = xScale.rangeBand();
+    const barWidth = xScale.bandwidth();
     const bars = plot.selectAll('g').data(data);
 
     if (barWidth > 0) {
@@ -117,7 +118,7 @@ $.fn.barchart = function(data) {
         })
         .attr('data-placement', 'bottom')
         .attr('data-toggle', 'tooltip');
-      const maxValue = d3.max(data, d => d.count);
+      const maxValue = max(data, d => d.count);
       let isValueShown = false;
       barsEnter
         .append('text')

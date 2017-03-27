@@ -11,7 +11,11 @@
     "blueimp-md5": "1.1.1",
     "classnames": "2.2.0",
     "clipboard": "1.5.5",
-    "d3": "3.5.6",
+    "d3-array": "1.1.1",
+    "d3-hierarchy": "1.1.4",
+    "d3-scale": "1.0.5",
+    "d3-selection": "1.0.5",
+    "d3-shape": "1.0.6",
     "escape-html": "1.0.3",
     "handlebars": "2.0.0",
     "history": "2.0.0",
@@ -95,6 +99,7 @@
     "strip-ansi": "3.0.1",
     "style-loader": "0.13.0",
     "webpack": "1.13.2",
+    "webpack-bundle-analyzer": "^2.3.1",
     "webpack-dev-server": "1.16.1"
   },
   "scripts": {

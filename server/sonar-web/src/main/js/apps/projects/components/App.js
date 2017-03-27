@@ -20,7 +20,6 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { translate } from '../../../helpers/l10n';
-import '../styles.css';
 
 export default class App extends React.Component {
   componentDidMount() {

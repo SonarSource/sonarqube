@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import some from 'lodash/some';
+import { some } from 'lodash';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 export default class BulkUpdateResults extends React.Component {

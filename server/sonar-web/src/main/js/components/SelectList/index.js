@@ -19,8 +19,7 @@
  */
 import $ from 'jquery';
 import Backbone from 'backbone';
-import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
+import { debounce, throttle } from 'lodash';
 import { translate } from '../../helpers/l10n';
 import ItemTemplate from './templates/item.hbs';
 import ListTemplate from './templates/list.hbs';

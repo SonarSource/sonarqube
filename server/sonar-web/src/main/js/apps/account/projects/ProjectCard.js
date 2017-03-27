@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import moment from 'moment';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import { Link } from 'react-router';
 import Level from '../../../components/ui/Level';
 import { projectType } from './propTypes';

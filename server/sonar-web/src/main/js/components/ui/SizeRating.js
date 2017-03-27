@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import inRange from 'lodash/inRange';
+import { inRange } from 'lodash';
 import './SizeRating.css';
 
 export default class SizeRating extends React.Component {
@@ -43,7 +43,7 @@ export default class SizeRating extends React.Component {
     }
 
     let letter;
-    if (inRange(value, 1000)) {
+    if (inRange(value, 0, 1000)) {
       letter = 'XS';
     } else if (inRange(value, 1000, 10000)) {
       letter = 'S';

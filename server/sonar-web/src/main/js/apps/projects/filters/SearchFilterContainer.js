@@ -20,7 +20,7 @@
 //@flow
 import React from 'react';
 import { withRouter } from 'react-router';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import { getFilterUrl } from './utils';
 import SearchFilter from './SearchFilter';
 

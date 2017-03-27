@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute, Route } from 'react-router';
-import IssuesAppContainer from './components/IssuesAppContainer';
-
-const onSearchEnter = (nextState, replace) => {
-  replace('/issues' + window.location.hash);
-};
-
-export default [
-  <IndexRoute key="index" component={IssuesAppContainer} />,
-  <Route key="search" path="search" onEnter={onSearchEnter} />
+const routes = [
+  {
+    indexRoute: {
+      getComponent(_, callback) {
+        require.ensure([], require =>
+          callback(null, require('./components/IssuesAppContainer').default));
+      }
+    }
+  }
 ];
+
+export default routes;

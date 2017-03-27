@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
+import { arc as d3Arc, pie as d3Pie } from 'd3-shape';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 const Sector = React.createClass({
   render() {
-    const arc = d3.svg
-      .arc()
+    const arc = d3Arc()
       .outerRadius(this.props.radius)
       .innerRadius(this.props.radius - this.props.thickness);
     return <path d={arc(this.props.data)} style={{ fill: this.props.fill }} />;
@@ -58,7 +57,7 @@ export const DonutChart = React.createClass({
     const size = Math.min(availableWidth, availableHeight);
     const radius = Math.floor(size / 2);
 
-    const pie = d3.layout.pie().sort(null).value(d => d.value);
+    const pie = d3Pie().sort(null).value(d => d.value);
     const sectors = pie(this.props.data).map((d, i) => {
       return (
         <Sector

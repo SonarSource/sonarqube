@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { uniq, without } from 'lodash';
 
 type Favorite = { key: string };
 

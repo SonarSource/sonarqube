@@ -17,34 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, IndexRoute } from 'react-router';
-import Account from './components/Account';
-import ProjectsContainer from './projects/ProjectsContainer';
-import Security from './components/Security';
-import Profile from './profile/Profile';
-import Notifications from './notifications/Notifications';
-import UserOrganizations from './organizations/UserOrganizations';
-import CreateOrganizationForm from './organizations/CreateOrganizationForm';
+const routes = [
+  {
+    getComponent(_, callback) {
+      require.ensure([], require => callback(null, require('./components/Account').default));
+    },
+    childRoutes: [
+      {
+        getIndexRoute(_, callback) {
+          require.ensure([], require =>
+            callback(null, { component: require('./profile/Profile').default }));
+        }
+      },
+      {
+        path: 'security',
+        getComponent(_, callback) {
+          require.ensure([], require => callback(null, require('./components/Security').default));
+        }
+      },
+      {
+        path: 'projects',
+        getComponent(_, callback) {
+          require.ensure([], require =>
+            callback(null, require('./projects/ProjectsContainer').default));
+        }
+      },
+      {
+        path: 'notifications',
+        getComponent(_, callback) {
+          require.ensure([], require =>
+            callback(null, require('./notifications/Notifications').default));
+        }
+      },
+      {
+        path: 'organizations',
+        getComponent(_, callback) {
+          require.ensure([], require =>
+            callback(null, require('./organizations/UserOrganizations').default));
+        },
+        childRoutes: [
+          {
+            path: 'create',
+            getComponent(_, callback) {
+              require.ensure([], require =>
+                callback(null, require('./organizations/CreateOrganizationForm').default));
+            }
+          }
+        ]
+      }
+    ]
+  }
+];
 
-export default (
-  <Route component={Account}>
-    <IndexRoute component={Profile} />
-    <Route path="security" component={Security} />
-    <Route path="projects" component={ProjectsContainer} />
-    <Route path="notifications" component={Notifications} />
-    <Route path="organizations" component={UserOrganizations}>
-      <Route path="create" component={CreateOrganizationForm} />
-    </Route>
-
-    <Route
-      path="issues"
-      onEnter={() => {
-        window.location = window.baseUrl +
-          '/issues' +
-          window.location.hash +
-          '|assigned_to_me=true';
-      }}
-    />
-  </Route>
-);
+export default routes;

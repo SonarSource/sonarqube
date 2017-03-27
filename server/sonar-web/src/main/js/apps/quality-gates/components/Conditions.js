@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import sortBy from 'lodash/sortBy';
-import uniqBy from 'lodash/uniqBy';
+import { sortBy, uniqBy } from 'lodash';
 import ConditionsAlert from './ConditionsAlert';
 import AddConditionForm from './AddConditionForm';
 import Condition from './Condition';

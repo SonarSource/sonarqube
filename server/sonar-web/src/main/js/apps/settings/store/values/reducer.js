@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import keyBy from 'lodash/keyBy';
+import { keyBy } from 'lodash';
 import { RECEIVE_VALUES } from './actions';
 
 type State = { [key: string]: {} };

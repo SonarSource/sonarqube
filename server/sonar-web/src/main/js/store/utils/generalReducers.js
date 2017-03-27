@@ -19,7 +19,7 @@
  */
 // Author: Christoffer Niska <christofferniska@gmail.com>
 // https://gist.github.com/crisu83/42ecffccad9d04c74605fbc75c9dc9d1
-import uniq from 'lodash/uniq';
+import { uniq } from 'lodash';
 
 /**
  * Creates a reducer that manages a single value.

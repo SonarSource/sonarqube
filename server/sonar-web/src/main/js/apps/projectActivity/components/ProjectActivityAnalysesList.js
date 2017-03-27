@@ -20,21 +20,19 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import groupBy from 'lodash/groupBy';
+import { groupBy } from 'lodash';
 import moment from 'moment';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { getProjectActivity } from '../../../store/rootReducer';
 import { getAnalyses } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
+import type { Analysis } from '../../../store/projectActivity/duck';
 
 class ProjectActivityAnalysesList extends React.Component {
   props: {
     project: string,
-    analyses?: Array<{
-      key: string,
-      date: string
-    }>,
+    analyses?: Array<Analysis>,
     canAdmin: boolean
   };
 
@@ -59,22 +57,22 @@ class ProjectActivityAnalysesList extends React.Component {
             <li
               key={day}
               className="project-activity-day"
-              data-day={moment(Number(day)).format('YYYY-MM-DD')}
-            >
+              data-day={moment(Number(day)).format('YYYY-MM-DD')}>
               <div className="project-activity-date">
                 <FormattedDate date={Number(day)} format="LL" />
               </div>
 
               <ul className="project-activity-analyses-list">
-                {byDay[day].map(analysis => (
-                  <ProjectActivityAnalysis
-                    key={analysis.key}
-                    analysis={analysis}
-                    isFirst={analysis === firstAnalysis}
-                    project={this.props.project}
-                    canAdmin={this.props.canAdmin}
-                  />
-                ))}
+                {byDay[day] != null &&
+                  byDay[day].map(analysis => (
+                    <ProjectActivityAnalysis
+                      key={analysis.key}
+                      analysis={analysis}
+                      isFirst={analysis === firstAnalysis}
+                      project={this.props.project}
+                      canAdmin={this.props.canAdmin}
+                    />
+                  ))}
               </ul>
             </li>
           ))}

@@ -20,7 +20,7 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import Components from './Components';
 import { getTree } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

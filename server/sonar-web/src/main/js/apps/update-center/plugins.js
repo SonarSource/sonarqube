@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import findLastIndex from 'lodash/findLastIndex';
+import { findLastIndex } from 'lodash';
 import Backbone from 'backbone';
 import Plugin from './plugin';
 

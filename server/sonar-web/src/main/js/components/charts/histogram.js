@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
+import { max } from 'd3-array';
+import { scaleLinear, scaleBand } from 'd3-scale';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
@@ -60,7 +61,7 @@ export const Histogram = React.createClass({
     const ticks = this.props.yTicks.map((tick, index) => {
       const point = this.props.data[index];
       const x = xScale.range()[0];
-      const y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
+      const y = Math.round(yScale(point.y) + yScale.bandwidth() / 2 + this.props.barsHeight / 2);
       const label = tick.label ? tick.label : tick;
       const tooltip = tick.tooltip ? tick.tooltip : null;
       return (
@@ -74,8 +75,7 @@ export const Histogram = React.createClass({
           x={x}
           y={y}
           dx="-1em"
-          dy="0.3em"
-        >
+          dy="0.3em">
           {label}
         </text>
       );
@@ -90,7 +90,7 @@ export const Histogram = React.createClass({
     const ticks = this.props.yValues.map((value, index) => {
       const point = this.props.data[index];
       const x = xScale(point.x);
-      const y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
+      const y = Math.round(yScale(point.y) + yScale.bandwidth() / 2 + this.props.barsHeight / 2);
       return (
         <text
           key={index}
@@ -100,8 +100,7 @@ export const Histogram = React.createClass({
           x={x}
           y={y}
           dx="1em"
-          dy="0.3em"
-        >
+          dy="0.3em">
           {value}
         </text>
       );
@@ -112,7 +111,7 @@ export const Histogram = React.createClass({
   renderBars(xScale, yScale) {
     const bars = this.props.data.map((d, index) => {
       const x = Math.round(xScale(d.x)) + /* minimum bar width */ 1;
-      const y = Math.round(yScale(d.y) + yScale.rangeBand() / 2);
+      const y = Math.round(yScale(d.y) + yScale.bandwidth() / 2);
       return (
         <rect
           key={index}
@@ -137,12 +136,11 @@ export const Histogram = React.createClass({
     const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    const maxX = d3.max(this.props.data, d => d.x);
-    const xScale = d3.scale.linear().domain([0, maxX]).range([0, availableWidth]);
-    const yScale = d3.scale
-      .ordinal()
+    const maxX = max(this.props.data, d => d.x);
+    const xScale = scaleLinear().domain([0, maxX]).range([0, availableWidth]);
+    const yScale = scaleBand()
       .domain(this.props.data.map(d => d.y))
-      .rangeRoundBands([0, availableHeight]);
+      .rangeRound([0, availableHeight]);
 
     return (
       <svg className="bar-chart" width={this.state.width} height={this.state.height}>

@@ -20,8 +20,7 @@
 //@flow
 import React from 'react';
 import { connect } from 'react-redux';
-import debounce from 'lodash/debounce';
-import without from 'lodash/without';
+import { debounce, without } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchProjectTags } from '../../../api/components';
 import { setProjectTags } from '../store/actions';

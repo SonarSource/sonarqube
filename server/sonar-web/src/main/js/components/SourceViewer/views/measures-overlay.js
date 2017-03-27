@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
-import toPairs from 'lodash/toPairs';
+import { select } from 'd3-selection';
+import { arc as d3Arc, pie as d3Pie } from 'd3-shape';
+import { groupBy, sortBy, toPairs } from 'lodash';
 import ModalView from '../../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
 import { getMeasures } from '../../../api/measures';
@@ -68,11 +68,11 @@ export default ModalView.extend({
       const options = { ...defaults, ...$(this).data() };
       const radius = options.size / 2;
 
-      const container = d3.select(this);
+      const container = select(this);
       const svg = container.append('svg').attr('width', options.size).attr('height', options.size);
       const plot = svg.append('g').attr('transform', trans(radius, radius));
-      const arc = d3.svg.arc().innerRadius(radius - options.thickness).outerRadius(radius);
-      const pie = d3.layout.pie().sort(null).value(d => d);
+      const arc = d3Arc().innerRadius(radius - options.thickness).outerRadius(radius);
+      const pie = d3Pie().sort(null).value(d => d);
       const colors = function(i) {
         return i === 0 ? options.color : options.baseColor;
       };

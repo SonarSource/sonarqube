@@ -51,7 +51,7 @@ import groupsRoutes from '../../apps/groups/routes';
 import issuesRoutes from '../../apps/issues/routes';
 import metricsRoutes from '../../apps/metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
-import organizationsRouters from '../../apps/organizations/routes';
+import organizationsRoutes from '../../apps/organizations/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectAdminRoutes from '../../apps/project-admin/routes';
@@ -88,13 +88,42 @@ const startReactApp = () => {
     <Provider store={store}>
       <Router history={history} onUpdate={handleUpdate}>
         <Route
+          path="/account/issues"
+          onEnter={() => {
+            const defaultFilter = window.location.hash || '#resolve=false';
+            window.location = `${window.baseUrl}/issues${defaultFilter}|assigned_to_me=true`;
+          }}
+        />
+
+        <Route
+          path="/codingrules"
+          onEnter={(nextState, replace) => {
+            replace('/coding_rules' + window.location.hash);
+          }}
+        />
+
+        <Route
           path="/dashboard/index/:key"
           onEnter={(nextState, replace) => {
             replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
           }}
         />
 
+        <Route
+          path="/issues/search"
+          onEnter={(nextState, replace) => {
+            replace('/issues' + window.location.hash);
+          }}
+        />
+
+        <Redirect from="/component/index" to="/component" />
+        <Redirect from="/dashboard/index" to="/dashboard" />
+        <Redirect from="/governance" to="/view" />
         <Redirect from="/extension/governance/portfolios" to="/portfolios" />
+        <Redirect from="/profiles/index" to="/profiles" />
+        <Redirect from="/quality_gates/index" to="/quality_gates" />
+        <Redirect from="/settings/index" to="/settings" />
+        <Redirect from="/system/index" to="/system" />
 
         <Route path="markdown/help" component={MarkdownHelp} />
 
@@ -114,34 +143,27 @@ const startReactApp = () => {
               <IndexRoute component={Landing} />
 
               <Route component={GlobalContainer}>
-                <Route path="about">{aboutRoutes}</Route>
-                <Route path="account">{accountRoutes}</Route>
-                <Route
-                  path="codingrules"
-                  onEnter={(nextState, replace) => {
-                    replace('/coding_rules' + window.location.hash);
-                  }}
-                />
-                <Route path="coding_rules">{codingRulesRoutes}</Route>
-                <Route path="component">{componentRoutes}</Route>
+                <Route path="about" childRoutes={aboutRoutes} />
+                <Route path="account" childRoutes={accountRoutes} />
+                <Route path="coding_rules" childRoutes={codingRulesRoutes} />
+                <Route path="component" childRoutes={componentRoutes} />
                 <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension} />
-                <Route path="issues">{issuesRoutes}</Route>
-                <Route path="organizations">{organizationsRouters}</Route>
-                <Route path="projects">{projectsRoutes}</Route>
-                <Route path="quality_gates">{qualityGatesRoutes}</Route>
+                <Route path="issues" childRoutes={issuesRoutes} />
+                <Route path="organizations" childRoutes={organizationsRoutes} />
+                <Route path="projects" childRoutes={projectsRoutes} />
+                <Route path="quality_gates" childRoutes={qualityGatesRoutes} />
                 <Route path="portfolios" component={PortfoliosPage} />
-                <Route path="profiles">{qualityProfilesRoutes}</Route>
-                <Route path="web_api">{webAPIRoutes}</Route>
+                <Route path="profiles" childRoutes={qualityProfilesRoutes} />
+                <Route path="web_api" childRoutes={webAPIRoutes} />
 
                 <Route component={ProjectContainer}>
-                  <Route path="code">{codeRoutes}</Route>
-                  <Route path="component_issues">{componentIssuesRoutes}</Route>
-                  <Route path="component_measures">{componentMeasuresRoutes}</Route>
-                  <Route path="custom_measures">{customMeasuresRoutes}</Route>
-                  <Route path="dashboard">{overviewRoutes}</Route>
-                  <Redirect from="governance" to="/view" />
+                  <Route path="code" childRoutes={codeRoutes} />
+                  <Route path="component_issues" childRoutes={componentIssuesRoutes} />
+                  <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
+                  <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
+                  <Route path="dashboard" childRoutes={overviewRoutes} />
                   <Route path="project">
-                    <Route path="activity">{projectActivityRoutes}</Route>
+                    <Route path="activity" childRoutes={projectActivityRoutes} />
                     <Route path="admin" component={ProjectAdminContainer}>
                       <Route
                         path="extension/:pluginKey/:extensionKey"
@@ -153,11 +175,11 @@ const startReactApp = () => {
                       path="extension/:pluginKey/:extensionKey"
                       component={ProjectPageExtension}
                     />
-                    <Route path="background_tasks">{backgroundTasksRoutes}</Route>
-                    <Route path="settings">{settingsRoutes}</Route>
+                    <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
+                    <Route path="settings" childRoutes={settingsRoutes} />
                     {projectAdminRoutes}
                   </Route>
-                  <Route path="project_roles">{projectPermissionsRoutes}</Route>
+                  <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
                   <Route path="view" component={ViewDashboard} />
                 </Route>
 
@@ -166,16 +188,16 @@ const startReactApp = () => {
                     path="admin/extension/:pluginKey/:extensionKey"
                     component={GlobalAdminPageExtension}
                   />
-                  <Route path="background_tasks">{backgroundTasksRoutes}</Route>
-                  <Route path="groups">{groupsRoutes}</Route>
-                  <Route path="metrics">{metricsRoutes}</Route>
-                  <Route path="permission_templates">{permissionTemplatesRoutes}</Route>
-                  <Route path="projects_admin">{projectsAdminRoutes}</Route>
-                  <Route path="roles/global">{globalPermissionsRoutes}</Route>
-                  <Route path="settings">{settingsRoutes}</Route>
-                  <Route path="system">{systemRoutes}</Route>
-                  <Route path="updatecenter">{updateCenterRoutes}</Route>
-                  <Route path="users">{usersRoutes}</Route>
+                  <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
+                  <Route path="groups" childRoutes={groupsRoutes} />
+                  <Route path="metrics" childRoutes={metricsRoutes} />
+                  <Route path="permission_templates" childRoutes={permissionTemplatesRoutes} />
+                  <Route path="projects_admin" childRoutes={projectsAdminRoutes} />
+                  <Route path="roles/global" childRoutes={globalPermissionsRoutes} />
+                  <Route path="settings" childRoutes={settingsRoutes} />
+                  <Route path="system" childRoutes={systemRoutes} />
+                  <Route path="updatecenter" childRoutes={updateCenterRoutes} />
+                  <Route path="users" childRoutes={usersRoutes} />
                 </Route>
               </Route>
 

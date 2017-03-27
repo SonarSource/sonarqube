@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import find from 'lodash/find';
-import sortBy from 'lodash/sortBy';
+import { find, sortBy } from 'lodash';
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import { Histogram } from './histogram';

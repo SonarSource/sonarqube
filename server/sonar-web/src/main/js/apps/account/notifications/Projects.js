@@ -20,7 +20,7 @@
 import React from 'react';
 import Select from 'react-select';
 import { connect } from 'react-redux';
-import differenceBy from 'lodash/differenceBy';
+import { differenceBy } from 'lodash';
 import ProjectNotifications from './ProjectNotifications';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';

@@ -7,25 +7,36 @@ var autoprefixerOptions = require('../autoprefixer');
 
 module.exports = {
   entry: {
-    'vendor': [
+    vendor: [
       require.resolve('../polyfills'),
       'jquery',
       'underscore',
-      'd3',
+      'lodash',
+      'd3-array',
+      'd3-hierarchy',
+      'd3-scale',
+      'd3-selection',
+      'd3-shape',
       'react',
       'react-dom',
       'backbone',
       'backbone.marionette',
       'moment',
-      'handlebars/runtime'
+      'handlebars/runtime',
+      './src/main/js/libs/third-party/jquery-ui.js',
+      './src/main/js/libs/third-party/select2.js',
+      './src/main/js/libs/third-party/keymaster.js',
+      './src/main/js/libs/third-party/bootstrap/tooltip.js',
+      './src/main/js/libs/third-party/bootstrap/dropdown.js'
     ],
 
-    'app': './src/main/js/app/index.js'
+    app: ['./src/main/js/app/index.js', './src/main/js/components/SourceViewer/SourceViewer.js']
   },
   output: {
     path: paths.appBuild,
+    publicPath: '/',
     filename: 'js/[name].[chunkhash:8].js',
-    chunkFilename: 'js/[name].[chunkhash:8].chunk.js',
+    chunkFilename: 'js/[name].[chunkhash:8].chunk.js'
   },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
@@ -49,7 +60,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel',
-        exclude: /(node_modules|libs)/,
+        exclude: /(node_modules|libs)/
       },
       {
         test: /(blueimp-md5|numeral)/,
@@ -74,12 +85,11 @@ module.exports = {
       { test: require.resolve('underscore'), loader: 'expose?_' },
       { test: require.resolve('backbone'), loader: 'expose?Backbone' },
       { test: require.resolve('backbone.marionette'), loader: 'expose?Marionette' },
-      { test: require.resolve('d3'), loader: 'expose?d3' },
       { test: require.resolve('react'), loader: 'expose?React' },
       { test: require.resolve('react-dom'), loader: 'expose?ReactDOM' }
     ]
   },
-  postcss: function () {
+  postcss: function() {
     return [autoprefixer(autoprefixerOptions)];
   },
   // Some libraries import Node modules but don't use them in the browser.

@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import keyBy from 'lodash/keyBy';
-import sortBy from 'lodash/sortBy';
-import uniqBy from 'lodash/uniqBy';
+import { keyBy, sortBy, uniqBy } from 'lodash';
 import { RECEIVE_DEFINITIONS } from './actions';
 import { DEFAULT_CATEGORY, getCategoryName } from '../../utils';
 import type { Definition } from '../../types';

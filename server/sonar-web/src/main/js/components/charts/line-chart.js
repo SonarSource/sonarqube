@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
+import { extent, max } from 'd3-array';
+import { scaleLinear } from 'd3-scale';
+import { area as d3Area, line as d3Line, curveBasis } from 'd3-shape';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
@@ -32,8 +34,7 @@ export const LineChart = React.createClass({
     displayBackdrop: React.PropTypes.bool,
     displayPoints: React.PropTypes.bool,
     displayVerticalGrid: React.PropTypes.bool,
-    height: React.PropTypes.number,
-    interpolate: React.PropTypes.string
+    height: React.PropTypes.number
   },
 
   mixins: [ResizeMixin, TooltipsMixin],
@@ -45,8 +46,7 @@ export const LineChart = React.createClass({
       displayVerticalGrid: true,
       xTicks: [],
       xValues: [],
-      padding: [10, 10, 10, 10],
-      interpolate: 'basis'
+      padding: [10, 10, 10, 10]
     };
   },
 
@@ -59,12 +59,11 @@ export const LineChart = React.createClass({
       return null;
     }
 
-    const area = d3.svg
-      .area()
+    const area = d3Area()
       .x(d => xScale(d.x))
       .y0(yScale.range()[0])
       .y1(d => yScale(d.y))
-      .interpolate(this.props.interpolate);
+      .curve(curveBasis);
 
     let data = this.props.data;
     if (this.props.backdropConstraints) {
@@ -126,12 +125,7 @@ export const LineChart = React.createClass({
   },
 
   renderLine(xScale, yScale) {
-    const p = d3.svg
-      .line()
-      .x(d => xScale(d.x))
-      .y(d => yScale(d.y))
-      .interpolate(this.props.interpolate);
-
+    const p = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y)).curve(curveBasis);
     return <path className="line-chart-path" d={p(this.props.data)} />;
   },
 
@@ -144,17 +138,16 @@ export const LineChart = React.createClass({
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     let maxY;
-    const xScale = d3.scale
-      .linear()
-      .domain(d3.extent(this.props.data, d => d.x))
+    const xScale = scaleLinear()
+      .domain(extent(this.props.data, d => d.x))
       .range([0, availableWidth]);
-    const yScale = d3.scale.linear().range([availableHeight, 0]);
+    const yScale = scaleLinear().range([availableHeight, 0]);
 
     if (this.props.domain) {
       maxY = this.props.domain[1];
       yScale.domain(this.props.domain);
     } else {
-      maxY = d3.max(this.props.data, d => d.y);
+      maxY = max(this.props.data, d => d.y);
       yScale.domain([0, maxY]);
     }
 

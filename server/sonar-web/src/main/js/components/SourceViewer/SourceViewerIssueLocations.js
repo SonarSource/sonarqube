@@ -22,7 +22,7 @@ import React from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { DraggableCore } from 'react-draggable';
 import classNames from 'classnames';
-import throttle from 'lodash/throttle';
+import { throttle } from 'lodash';
 import { scrollToElement } from '../../helpers/scrolling';
 import { translate } from '../../helpers/l10n';
 import type { Issue, FlowLocation } from '../issue/types';

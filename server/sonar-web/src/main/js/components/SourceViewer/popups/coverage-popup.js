@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import groupBy from 'lodash/groupBy';
+import { groupBy } from 'lodash';
 import Popup from '../../common/popup';
 import Template from './templates/source-viewer-coverage-popup.hbs';
 

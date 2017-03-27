@@ -19,8 +19,7 @@
  */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import groupBy from 'lodash/groupBy';
-import orderBy from 'lodash/orderBy';
+import { groupBy, orderBy } from 'lodash';
 import ProfileRow from './ProfileRow';
 import { translate } from '../../../helpers/l10n';
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import throttle from 'lodash/throttle';
+import { throttle } from 'lodash';
 import Marionette from 'backbone.marionette';
 
 const BOTTOM_OFFSET = 60;

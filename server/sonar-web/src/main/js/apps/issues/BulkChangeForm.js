@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import ModalForm from '../../components/common/modal-form';
 import Template from './templates/BulkChangeForm.hbs';
 import getCurrentUserFromStore from '../../app/utils/getCurrentUserFromStore';

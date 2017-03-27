@@ -17,8 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexRoute } from 'react-router';
-import CustomMeasuresAppContainer from './components/CustomMeasuresAppContainer';
+const routes = [
+  {
+    getIndexRoute(_, callback) {
+      require.ensure([], require =>
+        callback(null, { component: require('./components/CustomMeasuresAppContainer').default }));
+    }
+  }
+];
 
-export default <IndexRoute component={CustomMeasuresAppContainer} />;
+export default routes;
