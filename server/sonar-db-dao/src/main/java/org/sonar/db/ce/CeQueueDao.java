@@ -120,7 +120,9 @@ public class CeQueueDao implements Dao {
   }
 
   private Optional<CeQueueDto> tryToPeek(DbSession session, String taskUuid) {
-    int touchedRows = mapper(session).updateIfStatus(taskUuid, IN_PROGRESS, system2.now(), system2.now(), PENDING);
+    int touchedRows = mapper(session).updateIf(taskUuid,
+      new UpdateIf.NewProperties(IN_PROGRESS, system2.now(), system2.now()),
+      new UpdateIf.OldProperties(PENDING));
     if (touchedRows != 1) {
       return Optional.absent();
     }

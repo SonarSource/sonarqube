@@ -168,14 +168,14 @@
       status &lt;&gt; 'PENDING'
   </update>
 
-  <update id="updateIfStatus" parameterType="map">
+  <update id="updateIf" parameterType="map">
     update ce_queue set
-      status=#{newStatus,jdbcType=VARCHAR},
-      started_at=#{startedAt,jdbcType=BIGINT},
-      updated_at=#{updatedAt,jdbcType=BIGINT}
+      status=#{new.status,jdbcType=VARCHAR},
+      started_at=#{new.startedAt,jdbcType=BIGINT},
+      updated_at=#{new.updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}
-      and status=#{oldStatus,jdbcType=VARCHAR}
+      and status=#{old.status,jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteByUuid">
