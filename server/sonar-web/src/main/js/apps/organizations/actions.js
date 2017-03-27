@@ -19,16 +19,26 @@
  */
 // @flow
 import * as api from '../../api/organizations';
-import { onFail } from '../../store/rootActions';
 import * as actions from '../../store/organizations/duck';
+import * as membersActions from '../../store/organizationsMembers/actions';
+import { onFail } from '../../store/rootActions';
+import { getOrganizationMembersState } from '../../store/rootReducer';
 import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import type { Organization } from '../../store/organizations/duck';
+
+const PAGE_SIZE = 50;
 
 const onRejected = (dispatch: Function) =>
   (error: Object) => {
     onFail(dispatch)(error);
     return Promise.reject();
+  };
+
+const onMembersFail = (organization: string, dispatch: Function) =>
+  (error: Object) => {
+    onFail(dispatch)(error);
+    dispatch(membersActions.updateState(organization, { loading: false }));
   };
 
 export const fetchOrganization = (key: string): Function =>
@@ -77,3 +87,47 @@ export const deleteOrganization = (key: string): Function =>
 
     return api.deleteOrganization(key).then(onFulfilled, onFail(dispatch));
   };
+
+const fetchMembers = (
+  dispatch: Function,
+  receiveAction: Function,
+  key: string,
+  query?: string,
+  page?: number
+) => {
+  dispatch(membersActions.updateState(key, { loading: true }));
+  const data: Object = {
+    organizations: key,
+    ps: PAGE_SIZE
+  };
+  if (page != null) {
+    data.p = page;
+  }
+  if (query) {
+    data.q = query;
+  }
+  return api.searchMembers(data).then(
+    response => {
+      dispatch(receiveAction(key, response.users, {
+        loading: false,
+        total: response.paging.total,
+        pageIndex: response.paging.pageIndex,
+        query: query || null
+      }));
+    },
+    onMembersFail(key, dispatch)
+  );
+};
+
+export const fetchOrganizationMembers = (key: string, query?: string) =>
+  (dispatch: Function) => fetchMembers(dispatch, membersActions.receiveMembers, key, query);
+
+export const fetchMoreOrganizationMembers = (key: string, query?: string) =>
+  (dispatch: Function, getState: Function) =>
+    fetchMembers(
+      dispatch,
+      membersActions.receiveMoreMembers,
+      key,
+      query,
+      getOrganizationMembersState(getState(), key).pageIndex + 1
+    );
