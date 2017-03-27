@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import CreateProfileView from '../views/CreateProfileView';
 import RestoreProfileView from '../views/RestoreProfileView';
 import RestoreBuiltInProfilesView from '../views/RestoreBuiltInProfilesView';
+import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { getImporters } from '../../../api/quality-profiles';
 
-export default class PageHeader extends React.Component {
-  static propTypes = {
-    canAdmin: React.PropTypes.bool.isRequired
-  };
+type Props = {
+  canAdmin: boolean,
+  languages: Array<{ key: string, name: string }>,
+  organization: ?string,
+  updateProfiles: () => Promise<*>
+};
+
+export default class PageHeader extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
 
   static contextTypes = {
     router: React.PropTypes.object
@@ -54,37 +62,42 @@ export default class PageHeader extends React.Component {
     }
   }
 
-  handleCreateClick(e) {
+  handleCreateClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
     e.target.blur();
     this.retrieveImporters().then(importers => {
       new CreateProfileView({
         languages: this.props.languages,
+        organization: this.props.organization,
         importers
       })
         .on('done', profile => {
           this.props.updateProfiles().then(() => {
-            this.context.router.push({
-              pathname: '/profiles/show',
-              query: { key: profile.key }
-            });
+            this.context.router.push(getProfilePath(profile.key, this.props.organization));
           });
         })
         .render();
     });
-  }
+  };
 
-  handleRestoreClick(e) {
+  handleRestoreClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
-    new RestoreProfileView().on('done', this.props.updateProfiles).render();
-  }
-
-  handleRestoreBuiltIn(e) {
-    e.preventDefault();
-    new RestoreBuiltInProfilesView({ languages: this.props.languages })
+    new RestoreProfileView({
+      organization: this.props.organization
+    })
       .on('done', this.props.updateProfiles)
       .render();
-  }
+  };
+
+  handleRestoreBuiltIn = (e: SyntheticInputEvent) => {
+    e.preventDefault();
+    new RestoreBuiltInProfilesView({
+      languages: this.props.languages,
+      organization: this.props.organization
+    })
+      .on('done', this.props.updateProfiles)
+      .render();
+  };
 
   render() {
     return (
@@ -95,7 +108,7 @@ export default class PageHeader extends React.Component {
 
         {this.props.canAdmin &&
           <div className="page-actions button-group dropdown">
-            <button id="quality-profiles-create" onClick={this.handleCreateClick.bind(this)}>
+            <button id="quality-profiles-create" onClick={this.handleCreateClick}>
               {translate('create')}
             </button>
             <button className="dropdown-toggle js-more-admin-actions" data-toggle="dropdown">
@@ -103,10 +116,7 @@ export default class PageHeader extends React.Component {
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
               <li>
-                <a
-                  href="#"
-                  id="quality-profiles-restore"
-                  onClick={this.handleRestoreClick.bind(this)}>
+                <a href="#" id="quality-profiles-restore" onClick={this.handleRestoreClick}>
                   {translate('quality_profiles.restore_profile')}
                 </a>
               </li>
@@ -115,7 +125,7 @@ export default class PageHeader extends React.Component {
                 <a
                   href="#"
                   id="quality-profiles-restore-built-in"
-                  onClick={this.handleRestoreBuiltIn.bind(this)}>
+                  onClick={this.handleRestoreBuiltIn}>
                   {translate('quality_profiles.restore_built_in_profiles')}
                 </a>
               </li>

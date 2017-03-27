@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import SeverityChange from './SeverityChange';
 import ParameterChange from './ParameterChange';
 
-export default class ChangesList extends React.Component {
-  static propTypes = {
-    changes: React.PropTypes.object.isRequired
-  };
+type Props = {
+  changes: { [string]: ?string }
+};
+
+export default class ChangesList extends React.PureComponent {
+  props: Props;
 
   render() {
     const { changes } = this.props;

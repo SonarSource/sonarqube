@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import escapeHtml from 'escape-html';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-change-projects.hbs';
@@ -27,6 +28,8 @@ export default ModalFormView.extend({
   template: Template,
 
   onRender() {
+    // TODO remove uuid usage
+
     ModalFormView.prototype.onRender.apply(this, arguments);
 
     const { key } = this.options.profile;

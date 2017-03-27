@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
@@ -38,7 +39,11 @@ function parseRules(r) {
   });
 }
 
-export default class EvolutionRules extends React.Component {
+type Props = {};
+
+export default class EvolutionRules extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
   state = {};
 
   componentDidMount() {
@@ -70,6 +75,8 @@ export default class EvolutionRules extends React.Component {
   }
 
   render() {
+    // FIXME getRulesUrl
+
     if (!this.state.latestRulesTotal) {
       return null;
     }

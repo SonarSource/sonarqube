@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import moment from 'moment';
 import ProfileLink from '../components/ProfileLink';
-import { ProfilesListType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { isStagnant } from '../utils';
+import type { Profile } from '../propTypes';
 
-export default class EvolutionStagnant extends React.Component {
-  static propTypes = {
-    profiles: ProfilesListType.isRequired
-  };
+type Props = {
+  organization: ?string,
+  profiles: Array<Profile>
+};
+
+export default class EvolutionStagnant extends React.PureComponent {
+  props: Props;
 
   render() {
     // TODO filter built-in out
@@ -50,7 +54,10 @@ export default class EvolutionStagnant extends React.Component {
           {outdated.map(profile => (
             <li key={profile.key} className="spacer-top">
               <div className="text-ellipsis">
-                <ProfileLink profileKey={profile.key} className="link-no-underline">
+                <ProfileLink
+                  organization={this.props.organization}
+                  profileKey={profile.key}
+                  className="link-no-underline">
                   {profile.name}
                 </ProfileLink>
               </div>

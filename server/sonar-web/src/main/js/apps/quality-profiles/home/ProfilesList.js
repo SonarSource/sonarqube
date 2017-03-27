@@ -17,36 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { groupBy, pick, sortBy } from 'lodash';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
-import { ProfilesListType, LanguagesListType } from '../propTypes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import type { Profile } from '../propTypes';
 
-export default class ProfilesList extends React.Component {
-  static propTypes = {
-    profiles: ProfilesListType,
-    languages: LanguagesListType,
-    location: React.PropTypes.object,
-    canAdmin: React.PropTypes.bool.isRequired,
-    updateProfiles: React.PropTypes.func.isRequired
-  };
+type Props = {
+  canAdmin: boolean,
+  languages: Array<{ key: string, name: string }>,
+  location: { query: { [string]: string } },
+  organization: ?string,
+  profiles: Array<Profile>,
+  updateProfiles: () => Promise<*>
+};
 
-  renderProfiles(profiles) {
+export default class ProfilesList extends React.PureComponent {
+  props: Props;
+
+  renderProfiles(profiles: Array<Profile>) {
     return profiles.map(profile => (
       <ProfilesListRow
-        key={profile.key}
-        profile={profile}
         canAdmin={this.props.canAdmin}
+        key={profile.key}
+        organization={this.props.organization}
+        profile={profile}
         updateProfiles={this.props.updateProfiles}
       />
     ));
   }
 
-  renderHeader(languageKey, profilesCount) {
+  renderHeader(languageKey: string, profilesCount: number) {
     const language = this.props.languages.find(l => l.key === languageKey);
+
+    if (!language) {
+      return null;
+    }
+
     return (
       <thead>
         <tr>
@@ -84,7 +94,11 @@ export default class ProfilesList extends React.Component {
 
     return (
       <div>
-        <ProfilesListHeader languages={languages} currentFilter={language} />
+        <ProfilesListHeader
+          currentFilter={language}
+          languages={languages}
+          organization={this.props.organization}
+        />
 
         {Object.keys(profilesToShow).length === 0 &&
           <div className="alert alert-warning spacer-top">
@@ -95,11 +109,13 @@ export default class ProfilesList extends React.Component {
           <div key={languageKey} className="quality-profile-box quality-profiles-table">
             <table data-language={languageKey} className="data zebra zebra-hover">
 
-              {this.renderHeader(languageKey, profilesToShow[languageKey].length)}
+              {profilesToShow[languageKey] != null &&
+                this.renderHeader(languageKey, profilesToShow[languageKey].length)}
 
               <TooltipsContainer>
                 <tbody>
-                  {this.renderProfiles(profilesToShow[languageKey])}
+                  {profilesToShow[languageKey] != null &&
+                    this.renderProfiles(profilesToShow[languageKey])}
                 </tbody>
               </TooltipsContainer>
 

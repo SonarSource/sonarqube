@@ -17,9 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import { PropTypes } from 'react';
 
 const { shape, string, number, bool, arrayOf } = PropTypes;
+
+export type Profile = {
+  key: string,
+  name: string,
+  isDefault: boolean,
+  isInherited: boolean,
+  language: string,
+  languageName: string,
+  activeRuleCount: number,
+  activeDeprecatedRuleCount: number,
+  projectCount?: number,
+  parentKey?: string,
+  parentName?: string,
+  userUpdatedAt?: string,
+  lastUsed?: string,
+  rulesUpdatedAt: string,
+  depth: number
+};
+
+export type Exporter = {
+  key: string,
+  name: string,
+  languages: Array<string>
+};
 
 export const ProfileType = shape({
   key: string.isRequired,

@@ -17,34 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import classNames from 'classnames';
 import ProfileInheritanceBox from './ProfileInheritanceBox';
 import ChangeParentView from '../views/ChangeParentView';
-import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { getProfileInheritance } from '../../../api/quality-profiles';
+import type { Profile } from '../propTypes';
 
-export default class ProfileInheritance extends React.Component {
-  static propTypes = {
-    profile: ProfileType.isRequired,
-    canAdmin: React.PropTypes.bool.isRequired
-  };
+type Props = {
+  canAdmin: boolean,
+  organization: ?string,
+  profile: Profile,
+  profiles: Array<Profile>,
+  updateProfiles: () => Promise<*>
+};
 
-  state = {
+type State = {
+  ancestors?: Array<{
+    activeRuleCount: number,
+    key: string,
+    name: string,
+    overridingRuleCount?: number
+  }>,
+  children?: Array<{
+    activeRuleCount: number,
+    key: string,
+    name: string,
+    overridingRuleCount?: number
+  }>,
+  loading: boolean,
+  profile?: {
+    activeRuleCount: number,
+    key: string,
+    name: string,
+    overridingRuleCount?: number
+  }
+};
+
+export default class ProfileInheritance extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
+  state: State = {
     loading: true
   };
-
-  componentWillMount() {
-    this.handleChangeParent = this.handleChangeParent.bind(this);
-  }
 
   componentDidMount() {
     this.mounted = true;
     this.loadData();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.profile !== this.props.profile) {
       this.loadData();
     }
@@ -68,20 +92,17 @@ export default class ProfileInheritance extends React.Component {
     });
   }
 
-  handleChangeParent(e) {
+  handleChangeParent = (e: SyntheticInputEvent) => {
     e.preventDefault();
-    new ChangeParentView({
-      profile: this.props.profile,
-      profiles: this.props.profiles
-    })
-      .on('done', () => {
-        this.props.updateProfiles();
-      })
+    new ChangeParentView({ profile: this.props.profile, profiles: this.props.profiles })
+      .on('done', () => this.props.updateProfiles())
       .render();
-  }
+  };
 
   render() {
     const highlightCurrent = !this.state.loading &&
+      this.state.ancestors != null &&
+      this.state.children != null &&
       (this.state.ancestors.length > 0 || this.state.children.length > 0);
     const currentClassName = classNames('js-inheritance-current', {
       selected: highlightCurrent
@@ -102,30 +123,35 @@ export default class ProfileInheritance extends React.Component {
         {!this.state.loading &&
           <table className="data zebra">
             <tbody>
-              {this.state.ancestors.map((ancestor, index) => (
-                <ProfileInheritanceBox
-                  key={ancestor.key}
-                  profile={ancestor}
-                  depth={index}
-                  className="js-inheritance-ancestor"
-                />
-              ))}
+              {this.state.ancestors != null &&
+                this.state.ancestors.map((ancestor, index) => (
+                  <ProfileInheritanceBox
+                    className="js-inheritance-ancestor"
+                    depth={index}
+                    key={ancestor.key}
+                    organization={this.props.organization}
+                    profile={ancestor}
+                  />
+                ))}
 
               <ProfileInheritanceBox
-                profile={this.state.profile}
-                depth={this.state.ancestors.length}
-                displayLink={false}
                 className={currentClassName}
+                depth={this.state.ancestors ? this.state.ancestors.length : 0}
+                displayLink={false}
+                organization={this.props.organization}
+                profile={this.state.profile}
               />
 
-              {this.state.children.map(child => (
-                <ProfileInheritanceBox
-                  key={child.key}
-                  profile={child}
-                  depth={this.state.ancestors.length + 1}
-                  className="js-inheritance-child"
-                />
-              ))}
+              {this.state.children != null &&
+                this.state.children.map(child => (
+                  <ProfileInheritanceBox
+                    className="js-inheritance-child"
+                    depth={this.state.ancestors ? this.state.ancestors.length + 1 : 0}
+                    key={child.key}
+                    organization={this.props.organization}
+                    profile={child}
+                  />
+                ))}
             </tbody>
           </table>}
       </div>

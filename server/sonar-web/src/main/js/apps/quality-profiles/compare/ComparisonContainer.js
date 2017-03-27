@@ -17,28 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
-import { ProfileType, ProfilesListType } from '../propTypes';
 import { compareProfiles } from '../../../api/quality-profiles';
+import { getProfileComparePath } from '../utils';
+import type { Profile } from '../propTypes';
 
-export default class ComparisonContainer extends React.Component {
-  static propTypes = {
-    profile: ProfileType,
-    profiles: ProfilesListType
-  };
+type Props = {
+  location: { query: { withKey?: string } },
+  organization: ?string,
+  profile: Profile,
+  profiles: Array<Profile>
+};
+
+type State = {
+  loading: boolean,
+  left?: { name: string },
+  right?: { name: string },
+  inLeft?: Array<*>,
+  inRight?: Array<*>,
+  modified?: Array<*>
+};
+
+export default class ComparisonContainer extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
+  state: State;
 
   static contextTypes = {
     router: React.PropTypes.object
   };
 
-  state = {
-    loading: false
-  };
-
-  componentWillMount() {
-    this.handleCompare = this.handleCompare.bind(this);
+  constructor(props: Props) {
+    super(props);
+    this.state = { loading: false };
   }
 
   componentDidMount() {
@@ -46,7 +60,7 @@ export default class ComparisonContainer extends React.Component {
     this.loadResults();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.profile !== this.props.profile || prevProps.location !== this.props.location) {
       this.loadResults();
     }
@@ -59,7 +73,7 @@ export default class ComparisonContainer extends React.Component {
   loadResults() {
     const { withKey } = this.props.location.query;
     if (!withKey) {
-      this.setState({ left: null, loading: false });
+      this.setState({ left: undefined, loading: false });
       return;
     }
 
@@ -78,15 +92,10 @@ export default class ComparisonContainer extends React.Component {
     });
   }
 
-  handleCompare(withKey) {
-    this.context.router.push({
-      pathname: '/profiles/compare',
-      query: {
-        key: this.props.profile.key,
-        withKey
-      }
-    });
-  }
+  handleCompare = (withKey: string) => {
+    const path = getProfileComparePath(this.props.profile.key, this.props.organization, withKey);
+    this.context.router.push(path);
+  };
 
   render() {
     const { profile, profiles, location } = this.props;

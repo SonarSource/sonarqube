@@ -17,40 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import Changelog from './Changelog';
 import ChangelogSearch from './ChangelogSearch';
 import ChangelogEmpty from './ChangelogEmpty';
 import { getProfileChangelog } from '../../../api/quality-profiles';
-import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
+import { getProfileChangelogPath } from '../utils';
+import type { Profile } from '../propTypes';
 
-export default class ChangelogContainer extends React.Component {
-  static propTypes = {
-    location: React.PropTypes.object.isRequired,
-    profile: ProfileType
-  };
+type Props = {
+  location: {
+    query: {
+      since?: string,
+      to?: string
+    }
+  },
+  organization: ?string,
+  profile: Profile
+};
+
+type State = {
+  events?: Array<*>,
+  loading: boolean,
+  page?: number,
+  total?: number
+};
+
+export default class ChangelogContainer extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
 
   static contextTypes = {
     router: React.PropTypes.object
   };
 
-  state = {
+  state: State = {
     loading: true
   };
-
-  componentWillMount() {
-    this.handleFromDateChange = this.handleFromDateChange.bind(this);
-    this.handleToDateChange = this.handleToDateChange.bind(this);
-    this.handleReset = this.handleReset.bind(this);
-  }
 
   componentDidMount() {
     this.mounted = true;
     this.loadChangelog();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.location !== this.props.location) {
       this.loadChangelog();
     }
@@ -63,7 +75,7 @@ export default class ChangelogContainer extends React.Component {
   loadChangelog() {
     this.setState({ loading: true });
     const { query } = this.props.location;
-    const data = { profileKey: this.props.profile.key };
+    const data: Object = { profileKey: this.props.profile.key };
     if (query.since) {
       data.since = query.since;
     }
@@ -83,13 +95,13 @@ export default class ChangelogContainer extends React.Component {
     });
   }
 
-  loadMore(e) {
+  loadMore(e: SyntheticInputEvent) {
     e.preventDefault();
     e.target.blur();
 
     this.setState({ loading: true });
     const { query } = this.props.location;
-    const data = {
+    const data: Object = {
       profileKey: this.props.profile.key,
       p: this.state.page + 1
     };
@@ -101,7 +113,7 @@ export default class ChangelogContainer extends React.Component {
     }
 
     getProfileChangelog(data).then(r => {
-      if (this.mounted) {
+      if (this.mounted && this.state.events) {
         this.setState({
           events: [...this.state.events, ...r.events],
           total: r.total,
@@ -112,25 +124,32 @@ export default class ChangelogContainer extends React.Component {
     });
   }
 
-  handleFromDateChange(fromDate) {
-    const query = { ...this.props.location.query, since: fromDate };
-    this.context.router.push({ pathname: '/profiles/changelog', query });
-  }
+  handleFromDateChange = (fromDate?: string) => {
+    const path = getProfileChangelogPath(this.props.profile.key, this.props.organization, {
+      since: fromDate,
+      to: this.props.location.query.to
+    });
+    this.context.router.push(path);
+  };
 
-  handleToDateChange(toDate) {
-    const query = { ...this.props.location.query, to: toDate };
-    this.context.router.push({ pathname: '/profiles/changelog', query });
-  }
+  handleToDateChange = (toDate?: string) => {
+    const path = getProfileChangelogPath(this.props.profile.key, this.props.organization, {
+      since: this.props.location.query.since,
+      to: toDate
+    });
+    this.context.router.push(path);
+  };
 
-  handleReset() {
-    const query = { key: this.props.profile.key };
-    this.context.router.push({ pathname: '/profiles/changelog', query });
-  }
+  handleReset = () => {
+    const path = getProfileChangelogPath(this.props.profile.key, this.props.organization);
+    this.context.router.push(path);
+  };
 
   render() {
     const { query } = this.props.location;
 
     const shouldDisplayFooter = this.state.events != null &&
+      this.state.total != null &&
       this.state.events.length < this.state.total;
 
     return (

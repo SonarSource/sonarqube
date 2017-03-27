@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-restore-profile.hbs';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
@@ -47,6 +48,7 @@ export default ModalFormView.extend({
   serializeData() {
     return {
       ...ModalFormView.prototype.serializeData.apply(this, arguments),
+      organization: this.options.organization,
       profile: this.profile,
       ruleSuccesses: this.ruleSuccesses,
       ruleFailures: this.ruleFailures

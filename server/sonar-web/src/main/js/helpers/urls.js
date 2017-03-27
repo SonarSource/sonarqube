@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getProfilePath } from '../apps/quality-profiles/utils';
+
 /**
  * Generate URL for a component's home page
  * @param {string} componentKey
@@ -92,11 +94,8 @@ export function getComponentPermissionsUrl(componentKey) {
  * @param {string} key
  * @returns {Object}
  */
-export function getQualityProfileUrl(key) {
-  return {
-    pathname: '/profiles/show',
-    query: { key }
-  };
+export function getQualityProfileUrl(key, organization) {
+  return getProfilePath(key, organization);
 }
 
 /**

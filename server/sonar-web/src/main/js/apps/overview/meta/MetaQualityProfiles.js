@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
@@ -27,6 +28,15 @@ import { searchRules } from '../../../api/rules';
 import { getLanguages } from '../../../store/rootReducer';
 
 class MetaQualityProfiles extends React.Component {
+  mounted: boolean;
+
+  props: {
+    component: { organization: string },
+    customOrganizations: boolean,
+    languages: { [string]: { name: string } },
+    profiles: Array<{ key: string, language: string, name: string }>
+  };
+
   state = {
     deprecatedByKey: {}
   };
@@ -74,12 +84,16 @@ class MetaQualityProfiles extends React.Component {
     const languageFromStore = this.props.languages[profile.language];
     const languageName = languageFromStore ? languageFromStore.name : profile.language;
 
+    const path = this.props.customOrganizations
+      ? getQualityProfileUrl(profile.key, this.props.component.organization)
+      : getQualityProfileUrl(profile.key);
+
     const inner = (
       <div className="text-ellipsis">
         <span className="note spacer-right">
           {'(' + languageName + ')'}
         </span>
-        <Link to={getQualityProfileUrl(profile.key)}>
+        <Link to={path}>
           {profile.name}
         </Link>
       </div>

@@ -17,34 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import ChangeProjectsView from '../views/ChangeProjectsView';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
-import { ProfileType } from '../propTypes';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
+import type { Profile } from '../propTypes';
 
-export default class ProfileProjects extends React.Component {
-  static propTypes = {
-    profile: ProfileType,
-    canAdmin: React.PropTypes.bool.isRequired
-  };
+type Props = {
+  canAdmin: boolean,
+  organization: ?string,
+  profile: Profile,
+  updateProfiles: () => Promise<*>
+};
 
-  state = {
+type State = {
+  loading: boolean,
+  more?: boolean,
+  projects: ?Array<*>
+};
+
+export default class ProfileProjects extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
+  state: State = {
+    loading: true,
     projects: null
   };
-
-  componentWillMount() {
-    this.loadProjects = this.loadProjects.bind(this);
-  }
 
   componentDidMount() {
     this.mounted = true;
     this.loadProjects();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.profile !== this.props.profile) {
       this.loadProjects();
     }
@@ -71,12 +79,13 @@ export default class ProfileProjects extends React.Component {
     });
   }
 
-  handleChange(e) {
+  handleChange(e: SyntheticInputEvent) {
     e.preventDefault();
     e.target.blur();
     new ChangeProjectsView({
-      profile: this.props.profile,
-      loadProjects: this.props.updateProfiles
+      loadProjects: this.props.updateProfiles,
+      organization: this.props.organization,
+      profile: this.props.profile
     }).render();
   }
 

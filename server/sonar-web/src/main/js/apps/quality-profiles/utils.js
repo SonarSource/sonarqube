@@ -20,14 +20,9 @@
 // @flow
 import { sortBy } from 'lodash';
 import moment from 'moment';
+import type { Profile } from './propTypes';
 
-type Profiles = Array<{
-  key: string,
-  name: string,
-  parentKey?: string
-}>;
-
-export function sortProfiles(profiles: Profiles) {
+export function sortProfiles(profiles: Array<Profile>) {
   const result = [];
   const sorted = sortBy(profiles, 'name');
 
@@ -67,6 +62,56 @@ export function createFakeProfile(overrides: {}) {
   };
 }
 
-export function isStagnant(profile: { userUpdatedAt: string }) {
+export function isStagnant(profile: Profile) {
   return moment().diff(moment(profile.userUpdatedAt), 'years') >= 1;
 }
+
+export const getProfilesPath = (organization: ?string) =>
+  organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
+
+export const getProfilesForLanguagePath = (language: string, organization: ?string) => ({
+  pathname: organization ? `/organizations/${organization}/quality_profiles` : '/profiles',
+  query: { language }
+});
+
+export const getProfilePath = (profile: string, organization: ?string) => ({
+  pathname: organization
+    ? `/organizations/${organization}/quality_profiles/show`
+    : '/profiles/show',
+  query: { key: profile }
+});
+
+export const getProfileComparePath = (profile: string, organization: ?string, withKey?: string) => {
+  const query: Object = { key: profile };
+  if (withKey) {
+    Object.assign(query, { withKey });
+  }
+  return {
+    pathname: organization
+      ? `/organizations/${organization}/quality_profiles/compare`
+      : '/profiles/compare',
+    query
+  };
+};
+
+export const getProfileChangelogPath = (
+  profile: string,
+  organization: ?string,
+  filter?: { since?: string, to?: string }
+) => {
+  const query: Object = { key: profile };
+  if (filter) {
+    if (filter.since) {
+      Object.assign(query, { since: filter.since });
+    }
+    if (filter.to) {
+      Object.assign(query, { to: filter.to });
+    }
+  }
+  return {
+    pathname: organization
+      ? `/organizations/${organization}/quality_profiles/changelog`
+      : '/profiles/changelog',
+    query
+  };
+};

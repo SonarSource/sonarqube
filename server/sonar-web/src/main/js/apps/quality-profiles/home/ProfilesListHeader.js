@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { IndexLink } from 'react-router';
-import { LanguagesListType } from '../propTypes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
 
-export default class ProfilesListHeader extends React.Component {
-  static propTypes = {
-    languages: LanguagesListType.isRequired,
-    currentFilter: React.PropTypes.string
-  };
+type Props = {
+  currentFilter?: string,
+  languages: Array<{ key: string, name: string }>,
+  organization: ?string
+};
+
+export default class ProfilesListHeader extends React.PureComponent {
+  props: Props;
 
   renderFilterToggle() {
     const { languages, currentFilter } = this.props;
     const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
 
-    const label = currentFilter
+    const label = currentLanguage
       ? translateWithParameters('quality_profiles.x_Profiles', currentLanguage.name)
       : translate('quality_profiles.all_profiles');
 
@@ -50,14 +54,14 @@ export default class ProfilesListHeader extends React.Component {
     return (
       <ul className="dropdown-menu">
         <li>
-          <IndexLink to="/profiles/">
+          <IndexLink to={getProfilesPath(this.props.organization)}>
             {translate('quality_profiles.all_profiles')}
           </IndexLink>
         </li>
         {this.props.languages.map(language => (
           <li key={language.key}>
             <IndexLink
-              to={{ pathname: '/profiles/', query: { language: language.key } }}
+              to={getProfilesForLanguagePath(language.key, this.props.organization)}
               className="js-language-filter-option"
               data-language={language.key}>
               {language.name}

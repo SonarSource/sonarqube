@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import { request, checkStatus, parseJSON, getJSON, post, postJSON } from '../helpers/request';
 
-export function getQualityProfiles(data) {
+export function getQualityProfiles(data: { organization?: string, projectKey?: string }) {
   const url = '/api/qualityprofiles/search';
   return getJSON(url, data).then(r => r.profiles);
 }
 
-export function createQualityProfile(data) {
+export function createQualityProfile(data: Object) {
   return request('/api/qualityprofiles/create')
     .setMethod('post')
     .setData(data)
@@ -33,7 +34,7 @@ export function createQualityProfile(data) {
     .then(parseJSON);
 }
 
-export function restoreQualityProfile(data) {
+export function restoreQualityProfile(data: Object) {
   return request('/api/qualityprofiles/restore')
     .setMethod('post')
     .setData(data)
@@ -42,128 +43,80 @@ export function restoreQualityProfile(data) {
     .then(parseJSON);
 }
 
-export function getProfileProjects(data) {
+export function getProfileProjects(data: Object) {
   const url = '/api/qualityprofiles/projects';
   return getJSON(url, data);
 }
 
-export function getProfileInheritance(profileKey) {
+export function getProfileInheritance(profileKey: string) {
   const url = '/api/qualityprofiles/inheritance';
   const data = { profileKey };
   return getJSON(url, data);
 }
 
-export function setDefaultProfile(profileKey) {
+export function setDefaultProfile(profileKey: string) {
   const url = '/api/qualityprofiles/set_default';
   const data = { profileKey };
   return post(url, data);
 }
 
-/**
- * Rename profile
- * @param {string} key
- * @param {string} name
- * @returns {Promise}
- */
-export function renameProfile(key, name) {
+export function renameProfile(key: string, name: string) {
   const url = '/api/qualityprofiles/rename';
   const data = { key, name };
   return post(url, data);
 }
 
-/**
- * Copy profile
- * @param {string} fromKey
- * @param {string} toName
- * @returns {Promise}
- */
-export function copyProfile(fromKey, toName) {
+export function copyProfile(fromKey: string, toName: string) {
   const url = '/api/qualityprofiles/copy';
   const data = { fromKey, toName };
   return postJSON(url, data);
 }
 
-/**
- * Delete profile
- * @param {string} profileKey
- * @returns {Promise}
- */
-export function deleteProfile(profileKey) {
+export function deleteProfile(profileKey: string) {
   const url = '/api/qualityprofiles/delete';
   const data = { profileKey };
   return post(url, data);
 }
 
-/**
- * Change profile parent
- * @param {string} profileKey
- * @param {string} parentKey
- * @returns {Promise}
- */
-export function changeProfileParent(profileKey, parentKey) {
+export function changeProfileParent(profileKey: string, parentKey: string) {
   const url = '/api/qualityprofiles/change_parent';
   const data = { profileKey, parentKey };
   return post(url, data);
 }
 
-/**
- * Get list of available importers
- * @returns {Promise}
- */
 export function getImporters() {
   const url = '/api/qualityprofiles/importers';
   return getJSON(url).then(r => r.importers);
 }
 
-/**
- * Get list of available exporters
- * @returns {Promise}
- */
 export function getExporters() {
   const url = '/api/qualityprofiles/exporters';
   return getJSON(url).then(r => r.exporters);
 }
 
-/**
- * Restore built-in profiles
- * @param {string} languageKey
- * @returns {Promise}
- */
-export function restoreBuiltInProfiles(languageKey) {
+export function restoreBuiltInProfiles(data: Object) {
   const url = '/api/qualityprofiles/restore_built_in';
-  const data = { language: languageKey };
   return post(url, data);
 }
 
-/**
- * Get changelog of a quality profile
- * @param {Object} data API parameters
- * @returns {Promise}
- */
-export function getProfileChangelog(data) {
+export function getProfileChangelog(data: Object) {
   const url = '/api/qualityprofiles/changelog';
   return getJSON(url, data);
 }
 
-/**
- * Compare two profiles
- * @param {string} leftKey
- * @param {string} rightKey
- * @returns {Promise}
- */
-export function compareProfiles(leftKey, rightKey) {
+export function compareProfiles(leftKey: string, rightKey: string) {
   const url = '/api/qualityprofiles/compare';
   const data = { leftKey, rightKey };
   return getJSON(url, data);
 }
 
-export function associateProject(profileKey, projectKey) {
+export function associateProject(profileKey: string, projectKey: string) {
   const url = '/api/qualityprofiles/add_project';
   const data = { profileKey, projectKey };
   return post(url, data);
 }
 
-export function dissociateProject(profileKey, projectKey) {
+export function dissociateProject(profileKey: string, projectKey: string) {
   const url = '/api/qualityprofiles/remove_project';
   const data = { profileKey, projectKey };
   return post(url, data);

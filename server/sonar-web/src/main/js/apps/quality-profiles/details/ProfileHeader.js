@@ -17,21 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
 import ProfileLink from '../components/ProfileLink';
 import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
-import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
-import { isStagnant } from '../utils';
+import {
+  isStagnant,
+  getProfilesPath,
+  getProfilesForLanguagePath,
+  getProfileChangelogPath
+} from '../utils';
+import type { Profile } from '../propTypes';
 
-export default class ProfileHeader extends React.Component {
-  static propTypes = {
-    profile: ProfileType.isRequired,
-    canAdmin: React.PropTypes.bool.isRequired,
-    updateProfiles: React.PropTypes.func.isRequired
-  };
+type Props = {
+  canAdmin: boolean,
+  organization: ?string,
+  profile: Profile,
+  updateProfiles: () => Promise<*>
+};
+
+export default class ProfileHeader extends React.PureComponent {
+  props: Props;
 
   renderUpdateDate() {
     const { profile } = this.props;
@@ -81,25 +90,28 @@ export default class ProfileHeader extends React.Component {
   }
 
   render() {
-    const { profile } = this.props;
+    const { organization, profile } = this.props;
 
     return (
       <header className="page-header quality-profile-header">
         <div className="note spacer-bottom">
-          <IndexLink to="/profiles/" className="text-muted">
+          <IndexLink to={getProfilesPath(organization)} className="text-muted">
             {translate('quality_profiles.page')}
           </IndexLink>
           {' / '}
           <Link
-            to={{ pathname: '/profiles/', query: { language: profile.language } }}
+            to={getProfilesForLanguagePath(profile.language, organization)}
             className="text-muted">
             {profile.languageName}
           </Link>
         </div>
 
         <h1 className="page-title">
-          <ProfileLink profileKey={profile.key} className="link-base-color">
-            {profile.name}
+          <ProfileLink
+            organization={organization}
+            profileKey={profile.key}
+            className="link-base-color">
+            <span>{profile.name}</span>
           </ProfileLink>
         </h1>
 
@@ -108,9 +120,7 @@ export default class ProfileHeader extends React.Component {
             {this.renderUpdateDate()}
             {this.renderUsageDate()}
             <li>
-              <Link
-                to={{ pathname: '/profiles/changelog', query: { key: profile.key } }}
-                className="button">
+              <Link to={getProfileChangelogPath(profile.key, organization)} className="button">
                 {translate('changelog')}
               </Link>
             </li>
@@ -122,8 +132,9 @@ export default class ProfileHeader extends React.Component {
                   <i className="icon-dropdown" />
                 </button>
                 <ProfileActions
-                  profile={profile}
                   canAdmin={this.props.canAdmin}
+                  organization={organization}
+                  profile={profile}
                   updateProfiles={this.props.updateProfiles}
                 />
               </div>
