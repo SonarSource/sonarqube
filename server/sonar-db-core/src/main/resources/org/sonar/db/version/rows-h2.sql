@@ -1,5 +1,3 @@
--- All the rows inserted during Rails migrations. Rows inserted during server startup tasks (Java) are excluded : rules, profiles, metrics, ...
-
 INSERT INTO USERS(ID, LOGIN, NAME, EMAIL, EXTERNAL_IDENTITY, EXTERNAL_IDENTITY_PROVIDER, USER_LOCAL, CRYPTED_PASSWORD, SALT, IS_ROOT, CREATED_AT, UPDATED_AT) VALUES (1, 'admin', 'Administrator', '', 'admin', 'sonarqube', true, 'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', false, '1418215735482', '1418215735482');
 ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 2;
 
