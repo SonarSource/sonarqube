@@ -81,8 +81,9 @@ public class CeQueueDao implements Dao {
 
   public CeQueueDto insert(DbSession session, CeQueueDto dto) {
     if (dto.getCreatedAt() == 0L || dto.getUpdatedAt() == 0L) {
-      dto.setCreatedAt(system2.now());
-      dto.setUpdatedAt(system2.now());
+      long now = system2.now();
+      dto.setCreatedAt(now);
+      dto.setUpdatedAt(now);
     }
 
     mapper(session).insert(dto);
