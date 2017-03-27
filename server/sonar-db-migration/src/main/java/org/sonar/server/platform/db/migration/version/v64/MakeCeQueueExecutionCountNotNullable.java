@@ -21,31 +21,27 @@ package org.sonar.server.platform.db.migration.version.v64;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 
-public class AddCeQueueWorkerUuidAndExecutionCount extends DdlChange {
+public class MakeCeQueueExecutionCountNotNullable extends DdlChange {
 
   private static final String TABLE_CE_QUEUE = "ce_queue";
 
-  public AddCeQueueWorkerUuidAndExecutionCount(Database db) {
+  public MakeCeQueueExecutionCountNotNullable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddColumnsBuilder(getDialect(), TABLE_CE_QUEUE)
-      .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder()
-        .setColumnName("worker_uuid")
-        .setLimit(VarcharColumnDef.UUID_SIZE)
-        .setIsNullable(true)
-        .build())
-      .addColumn(newIntegerColumnDefBuilder()
+    context.execute("update ce_queue set execution_count = 0 where execution_count is null");
+
+    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_CE_QUEUE)
+      .updateColumn(newIntegerColumnDefBuilder()
         .setColumnName("execution_count")
-        .setIsNullable(true)
+        .setIsNullable(false)
         .build())
       .build());
   }
