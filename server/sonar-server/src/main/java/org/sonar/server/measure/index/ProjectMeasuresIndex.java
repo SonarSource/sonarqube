@@ -42,7 +42,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.sonar.core.util.stream.Collectors;
-import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
@@ -85,7 +84,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
-public class ProjectMeasuresIndex extends BaseIndex {
+public class ProjectMeasuresIndex {
 
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
     NCLOC_KEY,
@@ -113,15 +112,16 @@ public class ProjectMeasuresIndex extends BaseIndex {
     .put(FIELD_TAGS, ProjectMeasuresIndex::addTagsFacet)
     .build();
 
+  private final EsClient client;
   private final AuthorizationTypeSupport authorizationTypeSupport;
 
   public ProjectMeasuresIndex(EsClient client, AuthorizationTypeSupport authorizationTypeSupport) {
-    super(client);
+    this.client = client;
     this.authorizationTypeSupport = authorizationTypeSupport;
   }
 
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
-    SearchRequestBuilder requestBuilder = getClient()
+    SearchRequestBuilder requestBuilder = client
       .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
       .setFetchSource(false)
       .setFrom(searchOptions.getOffset())
@@ -321,7 +321,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
       tagFacet.include(".*" + escapeSpecialRegexChars(textQuery) + ".*");
     }
 
-    SearchRequestBuilder searchQuery = getClient()
+    SearchRequestBuilder searchQuery = client
       .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
       .setQuery(authorizationTypeSupport.createQueryFilter())
       .setFetchSource(false)

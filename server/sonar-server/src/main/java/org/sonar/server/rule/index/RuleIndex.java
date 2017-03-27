@@ -54,7 +54,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -94,7 +93,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
  * The unique entry-point to interact with Elasticsearch index "rules".
  * All the requests are listed here.
  */
-public class RuleIndex extends BaseIndex {
+public class RuleIndex {
 
   public static final String FACET_LANGUAGES = "languages";
   public static final String FACET_TAGS = "tags";
@@ -109,13 +108,14 @@ public class RuleIndex extends BaseIndex {
     Collections2.filter(
       Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatus::toString),
       input -> !RuleStatus.REMOVED.toString().equals(input)));
+  private final EsClient client;
 
   public RuleIndex(EsClient client) {
-    super(client);
+    this.client = client;
   }
 
   public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
-    SearchRequestBuilder esSearch = getClient()
+    SearchRequestBuilder esSearch = client
       .prepareSearch(INDEX_TYPE_RULE);
 
     QueryBuilder qb = buildQuery(query);
@@ -143,7 +143,7 @@ public class RuleIndex extends BaseIndex {
    * Return all keys matching the search query, without pagination nor facets
    */
   public Iterator<RuleKey> searchAll(RuleQuery query) {
-    SearchRequestBuilder esSearch = getClient()
+    SearchRequestBuilder esSearch = client
       .prepareSearch(INDEX_TYPE_RULE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
@@ -159,7 +159,7 @@ public class RuleIndex extends BaseIndex {
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
     SearchResponse response = esSearch.get();
-    return scrollIds(getClient(), response.getScrollId(), RuleKey::parse);
+    return scrollIds(client, response.getScrollId(), RuleKey::parse);
   }
 
   /* Build main query (search based) */
@@ -478,7 +478,7 @@ public class RuleIndex extends BaseIndex {
     if (query != null) {
       termsAggregation.include(".*" + escapeSpecialRegexChars(query) + ".*");
     }
-    SearchRequestBuilder request = getClient()
+    SearchRequestBuilder request = client
       .prepareSearch(INDEX_TYPE_RULE, INDEX_TYPE_ACTIVE_RULE)
       .setQuery(matchAllQuery())
       .setSize(0)

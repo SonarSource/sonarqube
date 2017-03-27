@@ -27,7 +27,6 @@ import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -42,22 +41,23 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 
-public class TestIndex extends BaseIndex {
+public class TestIndex {
   private static final Function<Map<String, Object>, TestDoc> CONVERTER = new NonNullInputFunction<Map<String, Object>, TestDoc>() {
     @Override
     protected TestDoc doApply(Map<String, Object> fields) {
       return new TestDoc(fields);
     }
   };
+  private final EsClient client;
 
   public TestIndex(EsClient client) {
-    super(client);
+    this.client = client;
   }
 
   public List<CoveredFileDoc> coveredFiles(String testUuid) {
     List<CoveredFileDoc> coveredFiles = new ArrayList<>();
 
-    for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
+    for (SearchHit hit : client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
       .setSize(1)
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)))
       .get().getHits().getHits()) {
@@ -68,7 +68,7 @@ public class TestIndex extends BaseIndex {
   }
 
   public SearchResult<TestDoc> searchByTestFileUuid(String testFileUuid, SearchOptions searchOptions) {
-    SearchRequestBuilder searchRequest = getClient().prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
+    SearchRequestBuilder searchRequest = client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
       .setSize(searchOptions.getLimit())
       .setFrom(searchOptions.getOffset())
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_FILE_UUID, testFileUuid)));
@@ -77,7 +77,7 @@ public class TestIndex extends BaseIndex {
   }
 
   public SearchResult<TestDoc> searchBySourceFileUuidAndLineNumber(String sourceFileUuid, int lineNumber, SearchOptions searchOptions) {
-    SearchRequestBuilder searchRequest = getClient().prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
+    SearchRequestBuilder searchRequest = client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
       .setSize(searchOptions.getLimit())
       .setFrom(searchOptions.getOffset())
       .setQuery(nestedQuery(FIELD_COVERED_FILES, boolQuery()
@@ -97,7 +97,7 @@ public class TestIndex extends BaseIndex {
   }
 
   public Optional<TestDoc> getNullableByTestUuid(String testUuid) {
-    for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
+    for (SearchHit hit : client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
       .setSize(1)
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)))
       .get().getHits().getHits()) {
@@ -108,7 +108,7 @@ public class TestIndex extends BaseIndex {
   }
 
   public SearchResult<TestDoc> searchByTestUuid(String testUuid, SearchOptions searchOptions) {
-    SearchRequestBuilder searchRequest = getClient().prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
+    SearchRequestBuilder searchRequest = client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
       .setSize(searchOptions.getLimit())
       .setFrom(searchOptions.getOffset())
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)));
