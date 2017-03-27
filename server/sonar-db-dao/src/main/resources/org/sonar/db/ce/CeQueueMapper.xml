@@ -112,9 +112,10 @@
     </where>
   </sql>
 
-  <select id="selectEligibleForPeek" resultType="String">
+  <select id="selectEligibleForPeek" resultType="org.sonar.db.ce.EligibleTaskDto">
     select
-      cq.uuid
+      cq.uuid as "uuid",
+      cq.execution_count as "executionCount"
     from
       ce_queue cq
     where

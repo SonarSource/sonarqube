@@ -110,24 +110,24 @@ public class CeQueueDao implements Dao {
   }
 
   public Optional<CeQueueDto> peek(DbSession session) {
-    List<String> taskUuids = mapper(session).selectEligibleForPeek(ONE_ROW_LIMIT);
-    if (taskUuids.isEmpty()) {
+    List<EligibleTaskDto> eligibles = mapper(session).selectEligibleForPeek(ONE_ROW_LIMIT);
+    if (eligibles.isEmpty()) {
       return Optional.absent();
     }
 
-    String taskUuid = taskUuids.get(0);
-    return tryToPeek(session, taskUuid);
+    EligibleTaskDto eligible = eligibles.get(0);
+    return tryToPeek(session, eligible);
   }
 
-  private Optional<CeQueueDto> tryToPeek(DbSession session, String taskUuid) {
-    int touchedRows = mapper(session).updateIf(taskUuid,
+  private Optional<CeQueueDto> tryToPeek(DbSession session, EligibleTaskDto eligible) {
+    int touchedRows = mapper(session).updateIf(eligible.getUuid(),
       new UpdateIf.NewProperties(IN_PROGRESS, system2.now(), system2.now()),
       new UpdateIf.OldProperties(PENDING));
     if (touchedRows != 1) {
       return Optional.absent();
     }
 
-    CeQueueDto result = mapper(session).selectByUuid(taskUuid);
+    CeQueueDto result = mapper(session).selectByUuid(eligible.getUuid());
     session.commit();
     return Optional.of(result);
   }
