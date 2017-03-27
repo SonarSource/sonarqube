@@ -67,7 +67,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
@@ -111,7 +110,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
  * The unique entry-point to interact with Elasticsearch index "issues".
  * All the requests are listed here.
  */
-public class IssueIndex extends BaseIndex {
+public class IssueIndex {
 
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
 
@@ -160,13 +159,13 @@ public class IssueIndex extends BaseIndex {
   };
 
   private final Sorting sorting;
+  private final EsClient client;
   private final System2 system;
   private final UserSession userSession;
   private final AuthorizationTypeSupport authorizationTypeSupport;
 
   public IssueIndex(EsClient client, System2 system, UserSession userSession, AuthorizationTypeSupport authorizationTypeSupport) {
-    super(client);
-
+    this.client = client;
     this.system = system;
     this.userSession = userSession;
     this.authorizationTypeSupport = authorizationTypeSupport;
@@ -192,7 +191,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
-    SearchRequestBuilder requestBuilder = getClient()
+    SearchRequestBuilder requestBuilder = client
       .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE);
 
     configureSorting(query, requestBuilder);
@@ -477,7 +476,7 @@ public class IssueIndex extends BaseIndex {
 
   private Optional<Long> getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String facetNameAndField = IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
-    SearchRequestBuilder esRequest = getClient()
+    SearchRequestBuilder esRequest = client
       .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
       .setSize(0);
     BoolQueryBuilder esFilter = boolQuery();
@@ -588,7 +587,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   public List<String> listTags(@Nullable String textQuery, int maxNumberOfTags) {
-    SearchRequestBuilder requestBuilder = getClient()
+    SearchRequestBuilder requestBuilder = client
       .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE, RuleIndexDefinition.INDEX_TYPE_RULE);
 
     requestBuilder.setQuery(boolQuery().must(matchAllQuery()).filter(createBoolFilter(
@@ -636,7 +635,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int maxNumberOfTags) {
-    SearchRequestBuilder requestBuilder = getClient()
+    SearchRequestBuilder requestBuilder = client
       .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
       // Avoids returning search hits
       .setSize(0);
@@ -686,7 +685,7 @@ public class IssueIndex extends BaseIndex {
         throw new IllegalStateException(format("Component of scope '%s' is not allowed", component.scope()));
     }
 
-    SearchRequestBuilder requestBuilder = getClient()
+    SearchRequestBuilder requestBuilder = client
       .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
@@ -701,6 +700,6 @@ public class IssueIndex extends BaseIndex {
       .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
     SearchResponse response = requestBuilder.get();
 
-    return EsUtils.scroll(getClient(), response.getScrollId(), DOC_CONVERTER);
+    return EsUtils.scroll(client, response.getScrollId(), DOC_CONVERTER);
   }
 }
