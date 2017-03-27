@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import Select from 'react-select';
-import { ProfileType, ProfilesListType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
+import type { Profile } from '../propTypes';
 
-export default class ComparisonForm extends React.Component {
-  static propTypes = {
-    profile: ProfileType.isRequired,
-    profiles: ProfilesListType.isRequired,
-    onCompare: React.PropTypes.func.isRequired
-  };
+type Props = {
+  profile: Profile,
+  profiles: Array<Profile>,
+  onCompare: (string) => void,
+  withKey: string
+};
 
-  handleChange(option) {
+export default class ComparisonForm extends React.PureComponent {
+  props: Props;
+
+  handleChange(option: { value: string }) {
     this.props.onCompare(option.value);
   }
 

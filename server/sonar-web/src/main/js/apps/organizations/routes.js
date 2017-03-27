@@ -28,6 +28,7 @@ import OrganizationPermissions from './components/OrganizationPermissions';
 import OrganizationPermissionTemplates from './components/OrganizationPermissionTemplates';
 import OrganizationProjectsManagement from './components/OrganizationProjectsManagement';
 import OrganizationDelete from './components/OrganizationDelete';
+import qualityProfilesRoutes from '../quality-profiles/routes';
 
 const routes = [
   {
@@ -53,6 +54,10 @@ const routes = [
       {
         path: 'members',
         component: OrganizationMembersContainer
+      },
+      {
+        path: 'quality_profiles',
+        childRoutes: qualityProfilesRoutes
       },
       {
         component: OrganizationAdmin,

@@ -44,6 +44,15 @@ exports[`test admin 1`] = `
             organization.members.page
           </Link>
         </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/quality_profiles">
+            quality_profiles.page
+          </Link>
+        </li>
         <li
           className="">
           <a
@@ -165,6 +174,15 @@ exports[`test regular user 1`] = `
             organization.members.page
           </Link>
         </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/quality_profiles">
+            quality_profiles.page
+          </Link>
+        </li>
       </ul>
     </div>
   </div>
@@ -215,6 +233,15 @@ exports[`test undeletable org 1`] = `
             style={Object {}}
             to="/organizations/foo/members">
             organization.members.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/quality_profiles">
+            quality_profiles.page
           </Link>
         </li>
         <li

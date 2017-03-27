@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 
-export default class ProfileRulesRow extends React.Component {
-  static propTypes = {
-    renderTitle: React.PropTypes.func.isRequired,
-    renderCount: React.PropTypes.func.isRequired,
-    renderTotal: React.PropTypes.func.isRequired
-  };
+type Props = {
+  renderCount: () => ?React.Element<*>,
+  renderTitle: () => React.Element<*>,
+  renderTotal: () => ?React.Element<*>
+};
+
+export default class ProfileRulesRow extends React.PureComponent {
+  props: Props;
 
   render() {
     const { renderTitle, renderCount, renderTotal } = this.props;

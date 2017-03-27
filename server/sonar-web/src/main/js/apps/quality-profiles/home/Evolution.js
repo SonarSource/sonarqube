@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import EvolutionDeprecated from './EvolutionDeprecated';
 import EvolutionStagnant from './EvolutionStagnant';
 import EvolutionRules from './EvolutionRules';
-import { ProfilesListType } from '../propTypes';
+import type { Profile } from '../propTypes';
 
-export default class Evolution extends React.Component {
-  static propTypes = {
-    profiles: ProfilesListType.isRequired
-  };
+type Props = {
+  organization: ?string,
+  profiles: Array<Profile>
+};
+
+export default class Evolution extends React.PureComponent {
+  props: Props;
 
   render() {
+    const { organization, profiles } = this.props;
+
     return (
       <div className="quality-profiles-evolution">
-        <EvolutionDeprecated profiles={this.props.profiles} />
-        <EvolutionStagnant profiles={this.props.profiles} />
+        <EvolutionDeprecated organization={organization} profiles={profiles} />
+        <EvolutionStagnant organization={organization} profiles={profiles} />
         <EvolutionRules />
       </div>
     );

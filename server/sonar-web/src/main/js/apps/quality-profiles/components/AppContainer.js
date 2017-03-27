@@ -19,9 +19,14 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getLanguages, getCurrentUser } from '../../../store/rootReducer';
+import { getLanguages, getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
 
-export default connect(state => ({
+const mapStateToProps = (state, ownProps) => ({
   currentUser: getCurrentUser(state),
-  languages: getLanguages(state)
-}))(App);
+  languages: getLanguages(state),
+  organization: ownProps.params.organizationKey
+    ? getOrganizationByKey(state, ownProps.params.organizationKey)
+    : null
+});
+
+export default connect(mapStateToProps)(App);

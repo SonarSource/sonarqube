@@ -17,31 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import Helmet from 'react-helmet';
 import ProfileNotFound from './ProfileNotFound';
 import ProfileHeader from '../details/ProfileHeader';
 import { translate } from '../../../helpers/l10n';
-import { ProfilesListType } from '../propTypes';
+import type { Profile } from '../propTypes';
 
-export default class ProfileContainer extends React.Component {
-  static propTypes = {
-    location: React.PropTypes.object,
-    profiles: ProfilesListType,
-    canAdmin: React.PropTypes.bool,
-    updateProfiles: React.PropTypes.func
-  };
+type Props = {
+  canAdmin: boolean,
+  children: React.Element<*>,
+  location: { query: { key: string } },
+  organization: ?string,
+  profiles: Array<Profile>,
+  updateProfiles: () => Promise<*>
+};
+
+export default class ProfileContainer extends React.PureComponent {
+  props: Props;
 
   render() {
-    const { profiles, location, ...other } = this.props;
+    const { organization, profiles, location, ...other } = this.props;
     const { key } = location.query;
     const profile = profiles.find(profile => profile.key === key);
 
     if (!profile) {
-      return <ProfileNotFound />;
+      return <ProfileNotFound organization={organization} />;
     }
 
-    const child = React.cloneElement(this.props.children, { profile, profiles, ...other });
+    const child = React.cloneElement(this.props.children, {
+      organization,
+      profile,
+      profiles,
+      ...other
+    });
 
     const title = translate('quality_profiles.page') + ' - ' + profile.name;
 
@@ -50,8 +60,9 @@ export default class ProfileContainer extends React.Component {
         <Helmet title={title} titleTemplate="SonarQube - %s" />
 
         <ProfileHeader
-          profile={profile}
           canAdmin={this.props.canAdmin}
+          organization={organization}
+          profile={profile}
           updateProfiles={this.props.updateProfiles}
         />
         {child}

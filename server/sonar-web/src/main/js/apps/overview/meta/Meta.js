@@ -57,7 +57,12 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
 
       {shouldShowQualityGate && <MetaQualityGate gate={qualityGate} />}
 
-      {shouldShowQualityProfiles && <MetaQualityProfiles profiles={qualityProfiles} />}
+      {shouldShowQualityProfiles &&
+        <MetaQualityProfiles
+          component={component}
+          customOrganizations={areThereCustomOrganizations}
+          profiles={qualityProfiles}
+        />}
 
       <MetaLinks component={component} />
 

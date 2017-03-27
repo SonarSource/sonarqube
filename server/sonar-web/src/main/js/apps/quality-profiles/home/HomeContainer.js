@@ -17,14 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import Helmet from 'react-helmet';
 import PageHeader from './PageHeader';
 import Evolution from './Evolution';
 import ProfilesList from './ProfilesList';
 import { translate } from '../../../helpers/l10n';
+import type { Profile } from '../propTypes';
 
-export default class HomeContainer extends React.Component {
+type Props = {
+  canAdmin: boolean,
+  languages: Array<{ key: string, name: string }>,
+  location: { query: { [string]: string } },
+  organization?: string,
+  profiles: Array<Profile>,
+  updateProfiles: () => Promise<*>
+};
+
+export default class HomeContainer extends React.PureComponent {
+  props: Props;
+
   render() {
     return (
       <div>

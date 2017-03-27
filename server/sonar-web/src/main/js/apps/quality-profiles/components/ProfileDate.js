@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import moment from 'moment';
 import shallowCompare from 'react-addons-shallow-compare';
 import { translate } from '../../../helpers/l10n';
 
-export default class ProfileDate extends React.Component {
-  static propTypes = {
-    date: React.PropTypes.string
-  };
+type Props = {
+  date?: string
+};
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
+export default class ProfileDate extends React.PureComponent {
+  props: Props;
+
+  shouldComponentUpdate(nextProps: Props) {
+    return shallowCompare(this, nextProps);
   }
 
   render() {

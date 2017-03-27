@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import ComparisonEmpty from './ComparisonEmpty';
@@ -24,20 +25,20 @@ import SeverityIcon from '../../../components/shared/severity-icon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
-export default class ComparisonResults extends React.Component {
-  static propTypes = {
-    left: React.PropTypes.shape({
-      name: React.PropTypes.string.isRequired
-    }).isRequired,
-    right: React.PropTypes.shape({
-      name: React.PropTypes.string.isRequired
-    }).isRequired,
-    inLeft: React.PropTypes.array.isRequired,
-    inRight: React.PropTypes.array.isRequired,
-    modified: React.PropTypes.array.isRequired
-  };
+type Params = { [string]: string };
 
-  renderRule(rule, severity) {
+type Props = {
+  left: { name: string },
+  right: { name: string },
+  inLeft: Array<*>,
+  inRight: Array<*>,
+  modified: Array<*>
+};
+
+export default class ComparisonResults extends React.PureComponent {
+  props: Props;
+
+  renderRule(rule: { key: string, name: string }, severity: string) {
     return (
       <div>
         <SeverityIcon severity={severity} />
@@ -49,7 +50,7 @@ export default class ComparisonResults extends React.Component {
     );
   }
 
-  renderParameters(params) {
+  renderParameters(params: Params) {
     if (!params) {
       return null;
     }

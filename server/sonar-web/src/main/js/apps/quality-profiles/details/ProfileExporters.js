@@ -17,23 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
+import { stringify } from 'querystring';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
+import type { Profile, Exporter } from '../propTypes';
 
-export default class ProfileExporters extends React.Component {
-  static propTypes = {
-    exporters: React.PropTypes.array.isRequired
-  };
+type Props = {
+  exporters: Array<Exporter>,
+  organization: ?string,
+  profile: Profile
+};
 
-  getExportUrl(exporter) {
-    return window.baseUrl +
-      '/api/qualityprofiles/export' +
-      '?exporterKey=' +
-      encodeURIComponent(exporter.key) +
-      '&language=' +
-      encodeURIComponent(this.props.profile.language) +
-      '&name=' +
-      encodeURIComponent(this.props.profile.name);
+export default class ProfileExporters extends React.PureComponent {
+  props: Props;
+
+  getExportUrl(exporter: Exporter) {
+    const { organization, profile } = this.props;
+
+    const path = '/api/qualityprofiles/export';
+    const parameters: { [string]: string } = {
+      exporterKey: exporter.key,
+      language: profile.language,
+      name: profile.name
+    };
+    if (organization) {
+      Object.assign(parameters, { organization });
+    }
+    return window.baseUrl + path + '?' + stringify(parameters);
   }
 
   render() {

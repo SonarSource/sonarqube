@@ -19,9 +19,15 @@
  */
 const routes = [
   {
-    getComponent(_, callback) {
+    getComponent(state, callback) {
       require.ensure([], require => {
-        callback(null, require('./components/AppContainer').default);
+        const AppContainer = require('./components/AppContainer').default;
+        if (state.params.organizationKey) {
+          callback(null, AppContainer);
+        } else {
+          const forSingleOrganization = require('../organizations/forSingleOrganization').default;
+          callback(null, forSingleOrganization(AppContainer));
+        }
       });
     },
     getIndexRoute(_, callback) {

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
@@ -24,10 +25,19 @@ import ChangesList from './ChangesList';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
-export default class Changelog extends React.Component {
-  static propTypes = {
-    events: React.PropTypes.array.isRequired
-  };
+type Props = {
+  events: Array<{
+    action: string,
+    authorName: string,
+    date: string,
+    params?: {},
+    ruleKey: string,
+    ruleName: string
+  }>
+};
+
+export default class Changelog extends React.PureComponent {
+  props: Props;
 
   render() {
     let isEvenRow = false;

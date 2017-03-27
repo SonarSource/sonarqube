@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import DateInput from '../../../components/controls/DateInput';
 import { translate } from '../../../helpers/l10n';
 
-export default class ChangelogSearch extends React.Component {
-  static propTypes = {
-    fromDate: React.PropTypes.string,
-    toDate: React.PropTypes.string,
-    onFromDateChange: React.PropTypes.func.isRequired,
-    onToDateChange: React.PropTypes.func.isRequired,
-    onReset: React.PropTypes.func.isRequired
-  };
+type Props = {
+  fromDate?: string,
+  toDate?: string,
+  onFromDateChange: () => void,
+  onReset: () => void,
+  onToDateChange: () => void
+};
 
-  handleResetClick(e) {
+export default class ChangelogSearch extends React.PureComponent {
+  props: Props;
+
+  handleResetClick(e: SyntheticInputEvent) {
     e.preventDefault();
     e.target.blur();
     this.props.onReset();

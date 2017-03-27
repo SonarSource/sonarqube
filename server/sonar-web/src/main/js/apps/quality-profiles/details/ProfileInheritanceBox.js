@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import ProfileLink from '../components/ProfileLink';
 import { translateWithParameters } from '../../../helpers/l10n';
 
-export default class ProfileInheritanceBox extends React.Component {
-  static propTypes = {
-    profile: React.PropTypes.shape({
-      key: React.PropTypes.string.isRequired,
-      name: React.PropTypes.string.isRequired,
-      activeRuleCount: React.PropTypes.number.isRequired,
-      overridingRuleCount: React.PropTypes.number
-    }).isRequired,
-    depth: React.PropTypes.number.isRequired,
-    displayLink: React.PropTypes.bool,
-    className: React.PropTypes.string
-  };
+type Props = {
+  className?: string,
+  depth: number,
+  displayLink?: boolean,
+  organization: ?string,
+  profile: {
+    activeRuleCount: number,
+    key: string,
+    name: string,
+    overridingRuleCount?: number
+  }
+};
+
+export default class ProfileInheritanceBox extends React.PureComponent {
+  props: Props;
 
   static defaultProps = {
     displayLink: true
@@ -47,7 +51,7 @@ export default class ProfileInheritanceBox extends React.Component {
         <td>
           <div style={{ paddingLeft: offset }}>
             {this.props.displayLink
-              ? <ProfileLink profileKey={profile.key}>
+              ? <ProfileLink organization={this.props.organization} profileKey={profile.key}>
                   {profile.name}
                 </ProfileLink>
               : profile.name}

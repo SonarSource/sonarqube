@@ -47,9 +47,14 @@ export const receiveProjectProfiles = (projectKey, profiles) => ({
   profiles
 });
 
-export const fetchProjectProfiles = projectKey =>
+export const fetchProjectProfiles = (projectKey, organization) =>
   dispatch => {
-    Promise.all([getQualityProfiles(), getQualityProfiles({ projectKey })]).then(responses => {
+    Promise.all([
+      organization ? getQualityProfiles({ organization }) : getQualityProfiles(),
+      organization
+        ? getQualityProfiles({ organization, projectKey })
+        : getQualityProfiles({ projectKey })
+    ]).then(responses => {
       const [allProfiles, projectProfiles] = responses;
       dispatch(receiveProfiles(allProfiles));
       dispatch(receiveProjectProfiles(projectKey, projectProfiles));

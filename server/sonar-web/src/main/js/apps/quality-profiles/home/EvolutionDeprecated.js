@@ -17,20 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
 import ProfileLink from '../components/ProfileLink';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
-import { ProfilesListType } from '../propTypes';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
+import type { Profile } from '../propTypes';
 
-export default class EvolutionDeprecated extends React.Component {
-  static propTypes = {
-    profiles: ProfilesListType.isRequired
-  };
+type Props = {
+  organization: ?string,
+  profiles: Array<Profile>
+};
+
+export default class EvolutionDeprecated extends React.PureComponent {
+  props: Props;
 
   render() {
+    // FIXME getDeprecatedActiveRulesUrl
+
     const profilesWithDeprecations = this.props.profiles.filter(
       profile => profile.activeDeprecatedRuleCount > 0
     );
@@ -56,7 +62,10 @@ export default class EvolutionDeprecated extends React.Component {
           {sortedProfiles.map(profile => (
             <li key={profile.key} className="spacer-top">
               <div className="text-ellipsis">
-                <ProfileLink profileKey={profile.key} className="link-no-underline">
+                <ProfileLink
+                  organization={this.props.organization}
+                  profileKey={profile.key}
+                  className="link-no-underline">
                   {profile.name}
                 </ProfileLink>
               </div>

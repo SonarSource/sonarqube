@@ -17,36 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
 import Table from './Table';
 import { fetchProjectProfiles, setProjectProfile } from '../store/actions';
 import {
+  areThereCustomOrganizations,
   getProjectAdminAllProfiles,
   getProjectAdminProjectProfiles,
   getComponent
 } from '../../../store/rootReducer';
 
-class QualityProfiles extends React.Component {
-  static propTypes = {
-    component: React.PropTypes.object.isRequired,
-    allProfiles: React.PropTypes.array,
-    profiles: React.PropTypes.array
-  };
+type Props = {
+  allProfiles: Array<{}>,
+  component: { key: string, organization: string },
+  customOrganizations: boolean,
+  fetchProjectProfiles: (componentKey: string, organization?: string) => void,
+  profiles: Array<{}>,
+  setProjectProfile: (string, string, string) => void
+};
+
+class QualityProfiles extends React.PureComponent {
+  props: Props;
 
   componentDidMount() {
-    this.props.fetchProjectProfiles(this.props.component.key);
+    if (this.props.customOrganizations) {
+      this.props.fetchProjectProfiles(this.props.component.key, this.props.component.organization);
+    } else {
+      this.props.fetchProjectProfiles(this.props.component.key);
+    }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
-
-  handleChangeProfile(oldKey, newKey) {
+  handleChangeProfile = (oldKey, newKey) => {
     this.props.setProjectProfile(this.props.component.key, oldKey, newKey);
-  }
+  };
 
   render() {
     const { allProfiles, profiles } = this.props;
@@ -59,7 +65,7 @@ class QualityProfiles extends React.Component {
           ? <Table
               allProfiles={allProfiles}
               profiles={profiles}
-              onChangeProfile={this.handleChangeProfile.bind(this)}
+              onChangeProfile={this.handleChangeProfile}
             />
           : <i className="spinner" />}
       </div>
@@ -69,10 +75,11 @@ class QualityProfiles extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
   component: getComponent(state, ownProps.location.query.id),
+  customOrganizations: areThereCustomOrganizations(state),
   allProfiles: getProjectAdminAllProfiles(state),
   profiles: getProjectAdminProjectProfiles(state, ownProps.location.query.id)
 });
 
-export default connect(mapStateToProps, { fetchProjectProfiles, setProjectProfile })(
-  QualityProfiles
-);
+const mapDispatchToProps = { fetchProjectProfiles, setProjectProfile };
+
+export default connect(mapStateToProps, mapDispatchToProps)(QualityProfiles);

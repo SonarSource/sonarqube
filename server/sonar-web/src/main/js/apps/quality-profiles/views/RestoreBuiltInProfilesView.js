@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-restore-built-in-profiles.hbs';
 import TemplateSuccess from '../templates/quality-profiles-restore-built-in-profiles-success.hbs';
@@ -47,7 +48,10 @@ export default ModalFormView.extend({
   sendRequest() {
     const language = this.$('#restore-built-in-profiles-language').val();
     this.selectedLanguage = this.options.languages.find(l => l.key === language).name;
-    restoreBuiltInProfiles(language)
+    const data = this.options.organization
+      ? { language, organization: this.options.organization }
+      : { language };
+    restoreBuiltInProfiles(data)
       .then(() => {
         this.done = true;
         this.render();
