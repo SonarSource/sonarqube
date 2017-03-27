@@ -54,3 +54,13 @@ export const updateOrganization = (key: string, changes: {}) =>
   post('/api/organizations/update', { key, ...changes });
 
 export const deleteOrganization = (key: string) => post('/api/organizations/delete', { key });
+
+export const searchMembers = (
+  data: { organizations?: string, p?: number, ps?: number, q?: string, selected?: string }
+) => getJSON('/api/organizations/search_members', data);
+
+export const addMember = (data: { login: string, organization: string }) =>
+  post('/api/organizations/add_member', data);
+
+export const removeMember = (data: { login: string, organization: string }) =>
+  post('/api/organizations/remove_member', data);

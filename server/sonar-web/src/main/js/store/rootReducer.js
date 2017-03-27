@@ -27,6 +27,8 @@ import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
 import notifications, * as fromNotifications from './notifications/duck';
 import organizations, * as fromOrganizations from './organizations/duck';
+import organizationsMembers, * as fromOrganizationsMembers
+  from './organizationsMembers/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
 import projectActivity from './projectActivity/duck';
 import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
@@ -46,6 +48,7 @@ export default combineReducers({
   measures,
   notifications,
   organizations,
+  organizationsMembers,
   projectActivity,
   users,
 
@@ -71,6 +74,14 @@ export const getLanguageByKey = (state, key) =>
   fromLanguages.getLanguageByKey(state.languages, key);
 
 export const getCurrentUser = state => fromUsers.getCurrentUser(state.users);
+
+export const getUserLogins = state => fromUsers.getUserLogins(state.users);
+
+export const getUserByLogin = (state, login) => fromUsers.getUserByLogin(state.users, login);
+
+export const getUsersByLogins = (state, logins) => fromUsers.getUsersByLogins(state.users, logins);
+
+export const getUsers = state => fromUsers.getUsers(state.users);
 
 export const isFavorite = (state, componentKey) =>
   fromFavorites.isFavorite(state.favorites, componentKey);
@@ -106,6 +117,12 @@ export const getMyOrganizations = state =>
   fromOrganizations.getMyOrganizations(state.organizations);
 
 export const areThereCustomOrganizations = state => getAppState(state).organizationsEnabled;
+
+export const getOrganizationMembersLogins = (state, organization) =>
+  fromOrganizationsMembers.getOrganizationMembersLogins(state.organizationsMembers, organization);
+
+export const getOrganizationMembersState = (state, organization) =>
+  fromOrganizationsMembers.getOrganizationMembersState(state.organizationsMembers, organization);
 
 export const getProjectActivity = state => state.projectActivity;
 
