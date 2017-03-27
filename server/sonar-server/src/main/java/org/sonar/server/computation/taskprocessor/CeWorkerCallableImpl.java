@@ -64,7 +64,7 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
 
   private Optional<CeTask> tryAndFindTaskToExecute() {
     try {
-      return queue.peek();
+      return queue.peek("UNKNOWN" /*FIXME provide a real worker uuid*/);
     } catch (Exception e) {
       LOG.error("Failed to pop the queue of analysis reports", e);
     }

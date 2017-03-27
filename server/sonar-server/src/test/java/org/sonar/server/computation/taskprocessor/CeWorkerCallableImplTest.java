@@ -44,6 +44,8 @@ import static org.mockito.Mockito.when;
 
 public class CeWorkerCallableImplTest {
 
+  private static final String UNKNOWN_WORKER_UUID = "UNKNOWN";
+
   @Rule
   public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
   @Rule
@@ -57,7 +59,7 @@ public class CeWorkerCallableImplTest {
 
   @Test
   public void no_pending_tasks_in_queue() throws Exception {
-    when(queue.peek()).thenReturn(Optional.<CeTask>absent());
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.<CeTask>absent());
 
     assertThat(underTest.call()).isFalse();
 
@@ -68,7 +70,7 @@ public class CeWorkerCallableImplTest {
   public void fail_when_no_CeTaskProcessor_is_found_in_repository() throws Exception {
     CeTask task = createCeTask(null);
     taskProcessorRepository.setNoProcessorForTask(CeTaskTypes.REPORT);
-    when(queue.peek()).thenReturn(Optional.of(task));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(task));
 
     assertThat(underTest.call()).isTrue();
 
@@ -81,7 +83,7 @@ public class CeWorkerCallableImplTest {
   public void peek_and_process_task() throws Exception {
     CeTask task = createCeTask(null);
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
-    when(queue.peek()).thenReturn(Optional.of(task));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(task));
 
     assertThat(underTest.call()).isTrue();
 
@@ -94,7 +96,7 @@ public class CeWorkerCallableImplTest {
   @Test
   public void fail_to_process_task() throws Exception {
     CeTask task = createCeTask(null);
-    when(queue.peek()).thenReturn(Optional.of(task));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(task));
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     Throwable error = makeTaskProcessorFail(task);
 
@@ -108,7 +110,7 @@ public class CeWorkerCallableImplTest {
 
   @Test
   public void do_not_display_submitter_param_in_log_when_submitterLogin_is_not_set_in_case_of_success() throws Exception {
-    when(queue.peek()).thenReturn(Optional.of(createCeTask(null)));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(createCeTask(null)));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
     underTest.call();
@@ -123,7 +125,7 @@ public class CeWorkerCallableImplTest {
   @Test
   public void do_not_display_submitter_param_in_log_when_submitterLogin_is_not_set_in_case_of_error() throws Exception {
     CeTask ceTask = createCeTask(null);
-    when(queue.peek()).thenReturn(Optional.of(ceTask));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(ceTask.getType(), taskProcessor);
     makeTaskProcessorFail(ceTask);
 
@@ -142,7 +144,7 @@ public class CeWorkerCallableImplTest {
 
   @Test
   public void display_submitterLogin_in_logs_when_set_in_case_of_success() throws Exception {
-    when(queue.peek()).thenReturn(Optional.of(createCeTask("FooBar")));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(createCeTask("FooBar")));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
     underTest.call();
@@ -158,7 +160,7 @@ public class CeWorkerCallableImplTest {
   @Test
   public void display_submitterLogin_in_logs_when_set_in_case_of_error() throws Exception {
     CeTask ceTask = createCeTask("FooBar");
-    when(queue.peek()).thenReturn(Optional.of(ceTask));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(ceTask.getType(), taskProcessor);
     makeTaskProcessorFail(ceTask);
 
@@ -177,7 +179,7 @@ public class CeWorkerCallableImplTest {
   public void display_start_stop_at_debug_level_for_console_if_DEBUG_is_enabled_and_task_successful() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    when(queue.peek()).thenReturn(Optional.of(createCeTask("FooBar")));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(createCeTask("FooBar")));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
     underTest.call();
@@ -195,7 +197,7 @@ public class CeWorkerCallableImplTest {
     logTester.setLevel(LoggerLevel.DEBUG);
 
     CeTask ceTask = createCeTask("FooBar");
-    when(queue.peek()).thenReturn(Optional.of(ceTask));
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
     makeTaskProcessorFail(ceTask);
 

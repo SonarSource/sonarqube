@@ -172,11 +172,14 @@
   <update id="updateIf" parameterType="map">
     update ce_queue set
       status=#{new.status,jdbcType=VARCHAR},
+      execution_count=#{new.executionCount,jdbcType=INTEGER},
+      worker_uuid=#{new.workerUuid,jdbcType=VARCHAR},
       started_at=#{new.startedAt,jdbcType=BIGINT},
       updated_at=#{new.updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}
       and status=#{old.status,jdbcType=VARCHAR}
+      and execution_count=#{old.executionCount,jdbcType=INTEGER}
   </update>
 
   <delete id="deleteByUuid">
