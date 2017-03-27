@@ -57,6 +57,7 @@ public class GroupDaoTest {
   private final GroupDto aGroup = new GroupDto()
     .setName("the-name")
     .setDescription("the description")
+    .setDefault(false)
     .setOrganizationUuid(AN_ORGANIZATION.getUuid());
 
   @Before
@@ -75,6 +76,7 @@ public class GroupDaoTest {
     assertThat(group.getOrganizationUuid()).isEqualTo(aGroup.getOrganizationUuid());
     assertThat(group.getName()).isEqualTo(aGroup.getName());
     assertThat(group.getDescription()).isEqualTo(aGroup.getDescription());
+    assertThat(group.isDefault()).isEqualTo(aGroup.isDefault());
     assertThat(group.getCreatedAt()).isEqualTo(new Date(NOW));
     assertThat(group.getUpdatedAt()).isEqualTo(new Date(NOW));
   }
@@ -136,6 +138,7 @@ public class GroupDaoTest {
       .setId(aGroup.getId())
       .setName("new-name")
       .setDescription("New description")
+      .setDefault(true)
       .setOrganizationUuid("another-org")
       .setCreatedAt(new Date(NOW + 1_000L));
 
@@ -146,6 +149,7 @@ public class GroupDaoTest {
     // verify mutable fields
     assertThat(reloaded.getName()).isEqualTo("new-name");
     assertThat(reloaded.getDescription()).isEqualTo("New description");
+    assertThat(reloaded.isDefault()).isTrue();
 
     // immutable fields --> to be ignored
     assertThat(reloaded.getOrganizationUuid()).isEqualTo(aGroup.getOrganizationUuid());

@@ -17,29 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
 
-import java.util.Date;
+package org.sonar.server.platform.db.migration.version.v64;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class GroupTesting {
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
-  private GroupTesting() {
-    // only statics
+public class AddIsDefaultToGroups extends DdlChange {
+
+  public AddIsDefaultToGroups(Database db) {
+    super(db);
   }
 
-  public static GroupDto newGroupDto() {
-    GroupDto group = new GroupDto()
-      .setId(nextInt())
-      .setOrganizationUuid(randomAlphanumeric(40))
-      .setName(randomAlphanumeric(255))
-      .setDescription(randomAlphanumeric(200))
-      .setDefault(false)
-      .setCreatedAt(new Date(nextLong()))
-      .setUpdatedAt(new Date(nextLong()));
-    return group;
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "groups")
+      .addColumn(newBooleanColumnDefBuilder()
+        .setColumnName("is_default")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
 }

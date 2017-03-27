@@ -8,6 +8,7 @@
     g.id as id,
     g.name as name,
     g.description as description,
+    g.is_default as isDefault,
     g.organization_uuid as organizationUuid,
     g.created_at as "createdAt",
     g.updated_at as "updatedAt"
@@ -79,12 +80,14 @@
     organization_uuid,
     name,
     description,
+    is_default,
     created_at,
     updated_at
     ) values (
     #{organizationUuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},
+    #{isDefault,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP},
     #{updatedAt,jdbcType=TIMESTAMP}
     )
@@ -94,6 +97,7 @@
     UPDATE groups SET
     name=#{name,jdbcType=VARCHAR},
     description=#{description,jdbcType=VARCHAR},
+    is_default=#{isDefault,jdbcType=BOOLEAN},
     updated_at=#{updatedAt,jdbcType=TIMESTAMP}
     WHERE id=#{id}
   </update>

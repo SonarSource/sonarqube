@@ -28,6 +28,7 @@ public class GroupDto {
   private Integer id;
   private String name;
   private String description;
+  private boolean isDefault;
   private String organizationUuid;
   private Date createdAt;
   private Date updatedAt;
@@ -57,6 +58,15 @@ public class GroupDto {
 
   public GroupDto setDescription(@Nullable String description) {
     this.description = description;
+    return this;
+  }
+
+  public boolean isDefault() {
+    return isDefault;
+  }
+
+  public GroupDto setDefault(boolean aDefault) {
+    isDefault = aDefault;
     return this;
   }
 
@@ -93,6 +103,7 @@ public class GroupDto {
     sb.append("id=").append(id);
     sb.append(", name='").append(name).append('\'');
     sb.append(", description='").append(description).append('\'');
+    sb.append(", isDefault='").append(isDefault).append('\'');
     sb.append(", organizationUuid='").append(organizationUuid).append('\'');
     sb.append(", createdAt=").append(createdAt);
     sb.append(", updatedAt=").append(updatedAt);

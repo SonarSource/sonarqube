@@ -20,22 +20,38 @@
 
 package org.sonar.server.platform.db.migration.version.v64;
 
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-public class DbVersion64Test {
-  private DbVersion64 underTest = new DbVersion64();
+public class AddIsDefaultToGroupsTest {
+
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddIsDefaultToGroupsTest.class, "previous-groups.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddIsDefaultToGroups underTest = new AddIsDefaultToGroups(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1600);
+  public void creates_table_on_empty_db() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("groups", "is_default", Types.BOOLEAN, null, true);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 19);
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
 
 }
