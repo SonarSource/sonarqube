@@ -23,6 +23,7 @@ import BubbleChart from '../../../components/charts/BubbleChart';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
+import { getProjectUrl } from '../../../helpers/urls';
 
 type Project = {
   key: string,
@@ -43,7 +44,6 @@ const COLOR_METRIC_TYPE = 'RATING';
 
 export default class QualityModel extends React.PureComponent {
   props: {
-    onProjectOpen: (?string) => void,
     projects: Array<Project>
   };
 
@@ -91,7 +91,7 @@ export default class QualityModel extends React.PureComponent {
           color: RATING_COLORS[Math.max(color1, color2) - 1],
           key: project.key,
           tooltip: this.getTooltip(project, x, y, size, color1, color2),
-          link: project.key
+          link: getProjectUrl(project.key)
         };
       });
 
@@ -106,7 +106,6 @@ export default class QualityModel extends React.PureComponent {
           height={600}
           items={items}
           padding={[40, 20, 60, 100]}
-          onBubbleClick={this.props.onProjectOpen}
           yDomain={[100, 0]}
         />
         <div className="measure-details-bubble-chart-axis x">

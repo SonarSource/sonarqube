@@ -24,7 +24,6 @@ import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
 import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
-import { getProjectUrl } from '../../../helpers/urls';
 import '../styles.css';
 
 export default class AllProjects extends React.Component {
@@ -86,10 +85,6 @@ export default class AllProjects extends React.Component {
     });
   };
 
-  handleProjectOpen = projectKey => {
-    this.props.router.push(getProjectUrl(projectKey));
-  };
-
   render() {
     const { query } = this.state;
     const isFiltered = Object.keys(query).some(key => query[key] != null);
@@ -126,7 +121,6 @@ export default class AllProjects extends React.Component {
             />}
           {view === 'visualizations' &&
             <VisualizationsContainer
-              onProjectOpen={this.handleProjectOpen}
               onVisualizationChange={this.handleVisualizationChange}
               sort={query.sort}
               visualization={visualization}

@@ -1,311 +1,133 @@
 exports[`test should display bubbles 1`] = `
-<BubbleChart
-  displayXGrid={true}
-  displayXTicks={true}
-  displayYGrid={true}
-  displayYTicks={true}
-  formatXTick={[Function]}
-  formatYTick={[Function]}
-  height={100}
-  items={
-    Array [
+<Bubble
+  r={45}
+  x={-10}
+  y={52.3015873015873}>
+  <circle
+    className="bubble-chart-bubble"
+    r={45}
+    style={
       Object {
-        "size": 7,
-        "x": 1,
-        "y": 10,
-      },
+        "fill": undefined,
+        "stroke": undefined,
+      }
+    }
+    transform="translate(-10, 52.3015873015873)" />
+</Bubble>
+`;
+
+exports[`test should display bubbles 2`] = `
+<Bubble
+  r={33.57142857142857}
+  x={-75}
+  y={33.57142857142857}>
+  <circle
+    className="bubble-chart-bubble"
+    r={33.57142857142857}
+    style={
       Object {
-        "size": 5,
-        "x": 2,
-        "y": 30,
-      },
-      Object {
-        "size": 2,
-        "x": 3,
-        "y": 20,
-      },
-    ]
-  }
-  padding={
-    Array [
-      10,
-      10,
-      10,
-      10,
-    ]
-  }
-  sizeRange={
-    Array [
-      5,
-      45,
-    ]
-  }>
-  <AutoSizer
-    disableHeight={true}
-    onResize={[Function]}>
-    <div
-      style={
-        Object {
-          "overflow": "visible",
-          "width": 0,
+        "fill": undefined,
+        "stroke": undefined,
+      }
+    }
+    transform="translate(-75, 33.57142857142857)" />
+</Bubble>
+`;
+
+exports[`test should render bubble links 1`] = `
+<Bubble
+  link="foo"
+  r={45}
+  x={-10}
+  y={52.3015873015873}>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="foo">
+    <a
+      onClick={[Function]}
+      style={Object {}}>
+      <circle
+        className="bubble-chart-bubble"
+        r={45}
+        style={
+          Object {
+            "fill": undefined,
+            "stroke": undefined,
+          }
         }
-      }>
-      <svg
-        className="bubble-chart"
-        height={100}
-        width={0}>
-        <g
-          transform="translate(10, 10)">
-          <g>
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={51.666666666666664}
-              y1={61.66666666666666}
-              y2={33.57142857142857} />
-            <line
-              className="bubble-chart-grid"
-              x1={30}
-              x2={30}
-              y1={61.66666666666666}
-              y2={33.57142857142857} />
-            <line
-              className="bubble-chart-grid"
-              x1={8.333333333333336}
-              x2={8.333333333333336}
-              y1={61.66666666666666}
-              y2={33.57142857142857} />
-            <line
-              className="bubble-chart-grid"
-              x1={-13.333333333333336}
-              x2={-13.333333333333336}
-              y1={61.66666666666666}
-              y2={33.57142857142857} />
-            <line
-              className="bubble-chart-grid"
-              x1={-34.99999999999999}
-              x2={-34.99999999999999}
-              y1={61.66666666666666}
-              y2={33.57142857142857} />
-            <line
-              className="bubble-chart-grid"
-              x1={-56.66666666666668}
-              x2={-56.66666666666668}
-              y1={61.66666666666666}
-              y2={33.57142857142857} />
-            <line
-              className="bubble-chart-grid"
-              x1={-78.33333333333334}
-              x2={-78.33333333333334}
-              y1={61.66666666666666}
-              y2={33.57142857142857} />
-          </g>
-          <g>
-            <text
-              className="bubble-chart-tick"
-              dy="1.5em"
-              x={51.666666666666664}
-              y={80} />
-            <text
-              className="bubble-chart-tick"
-              dy="1.5em"
-              x={30}
-              y={80}>
-              0.5
-            </text>
-            <text
-              className="bubble-chart-tick"
-              dy="1.5em"
-              x={8.333333333333336}
-              y={80}>
-              1
-            </text>
-            <text
-              className="bubble-chart-tick"
-              dy="1.5em"
-              x={-13.333333333333336}
-              y={80}>
-              1.5
-            </text>
-            <text
-              className="bubble-chart-tick"
-              dy="1.5em"
-              x={-34.99999999999999}
-              y={80}>
-              2
-            </text>
-            <text
-              className="bubble-chart-tick"
-              dy="1.5em"
-              x={-56.66666666666668}
-              y={80}>
-              2.5
-            </text>
-            <text
-              className="bubble-chart-tick"
-              dy="1.5em"
-              x={-78.33333333333334}
-              y={80}>
-              3
-            </text>
-          </g>
-          <g>
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={-78.33333333333334}
-              y1={61.66666666666666}
-              y2={61.66666666666666} />
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={-78.33333333333334}
-              y1={56.98412698412697}
-              y2={56.98412698412697} />
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={-78.33333333333334}
-              y1={52.3015873015873}
-              y2={52.3015873015873} />
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={-78.33333333333334}
-              y1={47.61904761904761}
-              y2={47.61904761904761} />
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={-78.33333333333334}
-              y1={42.93650793650794}
-              y2={42.93650793650794} />
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={-78.33333333333334}
-              y1={38.25396825396825}
-              y2={38.25396825396825} />
-            <line
-              className="bubble-chart-grid"
-              x1={51.666666666666664}
-              x2={-78.33333333333334}
-              y1={33.57142857142857}
-              y2={33.57142857142857} />
-          </g>
-          <g>
-            <text
-              className="bubble-chart-tick bubble-chart-tick-y"
-              dx="-0.5em"
-              dy="0.3em"
-              x={0}
-              y={61.66666666666666} />
-            <text
-              className="bubble-chart-tick bubble-chart-tick-y"
-              dx="-0.5em"
-              dy="0.3em"
-              x={0}
-              y={56.98412698412697}>
-              5
-            </text>
-            <text
-              className="bubble-chart-tick bubble-chart-tick-y"
-              dx="-0.5em"
-              dy="0.3em"
-              x={0}
-              y={52.3015873015873}>
-              10
-            </text>
-            <text
-              className="bubble-chart-tick bubble-chart-tick-y"
-              dx="-0.5em"
-              dy="0.3em"
-              x={0}
-              y={47.61904761904761}>
-              15
-            </text>
-            <text
-              className="bubble-chart-tick bubble-chart-tick-y"
-              dx="-0.5em"
-              dy="0.3em"
-              x={0}
-              y={42.93650793650794}>
-              20
-            </text>
-            <text
-              className="bubble-chart-tick bubble-chart-tick-y"
-              dx="-0.5em"
-              dy="0.3em"
-              x={0}
-              y={38.25396825396825}>
-              25
-            </text>
-            <text
-              className="bubble-chart-tick bubble-chart-tick-y"
-              dx="-0.5em"
-              dy="0.3em"
-              x={0}
-              y={33.57142857142857}>
-              30
-            </text>
-          </g>
-          <Bubble
-            r={45}
-            x={8.333333333333336}
-            y={52.3015873015873}>
-            <g>
-              <circle
-                className="bubble-chart-bubble"
-                onClick={[Function]}
-                r={45}
-                style={
-                  Object {
-                    "fill": undefined,
-                    "stroke": undefined,
-                  }
-                }
-                transform="translate(8.333333333333336, 52.3015873015873)" />
-            </g>
-          </Bubble>
-          <Bubble
-            r={33.57142857142857}
-            x={-34.99999999999999}
-            y={33.57142857142857}>
-            <g>
-              <circle
-                className="bubble-chart-bubble"
-                onClick={[Function]}
-                r={33.57142857142857}
-                style={
-                  Object {
-                    "fill": undefined,
-                    "stroke": undefined,
-                  }
-                }
-                transform="translate(-34.99999999999999, 33.57142857142857)" />
-            </g>
-          </Bubble>
-          <Bubble
-            r={16.428571428571427}
-            x={-78.33333333333334}
-            y={42.93650793650794}>
-            <g>
-              <circle
-                className="bubble-chart-bubble"
-                onClick={[Function]}
-                r={16.428571428571427}
-                style={
-                  Object {
-                    "fill": undefined,
-                    "stroke": undefined,
-                  }
-                }
-                transform="translate(-78.33333333333334, 42.93650793650794)" />
-            </g>
-          </Bubble>
-        </g>
-      </svg>
-    </div>
-  </AutoSizer>
-</BubbleChart>
+        transform="translate(-10, 52.3015873015873)" />
+    </a>
+  </Link>
+</Bubble>
+`;
+
+exports[`test should render bubble links 2`] = `
+<Bubble
+  link="bar"
+  r={33.57142857142857}
+  x={-75}
+  y={33.57142857142857}>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="bar">
+    <a
+      onClick={[Function]}
+      style={Object {}}>
+      <circle
+        className="bubble-chart-bubble"
+        r={33.57142857142857}
+        style={
+          Object {
+            "fill": undefined,
+            "stroke": undefined,
+          }
+        }
+        transform="translate(-75, 33.57142857142857)" />
+    </a>
+  </Link>
+</Bubble>
+`;
+
+exports[`test should render bubbles with click handlers 1`] = `
+<Bubble
+  link="foo"
+  onClick={[Function]}
+  r={45}
+  x={-10}
+  y={52.3015873015873}>
+  <circle
+    className="bubble-chart-bubble"
+    onClick={[Function]}
+    r={45}
+    style={
+      Object {
+        "fill": undefined,
+        "stroke": undefined,
+      }
+    }
+    transform="translate(-10, 52.3015873015873)" />
+</Bubble>
+`;
+
+exports[`test should render bubbles with click handlers 2`] = `
+<Bubble
+  link="bar"
+  onClick={[Function]}
+  r={33.57142857142857}
+  x={-75}
+  y={33.57142857142857}>
+  <circle
+    className="bubble-chart-bubble"
+    onClick={[Function]}
+    r={33.57142857142857}
+    style={
+      Object {
+        "fill": undefined,
+        "stroke": undefined,
+      }
+    }
+    transform="translate(-75, 33.57142857142857)" />
+</Bubble>
 `;

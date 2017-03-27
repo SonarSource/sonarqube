@@ -31,7 +31,6 @@ import { translateWithParameters } from '../../../helpers/l10n';
 
 export default class Visualizations extends React.PureComponent {
   props: {
-    onProjectOpen: (string) => void,
     onVisualizationChange: (string) => void,
     projects?: Array<*>,
     sort?: string,
@@ -50,9 +49,7 @@ export default class Visualizations extends React.PureComponent {
     };
     const Component = visualizationToComponent[this.props.visualization];
 
-    return Component
-      ? <Component onProjectOpen={this.props.onProjectOpen} projects={projects} />
-      : null;
+    return Component ? <Component projects={projects} /> : null;
   }
 
   renderFooter() {
