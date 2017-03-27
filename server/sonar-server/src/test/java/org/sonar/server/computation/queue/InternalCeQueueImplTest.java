@@ -220,6 +220,27 @@ public class InternalCeQueueImplTest {
     assertThat(activityDto.get().getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
   }
 
+  @Test
+  public void remove_copies_executionCount_and_workerUuid() {
+    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+      .setUuid("uuid")
+      .setTaskType("foo")
+      .setStatus(CeQueueDto.Status.PENDING)
+      .setWorkerUuid("Dustin")
+      .setExecutionCount(2));
+    dbTester.commit();
+
+    underTest.remove(new CeTask.Builder()
+      .setOrganizationUuid("foo")
+      .setUuid("uuid")
+      .setType("bar")
+      .build(), CeActivityDto.Status.SUCCESS, null, null);
+
+    CeActivityDto dto = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "uuid").get();
+    assertThat(dto.getExecutionCount()).isEqualTo(2);
+    assertThat(dto.getWorkerUuid()).isEqualTo("Dustin");
+  }
+
   private static String stacktraceToString(Throwable error) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     error.printStackTrace(new PrintStream(out));
@@ -252,6 +273,23 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
+  public void peek_increases_executionCount_and_override_workerUuid_to_argument() {
+    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+      .setUuid("uuid")
+      .setTaskType("foo")
+      .setStatus(CeQueueDto.Status.PENDING)
+      .setWorkerUuid("must be overriden")
+      .setExecutionCount(2));
+    dbTester.commit();
+
+    underTest.peek(WORKER_UUID_1);
+
+    CeQueueDto ceQueueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get();
+    assertThat(ceQueueDto.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
+    assertThat(ceQueueDto.getExecutionCount()).isEqualTo(3);
+  }
+
+  @Test
   public void peek_nothing_if_paused() throws Exception {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.pausePeek();
@@ -273,6 +311,23 @@ public class InternalCeQueueImplTest {
     Optional<CeActivityDto> activity = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
     assertThat(activity.isPresent()).isTrue();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+  }
+
+  @Test
+  public void cancel_copies_executionCount_and_workerUuid() {
+    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+      .setUuid("uuid")
+      .setTaskType("foo")
+      .setStatus(CeQueueDto.Status.PENDING)
+      .setWorkerUuid("Dustin")
+      .setExecutionCount(2));
+    dbTester.commit();
+
+    underTest.cancel("uuid");
+
+    CeActivityDto dto = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "uuid").get();
+    assertThat(dto.getExecutionCount()).isEqualTo(2);
+    assertThat(dto.getWorkerUuid()).isEqualTo("Dustin");
   }
 
   @Test

@@ -64,9 +64,11 @@ public class CeActivityDaoTest {
     assertThat(dto.getComponentUuid()).isEqualTo("PROJECT_1");
     assertThat(dto.getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(dto.getSubmitterLogin()).isEqualTo("henri");
+    assertThat(dto.getSubmittedAt()).isEqualTo(1_300_000_000_000L);
+    assertThat(dto.getWorkerUuid()).isEqualTo("worker uuid");
+    assertThat(dto.getExecutionCount()).isEqualTo(42);
     assertThat(dto.getIsLast()).isTrue();
     assertThat(dto.getIsLastKey()).isEqualTo("REPORTPROJECT_1");
-    assertThat(dto.getSubmittedAt()).isEqualTo(1_300_000_000_000L);
     assertThat(dto.getCreatedAt()).isEqualTo(1_450_000_000_000L);
     assertThat(dto.getStartedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(dto.getExecutedAt()).isEqualTo(1_500_000_000_500L);
@@ -346,6 +348,8 @@ public class CeActivityDaoTest {
     queueDto.setTaskType(type);
     queueDto.setComponentUuid(componentUuid);
     queueDto.setSubmitterLogin("henri");
+    queueDto.setWorkerUuid("worker uuid");
+    queueDto.setExecutionCount(42);
     queueDto.setCreatedAt(1_300_000_000_000L);
 
     CeActivityDto dto = new CeActivityDto(queueDto);

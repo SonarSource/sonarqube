@@ -46,6 +46,8 @@ public class DbVersion64 implements DbVersion {
       .add(1616, "Populate table RULES_METADATA", PopulateRulesMetadata.class)
       .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class)
       .add(1618, "Add columns CE_QUEUE.WORKER_UUID and EXECUTION_COUNT", AddCeQueueWorkerUuidAndExecutionCount.class)
-      .add(1619, "Make CE_QUEUE.EXECUTION_COUNT not nullable", MakeCeQueueExecutionCountNotNullable.class);
+      .add(1619, "Make CE_QUEUE.EXECUTION_COUNT not nullable", MakeCeQueueExecutionCountNotNullable.class)
+      .add(1620, "Add columns CE_ACTIVITY.WORKER_UUID and EXECUTION_COUNT", AddCeActivityWorkerUuidAndExecutionCount.class)
+      .add(1621, "Make columns CE_ACTIVITY.EXECUTION_COUNT not nullable", MakeCeActivityExecutionCountNotNullable.class);
   }
 }
