@@ -46,7 +46,6 @@ it('should render with tags and admin rights', () => {
   expect(shallow(<MetaTags component={componentWithTags} />)).toMatchSnapshot();
 });
 
-
 it('should open the tag selector on click', () => {
   const wrapper = shallow(<MetaTags component={componentWithTags} />);
   expect(wrapper).toMatchSnapshot();

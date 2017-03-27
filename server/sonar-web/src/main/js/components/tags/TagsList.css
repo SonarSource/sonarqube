@@ -1,3 +1,7 @@
+.tags-list {
+  white-space: nowrap;
+}
+
 .tags-list i::before {
   font-size: 12px;
 }

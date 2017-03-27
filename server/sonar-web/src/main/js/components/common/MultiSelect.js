@@ -26,6 +26,7 @@ import { translate } from '../../helpers/l10n';
 type Props = {
   selectedElements: Array<string>,
   elements: Array<string>,
+  listSize: number,
   onSearch: (string) => void,
   onSelect: (string) => void,
   onUnselect: (string) => void,
@@ -51,6 +52,7 @@ export default class MultiSelect extends React.PureComponent {
   };
 
   static defaultProps = {
+    listSize: 10,
     validateSearchInput: (value: string) => value
   };
 
@@ -152,8 +154,17 @@ export default class MultiSelect extends React.PureComponent {
   }
 
   updateUnselectedElements(props: Props) {
-    this.setState({
-      unselectedElements: difference(props.elements, props.selectedElements)
+    this.setState((state: State) => {
+      if (props.listSize < state.selectedElements.length) {
+        return { unselectedElements: [] };
+      } else {
+        return {
+          unselectedElements: difference(props.elements, props.selectedElements).slice(
+            0,
+            props.listSize - state.selectedElements.length
+          )
+        };
+      }
     });
   }
 
