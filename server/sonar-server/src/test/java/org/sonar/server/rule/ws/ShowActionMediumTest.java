@@ -46,7 +46,6 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -68,7 +67,7 @@ public class ShowActionMediumTest {
     .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
 
   private WsTester wsTester;
-  private RuleService ruleService;
+  private RuleIndexer ruleIndexer;
   private RuleDao ruleDao;
   private DbSession session;
   private OrganizationDto defaultOrganization;
@@ -77,7 +76,7 @@ public class ShowActionMediumTest {
   public void setUp() {
     tester.clearDbAndIndexes();
     wsTester = tester.get(WsTester.class);
-    ruleService = tester.get(RuleService.class);
+    ruleIndexer = tester.get(RuleIndexer.class);
     ruleDao = tester.get(RuleDao.class);
     session = tester.get(DbClient.class).openSession(false);
     defaultOrganization = tester.get(DbClient.class).organizationDao().selectByUuid(session, defaultOrganizationProvider.get().getUuid()).get();
@@ -272,6 +271,8 @@ public class ShowActionMediumTest {
       .setUpdatedAt(new Date().getTime());
     RuleDefinitionDto definition = ruleDto.getDefinition();
     ruleDao.insert(session, definition);
+    session.commit();
+    ruleIndexer.index(defaultOrganization, definition.getKey());
     RuleParamDto regexParam = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, definition, regexParam);
 
@@ -292,9 +293,7 @@ public class ShowActionMediumTest {
       .setKey(regexParam.getName())
       .setValue(".*?"));
     session.commit();
-    session.clearCache();
 
-    tester.get(RuleIndexer.class).index();
     tester.get(ActiveRuleIndexer.class).index();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")

@@ -40,7 +40,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public RuleDoc() {
-    super(Maps.newHashMap());
+    super(Maps.newHashMapWithExpectedSize(16));
   }
 
   @Override

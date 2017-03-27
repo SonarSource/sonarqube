@@ -51,6 +51,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
@@ -100,9 +101,9 @@ public class QProfileBackuperMediumTest {
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
     dbSession.clearCache();
-    ruleIndexer.index();
     this.organization = OrganizationTesting.newOrganizationDto();
     db.organizationDao().insert(dbSession, organization);
+    ruleIndexer.index(organization, asList(xooRule1.getKey(), xooRule2.getKey()));
   }
 
   @After
@@ -117,7 +118,7 @@ public class QProfileBackuperMediumTest {
     db.ruleDao().insert(dbSession, blahRule.getDefinition());
     dbSession.commit();
     dbSession.clearCache();
-    ruleIndexer.index();
+    ruleIndexer.index(organization, blahRuleKey);
 
     // create profile P1 with rules x2 and x1 activated
     QualityProfileDto profile = newXooP1(organization);

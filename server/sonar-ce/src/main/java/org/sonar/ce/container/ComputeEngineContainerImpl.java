@@ -129,6 +129,7 @@ import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.rule.index.RuleIteratorFactory;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
@@ -301,6 +302,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // rule
       RuleIndexer.class,
+      RuleIteratorFactory.class,
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,

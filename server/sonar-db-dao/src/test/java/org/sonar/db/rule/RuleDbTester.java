@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sonar.api.server.rule.RuleParamType;
@@ -62,9 +63,9 @@ public class RuleDbTester {
     });
   }
 
-  public RuleDto insertRule(OrganizationDto organization, Consumer<RuleDto> populateRuleDto) {
+  public RuleDto insertRule(OrganizationDto organization, Consumer<RuleDto>... populaters) {
     RuleDto ruleDto = newRuleDto(organization);
-    populateRuleDto.accept(ruleDto);
+    Arrays.asList(populaters).forEach(populater -> populater.accept(ruleDto));
     return insertRule(ruleDto);
   }
 

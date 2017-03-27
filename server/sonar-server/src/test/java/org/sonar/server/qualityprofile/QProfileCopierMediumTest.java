@@ -46,6 +46,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
@@ -89,8 +90,7 @@ public class QProfileCopierMediumTest {
     sourceProfile = QProfileTesting.newXooP1(organization);
     db.qualityProfileDao().insert(dbSession, sourceProfile);
     dbSession.commit();
-    dbSession.clearCache();
-    ruleIndexer.index();
+    ruleIndexer.index(organization, asList(xooRule1.getKey(), xooRule2.getKey()));
   }
 
   @After

@@ -21,12 +21,14 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -118,8 +120,7 @@ public class RulesWsMediumTest {
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
 
     session.commit();
-    session.clearCache();
-    ruleIndexer.index();
+    ruleIndexer.index(defaultOrganization, rule.getKey());
     activeRuleIndexer.index();
 
     // 1. With Activation
@@ -138,7 +139,7 @@ public class RulesWsMediumTest {
 
   @Test
   public void get_tags() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganization);
     tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = RuleTesting.newXooX1(defaultOrganization)
@@ -154,7 +155,7 @@ public class RulesWsMediumTest {
     ruleDao.update(session, rule2.getMetadata().setRuleId(rule2.getId()));
 
     session.commit();
-    ruleIndexer.index();
+    ruleIndexer.index(defaultOrganization, Stream.of(rule, rule2).map(RuleDto::getKey).collect(Collectors.toList()));
 
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD).execute().assertJson(this.getClass(), "get_tags.json");
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)
