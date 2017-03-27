@@ -45,6 +45,7 @@ public class DbVersion64 implements DbVersion {
       .add(1615, "Create table RULES_METADATA", CreateRulesMetadata.class)
       .add(1616, "Populate table RULES_METADATA", PopulateRulesMetadata.class)
       .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class)
+
       // ensure the index is made unique even on existing 6.4-SNAPSHOT instances (such as next or the developer machines)
       .add(1618, "Make index on ORGANIZATIONS.KEE unique", org.sonar.server.platform.db.migration.version.v63.MakeIndexOnOrganizationsKeeUnique.class)
       .add(1619, "Restore 'sonar-users' group", RestoreSonarUsersGroups.class)
@@ -57,5 +58,6 @@ public class DbVersion64 implements DbVersion {
       .add(1626, "Clean orphan rows in table GROUPS_USERS", CleanOrphanRowsInGroupsUsers.class)
       .add(1627, "Delete permission templates linked to removed users", DeletePermissionTemplatesLinkedToRemovedUsers.class)
     ;
+      .add(1628, "Add columns CE_QUEUE.WORKER_UUID and EXECUTION_COUNT", AddCeQueueWorkerUuidAndExecutionCount.class);
   }
 }
