@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import com.google.common.hash.Hashing;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.ENGLISH;
+import static java.util.Objects.requireNonNull;
 
-public class IssueWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new IssueWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 30);
+public class AvatarFactoryImpl implements AvatarFactory {
+
+  @Override
+  public String create(String email) {
+    return hash(requireNonNull(email, "Email cannot be null"));
+  }
+
+  private static String hash(String text) {
+    return Hashing.md5().hashString(text.toLowerCase(ENGLISH), UTF_8).toString();
   }
 }

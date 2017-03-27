@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Strings;
-import com.google.common.hash.Hashing;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,8 +51,6 @@ import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.ENGLISH;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonarqube.ws.Issues.Actions;
 import static org.sonarqube.ws.Issues.Comment;
@@ -72,11 +69,13 @@ public class SearchResponseFormat {
   private final Durations durations;
   private final WsResponseCommonFormat commonFormat;
   private final Languages languages;
+  private final AvatarFactory avatarFactory;
 
-  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages) {
+  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages, AvatarFactory avatarFactory) {
     this.durations = durations;
     this.commonFormat = commonFormat;
     this.languages = languages;
+    this.avatarFactory = avatarFactory;
   }
 
   public SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
@@ -347,17 +346,13 @@ public class SearchResponseFormat {
     return wsUsers;
   }
 
-  public Users.User.Builder formatUser(UserDto user) {
+  private Users.User.Builder formatUser(UserDto user) {
     Users.User.Builder builder = Users.User.newBuilder()
       .setLogin(user.getLogin())
       .setName(nullToEmpty(user.getName()))
       .setActive(user.isActive());
-    setNullable(user.getEmail(), text -> builder.setAvatar(hash(text)));
+    setNullable(user.getEmail(), email -> builder.setAvatar(avatarFactory.create(email)));
     return builder;
-  }
-
-  private static String hash(String text) {
-    return Hashing.md5().hashString(text.toLowerCase(ENGLISH), UTF_8).toString();
   }
 
   private Issues.Languages.Builder formatLanguages() {

@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Throwables;
-import com.google.common.hash.Hashing;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -45,10 +44,10 @@ import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog.Diff;
 import org.sonarqube.ws.MediaTypes;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.ENGLISH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -69,21 +68,24 @@ public class ChangelogActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private WsActionTester tester = new WsActionTester(new ChangelogAction(db.getDbClient(), new IssueFinder(db.getDbClient(), userSession)));
+  private AvatarFactory avatarFactory = mock(AvatarFactory.class);
+
+  private WsActionTester tester = new WsActionTester(new ChangelogAction(db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), avatarFactory));
 
   @Test
   public void return_changelog() throws Exception {
-    UserDto user = db.users().insertUser();
+    UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER"));
+    mockAvatar(user.getEmail(), "avatar");
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).getUser()).isNotNull().isEqualTo(user.getLogin());
     assertThat(result.getChangelogList().get(0).getUserName()).isNotNull().isEqualTo(user.getName());
-    assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo(hash(user.getEmail()));
+    assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo("avatar");
     assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
     assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue).containsOnly(tuple("severity", "MAJOR", "BLOCKER"));
   }
@@ -167,7 +169,7 @@ public class ChangelogActionTest {
 
   @Test
   public void return_multiple_diffs() throws Exception {
-    UserDto user = db.users().insertUser();
+    UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER").setDiff("status", "RESOLVED", "CLOSED"));
@@ -181,7 +183,7 @@ public class ChangelogActionTest {
 
   @Test
   public void return_changelog_when_no_old_value() throws Exception {
-    UserDto user = db.users().insertUser();
+    UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", null, "BLOCKER"));
@@ -194,7 +196,7 @@ public class ChangelogActionTest {
 
   @Test
   public void return_changelog_when_no_new_value() throws Exception {
-    UserDto user = db.users().insertUser();
+    UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", null));
@@ -207,7 +209,7 @@ public class ChangelogActionTest {
 
   @Test
   public void return_many_changelog() throws Exception {
-    UserDto user = db.users().insertUser();
+    UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
     db.issues().insertFieldDiffs(issueDto,
@@ -221,7 +223,7 @@ public class ChangelogActionTest {
 
   @Test
   public void replace_technical_debt_key_by_effort() throws Exception {
-    UserDto user = db.users().insertUser();
+    UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("technicalDebt", "10", "20"));
@@ -260,6 +262,7 @@ public class ChangelogActionTest {
       .setUserLogin(user.getLogin())
       .setDiff("severity", "MAJOR", "BLOCKER")
       .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+0100")));
+    mockAvatar(user.getEmail(), "avatar");
 
     String result = tester.newRequest().setParam("issue", issueDto.getKey()).execute().getInput();
 
@@ -294,8 +297,14 @@ public class ChangelogActionTest {
     return newDto(rule, file, project);
   }
 
-  private static String hash(String text) {
-    return Hashing.md5().hashString(text.toLowerCase(ENGLISH), UTF_8).toString();
+  private UserDto insertUser() {
+    UserDto user = db.users().insertUser();
+    mockAvatar(user.getEmail(), "avatar");
+    return user;
+  }
+
+  private void mockAvatar(String email, String avatar) {
+    when(avatarFactory.create(email)).thenReturn(avatar);
   }
 
 }
