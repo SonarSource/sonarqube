@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import org.sonar.process.NetworkUtils;
@@ -77,8 +78,8 @@ public class TestAppState implements AppState {
   }
 
   @Override
-  public String getLeaderHostName() {
-    return NetworkUtils.getHostName();
+  public Optional<String> getLeaderHostName() {
+    return Optional.of(NetworkUtils.getHostName());
   }
 
   @Override

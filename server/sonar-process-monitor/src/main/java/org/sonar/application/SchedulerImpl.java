@@ -20,6 +20,7 @@
 package org.sonar.application;
 
 import java.util.EnumMap;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -118,7 +119,12 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     } else if (appState.tryToLockWebLeader()) {
       tryToStartProcess(process, () -> javaCommandFactory.createWebCommand(true));
     } else {
-      LOG.info("Waiting for initialization from " + appState.getLeaderHostName());
+      Optional<String> leader = appState.getLeaderHostName();
+      if (leader.isPresent()) {
+        LOG.info("Waiting for initialization from " + appState.getLeaderHostName());
+      } else {
+        LOG.error("Initialization failed. All nodes must be restarted");
+      }
     }
   }
 

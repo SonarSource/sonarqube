@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import java.util.Optional;
 import org.sonar.process.ProcessId;
 
 public interface AppState extends AutoCloseable {
@@ -51,7 +52,7 @@ public interface AppState extends AutoCloseable {
 
   void registerSonarQubeVersion(String sonarqubeVersion);
 
-  String getLeaderHostName();
+  Optional<String> getLeaderHostName();
 
   @Override
   void close();

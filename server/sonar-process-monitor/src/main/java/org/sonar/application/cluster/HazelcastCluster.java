@@ -198,15 +198,15 @@ public class HazelcastCluster implements AutoCloseable {
     return new HazelcastCluster(hzConfig);
   }
 
-  String getLeaderHostName() {
+  Optional<String> getLeaderHostName() {
     String leaderId = (String) hzInstance.getAtomicReference(LEADER).get();
     if (leaderId != null) {
       Optional<Member> leader = hzInstance.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderId)).findFirst();
       if (leader.isPresent()) {
-        return leader.get().getStringAttribute(HOSTNAME);
+        return Optional.of(leader.get().getStringAttribute(HOSTNAME));
       }
     }
-    return "No leader";
+    return Optional.empty();
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {
