@@ -56,7 +56,7 @@ export default class UsersSearch extends React.PureComponent {
   render() {
     const { query } = this.state;
     const inputClassName = classNames('search-box-input', {
-      touched: query != null && query !== '' && query.length < 2
+      touched: query != null && query.length === 1
     });
     return (
       <div className="panel panel-vertical bordered-bottom spacer-bottom">

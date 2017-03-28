@@ -17,33 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
 import React from 'react';
-import MembersListItem from './MembersListItem';
-import type { Member } from '../../../store/organizationsMembers/actions';
-import type { Organization } from '../../../store/organizations/duck';
+import { shallow } from 'enzyme';
+import UsersSelectSearchValue from '../UsersSelectSearchValue';
 
-type Props = {
-  members: Array<Member>,
-  organization?: Organization,
+const user = {
+  login: 'admin',
+  name: 'Administrator',
+  avatar: '7daf6c79d4802916d83f6266e24850af'
 };
 
-export default class MembersList extends React.PureComponent {
-  props: Props;
+const user2 = {
+  login: 'admin',
+  name: 'Administrator',
+  email: 'admin@admin.ch'
+};
 
-  render() {
-    return (
-      <table className="data zebra">
-        <tbody>
-          {this.props.members.map(member => (
-            <MembersListItem
-              key={member.login}
-              member={member}
-              organization={this.props.organization}
-            />
-          ))}
-        </tbody>
-      </table>
-    );
-  }
-}
+it('should render correctly with a user', () => {
+  const wrapper = shallow(
+    <UsersSelectSearchValue value={user}>{user.name}</UsersSelectSearchValue>
+  );
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render correctly with email instead of hash', () => {
+  const wrapper = shallow(
+    <UsersSelectSearchValue value={user2}>{user2.name}</UsersSelectSearchValue>
+  );
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render correctly without value', () => {
+  const wrapper = shallow(<UsersSelectSearchValue />);
+  expect(wrapper).toMatchSnapshot();
+});

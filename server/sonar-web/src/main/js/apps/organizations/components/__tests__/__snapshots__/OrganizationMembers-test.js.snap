@@ -41,7 +41,16 @@ exports[`test should render actions for admin 1`] = `
   className="page page-limited">
   <PageHeader
     loading={true}
-    total={2} />
+    total={2}>
+    <div
+      className="page-actions">
+      <div
+        className="button-group">
+        <AddMemberForm
+          addMember={[Function]} />
+      </div>
+    </div>
+  </PageHeader>
   <UsersSearch
     onSearch={[Function]} />
   <MembersList

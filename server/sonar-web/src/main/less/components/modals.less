@@ -116,6 +116,12 @@ ul.modal-head-metadata li {
   padding: 5px 0 5px 130px;
 }
 
+.modal-large-field {
+  clear: both;
+  display: block;
+  padding: 20px 40px;
+}
+
 .modal-field label {
   position: relative;
   left: -140px;
@@ -142,31 +148,54 @@ ul.modal-head-metadata li {
   }
 }
 
+.modal-large-field label {
+  display: inline-block;
+  padding-bottom: 15px;
+  font-weight: bold;
+}
+
 .readonly-field {
   padding-top: 5px;
   margin-left: -5px;
   line-height: 1;
 }
 
-.modal-field input,
-.modal-field select,
-.modal-field textarea {
-  margin-right: 5px;
-  margin-bottom: 10px;
+.modal-field, .modal-large-field {
+  input,
+  select,
+  textarea,
+  .Select {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+
+  input[type="radio"],
+  input[type="checkbox"] {
+    margin-top: 5px;
+    margin-bottom: 4px;
+  }
 }
 
-.modal-field input[type="radio"],
-.modal-field input[type="checkbox"] {
-  margin-top: 5px;
-  margin-bottom: 4px;
+.modal-field {
+  input[type=text],
+  input[type=email],
+  input[type=password],
+  textarea,
+  select,
+  .Select {
+    width: 250px;
+  }
 }
 
-.modal-field input[type=text],
-.modal-field input[type=email],
-.modal-field input[type=password],
-.modal-field textarea,
-.modal-field select {
-  width: 250px;
+.modal-large-field {
+  input[type=text],
+  input[type=email],
+  input[type=password],
+  textarea,
+  select,
+  .Select {
+    width: 100%;
+  }
 }
 
 .modal-field-description {

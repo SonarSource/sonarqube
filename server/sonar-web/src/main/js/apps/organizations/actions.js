@@ -26,6 +26,7 @@ import { getOrganizationMembersState } from '../../store/rootReducer';
 import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import type { Organization } from '../../store/organizations/duck';
+import type { Member } from '../../store/organizationsMembers/actions';
 
 const PAGE_SIZE = 50;
 
@@ -97,7 +98,7 @@ const fetchMembers = (
 ) => {
   dispatch(membersActions.updateState(key, { loading: true }));
   const data: Object = {
-    organizations: key,
+    organization: key,
     ps: PAGE_SIZE
   };
   if (page != null) {
@@ -131,3 +132,11 @@ export const fetchMoreOrganizationMembers = (key: string, query?: string) =>
       query,
       getOrganizationMembersState(getState(), key).pageIndex + 1
     );
+
+export const addOrganizationMember = (key: string, member: Member) => (dispatch: Function) => {
+  dispatch(membersActions.addMember(key, member));
+  return api.addMember({ login: member.login, organization: key }).catch((error: Object) => {
+    onFail(dispatch)(error);
+    dispatch(membersActions.removeMember(key, member));
+  });
+};

@@ -1,0 +1,66 @@
+exports[`test should render and open the modal 1`] = `
+<button
+  onClick={[Function]}>
+  organization.members.add
+</button>
+`;
+
+exports[`test should render and open the modal 2`] = `
+<button
+  onClick={[Function]}>
+  organization.members.add
+  <Modal
+    ariaHideApp={true}
+    className="modal"
+    closeTimeoutMS={0}
+    contentLabel="modal form"
+    isOpen={true}
+    onRequestClose={[Function]}
+    overlayClassName="modal-overlay"
+    parentSelector={[Function]}
+    portalClassName="ReactModalPortal"
+    shouldCloseOnOverlayClick={true}>
+    <header
+      className="modal-head">
+      <h2>
+        users.add
+      </h2>
+    </header>
+    <form
+      onSubmit={[Function]}>
+      <div
+        className="modal-body">
+        <div
+          className="modal-large-field">
+          <label>
+            users.search_description
+          </label>
+          <UsersSelectSearch
+            excludedUsers={
+              Array [
+                "admin",
+              ]
+            }
+            handleValueChange={[Function]}
+            searchUsers={[Function]} />
+        </div>
+      </div>
+      <footer
+        className="modal-foot">
+        <div>
+          <button
+            type="submit">
+            organization.members.add_to_members
+          </button>
+          <button
+            className="button-link"
+            onClick={[Function]}
+            type="reset">
+            cancel
+          </button>
+        </div>
+      </footer>
+    </form>
+  </Modal>
+</button>
+`;

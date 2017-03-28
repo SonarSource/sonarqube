@@ -25,18 +25,25 @@ import {
   getUsersByLogins,
   getOrganizationMembersState
 } from '../../../store/rootReducer';
-import { fetchOrganizationMembers, fetchMoreOrganizationMembers } from '../actions';
+import {
+  fetchOrganizationMembers,
+  fetchMoreOrganizationMembers,
+  addOrganizationMember
+} from '../actions';
 
 const mapStateToProps = (state, ownProps) => {
   const { organizationKey } = ownProps.params;
   const memberLogins = getOrganizationMembersLogins(state, organizationKey);
   return {
+    memberLogins,
     members: getUsersByLogins(state, memberLogins),
     organization: getOrganizationByKey(state, organizationKey),
     status: getOrganizationMembersState(state, organizationKey)
   };
 };
 
-export default connect(mapStateToProps, { fetchOrganizationMembers, fetchMoreOrganizationMembers })(
-  OrganizationMembers
-);
+export default connect(mapStateToProps, {
+  fetchOrganizationMembers,
+  fetchMoreOrganizationMembers,
+  addOrganizationMember
+})(OrganizationMembers);

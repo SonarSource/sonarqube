@@ -17,34 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
+//@flow
+import React from 'react';
+import Avatar from '../../../components/ui/Avatar';
+import type { Option } from './UsersSelectSearch';
 
-export function getCurrentUser() {
-  const url = '/api/users/current';
-  return getJSON(url);
-}
+type Props = {
+  value: Option,
+  children?: Element | Text
+};
 
-export function changePassword(login, password, previousPassword) {
-  const url = '/api/users/change_password';
-  const data = { login, password };
+const AVATAR_SIZE: number = 20;
 
-  if (previousPassword != null) {
-    data.previousPassword = previousPassword;
+export default class UsersSelectSearchValue extends React.PureComponent {
+  props: Props;
+
+  render() {
+    const user = this.props.value;
+    return (
+      <div className="Select-value" title={user ? user.name : ''}>
+        {user && user.login &&
+          <div className="Select-value-label">
+            <Avatar hash={user.avatar} email={user.email} size={AVATAR_SIZE} />
+            <strong className="spacer-left">{user.login}</strong>
+            <span className="note little-spacer-left">{this.props.children}</span>
+          </div>}
+      </div>
+    );
   }
-
-  return post(url, data);
-}
-
-export function getIdentityProviders() {
-  const url = '/api/users/identity_providers';
-  return getJSON(url);
-}
-
-export function searchUsers(query, pageSize) {
-  const url = '/api/users/search';
-  const data = { q: query };
-  if (pageSize != null) {
-    data.ps = pageSize;
-  }
-  return getJSON(url, data);
 }

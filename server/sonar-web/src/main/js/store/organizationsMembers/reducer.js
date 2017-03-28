@@ -31,6 +31,7 @@ export const getOrganizationMembersState = (state, organization) =>
   organization && state[organization] ? state[organization] : {};
 
 const organizationMembers = (state = {}, action = {}) => {
+  const members = state.members || [];
   switch (action.type) {
     case actions.UPDATE_STATE:
       return { ...state, ...action.stateChanges };
@@ -40,8 +41,16 @@ const organizationMembers = (state = {}, action = {}) => {
       return {
         ...state,
         ...action.stateChanges,
-        members: uniq((state.members || []).concat(action.members.map(member => member.login)))
+        members: uniq(members.concat(action.members.map(member => member.login)))
       };
+    case actions.ADD_MEMBER: {
+      const withNew = [...members, action.member.login].sort();
+      return {
+        ...state,
+        total: withNew.length,
+        members: withNew
+      };
+    }
     default:
       return state;
   }
@@ -53,6 +62,7 @@ const organizationsMembers = (state = {}, action = {}) => {
     case actions.UPDATE_STATE:
     case actions.RECEIVE_MEMBERS:
     case actions.RECEIVE_MORE_MEMBERS:
+    case actions.ADD_MEMBER:
       return {
         ...state,
         [action.organization]: organizationMembers(organization, action)

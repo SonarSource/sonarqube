@@ -17,34 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
+import React from 'react';
+import { shallow } from 'enzyme';
+import UsersSelectSearchOption from '../UsersSelectSearchOption';
 
-export function getCurrentUser() {
-  const url = '/api/users/current';
-  return getJSON(url);
-}
+const user = {
+  login: 'admin',
+  name: 'Administrator',
+  avatar: '7daf6c79d4802916d83f6266e24850af'
+};
 
-export function changePassword(login, password, previousPassword) {
-  const url = '/api/users/change_password';
-  const data = { login, password };
+const user2 = {
+  login: 'admin',
+  name: 'Administrator',
+  email: 'admin@admin.ch'
+};
 
-  if (previousPassword != null) {
-    data.previousPassword = previousPassword;
-  }
+it('should render correctly without all parameters', () => {
+  const wrapper = shallow(
+    <UsersSelectSearchOption option={user}>{user.name}</UsersSelectSearchOption>
+  );
+  expect(wrapper).toMatchSnapshot();
+});
 
-  return post(url, data);
-}
-
-export function getIdentityProviders() {
-  const url = '/api/users/identity_providers';
-  return getJSON(url);
-}
-
-export function searchUsers(query, pageSize) {
-  const url = '/api/users/search';
-  const data = { q: query };
-  if (pageSize != null) {
-    data.ps = pageSize;
-  }
-  return getJSON(url, data);
-}
+it('should render correctly with email instead of hash', () => {
+  const wrapper = shallow(
+    <UsersSelectSearchOption option={user2}>{user.name}</UsersSelectSearchOption>
+  );
+  expect(wrapper).toMatchSnapshot();
+});
