@@ -165,19 +165,19 @@ public class QualityProfileDao implements Dao {
     DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteProjectAssociationByProfileKeys);
   }
 
-  public List<ProjectQprofileAssociationDto> selectSelectedProjects(String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectSelectedProjects(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectSelectedProjects(profileKey, nameQuery);
+    return mapper(session).selectSelectedProjects(organization.getUuid(), profileKey, nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectDeselectedProjects(profileKey, nameQuery);
+    return mapper(session).selectDeselectedProjects(organization.getUuid(), profileKey, nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectProjectAssociations(String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectProjectAssociations(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectProjectAssociations(profileKey, nameQuery);
+    return mapper(session).selectProjectAssociations(organization.getUuid(), profileKey, nameQuery);
   }
 
   private static String sqlQueryString(@Nullable String query) {

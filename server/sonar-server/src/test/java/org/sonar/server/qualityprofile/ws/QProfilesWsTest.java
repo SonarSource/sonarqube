@@ -62,7 +62,7 @@ public class QProfilesWsTest {
       new ImportersAction(importers),
       new SearchAction(null, languages, dbClient, wsSupport),
       new SetDefaultAction(languages, null, null, wsSupport),
-      new ProjectsAction(null, userSessionRule),
+      new ProjectsAction(null, userSessionRule, wsSupport),
       new ChangelogAction(null, wsSupport, languages, dbClient),
       new ChangeParentAction(dbClient, null, languages, wsSupport, userSessionRule),
       new CompareAction(null, null, languages),

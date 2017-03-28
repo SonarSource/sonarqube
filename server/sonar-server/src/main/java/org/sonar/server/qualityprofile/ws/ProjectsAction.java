@@ -19,13 +19,10 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.server.ws.Request;
@@ -41,7 +38,9 @@ import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -56,10 +55,12 @@ public class ProjectsAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final QProfileWsSupport wsSupport;
 
-  public ProjectsAction(DbClient dbClient, UserSession userSession) {
+  public ProjectsAction(DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -88,9 +89,7 @@ public class ProjectsAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     String profileKey = request.mandatoryParam(PARAM_KEY);
 
-    DbSession session = dbClient.openSession(false);
-
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       checkProfileExists(profileKey, session);
       String selected = request.param(Param.SELECTED);
       String query = request.param(PARAM_QUERY);
@@ -98,17 +97,12 @@ public class ProjectsAction implements QProfileWsAction {
       int page = request.mandatoryParamAsInt(PARAM_PAGE);
 
       List<ProjectQprofileAssociationDto> projects = loadProjects(profileKey, session, selected, query);
-      Collections.sort(projects, new Comparator<ProjectQprofileAssociationDto>() {
-        @Override
-        public int compare(ProjectQprofileAssociationDto o1, ProjectQprofileAssociationDto o2) {
-          return new CompareToBuilder()
-            // First, sort by name
-            .append(o1.getProjectName(), o2.getProjectName())
-            // Then by UUID to disambiguate
-            .append(o1.getProjectUuid(), o2.getProjectUuid())
-            .toComparison();
-        }
-      });
+      projects.sort((o1, o2) -> new CompareToBuilder()
+        // First, sort by name
+        .append(o1.getProjectName(), o2.getProjectName())
+        // Then by UUID to disambiguate
+        .append(o1.getProjectUuid(), o2.getProjectUuid())
+        .toComparison());
 
       Collection<Long> projectIds = Collections2.transform(projects, new NonNullInputFunction<ProjectQprofileAssociationDto, Long>() {
         @Override
@@ -118,12 +112,7 @@ public class ProjectsAction implements QProfileWsAction {
       });
 
       Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, userSession.getUserId(), UserRole.USER);
-      Iterable<ProjectQprofileAssociationDto> authorizedProjects = Iterables.filter(projects, new Predicate<ProjectQprofileAssociationDto>() {
-        @Override
-        public boolean apply(ProjectQprofileAssociationDto input) {
-          return authorizedProjectIds.contains(input.getProjectId());
-        }
-      });
+      Iterable<ProjectQprofileAssociationDto> authorizedProjects = Iterables.filter(projects, input -> authorizedProjectIds.contains(input.getProjectId()));
 
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(authorizedProjectIds.size());
 
@@ -136,8 +125,6 @@ public class ProjectsAction implements QProfileWsAction {
       }
 
       writeProjects(response.newJsonWriter(), pagedAuthorizedProjects, paging);
-    } finally {
-      session.close();
     }
   }
 
@@ -148,19 +135,21 @@ public class ProjectsAction implements QProfileWsAction {
   }
 
   private List<ProjectQprofileAssociationDto> loadProjects(String profileKey, DbSession session, String selected, String query) {
+    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(session, profileKey);
+    OrganizationDto organization = wsSupport.getOrganization(session, qualityProfile);
     List<ProjectQprofileAssociationDto> projects = Lists.newArrayList();
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
     if (SelectionMode.SELECTED == selectionMode) {
-      projects.addAll(dbClient.qualityProfileDao().selectSelectedProjects(profileKey, query, session));
+      projects.addAll(dbClient.qualityProfileDao().selectSelectedProjects(organization, profileKey, query, session));
     } else if (SelectionMode.DESELECTED == selectionMode) {
-      projects.addAll(dbClient.qualityProfileDao().selectDeselectedProjects(profileKey, query, session));
+      projects.addAll(dbClient.qualityProfileDao().selectDeselectedProjects(organization, profileKey, query, session));
     } else {
-      projects.addAll(dbClient.qualityProfileDao().selectProjectAssociations(profileKey, query, session));
+      projects.addAll(dbClient.qualityProfileDao().selectProjectAssociations(organization, profileKey, query, session));
     }
     return projects;
   }
 
-  private void writeProjects(JsonWriter json, List<ProjectQprofileAssociationDto> projects, Paging paging) {
+  private static void writeProjects(JsonWriter json, List<ProjectQprofileAssociationDto> projects, Paging paging) {
     json.beginObject();
     json.name("results").beginArray();
     for (ProjectQprofileAssociationDto project : projects) {

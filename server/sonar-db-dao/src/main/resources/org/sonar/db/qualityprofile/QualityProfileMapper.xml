@@ -137,11 +137,10 @@
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM projects pj
     JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey}
-    <where>
-      AND pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery}
-    </where>
+    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
@@ -149,12 +148,11 @@
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey}
-    <where>
-      AND pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery}
+    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
       AND pp.profile_key IS NULL
-    </where>
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
@@ -162,11 +160,10 @@
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey}
-    <where>
-      AND pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery}
-    </where>
+    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
