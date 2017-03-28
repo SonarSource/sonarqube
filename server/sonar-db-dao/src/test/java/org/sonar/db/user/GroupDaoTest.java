@@ -88,10 +88,15 @@ public class GroupDaoTest {
 
   @Test
   public void selectByUserLogin() {
-    db.prepareDbUnit(getClass(), "find_by_user_login.xml");
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
 
-    assertThat(underTest.selectByUserLogin(dbSession, "john")).hasSize(2);
-    assertThat(underTest.selectByUserLogin(dbSession, "max")).isEmpty();
+    assertThat(underTest.selectByUserLogin(dbSession, user.getLogin())).hasSize(2);
+    assertThat(underTest.selectByUserLogin(dbSession, "unknown")).isEmpty();
   }
 
   @Test
@@ -149,7 +154,15 @@ public class GroupDaoTest {
 
   @Test
   public void selectByQuery() {
-    db.prepareDbUnit(getClass(), "select_by_query.xml");
+    OrganizationDto organization1 = db.organizations().insert(organizationDto -> organizationDto.setUuid("org1"));
+    OrganizationDto organization2 = db.organizations().insert(organizationDto -> organizationDto.setUuid("org2"));
+    db.users().insertGroup(organization1, "sonar-users");
+    db.users().insertGroup(organization1, "SONAR-ADMINS");
+    db.users().insertGroup(organization1, "customers-group1");
+    db.users().insertGroup(organization1, "customers-group2");
+    db.users().insertGroup(organization1, "customers-group3");
+    // Group on another organization
+    db.users().insertGroup(organization2, "customers-group4");
 
     /*
      * Ordering and paging are not fully tested, case insensitive sort is broken on MySQL
@@ -197,7 +210,15 @@ public class GroupDaoTest {
 
   @Test
   public void countByQuery() {
-    db.prepareDbUnit(getClass(), "select_by_query.xml");
+    OrganizationDto organization1 = db.organizations().insert(organizationDto -> organizationDto.setUuid("org1"));
+    OrganizationDto organization2 = db.organizations().insert(organizationDto -> organizationDto.setUuid("org2"));
+    db.users().insertGroup(organization1, "sonar-users");
+    db.users().insertGroup(organization1, "SONAR-ADMINS");
+    db.users().insertGroup(organization1, "customers-group1");
+    db.users().insertGroup(organization1, "customers-group2");
+    db.users().insertGroup(organization1, "customers-group3");
+    // Group on another organization
+    db.users().insertGroup(organization2, "customers-group4");
 
     // Null query
     assertThat(underTest.countByQuery(dbSession, "org1", null)).isEqualTo(5);
