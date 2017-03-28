@@ -150,7 +150,7 @@ export default class GlobalNavMenu extends React.Component {
         {this.renderProjects()}
         {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}
-        {this.renderRulesLink()}
+        {!organizationsEnabled && this.renderRulesLink()}
         {!organizationsEnabled && this.renderProfilesLink()}
         {this.renderQualityGatesLink()}
         {this.renderAdministrationLink()}

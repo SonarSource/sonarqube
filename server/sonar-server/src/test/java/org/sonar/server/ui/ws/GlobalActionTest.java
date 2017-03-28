@@ -33,6 +33,8 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
@@ -57,6 +59,7 @@ public class GlobalActionTest {
 
   private WsActionTester ws;
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
 
   @Test
   public void empty_call() throws Exception {
@@ -152,7 +155,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void organization_support_is_enabled() throws Exception {
+  public void organization_support() throws Exception {
     init();
     organizationFlags.setEnabled(true);
 
@@ -201,7 +204,8 @@ public class GlobalActionTest {
       }
     }});
     pageRepository.start();
-    ws = new WsActionTester(new GlobalAction(pageRepository, settings, new ResourceTypes(resourceTypeTrees), server, dbClient, organizationFlags));
+    ws = new WsActionTester(new GlobalAction(pageRepository, settings, new ResourceTypes(resourceTypeTrees), server,
+      dbClient, organizationFlags, defaultOrganizationProvider));
   }
 
   private void executeAndVerify(String json) {
