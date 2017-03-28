@@ -32,6 +32,7 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.ReplicatedMap;
+import com.hazelcast.nio.Address;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,6 @@ public class HazelcastCluster implements AutoCloseable {
   private HazelcastCluster(Config hzConfig) {
     // Create the Hazelcast instance
     hzInstance = Hazelcast.newHazelcastInstance(hzConfig);
-
     // Get or create the replicated map
     operationalProcesses = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
     operationalProcessListenerUUID = operationalProcesses.addEntryListener(new OperationalProcessListener());
@@ -207,6 +207,11 @@ public class HazelcastCluster implements AutoCloseable {
       }
     }
     return "No leader";
+  }
+
+  String getLocalEndPoint() {
+    Address localAddress = hzInstance.getCluster().getLocalMember().getAddress();
+    return String.format("%s:%d", localAddress.getHost(), localAddress.getPort());
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {

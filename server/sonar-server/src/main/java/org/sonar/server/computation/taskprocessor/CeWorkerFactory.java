@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.configuration;
 
-import org.sonar.server.computation.taskprocessor.CeWorker;
+package org.sonar.server.computation.taskprocessor;
 
-public interface CeConfiguration {
+import java.util.List;
 
-  /**
-   * The number of workers to process CeTasks concurrently.
-   */
-  int getWorkerCount();
+public interface CeWorkerFactory {
+  CeWorker create();
+  List<String> getWorkerUUIDs();
+  void addListener(Listener listener);
 
-  /**
-   * The delay in milliseconds before calling another {@link CeWorker}
-   * when previous one had nothing to do.
-   */
-  long getQueuePollingDelay();
+  @FunctionalInterface
+  interface Listener {
+    void onChange();
+  }
 }

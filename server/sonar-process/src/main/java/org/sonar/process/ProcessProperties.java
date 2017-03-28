@@ -39,6 +39,7 @@ public class ProcessProperties {
   public static final String CLUSTER_NAME = "sonar.cluster.name";
   public static final String HAZELCAST_LOG_LEVEL = "sonar.log.level.app.hazelcast";
   public static final String CLUSTER_WEB_LEADER = "sonar.cluster.web.startupLeader";
+  public static final String CLUSTER_LOCALENDPOINT = "sonar.cluster.localEndPoint";
 
   public static final String JDBC_URL = "sonar.jdbc.url";
   public static final String JDBC_DRIVER_PATH = "sonar.jdbc.driverPath";

@@ -17,20 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.configuration;
 
-import org.sonar.server.computation.taskprocessor.CeWorker;
+package org.sonar.ce.cluster;
 
-public interface CeConfiguration {
+import org.sonar.api.config.Settings;
+import org.sonar.process.ProcessProperties;
 
-  /**
-   * The number of workers to process CeTasks concurrently.
-   */
-  int getWorkerCount();
+/**
+ * Properties of the cluster configuration
+ */
+public final class ClusterClientProperties {
+  private final boolean enabled;
+  private final String name;
+  private final String localEndPoint;
 
-  /**
-   * The delay in milliseconds before calling another {@link CeWorker}
-   * when previous one had nothing to do.
-   */
-  long getQueuePollingDelay();
+  public ClusterClientProperties(Settings settings) {
+    enabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
+    name = settings.getString(ProcessProperties.CLUSTER_NAME);
+    localEndPoint = settings.getString(ProcessProperties.CLUSTER_LOCALENDPOINT);
+  }
+
+  boolean isEnabled() {
+    return enabled;
+  }
+
+  String getName() {
+    return name;
+  }
+
+  public String getLocalEndPoint() {
+    return localEndPoint;
+  }
 }

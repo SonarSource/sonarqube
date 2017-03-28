@@ -31,6 +31,10 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast-client</artifactId>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>

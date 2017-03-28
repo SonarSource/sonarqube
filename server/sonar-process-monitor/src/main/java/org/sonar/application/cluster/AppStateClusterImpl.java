@@ -30,6 +30,7 @@ import org.sonar.application.AppState;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
 
 public class AppStateClusterImpl implements AppState {
   private static Logger LOGGER = LoggerFactory.getLogger(AppStateClusterImpl.class);
@@ -46,6 +47,8 @@ public class AppStateClusterImpl implements AppState {
     }
 
     hazelcastCluster = HazelcastCluster.create(clusterProperties);
+    // Add the local endpoint to be used by processes
+    appSettings.getProps().set(ProcessProperties.CLUSTER_LOCALENDPOINT, hazelcastCluster.getLocalEndPoint());
 
     String members = hazelcastCluster.getMembers().stream().collect(Collectors.joining(","));
     LOGGER.info("Joined the cluster [{}] that contains the following hosts : [{}]", hazelcastCluster.getName(), members);
