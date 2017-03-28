@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import $ from 'jquery';
 import { sortBy } from 'lodash';
 import Backbone from 'backbone';
@@ -34,10 +35,14 @@ import FiltersView from './filters-view';
 
 const App = new Marionette.Application();
 
-App.on('start', function(el) {
-  $.get(window.baseUrl + '/api/rules/app')
+App.on('start', function(options: { el: HTMLElement, organization: ?string }) {
+  const data = options.organization ? { organization: options.organization } : {};
+  $.get(window.baseUrl + '/api/rules/app', data)
     .done(r => {
+      App.canCreateCustomRule = r.canCreateCustomRule;
+      App.canCustomizeRule = r.canCustomizeRule;
       App.canWrite = r.canWrite;
+      App.organization = options.organization;
       App.qualityProfiles = sortBy(r.qualityprofiles, ['name', 'lang']);
       App.languages = { ...r.languages, none: 'None' };
       App.qualityProfiles.forEach(profile => {
@@ -47,7 +52,7 @@ App.on('start', function(el) {
       App.statuses = r.statuses;
     })
     .done(() => {
-      this.layout = new Layout({ el });
+      this.layout = new Layout({ el: options.el });
       this.layout.render();
       $('#footer').addClass('search-navigator-footer');
 
@@ -81,7 +86,7 @@ App.on('start', function(el) {
       });
       this.layout.filtersRegion.show(this.filtersView);
 
-      key.setScope('list');
+      window.key.setScope('list');
       this.router = new Router({
         app: this
       });
@@ -89,10 +94,11 @@ App.on('start', function(el) {
     });
 });
 
-export default function(el) {
-  App.start(el);
+export default function(el: HTMLElement, organization: ?string) {
+  App.start({ el, organization });
 
   return () => {
+    // $FlowFixMe
     Backbone.history.stop();
     App.layout.destroy();
     $('#footer').removeClass('search-navigator-footer');

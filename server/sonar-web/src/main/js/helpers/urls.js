@@ -114,17 +114,19 @@ export function getQualityGateUrl(key) {
  * @param {object} query
  * @returns {string}
  */
-export function getRulesUrl(query) {
+export function getRulesUrl(query, organization?: string) {
+  const path = organization ? `/organizations/${organization}/rules` : '/coding_rules';
+
   if (query) {
     const serializedQuery = Object.keys(query)
       .map(criterion => `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`)
       .join('|');
 
     // return a string (not { pathname }) to help react-router's Link handle this properly
-    return '/coding_rules#' + serializedQuery;
+    return path + '#' + serializedQuery;
   }
 
-  return '/coding_rules';
+  return path;
 }
 
 /**
@@ -132,9 +134,9 @@ export function getRulesUrl(query) {
  * @param {object} query
  * @returns {string}
  */
-export function getDeprecatedActiveRulesUrl(query = {}) {
+export function getDeprecatedActiveRulesUrl(query = {}, organization?: string) {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
-  return getRulesUrl({ ...query, ...baseQuery });
+  return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
 
 export const getProjectsUrl = () => {

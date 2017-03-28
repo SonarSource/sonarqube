@@ -39,7 +39,7 @@ export default class Evolution extends React.PureComponent {
       <div className="quality-profiles-evolution">
         <EvolutionDeprecated organization={organization} profiles={profiles} />
         <EvolutionStagnant organization={organization} profiles={profiles} />
-        <EvolutionRules />
+        <EvolutionRules organization={organization} />
       </div>
     );
   }

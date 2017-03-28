@@ -171,7 +171,7 @@ export default Marionette.LayoutView.extend({
 
   serializeData() {
     const isCustom = this.model.has('templateKey');
-    const isEditable = this.options.app.canWrite && isCustom;
+    const isEditable = this.options.app.canCustomizeRule && isCustom;
     let qualityProfilesVisible = true;
 
     if (this.model.get('isTemplate')) {
@@ -182,7 +182,6 @@ export default Marionette.LayoutView.extend({
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       isEditable,
       qualityProfilesVisible,
-      canWrite: this.options.app.canWrite,
       allTags: union(this.model.get('sysTags'), this.model.get('tags'))
     };
   }

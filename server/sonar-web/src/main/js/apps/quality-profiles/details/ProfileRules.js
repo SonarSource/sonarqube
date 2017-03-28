@@ -33,6 +33,7 @@ const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
 type Props = {
   canAdmin: boolean,
+  organization: ?string,
   profile: Profile
 };
 
@@ -133,10 +134,13 @@ export default class ProfileRules extends React.PureComponent {
   }
 
   renderActiveCount() {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'true'
-    });
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'true'
+      },
+      this.props.organization
+    );
 
     if (this.state.activatedTotal == null) {
       return null;
@@ -152,10 +156,13 @@ export default class ProfileRules extends React.PureComponent {
   }
 
   renderActiveTotal() {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'false'
-    });
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'false'
+      },
+      this.props.organization
+    );
 
     if (this.state.total == null || this.state.activatedTotal == null) {
       return null;
@@ -184,11 +191,14 @@ export default class ProfileRules extends React.PureComponent {
   }
 
   renderCountForType(type: string) {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'true',
-      types: type
-    });
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'true',
+        types: type
+      },
+      this.props.organization
+    );
 
     const count = this.state.activatedByType && this.state.activatedByType[type]
       ? this.state.activatedByType[type].count
@@ -206,11 +216,14 @@ export default class ProfileRules extends React.PureComponent {
   }
 
   renderTotalForType(type: string) {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'false',
-      types: type
-    });
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'false',
+        types: type
+      },
+      this.props.organization
+    );
 
     const count = this.state.activatedByType && this.state.activatedByType[type]
       ? this.state.activatedByType[type].count
@@ -242,7 +255,7 @@ export default class ProfileRules extends React.PureComponent {
       return null;
     }
 
-    const url = getDeprecatedActiveRulesUrl({ qprofile: profile.key });
+    const url = getDeprecatedActiveRulesUrl({ qprofile: profile.key }, this.props.organization);
 
     return (
       <div className="quality-profile-rules-deprecated clearfix">
@@ -259,10 +272,13 @@ export default class ProfileRules extends React.PureComponent {
   }
 
   render() {
-    const activateMoreUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'false'
-    });
+    const activateMoreUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'false'
+      },
+      this.props.organization
+    );
 
     return (
       <div className="quality-profile-rules">

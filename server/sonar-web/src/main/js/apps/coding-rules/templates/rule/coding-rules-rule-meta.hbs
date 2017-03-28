@@ -34,14 +34,14 @@
     </li>
   {{/notEq}}
 
-  <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}"
+  <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canCustomizeRule}}coding-rules-detail-tags-change{{/if}}"
       data-toggle="tooltip" data-placement="bottom" title="Rule tags">
     <i class="icon-tags"></i>
     <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
     {{#if canWrite}}<i class="icon-dropdown"></i>{{/if}}
   </li>
 
-  {{#if canWrite}}
+  {{#if canCustomizeRule}}
     <li class="coding-rules-detail-property coding-rules-detail-tag-edit hidden">
       {{#if sysTags}}<i class="icon-tags"></i>
         <span>{{join sysTags ', '}}</span>{{/if}}

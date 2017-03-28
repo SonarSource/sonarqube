@@ -35,8 +35,6 @@ export default class EvolutionDeprecated extends React.PureComponent {
   props: Props;
 
   render() {
-    // FIXME getDeprecatedActiveRulesUrl
-
     const profilesWithDeprecations = this.props.profiles.filter(
       profile => profile.activeDeprecatedRuleCount > 0
     );
@@ -73,7 +71,10 @@ export default class EvolutionDeprecated extends React.PureComponent {
                 {profile.languageName}
                 {', '}
                 <Link
-                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
+                  to={getDeprecatedActiveRulesUrl(
+                    { qprofile: profile.key },
+                    this.props.organization
+                  )}
                   className="text-muted">
                   {translateWithParameters(
                     'quality_profile.x_rules',

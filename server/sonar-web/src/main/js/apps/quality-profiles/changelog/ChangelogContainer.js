@@ -170,7 +170,7 @@ export default class ChangelogContainer extends React.PureComponent {
 
         {this.state.events != null &&
           this.state.events.length > 0 &&
-          <Changelog events={this.state.events} />}
+          <Changelog events={this.state.events} organization={this.props.organization} />}
 
         {shouldDisplayFooter &&
           <footer className="text-center spacer-top small">

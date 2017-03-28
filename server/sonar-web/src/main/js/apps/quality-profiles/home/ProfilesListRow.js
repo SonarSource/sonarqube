@@ -74,20 +74,24 @@ export default class ProfilesListRow extends React.PureComponent {
   }
 
   renderRules() {
-    // FIXME getRulesUrl
-
     const { profile } = this.props;
 
-    const activeRulesUrl = getRulesUrl({
-      qprofile: profile.key,
-      activation: 'true'
-    });
+    const activeRulesUrl = getRulesUrl(
+      {
+        qprofile: profile.key,
+        activation: 'true'
+      },
+      this.props.organization
+    );
 
-    const deprecatedRulesUrl = getRulesUrl({
-      qprofile: profile.key,
-      activation: 'true',
-      statuses: 'DEPRECATED'
-    });
+    const deprecatedRulesUrl = getRulesUrl(
+      {
+        qprofile: profile.key,
+        activation: 'true',
+        statuses: 'DEPRECATED'
+      },
+      this.props.organization
+    );
 
     return (
       <div>

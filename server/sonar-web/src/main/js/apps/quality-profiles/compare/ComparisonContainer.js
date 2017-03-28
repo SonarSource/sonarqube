@@ -122,6 +122,7 @@ export default class ComparisonContainer extends React.PureComponent {
             inLeft={inLeft}
             inRight={inRight}
             modified={modified}
+            organization={this.props.organization}
           />}
       </div>
     );

@@ -94,12 +94,10 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData() {
-    const isEditable = this.options.app.canWrite && this.model.get('isCustom');
-
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      isEditable,
-      canWrite: this.options.app.canWrite
+      isCustom: this.model.get('isCustom'),
+      canCustomizeRule: this.options.app.canCustomizeRule
     };
   }
 });

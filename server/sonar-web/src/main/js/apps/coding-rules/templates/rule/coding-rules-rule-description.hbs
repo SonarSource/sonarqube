@@ -1,19 +1,19 @@
 <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
 
-{{#unless isEditable}}
+{{#unless isCustom}}
   <div class="coding-rules-detail-description coding-rules-detail-description-extra">
     <div id="coding-rules-detail-description-extra">
       {{#if htmlNote}}
         <div class="rule-desc spacer-bottom markdown">{{{htmlNote}}}</div>
       {{/if}}
-      {{#if canWrite}}
+      {{#if canCustomizeRule}}
         <div class="button-group">
           <button id="coding-rules-detail-extend-description">{{t 'coding_rules.extend_description'}}</button>
         </div>
       {{/if}}
     </div>
 
-    {{#if canWrite}}
+    {{#if canCustomizeRule}}
       <div class="coding-rules-detail-extend-description-form hidden">
         <table class="width100">
           <tbody>

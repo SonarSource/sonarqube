@@ -161,6 +161,11 @@ export default class OrganizationNavigation extends React.Component {
                   {translate('quality_profiles.page')}
                 </Link>
               </li>
+              <li>
+                <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
+                  {translate('coding_rules.page')}
+                </Link>
+              </li>
               {organization.canAdmin && this.renderAdministration()}
             </ul>
           </div>
