@@ -245,7 +245,7 @@ export default Marionette.ItemView.extend({
     const ruleKey = this.model.get('rule');
     // lazy load Workspace
     const Workspace = require('../workspace/main').default;
-    Workspace.openRule({ key: ruleKey });
+    Workspace.openRule({ key: ruleKey, organization: this.model.get('projectOrganization') });
   },
 
   action(action) {

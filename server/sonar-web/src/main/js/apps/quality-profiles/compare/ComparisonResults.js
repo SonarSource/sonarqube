@@ -32,7 +32,8 @@ type Props = {
   right: { name: string },
   inLeft: Array<*>,
   inRight: Array<*>,
-  modified: Array<*>
+  modified: Array<*>,
+  organization: ?string
 };
 
 export default class ComparisonResults extends React.PureComponent {
@@ -43,7 +44,7 @@ export default class ComparisonResults extends React.PureComponent {
       <div>
         <SeverityIcon severity={severity} />
         {' '}
-        <Link to={getRulesUrl({ rule_key: rule.key })}>
+        <Link to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}>
           {rule.name}
         </Link>
       </div>

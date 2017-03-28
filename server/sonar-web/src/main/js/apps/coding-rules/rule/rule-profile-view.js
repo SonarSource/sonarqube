@@ -123,6 +123,9 @@ export default Marionette.ItemView.extend({
     const myProfile = this.options.app.qualityProfiles.find(
       p => p.key === this.model.get('qProfile')
     );
+    if (!myProfile) {
+      return null;
+    }
     const parentKey = myProfile.parentKey;
     const parent = { ...this.options.app.qualityProfiles.find(p => p.key === parentKey) };
     const parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) ||
@@ -147,14 +150,26 @@ export default Marionette.ItemView.extend({
     });
   },
 
+  getProfilePath(profileKey) {
+    const { organization } = this.options.app;
+    const encodedKey = encodeURIComponent(profileKey);
+    return organization
+      ? `${window.baseUrl}/organizations/${organization}/quality_profiles/show?key=${encodedKey}`
+      : `${window.baseUrl}/profiles/show?key=${encodedKey}`;
+  },
+
   serializeData() {
+    const parent = this.getParent();
+
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
+      parent,
       canWrite: this.options.app.canWrite,
-      parent: this.getParent(),
       parameters: this.enhanceParameters(),
       templateKey: this.options.rule.get('templateKey'),
-      isTemplate: this.options.rule.get('isTemplate')
+      isTemplate: this.options.rule.get('isTemplate'),
+      profilePath: this.getProfilePath(this.model.get('key')),
+      parentProfilePath: parent && this.getProfilePath(parent.key)
     };
   }
 });

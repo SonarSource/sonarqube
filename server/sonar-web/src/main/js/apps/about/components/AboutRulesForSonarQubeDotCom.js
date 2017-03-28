@@ -23,11 +23,20 @@ import { Link } from 'react-router';
 import { getRulesUrl } from '../../../helpers/urls';
 
 export default class AboutRulesForSonarQubeDotCom extends React.Component {
+  props: {
+    appState: {
+      defaultOrganization: string,
+      organizationsEnabled: boolean
+    }
+  };
+
   render() {
+    const organization = this.props.appState.defaultOrganization;
+
     return (
       <div className="sqcom-about-rules">
         <div className="about-page-container">
-          <Link to={getRulesUrl()} className="sqcom-about-rules-link">
+          <Link to={getRulesUrl(null, organization)} className="sqcom-about-rules-link">
             +3,000 rules
             <span className="spacer-left">
               <svg width="15" height="36" viewBox="0 0 15 36">
@@ -40,17 +49,27 @@ export default class AboutRulesForSonarQubeDotCom extends React.Component {
               </svg>
             </span>
           </Link>
-          <Link to={getRulesUrl({ languages: 'js' })} className="sqcom-about-rules-link">
+          <Link
+            to={getRulesUrl({ languages: 'js' }, organization)}
+            className="sqcom-about-rules-link">
             JavaScript
           </Link>
-          <Link to={getRulesUrl({ languages: 'java' })} className="sqcom-about-rules-link">
+          <Link
+            to={getRulesUrl({ languages: 'java' }, organization)}
+            className="sqcom-about-rules-link">
             Java
           </Link>
-          <Link to={getRulesUrl({ languages: 'c,cpp' })} className="sqcom-about-rules-link">
+          <Link
+            to={getRulesUrl({ languages: 'c,cpp' }, organization)}
+            className="sqcom-about-rules-link">
             C/C++
           </Link>
-          <Link to={getRulesUrl({ languages: 'cs' })} className="sqcom-about-rules-link">C#</Link>
-          <Link to={getRulesUrl()} className="button">And More</Link>
+          <Link
+            to={getRulesUrl({ languages: 'cs' }, organization)}
+            className="sqcom-about-rules-link">
+            C#
+          </Link>
+          <Link to={getRulesUrl(null, organization)} className="button">And More</Link>
         </div>
       </div>
     );

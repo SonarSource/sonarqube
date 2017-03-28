@@ -84,11 +84,13 @@ export default class ProfileActions extends React.PureComponent {
       '/api/qualityprofiles/backup?profileKey=' +
       encodeURIComponent(profile.key);
 
-    // FIXME getRulesUrl
-    const activateMoreUrl = getRulesUrl({
-      qprofile: profile.key,
-      activation: 'false'
-    });
+    const activateMoreUrl = getRulesUrl(
+      {
+        qprofile: profile.key,
+        activation: 'false'
+      },
+      this.props.organization
+    );
 
     return (
       <ul className="dropdown-menu dropdown-menu-right">

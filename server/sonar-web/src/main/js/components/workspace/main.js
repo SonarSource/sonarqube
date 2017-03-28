@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import $ from 'jquery';
 import Item from './models/item';
 import Items from './models/items';
@@ -77,7 +78,7 @@ Workspace.prototype = {
     return this.open({ ...options, __type__: 'component' });
   },
 
-  openRule(options) {
+  openRule(options: { key: string, organization: string }) {
     return this.open({ ...options, __type__: 'rule' });
   },
 

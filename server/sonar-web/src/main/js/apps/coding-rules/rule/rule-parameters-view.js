@@ -30,15 +30,5 @@ export default Marionette.ItemView.extend({
   onRender() {
     const params = this.model.get('params');
     this.$el.toggleClass('hidden', params == null || params.length === 0);
-  },
-
-  serializeData() {
-    const isEditable = this.options.app.canWrite && this.model.get('isCustom');
-
-    return {
-      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      isEditable,
-      canWrite: this.options.app.canWrite
-    };
   }
 });

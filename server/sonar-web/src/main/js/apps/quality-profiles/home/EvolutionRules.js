@@ -39,7 +39,9 @@ function parseRules(r) {
   });
 }
 
-type Props = {};
+type Props = {
+  organization: ?string
+};
 
 export default class EvolutionRules extends React.PureComponent {
   mounted: boolean;
@@ -75,15 +77,16 @@ export default class EvolutionRules extends React.PureComponent {
   }
 
   render() {
-    // FIXME getRulesUrl
-
     if (!this.state.latestRulesTotal) {
       return null;
     }
 
-    const newRulesUrl = getRulesUrl({
-      available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD')
-    });
+    const newRulesUrl = getRulesUrl(
+      {
+        available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD')
+      },
+      this.props.organization
+    );
 
     return (
       <div className="quality-profile-box quality-profiles-evolution-rules">
@@ -96,7 +99,9 @@ export default class EvolutionRules extends React.PureComponent {
           {this.state.latestRules.map(rule => (
             <li key={rule.key} className="spacer-top">
               <div className="text-ellipsis">
-                <Link to={getRulesUrl({ rule_key: rule.key })} className="link-no-underline">
+                <Link
+                  to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}
+                  className="link-no-underline">
                   {' '}
                   {rule.name}
                 </Link>

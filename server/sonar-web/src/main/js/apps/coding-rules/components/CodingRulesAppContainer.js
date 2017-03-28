@@ -17,16 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import init from '../init';
 
-export default class CodingRulesAppContainer extends React.Component {
+export default class CodingRulesAppContainer extends React.PureComponent {
+  stop: ?() => void;
+  props: {
+    params: {
+      organizationKey?: string
+    }
+  };
+
   componentDidMount() {
-    this.stop = init(this.refs.container);
+    this.stop = init(this.refs.container, this.props.params.organizationKey);
   }
 
   componentWillUnmount() {
-    this.stop();
+    if (this.stop) {
+      this.stop();
+    }
   }
 
   render() {

@@ -106,11 +106,15 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
   },
 
   serializeData() {
+    const permalinkPath = this.options.app.organization
+      ? `/organizations/${this.options.app.organization}/rules`
+      : '/coding_rules';
+
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      canWrite: this.options.app.canWrite,
+      canCustomizeRule: this.options.app.canCustomizeRule,
       allTags: union(this.model.get('sysTags'), this.model.get('tags')),
-      permalink: window.baseUrl + '/coding_rules#rule_key=' + encodeURIComponent(this.model.id)
+      permalink: window.baseUrl + permalinkPath + '#rule_key=' + encodeURIComponent(this.model.id)
     };
   }
 });

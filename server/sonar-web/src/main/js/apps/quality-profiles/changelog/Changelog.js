@@ -33,7 +33,8 @@ type Props = {
     params?: {},
     ruleKey: string,
     ruleName: string
-  }>
+  }>,
+  organization: ?string
 };
 
 export default class Changelog extends React.PureComponent {
@@ -74,7 +75,7 @@ export default class Changelog extends React.PureComponent {
           </td>
 
           <td style={{ lineHeight: '1.5' }}>
-            <Link to={getRulesUrl({ rule_key: event.ruleKey })}>
+            <Link to={getRulesUrl({ rule_key: event.ruleKey }, this.props.organization)}>
               {event.ruleName}
             </Link>
           </td>
