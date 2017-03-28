@@ -21,11 +21,8 @@ package org.sonar.db.permission.template;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -275,7 +272,8 @@ public class PermissionTemplateDaoTest {
     dbSession.commit();
 
     assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), permissionTemplate.getId()))
-      .extracting(PermissionTemplateGroupDto::getTemplateId, PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
+      .extracting(PermissionTemplateGroupDto::getTemplateId, PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName,
+        PermissionTemplateGroupDto::getPermission)
       .containsOnly(tuple(permissionTemplate.getId(), 0, "Anyone", "user"));
   }
 
@@ -284,31 +282,24 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto template1 = templateDb.insertTemplate();
     PermissionTemplateDto template2 = templateDb.insertTemplate();
     PermissionTemplateDto template3 = templateDb.insertTemplate();
-
+    PermissionTemplateDto template4 = templateDb.insertTemplate();
     GroupDto group1 = db.users().insertGroup(newGroupDto());
     GroupDto group2 = db.users().insertGroup(newGroupDto());
     GroupDto group3 = db.users().insertGroup(newGroupDto());
-
-    templateDb.addGroupToTemplate(42L, group1.getId(), ISSUE_ADMIN);
     templateDb.addGroupToTemplate(template1.getId(), group1.getId(), CODEVIEWER);
     templateDb.addGroupToTemplate(template1.getId(), group2.getId(), CODEVIEWER);
     templateDb.addGroupToTemplate(template1.getId(), group3.getId(), CODEVIEWER);
     templateDb.addGroupToTemplate(template1.getId(), null, CODEVIEWER);
     templateDb.addGroupToTemplate(template1.getId(), group1.getId(), ADMIN);
     templateDb.addGroupToTemplate(template2.getId(), group1.getId(), ADMIN);
+    templateDb.addGroupToTemplate(template4.getId(), group1.getId(), ISSUE_ADMIN);
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
-    underTest.groupsCountByTemplateIdAndPermission(dbSession, Arrays.asList(template1.getId(), template2.getId(), template3.getId()), new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        result.add((CountByTemplateAndPermissionDto) context.getResultObject());
-      }
-    });
+    underTest.groupsCountByTemplateIdAndPermission(dbSession, asList(template1.getId(), template2.getId(), template3.getId()),
+      context -> result.add((CountByTemplateAndPermissionDto) context.getResultObject()));
 
-    assertThat(result).hasSize(3);
-    assertThat(result).extracting("permission").containsOnly(ADMIN, CODEVIEWER);
-    assertThat(result).extracting("templateId").containsOnly(template1.getId(), template2.getId());
-    assertThat(result).extracting("count").containsOnly(4, 1);
+    assertThat(result).extracting(CountByTemplateAndPermissionDto::getPermission, CountByTemplateAndPermissionDto::getTemplateId, CountByTemplateAndPermissionDto::getCount)
+      .containsOnly(tuple(ADMIN, template1.getId(), 1), tuple(CODEVIEWER, template1.getId(), 4), tuple(ADMIN, template2.getId(), 1));
   }
 
   @Test
@@ -329,7 +320,7 @@ public class PermissionTemplateDaoTest {
     templateDb.addUserToTemplate(template2.getId(), user1.getId(), USER);
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
-    underTest.usersCountByTemplateIdAndPermission(dbSession, Arrays.asList(template1.getId(), template2.getId(), template3.getId()),
+    underTest.usersCountByTemplateIdAndPermission(dbSession, asList(template1.getId(), template2.getId(), template3.getId()),
       context -> result.add((CountByTemplateAndPermissionDto) context.getResultObject()));
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
