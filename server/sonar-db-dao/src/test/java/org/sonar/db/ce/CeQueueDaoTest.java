@@ -26,12 +26,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 
@@ -57,6 +59,7 @@ public class CeQueueDaoTest {
   private static final String WORKER_UUID_1 = "worker uuid 1";
   private static final String WORKER_UUID_2 = "worker uuid 2";
   private static final int EXECUTION_COUNT = 42;
+  private static final int MAX_EXECUTION_COUNT = 2;
 
   private TestSystem2 system2 = new TestSystem2().setNow(INIT_TIME);
 
@@ -67,6 +70,7 @@ public class CeQueueDaoTest {
 
   private CeQueueDao underTest = new CeQueueDao(system2);
   private CeQueueDao underTestWithSystem2Mock = new CeQueueDao(mockedSystem2);
+  private CeQueueDao underTestAlwaysIncreasingSystem2 = new CeQueueDao(new AlwaysIncreasingSystem2());
 
   @Test
   public void insert_populates_createdAt_and_updateAt_from_System2_with_same_value_if_any_is_not_set() {
@@ -195,7 +199,7 @@ public class CeQueueDaoTest {
   @Test
   public void resetAllToPendingStatus_resets_startedAt() {
     assertThat(insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING).getStartedAt()).isNull();
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).get().getUuid()).isEqualTo(TASK_UUID_1);
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT).get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1).get().getStartedAt()).isNotNull();
 
     underTest.resetAllToPendingStatus(db.getSession());
@@ -225,11 +229,11 @@ public class CeQueueDaoTest {
 
   @Test
   public void peek_none_if_no_pendings() throws Exception {
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT).isPresent()).isFalse();
 
     // not pending, but in progress
     insert(TASK_UUID_1, COMPONENT_UUID_1, IN_PROGRESS);
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT).isPresent()).isFalse();
   }
 
   @Test
@@ -242,7 +246,7 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, PENDING, TASK_UUID_2, PENDING);
 
     // peek first one
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1);
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
@@ -251,7 +255,7 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
 
     // peek second one
-    peek = underTest.peek(db.getSession(), WORKER_UUID_2);
+    peek = underTest.peek(db.getSession(), WORKER_UUID_2, MAX_EXECUTION_COUNT);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
@@ -260,7 +264,7 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, IN_PROGRESS);
 
     // no more pendings
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT).isPresent()).isFalse();
   }
 
   @Test
@@ -270,7 +274,7 @@ public class CeQueueDaoTest {
     system2.setNow(INIT_TIME + 3_000_000);
     insert(TASK_UUID_2, COMPONENT_UUID_1, PENDING);
 
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1);
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
@@ -278,15 +282,59 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
 
     // do not peek second task as long as the first one is in progress
-    peek = underTest.peek(db.getSession(), WORKER_UUID_1);
+    peek = underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT);
     assertThat(peek.isPresent()).isFalse();
 
     // first one is finished
     underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
-    peek = underTest.peek(db.getSession(), WORKER_UUID_2);
+    peek = underTest.peek(db.getSession(), WORKER_UUID_2, MAX_EXECUTION_COUNT);
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
     assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_2);
     assertThat(peek.get().getExecutionCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount_0() {
+    peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount(0, null);
+  }
+
+  @Test
+  public void peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount_1() {
+    peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount(1, "u0");
+  }
+
+  @Test
+  public void peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount_2() {
+    peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount(2, "u1");
+  }
+
+  @Test
+  public void peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount_3() {
+    peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount(3, "u2");
+  }
+
+  @Test
+  public void peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount_4() {
+    peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount(4, "u3");
+  }
+
+  @Test
+  public void peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount_more_then_4() {
+    peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount(4 + Math.abs(new Random().nextInt(100)), "u3");
+  }
+
+  private void peek_ignores_rows_with_executionCount_greater_or_equal_to_specified_maxExecutionCount(int maxExecutionCount, @Nullable String expected) {
+    insert("u3", CeQueueDto.Status.PENDING, 3);
+    insert("u2", CeQueueDto.Status.PENDING, 2);
+    insert("u1", CeQueueDto.Status.PENDING, 1);
+    insert("u0", CeQueueDto.Status.PENDING, 0);
+
+    Optional<CeQueueDto> dto = underTest.peek(db.getSession(), WORKER_UUID_1, maxExecutionCount);
+    if (expected == null) {
+      assertThat(dto.isPresent()).isFalse();
+    } else {
+      assertThat(dto.get().getUuid()).isEqualTo(expected);
+    }
   }
 
   @Test
@@ -419,6 +467,18 @@ public class CeQueueDaoTest {
   private void insert(CeQueueDto dto) {
     underTest.insert(db.getSession(), dto);
     db.commit();
+  }
+
+  private CeQueueDto insert(String uuid, CeQueueDto.Status status, int executionCount) {
+    CeQueueDto dto = new CeQueueDto();
+    dto.setUuid(uuid);
+    dto.setTaskType(CeTaskTypes.REPORT);
+    dto.setStatus(status);
+    dto.setSubmitterLogin("henri");
+    dto.setExecutionCount(executionCount);
+    underTestAlwaysIncreasingSystem2.insert(db.getSession(), dto);
+    db.getSession().commit();
+    return dto;
   }
 
   private CeQueueDto insert(String uuid, String componentUuid, CeQueueDto.Status status) {

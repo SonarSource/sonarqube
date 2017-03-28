@@ -48,6 +48,8 @@ import static java.util.Objects.requireNonNull;
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
 
+  private static final int MAX_EXECUTION_COUNT = 2;
+
   private final System2 system2;
   private final DbClient dbClient;
   private final CEQueueStatus queueStatus;
@@ -71,7 +73,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       return Optional.absent();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<CeQueueDto> dto = dbClient.ceQueueDao().peek(dbSession, workerUuid);
+      Optional<CeQueueDto> dto = dbClient.ceQueueDao().peek(dbSession, workerUuid, MAX_EXECUTION_COUNT);
       CeTask task = null;
       if (dto.isPresent()) {
         task = loadTask(dbSession, dto.get());
