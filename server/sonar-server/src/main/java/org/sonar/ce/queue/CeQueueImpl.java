@@ -133,7 +133,7 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
-  protected void cancelImpl(DbSession dbSession, CeQueueDto q) {
+  private void cancelImpl(DbSession dbSession, CeQueueDto q) {
     CeActivityDto activityDto = new CeActivityDto(q);
     activityDto.setStatus(CeActivityDto.Status.CANCELED);
     remove(dbSession, q, activityDto);
