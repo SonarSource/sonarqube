@@ -32,6 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.VersionFormatter;
@@ -61,15 +62,17 @@ public class GlobalAction implements NavigationWsAction {
   private final Server server;
   private final DbClient dbClient;
   private final OrganizationFlags organizationFlags;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public GlobalAction(PageRepository pageRepository, Settings settings, ResourceTypes resourceTypes, Server server,
-    DbClient dbClient, OrganizationFlags organizationFlags) {
+    DbClient dbClient, OrganizationFlags organizationFlags, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.pageRepository = pageRepository;
     this.settings = settings;
     this.resourceTypes = resourceTypes;
     this.server = server;
     this.dbClient = dbClient;
     this.organizationFlags = organizationFlags;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -139,6 +142,7 @@ public class GlobalAction implements NavigationWsAction {
   private void writeOrganizationSupport(JsonWriter json) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       json.prop("organizationsEnabled", organizationFlags.isEnabled(dbSession));
+      json.prop("defaultOrganization", defaultOrganizationProvider.get().getKey());
     }
   }
 }

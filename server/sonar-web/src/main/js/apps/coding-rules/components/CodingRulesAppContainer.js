@@ -19,18 +19,38 @@
  */
 // @flow
 import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { getAppState } from '../../../store/rootReducer';
 import init from '../init';
 
-export default class CodingRulesAppContainer extends React.PureComponent {
+class CodingRulesAppContainer extends React.PureComponent {
   stop: ?() => void;
   props: {
+    appState: {
+      defaultOrganization: string,
+      organizationsEnabled: boolean
+    },
     params: {
       organizationKey?: string
+    },
+    router: {
+      replace: (string) => void
     }
   };
 
   componentDidMount() {
-    this.stop = init(this.refs.container, this.props.params.organizationKey);
+    if (this.props.appState.organizationsEnabled && !this.props.params.organizationKey) {
+      // redirect to organization-level rules page
+      this.props.router.replace(
+        '/organizations/' +
+          this.props.appState.defaultOrganization +
+          '/rules' +
+          window.location.hash
+      );
+    } else {
+      this.stop = init(this.refs.container, this.props.params.organizationKey);
+    }
   }
 
   componentWillUnmount() {
@@ -51,3 +71,9 @@ export default class CodingRulesAppContainer extends React.PureComponent {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  appState: getAppState(state)
+});
+
+export default connect(mapStateToProps)(withRouter(CodingRulesAppContainer));
