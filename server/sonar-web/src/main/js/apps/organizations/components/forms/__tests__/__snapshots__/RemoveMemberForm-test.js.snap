@@ -1,0 +1,69 @@
+exports[`test should render and open the modal 1`] = `
+<a
+  href="#"
+  onClick={[Function]}>
+  organization.members.remove
+</a>
+`;
+
+exports[`test should render and open the modal 2`] = `
+<a
+  href="#"
+  onClick={[Function]}>
+  organization.members.remove
+  <Modal
+    ariaHideApp={true}
+    className="modal"
+    closeTimeoutMS={0}
+    contentLabel="modal form"
+    isOpen={true}
+    onRequestClose={[Function]}
+    overlayClassName="modal-overlay"
+    parentSelector={[Function]}
+    portalClassName="ReactModalPortal"
+    shouldCloseOnOverlayClick={true}>
+    <header
+      className="modal-head">
+      <h2>
+        users.remove
+      </h2>
+    </header>
+    <form
+      onSubmit={[Function]}>
+      <div
+        className="modal-body">
+        organization.members.remove_x..MyOrg
+        <ul
+          className="list-styled">
+          <li>
+            organization.members.browse_projects
+          </li>
+          <li>
+            projects_role.codeviewer
+          </li>
+          <li>
+            projects_role.issueadmin
+          </li>
+        </ul>
+      </div>
+      <footer
+        className="modal-foot">
+        <div>
+          <button
+            autoFocus={true}
+            className="button-red"
+            type="submit">
+            remove
+          </button>
+          <button
+            className="button-link"
+            onClick={[Function]}
+            type="reset">
+            cancel
+          </button>
+        </div>
+      </footer>
+    </form>
+  </Modal>
+</a>
+`;

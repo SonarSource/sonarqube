@@ -34,7 +34,8 @@ type Props = {
   organization: Organization,
   fetchOrganizationMembers: (organizationKey: string, query?: string) => void,
   fetchMoreOrganizationMembers: (organizationKey: string, query?: string) => void,
-  addOrganizationMember: (organizationKey: string, login: Member) => void
+  addOrganizationMember: (organizationKey: string, login: Member) => void,
+  removeOrganizationMember: (organizationKey: string, login: Member) => void
 };
 
 export default class OrganizationMembers extends React.PureComponent {
@@ -59,6 +60,10 @@ export default class OrganizationMembers extends React.PureComponent {
     this.props.addOrganizationMember(this.props.organization.key, member);
   };
 
+  removeMember = (member: Member) => {
+    this.props.removeOrganizationMember(this.props.organization.key, member);
+  };
+
   render() {
     const { organization, status, members } = this.props;
     return (
@@ -75,6 +80,7 @@ export default class OrganizationMembers extends React.PureComponent {
         <MembersList
           members={members}
           organization={organization}
+          removeMember={this.removeMember}
         />
         {status.total != null &&
           <ListFooter

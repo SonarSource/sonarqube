@@ -27,7 +27,8 @@ exports[`test should not render actions for non admin 1`] = `
         "key": "foo",
         "name": "Foo",
       }
-    } />
+    }
+    removeMember={[Function]} />
   <ListFooter
     count={2}
     loadMore={[Function]}
@@ -76,7 +77,8 @@ exports[`test should render actions for admin 1`] = `
         "key": "foo",
         "name": "Foo",
       }
-    } />
+    }
+    removeMember={[Function]} />
   <ListFooter
     count={2}
     loadMore={[Function]}

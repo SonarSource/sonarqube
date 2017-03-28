@@ -33,5 +33,41 @@ exports[`test should render actions and groups for admin 1`] = `
     className="text-right text-middle">
     organization.members.x_group(s).3
   </td>
+  <td
+    className="nowrap text-middle text-right">
+    <div
+      className="dropdown">
+      <button
+        className="dropdown-toggle little-spacer-right"
+        data-toggle="dropdown">
+        <i
+          className="icon-edit" />
+         
+        <i
+          className="icon-dropdown" />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right">
+        <li>
+          <RemoveMemberForm
+            member={
+              Object {
+                "avatar": "",
+                "groupCount": 3,
+                "login": "admin",
+                "name": "Admin Istrator",
+              }
+            }
+            organization={
+              Object {
+                "canAdmin": true,
+                "key": "foo",
+                "name": "Foo",
+              }
+            } />
+        </li>
+      </ul>
+    </div>
+  </td>
 </tr>
 `;

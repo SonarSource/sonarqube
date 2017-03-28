@@ -22,12 +22,14 @@ import React from 'react';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import RemoveMemberForm from './forms/RemoveMemberForm';
 import type { Member } from '../../../store/organizationsMembers/actions';
 import type { Organization } from '../../../store/organizations/duck';
 
 type Props = {
   member: Member,
-  organization: Organization
+  organization: Organization,
+  removeMember: (Member) => void,
 };
 
 const AVATAR_SIZE: number = 36;
@@ -40,14 +42,32 @@ export default class MembersListItem extends React.PureComponent {
     return (
       <tr>
         <td className="thin nowrap">
-          <Avatar hash={member.avatar} size={AVATAR_SIZE} />
+          <Avatar hash={member.avatar} email={member.email} size={AVATAR_SIZE} />
         </td>
         <td className="nowrap text-middle"><strong>{member.name}</strong></td>
         {organization.canAdmin &&
           <td className="text-right text-middle">
             {translate('organization.members.x_group(s)', formatMeasure(member.groupCount, 'INT'))}
-          </td>
-        }
+          </td>}
+        {organization.canAdmin &&
+          <td className="nowrap text-middle text-right">
+            <div className="dropdown">
+              <button className="dropdown-toggle little-spacer-right" data-toggle="dropdown">
+                <i className="icon-edit" />
+                {' '}
+                <i className="icon-dropdown" />
+              </button>
+              <ul className="dropdown-menu dropdown-menu-right">
+                <li>
+                  <RemoveMemberForm
+                    organization={this.props.organization}
+                    removeMember={this.props.removeMember}
+                    member={this.props.member}
+                  />
+                </li>
+              </ul>
+            </div>
+          </td>}
       </tr>
     );
   }

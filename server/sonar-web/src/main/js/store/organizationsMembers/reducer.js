@@ -51,6 +51,17 @@ const organizationMembers = (state = {}, action = {}) => {
         members: withNew
       };
     }
+    case actions.REMOVE_MEMBER: {
+      const withoutDeleted = state.members.filter(login => login !== action.member.login);
+      if (withoutDeleted.length === state.members.length) {
+        return state;
+      }
+      return {
+        ...state,
+        total: withoutDeleted.length,
+        members: withoutDeleted
+      };
+    }
     default:
       return state;
   }
@@ -63,6 +74,7 @@ const organizationsMembers = (state = {}, action = {}) => {
     case actions.RECEIVE_MEMBERS:
     case actions.RECEIVE_MORE_MEMBERS:
     case actions.ADD_MEMBER:
+    case actions.REMOVE_MEMBER:
       return {
         ...state,
         [action.organization]: organizationMembers(organization, action)

@@ -17,35 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
 import React from 'react';
-import MembersListItem from './MembersListItem';
-import type { Member } from '../../../store/organizationsMembers/actions';
-import type { Organization } from '../../../store/organizations/duck';
+import { shallow, mount } from 'enzyme';
+import { click } from '../../../../../helpers/testUtils';
+import RemoveMemberForm from '../RemoveMemberForm';
 
-type Props = {
-  members: Array<Member>,
-  organization?: Organization,
-  removeMember: (Member) => void,
-};
+const member = {};
+const removeMember = jest.fn();
+const organization = { name: 'MyOrg' };
 
-export default class MembersList extends React.PureComponent {
-  props: Props;
+it('should render and open the modal', () => {
+  const wrapper = shallow(
+    <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
+  );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({ open: true });
+  expect(wrapper).toMatchSnapshot();
+});
 
-  render() {
-    return (
-      <table className="data zebra">
-        <tbody>
-          {this.props.members.map(member => (
-            <MembersListItem
-              key={member.login}
-              member={member}
-              organization={this.props.organization}
-              removeMember={this.props.removeMember}
-            />
-          ))}
-        </tbody>
-      </table>
-    );
-  }
-}
+it('should correctly handle user interactions', () => {
+  const wrapper = mount(
+    <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
+  );
+  click(wrapper.find('a'));
+  expect(wrapper.state('open')).toBeTruthy();
+});
