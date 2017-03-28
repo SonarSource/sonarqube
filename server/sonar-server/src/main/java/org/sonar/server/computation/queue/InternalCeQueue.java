@@ -24,9 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
-import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto.Status;
-import org.sonar.db.ce.CeQueueDto;
 
 /**
  * Queue of pending Compute Engine tasks. Both producer and consumer actions
@@ -69,8 +67,6 @@ public interface InternalCeQueue extends CeQueue {
    * @throws IllegalArgumentException if {@code error} is non {@code null} but {@code status} is not {@link Status#FAILED}
    */
   void remove(CeTask task, Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error);
-
-  void cancel(DbSession dbSession, CeQueueDto ceQueueDto);
 
   void pausePeek();
 
