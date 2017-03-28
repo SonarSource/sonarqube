@@ -92,11 +92,24 @@ public class RoleDaoTest {
 
   @Test
   public void delete_all_group_permissions_by_group_id() {
-    db.prepareDbUnit(getClass(), "deleteGroupPermissionsByGroupId.xml");
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    ComponentDto project = db.components().insertProject();
+    db.users().insertPermissionOnGroup(group1, "admin");
+    db.users().insertProjectPermissionOnGroup(group1, "profileadmin", project);
+    db.users().insertPermissionOnGroup(group1, "gateadmin");
+    db.users().insertPermissionOnGroup(group2, "gateadmin");
+    db.users().insertProjectPermissionOnGroup(group2, "admin", project);
+    db.users().insertPermissionOnAnyone(db.getDefaultOrganization(), "scan");
+    db.users().insertPermissionOnAnyone(db.getDefaultOrganization(), "provisioning");
 
-    underTest.deleteGroupRolesByGroupId(db.getSession(), 100);
+    underTest.deleteGroupRolesByGroupId(db.getSession(), group1.getId());
     db.getSession().commit();
 
-    db.assertDbUnit(getClass(), "deleteGroupPermissionsByGroupId-result.xml", "group_roles");
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group1.getId())).isEmpty();
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group1.getId(), project.getId())).isEmpty();
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group2.getId())).containsOnly("gateadmin");
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group2.getId(), project.getId())).containsOnly("admin");
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), null)).containsOnly("scan", "provisioning");
   }
 }
