@@ -20,13 +20,13 @@
 package org.sonar.db.permission.template;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,7 +38,9 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
+import static com.google.common.primitives.Longs.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -51,60 +53,83 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class PermissionTemplateDaoTest {
 
-  private System2 system = mock(System2.class);
+  private static final Date PAST = new Date(100_000_000_000L);
+  private static final Date NOW = new Date(500_000_000_000L);
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public DbTester db = DbTester.create(system);
 
+  @Rule
+  public DbTester db = DbTester.create();
+
+  private System2 system2 = mock(System2.class);
   private DbSession dbSession = db.getSession();
   private PermissionTemplateDbTester templateDb = db.permissionTemplates();
 
-  private PermissionTemplateDao underTest = new PermissionTemplateDao(system);
+  private PermissionTemplateDao underTest = new PermissionTemplateDao(system2);
 
-  @Test
-  public void should_create_permission_template() throws ParseException {
-    db.prepareDbUnit(getClass(), "createPermissionTemplate.xml");
-
-    Date now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
-    when(system.now()).thenReturn(now.getTime());
-
-    PermissionTemplateDto permissionTemplate = underTest.insert(db.getSession(), newPermissionTemplateDto()
-      .setName("my template")
-      .setDescription("my description")
-      .setKeyPattern("myregexp"));
-    db.commit();
-    assertThat(permissionTemplate).isNotNull();
-    assertThat(permissionTemplate.getId()).isEqualTo(1L);
-
-    db.assertDbUnitTable(getClass(), "createPermissionTemplate-result.xml", "permission_templates", "id", "name", "description");
+  @Before
+  public void setUp() throws Exception {
+    when(system2.now()).thenReturn(NOW.getTime());
   }
 
   @Test
-  public void should_select_permission_template_by_key() {
-    db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
+  public void should_create_permission_template() throws ParseException {
+    PermissionTemplateDto permissionTemplate = underTest.insert(db.getSession(), newPermissionTemplateDto()
+      .setUuid("ABCD")
+      .setName("my template")
+      .setDescription("my description")
+      .setKeyPattern("myregexp")
+      .setOrganizationUuid("org")
+      .setCreatedAt(PAST)
+      .setUpdatedAt(NOW));
+    db.commit();
 
-    PermissionTemplateDto permissionTemplate = underTest.selectByUuid(dbSession, "my_template_20130102_030405");
+    assertThat(underTest.selectByUuid(db.getSession(), permissionTemplate.getUuid()))
+      .extracting(PermissionTemplateDto::getUuid, PermissionTemplateDto::getName, PermissionTemplateDto::getDescription, PermissionTemplateDto::getKeyPattern,
+        PermissionTemplateDto::getOrganizationUuid, PermissionTemplateDto::getCreatedAt, PermissionTemplateDto::getUpdatedAt)
+      .containsOnly("ABCD", "my template", "my description", "myregexp", "org", PAST, NOW);
+  }
 
-    assertThat(permissionTemplate).isNotNull();
-    assertThat(permissionTemplate.getId()).isEqualTo(1L);
-    assertThat(permissionTemplate.getName()).isEqualTo("my template");
-    assertThat(permissionTemplate.getUuid()).isEqualTo("my_template_20130102_030405");
-    assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
+  @Test
+  public void should_select_permission_template_by_uuid() {
+    templateDb.insertTemplate(newPermissionTemplateDto()
+      .setUuid("ABCD")
+      .setName("my template")
+      .setDescription("my description")
+      .setKeyPattern("myregexp")
+      .setOrganizationUuid("org"));
+
+    assertThat(underTest.selectByUuid(db.getSession(), "ABCD"))
+      .extracting(PermissionTemplateDto::getUuid, PermissionTemplateDto::getName, PermissionTemplateDto::getDescription, PermissionTemplateDto::getKeyPattern,
+        PermissionTemplateDto::getOrganizationUuid)
+      .containsOnly("ABCD", "my template", "my description", "myregexp", "org");
   }
 
   @Test
   public void selectAll_without_name_filtering() {
-    db.prepareDbUnit(getClass(), "selectAllPermissionTemplates.xml");
-    commit();
+    templateDb.insertTemplate(newPermissionTemplateDto()
+      .setUuid("tpl1")
+      .setName("template1")
+      .setDescription("description1")
+      .setOrganizationUuid("org"));
+    templateDb.insertTemplate(newPermissionTemplateDto()
+      .setUuid("tpl2")
+      .setName("template2")
+      .setDescription("description2")
+      .setOrganizationUuid("org"));
+    templateDb.insertTemplate(newPermissionTemplateDto()
+      .setUuid("tpl3")
+      .setName("template3")
+      .setDescription("description3")
+      .setOrganizationUuid("org"));
 
-    List<PermissionTemplateDto> permissionTemplates = underTest.selectAll(dbSession, "org1", null);
-    assertThat(permissionTemplates).hasSize(3);
-    assertThat(permissionTemplates).extracting("id").containsOnly(1L, 2L, 3L);
-    assertThat(permissionTemplates).extracting("name").containsOnly("template1", "template2", "template3");
-    assertThat(permissionTemplates).extracting("kee").containsOnly("template1_20130102_030405", "template2_20130102_030405", "template3_20130102_030405");
-    assertThat(permissionTemplates).extracting("description").containsOnly("description1", "description2", "description3");
-
+    assertThat(underTest.selectAll(dbSession, "org", null))
+      .extracting(PermissionTemplateDto::getUuid, PermissionTemplateDto::getName, PermissionTemplateDto::getDescription)
+      .containsOnly(
+        tuple("tpl1", "template1", "description1"),
+        tuple("tpl2", "template2", "description2"),
+        tuple("tpl3", "template3", "description3"));
     assertThat(underTest.selectAll(dbSession, "missingOrg", null)).isEmpty();
   }
 
@@ -121,76 +146,137 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_update_permission_template() {
-    db.prepareDbUnit(getClass(), "updatePermissionTemplate.xml");
+    PermissionTemplateDto permissionTemplateDto = templateDb.insertTemplate(newPermissionTemplateDto()
+      .setUuid("ABCD")
+      .setName("name")
+      .setDescription("description")
+      .setKeyPattern("regexp")
+      .setOrganizationUuid("org")
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST));
 
-    PermissionTemplateDto dto = new PermissionTemplateDto()
-      .setId(1L)
+    underTest.update(dbSession, permissionTemplateDto
       .setName("new_name")
       .setDescription("new_description")
-      .setKeyPattern("new_regexp");
-    underTest.update(dbSession, dto);
+      .setKeyPattern("new_regexp")
+      .setUpdatedAt(NOW)
+      // Invariant fields, should not be updated
+      .setUuid("new UUID")
+      .setOrganizationUuid("new org")
+      .setCreatedAt(NOW));
     db.commit();
 
-    db.assertDbUnitTable(getClass(), "updatePermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
+    assertThat(underTest.selectByUuid(db.getSession(), "ABCD"))
+      .extracting(PermissionTemplateDto::getUuid, PermissionTemplateDto::getName, PermissionTemplateDto::getDescription, PermissionTemplateDto::getKeyPattern,
+        PermissionTemplateDto::getOrganizationUuid, PermissionTemplateDto::getCreatedAt, PermissionTemplateDto::getUpdatedAt)
+      .containsOnly("ABCD", "new_name", "new_description", "new_regexp", "org", PAST, NOW);
   }
 
   @Test
   public void should_delete_permission_template() {
-    db.prepareDbUnit(getClass(), "deletePermissionTemplate.xml");
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    PermissionTemplateDto permissionTemplate1 = templateDb.insertTemplate(db.getDefaultOrganization());
+    PermissionTemplateDto permissionTemplate2 = templateDb.insertTemplate(db.getDefaultOrganization());
+    templateDb.addUserToTemplate(permissionTemplate1, user1, "user");
+    templateDb.addUserToTemplate(permissionTemplate1, user2, "user");
+    templateDb.addUserToTemplate(permissionTemplate1, user2, "admin");
+    templateDb.addUserToTemplate(permissionTemplate2, user2, "admin");
+    templateDb.addGroupToTemplate(permissionTemplate1, group1, "user");
+    templateDb.addGroupToTemplate(permissionTemplate1, group2, "user");
+    templateDb.addAnyoneToTemplate(permissionTemplate1, "admin");
+    templateDb.addAnyoneToTemplate(permissionTemplate2, "admin");
+    templateDb.addProjectCreatorToTemplate(permissionTemplate1.getId(), "user");
+    templateDb.addProjectCreatorToTemplate(permissionTemplate2.getId(), "user");
 
-    underTest.deleteById(dbSession, 1L);
+    underTest.deleteById(dbSession, permissionTemplate1.getId());
     dbSession.commit();
 
-    checkTemplateTables("deletePermissionTemplate-result.xml");
-    db.assertDbUnitTable(getClass(), "deletePermissionTemplate-result.xml", "perm_tpl_characteristics");
+    assertThat(underTest.selectAll(db.getSession(), db.getDefaultOrganization().getUuid(), null))
+      .extracting(PermissionTemplateDto::getUuid)
+      .containsOnly(permissionTemplate2.getUuid());
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate1.getId())).isEmpty();
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate2.getId())).hasSize(1);
+    assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), permissionTemplate1.getId())).isEmpty();
+    assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), permissionTemplate2.getId())).hasSize(1);
+    assertThat(db.getDbClient().permissionTemplateCharacteristicDao().selectByTemplateIds(db.getSession(), asList(permissionTemplate1.getId(), permissionTemplate2.getId())))
+      .extracting(PermissionTemplateCharacteristicDto::getTemplateId)
+      .containsOnly(permissionTemplate2.getId());
   }
 
   @Test
   public void should_add_user_permission_to_template() {
-    db.prepareDbUnit(getClass(), "addUserPermissionToTemplate.xml");
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
+    UserDto user = db.users().insertUser();
 
-    underTest.insertUserPermission(dbSession, 1L, 1, "new_permission");
+    underTest.insertUserPermission(dbSession, permissionTemplate.getId(), user.getId(), "user");
 
-    checkTemplateTables("addUserPermissionToTemplate-result.xml");
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate.getId()))
+      .extracting(PermissionTemplateUserDto::getTemplateId, PermissionTemplateUserDto::getUserId, PermissionTemplateUserDto::getPermission, PermissionTemplateUserDto::getCreatedAt,
+        PermissionTemplateUserDto::getUpdatedAt)
+      .containsOnly(tuple(permissionTemplate.getId(), user.getId(), "user", NOW, NOW));
   }
 
   @Test
   public void should_remove_user_permission_from_template() {
-    db.prepareDbUnit(getClass(), "removeUserPermissionFromTemplate.xml");
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    templateDb.addUserToTemplate(permissionTemplate, user1, "user");
+    templateDb.addUserToTemplate(permissionTemplate, user1, "admin");
+    templateDb.addUserToTemplate(permissionTemplate, user2, "user");
 
-    underTest.deleteUserPermission(dbSession, 1L, 2, "permission_to_remove");
+    underTest.deleteUserPermission(dbSession, permissionTemplate.getId(), user1.getId(), "user");
 
-    checkTemplateTables("removeUserPermissionFromTemplate-result.xml");
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate.getId()))
+      .extracting(PermissionTemplateUserDto::getUserId, PermissionTemplateUserDto::getPermission)
+      .containsOnly(tuple(user1.getId(), "admin"), tuple(user2.getId(), "user"));
   }
 
   @Test
   public void should_add_group_permission_to_template() {
-    db.prepareDbUnit(getClass(), "addGroupPermissionToTemplate.xml");
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
+    GroupDto group = db.users().insertGroup();
 
-    underTest.insertGroupPermission(dbSession, 1L, 1, "new_permission");
+    underTest.insertGroupPermission(dbSession, permissionTemplate.getId(), group.getId(), "user");
     dbSession.commit();
 
-    checkTemplateTables("addGroupPermissionToTemplate-result.xml");
+    assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), permissionTemplate.getId()))
+      .extracting(PermissionTemplateGroupDto::getTemplateId, PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission,
+        PermissionTemplateGroupDto::getCreatedAt,
+        PermissionTemplateGroupDto::getUpdatedAt)
+      .containsOnly(tuple(permissionTemplate.getId(), group.getId(), "user", NOW, NOW));
   }
 
   @Test
   public void remove_by_group() {
-    db.prepareDbUnit(getClass(), "remove_by_group.xml");
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    templateDb.addGroupToTemplate(permissionTemplate, group1, "user");
+    templateDb.addGroupToTemplate(permissionTemplate, group1, "admin");
+    templateDb.addGroupToTemplate(permissionTemplate, group2, "user");
 
-    underTest.deleteByGroup(db.getSession(), 2);
+    underTest.deleteByGroup(db.getSession(), group1.getId());
     db.getSession().commit();
 
-    db.assertDbUnitTable(getClass(), "remove_by_group-result.xml", "permission_templates", "id", "name", "kee", "description");
+    assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), permissionTemplate.getId()))
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(group2.getId(), "user"));
   }
 
   @Test
-  public void should_add_group_permission_with_null_name() {
-    db.prepareDbUnit(getClass(), "addNullGroupPermissionToTemplate.xml");
+  public void should_add_group_permission_to_anyone() {
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
 
-    underTest.insertGroupPermission(dbSession, 1L, null, "new_permission");
+    underTest.insertGroupPermission(dbSession, permissionTemplate.getId(), null, "user");
     dbSession.commit();
 
-    checkTemplateTables("addNullGroupPermissionToTemplate-result.xml");
+    assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), permissionTemplate.getId()))
+      .extracting(PermissionTemplateGroupDto::getTemplateId, PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(permissionTemplate.getId(), 0, "Anyone", "user"));
   }
 
   @Test
@@ -380,16 +466,6 @@ public class PermissionTemplateDaoTest {
     assertThat(db.select("select distinct id as \"templateId\" from permission_templates"))
       .extracting((row) -> (Long) row.get("templateId"))
       .containsOnly(expectedTemplateIds);
-  }
-
-  private void commit() {
-    dbSession.commit();
-  }
-
-  private void checkTemplateTables(String fileName) {
-    db.assertDbUnitTable(getClass(), fileName, "permission_templates", "id", "name", "description");
-    db.assertDbUnitTable(getClass(), fileName, "perm_templates_users", "template_id", "user_id", "permission_reference");
-    db.assertDbUnitTable(getClass(), fileName, "perm_templates_groups", "template_id", "group_id", "permission_reference");
   }
 
 }
