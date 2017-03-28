@@ -52,6 +52,7 @@ import static util.ItUtils.newWsClient;
 public class IssueJsonReportTest {
 
   private static final String SONAR_VERSION_PLACEHOLDER = "<SONAR_VERSION>";
+  private static final String RESOURCE_PATH = "/analysis/IssueJsonReportTest/";
 
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
@@ -66,7 +67,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void issue_line() throws IOException {
-    orchestrator.getServer().restoreProfile(getResource("one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -100,7 +101,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void precise_issue_location() throws IOException {
-    orchestrator.getServer().restoreProfile(getResource("multiline.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "multiline.xml"));
     orchestrator.getServer().provisionProject("sample-multiline", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample-multiline", "xoo", "multiline");
 
@@ -134,7 +135,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void test_json_report_no_server_analysis() throws Exception {
-    orchestrator.getServer().restoreProfile(getResource("one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("sample", "tracking");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -156,7 +157,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void test_json_report() throws Exception {
-    orchestrator.getServer().restoreProfile(getResource("one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("sample", "tracking");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -183,7 +184,7 @@ public class IssueJsonReportTest {
 
   @Test
   public void test_json_report_on_branch() throws Exception {
-    orchestrator.getServer().restoreProfile(getResource("one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(getResource("one-issue-per-line.xml").getPath()));
     orchestrator.getServer().provisionProject("sample:mybranch", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample:mybranch", "xoo", "one-issue-per-line");
 
@@ -217,7 +218,7 @@ public class IssueJsonReportTest {
    */
   @Test
   public void test_json_report_on_sub_module() throws Exception {
-    orchestrator.getServer().restoreProfile(getResource("one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Multi-module sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 
@@ -254,7 +255,7 @@ public class IssueJsonReportTest {
    */
   @Test
   public void test_json_report_on_root_module() throws Exception {
-    orchestrator.getServer().restoreProfile(getResource("/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 
@@ -306,7 +307,7 @@ public class IssueJsonReportTest {
   }
 
   private ResourceLocation getResource(String resource) {
-    return FileLocation.ofClasspath("/analysis/IssueJsonReportTest/" + resource);
+    return FileLocation.ofClasspath(RESOURCE_PATH + resource);
   }
 
 }

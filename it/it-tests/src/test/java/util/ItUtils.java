@@ -29,11 +29,12 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -69,6 +70,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 
@@ -338,9 +340,28 @@ public class ItUtils {
     return ComponentNavigation.parse(content);
   }
 
-  public static File findFileInClasspath(String classpathRelativeFilename) throws URISyntaxException {
-    ResourceLocation location = FileLocation.ofClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml");
-    return new File(ItUtils.class.getResource(location.getPath()).toURI());
+  public static void restoreProfile(Orchestrator orchestrator, URL resource) {
+    restoreProfile(orchestrator, resource, null);
+  }
+
+  public static void restoreProfile(Orchestrator orchestrator, URL resource, String organization) {
+    newAdminWsClient(orchestrator)
+      .qualityProfiles()
+      .restoreProfile(
+        RestoreWsRequest.builder()
+          .setBackup(resourceToFile(resource))
+          .setOrganization(organization)
+          .build());
+  }
+
+  private static File resourceToFile(URL resource) {
+    URI uri;
+    try {
+      uri = resource.toURI();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException("Cannot find quality profile xml file '" + resource + "' in classpath");
+    }
+    return new File(uri);
   }
 
   public static class ComponentNavigation {
