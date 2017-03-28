@@ -27,6 +27,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.SonarException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * @since 1.11
  * @deprecated since 6.3. This class is ignored.
@@ -56,7 +58,7 @@ public abstract class AbstractRubyTemplate {
     File file = new File(getTemplatePath());
     if (file.exists()) {
       // the result is not cached
-      return FileUtils.readFileToString(file);
+      return FileUtils.readFileToString(file, UTF_8);
     }
     throw new FileNotFoundException(getTemplatePath());
   }

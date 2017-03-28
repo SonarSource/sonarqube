@@ -37,6 +37,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 final class AesCipher implements Cipher {
 
   // Can't be increased because of Java 6 policy files :
@@ -101,7 +103,7 @@ final class AesCipher implements Cipher {
     if (!file.exists() || !file.isFile()) {
       throw new IllegalStateException("The property " + CoreProperties.ENCRYPTION_SECRET_KEY_PATH + " does not link to a valid file: " + path);
     }
-    String s = FileUtils.readFileToString(file);
+    String s = FileUtils.readFileToString(file, UTF_8);
     if (StringUtils.isBlank(s)) {
       throw new IllegalStateException("No secret key in the file: " + path);
     }

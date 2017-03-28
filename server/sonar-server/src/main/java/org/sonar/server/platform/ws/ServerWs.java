@@ -28,6 +28,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class ServerWs implements WebService, RequestHandler {
 
   private final Server server;
@@ -52,6 +54,6 @@ public class ServerWs implements WebService, RequestHandler {
   @Override
   public void handle(Request request, Response response) throws Exception {
     response.stream().setMediaType(MediaTypes.TXT);
-    IOUtils.write(server.getVersion(), response.stream().output());
+    IOUtils.write(server.getVersion(), response.stream().output(), UTF_8);
   }
 }

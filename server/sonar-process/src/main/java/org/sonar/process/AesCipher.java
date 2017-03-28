@@ -19,20 +19,19 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-
+import java.io.File;
+import java.io.IOException;
+import java.security.Key;
+import java.security.SecureRandom;
 import javax.annotation.Nullable;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.SecureRandom;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 final class AesCipher implements Cipher {
 
@@ -73,7 +72,7 @@ final class AesCipher implements Cipher {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
-      return new String(cipherData, StandardCharsets.UTF_8);
+      return new String(cipherData, UTF_8);
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
@@ -106,7 +105,7 @@ final class AesCipher implements Cipher {
     if (!file.exists() || !file.isFile()) {
       throw new IllegalStateException("The property " + ENCRYPTION_SECRET_KEY_PATH + " does not link to a valid file: " + path);
     }
-    String s = FileUtils.readFileToString(file);
+    String s = FileUtils.readFileToString(file, UTF_8);
     if (StringUtils.isBlank(s)) {
       throw new IllegalStateException("No secret key in the file: " + path);
     }

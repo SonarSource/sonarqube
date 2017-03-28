@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class IndexAction implements BatchWsAction {
 
@@ -51,7 +52,7 @@ public class IndexAction implements BatchWsAction {
       response.stream().setMediaType("text/plain");
       String index = batchIndex.getIndex();
       checkState(index != null, "No available files");
-      IOUtils.write(index, response.stream().output());
+      IOUtils.write(index, response.stream().output(), UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }

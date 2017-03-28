@@ -20,7 +20,6 @@
 package org.sonar.server.platform.web;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,9 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.web.ServletFilter;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.codec.Charsets.UTF_8;
 import static org.apache.commons.io.IOUtils.write;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonarqube.ws.MediaTypes.HTML;
@@ -70,7 +69,7 @@ public class WebPagesFilter implements Filter {
     httpServletResponse.setContentType(HTML);
     httpServletResponse.setCharacterEncoding(UTF_8.name().toLowerCase(ENGLISH));
     httpServletResponse.setHeader(CACHE_CONTROL_HEADER, CACHE_CONTROL_VALUE);
-    write(indexDotHtml, httpServletResponse.getOutputStream());
+    write(indexDotHtml, httpServletResponse.getOutputStream(), UTF_8);
   }
 
   @Override
@@ -82,7 +81,7 @@ public class WebPagesFilter implements Filter {
 
   private static String readIndexFile(ServletContext servletContext) {
     try {
-      return IOUtils.toString(requireNonNull(servletContext.getResource("/index.html")), StandardCharsets.UTF_8);
+      return IOUtils.toString(requireNonNull(servletContext.getResource("/index.html")), UTF_8);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to provide index file", e);
     }

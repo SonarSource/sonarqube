@@ -23,6 +23,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.write;
 
 public class PingAction implements SystemWsAction {
@@ -38,6 +39,6 @@ public class PingAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     response.stream().setMediaType("text/plain");
-    write("pong", response.stream().output());
+    write("pong", response.stream().output(), UTF_8);
   }
 }
