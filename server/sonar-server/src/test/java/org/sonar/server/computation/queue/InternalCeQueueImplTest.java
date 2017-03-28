@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -267,20 +268,18 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void peek_increases_executionCount_and_override_workerUuid_to_argument() {
+  public void peek_overrides_workerUuid_to_argument() {
     dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
-      .setWorkerUuid("must be overriden")
-      .setExecutionCount(2));
+      .setWorkerUuid("must be overriden"));
     dbTester.commit();
 
     underTest.peek(WORKER_UUID_1);
 
     CeQueueDto ceQueueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get();
     assertThat(ceQueueDto.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
-    assertThat(ceQueueDto.getExecutionCount()).isEqualTo(3);
   }
 
   @Test
@@ -290,6 +289,56 @@ public class InternalCeQueueImplTest {
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     assertThat(peek.isPresent()).isFalse();
+  }
+
+  @Test
+  public void peek_peeks_pending_tasks_with_executionCount_equal_to_0_and_increases_it() {
+    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+        .setUuid("uuid")
+        .setTaskType("foo")
+        .setStatus(CeQueueDto.Status.PENDING)
+        .setExecutionCount(0));
+    dbTester.commit();
+
+    assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("uuid");
+    assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void peek_peeks_pending_tasks_with_executionCount_equal_to_1_and_increases_it() {
+    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+        .setUuid("uuid")
+        .setTaskType("foo")
+        .setStatus(CeQueueDto.Status.PENDING)
+        .setExecutionCount(1));
+    dbTester.commit();
+
+    assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("uuid");
+    assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void peek_ignores_pending_tasks_with_executionCount_equal_to_2() {
+    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+        .setUuid("uuid")
+        .setTaskType("foo")
+        .setStatus(CeQueueDto.Status.PENDING)
+        .setExecutionCount(2));
+    dbTester.commit();
+
+    assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
+  }
+
+  @Test
+  public void peek_ignores_pending_tasks_with_executionCount_greater_than_2() {
+    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+        .setUuid("uuid")
+        .setTaskType("foo")
+        .setStatus(CeQueueDto.Status.PENDING)
+        .setExecutionCount(2 + Math.abs(new Random().nextInt(100))));
+    dbTester.commit();
+
+    assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
   }
 
   @Test
