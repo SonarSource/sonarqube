@@ -345,23 +345,19 @@ public class ItUtils {
   }
 
   public static void restoreProfile(Orchestrator orchestrator, URL resource, String organization) {
-    newAdminWsClient(orchestrator)
-      .qualityProfiles()
-      .restoreProfile(
-        RestoreWsRequest.builder()
-          .setBackup(resourceToFile(resource))
-          .setOrganization(organization)
-          .build());
-  }
-
-  private static File resourceToFile(URL resource) {
     URI uri;
     try {
       uri = resource.toURI();
     } catch (URISyntaxException e) {
       throw new IllegalArgumentException("Cannot find quality profile xml file '" + resource + "' in classpath");
     }
-    return new File(uri);
+    newAdminWsClient(orchestrator)
+      .qualityProfiles()
+      .restoreProfile(
+        RestoreWsRequest.builder()
+          .setBackup(new File(uri))
+          .setOrganization(organization)
+          .build());
   }
 
   public static class ComponentNavigation {
