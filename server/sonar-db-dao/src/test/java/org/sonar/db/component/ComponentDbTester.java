@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -70,12 +71,12 @@ public class ComponentDbTester {
     return insertComponentImpl(newProjectDto(db.getDefaultOrganization()), noExtraConfiguration());
   }
 
-  public ComponentDto insertProject(Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(newProjectDto(db.getDefaultOrganization()), dtoPopulator);
+  public ComponentDto insertProject(Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newProjectDto(db.getDefaultOrganization()), dtoPopulators);
   }
 
-  public ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(newProjectDto(organizationDto), dtoPopulator);
+  public ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newProjectDto(organizationDto), dtoPopulators);
   }
 
   public ComponentDto insertProject(OrganizationDto organizationDto) {
@@ -127,8 +128,9 @@ public class ComponentDbTester {
     };
   }
 
-  private ComponentDto insertComponentImpl(ComponentDto component, Consumer<ComponentDto> dtoPopulator) {
-    dtoPopulator.accept(component);
+  private ComponentDto insertComponentImpl(ComponentDto component, Consumer<ComponentDto>... dtoPopulators) {
+    Arrays.stream(dtoPopulators)
+      .forEach(dtoPopulator -> dtoPopulator.accept(component));
     dbClient.componentDao().insert(dbSession, component);
     db.commit();
 

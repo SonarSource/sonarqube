@@ -357,9 +357,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_selected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertProject((t) -> t.setName("Project1 name"));
-    ComponentDto project2 = dbTester.components().insertProject((t) -> t.setName("Project2 name"));
-    ComponentDto project3 = dbTester.components().insertProject((t) -> t.setName("Project3 name"));
+    ComponentDto project1 = dbTester.components().insertProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = dbTester.components().insertProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = dbTester.components().insertProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    ComponentDto project4 = dbTester.components().insertProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -370,21 +372,23 @@ public class QualityProfileDaoTest {
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project3, profile2);
 
-    assertThat(underTest.selectSelectedProjects(profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectSelectedProjects(organization, profile1.getKey(), null, dbSession))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
         tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), profile1.getKey()));
 
-    assertThat(underTest.selectSelectedProjects(profile1.getKey(), "ect1", dbSession)).hasSize(1);
-    assertThat(underTest.selectSelectedProjects("unknown", null, dbSession)).isEmpty();
+    assertThat(underTest.selectSelectedProjects(organization, profile1.getKey(), "ect1", dbSession)).hasSize(1);
+    assertThat(underTest.selectSelectedProjects(organization, "unknown", null, dbSession)).isEmpty();
   }
 
   @Test
   public void select_deselected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertProject((t) -> t.setName("Project1 name"));
-    ComponentDto project2 = dbTester.components().insertProject((t) -> t.setName("Project2 name"));
-    ComponentDto project3 = dbTester.components().insertProject((t) -> t.setName("Project3 name"));
+    ComponentDto project1 = dbTester.components().insertProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = dbTester.components().insertProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = dbTester.components().insertProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    ComponentDto project4 = dbTester.components().insertProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -394,21 +398,23 @@ public class QualityProfileDaoTest {
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
 
-    assertThat(underTest.selectDeselectedProjects(profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKey(), null, dbSession))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
-      .containsOnly(
+      .containsExactly(
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
         tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
-    assertThat(underTest.selectDeselectedProjects(profile1.getKey(), "ect2", dbSession)).hasSize(1);
-    assertThat(underTest.selectDeselectedProjects("unknown", null, dbSession)).hasSize(3);
+    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKey(), "ect2", dbSession)).hasSize(1);
+    assertThat(underTest.selectDeselectedProjects(organization, "unknown", null, dbSession)).hasSize(3);
   }
 
   @Test
   public void select_project_associations() throws Exception {
-    ComponentDto project1 = dbTester.components().insertProject((t) -> t.setName("Project1 name"));
-    ComponentDto project2 = dbTester.components().insertProject((t) -> t.setName("Project2 name"));
-    ComponentDto project3 = dbTester.components().insertProject((t) -> t.setName("Project3 name"));
+    ComponentDto project1 = dbTester.components().insertProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = dbTester.components().insertProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = dbTester.components().insertProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    ComponentDto project4 = dbTester.components().insertProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -418,15 +424,15 @@ public class QualityProfileDaoTest {
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
 
-    assertThat(underTest.selectProjectAssociations(profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectProjectAssociations(organization, profile1.getKey(), null, dbSession))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
         tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
         tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
-    assertThat(underTest.selectProjectAssociations(profile1.getKey(), "ect2", dbSession)).hasSize(1);
-    assertThat(underTest.selectProjectAssociations("unknown", null, dbSession)).hasSize(3);
+    assertThat(underTest.selectProjectAssociations(organization, profile1.getKey(), "ect2", dbSession)).hasSize(1);
+    assertThat(underTest.selectProjectAssociations(organization, "unknown", null, dbSession)).hasSize(3);
   }
 
   @Test

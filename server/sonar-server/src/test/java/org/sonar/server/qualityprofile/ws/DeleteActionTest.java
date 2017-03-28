@@ -84,7 +84,7 @@ public class DeleteActionTest {
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
-    verifyProfileDoesNotExist(profile1);
+    verifyProfileDoesNotExist(profile1, organization);
     verifyProfileExists(profile2);
   }
 
@@ -106,7 +106,7 @@ public class DeleteActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
-    verifyProfileDoesNotExist(profile1);
+    verifyProfileDoesNotExist(profile1, organization);
     verifyProfileExists(profile2);
   }
 
@@ -127,7 +127,7 @@ public class DeleteActionTest {
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
-    verifyProfileDoesNotExist(profile1);
+    verifyProfileDoesNotExist(profile1, organization);
     verifyProfileExists(profile2);
   }
 
@@ -274,9 +274,9 @@ public class DeleteActionTest {
       .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 
-  private void verifyProfileDoesNotExist(QualityProfileDto profile) {
+  private void verifyProfileDoesNotExist(QualityProfileDto profile, OrganizationDto organization) {
     assertThat(dbClient.qualityProfileDao().selectByKey(session, profile.getKey())).isNull();
-    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(profile.getKey(), null, session)).isEmpty();
+    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(organization, profile.getKey(), null, session)).isEmpty();
   }
 
   private void verifyProfileExists(QualityProfileDto profile) {
