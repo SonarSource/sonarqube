@@ -55,7 +55,7 @@ public class DuplicationsTest {
   public static void analyzeProjects() {
     orchestrator.resetData();
 
-    ItUtils.restoreProfile(orchestrator, "/duplication/xoo-duplication-profile.xml");
+    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/duplication/xoo-duplication-profile.xml"));
     analyzeProject(DUPLICATIONS);
     analyzeProject(DUPLICATIONS_WITH_EXCLUSIONS, "sonar.cpd.exclusions", "**/File*");
 

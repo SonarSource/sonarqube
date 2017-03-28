@@ -114,7 +114,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     issuesService = newAdminWsClient(ORCHESTRATOR).issues();
 
     setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", null);
-    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/one-issue-per-line-profile.xml");
+    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "Sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line-profile");
 

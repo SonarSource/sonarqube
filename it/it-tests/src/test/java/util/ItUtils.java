@@ -341,35 +341,33 @@ public class ItUtils {
     return ComponentNavigation.parse(content);
   }
 
-  public static void restoreProfile(Orchestrator orchestrator, String classpathRelativeFilename) {
-    restoreProfile(orchestrator, classpathRelativeFilename, null);
+  public static void restoreProfile(Orchestrator orchestrator, URL resource) {
+    restoreProfile(orchestrator, resource, null);
   }
 
-  public static void restoreProfile(Orchestrator orchestrator, String classpathRelativeFilename, String organization) {
-    WsClient adminWsClient = newAdminWsClient(orchestrator);
-    restoreProfile(adminWsClient, classpathRelativeFilename, organization);
-  }
-
-  public static void restoreProfile(WsClient adminWsClient, String classpathRelativeFilename, String organization) {
-    adminWsClient
+  public static void restoreProfile(Orchestrator orchestrator, URL resource, String organization) {
+    newAdminWsClient(orchestrator)
       .qualityProfiles()
       .restoreProfile(
         RestoreWsRequest.builder()
-          .setBackup(findFileInClasspath(classpathRelativeFilename))
+          .setBackup(resourceToFile(resource))
           .setOrganization(organization)
           .build());
   }
 
-  public static File findFileInClasspath(String classpathRelativeFilename) {
-    ResourceLocation location = FileLocation.ofClasspath(classpathRelativeFilename);
-    URL url = ItUtils.class.getResource(location.getPath());
+  private static File resourceToFile(URL resource) {
     URI uri;
     try {
-      uri = url.toURI();
+      uri = resource.toURI();
     } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Cannot find quality profile xml file '" + classpathRelativeFilename + "' in classpath");
+      throw new IllegalArgumentException("Cannot find quality profile xml file '" + resource + "' in classpath");
     }
     return new File(uri);
+  }
+
+  public static URL findResourceInClasspath(String classpathRelativeFilename) {
+    ResourceLocation location = FileLocation.ofClasspath(classpathRelativeFilename);
+    return ItUtils.class.getResource(location.getPath());
   }
 
   public static class ComponentNavigation {

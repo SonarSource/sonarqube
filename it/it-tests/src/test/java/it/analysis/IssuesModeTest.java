@@ -428,7 +428,7 @@ public class IssuesModeTest {
   }
 
   private void restoreProfile(String fileName) {
-    ItUtils.restoreProfile(orchestrator, "/analysis/IssuesModeTest/" + fileName);
+    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/analysis/IssuesModeTest/" + fileName));
   }
 
   private SonarScanner configureRunnerIssues(String projectDir, @Nullable File homeDir, String... props) throws IOException {

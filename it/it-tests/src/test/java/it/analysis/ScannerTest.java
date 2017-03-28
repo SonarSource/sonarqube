@@ -61,7 +61,7 @@ public class ScannerTest {
   @Before
   public void deleteData() {
     orchestrator.resetData();
-    ItUtils.restoreProfile(orchestrator, "/analysis/BatchTest/one-issue-per-line.xml");
+    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/analysis/BatchTest/one-issue-per-line.xml"));
   }
 
   /**

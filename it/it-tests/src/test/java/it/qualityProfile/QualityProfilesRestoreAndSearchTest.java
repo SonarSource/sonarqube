@@ -45,7 +45,7 @@ public class QualityProfilesRestoreAndSearchTest {
 
   @Test
   public void restore_and_search_in_default_organization() {
-    ItUtils.restoreProfile(orchestrator, "/authorisation/one-issue-per-line-profile.xml");
+    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/authorisation/one-issue-per-line-profile.xml"));
     QualityProfiles.SearchWsResponse results = ItUtils.newAdminWsClient(orchestrator).qualityProfiles().search(new SearchWsRequest());
     System.out.println(results.getProfilesList());
     assertThat(results.getProfilesList())

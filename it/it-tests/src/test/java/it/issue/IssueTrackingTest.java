@@ -49,8 +49,8 @@ public class IssueTrackingTest extends AbstractIssueTest {
   @Before
   public void prepareData() {
     ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/issue-on-tag-foobar.xml");
-    ItUtils.restoreProfile(ORCHESTRATOR, "/issue/IssueTrackingTest/one-issue-per-module-profile.xml");
+    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/issue-on-tag-foobar.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/IssueTrackingTest/one-issue-per-module-profile.xml"));
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
     adminClient = newAdminWsClient(ORCHESTRATOR);
   }
