@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.version.v64;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v63.MakeColumnGuardedOfOrganizationsNotNullable;
 import org.sonar.server.platform.db.migration.version.v63.PopulateColumnGuardedOfOrganizations;
 
 public class DbVersion64 implements DbVersion {
@@ -48,6 +49,7 @@ public class DbVersion64 implements DbVersion {
       .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class)
       .add(1618, "Add GROUPS.IS_DEFAULT", AddIsDefaultToGroups.class)
       .add(1619, "Populate GROUPS.IS_DEFAULT", PopulateColumnGuardedOfOrganizations.class)
+      .add(1620, "Make GROUPS.IS_DEFAULT not nullable", MakeColumnGuardedOfOrganizationsNotNullable.class)
     ;
   }
 }
