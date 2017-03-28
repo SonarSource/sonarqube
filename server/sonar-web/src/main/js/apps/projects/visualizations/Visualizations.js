@@ -27,7 +27,7 @@ import CodeSmells from './CodeSmells';
 import UncoveredLines from './UncoveredLines';
 import DuplicatedBlocks from './DuplicatedBlocks';
 import { localizeSorting } from '../utils';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class Visualizations extends React.PureComponent {
   props: {
@@ -58,17 +58,20 @@ export default class Visualizations extends React.PureComponent {
   renderFooter() {
     const { projects, total, sort } = this.props;
 
-    if (projects == null || total == null || projects.length >= total) {
-      return null;
-    }
+    const limitReached = projects != null && total != null && projects.length < total;
 
     return (
       <footer className="projects-visualizations-footer">
-        {translateWithParameters(
-          'projects.limited_set_of_projects',
-          projects.length,
-          localizeSorting(sort)
-        )}
+        <p>{translate('projects.visualization', this.props.visualization, 'description')}</p>
+        {limitReached &&
+          <p className="note spacer-top">
+            {translateWithParameters(
+              'projects.limited_set_of_projects',
+              // $FlowFixMe
+              projects.length,
+              localizeSorting(sort)
+            )}
+          </p>}
       </footer>
     );
   }
