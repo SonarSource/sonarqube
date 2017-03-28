@@ -154,11 +154,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   }
 
   @Override
-  public void cancel(DbSession dbSession, CeQueueDto ceQueueDto) {
-    cancelImpl(dbSession, ceQueueDto);
-  }
-
-  @Override
   public void pausePeek() {
     this.peekPaused.set(true);
   }
