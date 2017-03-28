@@ -38,6 +38,7 @@ export const actions = {
   RECEIVE_MEMBERS: 'organizations/RECEIVE_MEMBERS',
   RECEIVE_MORE_MEMBERS: 'organizations/RECEIVE_MORE_MEMBERS',
   ADD_MEMBER: 'organizations/ADD_MEMBER',
+  REMOVE_MEMBER: 'organizations/REMOVE_MEMBER'
 };
 
 export const receiveMembers = (organizationKey: string, members: Array<Member>, stateChanges: MembersState) => ({
@@ -56,6 +57,12 @@ export const receiveMoreMembers = (organizationKey: string, members: Array<Membe
 
 export const addMember = (organizationKey: string, member: Member) => ({
   type: actions.ADD_MEMBER,
+  organization: organizationKey,
+  member
+});
+
+export const removeMember = (organizationKey: string, member: Member) => ({
+  type: actions.REMOVE_MEMBER,
   organization: organizationKey,
   member
 });

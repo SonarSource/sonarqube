@@ -140,3 +140,11 @@ export const addOrganizationMember = (key: string, member: Member) => (dispatch:
     dispatch(membersActions.removeMember(key, member));
   });
 };
+
+export const removeOrganizationMember = (key: string, member: Member) => (dispatch: Function) => {
+  dispatch(membersActions.removeMember(key, member));
+  return api.removeMember({ login: member.login, organization: key }).catch((error: Object) => {
+    onFail(dispatch)(error);
+    dispatch(membersActions.addMember(key, member));
+  });
+};

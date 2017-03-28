@@ -28,7 +28,8 @@ import {
 import {
   fetchOrganizationMembers,
   fetchMoreOrganizationMembers,
-  addOrganizationMember
+  addOrganizationMember,
+  removeOrganizationMember
 } from '../actions';
 
 const mapStateToProps = (state, ownProps) => {
@@ -45,5 +46,6 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps, {
   fetchOrganizationMembers,
   fetchMoreOrganizationMembers,
-  addOrganizationMember
+  addOrganizationMember,
+  removeOrganizationMember
 })(OrganizationMembers);
