@@ -24,6 +24,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface CeQueueMapper {
 
@@ -35,7 +36,7 @@ public interface CeQueueMapper {
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
-  List<EligibleTaskDto> selectEligibleForPeek(RowBounds rowBounds);
+  List<EligibleTaskDto> selectEligibleForPeek(@Param("pagination") Pagination pagination);
 
   @CheckForNull
   CeQueueDto selectByUuid(@Param("uuid") String uuid);
