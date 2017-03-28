@@ -64,7 +64,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   public static void prepareData() {
     ORCHESTRATOR.resetData();
 
-    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/with-many-rules.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, IssueSearchTest.class.getResource("/issue/with-many-rules.xml"));
 
     // Launch 2 analysis to have more than 100 issues in total
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);

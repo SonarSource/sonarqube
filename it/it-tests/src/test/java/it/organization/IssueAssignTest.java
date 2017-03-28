@@ -93,7 +93,7 @@ public class IssueAssignTest {
 
     orchestrator.getServer().post("api/organizations/enable_support", emptyMap());
     createOrganization(ORGANIZATION_KEY);
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), ORGANIZATION_KEY);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), ORGANIZATION_KEY);
   }
 
   @After
@@ -145,7 +145,7 @@ public class IssueAssignTest {
   @Test
   public void bulk_assign_issues_to_user_being_only_member_of_same_organization_as_project_issue_organization() throws Exception {
     createOrganization(OTHER_ORGANIZATION_KEY);
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), OTHER_ORGANIZATION_KEY);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), OTHER_ORGANIZATION_KEY);
     userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
     // User is only member of "organization-key", not of "other-organization-key"
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);

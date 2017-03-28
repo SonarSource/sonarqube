@@ -42,7 +42,7 @@ public class CommonRulesTest extends AbstractIssueTest {
   @BeforeClass
   public static void setUp() {
     ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/CommonRulesTest/xoo-common-rules-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, CommonRulesTest.class.getResource("/issue/CommonRulesTest/xoo-common-rules-profile.xml"));
     ORCHESTRATOR.getServer().provisionProject("common-rules-project", "Sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("common-rules-project", "xoo", "xoo-common-rules");
     runProjectAnalysis(ORCHESTRATOR, "issue/common-rules",

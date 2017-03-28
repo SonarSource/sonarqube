@@ -65,7 +65,7 @@ public class PermissionSearchTest {
   public static void analyzeProject() {
     orchestrator.resetData();
 
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/authorisation/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, PermissionSearchTest.class.getResource("/authorisation/one-issue-per-line-profile.xml"));
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");

@@ -49,8 +49,8 @@ public class MultiLanguageTest {
    */
   @Test
   public void test_sonar_runner_inspection() {
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/analysis/MultiLanguageTest/one-issue-per-line.xml"));
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/analysis/MultiLanguageTest/one-issue-per-line-xoo2.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/analysis/MultiLanguageTest/one-issue-per-line.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/analysis/MultiLanguageTest/one-issue-per-line-xoo2.xml"));
 
     orchestrator.getServer().provisionProject("multi-language-sample", "multi-language-sample");
 

@@ -182,7 +182,7 @@ public class ProjectAnalysisRule extends ExternalResource {
     private void setQualityProfileIfNecessary() {
       if (this.qualityProfile != null) {
         if (this.qualityProfile != Profile.XOO_EMPTY_PROFILE) {
-          ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath(this.qualityProfile.getRelativePath()));
+          ItUtils.restoreProfile(orchestrator, getClass().getResource(this.qualityProfile.getRelativePath()));
         }
         orchestrator.getServer().associateProjectToQualityProfile(
           this.projectState.getProjectKey(),

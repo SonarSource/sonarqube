@@ -51,7 +51,7 @@ public class SinceXDaysHistoryTest {
     initPeriod();
 
     orchestrator.resetData();
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, SinceXDaysHistoryTest.class.getResource("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "one-issue-per-line");
 

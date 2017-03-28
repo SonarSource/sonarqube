@@ -232,7 +232,7 @@ public class IssueExclusionsTest {
   }
 
   protected BuildResult scan(String... properties) {
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/exclusions/IssueExclusionsTest/with-many-rules.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/exclusions/IssueExclusionsTest/with-many-rules.xml"));
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-exclusions",
       "Sonar :: Integration Tests :: Multi-modules With Exclusions");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-exclusions", "xoo", "with-many-rules");

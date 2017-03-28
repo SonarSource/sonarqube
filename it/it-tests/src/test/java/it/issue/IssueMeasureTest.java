@@ -44,7 +44,7 @@ public class IssueMeasureTest extends AbstractIssueTest {
   @Test
   public void issues_by_severity_measures() {
     ORCHESTRATOR.getServer().provisionProject(MULTI_MODULE_SAMPLE_PROJECT_KEY, MULTI_MODULE_SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/with-many-rules.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/with-many-rules.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(MULTI_MODULE_SAMPLE_PROJECT_KEY, "xoo", "with-many-rules");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
@@ -68,7 +68,7 @@ public class IssueMeasureTest extends AbstractIssueTest {
   @Test
   public void issues_by_resolution_and_status_measures() {
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "one-issue-per-line-profile");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
@@ -118,7 +118,7 @@ public class IssueMeasureTest extends AbstractIssueTest {
     String testKey = "sample-with-tests:src/test/xoo/sample/SampleTest.xoo";
 
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/one-issue-per-file-profile.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-file-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-file-profile");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample-with-tests");
 

@@ -45,7 +45,7 @@ public class CrossProjectDuplicationsOnRemoveFileTest {
   @BeforeClass
   public static void analyzeProjects() {
     orchestrator.resetData();
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/duplication/xoo-duplication-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, CrossProjectDuplicationsOnRemoveFileTest.class.getResource("/duplication/xoo-duplication-profile.xml"));
 
     analyzeProject(ORIGIN_PROJECT, "duplications/cross-project/origin");
     analyzeProject(DUPLICATE_PROJECT, "duplications/cross-project/duplicate");

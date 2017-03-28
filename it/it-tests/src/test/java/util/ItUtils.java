@@ -29,7 +29,6 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -363,11 +362,6 @@ public class ItUtils {
       throw new IllegalArgumentException("Cannot find quality profile xml file '" + resource + "' in classpath");
     }
     return new File(uri);
-  }
-
-  public static URL findResourceInClasspath(String classpathRelativeFilename) {
-    ResourceLocation location = FileLocation.ofClasspath(classpathRelativeFilename);
-    return ItUtils.class.getResource(location.getPath());
   }
 
   public static class ComponentNavigation {

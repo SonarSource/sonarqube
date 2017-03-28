@@ -72,7 +72,7 @@ public class PurgeTest {
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/dbCleaner/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/dbCleaner/one-issue-per-line-profile.xml"));
 
     setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", null);
     setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", null);

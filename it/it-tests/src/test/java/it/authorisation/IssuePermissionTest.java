@@ -54,7 +54,7 @@ public class IssuePermissionTest {
   public void init() {
     orchestrator.resetData();
 
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/authorisation/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/authorisation/one-issue-per-line-profile.xml"));
 
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");

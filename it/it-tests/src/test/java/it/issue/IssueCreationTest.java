@@ -44,7 +44,7 @@ public class IssueCreationTest extends AbstractIssueTest {
   @Test
   public void use_rule_name_if_issue_has_no_message() {
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/IssueCreationTest/with-custom-message.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
 
     // First analysis, the issue is generated with a message
@@ -63,7 +63,7 @@ public class IssueCreationTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
 
     // The rule "OneBlockerIssuePerFile" is enabled with severity "INFO"
-    ItUtils.restoreProfile(ORCHESTRATOR, ItUtils.findResourceInClasspath("/issue/IssueCreationTest/override-profile-severity.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/override-profile-severity.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "override-profile-severity");
 
     // But it's hardcoded "blocker" when plugin generates the issue

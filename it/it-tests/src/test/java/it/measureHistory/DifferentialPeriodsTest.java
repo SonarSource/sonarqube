@@ -82,7 +82,7 @@ public class DifferentialPeriodsTest {
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -15)));
 
     // Second analysis -> issues will be created
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
@@ -112,7 +112,7 @@ public class DifferentialPeriodsTest {
       "sonar.modules", "module_a");
 
     // Second analysis, 20 days ago, issues will be created
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "one-issue-per-line");
     runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
       "sonar.projectDate", formatDate(addDays(new Date(), -20)),
@@ -134,7 +134,7 @@ public class DifferentialPeriodsTest {
       "sonar.modules", "module_a");
 
     // Second analysis, 20 days ago
-    ItUtils.restoreProfile(orchestrator, ItUtils.findResourceInClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "one-issue-per-line");
     runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
       "sonar.projectDate", formatDate(addDays(new Date(), -20)),
