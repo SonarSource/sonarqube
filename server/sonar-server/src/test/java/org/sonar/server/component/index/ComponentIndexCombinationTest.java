@@ -33,7 +33,8 @@ public class ComponentIndexCombinationTest extends ComponentIndexTest {
   public void return_empty_list_if_no_fields_match_query() {
     indexProject("struts", "Apache Struts");
 
-    assertThat(index.search(new ComponentIndexQuery("missing"))).isEmpty();
+    assertThat(index.search(
+      new ComponentIndexQuery().setQuery("missing"))).isEmpty();
   }
 
   @Test
@@ -48,14 +49,14 @@ public class ComponentIndexCombinationTest extends ComponentIndexTest {
     ComponentDto project = indexProject("struts", "Apache Struts");
     indexFile(project, "src/main/java/StrutsManager.java", "StrutsManager.java");
 
-    assertSearchResults(new ComponentIndexQuery("struts").setQualifiers(asList(Qualifiers.PROJECT)), project);
+    assertSearchResults(new ComponentIndexQuery().setQuery("struts").setQualifiers(asList(Qualifiers.PROJECT)), project);
   }
 
   @Test
   public void should_limit_the_number_of_results() {
     IntStream.rangeClosed(0, 10).forEach(i -> indexProject("sonarqube" + i, "SonarQube" + i));
 
-    assertSearch(new ComponentIndexQuery("sonarqube").setLimit(5).setQualifiers(asList(Qualifiers.PROJECT))).hasSize(5);
+    assertSearch(new ComponentIndexQuery().setQuery("sonarqube").setLimit(5).setQualifiers(asList(Qualifiers.PROJECT))).hasSize(5);
   }
 
   @Test

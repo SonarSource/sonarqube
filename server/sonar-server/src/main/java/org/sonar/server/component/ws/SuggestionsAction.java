@@ -100,7 +100,8 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private List<Qualifier> getResultsOfAllQualifiers(String query) {
-    ComponentIndexQuery componentIndexQuery = new ComponentIndexQuery(query)
+    ComponentIndexQuery componentIndexQuery = new ComponentIndexQuery()
+      .setQuery(query)
       .setQualifiers(Arrays.asList(QUALIFIERS))
       .setLimit(NUMBER_OF_RESULTS_PER_QUALIFIER);
 

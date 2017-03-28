@@ -22,20 +22,33 @@ package org.sonar.server.component.index;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class ComponentIndexQuery {
 
-  private final String query;
-  private Collection<String> qualifiers = Collections.emptyList();
-  private Optional<Integer> limit = Optional.empty();
+  public enum Sort {
+    BY_ASCENDING_NAME, BY_SCORE
+  }
 
-  public ComponentIndexQuery(String query) {
-    requireNonNull(query);
-    checkArgument(query.length() >= 2, "Query must be at least two characters long: %s", query);
-    this.query = query;
+  private Optional<String> query = Optional.empty();
+  private Collection<String> qualifiers = Collections.emptyList();
+  private Optional<Set<String>> componentUuids = Optional.empty();
+  private Optional<Integer> limit = Optional.empty();
+  private Sort sort = Sort.BY_SCORE;
+
+  public ComponentIndexQuery setQuery(@Nullable String query) {
+    checkArgument(query == null || query.length() >= 2, "Query must be at least two characters long: %s", query);
+    this.query = Optional.ofNullable(query);
+    return this;
+  }
+
+  public Optional<String> getQuery() {
+    return query;
   }
 
   public ComponentIndexQuery setQualifiers(Collection<String> qualifiers) {
@@ -47,8 +60,13 @@ public class ComponentIndexQuery {
     return qualifiers;
   }
 
-  public String getQuery() {
-    return query;
+  public Optional<Set<String>> getComponentUuids() {
+    return componentUuids;
+  }
+
+  public ComponentIndexQuery setComponentUuids(@Nullable Set<String> componentUuids) {
+    this.componentUuids = Optional.ofNullable(componentUuids);
+    return this;
   }
 
   /**
@@ -62,5 +80,14 @@ public class ComponentIndexQuery {
 
   public Optional<Integer> getLimit() {
     return limit;
+  }
+
+  public Sort getSort() {
+    return sort;
+  }
+
+  public ComponentIndexQuery setSort(Sort sort) {
+    this.sort = requireNonNull(sort, "Sort cannot be null");
+    return this;
   }
 }
