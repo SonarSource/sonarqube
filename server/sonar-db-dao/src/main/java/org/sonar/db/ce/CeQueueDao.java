@@ -26,6 +26,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
@@ -33,7 +34,7 @@ import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
 public class CeQueueDao implements Dao {
 
-  private static final RowBounds ONE_ROW_LIMIT = new RowBounds(0, 1);
+  private static final Pagination ONE_RESULT_PAGINATION = Pagination.forPage(1).andSize(1);
 
   private final System2 system2;
 
@@ -110,7 +111,7 @@ public class CeQueueDao implements Dao {
   }
 
   public Optional<CeQueueDto> peek(DbSession session, String workerUuid) {
-    List<EligibleTaskDto> eligibles = mapper(session).selectEligibleForPeek(ONE_ROW_LIMIT);
+    List<EligibleTaskDto> eligibles = mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION);
     if (eligibles.isEmpty()) {
       return Optional.absent();
     }
