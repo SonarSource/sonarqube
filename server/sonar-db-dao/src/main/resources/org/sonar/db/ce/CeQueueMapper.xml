@@ -114,8 +114,45 @@
 
   <select id="selectEligibleForPeek" resultType="org.sonar.db.ce.EligibleTaskDto">
     select
-      cq.uuid as "uuid",
-      cq.execution_count as "executionCount"
+      <include refid="columnsSelectEligibleForPeek"/>
+    <include refid="sqlSelectEligibleForPeek"/>
+    <include refid="orderBySelectEligibleForPeek"/>
+    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.EligibleTaskDto" databaseId="mssql">
+    select * from (
+      select
+        row_number() over(<include refid="orderBySelectEligibleForPeek"/>) as number,
+        <include refid="columnsSelectEligibleForPeek"/>
+      <include refid="sqlSelectEligibleForPeek"/>
+    ) as query
+    where
+      query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    <include refid="orderBySelectEligibleForPeek"/>
+  </select>
+
+  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.EligibleTaskDto" databaseId="oracle">
+    select * from (
+      select rownum as rn, t.* from (
+        select
+          <include refid="columnsSelectEligibleForPeek"/>
+        <include refid="sqlSelectEligibleForPeek" />
+        <include refid="orderBySelectEligibleForPeek"/>
+      ) t
+    ) t
+    where
+      t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+  </select>
+
+  <sql id="columnsSelectEligibleForPeek">
+    cq.uuid as "uuid",
+    cq.execution_count as "executionCount",
+    cq.created_at as "created_at",
+    cq.id as "id"
+  </sql>
+
+  <sql id="sqlSelectEligibleForPeek">
     from
       ce_queue cq
     where
@@ -129,8 +166,13 @@
           cq.component_uuid=cq2.component_uuid
           and cq2.status &lt;&gt; 'PENDING'
       )
-    <include refid="orderByDateAndId"/>
-  </select>
+  </sql>
+
+  <sql id="orderBySelectEligibleForPeek">
+    order by
+      created_at asc,
+      id asc
+  </sql>
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeQueueDto" useGeneratedKeys="false">
     insert into ce_queue
