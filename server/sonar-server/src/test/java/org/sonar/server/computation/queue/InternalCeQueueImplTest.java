@@ -193,7 +193,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void remove_sets_snapshotId_in_CeActivity_when_CeTaskResult_has_no_snapshot_id() {
+  public void remove_sets_analysisUuid_in_CeActivity_when_CeTaskResult_has_analysis_uuid() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_2);
@@ -239,12 +239,6 @@ public class InternalCeQueueImplTest {
     CeActivityDto dto = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "uuid").get();
     assertThat(dto.getExecutionCount()).isEqualTo(2);
     assertThat(dto.getWorkerUuid()).isEqualTo("Dustin");
-  }
-
-  private static String stacktraceToString(Throwable error) {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    error.printStackTrace(new PrintStream(out));
-    return out.toString();
   }
 
   @Test
@@ -435,5 +429,11 @@ public class InternalCeQueueImplTest {
     dbTester.getDbClient().componentDao().insert(session, componentDto);
     session.commit();
     return componentDto;
+  }
+
+  private static String stacktraceToString(Throwable error) {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    error.printStackTrace(new PrintStream(out));
+    return out.toString();
   }
 }
