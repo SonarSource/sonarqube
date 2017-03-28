@@ -157,6 +157,7 @@
       ce_queue cq
     where
       cq.status='PENDING'
+      and cq.execution_count &lt; #{maxExecutionCount,jdbcType=INTEGER}
       and not exists (
         select
           1

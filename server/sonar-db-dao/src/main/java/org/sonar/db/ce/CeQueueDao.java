@@ -110,8 +110,8 @@ public class CeQueueDao implements Dao {
     return mapper(dbSession).countByStatusAndComponentUuid(status, componentUuid);
   }
 
-  public Optional<CeQueueDto> peek(DbSession session, String workerUuid) {
-    List<EligibleTaskDto> eligibles = mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION);
+  public Optional<CeQueueDto> peek(DbSession session, String workerUuid, int maxExecutionCount) {
+    List<EligibleTaskDto> eligibles = mapper(session).selectEligibleForPeek(maxExecutionCount, ONE_RESULT_PAGINATION);
     if (eligibles.isEmpty()) {
       return Optional.absent();
     }

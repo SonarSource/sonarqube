@@ -45,6 +45,9 @@ public interface InternalCeQueue extends CeQueue {
    * <p>Only a single task can be peeked by project.</p>
    *
    * <p>An unchecked exception may be thrown on technical errors (db connection, ...).</p>
+   *
+   * <p>Tasks which have been executed twice already but are still {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}
+   * are ignored</p>
    */
   Optional<CeTask> peek(String workerUuid);
 
