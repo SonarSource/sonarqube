@@ -1,0 +1,131 @@
+exports[`test should render correctly 1`] = `
+<Select
+  addLabelText="Add \"{label}\"?"
+  arrowRenderer={[Function]}
+  autosize={true}
+  backspaceRemoves={true}
+  backspaceToRemoveMessage="Press backspace to remove {label}"
+  className="Select-big"
+  clearAllText="Clear all"
+  clearValueText="Clear value"
+  clearable={false}
+  delimiter=","
+  disabled={false}
+  escapeClearsValue={true}
+  filterOptions={[Function]}
+  ignoreAccents={true}
+  ignoreCase={true}
+  inputProps={Object {}}
+  isLoading={false}
+  joinValues={false}
+  labelKey="name"
+  matchPos="any"
+  matchProp="any"
+  menuBuffer={0}
+  menuRenderer={[Function]}
+  multi={false}
+  noResultsText="No results found"
+  onBlurResetsInput={true}
+  onChange={[Function]}
+  onCloseResetsInput={true}
+  onInputChange={[Function]}
+  openAfterFocus={false}
+  optionComponent={[Function]}
+  options={Array []}
+  pageSize={5}
+  placeholder=""
+  required={false}
+  scrollMenuIntoView={true}
+  searchable={true}
+  simpleValue={false}
+  tabSelectsValue={true}
+  value={
+    Object {
+      "avatar": "7daf6c79d4802916d83f6266e24850af",
+      "login": "admin",
+      "name": "Administrator",
+    }
+  }
+  valueComponent={[Function]}
+  valueKey="login" />
+`;
+
+exports[`test should render correctly 2`] = `
+Array [
+  Object {
+    "email": "tester@testing.ch",
+    "login": "test",
+    "name": "Tester",
+  },
+  Object {
+    "email": "foo@bar.ch",
+    "login": "foo",
+    "name": "Foo Bar",
+  },
+]
+`;
+
+exports[`test should render correctly 3`] = `
+<Select
+  addLabelText="Add \"{label}\"?"
+  arrowRenderer={[Function]}
+  autosize={true}
+  backspaceRemoves={true}
+  backspaceToRemoveMessage="Press backspace to remove {label}"
+  className="Select-big"
+  clearAllText="Clear all"
+  clearValueText="Clear value"
+  clearable={false}
+  delimiter=","
+  disabled={false}
+  escapeClearsValue={true}
+  filterOptions={[Function]}
+  ignoreAccents={true}
+  ignoreCase={true}
+  inputProps={Object {}}
+  isLoading={false}
+  joinValues={false}
+  labelKey="name"
+  matchPos="any"
+  matchProp="any"
+  menuBuffer={0}
+  menuRenderer={[Function]}
+  multi={false}
+  noResultsText="No results found"
+  onBlurResetsInput={true}
+  onChange={[Function]}
+  onCloseResetsInput={true}
+  onInputChange={[Function]}
+  openAfterFocus={false}
+  optionComponent={[Function]}
+  options={
+    Array [
+      Object {
+        "email": "tester@testing.ch",
+        "login": "test",
+        "name": "Tester",
+      },
+      Object {
+        "email": "foo@bar.ch",
+        "login": "foo",
+        "name": "Foo Bar",
+      },
+    ]
+  }
+  pageSize={5}
+  placeholder=""
+  required={false}
+  scrollMenuIntoView={true}
+  searchable={true}
+  simpleValue={false}
+  tabSelectsValue={true}
+  value={
+    Object {
+      "avatar": "7daf6c79d4802916d83f6266e24850af",
+      "login": "admin",
+      "name": "Administrator",
+    }
+  }
+  valueComponent={[Function]}
+  valueKey="login" />
+`;

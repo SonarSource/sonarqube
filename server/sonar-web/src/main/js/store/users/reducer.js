@@ -29,6 +29,8 @@ const usersByLogin = (state = {}, action = {}) => {
     case membersActions.RECEIVE_MEMBERS:
     case membersActions.RECEIVE_MORE_MEMBERS:
       return { ...state, ...keyBy(action.members, 'login') };
+    case membersActions.ADD_MEMBER:
+      return { ...state, [action.member.login]: action.member };
     default:
       return state;
   }
@@ -41,6 +43,9 @@ const userLogins = (state = [], action = {}) => {
     case membersActions.RECEIVE_MEMBERS:
     case membersActions.RECEIVE_MORE_MEMBERS:
       return uniq([...state, action.members.map(member => member.login)]);
+    case membersActions.ADD_MEMBER: {
+      return uniq([...state, action.member.login]).sort();
+    }
     default:
       return state;
   }

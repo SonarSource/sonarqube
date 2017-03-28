@@ -21,8 +21,9 @@
 export type Member = {
   login: string,
   name: string,
-  avatar: string,
-  groupCount: number
+  avatar?: string,
+  email?: string,
+  groupCount?: number
 };
 
 type MembersState = {
@@ -35,7 +36,8 @@ type MembersState = {
 export const actions = {
   UPDATE_STATE: 'organizations/UPDATE_STATE',
   RECEIVE_MEMBERS: 'organizations/RECEIVE_MEMBERS',
-  RECEIVE_MORE_MEMBERS: 'organizations/RECEIVE_MORE_MEMBERS'
+  RECEIVE_MORE_MEMBERS: 'organizations/RECEIVE_MORE_MEMBERS',
+  ADD_MEMBER: 'organizations/ADD_MEMBER',
 };
 
 export const receiveMembers = (organizationKey: string, members: Array<Member>, stateChanges: MembersState) => ({
@@ -50,6 +52,12 @@ export const receiveMoreMembers = (organizationKey: string, members: Array<Membe
   organization: organizationKey,
   members,
   stateChanges
+});
+
+export const addMember = (organizationKey: string, member: Member) => ({
+  type: actions.ADD_MEMBER,
+  organization: organizationKey,
+  member
 });
 
 export const updateState = (

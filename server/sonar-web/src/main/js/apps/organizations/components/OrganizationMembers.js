@@ -21,6 +21,7 @@
 import React from 'react';
 import PageHeader from './PageHeader';
 import MembersList from './MembersList';
+import AddMemberForm from './forms/AddMemberForm';
 import UsersSearch from '../../users/components/UsersSearch';
 import ListFooter from '../../../components/controls/ListFooter';
 import type { Organization } from '../../../store/organizations/duck';
@@ -28,10 +29,12 @@ import type { Member } from '../../../store/organizationsMembers/actions';
 
 type Props = {
   members: Array<Member>,
+  memberLogins: Array<string>,
   status: { loading?: boolean, total?: number, pageIndex?: number, query?: string },
   organization: Organization,
   fetchOrganizationMembers: (organizationKey: string, query?: string) => void,
   fetchMoreOrganizationMembers: (organizationKey: string, query?: string) => void,
+  addOrganizationMember: (organizationKey: string, login: Member) => void
 };
 
 export default class OrganizationMembers extends React.PureComponent {
@@ -52,17 +55,27 @@ export default class OrganizationMembers extends React.PureComponent {
     this.props.fetchMoreOrganizationMembers(this.props.organization.key, this.props.status.query);
   };
 
-  addMember() {
-    // TODO Not yet implemented
-  }
+  addMember = (member: Member) => {
+    this.props.addOrganizationMember(this.props.organization.key, member);
+  };
 
   render() {
     const { organization, status, members } = this.props;
     return (
       <div className="page page-limited">
-        <PageHeader loading={status.loading} total={status.total} />
+        <PageHeader loading={status.loading} total={status.total}>
+          {organization.canAdmin &&
+            <div className="page-actions">
+              <div className="button-group">
+                <AddMemberForm memberLogins={this.props.memberLogins} addMember={this.addMember} />
+              </div>
+            </div>}
+        </PageHeader>
         <UsersSearch onSearch={this.handleSearchMembers} />
-        <MembersList members={members} organization={organization} />
+        <MembersList
+          members={members}
+          organization={organization}
+        />
         {status.total != null &&
           <ListFooter
             count={members.length}

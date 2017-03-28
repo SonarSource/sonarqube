@@ -17,34 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
+import React from 'react';
+import { shallow, mount } from 'enzyme';
+import { click } from '../../../../../helpers/testUtils';
+import AddMemberForm from '../AddMemberForm';
 
-export function getCurrentUser() {
-  const url = '/api/users/current';
-  return getJSON(url);
-}
+const memberLogins = ['admin'];
+const addMember = jest.fn();
 
-export function changePassword(login, password, previousPassword) {
-  const url = '/api/users/change_password';
-  const data = { login, password };
+it('should render and open the modal', () => {
+  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={addMember} />);
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({ open: true });
+  expect(wrapper).toMatchSnapshot();
+});
 
-  if (previousPassword != null) {
-    data.previousPassword = previousPassword;
-  }
-
-  return post(url, data);
-}
-
-export function getIdentityProviders() {
-  const url = '/api/users/identity_providers';
-  return getJSON(url);
-}
-
-export function searchUsers(query, pageSize) {
-  const url = '/api/users/search';
-  const data = { q: query };
-  if (pageSize != null) {
-    data.ps = pageSize;
-  }
-  return getJSON(url, data);
-}
+it('should correctly handle user interactions', () => {
+  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={addMember} />);
+  click(wrapper.find('button'));
+  expect(wrapper.state('open')).toBeTruthy();
+});
