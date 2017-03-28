@@ -19,10 +19,23 @@
  */
 import React from 'react';
 import { mount } from 'enzyme';
-import BubbleChart from '../BubbleChart';
+import BubbleChart, { Bubble } from '../BubbleChart';
 
 it('should display bubbles', () => {
-  const items = [{ x: 1, y: 10, size: 7 }, { x: 2, y: 30, size: 5 }, { x: 3, y: 20, size: 2 }];
+  const items = [{ x: 1, y: 10, size: 7 }, { x: 2, y: 30, size: 5 }];
   const chart = mount(<BubbleChart items={items} height={100} />);
-  expect(chart).toMatchSnapshot();
+  chart.find(Bubble).forEach(bubble => expect(bubble).toMatchSnapshot());
+});
+
+it('should render bubble links', () => {
+  const items = [{ x: 1, y: 10, size: 7, link: 'foo' }, { x: 2, y: 30, size: 5, link: 'bar' }];
+  const chart = mount(<BubbleChart items={items} height={100} />);
+  chart.find(Bubble).forEach(bubble => expect(bubble).toMatchSnapshot());
+});
+
+it('should render bubbles with click handlers', () => {
+  const onClick = jest.fn();
+  const items = [{ x: 1, y: 10, size: 7, link: 'foo' }, { x: 2, y: 30, size: 5, link: 'bar' }];
+  const chart = mount(<BubbleChart items={items} height={100} onBubbleClick={onClick} />);
+  chart.find(Bubble).forEach(bubble => expect(bubble).toMatchSnapshot());
 });

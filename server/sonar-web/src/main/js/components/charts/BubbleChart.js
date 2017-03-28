@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { Link } from 'react-router';
 import { min, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { sortBy, uniq } from 'lodash';
@@ -33,7 +34,7 @@ type Scale = {
 
 const TICKS_COUNT = 5;
 
-class Bubble extends React.PureComponent {
+export class Bubble extends React.PureComponent {
   props: {
     color?: string,
     link?: string,
@@ -58,23 +59,25 @@ class Bubble extends React.PureComponent {
         }
       : {};
 
-    const circle = (
-      <g>
-        <circle
-          {...tooltipAttrs}
-          onClick={this.handleClick}
-          className="bubble-chart-bubble"
-          r={this.props.r}
-          style={{
-            fill: this.props.color,
-            stroke: this.props.color
-          }}
-          transform={`translate(${this.props.x}, ${this.props.y})`}
-        />
-      </g>
+    let circle = (
+      <circle
+        {...tooltipAttrs}
+        onClick={this.props.onClick ? this.handleClick : undefined}
+        className="bubble-chart-bubble"
+        r={this.props.r}
+        style={{
+          fill: this.props.color,
+          stroke: this.props.color
+        }}
+        transform={`translate(${this.props.x}, ${this.props.y})`}
+      />
     );
 
-    return this.props.tooltip ? <TooltipsContainer>{circle}</TooltipsContainer> : circle;
+    if (this.props.link && !this.props.onClick) {
+      circle = <Link to={this.props.link}>{circle}</Link>;
+    }
+
+    return this.props.tooltip ? <TooltipsContainer><g>{circle}</g></TooltipsContainer> : circle;
   }
 }
 

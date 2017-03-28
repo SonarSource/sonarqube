@@ -23,6 +23,7 @@ import BubbleChart from '../../../components/charts/BubbleChart';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
+import { getProjectUrl } from '../../../helpers/urls';
 
 type Metric = { key: string, type: string };
 
@@ -35,7 +36,7 @@ type Project = {
 
 export default class SimpleBubbleChart extends React.PureComponent {
   props: {
-    onProjectOpen: (?string) => void,
+    displayOrganizations: boolean,
     projects: Array<Project>,
     sizeMetric: Metric,
     xMetric: Metric,
@@ -44,13 +45,14 @@ export default class SimpleBubbleChart extends React.PureComponent {
     colorMetric?: string
   };
 
-  getMetricTooltip(metric: Metric, value: number) {
+  getMetricTooltip(metric: Metric, value: ?number) {
     const name = translate('metric', metric.key, 'name');
-    return `<div>${name}: ${formatMeasure(value, metric.type)}</div>`;
+    const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
+    return `<div>${name}: ${formattedValue}</div>`;
   }
 
-  getTooltip(project: Project, x: number, y: number, size: number, color?: number) {
-    const fullProjectName = project.organization
+  getTooltip(project: Project, x: ?number, y: ?number, size: ?number, color?: number) {
+    const fullProjectName = this.props.displayOrganizations && project.organization
       ? `<div class="little-spacer-bottom">${project.organization.name} / <strong>${project.name}</strong></div>`
       : `<div class="little-spacer-bottom"><strong>${project.name}</strong></div>`;
 
@@ -73,23 +75,26 @@ export default class SimpleBubbleChart extends React.PureComponent {
     const { xMetric, yMetric, sizeMetric, colorMetric } = this.props;
 
     const items = this.props.projects
-      .filter(project => project.measures[xMetric.key] != null)
-      .filter(project => project.measures[yMetric.key] != null)
-      .filter(project => project.measures[sizeMetric.key] != null)
       .filter(project => colorMetric == null || project.measures[colorMetric] !== null)
       .map(project => {
-        const x = Number(project.measures[xMetric.key]);
-        const y = Number(project.measures[yMetric.key]);
-        const size = Number(project.measures[sizeMetric.key]);
+        const x = project.measures[xMetric.key] != null
+          ? Number(project.measures[xMetric.key])
+          : null;
+        const y = project.measures[yMetric.key] != null
+          ? Number(project.measures[yMetric.key])
+          : null;
+        const size = project.measures[sizeMetric.key] != null
+          ? Number(project.measures[sizeMetric.key])
+          : null;
         const color = colorMetric ? Number(project.measures[colorMetric]) : undefined;
         return {
-          x,
-          y,
-          size,
+          x: x || 0,
+          y: y || 0,
+          size: size || 0,
           color: color ? RATING_COLORS[color - 1] : undefined,
           key: project.key,
           tooltip: this.getTooltip(project, x, y, size, color),
-          link: project.key
+          link: getProjectUrl(project.key)
         };
       });
 
@@ -103,7 +108,6 @@ export default class SimpleBubbleChart extends React.PureComponent {
           formatYTick={formatYTick}
           height={600}
           items={items}
-          onBubbleClick={this.props.onProjectOpen}
           padding={[40, 20, 60, 100]}
           yDomain={this.props.yDomain}
         />
@@ -114,6 +118,12 @@ export default class SimpleBubbleChart extends React.PureComponent {
           {translate('metric', yMetric.key, 'name')}
         </div>
         <div className="measure-details-bubble-chart-axis size">
+          {colorMetric != null && <span className="spacer-right">
+            {translateWithParameters(
+              'component_measures.legend.color_x',
+              translate('metric', colorMetric, 'name')
+            )}
+          </span>}
           {translateWithParameters(
             'component_measures.legend.size_x',
             translate('metric', sizeMetric.key, 'name')

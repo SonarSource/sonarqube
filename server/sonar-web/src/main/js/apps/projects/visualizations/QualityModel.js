@@ -23,6 +23,7 @@ import BubbleChart from '../../../components/charts/BubbleChart';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
+import { getProjectUrl } from '../../../helpers/urls';
 
 type Project = {
   key: string,
@@ -43,17 +44,25 @@ const COLOR_METRIC_TYPE = 'RATING';
 
 export default class QualityModel extends React.PureComponent {
   props: {
-    onProjectOpen: (?string) => void,
+    displayOrganizations: boolean,
     projects: Array<Project>
   };
 
-  getMetricTooltip(metric: { key: string, type: string }, value: number) {
+  getMetricTooltip(metric: { key: string, type: string }, value: ?number) {
     const name = translate('metric', metric.key, 'name');
-    return `<div>${name}: ${formatMeasure(value, metric.type)}</div>`;
+    const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
+    return `<div>${name}: ${formattedValue}</div>`;
   }
 
-  getTooltip(project: Project, x: number, y: number, size: number, color1: number, color2: number) {
-    const fullProjectName = project.organization
+  getTooltip(
+    project: Project,
+    x: number,
+    y: ?number,
+    size: number,
+    color1: number,
+    color2: number
+  ) {
+    const fullProjectName = this.props.displayOrganizations && project.organization
       ? `<div class="little-spacer-bottom">${project.organization.name} / <strong>${project.name}</strong></div>`
       : `<div class="little-spacer-bottom"><strong>${project.name}</strong></div>`;
     const inner = [
@@ -64,7 +73,6 @@ export default class QualityModel extends React.PureComponent {
       this.getMetricTooltip({ key: X_METRIC, type: X_METRIC_TYPE }, x),
       this.getMetricTooltip({ key: SIZE_METRIC, type: SIZE_METRIC_TYPE }, size)
     ].join('');
-
     return `<div class="text-left">${inner}</div>`;
   }
 
@@ -73,31 +81,28 @@ export default class QualityModel extends React.PureComponent {
       .filter(
         ({ measures }) =>
           measures[X_METRIC] != null &&
-          measures[Y_METRIC] != null &&
           measures[SIZE_METRIC] != null &&
           measures[COLOR_METRIC_1] != null &&
           measures[COLOR_METRIC_2] != null
       )
       .map(project => {
         const x = Number(project.measures[X_METRIC]);
-        const y = Number(project.measures[Y_METRIC]);
+        const y = project.measures[Y_METRIC] != null ? Number(project.measures[Y_METRIC]) : null;
         const size = Number(project.measures[SIZE_METRIC]);
         const color1 = Number(project.measures[COLOR_METRIC_1]);
         const color2 = Number(project.measures[COLOR_METRIC_2]);
         return {
           x,
-          y,
+          y: y || 0,
           size,
           color: RATING_COLORS[Math.max(color1, color2) - 1],
           key: project.key,
           tooltip: this.getTooltip(project, x, y, size, color1, color2),
-          link: project.key
+          link: getProjectUrl(project.key)
         };
       });
-
     const formatXTick = tick => formatMeasure(tick, X_METRIC_TYPE);
     const formatYTick = tick => formatMeasure(tick, Y_METRIC_TYPE);
-
     return (
       <div>
         <BubbleChart
@@ -106,7 +111,6 @@ export default class QualityModel extends React.PureComponent {
           height={600}
           items={items}
           padding={[40, 20, 60, 100]}
-          onBubbleClick={this.props.onProjectOpen}
           yDomain={[100, 0]}
         />
         <div className="measure-details-bubble-chart-axis x">
