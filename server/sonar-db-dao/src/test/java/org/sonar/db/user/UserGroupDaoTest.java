@@ -40,20 +40,34 @@ public class UserGroupDaoTest {
 
   @Test
   public void insert() {
-    UserGroupDto userGroupDto = new UserGroupDto().setUserId(1).setGroupId(2);
+    UserDto user = dbTester.users().insertUser();
+    GroupDto group = dbTester.users().insertGroup();
+    UserGroupDto userGroupDto = new UserGroupDto().setUserId(user.getId()).setGroupId(group.getId());
+
     underTest.insert(dbTester.getSession(), userGroupDto);
     dbTester.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", "groups_users");
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user.getId())).containsOnly(group.getId());
   }
 
   @Test
   public void delete_members_by_group_id() {
-    dbTester.prepareDbUnit(getClass(), "delete_members_by_group_id.xml");
-    underTest.deleteByGroupId(dbTester.getSession(), 1);
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    GroupDto group1 = dbTester.users().insertGroup();
+    GroupDto group2 = dbTester.users().insertGroup();
+    dbTester.users().insertMember(group1, user1);
+    dbTester.users().insertMember(group1, user2);
+    dbTester.users().insertMember(group2, user1);
+    dbTester.users().insertMember(group2, user2);
+
+    underTest.deleteByGroupId(dbTester.getSession(), group1.getId());
     dbTester.getSession().commit();
-    dbTester.assertDbUnit(getClass(), "delete_members_by_group_id-result.xml", "groups_users");
+
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user1.getId())).containsOnly(group2.getId());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user2.getId())).containsOnly(group2.getId());
   }
+
 
   @Test
   public void delete_organization_member() {
