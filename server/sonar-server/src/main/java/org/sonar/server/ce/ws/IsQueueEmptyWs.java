@@ -27,6 +27,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Internal WebService with one action
  */
@@ -69,7 +71,7 @@ public class IsQueueEmptyWs implements WebService {
     public void handle(Request request, Response response) throws Exception {
       try (DbSession dbSession = dbClient.openSession(false)) {
         boolean isQueueEmpty = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).isEmpty();
-        IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
+        IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output(), UTF_8);
       }
     }
   }

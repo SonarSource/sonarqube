@@ -401,7 +401,7 @@ public class UserUpdater {
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
   }
 
-  private boolean isUserAlreadyMemberOfDefaultGroup(String defaultGroupName, String defOrgUuid, List<GroupDto> userGroups) {
+  private static boolean isUserAlreadyMemberOfDefaultGroup(String defaultGroupName, String defOrgUuid, List<GroupDto> userGroups) {
     return userGroups.stream().anyMatch(g -> defOrgUuid.equals(g.getOrganizationUuid()) && g.getName().equals(defaultGroupName));
   }
 
