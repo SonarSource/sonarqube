@@ -35,6 +35,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -92,7 +93,7 @@ public class SetAction implements ProjectTagsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      checkRequest(project.isRootProject(), "Component must be a project");
+      checkRequest(PROJECT.equals(project.qualifier()), "Component '%s' is not a project", project.key());
       userSession.checkComponentUuidPermission(UserRole.ADMIN, project.uuid());
 
       project.setTags(tags);

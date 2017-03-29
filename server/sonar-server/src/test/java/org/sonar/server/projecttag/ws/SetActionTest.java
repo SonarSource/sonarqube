@@ -46,6 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
 
 public class SetActionTest {
@@ -140,6 +142,36 @@ public class SetActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     call(project.key(), null);
+  }
+
+  @Test
+  public void fail_if_component_is_a_view() {
+    ComponentDto view = db.components().insertView(v -> v.setKey("VIEW_KEY"));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Component 'VIEW_KEY' is not a project");
+
+    call(view.key(), "point-of-view");
+  }
+
+  @Test
+  public void fail_if_component_is_a_module() {
+    ComponentDto module = db.components().insertComponent(newModuleDto(project).setKey("MODULE_KEY"));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Component 'MODULE_KEY' is not a project");
+
+    call(module.key(), "modz");
+  }
+
+  @Test
+  public void fail_if_component_is_a_file() {
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("FILE_KEY"));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Component 'FILE_KEY' is not a project");
+
+    call(file.getKey(), "secret");
   }
 
   @Test
