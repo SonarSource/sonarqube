@@ -93,6 +93,15 @@ public class System2 {
   }
 
   /**
+   * Shortcut for {@code System{@link #setProperty(String, String)}}
+   * @since 6.4
+   */
+  public System2 setProperty(String key, String value) {
+    System.setProperty(key, value);
+    return this;
+  }
+
+  /**
    * Shortcut for {@link System#getenv()}
    */
   public Map<String, String> envVariables() {

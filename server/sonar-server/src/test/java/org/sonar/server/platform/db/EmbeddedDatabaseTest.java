@@ -20,19 +20,25 @@
 package org.sonar.server.platform.db;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.sql.DriverManager;
 import org.h2.Driver;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.process.NetworkUtils;
 
 import static junit.framework.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT;
 import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE;
@@ -43,6 +49,8 @@ import static org.sonar.process.ProcessProperties.PATH_DATA;
 
 public class EmbeddedDatabaseTest {
 
+  private static final String LOOPBACK_ADDRESS = InetAddress.getLoopbackAddress().getHostAddress();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -50,9 +58,11 @@ public class EmbeddedDatabaseTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule
-  public Timeout timeout = Timeout.seconds(30);
+  public TestRule safeguard = new DisableOnDebug(Timeout.seconds(30));
 
-  private EmbeddedDatabase underTest;
+  private MapSettings settings = new MapSettings();
+  private System2 system2 = mock(System2.class);
+  private EmbeddedDatabase underTest = new EmbeddedDatabase(settings, system2);
 
   @After
   public void tearDown() throws Exception {
@@ -63,8 +73,6 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_property_Data_Path_is_not_set() {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings());
-
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing property " + PATH_DATA);
 
@@ -73,8 +81,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_property_Data_Path_is_empty() {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings()
-      .setProperty(PATH_DATA, ""));
+    settings.setProperty(PATH_DATA, "");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing property " + PATH_DATA);
@@ -84,8 +91,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_JDBC_URL_settings_is_not_set() throws IOException {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings()
-      .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath()));
+    settings.setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing property " + PROP_URL);
@@ -95,9 +101,9 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_embedded_port_settings_is_not_set() throws IOException {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings()
+    settings
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
-      .setProperty(PROP_URL, "jdbc url"));
+      .setProperty(PROP_URL, "jdbc url");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing property " + PROP_EMBEDDED_PORT);
@@ -108,10 +114,10 @@ public class EmbeddedDatabaseTest {
   @Test
   public void start_ignores_URL_to_create_database_and_uses_default_username_and_password_when_then_are_not_set() throws IOException {
     int port = NetworkUtils.freePort();
-    underTest = new EmbeddedDatabase(new MapSettings()
+    settings
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(PROP_URL, "jdbc url")
-      .setProperty(PROP_EMBEDDED_PORT, "" + port));
+      .setProperty(PROP_EMBEDDED_PORT, "" + port);
 
     underTest.start();
 
@@ -119,29 +125,32 @@ public class EmbeddedDatabaseTest {
   }
 
   @Test
-  public void start_creates_db_with_specified_user_and_password() throws IOException {
+  public void start_creates_db_and_adds_tcp_listener() throws IOException {
     int port = NetworkUtils.freePort();
-    underTest = new EmbeddedDatabase(new MapSettings()
+    settings
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(PROP_URL, "jdbc url")
       .setProperty(PROP_EMBEDDED_PORT, "" + port)
       .setProperty(PROP_USER, "foo")
-      .setProperty(PROP_PASSWORD, "bar"));
+      .setProperty(PROP_PASSWORD, "bar");
 
     underTest.start();
 
     checkDbIsUp(port, "foo", "bar");
+
+    // H2 listens on loopback address only
+    verify(system2).setProperty("h2.bindAddress", LOOPBACK_ADDRESS);
   }
 
   @Test
   public void start_supports_in_memory_H2_JDBC_URL() throws IOException {
     int port = NetworkUtils.freePort();
-    underTest = new EmbeddedDatabase(new MapSettings()
+    settings
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(PROP_URL, "jdbc:h2:mem:sonar")
       .setProperty(PROP_EMBEDDED_PORT, "" + port)
       .setProperty(PROP_USER, "foo")
-      .setProperty(PROP_PASSWORD, "bar"));
+      .setProperty(PROP_PASSWORD, "bar");
 
     underTest.start();
 
@@ -150,7 +159,7 @@ public class EmbeddedDatabaseTest {
 
   private void checkDbIsUp(int port, String user, String password) {
     try {
-      String driverUrl = String.format("jdbc:h2:tcp://localhost:%d/sonar;USER=%s;PASSWORD=%s", port, user, password);
+      String driverUrl = String.format("jdbc:h2:tcp://%s:%d/sonar;USER=%s;PASSWORD=%s", LOOPBACK_ADDRESS, port, user, password);
       DriverManager.registerDriver(new Driver());
       DriverManager.getConnection(driverUrl).close();
     } catch (Exception ex) {

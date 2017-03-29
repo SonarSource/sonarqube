@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
@@ -27,7 +28,7 @@ import org.h2.Driver;
 import org.h2.tools.Server;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -44,11 +45,14 @@ import static org.sonar.process.ProcessProperties.PATH_DATA;
 
 public class EmbeddedDatabase implements Startable {
   private static final Logger LOG = Loggers.get(EmbeddedDatabase.class);
+
   private final Settings settings;
+  private final System2 system2;
   private Server server;
 
-  public EmbeddedDatabase(Settings settings) {
+  public EmbeddedDatabase(Settings settings, System2 system2) {
     this.settings = settings;
+    this.system2 = system2;
   }
 
   @Override
@@ -67,19 +71,23 @@ public class EmbeddedDatabase implements Startable {
     String user = getSetting(PROP_USER, PROP_USER_DEFAULT_VALUE);
     String password = getSetting(PROP_PASSWORD, PROP_PASSWORD_DEFAULT_VALUE);
     try {
+      // Db is used only by web server and compute engine. No need
+      // to make it accessible from outside.
+      system2.setProperty("h2.bindAddress", InetAddress.getLoopbackAddress().getHostAddress());
+
       if (url.contains("/mem:")) {
-        server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-baseDir", dbHome.getAbsolutePath());
+        server = Server.createTcpServer("-tcpPort", port, "-baseDir", dbHome.getAbsolutePath());
       } else {
         createDatabase(dbHome, user, password);
-        server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-ifExists", "-baseDir", dbHome.getAbsolutePath());
+        server = Server.createTcpServer("-tcpPort", port, "-ifExists", "-baseDir", dbHome.getAbsolutePath());
       }
 
       LOG.info("Starting embedded database on port " + server.getPort() + " with url " + url);
       server.start();
 
       LOG.info("Embedded database started. Data stored in: " + dbHome.getAbsolutePath());
-    } catch (Exception e) {
-      throw new SonarException("Unable to start database", e);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Unable to start database", e);
     }
   }
 
