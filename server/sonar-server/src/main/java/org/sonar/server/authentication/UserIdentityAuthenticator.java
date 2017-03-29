@@ -47,6 +47,7 @@ import org.sonar.server.user.UserUpdater;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 
 public class UserIdentityAuthenticator {
 
@@ -122,26 +123,27 @@ public class UserIdentityAuthenticator {
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {
-    if (userIdentity.shouldSyncGroups()) {
-      String userLogin = userIdentity.getLogin();
-      Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin));
-      Set<String> identityGroups = userIdentity.getGroups();
-      LOGGER.debug("List of groups returned by the identity provider '{}'", identityGroups);
-
-      Collection<String> groupsToAdd = Sets.difference(identityGroups, userGroups);
-      Collection<String> groupsToRemove = Sets.difference(userGroups, identityGroups);
-      Collection<String> allGroups = new ArrayList<>(groupsToAdd);
-      allGroups.addAll(groupsToRemove);
-      DefaultOrganization defaultOrganization = defaultOrganizationProvider.get();
-      Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, defaultOrganization.getUuid(), allGroups)
-        .stream()
-        .collect(uniqueIndex(GroupDto::getName));
-
-      addGroups(dbSession, userDto, groupsToAdd, groupsByName);
-      removeGroups(dbSession, userDto, groupsToRemove, groupsByName);
-
-      dbSession.commit();
+    if (!userIdentity.shouldSyncGroups()) {
+      return;
     }
+    String userLogin = userIdentity.getLogin();
+    Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin));
+    Set<String> identityGroups = userIdentity.getGroups();
+    LOGGER.debug("List of groups returned by the identity provider '{}'", identityGroups);
+
+    Collection<String> groupsToAdd = Sets.difference(identityGroups, userGroups);
+    Collection<String> groupsToRemove = Sets.difference(userGroups, identityGroups);
+    Collection<String> allGroups = new ArrayList<>(groupsToAdd);
+    allGroups.addAll(groupsToRemove);
+    DefaultOrganization defaultOrganization = defaultOrganizationProvider.get();
+    Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, defaultOrganization.getUuid(), allGroups)
+      .stream()
+      .collect(uniqueIndex(GroupDto::getName));
+
+    addGroups(dbSession, userDto, groupsToAdd, groupsByName);
+    removeGroups(dbSession, userDto, groupsToRemove, groupsByName);
+
+    dbSession.commit();
   }
 
   private void addGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToAdd, Map<String, GroupDto> groupsByName) {
@@ -153,8 +155,11 @@ public class UserIdentityAuthenticator {
   }
 
   private void removeGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToRemove, Map<String, GroupDto> groupsByName) {
-    groupsToRemove.stream().map(groupsByName::get).filter(Objects::nonNull).forEach(
-      groupDto -> {
+    groupsToRemove.stream().map(groupsByName::get)
+      .filter(Objects::nonNull)
+      // user should always be member of sonar-users group
+      .filter(group -> !group.getName().equals(SONAR_USERS_GROUP_NAME))
+      .forEach(groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
       });
