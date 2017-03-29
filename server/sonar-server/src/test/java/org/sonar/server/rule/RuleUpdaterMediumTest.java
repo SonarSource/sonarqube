@@ -55,6 +55,7 @@ import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -207,7 +208,7 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    Set<String> tags = tester.get(RuleService.class).listTags();
+    Set<String> tags = tester.get(RuleIndex.class).terms(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
     assertThat(tags).containsOnly("bug", "java8", "javadoc");
   }
 
@@ -229,7 +230,7 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    Set<String> tags = tester.get(RuleService.class).listTags();
+    Set<String> tags = tester.get(RuleIndex.class).terms(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
     assertThat(tags).containsOnly("java8", "javadoc");
   }
 
