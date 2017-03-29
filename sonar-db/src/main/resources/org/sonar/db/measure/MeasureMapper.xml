@@ -179,7 +179,6 @@
     text_value,
     alert_status,
     alert_text,
-    description,
     person_id,
     variation_value_1,
     measure_data)
@@ -191,7 +190,6 @@
     #{textValue, jdbcType=VARCHAR},
     #{alertStatus, jdbcType=VARCHAR},
     #{alertText, jdbcType=VARCHAR},
-    #{description, jdbcType=VARCHAR},
     #{developerId, jdbcType=INTEGER},
     #{variation, jdbcType=DOUBLE},
     #{dataValue, jdbcType=BINARY}
