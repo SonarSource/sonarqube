@@ -54,7 +54,6 @@ public class MeasureToMeasureDto {
     if (developer != null) {
       out.setDeveloperId(dbIdsRepository.getDeveloperId(developer));
     }
-    out.setDescription(measure.getDescription());
     out.setValue(valueAsDouble(measure));
     out.setData(data(measure));
     return out;

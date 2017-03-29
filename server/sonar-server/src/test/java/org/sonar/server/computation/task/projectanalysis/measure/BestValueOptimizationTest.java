@@ -40,17 +40,15 @@ public class BestValueOptimizationTest {
   private static final MetricImpl METRIC_BOOLEAN_TRUE = createMetric(Metric.MetricType.BOOL, 1d);
   private static final double SOME_EMPTY_VARIATIONS = 0d;
 
-  public static Measure.NewMeasureBuilder[] builders_of_non_bestValueOptimized_measures() {
+  private static Measure.NewMeasureBuilder[] builders_of_non_bestValueOptimized_measures() {
     QualityGateStatus someQualityGateStatus = new QualityGateStatus(Measure.Level.ERROR, null);
     double someVariations = 2d;
-    String someDescription = "desc";
     return new Measure.NewMeasureBuilder[] {
       newMeasureBuilder().setQualityGateStatus(someQualityGateStatus),
       newMeasureBuilder().setQualityGateStatus(someQualityGateStatus).setVariation(someVariations),
       newMeasureBuilder().setVariation(someVariations),
-      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus).setDescription(someDescription),
-      newMeasureBuilder().setDescription(someDescription),
-      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus).setVariation(someVariations).setDescription(someDescription),
+      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus),
+      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus).setVariation(someVariations),
     };
   }
 

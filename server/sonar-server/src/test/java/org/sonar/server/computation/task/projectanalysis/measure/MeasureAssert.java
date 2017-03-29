@@ -179,37 +179,6 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
     return this;
   }
 
-  public MeasureAssert hasDescription(String expected) {
-    isNotNull();
-
-    if (!Objects.equals(actual.getDescription(), expected)) {
-      failWithMessage("Expected description of Measure to be <%s> but was <%s>", expected, actual.getDescription());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasNoDescription() {
-    isNotNull();
-
-    if (actual.getDescription() != null) {
-      failWithMessage("Expected Measure to have no description but it was <%s>", actual.getDescription());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasNoQualityGateStatus() {
-    isNotNull();
-    hasQualityGateStatus();
-
-    if (actual.hasQualityGateStatus()) {
-      failWithMessage("Expected Measure to have no QualityGateStatus but it did");
-    }
-
-    return this;
-  }
-
   public MeasureAssert hasQualityGateLevel(Measure.Level expected) {
     isNotNull();
     hasQualityGateStatus();
@@ -227,17 +196,6 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (!Objects.equals(actual.getQualityGateStatus().getText(), expected)) {
       failWithMessage("Expected text of QualityGateStatus of Measure to be \n<%s>\n but was \n<%s>", expected, actual.getQualityGateStatus().getText());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasNoQualityGateText() {
-    isNotNull();
-    hasQualityGateStatus();
-
-    if (actual.getQualityGateStatus().getText() == null) {
-      failWithMessage("Expected Measure to have no QualityGate Test but was <%s>", actual.getQualityGateStatus().getText());
     }
 
     return this;

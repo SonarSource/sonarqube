@@ -89,8 +89,7 @@ public class MeasureDaoTest {
       .setData("data")
       .setVariation(1d)
       .setAlertStatus("alert")
-      .setAlertText("alert-text")
-      .setDescription("measure-description");
+      .setAlertText("alert-text");
     underTest.insert(db.getSession(), inserted);
     db.commit();
 
