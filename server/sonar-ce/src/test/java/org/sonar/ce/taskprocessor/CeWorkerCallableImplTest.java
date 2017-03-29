@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class CeWorkerCallableImplTest {
 
   @Test
   public void no_pending_tasks_in_queue() throws Exception {
-    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.<CeTask>absent());
+    when(queue.peek(UNKNOWN_WORKER_UUID)).thenReturn(Optional.empty());
 
     assertThat(underTest.call()).isFalse();
 

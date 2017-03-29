@@ -19,13 +19,13 @@
  */
 package org.sonar.ce.queue;
 
-import com.google.common.base.Optional;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
-import org.assertj.guava.api.Assertions;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +49,6 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -226,7 +225,7 @@ public class InternalCeQueueImplTest {
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
     Optional<CeActivityDto> activityDto = dbTester.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid());
-    Assertions.assertThat(activityDto).isPresent();
+    assertThat(activityDto).isPresent();
 
     assertThat(activityDto.get().getErrorMessage()).isEqualTo(error.getMessage());
     assertThat(activityDto.get().getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
@@ -387,7 +386,7 @@ public class InternalCeQueueImplTest {
   @Test
   public void fail_to_cancel_if_in_progress() throws Exception {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(startsWith("Task is in progress and can't be canceled"));
+    expectedException.expectMessage(Matchers.startsWith("Task is in progress and can't be canceled"));
 
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.peek(WORKER_UUID_2);
@@ -445,7 +444,7 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyCanceled(CeQueueDto original) {
-    Assertions.assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), original.getUuid())).isAbsent();
+    assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), original.getUuid())).isEmpty();
     CeActivityDto dto = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), original.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
     assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
