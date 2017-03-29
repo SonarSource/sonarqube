@@ -4,6 +4,7 @@ exports[`test should display a help message when there is less than 2 characters
   data-key="search">
   <input
     autoComplete="off"
+    autoFocus={true}
     className="input-super-large touched"
     onChange={[Function]}
     placeholder="projects.search"
@@ -22,6 +23,7 @@ exports[`test should display a help message when there is less than 2 characters
   data-key="search">
   <input
     autoComplete="off"
+    autoFocus={true}
     className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
@@ -40,6 +42,7 @@ exports[`test should render correctly without any search query 1`] = `
   data-key="search">
   <input
     autoComplete="off"
+    autoFocus={true}
     className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
@@ -58,6 +61,7 @@ exports[`test should render with a search query 1`] = `
   data-key="search">
   <input
     autoComplete="off"
+    autoFocus={true}
     className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"

@@ -75,6 +75,7 @@ export default class SearchFilter extends React.PureComponent {
           placeholder={translate('projects.search')}
           onChange={this.handleQueryChange}
           autoComplete="off"
+          autoFocus={true}
         />
         <span className="note spacer-left">
           {translateWithParameters('select2.tooShort', 2)}
