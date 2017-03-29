@@ -20,7 +20,7 @@
 //@flow
 import React from 'react';
 import Avatar from '../../../components/ui/Avatar';
-import { translate } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import RemoveMemberForm from './forms/RemoveMemberForm';
 import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
@@ -47,10 +47,13 @@ export default class MembersListItem extends React.PureComponent {
         <td className="thin nowrap">
           <Avatar hash={member.avatar} email={member.email} size={AVATAR_SIZE} />
         </td>
-        <td className="nowrap text-middle"><strong>{member.name}</strong></td>
+        <td className="nowrap text-middle">
+          <strong>{member.login}</strong>
+          <span className="note little-spacer-left">{member.name}</span>
+        </td>
         {organization.canAdmin &&
           <td className="text-right text-middle">
-            {translate('organization.members.x_group(s)', formatMeasure(member.groupCount, 'INT'))}
+            {translateWithParameters('organization.members.x_groups', formatMeasure(member.groupCount || 0, 'INT'))}
           </td>}
         {organization.canAdmin &&
           <td className="nowrap text-middle text-right">
@@ -62,18 +65,18 @@ export default class MembersListItem extends React.PureComponent {
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 <li>
-                  <RemoveMemberForm
+                  <ManageMemberGroupsForm
+                    organizationGroups={this.props.organizationGroups}
                     organization={this.props.organization}
-                    removeMember={this.props.removeMember}
+                    updateMemberGroups={this.props.updateMemberGroups}
                     member={this.props.member}
                   />
                 </li>
                 <li role="separator" className="divider" />
                 <li>
-                  <ManageMemberGroupsForm
-                    organizationGroups={this.props.organizationGroups}
+                  <RemoveMemberForm
                     organization={this.props.organization}
-                    updateMemberGroups={this.props.updateMemberGroups}
+                    removeMember={this.props.removeMember}
                     member={this.props.member}
                   />
                 </li>

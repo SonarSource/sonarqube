@@ -17,24 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
-import AddMemberForm from '../AddMemberForm';
+import UsersSearch from '../../users/components/UsersSearch';
+import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
-const memberLogins = ['admin'];
+type Props = {
+  handleSearch: (query?: string) => void,
+  total?: number
+};
 
-it('should render and open the modal', () => {
-  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
-});
+export default class MembersListHeader extends React.PureComponent {
+  props: Props;
 
-it('should correctly handle user interactions', () => {
-  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  click(wrapper.find('button'));
-  expect(wrapper.state('open')).toBeTruthy();
-  wrapper.instance().closeForm();
-  expect(wrapper.state('open')).toBeFalsy();
-});
+  render() {
+    const { total } = this.props;
+    return (
+      <div className="panel panel-vertical bordered-bottom spacer-bottom">
+        <UsersSearch onSearch={this.props.handleSearch} className="display-inline-block" />
+        {total != null &&
+          <span className="pull-right little-spacer-top">
+            <strong>{formatMeasure(total, 'INT')}</strong>
+            {' '}
+            {translate('organization.members.members')}
+          </span>}
+      </div>
+    );
+  }
+}

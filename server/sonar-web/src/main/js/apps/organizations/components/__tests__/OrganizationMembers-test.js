@@ -27,8 +27,6 @@ const members = [
   { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af', groupCount: 1 }
 ];
 const status = { total: members.length };
-const fetchOrganizationMembers = jest.fn();
-const fetchMoreOrganizationMembers = jest.fn();
 
 it('should not render actions for non admin', () => {
   const wrapper = shallow(
@@ -36,8 +34,8 @@ it('should not render actions for non admin', () => {
       organization={organization}
       members={members}
       status={status}
-      fetchOrganizationMembers={fetchOrganizationMembers}
-      fetchMoreOrganizationMembers={fetchMoreOrganizationMembers}
+      fetchOrganizationMembers={jest.fn()}
+      fetchMoreOrganizationMembers={jest.fn()}
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -49,8 +47,8 @@ it('should render actions for admin', () => {
       organization={{ ...organization, canAdmin: true }}
       members={members}
       status={{ ...status, loading: true }}
-      fetchOrganizationMembers={fetchOrganizationMembers}
-      fetchMoreOrganizationMembers={fetchMoreOrganizationMembers}
+      fetchOrganizationMembers={jest.fn()}
+      fetchMoreOrganizationMembers={jest.fn()}
     />
   );
   expect(wrapper).toMatchSnapshot();

@@ -18,23 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
-import AddMemberForm from '../AddMemberForm';
+import { shallow } from 'enzyme';
+import MembersPageHeader from '../MembersPageHeader';
 
-const memberLogins = ['admin'];
-
-it('should render and open the modal', () => {
-  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
+it('should render the members page header', () => {
+  const wrapper = shallow(
+    <MembersPageHeader />
+  );
   expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ open: true });
+  wrapper.setProps({ loading: true });
+  expect(wrapper.find('.spinner')).toMatchSnapshot();
+});
+
+it('should render the members page header with the total', () => {
+  const wrapper = shallow(<MembersPageHeader total="5" />);
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should correctly handle user interactions', () => {
-  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  click(wrapper.find('button'));
-  expect(wrapper.state('open')).toBeTruthy();
-  wrapper.instance().closeForm();
-  expect(wrapper.state('open')).toBeFalsy();
+it('should render its children', () => {
+  const wrapper = shallow(
+    <MembersPageHeader loading={true} total="5">
+      <span>children test</span>
+    </MembersPageHeader>
+  );
+  expect(wrapper).toMatchSnapshot();
 });

@@ -19,8 +19,6 @@
  */
 //@flow
 import React from 'react';
-import { formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
 
 type Props = {
   loading: boolean,
@@ -28,7 +26,7 @@ type Props = {
   children?: {}
 };
 
-export default class PageHeader extends React.PureComponent {
+export default class MembersPageHeader extends React.PureComponent {
   props: Props;
 
   render() {
@@ -36,12 +34,6 @@ export default class PageHeader extends React.PureComponent {
       <header className="page-header">
         {this.props.loading && <i className="spinner" />}
         {this.props.children}
-        {this.props.total != null &&
-          <span className="page-totalcount">
-            <strong>{formatMeasure(this.props.total, 'INT')}</strong>
-            {' '}
-            {translate('organization.members.member(s)')}
-          </span>}
       </header>
     );
   }

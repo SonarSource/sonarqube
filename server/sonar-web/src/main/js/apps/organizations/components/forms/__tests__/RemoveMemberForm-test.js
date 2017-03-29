@@ -23,12 +23,11 @@ import { click, mockEvent } from '../../../../../helpers/testUtils';
 import RemoveMemberForm from '../RemoveMemberForm';
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
-const removeMember = jest.fn();
 const organization = { name: 'MyOrg' };
 
 it('should render and open the modal', () => {
   const wrapper = shallow(
-    <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
+    <RemoveMemberForm member={member} removeMember={jest.fn()} organization={organization} />
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ open: true });
@@ -36,6 +35,7 @@ it('should render and open the modal', () => {
 });
 
 it('should correctly handle user interactions', () => {
+  const removeMember = jest.fn();
   const wrapper = mount(
     <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
   );

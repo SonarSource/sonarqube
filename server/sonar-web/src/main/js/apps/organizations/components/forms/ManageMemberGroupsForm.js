@@ -21,9 +21,9 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { keyBy, pickBy } from 'lodash';
-import Checkbox from '../../../../components/controls/Checkbox';
 import { getUserGroups } from '../../../../api/users';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
 import type { Member } from '../../../../store/organizationsMembers/actions';
 import type { Organization, OrgGroup } from '../../../../store/organizations/duck';
 
@@ -47,15 +47,14 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
     open: false
   };
 
-  openForm = () => {
-    if (!this.state.userGroups) {
-      this.loadUserGroups();
-    }
+  openForm = (evt: MouseEvent) => {
+    evt.preventDefault();
+    this.loadUserGroups();
     this.setState({ open: true });
   };
 
   closeForm = () => {
-    this.setState({ userGroups: undefined, open: false });
+    this.setState({ open: false });
   };
 
   loadUserGroups = () => {
@@ -77,7 +76,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
     return false;
   };
 
-  onCheck = (checked: boolean, groupId: string) => {
+  onCheck = (groupId: string, checked: boolean) => {
     this.setState((prevState: State) => {
       const userGroups = prevState.userGroups || {};
       const group = userGroups[groupId] || {};
@@ -93,11 +92,12 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
 
   handleSubmit = (e: Object) => {
     e.preventDefault();
-    this.props.updateMemberGroups(this.props.member,
+    this.props.updateMemberGroups(
+      this.props.member,
       Object.keys(pickBy(this.state.userGroups, group => group.status === 'add')),
       Object.keys(pickBy(this.state.userGroups, group => group.status === 'remove'))
     );
-    this.setState({ open: false });
+    this.closeForm();
   };
 
   renderModal() {
@@ -115,19 +115,17 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
             <strong>
-              {translateWithParameters('organization.members.x_groups', this.props.member.name)}
+              {translateWithParameters('organization.members.members_groups', this.props.member.name)}
             </strong>{' '}{this.state.loading && <i className="spinner" />}
             {!this.state.loading &&
               <ul className="list-spaced">
                 {this.props.organizationGroups.map(group => (
-                  <li className="capitalize" key={group.id}>
-                    <Checkbox
-                      id={group.id}
-                      checked={this.isGroupSelected(group.id)}
-                      onCheck={this.onCheck}
-                    />
-                    {' '}{group.name}
-                  </li>
+                  <OrganizationGroupCheckbox
+                    key={group.id}
+                    group={group}
+                    checked={this.isGroupSelected(group.id)}
+                    onCheck={this.onCheck}
+                  />
                 ))}
               </ul>}
           </div>

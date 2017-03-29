@@ -36,25 +36,6 @@ Object {
 }
 `;
 
-exports[`test should correctly handle the submit event and close the modal 3`] = `
-Object {
-  "loading": false,
-  "open": true,
-  "userGroups": Object {
-    "11": Object {
-      "description": "Technical accounts",
-      "id": 11,
-      "name": "pull-request-analysers",
-      "selected": true,
-      "status": "remove",
-    },
-    "7": Object {
-      "status": "add",
-    },
-  },
-}
-`;
-
 exports[`test should correctly handle user interactions 1`] = `
 Object {
   "loading": false,
@@ -120,41 +101,44 @@ exports[`test should render and open the modal 2`] = `
       <div
         className="modal-body">
         <strong>
-          organization.members.x_groups.Admin Istrator
+          organization.members.members_groups.Admin Istrator
         </strong>
          
         <ul
           className="list-spaced">
-          <li
-            className="capitalize">
-            <Checkbox
-              checked={false}
-              id="7"
-              onCheck={[Function]}
-              thirdState={false} />
-             
-            professionals
-          </li>
-          <li
-            className="capitalize">
-            <Checkbox
-              checked={false}
-              id="11"
-              onCheck={[Function]}
-              thirdState={false} />
-             
-            pull-request-analysers
-          </li>
-          <li
-            className="capitalize">
-            <Checkbox
-              checked={false}
-              id="1"
-              onCheck={[Function]}
-              thirdState={false} />
-             
-            sonar-administrators
-          </li>
+          <OrganizationGroupCheckbox
+            checked={false}
+            group={
+              Object {
+                "description": "",
+                "id": "7",
+                "membersCount": 12,
+                "name": "professionals",
+              }
+            }
+            onCheck={[Function]} />
+          <OrganizationGroupCheckbox
+            checked={false}
+            group={
+              Object {
+                "description": "Technical accounts",
+                "id": "11",
+                "membersCount": 3,
+                "name": "pull-request-analysers",
+              }
+            }
+            onCheck={[Function]} />
+          <OrganizationGroupCheckbox
+            checked={false}
+            group={
+              Object {
+                "description": "System administrators",
+                "id": "1",
+                "membersCount": 17,
+                "name": "sonar-administrators",
+              }
+            }
+            onCheck={[Function]} />
         </ul>
       </div>
       <footer
@@ -177,7 +161,7 @@ exports[`test should render and open the modal 2`] = `
 </a>
 `;
 
-exports[`test should reset the selected groups when the modal is closed 1`] = `
+exports[`test should reset the selected groups when the modal is opened 1`] = `
 Object {
   "loading": false,
   "open": true,
@@ -196,10 +180,17 @@ Object {
 }
 `;
 
-exports[`test should reset the selected groups when the modal is closed 2`] = `
+exports[`test should reset the selected groups when the modal is opened 2`] = `
 Object {
   "loading": false,
-  "open": false,
-  "userGroups": undefined,
+  "open": true,
+  "userGroups": Object {
+    "11": Object {
+      "description": "Technical accounts",
+      "id": 11,
+      "name": "pull-request-analysers",
+      "selected": true,
+    },
+  },
 }
 `;

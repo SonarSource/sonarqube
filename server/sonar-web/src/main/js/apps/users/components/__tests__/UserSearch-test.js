@@ -21,21 +21,15 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import UsersSearch from '../UsersSearch';
 
-const onSearch = jest.fn();
-
-it('should render correctly without any search query', () => {
-  const wrapper = shallow(<UsersSearch onSearch={onSearch} query={null} />);
+it('should render correctly', () => {
+  const wrapper = shallow(<UsersSearch onSearch={jest.fn()} className="test" />);
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should render with a search query', () => {
-  const wrapper = shallow(<UsersSearch onSearch={onSearch} query={'foo'} />);
+  wrapper.setState({ query: 'foo' });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display a help message when there is less than 2 characters', () => {
-  const wrapper = shallow(<UsersSearch onSearch={onSearch} query={'a'} />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ query: 'foo' });
+  const wrapper = shallow(<UsersSearch onSearch={jest.fn()} />);
+  wrapper.setState({ query: 'f' });
   expect(wrapper).toMatchSnapshot();
 });

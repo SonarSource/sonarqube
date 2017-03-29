@@ -17,24 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
-import AddMemberForm from '../AddMemberForm';
+import Checkbox from '../../../components/controls/Checkbox';
+import type { OrgGroup } from '../../../store/organizations/duck';
 
-const memberLogins = ['admin'];
+type Props = {
+  group: OrgGroup,
+  checked: boolean,
+  onCheck: (string, boolean) => void
+};
 
-it('should render and open the modal', () => {
-  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
-});
+export default class OrganizationGroupCheckbox extends React.PureComponent {
+  props: Props;
 
-it('should correctly handle user interactions', () => {
-  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  click(wrapper.find('button'));
-  expect(wrapper.state('open')).toBeTruthy();
-  wrapper.instance().closeForm();
-  expect(wrapper.state('open')).toBeFalsy();
-});
+  onCheck = (checked: boolean) => {
+    this.props.onCheck(this.props.group.id, checked);
+  };
+
+  toggleCheck = () => {
+    this.props.onCheck(this.props.group.id, !this.props.checked);
+  };
+
+  render() {
+    return (
+      <li
+        className="capitalize list-item-checkable-link"
+        onClick={this.toggleCheck}
+        tabIndex={0}
+        role="listitem"
+      >
+        <Checkbox checked={this.props.checked} onCheck={this.onCheck} />
+        {' '}{this.props.group.name}
+      </li>
+    );
+  }
+}

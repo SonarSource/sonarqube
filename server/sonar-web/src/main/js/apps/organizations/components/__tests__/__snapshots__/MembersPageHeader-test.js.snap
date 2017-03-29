@@ -6,14 +6,6 @@ exports[`test should render its children 1`] = `
   <span>
     children test
   </span>
-  <span
-    className="page-totalcount">
-    <strong>
-      5
-    </strong>
-     
-    organization.members.member(s)
-  </span>
 </header>
 `;
 
@@ -29,14 +21,5 @@ exports[`test should render the members page header 2`] = `
 
 exports[`test should render the members page header with the total 1`] = `
 <header
-  className="page-header">
-  <span
-    className="page-totalcount">
-    <strong>
-      5
-    </strong>
-     
-    organization.members.member(s)
-  </span>
-</header>
+  className="page-header" />
 `;

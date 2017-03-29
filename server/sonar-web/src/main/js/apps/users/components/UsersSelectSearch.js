@@ -21,6 +21,7 @@
 import React from 'react';
 import Select from 'react-select';
 import { debounce } from 'lodash';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import UsersSelectSearchOption from './UsersSelectSearchOption';
 import UsersSelectSearchValue from './UsersSelectSearchValue';
 import './UsersSelectSearch.css';
@@ -54,7 +55,7 @@ export default class UsersSelectSearch extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.handleSearch = debounce(this.handleSearch);
+    this.handleSearch = debounce(this.handleSearch, 250);
     this.state = { searchResult: [], isLoading: false, search: '' };
   }
 
@@ -73,7 +74,8 @@ export default class UsersSelectSearch extends React.PureComponent {
 
   handleSearch = (search: string) => {
     this.setState({ isLoading: true, search });
-    this.props.searchUsers(search, Math.min(this.props.excludedUsers.length + LIST_SIZE, 500))
+    this.props
+      .searchUsers(search, Math.min(this.props.excludedUsers.length + LIST_SIZE, 500))
       .then(this.filterSearchResult)
       .then(searchResult => {
         this.setState({ isLoading: false, searchResult });
@@ -81,6 +83,9 @@ export default class UsersSelectSearch extends React.PureComponent {
   };
 
   render() {
+    const noResult = this.state.search.length === 1
+      ? translateWithParameters('select2.tooShort', 2)
+      : translate('no_results');
     return (
       <Select
         className="Select-big"
@@ -92,6 +97,7 @@ export default class UsersSelectSearch extends React.PureComponent {
         onInputChange={this.handleSearch}
         value={this.props.selectedUser}
         placeholder=""
+        noResultsText={noResult}
         labelKey="name"
         valueKey="login"
         clearable={false}
