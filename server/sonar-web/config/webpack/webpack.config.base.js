@@ -30,11 +30,14 @@ module.exports = {
       './src/main/js/libs/third-party/bootstrap/dropdown.js'
     ],
 
-    app: ['./src/main/js/app/index.js', './src/main/js/components/SourceViewer/SourceViewer.js']
+    app: [
+      './src/main/js/app/utils/setPublicPath.js',
+      './src/main/js/app/index.js',
+      './src/main/js/components/SourceViewer/SourceViewer.js'
+    ]
   },
   output: {
     path: paths.appBuild,
-    publicPath: '/',
     filename: 'js/[name].[chunkhash:8].js',
     chunkFilename: 'js/[name].[chunkhash:8].chunk.js'
   },
