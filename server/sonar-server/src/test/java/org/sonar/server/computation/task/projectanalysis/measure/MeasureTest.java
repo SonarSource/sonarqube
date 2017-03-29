@@ -252,11 +252,6 @@ public class MeasureTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void newMeasureBuilder_setDescription_throws_NPE_if_arg_is_null() {
-    newMeasureBuilder().setDescription(null);
-  }
-
-  @Test(expected = NullPointerException.class)
   public void updateMeasureBuilder_setQualityGateStatus_throws_NPE_if_arg_is_null() {
     Measure.updatedMeasureBuilder(newMeasureBuilder().createNoValue()).setQualityGateStatus(null);
   }
@@ -279,7 +274,6 @@ public class MeasureTest {
     Measure newMeasure = Measure.updatedMeasureBuilder(measure).create();
 
     assertThat(newMeasure.getValueType()).isEqualTo(measure.getValueType());
-    assertThat(newMeasure.getDescription()).isEqualTo(measure.getDescription());
     assertThat(newMeasure.hasQualityGateStatus()).isEqualTo(measure.hasQualityGateStatus());
     assertThat(newMeasure.hasVariation()).isEqualTo(measure.hasVariation());
   }

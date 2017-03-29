@@ -76,21 +76,18 @@ public final class Measure {
   @CheckForNull
   private final Level dataLevel;
   @CheckForNull
-  private final String description;
-  @CheckForNull
   private final QualityGateStatus qualityGateStatus;
   @CheckForNull
   private final Double variation;
 
   private Measure(ValueType valueType, @Nullable Developer developer,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
-    @Nullable String description, @Nullable QualityGateStatus qualityGateStatus, @Nullable Double variation) {
+    @Nullable QualityGateStatus qualityGateStatus, @Nullable Double variation) {
     this.valueType = valueType;
     this.developer = developer;
     this.value = value;
     this.data = data;
     this.dataLevel = dataLevel;
-    this.description = description;
     this.qualityGateStatus = qualityGateStatus;
     this.variation = variation;
   }
@@ -105,7 +102,6 @@ public final class Measure {
 
   public static final class NewMeasureBuilder {
     private Developer developer;
-    private String description;
     private QualityGateStatus qualityGateStatus;
     private Double variation;
 
@@ -115,16 +111,6 @@ public final class Measure {
      */
     public NewMeasureBuilder forDeveloper(Developer developer) {
       this.developer = developer;
-      return this;
-    }
-
-    /**
-     * Sets the description of the measure
-     *
-     * @throws NullPointerException if the specified argument is {@code null}
-     */
-    public NewMeasureBuilder setDescription(String description) {
-      this.description = requireNonNull(description, "description can not be set to null");
       return this;
     }
 
@@ -139,7 +125,7 @@ public final class Measure {
     }
 
     public Measure create(boolean value, @Nullable String data) {
-      return new Measure(ValueType.BOOLEAN, developer, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variation);
+      return new Measure(ValueType.BOOLEAN, developer, value ? 1.0d : 0.0d, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(boolean value) {
@@ -147,7 +133,7 @@ public final class Measure {
     }
 
     public Measure create(int value, @Nullable String data) {
-      return new Measure(ValueType.INT, developer, (double) value, data, null, description, qualityGateStatus, variation);
+      return new Measure(ValueType.INT, developer, (double) value, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(int value) {
@@ -155,7 +141,7 @@ public final class Measure {
     }
 
     public Measure create(long value, @Nullable String data) {
-      return new Measure(ValueType.LONG, developer, (double) value, data, null, description, qualityGateStatus, variation);
+      return new Measure(ValueType.LONG, developer, (double) value, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(long value) {
@@ -165,7 +151,7 @@ public final class Measure {
     public Measure create(double value, int decimalScale, @Nullable String data) {
       checkArgument(!Double.isNaN(value), "NaN is not allowed as a Measure value");
       double scaledValue = scale(value, decimalScale);
-      return new Measure(ValueType.DOUBLE, developer, scaledValue, data, null, description, qualityGateStatus, variation);
+      return new Measure(ValueType.DOUBLE, developer, scaledValue, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(double value, int decimalScale) {
@@ -173,15 +159,15 @@ public final class Measure {
     }
 
     public Measure create(String value) {
-      return new Measure(ValueType.STRING, developer, null, requireNonNull(value), null, description, qualityGateStatus, variation);
+      return new Measure(ValueType.STRING, developer, null, requireNonNull(value), null, qualityGateStatus, variation);
     }
 
     public Measure create(Level level) {
-      return new Measure(ValueType.LEVEL, developer, null, null, requireNonNull(level), description, qualityGateStatus, variation);
+      return new Measure(ValueType.LEVEL, developer, null, null, requireNonNull(level), qualityGateStatus, variation);
     }
 
     public Measure createNoValue() {
-      return new Measure(ValueType.NO_VALUE, developer, null, null, null, description, qualityGateStatus, variation);
+      return new Measure(ValueType.NO_VALUE, developer, null, null, null, qualityGateStatus, variation);
     }
 
     private static double scale(double value, int decimalScale) {
@@ -229,7 +215,6 @@ public final class Measure {
     public Measure create() {
       return new Measure(source.valueType, source.developer,
         source.value, source.data, source.dataLevel,
-        source.description,
         source.qualityGateStatus == null ? qualityGateStatus : source.qualityGateStatus,
         source.variation == null ? variation : source.variation);
     }
@@ -363,14 +348,6 @@ public final class Measure {
   }
 
   /**
-   * The optional description of the measure. Relevant for manual measures.
-   */
-  @CheckForNull
-  public String getDescription() {
-    return description;
-  }
-
-  /**
    * a Metric is equal to another Metric if it has the same ruleId/characteristicId paar (both being potentially
    * {@code null} but only one of them can be non {@code null}).
    */
@@ -401,7 +378,6 @@ public final class Measure {
       .add("dataLevel", dataLevel)
       .add("qualityGateStatus", qualityGateStatus)
       .add("variations", variation)
-      .add("description", description)
       .toString();
   }
 

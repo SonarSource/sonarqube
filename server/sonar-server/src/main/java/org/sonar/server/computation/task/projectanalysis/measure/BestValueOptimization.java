@@ -57,8 +57,7 @@ public class BestValueOptimization implements Predicate<Measure> {
   }
 
   private boolean isBestValueOptimized(Measure measure) {
-    return measure.getDescription() == null
-      && measure.getData() == null
+    return measure.getData() == null
       && !measure.hasQualityGateStatus()
       && hasNoVariation(measure, metric.getBestValue())
       && (measure.getValueType() == NO_VALUE || isBestValue(measure, metric.getBestValue()));
