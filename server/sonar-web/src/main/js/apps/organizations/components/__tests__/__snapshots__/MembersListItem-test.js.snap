@@ -41,7 +41,7 @@ exports[`test should render actions and groups for admin 1`] = `
         className="dropdown-toggle little-spacer-right"
         data-toggle="dropdown">
         <i
-          className="icon-edit" />
+          className="icon-settings" />
          
         <i
           className="icon-dropdown" />
@@ -50,6 +50,27 @@ exports[`test should render actions and groups for admin 1`] = `
         className="dropdown-menu dropdown-menu-right">
         <li>
           <RemoveMemberForm
+            member={
+              Object {
+                "avatar": "",
+                "groupCount": 3,
+                "login": "admin",
+                "name": "Admin Istrator",
+              }
+            }
+            organization={
+              Object {
+                "canAdmin": true,
+                "key": "foo",
+                "name": "Foo",
+              }
+            } />
+        </li>
+        <li
+          className="divider"
+          role="separator" />
+        <li>
+          <ManageMemberGroupsForm
             member={
               Object {
                 "avatar": "",

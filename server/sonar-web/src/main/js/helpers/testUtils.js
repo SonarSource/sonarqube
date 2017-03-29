@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+export const mockEvent = {
+  target: { blur() {} },
+  currentTarget: { blur() {} },
+  preventDefault() {},
+  stopPropagation() {}
+};
+
 export const click = element => {
-  return element.simulate('click', {
-    target: { blur() {} },
-    currentTarget: { blur() {} },
-    preventDefault() {},
-    stopPropagation() {}
-  });
+  return element.simulate('click', mockEvent);
 };
 
 export const submit = element => {

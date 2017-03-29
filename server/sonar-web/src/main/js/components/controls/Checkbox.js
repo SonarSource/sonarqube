@@ -39,7 +39,7 @@ export default class Checkbox extends React.Component {
   handleClick(e) {
     e.preventDefault();
     e.target.blur();
-    this.props.onCheck(!this.props.checked);
+    this.props.onCheck(!this.props.checked, this.props.id);
   }
 
   render() {

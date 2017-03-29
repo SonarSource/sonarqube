@@ -21,6 +21,7 @@ import { connect } from 'react-redux';
 import OrganizationMembers from './OrganizationMembers';
 import {
   getOrganizationByKey,
+  getOrganizationGroupsByKey,
   getOrganizationMembersLogins,
   getUsersByLogins,
   getOrganizationMembersState
@@ -28,8 +29,10 @@ import {
 import {
   fetchOrganizationMembers,
   fetchMoreOrganizationMembers,
+  fetchOrganizationGroups,
   addOrganizationMember,
-  removeOrganizationMember
+  removeOrganizationMember,
+  updateOrganizationMemberGroups
 } from '../actions';
 
 const mapStateToProps = (state, ownProps) => {
@@ -39,6 +42,7 @@ const mapStateToProps = (state, ownProps) => {
     memberLogins,
     members: getUsersByLogins(state, memberLogins),
     organization: getOrganizationByKey(state, organizationKey),
+    organizationGroups: getOrganizationGroupsByKey(state, organizationKey),
     status: getOrganizationMembersState(state, organizationKey)
   };
 };
@@ -46,6 +50,8 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps, {
   fetchOrganizationMembers,
   fetchMoreOrganizationMembers,
+  fetchOrganizationGroups,
   addOrganizationMember,
-  removeOrganizationMember
+  removeOrganizationMember,
+  updateOrganizationMemberGroups
 })(OrganizationMembers);

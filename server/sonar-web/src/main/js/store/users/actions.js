@@ -20,9 +20,15 @@
 import { getCurrentUser } from '../../api/users';
 
 export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
+export const RECEIVE_USER = 'RECEIVE_USER';
 
 export const receiveCurrentUser = user => ({
   type: RECEIVE_CURRENT_USER,
+  user
+});
+
+export const receiveUser = user => ({
+  type: RECEIVE_USER,
   user
 });
 

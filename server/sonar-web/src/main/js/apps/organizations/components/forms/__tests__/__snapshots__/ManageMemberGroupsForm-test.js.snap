@@ -1,0 +1,205 @@
+exports[`test should correctly handle the submit event and close the modal 1`] = `
+Array [
+  Array [
+    Object {
+      "avatar": "",
+      "groupCount": 3,
+      "login": "admin",
+      "name": "Admin Istrator",
+    },
+    Array [
+      "7",
+    ],
+    Array [
+      "11",
+    ],
+  ],
+]
+`;
+
+exports[`test should correctly handle the submit event and close the modal 2`] = `
+Object {
+  "loading": false,
+  "open": false,
+  "userGroups": Object {
+    "11": Object {
+      "description": "Technical accounts",
+      "id": 11,
+      "name": "pull-request-analysers",
+      "selected": true,
+      "status": "remove",
+    },
+    "7": Object {
+      "status": "add",
+    },
+  },
+}
+`;
+
+exports[`test should correctly handle the submit event and close the modal 3`] = `
+Object {
+  "loading": false,
+  "open": true,
+  "userGroups": Object {
+    "11": Object {
+      "description": "Technical accounts",
+      "id": 11,
+      "name": "pull-request-analysers",
+      "selected": true,
+      "status": "remove",
+    },
+    "7": Object {
+      "status": "add",
+    },
+  },
+}
+`;
+
+exports[`test should correctly handle user interactions 1`] = `
+Object {
+  "loading": false,
+  "open": true,
+  "userGroups": Object {
+    "11": Object {
+      "description": "Technical accounts",
+      "id": 11,
+      "name": "pull-request-analysers",
+      "selected": true,
+    },
+  },
+}
+`;
+
+exports[`test should correctly select the groups 1`] = `
+Object {
+  "11": Object {
+    "description": "Technical accounts",
+    "id": 11,
+    "name": "pull-request-analysers",
+    "selected": true,
+    "status": "remove",
+  },
+  "7": Object {
+    "status": "add",
+  },
+}
+`;
+
+exports[`test should render and open the modal 1`] = `
+<a
+  href="#"
+  onClick={[Function]}>
+  organization.members.manage_groups
+</a>
+`;
+
+exports[`test should render and open the modal 2`] = `
+<a
+  href="#"
+  onClick={[Function]}>
+  organization.members.manage_groups
+  <Modal
+    ariaHideApp={true}
+    className="modal"
+    closeTimeoutMS={0}
+    contentLabel="modal form"
+    isOpen={true}
+    onRequestClose={[Function]}
+    overlayClassName="modal-overlay"
+    parentSelector={[Function]}
+    portalClassName="ReactModalPortal"
+    shouldCloseOnOverlayClick={true}>
+    <header
+      className="modal-head">
+      <h2>
+        organization.members.manage_groups
+      </h2>
+    </header>
+    <form
+      onSubmit={[Function]}>
+      <div
+        className="modal-body">
+        <strong>
+          organization.members.x_groups.Admin Istrator
+        </strong>
+         
+        <ul
+          className="list-spaced">
+          <li
+            className="capitalize">
+            <Checkbox
+              checked={false}
+              id="7"
+              onCheck={[Function]}
+              thirdState={false} />
+             
+            professionals
+          </li>
+          <li
+            className="capitalize">
+            <Checkbox
+              checked={false}
+              id="11"
+              onCheck={[Function]}
+              thirdState={false} />
+             
+            pull-request-analysers
+          </li>
+          <li
+            className="capitalize">
+            <Checkbox
+              checked={false}
+              id="1"
+              onCheck={[Function]}
+              thirdState={false} />
+             
+            sonar-administrators
+          </li>
+        </ul>
+      </div>
+      <footer
+        className="modal-foot">
+        <div>
+          <button
+            type="submit">
+            save
+          </button>
+          <button
+            className="button-link"
+            onClick={[Function]}
+            type="reset">
+            cancel
+          </button>
+        </div>
+      </footer>
+    </form>
+  </Modal>
+</a>
+`;
+
+exports[`test should reset the selected groups when the modal is closed 1`] = `
+Object {
+  "loading": false,
+  "open": true,
+  "userGroups": Object {
+    "11": Object {
+      "description": "Technical accounts",
+      "id": 11,
+      "name": "pull-request-analysers",
+      "selected": true,
+      "status": "remove",
+    },
+    "7": Object {
+      "status": "add",
+    },
+  },
+}
+`;
+
+exports[`test should reset the selected groups when the modal is closed 2`] = `
+Object {
+  "loading": false,
+  "open": false,
+  "userGroups": undefined,
+}
+`;

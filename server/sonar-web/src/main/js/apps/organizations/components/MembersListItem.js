@@ -23,13 +23,16 @@ import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import RemoveMemberForm from './forms/RemoveMemberForm';
+import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
 import type { Member } from '../../../store/organizationsMembers/actions';
-import type { Organization } from '../../../store/organizations/duck';
+import type { Organization, OrgGroup } from '../../../store/organizations/duck';
 
 type Props = {
   member: Member,
   organization: Organization,
+  organizationGroups: Array<OrgGroup>,
   removeMember: (Member) => void,
+  updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
 
 const AVATAR_SIZE: number = 36;
@@ -53,7 +56,7 @@ export default class MembersListItem extends React.PureComponent {
           <td className="nowrap text-middle text-right">
             <div className="dropdown">
               <button className="dropdown-toggle little-spacer-right" data-toggle="dropdown">
-                <i className="icon-edit" />
+                <i className="icon-settings" />
                 {' '}
                 <i className="icon-dropdown" />
               </button>
@@ -62,6 +65,15 @@ export default class MembersListItem extends React.PureComponent {
                   <RemoveMemberForm
                     organization={this.props.organization}
                     removeMember={this.props.removeMember}
+                    member={this.props.member}
+                  />
+                </li>
+                <li role="separator" className="divider" />
+                <li>
+                  <ManageMemberGroupsForm
+                    organizationGroups={this.props.organizationGroups}
+                    organization={this.props.organization}
+                    updateMemberGroups={this.props.updateMemberGroups}
                     member={this.props.member}
                   />
                 </li>
