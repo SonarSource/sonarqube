@@ -71,11 +71,13 @@ public class ComponentDbTester {
     return insertComponentImpl(newProjectDto(db.getDefaultOrganization()), noExtraConfiguration());
   }
 
-  public ComponentDto insertProject(Consumer<ComponentDto>... dtoPopulators) {
+  @SafeVarargs
+  public final ComponentDto insertProject(Consumer<ComponentDto>... dtoPopulators) {
     return insertComponentImpl(newProjectDto(db.getDefaultOrganization()), dtoPopulators);
   }
 
-  public ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
+  @SafeVarargs
+  public final ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
     return insertComponentImpl(newProjectDto(organizationDto), dtoPopulators);
   }
 
@@ -128,7 +130,8 @@ public class ComponentDbTester {
     };
   }
 
-  private ComponentDto insertComponentImpl(ComponentDto component, Consumer<ComponentDto>... dtoPopulators) {
+  @SafeVarargs
+  private final ComponentDto insertComponentImpl(ComponentDto component, Consumer<ComponentDto>... dtoPopulators) {
     Arrays.stream(dtoPopulators)
       .forEach(dtoPopulator -> dtoPopulator.accept(component));
     dbClient.componentDao().insert(dbSession, component);
