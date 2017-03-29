@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.apache.log4j.Logger;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTask;
@@ -48,6 +49,7 @@ import static java.util.Objects.requireNonNull;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
+  private static final org.sonar.api.utils.log.Logger LOG = Loggers.get(InternalCeQueueImpl.class);
 
   private static final int MAX_EXECUTION_COUNT = 2;
 
@@ -75,7 +77,10 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
       CeQueueDao ceQueueDao = dbClient.ceQueueDao();
-      ceQueueDao.resetToPendingForWorker(dbSession, workerUuid);
+      int i = ceQueueDao.resetToPendingForWorker(dbSession, workerUuid);
+      if (i > 0) {
+        LOG.info("{} in progress tasks reset for worker uuid {}", i, workerUuid);
+      }
       Optional<CeQueueDto> dto = ceQueueDao.peek(dbSession, workerUuid, MAX_EXECUTION_COUNT);
       CeTask task = null;
       if (dto.isPresent()) {
