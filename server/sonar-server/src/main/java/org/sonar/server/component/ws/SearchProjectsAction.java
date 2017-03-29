@@ -157,7 +157,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter on a single language you can use 'language = java'</li>" +
         " <li>to filter on several languages you must use 'language IN (java, js)'</li>" +
         "</ul>" +
-        "Use the WS api/languages/list to find the key of a language." +
+        "Use the WS api/languages/list to find the key of a language.<br> " +
         "To filter on tags use the 'tag' keyword:" +
         "<ul> " +
         " <li>to filter on one tag you can use <code>tag = finance</code></li>" +
