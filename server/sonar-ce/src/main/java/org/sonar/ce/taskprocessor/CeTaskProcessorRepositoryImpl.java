@@ -21,13 +21,13 @@ package org.sonar.ce.taskprocessor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
@@ -52,7 +52,7 @@ public class CeTaskProcessorRepositoryImpl implements CeTaskProcessorRepository 
 
   @Override
   public Optional<CeTaskProcessor> getForCeTask(CeTask ceTask) {
-    return Optional.fromNullable(taskProcessorByCeTaskType.get(ceTask.getType()));
+    return Optional.ofNullable(taskProcessorByCeTaskType.get(ceTask.getType()));
   }
 
   private static Map<String, CeTaskProcessor> indexTaskProcessors(CeTaskProcessor[] taskProcessors) {

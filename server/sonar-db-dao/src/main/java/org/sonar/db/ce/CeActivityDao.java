@@ -19,9 +19,9 @@
  */
 package org.sonar.db.ce;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
@@ -40,7 +40,7 @@ public class CeActivityDao implements Dao {
   }
 
   public Optional<CeActivityDto> selectByUuid(DbSession dbSession, String uuid) {
-    return Optional.fromNullable(mapper(dbSession).selectByUuid(uuid));
+    return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
   }
 
   public void insert(DbSession dbSession, CeActivityDto dto) {

@@ -19,8 +19,8 @@
  */
 package org.sonar.db.ce;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
@@ -77,7 +77,7 @@ public class CeQueueDao implements Dao {
   }
 
   public Optional<CeQueueDto> selectByUuid(DbSession session, String uuid) {
-    return Optional.fromNullable(mapper(session).selectByUuid(uuid));
+    return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
 
   public List<CeQueueDto> selectPendingByMinimumExecutionCount(DbSession dbSession, int minExecutionCount) {
@@ -117,7 +117,7 @@ public class CeQueueDao implements Dao {
   public Optional<CeQueueDto> peek(DbSession session, String workerUuid, int maxExecutionCount) {
     List<EligibleTaskDto> eligibles = mapper(session).selectEligibleForPeek(maxExecutionCount, ONE_RESULT_PAGINATION);
     if (eligibles.isEmpty()) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     EligibleTaskDto eligible = eligibles.get(0);
@@ -130,7 +130,7 @@ public class CeQueueDao implements Dao {
       new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, eligible.getExecutionCount() + 1, now, now),
       new UpdateIf.OldProperties(PENDING, eligible.getExecutionCount()));
     if (touchedRows != 1) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     CeQueueDto result = mapper(session).selectByUuid(eligible.getUuid());
