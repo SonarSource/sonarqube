@@ -228,6 +228,12 @@ public class CeQueueDaoTest {
   }
 
   @Test
+  public void resetToPendingForWorker_resets_status_of_non_pending_tasks_only_for_specified_workerUuid() {
+
+
+  }
+
+  @Test
   public void peek_none_if_no_pendings() throws Exception {
     assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT).isPresent()).isFalse();
 

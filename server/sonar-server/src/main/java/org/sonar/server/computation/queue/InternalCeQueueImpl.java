@@ -38,6 +38,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
@@ -73,7 +74,9 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       return Optional.empty();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<CeQueueDto> dto = dbClient.ceQueueDao().peek(dbSession, workerUuid, MAX_EXECUTION_COUNT);
+      CeQueueDao ceQueueDao = dbClient.ceQueueDao();
+      ceQueueDao.resetToPendingForWorker(dbSession, workerUuid);
+      Optional<CeQueueDto> dto = ceQueueDao.peek(dbSession, workerUuid, MAX_EXECUTION_COUNT);
       CeTask task = null;
       if (dto.isPresent()) {
         task = loadTask(dbSession, dto.get());
