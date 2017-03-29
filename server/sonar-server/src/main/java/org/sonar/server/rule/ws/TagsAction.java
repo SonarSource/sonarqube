@@ -20,22 +20,22 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.io.Resources;
+import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.rule.RuleService;
-
-import java.util.Set;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 
 public class TagsAction implements RulesWsAction {
 
-  private final RuleService service;
+  private final RuleIndex ruleIndex;
 
-  public TagsAction(RuleService service) {
-    this.service = service;
+  public TagsAction(RuleIndex ruleIndex) {
+    this.ruleIndex = ruleIndex;
   }
 
   @Override
@@ -60,7 +60,7 @@ public class TagsAction implements RulesWsAction {
   public void handle(Request request, Response response) {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
-    Set<String> tags = service.listTags(query, pageSize);
+    Set<String> tags = ruleIndex.terms(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, query, pageSize);
     JsonWriter json = response.newJsonWriter().beginObject();
     json.name("tags").beginArray();
     for (String tag : tags) {
