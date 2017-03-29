@@ -23,16 +23,21 @@ import com.google.common.annotations.VisibleForTesting;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.System2;
 
 import static org.apache.commons.lang.StringUtils.startsWith;
 
 public class EmbeddedDatabaseFactory implements Startable {
+
   private static final String URL_PREFIX = "jdbc:h2:tcp:";
+
   private final Settings settings;
+  private final System2 system2;
   private EmbeddedDatabase embeddedDatabase;
 
-  public EmbeddedDatabaseFactory(Settings settings) {
+  public EmbeddedDatabaseFactory(Settings settings, System2 system2) {
     this.settings = settings;
+    this.system2 = system2;
   }
 
   @Override
@@ -56,6 +61,6 @@ public class EmbeddedDatabaseFactory implements Startable {
 
   @VisibleForTesting
   EmbeddedDatabase createEmbeddedDatabase() {
-    return new EmbeddedDatabase(settings);
+    return new EmbeddedDatabase(settings, system2);
   }
 }

@@ -19,21 +19,21 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.lang.SystemUtils;
-import org.junit.Test;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import org.apache.commons.lang.SystemUtils;
+import org.junit.Test;
 
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class System2Test {
   @Test
-  public void testNow() throws Exception {
+  public void testNow() {
     long start = System.currentTimeMillis();
     long now = System2.INSTANCE.now();
     long end = System.currentTimeMillis();
@@ -41,25 +41,33 @@ public class System2Test {
   }
 
   @Test
-  public void testProperties() throws Exception {
+  public void testProperties() {
     Properties expected = System.getProperties();
     assertThat(System2.INSTANCE.properties()).isNotNull().isEqualTo(expected);
   }
 
   @Test
-  public void testProperty() throws Exception {
+  public void testProperty() {
     String expected = System.getProperty("java.version");
     assertThat(System2.INSTANCE.property("java.version")).isNotNull().isEqualTo(expected);
   }
 
   @Test
-  public void testEnvVariables() throws Exception {
+  public void testSetProperty() {
+    String key = "System2Test.testSetProperty";
+    String value = randomUUID().toString();
+    System2.INSTANCE.setProperty(key, value);
+    assertThat(System2.INSTANCE.property(key)).isEqualTo(value);
+  }
+
+  @Test
+  public void testEnvVariables() {
     Map<String, String> expected = System.getenv();
     assertThat(System2.INSTANCE.envVariables()).isNotNull().isEqualTo(expected);
   }
 
   @Test
-  public void testEnvVariable() throws Exception {
+  public void testEnvVariable() {
     // assume that there's at least one env variable
     if (System.getenv().isEmpty()) {
       fail("Test can't succeed because there are no env variables. How is it possible ?");
@@ -71,12 +79,12 @@ public class System2Test {
   }
 
   @Test
-  public void testIsOsWindows() throws Exception {
+  public void testIsOsWindows() {
     assertThat(System2.INSTANCE.isOsWindows()).isEqualTo(SystemUtils.IS_OS_WINDOWS);
   }
 
   @Test
-  public void testIsJavaAtLeast17() throws Exception {
+  public void testIsJavaAtLeast17() {
     if (SystemUtils.IS_JAVA_1_6) {
       assertThat(System2.INSTANCE.isJavaAtLeast17()).isFalse();
     } else {
@@ -85,13 +93,13 @@ public class System2Test {
   }
 
   @Test
-  public void testPrintln() throws Exception {
+  public void testPrintln() {
     // well, how to assert that ? Adding a System3 dependency to System2 ? :-)
     System2.INSTANCE.println("foo");
   }
 
   @Test
-  public void testGetResource() throws Exception {
+  public void testGetResource() {
     String name = "META-INF/MANIFEST.MF";
     assertThat(System2.INSTANCE.getResource(name)).isEqualTo(getClass().getResource(name));
   }
@@ -100,6 +108,7 @@ public class System2Test {
   public void close() {
     class MyCloseable implements Closeable {
       boolean isClosed = false;
+
       @Override
       public void close() throws IOException {
         isClosed = true;
