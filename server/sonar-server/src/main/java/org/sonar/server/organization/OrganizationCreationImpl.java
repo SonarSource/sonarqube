@@ -19,12 +19,16 @@
  */
 package org.sonar.server.organization;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
@@ -41,6 +46,12 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.qualityprofile.DefinedQProfile;
+import org.sonar.server.qualityprofile.DefinedQProfileCreation;
+import org.sonar.server.qualityprofile.DefinedQProfileRepository;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.user.index.UserIndexer;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -48,24 +59,34 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
 
 public class OrganizationCreationImpl implements OrganizationCreation {
+  private static final Logger LOGGER = Loggers.get(OrganizationCreationImpl.class);
 
   private final DbClient dbClient;
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final OrganizationValidation organizationValidation;
   private final Settings settings;
+  private final DefinedQProfileRepository definedQProfileRepository;
+  private final DefinedQProfileCreation definedQProfileCreation;
+  private final ActiveRuleIndexer activeRuleIndexer;
+  private final UserIndexer userIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
-    OrganizationValidation organizationValidation, Settings settings) {
+    OrganizationValidation organizationValidation, Settings settings, UserIndexer userIndexer,
+    DefinedQProfileRepository definedQProfileRepository, DefinedQProfileCreation definedQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.organizationValidation = organizationValidation;
     this.settings = settings;
+    this.userIndexer = userIndexer;
+    this.definedQProfileRepository = definedQProfileRepository;
+    this.definedQProfileCreation = definedQProfileCreation;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   @Override
-  public OrganizationDto create(DbSession dbSession, int creatorUserId, NewOrganization newOrganization) throws KeyConflictException {
+  public OrganizationDto create(DbSession dbSession, UserDto userCreator, NewOrganization newOrganization) throws KeyConflictException {
     validate(newOrganization);
     String key = newOrganization.getKey();
     if (organizationKeyIsUsed(dbSession, key)) {
@@ -74,11 +95,17 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, dto -> {
     });
+    insertOrganizationMember(dbSession, organization, userCreator.getId());
     GroupDto group = insertOwnersGroup(dbSession, organization);
     insertDefaultTemplate(dbSession, organization, group);
-    addCurrentUserToGroup(dbSession, group, creatorUserId);
+    List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
+    addCurrentUserToGroup(dbSession, group, userCreator.getId());
 
     dbSession.commit();
+
+    // Elasticsearch is updated when DB session is committed
+    userIndexer.index(userCreator.getLogin());
+    activeRuleIndexer.index(activeRuleChanges);
 
     return organization;
   }
@@ -105,8 +132,14 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     OrganizationPermission.all()
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization);
+    insertOrganizationMember(dbSession, organization, newUser.getId());
+    List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
 
     dbSession.commit();
+
+    // Elasticsearch is updated when DB session is committed
+    activeRuleIndexer.index(activeRuleChanges);
+    userIndexer.index(newUser.getLogin());
 
     return Optional.of(organization);
   }
@@ -220,6 +253,21 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group == null ? null : group.getId(), permission);
   }
 
+  private List<ActiveRuleChange> insertQualityProfiles(DbSession dbSession, OrganizationDto organization) {
+    List<ActiveRuleChange> changes = new ArrayList<>();
+    definedQProfileRepository.getQProfilesByLanguage().entrySet()
+      .stream()
+      .flatMap(entry -> entry.getValue().stream())
+      .forEach(profile -> insertQualityProfile(dbSession, profile, organization, changes));
+    return changes;
+  }
+
+  private void insertQualityProfile(DbSession dbSession, DefinedQProfile profile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+    LOGGER.debug("Creating quality profile {} for language {} for organization {}", profile.getName(), profile.getLanguage(), organization.getKey());
+
+    definedQProfileCreation.create(dbSession, profile, organization, changes);
+  }
+
   /**
    * Owners group has an hard coded name, a description based on the organization's name and has all global permissions.
    */
@@ -251,5 +299,11 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     dbClient.userGroupDao().insert(
       dbSession,
       new UserGroupDto().setGroupId(group.getId()).setUserId(createUserId));
+  }
+
+  private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, int userId) {
+    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
+      .setOrganizationUuid(organizationDto.getUuid())
+      .setUserId(userId));
   }
 }

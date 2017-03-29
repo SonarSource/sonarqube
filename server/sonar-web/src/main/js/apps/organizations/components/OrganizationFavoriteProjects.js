@@ -21,7 +21,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import PageHeaderContainer from '../../projects/components/PageHeaderContainer';
 import FavoriteProjectsContainer from '../../projects/components/FavoriteProjectsContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
@@ -36,21 +35,29 @@ class OrganizationFavoriteProjects extends React.Component {
     }
   };
 
-  componentDidMount () {
-    document.querySelector('html').classList.add('dashboard-page');
+  componentDidMount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
   }
 
-  componentWillUnmount () {
-    document.querySelector('html').classList.remove('dashboard-page');
+  componentWillUnmount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
   }
 
-  render () {
+  render() {
     return (
-        <div id="projects-page" className="page page-limited">
-          <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube"/>
-          <PageHeaderContainer organization={this.props.organization}/>
-          <FavoriteProjectsContainer location={this.props.location} organization={this.props.organization}/>
-        </div>
+      <div id="projects-page" className="page page-limited">
+        <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube" />
+        <FavoriteProjectsContainer
+          location={this.props.location}
+          organization={this.props.organization}
+        />
+      </div>
     );
   }
 }

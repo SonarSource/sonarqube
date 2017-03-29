@@ -18,23 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-    SET_STATE,
-    ADD,
-    DELETE,
-    SHOW,
-    RENAME,
-    COPY,
-    SET_AS_DEFAULT,
-    UNSET_AS_DEFAULT,
-    ADD_CONDITION,
-    DELETE_CONDITION,
-    SAVE_CONDITION
+  SET_STATE,
+  ADD,
+  DELETE,
+  SHOW,
+  RENAME,
+  COPY,
+  SET_AS_DEFAULT,
+  UNSET_AS_DEFAULT,
+  ADD_CONDITION,
+  DELETE_CONDITION,
+  SAVE_CONDITION
 } from './actions';
 import { checkIfDefault, addCondition, deleteCondition, replaceCondition } from './utils';
 
 const initialState = {};
 
-export default function rootReducer (state = initialState, action = {}) {
+export default function rootReducer(state = initialState, action = {}) {
   switch (action.type) {
     case SET_STATE:
       return { ...state, ...action.nextState };
@@ -42,17 +42,25 @@ export default function rootReducer (state = initialState, action = {}) {
     case COPY:
       return { ...state, qualityGates: [...state.qualityGates, action.qualityGate] };
     case DELETE:
-      return { ...state, qualityGates: state.qualityGates.filter(candidate => candidate.id !== action.qualityGate.id) };
+      return {
+        ...state,
+        qualityGates: state.qualityGates.filter(candidate => candidate.id !== action.qualityGate.id)
+      };
     case SHOW:
       return {
         ...state,
-        qualityGate: { ...action.qualityGate, isDefault: checkIfDefault(action.qualityGate, state.qualityGates) }
+        qualityGate: {
+          ...action.qualityGate,
+          isDefault: checkIfDefault(action.qualityGate, state.qualityGates)
+        }
       };
     case RENAME:
       return {
         ...state,
         qualityGates: state.qualityGates.map(candidate => {
-          return candidate.id === action.qualityGate.id ? { ...candidate, name: action.newName } : candidate;
+          return candidate.id === action.qualityGate.id
+            ? { ...candidate, name: action.newName }
+            : candidate;
         }),
         qualityGate: { ...state.qualityGate, name: action.newName }
       };
@@ -62,13 +70,18 @@ export default function rootReducer (state = initialState, action = {}) {
         qualityGates: state.qualityGates.map(candidate => {
           return { ...candidate, isDefault: candidate.id === action.qualityGate.id };
         }),
-        qualityGate: { ...state.qualityGate, isDefault: state.qualityGate.id === action.qualityGate.id }
+        qualityGate: {
+          ...state.qualityGate,
+          isDefault: state.qualityGate.id === action.qualityGate.id
+        }
       };
     case UNSET_AS_DEFAULT:
       return {
         ...state,
         qualityGates: state.qualityGates.map(candidate => {
-          return candidate.id === action.qualityGate.id ? { ...candidate, isDefault: false } : candidate;
+          return candidate.id === action.qualityGate.id
+            ? { ...candidate, isDefault: false }
+            : candidate;
         }),
         qualityGate: { ...state.qualityGate, isDefault: false }
       };

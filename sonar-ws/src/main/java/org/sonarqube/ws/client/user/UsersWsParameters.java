@@ -25,7 +25,9 @@ public class UsersWsParameters {
 
   public static final String ACTION_CREATE = "create";
   public static final String ACTION_UPDATE = "update";
+  public static final String ACTION_GROUPS = "groups";
 
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LOGIN = "login";
   public static final String PARAM_PASSWORD = "password";
   public static final String PARAM_NAME = "name";
@@ -34,6 +36,7 @@ public class UsersWsParameters {
   public static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
   public static final String PARAM_SCM_ACCOUNT = "scmAccount";
   public static final String PARAM_LOCAL = "local";
+  public static final String PARAM_SELECTED = "selected";
 
   private UsersWsParameters() {
     // Only static stuff

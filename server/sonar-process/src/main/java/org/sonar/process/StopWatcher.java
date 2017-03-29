@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
  */
 public class StopWatcher extends Thread {
 
-  private final Stoppable stoppable;
   private final ProcessCommands commands;
-  private boolean watching = true;
+  private final Stoppable stoppable;
   private final long delayMs;
+  private boolean watching = true;
 
   public StopWatcher(ProcessCommands commands, Stoppable stoppable) {
     this(commands, stoppable, 500L);

@@ -26,14 +26,14 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   events: {
     'click .js-delete-custom-rule': 'deleteRule'
   },
 
-  deleteRule () {
+  deleteRule() {
     const deleteRuleView = new DeleteRuleView({
       model: this.model
     }).render();
@@ -44,7 +44,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite,

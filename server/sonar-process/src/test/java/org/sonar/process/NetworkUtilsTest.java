@@ -75,4 +75,9 @@ public class NetworkUtilsTest {
 
     randomPortFinder.getNextAvailablePort();
   }
+
+  @Test
+  public void getHostName_must_return_a_value() {
+    assertThat(NetworkUtils.getHostName()).containsPattern(".* \\(.*\\)");
+  }
 }

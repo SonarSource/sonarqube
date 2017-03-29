@@ -43,6 +43,7 @@ import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -54,6 +55,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,7 +91,8 @@ public class UserUpdaterTest {
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, defaultOrganizationProvider, organizationCreation);
 
   @Before
   public void setUp() {
@@ -99,7 +103,7 @@ public class UserUpdaterTest {
   public void create_user() {
     createDefaultGroup();
 
-    UserDto dto = underTest.create(NewUser.builder()
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -134,7 +138,7 @@ public class UserUpdaterTest {
   public void create_user_with_sq_authority_when_no_authority_set() throws Exception {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -150,7 +154,7 @@ public class UserUpdaterTest {
   public void create_user_with_identity_provider() throws Exception {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setExternalIdentity(new ExternalIdentity("github", "github-user"))
@@ -168,7 +172,7 @@ public class UserUpdaterTest {
   public void create_user_with_sonarqube_external_identity() throws Exception {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user"))
@@ -186,7 +190,7 @@ public class UserUpdaterTest {
   public void create_user_with_minimum_fields() {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("us")
       .setName("User")
       .build());
@@ -204,7 +208,7 @@ public class UserUpdaterTest {
   public void create_user_with_scm_accounts_containing_blank_or_null_entries() {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -218,7 +222,7 @@ public class UserUpdaterTest {
   public void create_user_with_scm_accounts_containing_one_blank_entry() {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -232,7 +236,7 @@ public class UserUpdaterTest {
   public void create_user_with_scm_accounts_containing_duplications() {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -247,7 +251,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login can't be empty");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(null)
       .setName("Marius")
       .setEmail("marius@mail.com")
@@ -260,7 +264,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("/marius/")
       .setName("Marius")
       .setEmail("marius@mail.com")
@@ -273,7 +277,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("mari us")
       .setName("Marius")
       .setEmail("marius@mail.com")
@@ -286,7 +290,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login is too short (minimum is 2 characters)");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("m")
       .setName("Marius")
       .setEmail("marius@mail.com")
@@ -299,7 +303,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login is too long (maximum is 255 characters)");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(Strings.repeat("m", 256))
       .setName("Marius")
       .setEmail("marius@mail.com")
@@ -312,7 +316,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name can't be empty");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName(null)
       .setEmail("marius@mail.com")
@@ -325,7 +329,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name is too long (maximum is 200 characters)");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName(Strings.repeat("m", 201))
       .setEmail("marius@mail.com")
@@ -338,7 +342,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Email is too long (maximum is 100 characters)");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius")
       .setEmail(Strings.repeat("m", 101))
@@ -349,7 +353,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_many_errors() {
     try {
-      underTest.create(NewUser.builder()
+      underTest.create(db.getSession(), NewUser.builder()
         .setLogin("")
         .setName("")
         .setEmail("marius@mail.com")
@@ -368,7 +372,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius")
       .setEmail("marius@mail.com")
@@ -385,7 +389,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The scm account 'john@email.com' is already used by user(s) : 'John (john), Technical account (technical-account)'");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius")
       .setEmail("marius@mail.com")
@@ -399,7 +403,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -413,7 +417,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -426,7 +430,7 @@ public class UserUpdaterTest {
   public void notify_new_user() {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -444,7 +448,7 @@ public class UserUpdaterTest {
   public void associate_default_group_when_creating_user() {
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -460,7 +464,7 @@ public class UserUpdaterTest {
   public void doest_not_fail_when_no_default_group() {
     settings.setProperty(CORE_DEFAULT_GROUP, (String) null);
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -477,13 +481,41 @@ public class UserUpdaterTest {
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("The default group 'polop' for new users does not exist. Please update the general security settings to fix this issue.");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
       .setScmAccounts(newArrayList("u1", "u_1"))
       .build());
+  }
+
+  @Test
+  public void create_personal_organization_when_creating_user() {
+    createDefaultGroup();
+
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("PASSWORD")
+      .build());
+
+    verify(organizationCreation).createForUser(any(DbSession.class), eq(dto));
+  }
+
+  @Test
+  public void add_user_as_member_of_default_organization_when_creating_user() {
+    createDefaultGroup();
+
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("PASSWORD")
+      .build());
+
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
   }
 
   @Test
@@ -494,7 +526,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(NewUser.builder()
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -525,7 +557,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(NewUser.builder()
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -551,7 +583,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setExternalIdentity(new ExternalIdentity("github", "john"))
@@ -575,7 +607,7 @@ public class UserUpdaterTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("An active user with login 'marius' already exists");
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -594,7 +626,7 @@ public class UserUpdaterTest {
     db.users().insertMember(groupDto, userDto);
     createDefaultGroup();
 
-    underTest.create(NewUser.builder()
+    underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -604,6 +636,17 @@ public class UserUpdaterTest {
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(DEFAULT_GROUP))).isTrue();
+  }
+
+  @Test
+  public void add_user_as_member_of_default_organization_when_reactivating_user() {
+    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
+    createDefaultGroup();
+
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build());
+    session.commit();
+
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
   }
 
   @Test

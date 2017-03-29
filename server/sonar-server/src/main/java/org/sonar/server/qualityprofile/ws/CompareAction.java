@@ -19,14 +19,13 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nonnull;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -36,15 +35,18 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class CompareAction implements QProfileWsAction {
 
@@ -87,12 +89,12 @@ public class CompareAction implements QProfileWsAction {
 
     compare.createParam(PARAM_LEFT_KEY)
       .setDescription("A profile key.")
-      .setExampleValue("java-sonar-way-12345")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01)
       .setRequired(true);
 
     compare.createParam(PARAM_RIGHT_KEY)
       .setDescription("Another profile key.")
-      .setExampleValue("java-sonar-way-with-findbugs-23456")
+      .setExampleValue(Uuids.UUID_EXAMPLE_02)
       .setRequired(true);
   }
 
@@ -101,17 +103,26 @@ public class CompareAction implements QProfileWsAction {
     String leftKey = request.mandatoryParam(PARAM_LEFT_KEY);
     String rightKey = request.mandatoryParam(PARAM_RIGHT_KEY);
 
-    QProfileComparisonResult result = comparator.compare(leftKey, rightKey);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> referencedRules = dbClient.ruleDao().selectByKeys(dbSession, new ArrayList<>(result.collectRuleKeys()));
-      Map<RuleKey, RuleDto> rulesByKey = Maps.uniqueIndex(referencedRules, RuleDtoToRuleKey.INSTANCE);
+      QualityProfileDto left = dbClient.qualityProfileDao().selectByKey(dbSession, leftKey);
+      checkArgument(left != null, "Could not find left profile '%s'", leftKey);
+      QualityProfileDto right = dbClient.qualityProfileDao().selectByKey(dbSession, rightKey);
+      checkArgument(right != null, "Could not find right profile '%s'", rightKey);
+
+      checkArgument(Objects.equals(left.getOrganizationUuid(), right.getOrganizationUuid()),
+        "Cannot compare quality profiles of different organizations. Quality profile left with key '%s' belongs to organization '%s', " +
+          "quality profile right with key '%s' belongs to organization '%s'.", leftKey, left.getOrganizationUuid(), rightKey, right.getOrganizationUuid());
+
+      QProfileComparisonResult result = comparator.compare(dbSession, left, right);
+
+      List<RuleDefinitionDto> referencedRules = dbClient.ruleDao().selectDefinitionByKeys(dbSession, new ArrayList<>(result.collectRuleKeys()));
+      Map<RuleKey, RuleDefinitionDto> rulesByKey = Maps.uniqueIndex(referencedRules, RuleDefinitionDto::getKey);
       Map<String, RuleRepositoryDto> repositoriesByKey = Maps.uniqueIndex(dbClient.ruleRepositoryDao().selectAll(dbSession), RuleRepositoryDto::getKey);
       writeResult(response.newJsonWriter(), result, rulesByKey, repositoriesByKey);
     }
   }
 
-  private void writeResult(JsonWriter json, QProfileComparisonResult result, Map<RuleKey, RuleDto> rulesByKey, Map<String, RuleRepositoryDto> repositoriesByKey) {
+  private void writeResult(JsonWriter json, QProfileComparisonResult result, Map<RuleKey, RuleDefinitionDto> rulesByKey, Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginObject();
 
     json.name(ATTRIBUTE_LEFT).beginObject();
@@ -142,7 +153,7 @@ public class CompareAction implements QProfileWsAction {
       .prop(ATTRIBUTE_NAME, profile.getName());
   }
 
-  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDto> rulesByKey,
+  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDefinitionDto> rulesByKey,
     Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginArray();
     for (Entry<RuleKey, ActiveRuleDto> activeRule : activeRules.entrySet()) {
@@ -150,7 +161,7 @@ public class CompareAction implements QProfileWsAction {
       ActiveRuleDto value = activeRule.getValue();
 
       json.beginObject();
-      RuleDto rule = rulesByKey.get(key);
+      RuleDefinitionDto rule = rulesByKey.get(key);
       writeRule(json, rule, repositoriesByKey.get(rule.getRepositoryKey()));
       json.prop(ATTRIBUTE_SEVERITY, value.getSeverityString());
       json.endObject();
@@ -158,7 +169,7 @@ public class CompareAction implements QProfileWsAction {
     json.endArray();
   }
 
-  private void writeRule(JsonWriter json, RuleDto rule, @Nullable RuleRepositoryDto repository) {
+  private void writeRule(JsonWriter json, RuleDefinitionDto rule, @Nullable RuleRepositoryDto repository) {
     String repositoryKey = rule.getRepositoryKey();
     json.prop(ATTRIBUTE_KEY, rule.getKey().toString())
       .prop(ATTRIBUTE_NAME, rule.getName())
@@ -174,14 +185,14 @@ public class CompareAction implements QProfileWsAction {
     }
   }
 
-  private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, RuleDto> rulesByKey,
+  private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, RuleDefinitionDto> rulesByKey,
     Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginArray();
     for (Entry<RuleKey, ActiveRuleDiff> diffEntry : modified.entrySet()) {
       RuleKey key = diffEntry.getKey();
       ActiveRuleDiff value = diffEntry.getValue();
       json.beginObject();
-      RuleDto rule = rulesByKey.get(key);
+      RuleDefinitionDto rule = rulesByKey.get(key);
       writeRule(json, rule, repositoriesByKey.get(rule.getRepositoryKey()));
 
       json.name(ATTRIBUTE_LEFT).beginObject();
@@ -216,15 +227,6 @@ public class CompareAction implements QProfileWsAction {
       json.endObject();
     }
     json.endArray();
-  }
-
-  private enum RuleDtoToRuleKey implements Function<RuleDto, RuleKey> {
-    INSTANCE;
-
-    @Override
-    public RuleKey apply(@Nonnull RuleDto input) {
-      return input.getKey();
-    }
   }
 
 }

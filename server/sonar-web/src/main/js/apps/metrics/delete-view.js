@@ -23,25 +23,28 @@ import Template from './templates/metrics-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     const that = this;
     const collection = this.model.collection;
-    return this.model.destroy({
-      wait: true,
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      collection.refresh();
-      that.destroy();
-    }).fail(jqXHR => {
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    return this.model
+      .destroy({
+        wait: true,
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      })
+      .done(() => {
+        collection.refresh();
+        that.destroy();
+      })
+      .fail(jqXHR => {
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
   }
 });

@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
@@ -34,61 +35,103 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
 
-  public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
-    return Optional.fromNullable(mapper(session).selectByKey(key));
+  public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
+    RuleDto res = mapper(session).selectByKey(organizationUuid, key);
+    ensureOrganizationIsSet(organizationUuid, res);
+    return Optional.fromNullable(res);
   }
 
-  public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
-    RuleDto rule = mapper(session).selectByKey(key);
+  public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {
+    return Optional.fromNullable(mapper(session).selectDefinitionByKey(key));
+  }
+
+  public RuleDto selectOrFailByKey(DbSession session, String organizationUuid, RuleKey key) {
+    RuleDto rule = mapper(session).selectByKey(organizationUuid, key);
+    if (rule == null) {
+      throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
+    }
+    ensureOrganizationIsSet(organizationUuid, rule);
+    return rule;
+  }
+
+  public RuleDefinitionDto selectOrFailDefinitionByKey(DbSession session, RuleKey key) {
+    RuleDefinitionDto rule = mapper(session).selectDefinitionByKey(key);
     if (rule == null) {
       throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
     }
     return rule;
   }
 
-  /**
-   * Retrieves a Rule by its id.
-   *
-   * Used by Views.
-   */
-  public Optional<RuleDto> selectById(long id, DbSession session) {
-    return Optional.fromNullable(mapper(session).selectById(id));
+  public Optional<RuleDto> selectById(long id, String organizationUuid, DbSession session) {
+    RuleDto res = mapper(session).selectById(organizationUuid, id);
+    ensureOrganizationIsSet(organizationUuid, res);
+    return Optional.fromNullable(res);
   }
 
-  public List<RuleDto> selectByIds(DbSession session, List<Integer> ids) {
-    return executeLargeInputs(ids, mapper(session)::selectByIds);
+  public Optional<RuleDefinitionDto> selectDefinitionById(long id, DbSession session) {
+    return Optional.fromNullable(mapper(session).selectDefinitionById(id));
   }
 
-  /**
-   * Select rules by keys, whatever their status. Returns an empty list
-   * if the list of {@code keys} is empty, without any db round trip.
-   */
-  public List<RuleDto> selectByKeys(DbSession session, Collection<RuleKey> keys) {
-    return executeLargeInputs(keys, mapper(session)::selectByKeys);
+  public List<RuleDto> selectByIds(DbSession session, String organizationUuid, List<Integer> ids) {
+    return ensureOrganizationIsSet(
+      organizationUuid,
+      executeLargeInputs(ids, chunk -> mapper(session).selectByIds(organizationUuid, chunk)));
   }
 
-  public List<RuleDto> selectEnabled(DbSession session) {
-    return mapper(session).selectEnabled();
+  public List<RuleDefinitionDto> selectDefinitionByIds(DbSession session, List<Integer> ids) {
+    return executeLargeInputs(ids, mapper(session)::selectDefinitionByIds);
+  }
+
+  public List<RuleDto> selectByKeys(DbSession session, String organizationUuid, Collection<RuleKey> keys) {
+    return ensureOrganizationIsSet(organizationUuid,
+      executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(organizationUuid, chunk)));
+  }
+
+  public List<RuleDefinitionDto> selectDefinitionByKeys(DbSession session, Collection<RuleKey> keys) {
+    return executeLargeInputs(keys, mapper(session)::selectDefinitionByKeys);
   }
 
   public void selectEnabled(DbSession session, ResultHandler resultHandler) {
     mapper(session).selectEnabled(resultHandler);
   }
 
-  public List<RuleDto> selectAll(DbSession session) {
-    return mapper(session).selectAll();
+  public List<RuleDto> selectAll(DbSession session, String organizationUuid) {
+    return ensureOrganizationIsSet(organizationUuid, mapper(session).selectAll(organizationUuid));
   }
 
-  public List<RuleDto> selectByQuery(DbSession session, RuleQuery ruleQuery) {
-    return mapper(session).selectByQuery(ruleQuery);
+  public List<RuleDefinitionDto> selectAllDefinitions(DbSession session) {
+    return mapper(session).selectAllDefinitions();
   }
 
-  public void insert(DbSession session, RuleDto dto) {
-    mapper(session).insert(dto);
+  public List<RuleDto> selectByQuery(DbSession session, String organizationUuid, RuleQuery ruleQuery) {
+    return ensureOrganizationIsSet(organizationUuid, mapper(session).selectByQuery(organizationUuid, ruleQuery));
   }
 
-  public void update(DbSession session, RuleDto dto) {
-    mapper(session).update(dto);
+  private static void ensureOrganizationIsSet(String organizationUuid, @Nullable RuleDto res) {
+    if (res != null) {
+      res.setOrganizationUuid(organizationUuid);
+    }
+  }
+
+  private static List<RuleDto> ensureOrganizationIsSet(String organizationUuid, List<RuleDto> res) {
+    res.forEach(dto -> ensureOrganizationIsSet(organizationUuid, dto));
+    return res;
+  }
+
+  public void insert(DbSession session, RuleDefinitionDto dto) {
+    mapper(session).insertDefinition(dto);
+  }
+
+  public void update(DbSession session, RuleDefinitionDto dto) {
+    mapper(session).updateDefinition(dto);
+  }
+
+  public void update(DbSession session, RuleMetadataDto dto) {
+    if (mapper(session).countMetadata(dto) > 0) {
+      mapper(session).updateMetadata(dto);
+    } else {
+      mapper(session).insertMetadata(dto);
+    }
   }
 
   private static RuleMapper mapper(DbSession session) {
@@ -111,13 +154,13 @@ public class RuleDao implements Dao {
     return executeLargeInputs(ruleIds, mapper(dbSession)::selectParamsByRuleIds);
   }
 
-  public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+  public void insertRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
     checkNotNull(rule.getId(), "Rule id must be set");
     param.setRuleId(rule.getId());
     mapper(session).insertParameter(param);
   }
 
-  public RuleParamDto updateRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+  public RuleParamDto updateRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
     checkNotNull(rule.getId(), "Rule id must be set");
     checkNotNull(param.getId(), "Rule parameter is not yet persisted must be set");
     param.setRuleId(rule.getId());

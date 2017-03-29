@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Iterators;
-import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -33,7 +32,7 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
@@ -83,20 +82,33 @@ public class ActiveRuleIndexerTest {
   }
 
   @Test
-  public void delete_profile() throws Exception {
+  public void deleteByProfileKeys_deletes_documents_associated_to_specified_profile() throws Exception {
     indexActiveRules(
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)),
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)),
       newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3)));
-
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
 
-    indexer.deleteProfile(QUALITY_PROFILE_KEY1);
+    indexer.deleteByProfileKeys(asList(QUALITY_PROFILE_KEY1));
 
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(
       ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2).toString(),
       ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3).toString());
+  }
+
+  @Test
+  public void deleteByProfileKeys_deletes_documents_associated_to_multiple_profiles() throws Exception {
+    indexActiveRules(
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)),
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)),
+      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3)));
+    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
+
+    indexer.deleteByProfileKeys(asList(QUALITY_PROFILE_KEY1, QUALITY_PROFILE_KEY2));
+
+    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).isEmpty();
   }
 
   @Test
@@ -114,7 +126,7 @@ public class ActiveRuleIndexerTest {
 
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
 
-    indexer.index(Arrays.asList(
+    indexer.index(asList(
       ActiveRuleChange.createFor(ACTIVATED, activeRuleKey1),
       ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey2),
       ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey3)));
@@ -130,8 +142,8 @@ public class ActiveRuleIndexerTest {
     long now = 2000000L;
 
     // Index one active rule
-    RuleDto rule = RuleTesting.newDto(RULE_KEY_1);
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), rule);
+    RuleDefinitionDto rule = RuleTesting.newDto(RULE_KEY_1).getDefinition();
+    dbTester.rules().insertRule(rule);
     QualityProfileDto profile = QualityProfileDto.createFor("qp")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("xoo")
@@ -147,8 +159,8 @@ public class ActiveRuleIndexerTest {
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(activeRule.getKey().toString());
 
     // Index another active rule
-    RuleDto rule2 = RuleTesting.newDto(RULE_KEY_2);
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), rule2);
+    RuleDefinitionDto rule2 = RuleTesting.newDto(RULE_KEY_2).getDefinition();
+    dbTester.rules().insertRule(rule2);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profile, rule2).setSeverity(Severity.CRITICAL)
       .setCreatedAt(now).setUpdatedAt(now);
     dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule2);

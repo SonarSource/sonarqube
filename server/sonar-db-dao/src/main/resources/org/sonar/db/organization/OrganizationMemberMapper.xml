@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.organization.OrganizationMemberMapper">
+  <sql id="selectColumns">
+    om.organization_uuid as "organizationUuid",
+    om.user_id as "userId"
+  </sql>
+
+  <select id="select" resultType="OrganizationMember">
+    select
+    <include refid="selectColumns"/>
+    from organization_members om
+    where
+    om.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    and om.user_id = #{userId, jdbcType=INTEGER}
+  </select>
+
+  <select id="selectLogins" resultType="string">
+    select u.login
+    from organization_members om
+      inner join users u on om.user_id = u.id
+    where om.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectOrganizationUuidsByUser" resultType="String">
+    select om.organization_uuid as "organizationUuid"
+    from organization_members om
+    where om.user_id = #{userId, jdbcType=INTEGER}
+  </select>
+
+  <select id="selectForIndexing" resultType="hashmap">
+    select u.login as "login", om.organization_uuid as "organizationUuid"
+    from organization_members om
+     inner join users u on om.user_id=u.id
+    where u.login in
+    <foreach collection="logins" open="(" close=")" item="login" separator=",">
+      #{login, jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+  <select id="selectAllForIndexing" resultType="hashmap">
+    select u.login as "login", om.organization_uuid as "organizationUuid"
+    from organization_members om
+    inner join users u on om.user_id=u.id
+  </select>
+
+  <insert id="insert" parameterType="OrganizationMember" useGeneratedKeys="false">
+    insert into organization_members
+    (
+    organization_uuid,
+    user_id
+    )
+    values
+    (
+    #{organizationUuid, jdbcType=VARCHAR},
+    #{userId, jdbcType=INTEGER}
+    )
+  </insert>
+
+  <delete id="delete">
+    delete from organization_members
+    where
+    organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    and user_id = #{userId, jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteByOrganization" parameterType="map">
+    delete from organization_members
+    where
+    organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </delete>
+</mapper>

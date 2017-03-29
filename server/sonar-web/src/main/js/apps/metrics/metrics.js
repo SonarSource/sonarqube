@@ -23,36 +23,34 @@ import Metric from './metric';
 export default Backbone.Collection.extend({
   model: Metric,
 
-  url () {
+  url() {
     return window.baseUrl + '/api/metrics/search';
   },
 
-  parse (r) {
+  parse(r) {
     this.total = r.total;
     this.p = r.p;
     this.ps = r.ps;
     return r.metrics;
   },
 
-  fetch (options) {
+  fetch(options) {
     const opts = { data: {}, ...options };
     this.q = opts.data.q;
     opts.data.isCustom = true;
     return Backbone.Collection.prototype.fetch.call(this, opts);
   },
 
-  fetchMore () {
+  fetchMore() {
     const p = this.p + 1;
     return this.fetch({ add: true, remove: false, data: { p, ps: this.ps, q: this.q } });
   },
 
-  refresh () {
+  refresh() {
     return this.fetch({ reset: true, data: { q: this.q } });
   },
 
-  hasMore () {
+  hasMore() {
     return this.total > this.p * this.ps;
   }
-
 });
-

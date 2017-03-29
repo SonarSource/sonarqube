@@ -35,7 +35,7 @@ export default WorkspaceListView.extend({
   childViewContainer: '.js-list',
   emptyView: EmptyView,
 
-  bindShortcuts () {
+  bindShortcuts() {
     const that = this;
     WorkspaceListView.prototype.bindShortcuts.apply(this, arguments);
     key('right', 'list', () => {
@@ -50,13 +50,13 @@ export default WorkspaceListView.extend({
     });
   },
 
-  unbindShortcuts () {
+  unbindShortcuts() {
     WorkspaceListView.prototype.unbindShortcuts.apply(this, arguments);
     key.unbind('right', 'list');
     key.unbind('space', 'list');
   },
 
-  scrollTo () {
+  scrollTo() {
     const selectedIssue = this.collection.at(this.options.app.state.get('selectedIndex'));
     if (selectedIssue == null) {
       return;
@@ -67,7 +67,9 @@ export default WorkspaceListView.extend({
     if (selectedIssueView.$el.prev().is('.issues-workspace-list-component')) {
       viewTop -= COMPONENT_HEIGHT;
     }
-    const viewBottom = selectedIssueView.$el.offset().top + selectedIssueView.$el.outerHeight() + BOTTOM_OFFSET;
+    const viewBottom = selectedIssueView.$el.offset().top +
+      selectedIssueView.$el.outerHeight() +
+      BOTTOM_OFFSET;
     const windowTop = $(window).scrollTop();
     const windowBottom = windowTop + $(window).height();
     if (viewTop < windowTop) {
@@ -78,7 +80,7 @@ export default WorkspaceListView.extend({
     }
   },
 
-  attachHtml (compositeView, childView, index) {
+  attachHtml(compositeView, childView, index) {
     const container = this.getChildViewContainer(compositeView);
     const model = this.collection.at(index);
     if (model != null) {
@@ -98,7 +100,7 @@ export default WorkspaceListView.extend({
     container.append(childView.el);
   },
 
-  displayComponent (container, model) {
+  displayComponent(container, model) {
     const data = { ...model.toJSON() };
     const qualifier = this.options.app.state.get('contextComponentQualifier');
     if (qualifier === 'VW' || qualifier === 'SVW') {
@@ -108,13 +110,15 @@ export default WorkspaceListView.extend({
     } else if (qualifier === 'BRC') {
       Object.assign(data, { organization: undefined, project: undefined, subProject: undefined });
     } else {
-      const organization = areThereCustomOrganizations() ? getOrganization(model.get('projectOrganization')) : null;
+      const organization = areThereCustomOrganizations()
+        ? getOrganization(model.get('projectOrganization'))
+        : null;
       Object.assign(data, { organization });
     }
     container.append(this.componentTemplate(data));
   },
 
-  destroyChildren () {
+  destroyChildren() {
     WorkspaceListView.prototype.destroyChildren.apply(this, arguments);
     this.$('.issues-workspace-list-component').remove();
   }

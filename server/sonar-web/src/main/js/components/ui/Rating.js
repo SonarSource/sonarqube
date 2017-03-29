@@ -28,8 +28,7 @@ export default class Rating extends React.Component {
       // allow both numbers and strings
       const numberValue = Number(props[propName]);
       if (numberValue < 1 || numberValue > 5) {
-        throw new Error(
-            `Invalid prop "${propName}" passed to "${componentName}".`);
+        throw new Error(`Invalid prop "${propName}" passed to "${componentName}".`);
       }
     },
     small: React.PropTypes.bool,
@@ -41,7 +40,7 @@ export default class Rating extends React.Component {
     muted: false
   };
 
-  render () {
+  render() {
     const formatted = formatMeasure(this.props.value, 'RATING');
     const className = classNames('rating', 'rating-' + formatted, {
       'rating-small': this.props.small,

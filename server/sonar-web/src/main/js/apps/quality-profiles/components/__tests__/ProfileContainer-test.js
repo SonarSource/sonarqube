@@ -27,19 +27,17 @@ import { createFakeProfile } from '../../utils';
 
 it('should render ProfileHeader', () => {
   const targetProfile = createFakeProfile({ key: 'profile1' });
-  const profiles = [
-    targetProfile,
-    createFakeProfile({ key: 'profile2' })
-  ];
+  const profiles = [targetProfile, createFakeProfile({ key: 'profile2' })];
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-          location={{ query: { key: 'profile1' } }}
-          profiles={profiles}
-          canAdmin={false}
-          updateProfiles={updateProfiles}>
-        <div/>
-      </ProfileContainer>
+      location={{ query: { key: 'profile1' } }}
+      profiles={profiles}
+      canAdmin={false}
+      updateProfiles={updateProfiles}
+    >
+      <div />
+    </ProfileContainer>
   );
   const header = output.find(ProfileHeader);
   expect(header.length).toBe(1);
@@ -49,35 +47,32 @@ it('should render ProfileHeader', () => {
 });
 
 it('should render ProfileNotFound', () => {
-  const profiles = [
-    createFakeProfile({ key: 'profile1' }),
-    createFakeProfile({ key: 'profile2' })
-  ];
+  const profiles = [createFakeProfile({ key: 'profile1' }), createFakeProfile({ key: 'profile2' })];
   const output = shallow(
     <ProfileContainer
-          location={{ query: { key: 'random' } }}
-          profiles={profiles}
-          canAdmin={false}
-          updateProfiles={() => true}>
-        <div/>
-      </ProfileContainer>
+      location={{ query: { key: 'random' } }}
+      profiles={profiles}
+      canAdmin={false}
+      updateProfiles={() => true}
+    >
+      <div />
+    </ProfileContainer>
   );
   expect(output.is(ProfileNotFound)).toBe(true);
 });
 
 it('should render Helmet', () => {
-  const profiles = [
-    createFakeProfile({ key: 'profile1', name: 'First Profile' })
-  ];
+  const profiles = [createFakeProfile({ key: 'profile1', name: 'First Profile' })];
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-          location={{ query: { key: 'profile1' } }}
-          profiles={profiles}
-          canAdmin={false}
-          updateProfiles={updateProfiles}>
-        <div/>
-      </ProfileContainer>
+      location={{ query: { key: 'profile1' } }}
+      profiles={profiles}
+      canAdmin={false}
+      updateProfiles={updateProfiles}
+    >
+      <div />
+    </ProfileContainer>
   );
   const helmet = output.find(Helmet);
   expect(helmet.length).toBe(1);

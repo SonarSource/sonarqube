@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -38,13 +37,16 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 public class ExportAction implements QProfileWsAction {
 
@@ -53,18 +55,17 @@ public class ExportAction implements QProfileWsAction {
   private static final String PARAM_FORMAT = "exporterKey";
 
   private final DbClient dbClient;
-
   private final QProfileBackuper backuper;
-
   private final QProfileExporters exporters;
-
   private final Languages languages;
+  private final QProfileWsSupport wsSupport;
 
-  public ExportAction(DbClient dbClient, QProfileBackuper backuper, QProfileExporters exporters, Languages languages) {
+  public ExportAction(DbClient dbClient, QProfileBackuper backuper, QProfileExporters exporters, Languages languages, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.backuper = backuper;
     this.exporters = exporters;
     this.languages = languages;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -98,6 +99,8 @@ public class ExportAction implements QProfileWsAction {
         // This deprecated key is only there to be able to deal with redirection from /profiles/export
         .setDeprecatedKey("format", "6.3");
     }
+
+    QProfileWsSupport.createOrganizationParam(action).setSince("6.4");
   }
 
   @Override
@@ -105,16 +108,19 @@ public class ExportAction implements QProfileWsAction {
     String name = request.param(PARAM_PROFILE_NAME);
     String language = request.mandatoryParam(PARAM_LANGUAGE);
     String exporterKey = exporters.exportersForLanguage(language).isEmpty() ? null : request.param(PARAM_FORMAT);
-    QualityProfileDto profile = getProfile(name, language);
-    writeResponse(profile, exporterKey, response);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+      QualityProfileDto profile = loadProfile(dbSession, organization, language, name);
+      writeResponse(dbSession, profile, exporterKey, response);
+    }
   }
 
-  private void writeResponse(QualityProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
+  private void writeResponse(DbSession dbSession, QualityProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
     Stream stream = response.stream();
     try (
-      DbSession dbSession = dbClient.openSession(false);
       OutputStream output = response.stream().output();
-      Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
+      Writer writer = new OutputStreamWriter(output, UTF_8)) {
       if (exporterKey == null) {
         stream.setMediaType(MediaTypes.XML);
         backuper.backup(dbSession, profile, writer);
@@ -125,11 +131,14 @@ public class ExportAction implements QProfileWsAction {
     }
   }
 
-  private QualityProfileDto getProfile(@Nullable String name, String language) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = name == null ? dbClient.qualityProfileDao().selectDefaultProfile(dbSession, language)
-        : dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, dbSession);
-      return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
+  private QualityProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, String language, @Nullable String name) {
+    QualityProfileDto profile;
+    if (name == null) {
+      // return the default profile
+      profile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
+    } else {
+      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, name, language, dbSession);
     }
+    return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
   }
 }

@@ -22,11 +22,11 @@ package org.sonar.server.setting.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.sonar.api.Startable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertyDto;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
@@ -39,31 +39,25 @@ import static org.sonar.server.setting.ws.SettingsWsSupport.LICENSE_HASH_SUFFIX;
 /**
  * This class returns the list of settings required on scanner side (licenses, license hashes, server ids, etc.)
  */
-public class ScannerSettings implements Startable {
+public class ScannerSettings {
 
-  private static final String SONAR_PREFIX = "sonar.";
   private static final Set<String> SERVER_SETTING_KEYS = ImmutableSet.of(PERMANENT_SERVER_ID, SERVER_STARTTIME, SERVER_ID);
 
+  private final DbClient dbClient;
   private final PropertyDefinitions propertyDefinitions;
-  private final PluginRepository pluginRepository;
 
-  private Set<String> scannerSettingKeys;
-
-  public ScannerSettings(PropertyDefinitions propertyDefinitions, PluginRepository pluginRepository) {
+  public ScannerSettings(DbClient dbClient, PropertyDefinitions propertyDefinitions) {
+    this.dbClient = dbClient;
     this.propertyDefinitions = propertyDefinitions;
-    this.pluginRepository = pluginRepository;
   }
 
-  @Override
-  public void start() {
-    this.scannerSettingKeys = concat(concat(loadLicenseKeys(), loadLicenseHashKeys()),
+  Set<String> getScannerSettingKeys(DbSession dbSession) {
+    return concat(concat(loadLicenseKeys(), loadLicenseHashKeys(dbSession)),
       SERVER_SETTING_KEYS.stream()).collect(toSet());
   }
 
-  private Stream<String> loadLicenseHashKeys() {
-    return pluginRepository.getPluginInfos().stream()
-      .map(PluginInfo::getKey)
-      .map(key -> SONAR_PREFIX + key + LICENSE_HASH_SUFFIX);
+  private Stream<String> loadLicenseHashKeys(DbSession dbSession) {
+    return dbClient.propertiesDao().selectGlobalPropertiesByKeyQuery(dbSession, LICENSE_HASH_SUFFIX).stream().map(PropertyDto::getKey);
   }
 
   private Stream<String> loadLicenseKeys() {
@@ -73,12 +67,4 @@ public class ScannerSettings implements Startable {
       .map(PropertyDefinition::key);
   }
 
-  Set<String> getScannerSettingKeys() {
-    return scannerSettingKeys;
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
-  }
 }

@@ -222,11 +222,11 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with id '42'");
+    expectedException.expectMessage("No group with id '999999'");
 
     newRequest()
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_GROUP_ID, "42")
+      .setParam(PARAM_GROUP_ID, "999999")
       .execute();
   }
 

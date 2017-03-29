@@ -22,12 +22,13 @@ package org.sonar.db.organization;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
 public interface OrganizationMapper {
   void insert(@Param("organization") OrganizationDto organization);
 
   List<OrganizationDto> selectByQuery(@Param("query") OrganizationQuery organizationQuery,
-    @Param("offset") int offset, @Param("pageSize") int pageSize);
+    @Param("pagination") Pagination pagination);
 
   @CheckForNull
   OrganizationDto selectByKey(@Param("key") String key);
@@ -38,6 +39,13 @@ public interface OrganizationMapper {
   List<OrganizationDto> selectByUuids(@Param("uuids") List<String> uuids);
 
   List<OrganizationDto> selectByPermission(@Param("userId") Integer userId, @Param("permission") String permission);
+
+  /**
+   * Assuming the key of the loaded template with the specified type is an organization's UUID, select all organizations
+   * which does not have a row in table LOADED_TEMPLATES with the specified type.
+   */
+  List<OrganizationDto> selectOrganizationsWithoutLoadedTemplate(@Param("loadedTemplateType") String type,
+    @Param("pagination") Pagination pagination);
 
   DefaultTemplates selectDefaultTemplatesByUuid(@Param("uuid") String uuid);
 
@@ -54,6 +62,4 @@ public interface OrganizationMapper {
     @Param("defaultTemplates") DefaultTemplates defaultTemplates, @Param("now") long now);
 
   int deleteByUuid(@Param("uuid") String uuid);
-
-  int deleteByKey(@Param("key") String key);
 }

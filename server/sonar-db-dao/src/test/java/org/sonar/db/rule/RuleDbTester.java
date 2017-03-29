@@ -19,7 +19,13 @@
  */
 package org.sonar.db.rule;
 
+import java.util.function.Consumer;
+import org.apache.commons.lang.RandomStringUtils;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+
+import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class RuleDbTester {
 
@@ -29,9 +35,52 @@ public class RuleDbTester {
     this.db = db;
   }
 
-  public RuleDto insertRule(RuleDto ruleDto) {
-    db.getDbClient().ruleDao().insert(db.getSession(), ruleDto);
+  public RuleDefinitionDto insertRule(RuleDefinitionDto ruleDto) {
+    RuleDao ruleDao = db.getDbClient().ruleDao();
+    ruleDao.insert(db.getSession(), ruleDto);
     db.commit();
     return ruleDto;
+  }
+
+  public RuleDto insertRule(RuleDto ruleDto) {
+    RuleDao ruleDao = db.getDbClient().ruleDao();
+    ruleDao.insert(db.getSession(), ruleDto.getDefinition());
+    db.commit();
+    RuleMetadataDto metadata = ruleDto.getMetadata();
+    if (metadata.getOrganizationUuid() != null) {
+      ruleDao.update(db.getSession(), metadata.setRuleId(ruleDto.getId()));
+      db.commit();
+    }
+    return ruleDto;
+  }
+
+  /**
+   * Create and persist a rule with random values.
+   */
+  public RuleDto insertRule() {
+    return insertRule(rule -> {
+    });
+  }
+
+  public RuleDto insertRule(OrganizationDto organization, Consumer<RuleDto> populateRuleDto) {
+    RuleDto ruleDto = newRuleDto(organization);
+    populateRuleDto.accept(ruleDto);
+    return insertRule(ruleDto);
+  }
+
+  public RuleDto insertRule(Consumer<RuleDto> populateRuleDto) {
+    RuleDto ruleDto = newRuleDto();
+    populateRuleDto.accept(ruleDto);
+    return insertRule(ruleDto);
+  }
+
+  public RuleParamDto insertRuleParam(RuleDto rule) {
+    RuleParamDto param = new RuleParamDto();
+    param.setRuleId(rule.getId());
+    param.setName(RandomStringUtils.random(10));
+    param.setType(RuleParamType.STRING.type());
+    db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule.getDefinition(), param);
+    db.commit();
+    return param;
   }
 }

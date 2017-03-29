@@ -40,6 +40,7 @@ public class UserIndexDefinition implements IndexDefinition {
   public static final String FIELD_UPDATED_AT = "updatedAt";
   public static final String FIELD_ACTIVE = "active";
   public static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
+  public static final String FIELD_ORGANIZATION_UUIDS = "organizationUuids";
 
   private final Settings settings;
 
@@ -62,5 +63,6 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.createDateTimeField(FIELD_UPDATED_AT);
     mapping.createBooleanField(FIELD_ACTIVE);
     mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUIDS).disableNorms().build();
   }
 }

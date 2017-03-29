@@ -21,17 +21,17 @@
 import React from 'react';
 
 export default class GlobalFooterBranding extends React.Component {
-  render () {
+  render() {
     return (
-        <div>
-          This application is based on
-          {' '}
-          <a href="http://www.sonarqube.org/" title="SonarQube&trade;">SonarQube&trade;</a>
-          {' '}
-          but is <strong>not</strong> an official version provided by
-          {' '}
-          <a href="http://www.sonarsource.com" title="SonarSource SA">SonarSource SA</a>.
-        </div>
+      <div>
+        This application is based on
+        {' '}
+        <a href="http://www.sonarqube.org/" title="SonarQube™">SonarQube&trade;</a>
+        {' '}
+        but is <strong>not</strong> an official version provided by
+        {' '}
+        <a href="http://www.sonarsource.com" title="SonarSource SA">SonarSource SA</a>.
+      </div>
     );
   }
 }

@@ -21,10 +21,11 @@
 import { getValues } from '../../api/settings';
 import { receiveValues } from '../settings/store/values/actions';
 
-export const fetchAboutPageSettings = (): Function => (dispatch: Function): Promise<*> => {
-  const keys = ['sonar.lf.aboutText'];
+export const fetchAboutPageSettings = (): Function =>
+  (dispatch: Function): Promise<*> => {
+    const keys = ['sonar.lf.aboutText'];
 
-  return getValues(keys.join()).then(values => {
-    dispatch(receiveValues(values));
-  });
-};
+    return getValues(keys.join()).then(values => {
+      dispatch(receiveValues(values));
+    });
+  };

@@ -24,15 +24,15 @@ import { translate } from '../../../helpers/l10n';
 const link = 'https://redirect.sonarsource.com/doc/quality-gates.html';
 
 export default class AboutQualityGates extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="boxed-group">
-          <h2>{translate('about_page.quality_gates')}</h2>
-          <div className="boxed-group-inner">
-            <p className="about-page-text">{translate('about_page.quality_gates.text')}</p>
-            <ReadMore link={link}/>
-          </div>
+      <div className="boxed-group">
+        <h2>{translate('about_page.quality_gates')}</h2>
+        <div className="boxed-group-inner">
+          <p className="about-page-text">{translate('about_page.quality_gates.text')}</p>
+          <ReadMore link={link} />
         </div>
+      </div>
     );
   }
 }

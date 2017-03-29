@@ -22,31 +22,29 @@ import UpdateKeyForm from './UpdateKeyForm';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 
 export default class FineGrainedUpdate extends React.Component {
-  render () {
+  render() {
     const { component, modules } = this.props;
     const components = [component, ...modules];
 
     return (
-        <div id="project-key-fine-grained-update">
-          <table className="data zebra">
-            <tbody>
-              {components.map(component => (
-                  <tr key={component.key}>
-                    <td className="width-40">
-                      <QualifierIcon qualifier={component.qualifier}/>
-                      {' '}
-                      {component.name}
-                    </td>
-                    <td>
-                      <UpdateKeyForm
-                          component={component}
-                          onKeyChange={this.props.onKeyChange}/>
-                    </td>
-                  </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div id="project-key-fine-grained-update">
+        <table className="data zebra">
+          <tbody>
+            {components.map(component => (
+              <tr key={component.key}>
+                <td className="width-40">
+                  <QualifierIcon qualifier={component.qualifier} />
+                  {' '}
+                  {component.name}
+                </td>
+                <td>
+                  <UpdateKeyForm component={component} onKeyChange={this.props.onKeyChange} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

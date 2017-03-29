@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,8 +28,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserMembershipDto;
-import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -96,6 +93,7 @@ public class AddUserActionTest {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "a-group");
     UserDto user = db.users().insertUser("user_login");
+    addUserAsMemberOfOrganization(org, user);
     loginAsAdmin(org);
 
     newRequest()
@@ -197,13 +195,6 @@ public class AddUserActionTest {
     executeRequest(group, user);
   }
 
-  private void executeRequest(GroupDto groupDto, UserDto userDto) throws Exception {
-    newRequest()
-      .setParam("id", groupDto.getId().toString())
-      .setParam("login", userDto.getLogin())
-      .execute();
-  }
-
   @Test
   public void fail_if_administrator_of_another_organization() throws Exception {
     OrganizationDto org1 = db.organizations().insert();
@@ -218,6 +209,33 @@ public class AddUserActionTest {
       .setParam(PARAM_ORGANIZATION_KEY, org1.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
+      .execute();
+  }
+
+  @Test
+  public void fail_to_add_user_to_group_when_user_is_not_member_of_given_organization() throws Exception {
+    OrganizationDto org = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
+    GroupDto group = db.users().insertGroup(org, "a-group");
+    UserDto user = db.users().insertUser("user_login");
+    OrganizationDto otherOrganization = db.organizations().insert();
+    addUserAsMemberOfOrganization(otherOrganization, user);
+    loginAsAdmin(org);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("User 'user_login' is not member of organization 'Organization key'");
+
+    newRequest()
+      .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .execute()
+      .assertNoContent();
+  }
+
+  private void executeRequest(GroupDto groupDto, UserDto userDto) throws Exception {
+    newRequest()
+      .setParam("id", groupDto.getId().toString())
+      .setParam("login", userDto.getLogin())
       .execute();
   }
 
@@ -237,12 +255,8 @@ public class AddUserActionTest {
     return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
   }
 
-  private boolean isUserInGroup(UserDto userDto, GroupDto groupDto) {
-    List<UserMembershipDto> members = db.getDbClient().groupMembershipDao()
-      .selectMembers(db.getSession(), UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
-    return members
-      .stream()
-      .anyMatch(dto -> dto.getLogin().equals(userDto.getLogin()));
+  private void addUserAsMemberOfOrganization(OrganizationDto organization, UserDto user) {
+    db.organizations().addMember(organization, user);
   }
 
 }

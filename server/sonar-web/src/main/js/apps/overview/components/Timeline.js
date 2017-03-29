@@ -17,27 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
+import { max } from 'd3-array';
 import { LineChart } from '../../../components/charts/line-chart';
 
 const HEIGHT = 80;
 
 export default class Timeline extends React.Component {
   static propTypes = {
-    history: React.PropTypes.arrayOf(
-      React.PropTypes.object
-    ).isRequired,
+    history: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     before: React.PropTypes.object,
     after: React.PropTypes.object
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  filterSnapshots () {
+  filterSnapshots() {
     const { history, before, after } = this.props;
 
     return history.filter(s => {
@@ -47,7 +45,7 @@ export default class Timeline extends React.Component {
     });
   }
 
-  render () {
+  render() {
     const snapshots = this.filterSnapshots();
 
     if (snapshots.length < 2) {
@@ -58,18 +56,19 @@ export default class Timeline extends React.Component {
       return { x: index, y: snapshot.value };
     });
 
-    const domain = [0, d3.max(this.props.history, d => d.value)];
+    const domain = [0, max(this.props.history, d => d.value)];
 
     return (
-        <LineChart
-            data={data}
-            domain={domain}
-            interpolate="basis"
-            displayBackdrop={true}
-            displayPoints={false}
-            displayVerticalGrid={false}
-            height={HEIGHT}
-            padding={[0, 0, 0, 0]}/>
+      <LineChart
+        data={data}
+        domain={domain}
+        interpolate="basis"
+        displayBackdrop={true}
+        displayPoints={false}
+        displayVerticalGrid={false}
+        height={HEIGHT}
+        padding={[0, 0, 0, 0]}
+      />
     );
   }
 }

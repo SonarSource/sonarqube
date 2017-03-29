@@ -47,29 +47,32 @@ describe('Search', () => {
   };
 
   it('should render search form', () => {
-    const component = shallow(<Search {...defaultProps}/>);
+    const component = shallow(<Search {...defaultProps} />);
     expect(component.find('.js-search').length).toBe(1);
   });
 
   it('should not render search form', () => {
-    const component = shallow(<Search {...defaultProps} component={{ id: 'ABCD' }}/>);
+    const component = shallow(<Search {...defaultProps} component={{ id: 'ABCD' }} />);
     expect(component.find('.js-search').length).toBe(0);
   });
 
   it('should search', done => {
     const searchSpy = jest.fn();
-    const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy}/>);
+    const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy} />);
     const searchInput = component.find('.js-search');
     change(searchInput, 'some search query');
-    setTimeout(() => {
-      expect(searchSpy).toBeCalledWith({ query: 'some search query' });
-      done();
-    }, DEBOUNCE_DELAY);
+    setTimeout(
+      () => {
+        expect(searchSpy).toBeCalledWith({ query: 'some search query' });
+        done();
+      },
+      DEBOUNCE_DELAY
+    );
   });
 
   it('should reload', () => {
     const reloadSpy = jest.fn();
-    const component = shallow(<Search {...defaultProps} onReload={reloadSpy}/>);
+    const component = shallow(<Search {...defaultProps} onReload={reloadSpy} />);
     const reloadButton = component.find('.js-reload');
     expect(reloadSpy).not.toBeCalled();
     click(reloadButton);
@@ -80,28 +83,38 @@ describe('Search', () => {
 describe('Stats', () => {
   describe('Pending', () => {
     it('should show zero pending', () => {
-      const result = shallow(<Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-pending-count').text()).toContain('0');
     });
 
     it('should show 5 pending', () => {
-      const result = shallow(<Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-pending-count').text()).toContain('5');
     });
 
     it('should not show cancel pending button', () => {
-      const result = shallow(<Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-cancel-pending').length).toBe(0);
     });
 
     it('should show cancel pending button', () => {
-      const result = shallow(<Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-cancel-pending').length).toBe(1);
     });
 
     it('should trigger cancelling pending', () => {
       const spy = jest.fn();
-      const result = shallow(<Stats pendingCount={5} onCancelAllPending={spy} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats pendingCount={5} onCancelAllPending={spy} onShowFailing={stub} />
+      );
       expect(spy).not.toBeCalled();
       click(result.find('.js-cancel-pending'));
       expect(spy).toBeCalled();
@@ -110,28 +123,38 @@ describe('Stats', () => {
 
   describe('Failures', () => {
     it('should show zero failures', () => {
-      const result = shallow(<Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-failures-count').text()).toContain('0');
     });
 
     it('should show 5 failures', () => {
-      const result = shallow(<Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-failures-count').text()).toContain('5');
     });
 
     it('should not show link to failures', () => {
-      const result = shallow(<Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-failures-count').is('a')).toBeFalsy();
     });
 
     it('should show link to failures', () => {
-      const result = shallow(<Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+      const result = shallow(
+        <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
+      );
       expect(result.find('.js-failures-count').is('a')).toBeTruthy();
     });
 
     it('should trigger filtering failures', () => {
       const spy = jest.fn();
-      const result = shallow(<Stats failingCount={5} onCancelAllPending={stub} onShowFailing={spy}/>);
+      const result = shallow(
+        <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={spy} />
+      );
       expect(spy).not.toBeCalled();
       click(result.find('.js-failures-count'));
       expect(spy).toBeCalled();

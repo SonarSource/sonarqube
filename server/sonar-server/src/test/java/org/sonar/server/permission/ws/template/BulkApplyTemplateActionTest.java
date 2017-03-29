@@ -76,6 +76,9 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     group1 = db.users().insertGroup(organization);
     group2 = db.users().insertGroup(organization);
 
+    db.organizations().addMember(organization, user1);
+    db.organizations().addMember(organization, user2);
+
     // template 1 for org 1
     template1 = db.permissionTemplates().insertTemplate(organization);
     addUserToTemplate(user1, template1, UserRole.CODEVIEWER);
@@ -219,12 +222,12 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   private List<String> selectProjectPermissionGroups(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
-    return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), project.getOrganizationUuid(), query);
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponentUuid(project.uuid()).build();
+    return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), query);
   }
 
   private List<Integer> selectProjectPermissionUsers(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
-    return db.getDbClient().userPermissionDao().selectUserIds(db.getSession(), project.getOrganizationUuid(), query);
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponentUuid(project.uuid()).build();
+    return db.getDbClient().userPermissionDao().selectUserIds(db.getSession(), query);
   }
 }

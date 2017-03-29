@@ -19,7 +19,8 @@
 }
 
 .project-card {
-  height: 115px;
+  position: relative;
+  min-height: 121px;
   box-sizing: border-box;
 }
 
@@ -96,6 +97,13 @@
   line-height: 24px;
 }
 
+.project-card-analysis-date {
+  margin-top: -15px;
+  padding-bottom: 5px;
+  padding-right: 20px;
+  text-align: right;
+}
+
 .project-card-not-analyzed {
   padding: 14px 0;
 }
@@ -106,10 +114,46 @@
   transition: none;
 }
 
+.projects-facet-sort {
+  float: right;
+  font-weight: normal;
+  font-size: 11px;
+  color: #777;
+  text-transform: lowercase;
+}
+
+.projects-facet-sort .button-group {
+  margin-top: -3px;
+}
+
+.projects-facet-sort .button-small {
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: normal;
+}
+
 .projects-facets-header {
   margin-bottom: 10px;
   padding: 10px 0;
   border-bottom: 1px solid #e6e6e6;
+}
+
+.projects-facet-search {
+  position: relative;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.projects-facet-search .note {
+  position: absolute;
+  opacity: 0;
+  left: 0;
+  bottom: -7px;
+  transition: opacity 0.3s ease;
+}
+
+.projects-facet-search input.touched ~ .note {
+  opacity: 1;
 }
 
 .projects-facets-reset {
@@ -133,6 +177,62 @@
   transition: width 0.3s ease;
 }
 
-.search-navigator-facet.active .projects-facet-bar-inner {
+.search-navigator-facet.active .projects-facet-bar-inner,
+.search-navigator-facet-highlight-under.active ~ .search-navigator-facet .projects-facet-bar-inner {
   background-color: #4b9fd5;
+}
+
+.projects-visualization {
+  position: relative;
+  height: 600px;
+  margin-top: 15px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.projects-visualization .measure-details-bubble-chart-axis.y {
+  width: 300px;
+  left: 15px;
+  margin-top: 150px;
+  transform-origin: 0 0;
+  text-align: center;
+}
+
+.projects-visualizations-footer {
+  margin-top: 8px;
+  padding: 15px 0;
+  border-top: 1px solid #e6e6e6;
+  font-size: 12px;
+  text-align: center;
+}
+
+.projects-visualizations-footer .note {
+  font-style: italic;
+}
+
+.measure-details-bubble-chart-axis {
+  position: absolute;
+  color: #777;
+  font-size: 12px;
+}
+
+.measure-details-bubble-chart-axis.x {
+  left: 50%;
+  bottom: 10px;
+  width: 500px;
+  margin-left: -250px;
+  text-align: center;
+}
+
+.measure-details-bubble-chart-axis.y {
+  top: 50%;
+  left: -20px;
+  transform: rotate(-90deg);
+}
+
+.measure-details-bubble-chart-axis.size {
+  left: 50%;
+  top: 10px;
+  width: 500px;
+  margin-left: -250px;
+  text-align: center;
 }

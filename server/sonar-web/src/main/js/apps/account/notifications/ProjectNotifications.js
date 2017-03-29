@@ -51,7 +51,7 @@ class ProjectNotifications extends React.Component {
     removeNotification: (n: Notification) => void
   };
 
-  handleAddNotification ({ channel, type }) {
+  handleAddNotification({ channel, type }) {
     this.props.addNotification({
       channel,
       type,
@@ -61,7 +61,7 @@ class ProjectNotifications extends React.Component {
     });
   }
 
-  handleRemoveNotification ({ channel, type }) {
+  handleRemoveNotification({ channel, type }) {
     this.props.removeNotification({
       channel,
       type,
@@ -69,34 +69,37 @@ class ProjectNotifications extends React.Component {
     });
   }
 
-  render () {
+  render() {
     const { project, channels } = this.props;
 
     return (
-        <table key={project.key} className="form big-spacer-bottom">
-          <thead>
-            <tr>
-              <th>
-                <span className="text-normal"><Organization organizationKey={project.organization}/></span>
-                <h4 className="display-inline-block">
-                  <Link to={getProjectUrl(project.key)}>{project.name}</Link>
-                </h4>
+      <table key={project.key} className="form big-spacer-bottom">
+        <thead>
+          <tr>
+            <th>
+              <span className="text-normal">
+                <Organization organizationKey={project.organization} />
+              </span>
+              <h4 className="display-inline-block">
+                <Link to={getProjectUrl(project.key)}>{project.name}</Link>
+              </h4>
+            </th>
+            {channels.map(channel => (
+              <th key={channel} className="text-center">
+                <h4>{translate('notification.channel', channel)}</h4>
               </th>
-              {channels.map(channel => (
-                  <th key={channel} className="text-center">
-                    <h4>{translate('notification.channel', channel)}</h4>
-                  </th>
-              ))}
-            </tr>
-          </thead>
-          <NotificationsList
-              notifications={this.props.notifications}
-              channels={this.props.channels}
-              types={this.props.types}
-              checkboxId={(d, c) => `project-notification-${project.key}-${d}-${c}`}
-              onAdd={n => this.handleAddNotification(n)}
-              onRemove={n => this.handleRemoveNotification(n)}/>
-        </table>
+            ))}
+          </tr>
+        </thead>
+        <NotificationsList
+          notifications={this.props.notifications}
+          channels={this.props.channels}
+          types={this.props.types}
+          checkboxId={(d, c) => `project-notification-${project.key}-${d}-${c}`}
+          onAdd={n => this.handleAddNotification(n)}
+          onRemove={n => this.handleRemoveNotification(n)}
+        />
+      </table>
     );
   }
 }

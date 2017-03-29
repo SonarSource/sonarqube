@@ -25,13 +25,13 @@ import { parseError } from '../../code/utils';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     const { id } = this.options.qualityGate;
 
     deleteQualityGate(id).then(
@@ -46,8 +46,7 @@ export default ModalForm.extend({
     );
   },
 
-  serializeData () {
+  serializeData() {
     return this.options.qualityGate;
   }
 });
-

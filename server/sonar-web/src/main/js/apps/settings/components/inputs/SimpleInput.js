@@ -28,18 +28,19 @@ export default class SimpleInput extends React.Component {
     className: React.PropTypes.string.isRequired
   };
 
-  handleInputChange (e) {
+  handleInputChange(e) {
     this.props.onChange(e.target.value);
   }
 
-  render () {
+  render() {
     return (
-        <input
-            name={this.props.name}
-            className={this.props.className + ' text-top'}
-            type={this.props.type}
-            value={this.props.value || ''}
-            onChange={e => this.handleInputChange(e)}/>
+      <input
+        name={this.props.name}
+        className={this.props.className + ' text-top'}
+        type={this.props.type}
+        value={this.props.value || ''}
+        onChange={e => this.handleInputChange(e)}
+      />
     );
   }
 }

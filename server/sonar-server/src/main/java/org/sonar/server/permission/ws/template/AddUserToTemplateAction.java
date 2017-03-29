@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.UserId;
@@ -92,19 +93,20 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
-
+      OrganizationDto organizationDto = wsSupport.findOrganization(dbSession, request.getOrganization());
+      checkGlobalAdmin(userSession, organizationDto.getUuid());
       UserId user = wsSupport.findUser(dbSession, userLogin);
+      wsSupport.checkMembership(dbSession, organizationDto, user);
 
-      if (!isUserAlreadyAdded(dbSession, template.getId(), userLogin, permission)) {
+      if (!isUserAlreadyAdded(dbSession, organizationDto, template.getId(), userLogin, permission)) {
         dbClient.permissionTemplateDao().insertUserPermission(dbSession, template.getId(), user.getId(), permission);
         dbSession.commit();
       }
     }
   }
 
-  private boolean isUserAlreadyAdded(DbSession dbSession, long templateId, String userLogin, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
+  private boolean isUserAlreadyAdded(DbSession dbSession, OrganizationDto organizationDto, long templateId, String userLogin, String permission) {
+    PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(organizationDto.getUuid()).setPermission(permission).build();
     List<String> usersWithPermission = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, permissionQuery, templateId);
     return usersWithPermission.stream().anyMatch(s -> s.equals(userLogin));
   }

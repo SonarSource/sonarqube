@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import difference from 'lodash/difference';
-import union from 'lodash/union';
+import { difference, union } from 'lodash';
 import Marionette from 'backbone.marionette';
 import RuleFilterMixin from './rule-filter-mixin';
 import Template from '../templates/rule/coding-rules-rule-meta.hbs';
@@ -28,7 +27,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   ui: {
@@ -47,22 +46,22 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     'click .js-rule-filter': 'onRuleFilterClick'
   },
 
-  onRender () {
+  onRender() {
     this.$('[data-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  requestTags () {
+  requestTags() {
     const url = window.baseUrl + '/api/rules/tags';
     return $.get(url);
   },
 
-  changeTags () {
+  changeTags() {
     const that = this;
     this.requestTags().done(r => {
       that.ui.tagInput.select2({
@@ -77,7 +76,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     });
   },
 
-  cancelEdit () {
+  cancelEdit() {
     this.ui.tagsList.removeClass('hidden');
     this.ui.tagsEdit.addClass('hidden');
     if (this.ui.tagInput.select2) {
@@ -86,7 +85,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     }
   },
 
-  editDone () {
+  editDone() {
     const that = this;
     const tags = this.ui.tagInput.val();
     return $.ajax({
@@ -96,15 +95,17 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
         key: this.model.get('key'),
         tags
       }
-    }).done(r => {
-      that.model.set('tags', r.rule.tags);
-      that.cancelEdit();
-    }).always(() => {
-      that.cancelEdit();
-    });
+    })
+      .done(r => {
+        that.model.set('tags', r.rule.tags);
+        that.cancelEdit();
+      })
+      .always(() => {
+        that.cancelEdit();
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite,
@@ -113,4 +114,3 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     };
   }
 });
-

@@ -34,12 +34,11 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
-
-import static org.mockito.Mockito.mock;
 
 public class ProjectsActionTest {
 
@@ -61,9 +60,7 @@ public class ProjectsActionTest {
   private ComponentDto project4;
 
   private WsTester wsTester = new WsTester(new QProfilesWs(
-    mock(RuleActivationActions.class),
-    mock(BulkRuleActivationActions.class),
-    new ProjectsAction(dbClient, userSessionRule)));
+    new ProjectsAction(dbClient, userSessionRule, new QProfileWsSupport(dbClient, userSessionRule, TestDefaultOrganizationProvider.from(db)))));
 
   @Before
   public void setUp() {
@@ -201,8 +198,8 @@ public class ProjectsActionTest {
   }
 
   private void createProfiles() {
-    xooP1 = QProfileTesting.newXooP1("org-123");
-    xooP2 = QProfileTesting.newXooP2("org-123");
+    xooP1 = QProfileTesting.newXooP1(organizationDto);
+    xooP2 = QProfileTesting.newXooP2(organizationDto);
     dbClient.qualityProfileDao().insert(dbSession, xooP1, xooP2);
   }
 

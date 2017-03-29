@@ -27,7 +27,7 @@ export default class LicenseChangeForm extends React.Component {
     onChange: React.PropTypes.func.isRequired
   };
 
-  onClick (e) {
+  onClick(e) {
     e.preventDefault();
     e.target.blur();
 
@@ -40,9 +40,11 @@ export default class LicenseChangeForm extends React.Component {
     }).render();
   }
 
-  render () {
+  render() {
     return (
-        <button className="js-change" onClick={e => this.onClick(e)}>{translate('update_verb')}</button>
+      <button className="js-change" onClick={e => this.onClick(e)}>
+        {translate('update_verb')}
+      </button>
     );
   }
 }

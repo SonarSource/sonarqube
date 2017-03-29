@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.index;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.rule.RuleTesting;
@@ -31,6 +32,7 @@ public class ActiveRuleDocTesting {
 
   public static ActiveRuleDoc newDoc(ActiveRuleKey key) {
     return new ActiveRuleDoc(key)
+      .setOrganizationUuid(RandomStringUtils.random(40))
       .setSeverity(Severity.CRITICAL)
       .setInheritance(null).setCreatedAt(150000000L)
       .setUpdatedAt(160000000L);

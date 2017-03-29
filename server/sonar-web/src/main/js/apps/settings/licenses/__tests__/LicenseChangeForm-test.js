@@ -22,6 +22,6 @@ import { shallow } from 'enzyme';
 import LicenseChangeForm from '../LicenseChangeForm';
 
 it('should render button', () => {
-  const form = shallow(<LicenseChangeForm license={{}} onChange={jest.fn()}/>);
+  const form = shallow(<LicenseChangeForm license={{}} onChange={jest.fn()} />);
   expect(form.is('button')).toBe(true);
 });

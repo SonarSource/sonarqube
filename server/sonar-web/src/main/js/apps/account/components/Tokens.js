@@ -22,15 +22,15 @@ import React, { Component } from 'react';
 import TokensView from '../tokens-view';
 
 export default class Tokens extends Component {
-  componentDidMount () {
+  componentDidMount() {
     this.renderView();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.destroyView();
   }
 
-  renderView () {
+  renderView() {
     const account = new Backbone.Model({
       id: this.props.user.login
     });
@@ -41,13 +41,13 @@ export default class Tokens extends Component {
     }).render();
   }
 
-  destroyView () {
+  destroyView() {
     if (this.destroyView) {
       this.tokensView.destroy();
     }
   }
 
-  render () {
-    return <div ref="container"/>;
+  render() {
+    return <div ref="container" />;
   }
 }

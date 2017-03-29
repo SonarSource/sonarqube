@@ -25,7 +25,7 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
   events: {
@@ -37,72 +37,68 @@ export default Marionette.ItemView.extend({
     'click .js-close': 'onCloseClick'
   },
 
-  onRender () {
+  onRender() {
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     this.$('.js-normal-size').addClass('hidden');
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
     $('.tooltip').remove();
   },
 
-  onResizeClick (e) {
+  onResizeClick(e) {
     e.preventDefault();
     this.startResizing(e);
   },
 
-  onMinimizeClick (e) {
+  onMinimizeClick(e) {
     e.preventDefault();
     this.trigger('viewerMinimize');
   },
 
-  onFullScreenClick (e) {
+  onFullScreenClick(e) {
     e.preventDefault();
     this.toFullScreen();
   },
 
-  onNormalSizeClick (e) {
+  onNormalSizeClick(e) {
     e.preventDefault();
     this.toNormalSize();
   },
 
-  onCloseClick (e) {
+  onCloseClick(e) {
     e.preventDefault();
     this.trigger('viewerClose');
   },
 
-  startResizing (e) {
+  startResizing(e) {
     this.initialResizePosition = e.clientY;
     this.initialResizeHeight = $('.workspace-viewer-container').height();
     const processResizing = this.processResizing.bind(this);
     const stopResizing = this.stopResizing.bind(this);
-    $('body')
-        .on('mousemove.workspace', processResizing)
-        .on('mouseup.workspace', stopResizing);
+    $('body').on('mousemove.workspace', processResizing).on('mouseup.workspace', stopResizing);
   },
 
-  processResizing (e) {
+  processResizing(e) {
     const currentResizePosition = e.clientY;
     const resizeDelta = this.initialResizePosition - currentResizePosition;
     const height = this.initialResizeHeight + resizeDelta;
     $('.workspace-viewer-container').height(height);
   },
 
-  stopResizing () {
-    $('body')
-        .off('mousemove.workspace')
-        .off('mouseup.workspace');
+  stopResizing() {
+    $('body').off('mousemove.workspace').off('mouseup.workspace');
   },
 
-  toFullScreen () {
+  toFullScreen() {
     this.$('.js-normal-size').removeClass('hidden');
     this.$('.js-full-screen').addClass('hidden');
     this.initialResizeHeight = $('.workspace-viewer-container').height();
     $('.workspace-viewer-container').height('9999px');
   },
 
-  toNormalSize () {
+  toNormalSize() {
     this.$('.js-normal-size').addClass('hidden');
     this.$('.js-full-screen').removeClass('hidden');
     $('.workspace-viewer-container').height(this.initialResizeHeight);

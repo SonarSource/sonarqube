@@ -25,18 +25,18 @@ import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../stor
 
 export const RECEIVE_MEASURES = 'measuresApp/home/RECEIVE_MEASURES';
 
-export function receiveMeasures (measures, periods) {
+export function receiveMeasures(measures, periods) {
   return { type: RECEIVE_MEASURES, measures, periods };
 }
 
-function banQualityGate (component, measures) {
+function banQualityGate(component, measures) {
   if (['VW', 'SVW'].includes(component.qualifier)) {
     return measures;
   }
   return measures.filter(measure => measure.metric !== 'alert_status');
 }
 
-export function fetchMeasures () {
+export function fetchMeasures() {
   return (dispatch, getState) => {
     dispatch(startFetching());
 
@@ -45,23 +45,23 @@ export function fetchMeasures () {
     const metrics = getMeasuresAppAllMetrics(state);
 
     const metricKeys = metrics
-        .filter(metric => !metric.hidden)
-        .filter(metric => metric.type !== 'DATA' && metric.type !== 'DISTRIB')
-        .map(metric => metric.key);
+      .filter(metric => !metric.hidden)
+      .filter(metric => metric.type !== 'DATA' && metric.type !== 'DISTRIB')
+      .map(metric => metric.key);
 
     getMeasuresAndMeta(component.key, metricKeys, { additionalFields: 'periods' }).then(r => {
       const leakPeriod = getLeakPeriod(r.periods);
       const measures = banQualityGate(component, r.component.measures)
-          .map(measure => {
-            const metric = metrics.find(metric => metric.key === measure.metric);
-            const leak = getLeakValue(measure);
-            return { ...measure, metric, leak };
-          })
-          .filter(measure => {
-            const hasValue = measure.value != null;
-            const hasLeakValue = !!leakPeriod && measure.leak != null;
-            return hasValue || hasLeakValue;
-          });
+        .map(measure => {
+          const metric = metrics.find(metric => metric.key === measure.metric);
+          const leak = getLeakValue(measure);
+          return { ...measure, metric, leak };
+        })
+        .filter(measure => {
+          const hasValue = measure.value != null;
+          const hasLeakValue = !!leakPeriod && measure.leak != null;
+          return hasValue || hasLeakValue;
+        });
 
       dispatch(receiveMeasures(measures, r.periods));
       dispatch(stopFetching());

@@ -33,12 +33,12 @@ export default class ListItem extends React.Component {
     refresh: CallbackType
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleShowGroups = this.handleShowGroups.bind(this);
     this.handleShowUsers = this.handleShowUsers.bind(this);
   }
 
-  handleShowGroups (permission) {
+  handleShowGroups(permission) {
     new GroupsView({
       permission,
       permissionTemplate: this.props.permissionTemplate,
@@ -46,7 +46,7 @@ export default class ListItem extends React.Component {
     }).render();
   }
 
-  handleShowUsers (permission) {
+  handleShowUsers(permission) {
     new UsersView({
       permission,
       permissionTemplate: this.props.permissionTemplate,
@@ -54,30 +54,30 @@ export default class ListItem extends React.Component {
     }).render();
   }
 
-  render () {
+  render() {
     const permissions = this.props.permissionTemplate.permissions.map(p => (
-        <PermissionCell key={p.key} permission={p}/>
+      <PermissionCell key={p.key} permission={p} />
     ));
 
     return (
-        <tr
-            data-id={this.props.permissionTemplate.id}
-            data-name={this.props.permissionTemplate.name}>
-          <NameCell
-              organization={this.props.organization}
-              permissionTemplate={this.props.permissionTemplate}
-              topQualifiers={this.props.topQualifiers}/>
+      <tr data-id={this.props.permissionTemplate.id} data-name={this.props.permissionTemplate.name}>
+        <NameCell
+          organization={this.props.organization}
+          permissionTemplate={this.props.permissionTemplate}
+          topQualifiers={this.props.topQualifiers}
+        />
 
-          {permissions}
+        {permissions}
 
-          <td className="nowrap thin text-right">
-            <ActionsCell
-                organization={this.props.organization}
-                permissionTemplate={this.props.permissionTemplate}
-                topQualifiers={this.props.topQualifiers}
-                refresh={this.props.refresh}/>
-          </td>
-        </tr>
+        <td className="nowrap thin text-right">
+          <ActionsCell
+            organization={this.props.organization}
+            permissionTemplate={this.props.permissionTemplate}
+            topQualifiers={this.props.topQualifiers}
+            refresh={this.props.refresh}
+          />
+        </td>
+      </tr>
     );
   }
 }

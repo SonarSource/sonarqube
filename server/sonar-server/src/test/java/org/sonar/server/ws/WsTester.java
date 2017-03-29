@@ -50,7 +50,9 @@ import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 
 /**
  * @since 4.2
+ * @deprecated use {@link WsActionTester} in preference to this class
  */
+@Deprecated
 public class WsTester {
 
   public static class TestRequest extends ValidatingRequest {

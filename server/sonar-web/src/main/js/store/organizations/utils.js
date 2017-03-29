@@ -19,7 +19,10 @@
  */
 // @flow
 import getStore from '../../app/utils/getStore';
-import { getOrganizationByKey, areThereCustomOrganizations as customOrganizations } from '../rootReducer';
+import {
+  getOrganizationByKey,
+  areThereCustomOrganizations as customOrganizations
+} from '../rootReducer';
 
 export const getOrganization = (key: string) => {
   const store = getStore();

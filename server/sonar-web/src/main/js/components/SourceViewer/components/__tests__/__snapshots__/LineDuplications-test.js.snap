@@ -1,0 +1,21 @@
+exports[`test render duplicated line 1`] = `
+<td
+  className="source-meta source-line-duplications source-line-duplicated"
+  data-placement="right"
+  data-toggle="tooltip"
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+  title="source_viewer.tooltip.duplicated_line">
+  <div
+    className="source-line-bar" />
+</td>
+`;
+
+exports[`test render not duplicated line 1`] = `
+<td
+  className="source-meta source-line-duplications">
+  <div
+    className="source-line-bar" />
+</td>
+`;

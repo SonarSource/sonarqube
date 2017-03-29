@@ -21,6 +21,21 @@
          active="[false]"
          is_root="[false]"/>
 
+  <organization_members
+      user_id="200"
+      organization_uuid="ORG_UUID"
+  />
+
+  <organization_members
+      user_id="201"
+      organization_uuid="ORG_UUID"
+  />
+
+  <organization_members
+      user_id="202"
+      organization_uuid="ORG_UUID"
+  />
+
   <perm_templates_users id="1"
                         user_id="200"
                         permission_reference="user"

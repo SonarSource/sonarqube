@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import keyBy from 'lodash/keyBy';
-import values from 'lodash/values';
+import { keyBy, values } from 'lodash';
 import { RECEIVE_GATES } from './actions';
 
 const gates = (state = {}, action = {}) => {
@@ -32,8 +31,6 @@ const gates = (state = {}, action = {}) => {
 
 export default gates;
 
-export const getAllGates = state =>
-    values(state);
+export const getAllGates = state => values(state);
 
-export const getGate = (state, id) =>
-    state[id];
+export const getGate = (state, id) => state[id];

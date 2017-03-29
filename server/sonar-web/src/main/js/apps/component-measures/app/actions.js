@@ -31,15 +31,15 @@ export const SET_COMPONENT = 'measuresApp/app/SET_COMPONENT';
  * Action Creators
  */
 
-export function displayHome () {
+export function displayHome() {
   return { type: DISPLAY_HOME };
 }
 
-function receiveMetrics (metrics) {
+function receiveMetrics(metrics) {
   return { type: RECEIVE_METRICS, metrics };
 }
 
-export function setComponent (component) {
+export function setComponent(component) {
   return { type: SET_COMPONENT, component };
 }
 
@@ -47,7 +47,7 @@ export function setComponent (component) {
  * Workflow
  */
 
-export function fetchMetrics () {
+export function fetchMetrics() {
   return dispatch => {
     getMetrics().then(metrics => {
       dispatch(receiveMetrics(metrics));

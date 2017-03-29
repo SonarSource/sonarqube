@@ -25,7 +25,7 @@ const initialState = {
   total: 0
 };
 
-export default function drilldownReducer (state = initialState, action = {}) {
+export default function drilldownReducer(state = initialState, action = {}) {
   switch (action.type) {
     case DISPLAY_HOME:
       return initialState;

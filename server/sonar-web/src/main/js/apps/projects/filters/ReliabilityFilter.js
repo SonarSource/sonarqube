@@ -21,12 +21,7 @@ import React from 'react';
 import IssuesFilter from './IssuesFilter';
 
 export default class ReliabilityFilter extends React.Component {
-  render () {
-    return (
-        <IssuesFilter
-            {...this.props}
-            name="Reliability"
-            property="reliability"/>
-    );
+  render() {
+    return <IssuesFilter {...this.props} name="Reliability" property="reliability" />;
   }
 }

@@ -19,37 +19,80 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
+import FilterHeader from './FilterHeader';
+import SortingFilter from './SortingFilter';
 import SizeRating from '../../../components/ui/SizeRating';
+import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
 
-export default class SizeFilter extends React.Component {
-  renderOption = (option, selected) => {
+export default class SizeFilter extends React.PureComponent {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  };
+
+  property = 'size';
+
+  renderOption(option, selected) {
     return (
-        <span>
-          <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected}/>
-          <span className="spacer-left">
-            {getSizeRatingLabel(option)}
-          </span>
+      <span>
+        <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected} />
+        <span className="spacer-left">
+          {getSizeRatingLabel(option)}
         </span>
+      </span>
+    );
+  }
+
+  renderSort = () => {
+    return (
+      <SortingFilter
+        property={this.property}
+        query={this.props.query}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        leftText={translate('biggest')}
+        rightText={translate('smallest')}
+      />
     );
   };
 
-  getFacetValueForOption = (facet, option) => {
-    const map = ['*-1000.0', '1000.0-10000.0', '10000.0-100000.0', '100000.0-500000.0', '500000.0-*'];
+  getFacetValueForOption(facet, option) {
+    const map = [
+      '*-1000.0',
+      '1000.0-10000.0',
+      '10000.0-100000.0',
+      '100000.0-500000.0',
+      '500000.0-*'
+    ];
     return facet[map[option - 1]];
-  };
+  }
 
-  render () {
+  render() {
     return (
-        <FilterContainer
-            property="size"
-            getOptions={() => [1, 2, 3, 4, 5]}
-            renderName={() => 'Size'}
-            renderOption={this.renderOption}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <FilterContainer
+        property={this.property}
+        options={[1, 2, 3, 4, 5]}
+        query={this.props.query}
+        renderOption={this.renderOption}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={
+          <FilterHeader name="Size">
+            <SortingFilter
+              property={this.property}
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+              leftText={translate('biggest')}
+              rightText={translate('smallest')}
+            />
+          </FilterHeader>
+        }
+      />
     );
   }
 }

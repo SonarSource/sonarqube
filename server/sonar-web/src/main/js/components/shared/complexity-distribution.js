@@ -30,7 +30,7 @@ export const ComplexityDistribution = React.createClass({
     of: React.PropTypes.string.isRequired
   },
 
-  renderBarChart () {
+  renderBarChart() {
     const data = this.props.distribution.split(';').map((point, index) => {
       const tokens = point.split('=');
       const y = parseInt(tokens[1], 10);
@@ -48,23 +48,26 @@ export const ComplexityDistribution = React.createClass({
     const xValues = data.map(point => formatMeasure(point.y, 'INT'));
 
     return (
-        <BarChart
-            data={data}
-            xTicks={xTicks}
-            xValues={xValues}
-            height={HEIGHT}
-            barsWidth={20}
-            padding={[25, 10, 25, 10]}/>
+      <BarChart
+        data={data}
+        xTicks={xTicks}
+        xValues={xValues}
+        height={HEIGHT}
+        barsWidth={20}
+        padding={[25, 10, 25, 10]}
+      />
     );
   },
 
-  render () {
+  render() {
     // TODO remove inline styling
     return (
-        <div className="overview-bar-chart"
-             style={{ height: HEIGHT, paddingTop: 10, paddingBottom: 15 }}>
-          {this.renderBarChart()}
-        </div>
+      <div
+        className="overview-bar-chart"
+        style={{ height: HEIGHT, paddingTop: 10, paddingBottom: 15 }}
+      >
+        {this.renderBarChart()}
+      </div>
     );
   }
 });

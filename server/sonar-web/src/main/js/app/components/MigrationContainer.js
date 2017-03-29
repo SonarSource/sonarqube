@@ -19,30 +19,30 @@
  */
 // @flow
 import React from 'react';
+import { withRouter } from 'react-router';
 import { getSystemStatus } from '../../api/system';
 
-export default class MigrationContainer extends React.Component {
-  static propTypes = {
-    children: React.PropTypes.element.isRequired
+class MigrationContainer extends React.Component {
+  props: {
+    children: Object,
+    router: { push: (path: string) => void }
   };
 
   state = {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     getSystemStatus().then(r => {
       if (r.status === 'UP') {
         this.setState({ loading: false });
       } else {
-        // workaround cyclic dependencies
-        const handleRequiredMigration = require('../utils/handleRequiredMigration').default;
-        handleRequiredMigration();
+        this.props.router.push('/maintenance');
       }
     });
   }
 
-  render () {
+  render() {
     if (this.state.loading) {
       return null;
     }
@@ -50,3 +50,5 @@ export default class MigrationContainer extends React.Component {
     return this.props.children;
   }
 }
+
+export default withRouter(MigrationContainer);

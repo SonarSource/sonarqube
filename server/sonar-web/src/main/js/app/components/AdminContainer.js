@@ -27,7 +27,7 @@ import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState/duck';
 
 class AdminContainer extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     if (!isUserAdmin(this.props.currentUser)) {
       // workaround cyclic dependencies
       const handleRequiredAuthorization = require('../utils/handleRequiredAuthorization').default;
@@ -36,23 +36,23 @@ class AdminContainer extends React.Component {
     this.loadData();
   }
 
-  loadData () {
+  loadData() {
     getSettingsNavigation().then(
       r => this.props.setAdminPages(r.extensions),
       onFail(this.props.dispatch)
     );
   }
 
-  render () {
+  render() {
     if (!isUserAdmin(this.props.currentUser) || !this.props.adminPages) {
       return null;
     }
 
     return (
-        <div>
-          <SettingsNav location={this.props.location} extensions={this.props.adminPages}/>
-          {this.props.children}
-        </div>
+      <div>
+        <SettingsNav location={this.props.location} extensions={this.props.adminPages} />
+        {this.props.children}
+      </div>
     );
   }
 }

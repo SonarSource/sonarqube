@@ -17,10 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import groupBy from 'lodash/groupBy';
-import partition from 'lodash/partition';
-import sortBy from 'lodash/sortBy';
-import toPairs from 'lodash/toPairs';
+import { groupBy, partition, sortBy, toPairs } from 'lodash';
 import { RECEIVE_MEASURES } from './actions';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 
@@ -30,25 +27,36 @@ const initialState = {
   periods: undefined
 };
 
-function groupByDomains (measures) {
-  const KNOWN_DOMAINS = ['Releasability', 'Reliability', 'Security', 'Maintainability', 'Coverage', 'Duplications',
-    'Size', 'Complexity'];
+function groupByDomains(measures) {
+  const KNOWN_DOMAINS = [
+    'Releasability',
+    'Reliability',
+    'Security',
+    'Maintainability',
+    'Coverage',
+    'Duplications',
+    'Size',
+    'Complexity'
+  ];
 
-  const domains = sortBy(toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
-    const [name, measures] = r;
-    const sortedMeasures = sortBy(measures, measure => getLocalizedMetricName(measure.metric));
+  const domains = sortBy(
+    toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
+      const [name, measures] = r;
+      const sortedMeasures = sortBy(measures, measure => getLocalizedMetricName(measure.metric));
 
-    return { name, measures: sortedMeasures };
-  }), 'name');
-  const [knownDomains, unknownDomains] =
-      partition(domains, domain => KNOWN_DOMAINS.includes(domain.name));
+      return { name, measures: sortedMeasures };
+    }),
+    'name'
+  );
+  const [knownDomains, unknownDomains] = partition(domains, domain =>
+    KNOWN_DOMAINS.includes(domain.name));
   return [
     ...sortBy(knownDomains, domain => KNOWN_DOMAINS.indexOf(domain.name)),
     ...sortBy(unknownDomains, domain => domain.name)
   ];
 }
 
-export default function (state = initialState, action = {}) {
+export default function(state = initialState, action = {}) {
   switch (action.type) {
     case RECEIVE_MEASURES:
       return {

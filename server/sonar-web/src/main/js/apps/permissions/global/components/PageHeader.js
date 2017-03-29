@@ -32,25 +32,23 @@ class PageHeader extends React.Component {
     loading: false
   };
 
-  render () {
-    const title = this.props.organization ?
-        translate('permissions.page') :
-        translate('global_permissions.page');
+  render() {
+    const title = this.props.organization
+      ? translate('permissions.page')
+      : translate('global_permissions.page');
 
-    const description = this.props.organization ?
-        translate('organization_permissions.page.description') :
-        translate('global_permissions.page.description');
+    const description = this.props.organization
+      ? translate('organization_permissions.page.description')
+      : translate('global_permissions.page.description');
 
     return (
-        <header className="page-header">
-          <h1 className="page-title">{title}</h1>
+      <header className="page-header">
+        <h1 className="page-title">{title}</h1>
 
-          {this.props.loading && (
-              <i className="spinner"/>
-          )}
+        {this.props.loading && <i className="spinner" />}
 
-          <div className="page-description">{description}</div>
-        </header>
+        <div className="page-description">{description}</div>
+      </header>
     );
   }
 }
@@ -59,6 +57,4 @@ const mapStateToProps = state => ({
   loading: isPermissionsAppLoading(state)
 });
 
-export default connect(
-  mapStateToProps
-)(PageHeader);
+export default connect(mapStateToProps)(PageHeader);

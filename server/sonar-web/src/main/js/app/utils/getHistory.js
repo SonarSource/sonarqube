@@ -30,6 +30,4 @@ const ensureHistory = () => {
   return history;
 };
 
-export default () => (
-    history ? history : ensureHistory()
-);
+export default () => history ? history : ensureHistory();

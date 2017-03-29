@@ -21,8 +21,7 @@ import CustomMeasure from './custom-measure';
 import FormView from './form-view';
 
 export default FormView.extend({
-
-  sendRequest () {
+  sendRequest() {
     const that = this;
     const customMeasure = new CustomMeasure({
       metricId: this.$('#create-custom-measure-metric').val(),
@@ -31,18 +30,20 @@ export default FormView.extend({
       projectId: this.options.projectId
     });
     this.disableForm();
-    return customMeasure.save(null, {
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      that.collection.refresh();
-      that.destroy();
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    return customMeasure
+      .save(null, {
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      })
+      .done(() => {
+        that.collection.refresh();
+        that.destroy();
+      })
+      .fail(jqXHR => {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
   }
 });
-

@@ -21,11 +21,17 @@ package org.sonar.db.qualityprofile;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -51,10 +57,6 @@ public class ActiveRuleDao implements Dao {
       return activeRule.get();
     }
     throw new RowNotFoundException(String.format("Active rule with key '%s' does not exist", key));
-  }
-
-  public List<ActiveRuleDto> selectByKeys(DbSession dbSession, List<ActiveRuleKey> keys) {
-    return executeLargeInputs(keys, mapper(dbSession)::selectByKeys);
   }
 
   public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, int ruleId) {
@@ -101,6 +103,16 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
+  public void deleteByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByProfileKeys);
+  }
+
+  public void deleteParametersByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteParametersByProfileKeys);
+  }
+
   /**
    * Nested DTO ActiveRuleParams
    */
@@ -124,6 +136,10 @@ public class ActiveRuleDao implements Dao {
     return null;
   }
 
+  /**
+   * @deprecated currently used only by tests
+   */
+  @Deprecated
   public List<ActiveRuleParamDto> selectAllParams(DbSession dbSession) {
     return mapper(dbSession).selectAllParams();
   }
@@ -150,7 +166,7 @@ public class ActiveRuleDao implements Dao {
     deleteParamById(session, activeRuleParam.getId());
   }
 
-  public void deleteParamById(DbSession session, int id){
+  public void deleteParamById(DbSession session, int id) {
     mapper(session).deleteParameter(id);
   }
 
@@ -174,6 +190,21 @@ public class ActiveRuleDao implements Dao {
         }
       }
     }
+  }
+
+  public Map<String, Long> countActiveRulesByProfileKey(DbSession dbSession, OrganizationDto organization) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesByProfileKey(organization.getUuid()));
+  }
+
+  public Map<String, Long> countActiveRulesForRuleStatusByProfileKey(DbSession dbSession, OrganizationDto organization, RuleStatus ruleStatus) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesForRuleStatusByProfileKey(organization.getUuid(), ruleStatus));
+  }
+
+  public Map<String, Long> countActiveRulesForInheritanceByProfileKey(DbSession dbSession, OrganizationDto organization, String inheritance) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesForInheritanceByProfileKey(organization.getUuid(), inheritance));
   }
 
   private static ActiveRuleMapper mapper(DbSession session) {

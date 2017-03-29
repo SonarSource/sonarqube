@@ -23,20 +23,22 @@ import { receiveMyOrganizations } from '../../../store/organizations/duck';
 import { getValues } from '../../../api/settings';
 import { receiveValues } from '../../settings/store/values/actions';
 
-export const fetchMyOrganizations = (): Function => (dispatch: Function): Promise<*> => {
-  return api.getMyOrganizations().then(keys => {
-    if (keys.length > 0) {
-      return api.getOrganizations(keys).then(({ organizations }) => {
-        return dispatch(receiveMyOrganizations(organizations));
-      });
-    } else {
-      return dispatch(receiveMyOrganizations([]));
-    }
-  });
-};
+export const fetchMyOrganizations = (): Function =>
+  (dispatch: Function): Promise<*> => {
+    return api.getMyOrganizations().then(keys => {
+      if (keys.length > 0) {
+        return api.getOrganizations(keys).then(({ organizations }) => {
+          return dispatch(receiveMyOrganizations(organizations));
+        });
+      } else {
+        return dispatch(receiveMyOrganizations([]));
+      }
+    });
+  };
 
-export const fetchIfAnyoneCanCreateOrganizations = (): Function => (dispatch: Function): Promise<*> => {
-  return getValues('sonar.organizations.anyoneCanCreate').then(values => {
-    dispatch(receiveValues(values));
-  });
-};
+export const fetchIfAnyoneCanCreateOrganizations = (): Function =>
+  (dispatch: Function): Promise<*> => {
+    return getValues('sonar.organizations.anyoneCanCreate').then(values => {
+      dispatch(receiveValues(values));
+    });
+  };

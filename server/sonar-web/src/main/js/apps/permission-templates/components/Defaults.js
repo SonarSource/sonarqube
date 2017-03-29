@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import { translate } from '../../../helpers/l10n';
 import { PermissionTemplateType } from '../propTypes';
 
@@ -28,21 +28,21 @@ export default class Defaults extends React.Component {
     permissionTemplate: PermissionTemplateType.isRequired
   };
 
-  render () {
-    const qualifiersToDisplay = this.props.organization && !this.props.organization.isDefault ?
-        ['TRK'] :
-        this.props.permissionTemplate.defaultFor;
+  render() {
+    const qualifiersToDisplay = this.props.organization && !this.props.organization.isDefault
+      ? ['TRK']
+      : this.props.permissionTemplate.defaultFor;
 
     const qualifiers = sortBy(qualifiersToDisplay)
-        .map(qualifier => translate('qualifiers', qualifier))
-        .join(', ');
+      .map(qualifier => translate('qualifiers', qualifier))
+      .join(', ');
 
     return (
-        <div>
-          <span className="badge spacer-right">
-            {translate('default')} for {qualifiers}
-          </span>
-        </div>
+      <div>
+        <span className="badge spacer-right">
+          {translate('default')} for {qualifiers}
+        </span>
+      </div>
     );
   }
 }

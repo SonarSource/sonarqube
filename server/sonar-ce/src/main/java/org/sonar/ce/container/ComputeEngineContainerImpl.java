@@ -115,7 +115,6 @@ import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.cluster.ClusterImpl;
-import org.sonar.server.platform.cluster.ClusterProperties;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
@@ -123,7 +122,6 @@ import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.property.InternalPropertiesImpl;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -159,8 +157,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     this.level1
       .add(props.rawProperties())
       .add(level1Components())
-      .add(toArray(CorePropertyDefinitions.all()))
-      .add(toArray(ClusterProperties.definitions()));
+      .add(toArray(CorePropertyDefinitions.all()));
     configureFromModules(this.level1);
     this.level1.startComponents();
 
@@ -242,7 +239,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // rules/qprofiles
       RuleIndex.class,
-      ActiveRuleIndex.class,
 
       // issues
       IssueIndex.class,

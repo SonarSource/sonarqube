@@ -25,7 +25,7 @@ import { getOrganization, areThereCustomOrganizations } from '../../store/organi
 export default WorkspaceHeaderView.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...WorkspaceHeaderView.prototype.events.apply(this, arguments),
       'click .js-selection': 'onSelectionClick',
@@ -35,17 +35,17 @@ export default WorkspaceHeaderView.extend({
     };
   },
 
-  onSelectionClick (e) {
+  onSelectionClick(e) {
     e.preventDefault();
     this.toggleSelection();
   },
 
-  onBulkChangeSelectedClick (e) {
+  onBulkChangeSelectedClick(e) {
     e.preventDefault();
     this.bulkChangeSelected();
   },
 
-  afterBulkChange () {
+  afterBulkChange() {
     const selectedIndex = this.options.app.state.get('selectedIndex');
     const selectedKeys = this.options.app.list.where({ selected: true }).map(item => item.id);
     this.options.app.controller.fetchList().done(() => {
@@ -54,20 +54,20 @@ export default WorkspaceHeaderView.extend({
     });
   },
 
-  render () {
+  render() {
     if (!this._suppressUpdate) {
       WorkspaceHeaderView.prototype.render.apply(this, arguments);
     }
   },
 
-  toggleSelection () {
+  toggleSelection() {
     this._suppressUpdate = true;
     const selectedCount = this.options.app.list.where({ selected: true }).length;
     const someSelected = selectedCount > 0;
     return someSelected ? this.selectNone() : this.selectAll();
   },
 
-  selectNone () {
+  selectNone() {
     this.options.app.list.where({ selected: true }).forEach(issue => {
       issue.set({ selected: false });
     });
@@ -75,7 +75,7 @@ export default WorkspaceHeaderView.extend({
     this.render();
   },
 
-  selectAll () {
+  selectAll() {
     this.options.app.list.forEach(issue => {
       issue.set({ selected: true });
     });
@@ -83,15 +83,15 @@ export default WorkspaceHeaderView.extend({
     this.render();
   },
 
-  returnToList () {
+  returnToList() {
     this.options.app.controller.closeComponentViewer();
   },
 
-  newSearch () {
+  newSearch() {
     this.options.app.controller.newSearch();
   },
 
-  bulkChange () {
+  bulkChange() {
     const query = this.options.app.controller.getQueryAsObject();
     new BulkChangeForm({
       query,
@@ -99,7 +99,7 @@ export default WorkspaceHeaderView.extend({
     }).render();
   },
 
-  bulkChangeSelected () {
+  bulkChangeSelected() {
     const selected = this.options.app.list.where({ selected: true });
     const selectedKeys = selected.map(item => item.id).slice(0, 500);
     const query = { issues: selectedKeys.join() };
@@ -109,7 +109,7 @@ export default WorkspaceHeaderView.extend({
     }).render();
   },
 
-  serializeData () {
+  serializeData() {
     const issuesCount = this.options.app.list.length;
     const selectedCount = this.options.app.list.where({ selected: true }).length;
     const allSelected = issuesCount > 0 && issuesCount === selectedCount;
@@ -131,11 +131,12 @@ export default WorkspaceHeaderView.extend({
         data.state.component.project = null;
         data.state.component.subProject = null;
       } else {
-        const organization = areThereCustomOrganizations() ? getOrganization(component.projectOrganization) : null;
+        const organization = areThereCustomOrganizations()
+          ? getOrganization(component.projectOrganization)
+          : null;
         Object.assign(data, { organization });
       }
     }
     return data;
   }
 });
-

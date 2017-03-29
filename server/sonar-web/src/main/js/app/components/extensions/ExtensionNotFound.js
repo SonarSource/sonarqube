@@ -22,23 +22,31 @@ import React from 'react';
 import { Link } from 'react-router';
 
 export default class ExtensionNotFound extends React.Component {
-  componentDidMount () {
-    document.querySelector('html').classList.add('dashboard-page');
+  componentDidMount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
   }
 
-  componentWillUnmount () {
-    document.querySelector('html').classList.remove('dashboard-page');
+  componentWillUnmount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
   }
 
-  render () {
+  render() {
     return (
-        <div id="bd" className="page-wrapper-simple">
-          <div id="nonav" className="page-simple">
-            <h2 className="big-spacer-bottom">The page you were looking for does not exist.</h2>
-            <p className="spacer-bottom">You may have mistyped the address or the page may have moved.</p>
-            <p><Link to="/">Go back to the homepage</Link></p>
-          </div>
+      <div id="bd" className="page-wrapper-simple">
+        <div id="nonav" className="page-simple">
+          <h2 className="big-spacer-bottom">The page you were looking for does not exist.</h2>
+          <p className="spacer-bottom">
+            You may have mistyped the address or the page may have moved.
+          </p>
+          <p><Link to="/">Go back to the homepage</Link></p>
         </div>
+      </div>
     );
   }
 }

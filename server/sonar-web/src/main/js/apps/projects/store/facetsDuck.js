@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import flatMap from 'lodash/flatMap';
-import sumBy from 'lodash/sumBy';
+import { flatMap, sumBy } from 'lodash';
 import { createMap } from '../../../store/utils/generalReducers';
 import { actions } from './projectsDuck';
 import { mapMetricToProperty } from './utils';
@@ -29,13 +28,10 @@ const CUMULATIVE_FACETS = [
   'maintainability',
   'coverage',
   'duplications',
-  'size',
-  'language'
+  'size'
 ];
 
-const REVERSED_FACETS = [
-  'coverage'
-];
+const REVERSED_FACETS = ['coverage'];
 
 const mapFacetValues = values => {
   const map = {};
@@ -63,9 +59,9 @@ const getFacetsMap = facets => {
     if (REVERSED_FACETS.includes(property)) {
       values.reverse();
     }
-    map[property] = CUMULATIVE_FACETS.includes(property) ?
-        cumulativeMapFacetValues(values) :
-        mapFacetValues(values);
+    map[property] = CUMULATIVE_FACETS.includes(property)
+      ? cumulativeMapFacetValues(values)
+      : mapFacetValues(values);
   });
   return map;
 };
@@ -78,9 +74,7 @@ const reducer = createMap(
 
 export default reducer;
 
-export const getFacetByProperty = (state, property) => (
-    state[property]
-);
+export const getFacetByProperty = (state, property) => state[property];
 
 export const getMaxFacetValue = state => {
   const allValues = flatMap(Object.values(state), facet => Object.values(facet));

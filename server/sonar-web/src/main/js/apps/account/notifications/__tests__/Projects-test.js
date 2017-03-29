@@ -21,17 +21,12 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { UnconnectedProjects } from '../Projects';
 
-const projects = [
-  { key: 'foo', name: 'Foo' },
-  { key: 'bar', name: 'Bar' }
-];
+const projects = [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }];
 
 const newProject = { key: 'qux', name: 'Qux' };
 
 it('should render projects', () => {
-  const wrapper = shallow(
-    <UnconnectedProjects projects={projects}/>
-  );
+  const wrapper = shallow(<UnconnectedProjects projects={projects} />);
   expect(wrapper).toMatchSnapshot();
 
   // let's add a new project

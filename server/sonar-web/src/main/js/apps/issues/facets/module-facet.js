@@ -20,7 +20,7 @@
 import BaseFacet from './base-facet';
 
 export default BaseFacet.extend({
-  getValuesWithLabels () {
+  getValuesWithLabels() {
     const values = this.model.getValues();
     const components = this.options.app.facets.components;
     values.forEach(v => {
@@ -37,11 +37,10 @@ export default BaseFacet.extend({
     return values;
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
     };
   }
 });
-

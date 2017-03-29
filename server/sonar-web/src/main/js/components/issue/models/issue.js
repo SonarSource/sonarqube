@@ -22,21 +22,21 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
   idAttribute: 'key',
 
-  defaults () {
+  defaults() {
     return {
       flows: []
     };
   },
 
-  url () {
+  url() {
     return window.baseUrl + '/api/issues';
   },
 
-  urlRoot () {
+  urlRoot() {
     return window.baseUrl + '/api/issues';
   },
 
-  parse (r) {
+  parse(r) {
     let issue = Array.isArray(r.issues) && r.issues.length > 0 ? r.issues[0] : r.issue;
     if (issue) {
       issue = this._injectRelational(issue, r.components, 'component', 'key');
@@ -53,7 +53,7 @@ export default Backbone.Model.extend({
     }
   },
 
-  _injectRelational (issue, source, baseField, lookupField) {
+  _injectRelational(issue, source, baseField, lookupField) {
     const baseValue = issue[baseField];
     if (baseValue != null && Array.isArray(source) && source.length > 0) {
       const lookupValue = source.find(candidate => candidate[lookupField] === baseValue);
@@ -67,7 +67,7 @@ export default Backbone.Model.extend({
     return issue;
   },
 
-  _injectCommentsRelational (issue, users) {
+  _injectCommentsRelational(issue, users) {
     if (issue.comments) {
       const newComments = issue.comments.map(comment => {
         let newComment = { ...comment, author: comment.login };
@@ -80,7 +80,7 @@ export default Backbone.Model.extend({
     return issue;
   },
 
-  _prepareClosed (issue) {
+  _prepareClosed(issue) {
     if (issue.status === 'CLOSED') {
       issue.flows = [];
       delete issue.textRange;
@@ -88,7 +88,7 @@ export default Backbone.Model.extend({
     return issue;
   },
 
-  ensureTextRange (issue) {
+  ensureTextRange(issue) {
     if (issue.line && !issue.textRange) {
       // FIXME 999999
       issue.textRange = {
@@ -101,7 +101,7 @@ export default Backbone.Model.extend({
     return issue;
   },
 
-  sync (method, model, options) {
+  sync(method, model, options) {
     const opts = options || {};
     opts.contentType = 'application/x-www-form-urlencoded';
     if (method === 'read') {
@@ -127,7 +127,7 @@ export default Backbone.Model.extend({
         }
       });
     }
-    const xhr = options.xhr = Backbone.ajax(opts);
+    const xhr = (options.xhr = Backbone.ajax(opts));
     model.trigger('request', model, xhr, opts);
     return xhr;
   },
@@ -138,7 +138,7 @@ export default Backbone.Model.extend({
    * @param options
    * @returns {Object}
    */
-  reset (attrs, options) {
+  reset(attrs, options) {
     for (const key in this.attributes) {
       if (this.attributes.hasOwnProperty(key) && !(key in attrs)) {
         attrs[key] = void 0;
@@ -153,9 +153,9 @@ export default Backbone.Model.extend({
    * @returns {jqXHR}
    * @private
    */
-  _action (options) {
+  _action(options) {
     const that = this;
-    const success = function (r) {
+    const success = function(r) {
       const attrs = that.parse(r);
       that.reset(attrs);
       if (options.success) {
@@ -163,7 +163,7 @@ export default Backbone.Model.extend({
       }
     };
     const opts = { type: 'POST', ...options, success };
-    const xhr = options.xhr = Backbone.ajax(opts);
+    const xhr = (options.xhr = Backbone.ajax(opts));
     this.trigger('request', this, xhr, opts);
     return xhr;
   },
@@ -174,7 +174,7 @@ export default Backbone.Model.extend({
    * @param {Object|null} options Options for jQuery ajax
    * @returns {jqXHR}
    */
-  assign (assignee, options) {
+  assign(assignee, options) {
     const opts = {
       url: this.urlRoot() + '/assign',
       data: { issue: this.id, assignee },
@@ -189,7 +189,7 @@ export default Backbone.Model.extend({
    * @param {Object|null} options Options for jQuery ajax
    * @returns {jqXHR}
    */
-  plan (plan, options) {
+  plan(plan, options) {
     const opts = {
       url: this.urlRoot() + '/plan',
       data: { issue: this.id, plan },
@@ -204,7 +204,7 @@ export default Backbone.Model.extend({
    * @param {Object|null} options Options for jQuery ajax
    * @returns {jqXHR}
    */
-  setSeverity (severity, options) {
+  setSeverity(severity, options) {
     const opts = {
       url: this.urlRoot() + '/set_severity',
       data: { issue: this.id, severity },
@@ -219,7 +219,7 @@ export default Backbone.Model.extend({
    * @param {Object|null} options Options for jQuery ajax
    * @returns {jqXHR}
    */
-  transition (transition, options) {
+  transition(transition, options) {
     const that = this;
     const opts = {
       url: this.urlRoot() + '/do_transition',
@@ -237,7 +237,7 @@ export default Backbone.Model.extend({
    * @param {Object|null} options Options for jQuery ajax
    * @returns {jqXHR}
    */
-  setType (issueType, options) {
+  setType(issueType, options) {
     const opts = {
       url: this.urlRoot() + '/set_type',
       data: { issue: this.id, type: issueType },
@@ -252,7 +252,7 @@ export default Backbone.Model.extend({
    * @param {Object|null} options Options for jQuery ajax
    * @returns {jqXHR}
    */
-  customAction (actionKey, options) {
+  customAction(actionKey, options) {
     const opts = {
       type: 'POST',
       url: this.urlRoot() + '/do_action',
@@ -264,7 +264,7 @@ export default Backbone.Model.extend({
     return xhr;
   },
 
-  getLinearLocations () {
+  getLinearLocations() {
     const textRange = this.get('textRange');
     if (!textRange) {
       return [];

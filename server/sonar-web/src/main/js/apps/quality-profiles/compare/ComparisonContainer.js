@@ -37,27 +37,26 @@ export default class ComparisonContainer extends React.Component {
     loading: false
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleCompare = this.handleCompare.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.loadResults();
   }
 
-  componentDidUpdate (prevProps) {
-    if (prevProps.profile !== this.props.profile ||
-        prevProps.location !== this.props.location) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.profile !== this.props.profile || prevProps.location !== this.props.location) {
       this.loadResults();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  loadResults () {
+  loadResults() {
     const { withKey } = this.props.location.query;
     if (!withKey) {
       this.setState({ left: null, loading: false });
@@ -79,7 +78,7 @@ export default class ComparisonContainer extends React.Component {
     });
   }
 
-  handleCompare (withKey) {
+  handleCompare(withKey) {
     this.context.router.push({
       pathname: '/profiles/compare',
       query: {
@@ -89,34 +88,33 @@ export default class ComparisonContainer extends React.Component {
     });
   }
 
-  render () {
+  render() {
     const { profile, profiles, location } = this.props;
     const { withKey } = location.query;
     const { left, right, inLeft, inRight, modified } = this.state;
 
     return (
-        <div className="quality-profile-box js-profile-comparison">
-          <header className="spacer-bottom">
-            <ComparisonForm
-                withKey={withKey}
-                profile={profile}
-                profiles={profiles}
-                onCompare={this.handleCompare}/>
+      <div className="quality-profile-box js-profile-comparison">
+        <header className="spacer-bottom">
+          <ComparisonForm
+            withKey={withKey}
+            profile={profile}
+            profiles={profiles}
+            onCompare={this.handleCompare}
+          />
 
-            {this.state.loading && (
-                <i className="spinner spacer-left"/>
-            )}
-          </header>
+          {this.state.loading && <i className="spinner spacer-left" />}
+        </header>
 
-          {left != null && (
-              <ComparisonResults
-                  left={left}
-                  right={right}
-                  inLeft={inLeft}
-                  inRight={inRight}
-                  modified={modified}/>
-          )}
-        </div>
+        {left != null &&
+          <ComparisonResults
+            left={left}
+            right={right}
+            inLeft={inLeft}
+            inRight={inRight}
+            modified={modified}
+          />}
+      </div>
     );
   }
 }

@@ -140,16 +140,15 @@ import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
-import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.DefinedQProfileCreationImpl;
+import org.sonar.server.qualityprofile.DefinedQProfileRepositoryImpl;
+import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.QProfileProjectOperations;
-import org.sonar.server.qualityprofile.QProfileReset;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.QProfileResetImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -258,25 +257,24 @@ public class PlatformLevel4 extends PlatformLevel {
       OrganizationsWsModule.class,
 
       // quality profile
+      DefinedQProfileRepositoryImpl.class,
       ActiveRuleIndexer.class,
       XMLProfileParser.class,
       XMLProfileSerializer.class,
       AnnotationProfileParser.class,
       QProfileLookup.class,
-      QProfileProjectOperations.class,
       QProfileComparison.class,
       SearchDataLoader.class,
       ProfilesWs.class,
       OldRestoreAction.class,
       RuleActivator.class,
-      QProfileLoader.class,
       QProfileExporters.class,
-      QProfileService.class,
       RuleActivatorContextFactory.class,
       QProfileFactory.class,
       QProfileCopier.class,
-      QProfileBackuper.class,
-      QProfileReset.class,
+      QProfileBackuperImpl.class,
+      QProfileResetImpl.class,
+      DefinedQProfileCreationImpl.class,
       QProfilesWsModule.class,
 
       // rule

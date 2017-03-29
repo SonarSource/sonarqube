@@ -45,7 +45,7 @@ class OrganizationPage extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.props.fetchOrganization(this.props.params.organizationKey).then(() => {
       if (this.mounted) {
@@ -54,26 +54,26 @@ class OrganizationPage extends React.Component {
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  render () {
+  render() {
     const { organization } = this.props;
 
     if (!organization || organization.canAdmin == null) {
       if (this.state.loading) {
         return null;
       } else {
-        return <NotFound/>;
+        return <NotFound />;
       }
     }
 
     return (
-        <div>
-          <OrganizationNavigation organization={organization} location={this.props.location}/>
-          {this.props.children}
-        </div>
+      <div>
+        <OrganizationNavigation organization={organization} location={this.props.location} />
+        {this.props.children}
+      </div>
     );
   }
 }

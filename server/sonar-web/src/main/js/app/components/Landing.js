@@ -25,19 +25,22 @@ import { getCurrentUser } from '../../store/rootReducer';
 
 class Landing extends React.Component {
   static propTypes = {
-    currentUser: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.object]).isRequired
+    currentUser: React.PropTypes.oneOfType([
+      React.PropTypes.bool,
+      React.PropTypes.object
+    ]).isRequired
   };
 
-  componentDidMount () {
+  componentDidMount() {
     const { currentUser, router } = this.props;
     if (currentUser.isLoggedIn) {
-      router.replace('/projects/favorite');
+      router.replace('/projects');
     } else {
       router.replace('/about');
     }
   }
 
-  render () {
+  render() {
     return null;
   }
 }

@@ -24,18 +24,11 @@ import facets, * as fromFacets from './facetsDuck';
 
 export default combineReducers({ projects, state, facets });
 
-export const getProjects = state => (
-    fromProjects.getProjects(state.projects)
-);
+export const getProjects = state => fromProjects.getProjects(state.projects);
 
-export const getState = state => (
-    state.state
-);
+export const getState = state => state.state;
 
-export const getFacetByProperty = (state, property) => (
-    fromFacets.getFacetByProperty(state.facets, property)
-);
+export const getFacetByProperty = (state, property) =>
+  fromFacets.getFacetByProperty(state.facets, property);
 
-export const getMaxFacetValue = state => (
-    fromFacets.getMaxFacetValue(state.facets)
-);
+export const getMaxFacetValue = state => fromFacets.getMaxFacetValue(state.facets);

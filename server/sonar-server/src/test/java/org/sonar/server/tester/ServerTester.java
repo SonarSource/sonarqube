@@ -103,7 +103,7 @@ public class ServerTester extends ExternalResource {
       Properties properties = new Properties();
       properties.putAll(initialProps);
       esServerHolder = EsServerHolder.get();
-      properties.setProperty(ProcessProperties.SEARCH_CLUSTER_NAME, esServerHolder.getClusterName());
+      properties.setProperty(ProcessProperties.CLUSTER_NAME, esServerHolder.getClusterName());
       properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
       properties.setProperty(ProcessProperties.SEARCH_HOST, String.valueOf(esServerHolder.getHostName()));
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());

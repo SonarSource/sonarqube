@@ -22,34 +22,33 @@ import Backbone from 'backbone';
 export default Backbone.Router.extend({
   routes: {
     '': 'index',
-    'installed': 'showInstalled',
-    'updates': 'showUpdates',
-    'available': 'showAvailable',
-    'system': 'showSystemUpgrades'
+    installed: 'showInstalled',
+    updates: 'showUpdates',
+    available: 'showAvailable',
+    system: 'showSystemUpgrades'
   },
 
-  initialize (options) {
+  initialize(options) {
     this.controller = options.controller;
   },
 
-  index () {
+  index() {
     this.navigate('installed', { trigger: true, replace: true });
   },
 
-  showInstalled () {
+  showInstalled() {
     this.controller.showInstalled();
   },
 
-  showUpdates () {
+  showUpdates() {
     this.controller.showUpdates();
   },
 
-  showAvailable () {
+  showAvailable() {
     this.controller.showAvailable();
   },
 
-  showSystemUpgrades () {
+  showSystemUpgrades() {
     this.controller.showSystemUpgrades();
   }
 });
-

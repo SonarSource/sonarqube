@@ -158,6 +158,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
     }
   }
 
+  public boolean hasDefaultOrganization() {
+    return defaultOrganization != null;
+  }
+
   public OrganizationDto getDefaultOrganization() {
     checkState(defaultOrganization != null, "Default organization has not been created");
     return defaultOrganization;

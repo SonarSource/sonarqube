@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -78,7 +79,7 @@ public class SimpleGetRequest extends Request {
 
   @Override
   public InputStream paramAsInputStream(String key) {
-    return IOUtils.toInputStream(param(key));
+    return IOUtils.toInputStream(param(key), UTF_8);
   }
 
   public SimpleGetRequest setParam(String key, @Nullable String value) {

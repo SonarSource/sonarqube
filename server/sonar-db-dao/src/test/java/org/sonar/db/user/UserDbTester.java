@@ -67,6 +67,9 @@ public class UserDbTester {
 
   public UserDto insertUser(UserDto userDto) {
     UserDto updatedUser = dbClient.userDao().insert(db.getSession(), userDto);
+    if (db.hasDefaultOrganization() && userDto.isActive()) {
+      db.organizations().addMember(db.getDefaultOrganization(), updatedUser);
+    }
     db.commit();
     return updatedUser;
   }

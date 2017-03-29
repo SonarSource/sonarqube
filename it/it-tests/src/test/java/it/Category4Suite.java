@@ -33,6 +33,7 @@ import it.projectEvent.EventTest;
 import it.projectEvent.ProjectActivityPageTest;
 import it.projectSearch.SearchProjectsTest;
 import it.qualityProfile.QualityProfilesPageTest;
+import it.qualityProfile.QualityProfilesRestoreAndSearchTest;
 import it.serverSystem.HttpHeadersTest;
 import it.serverSystem.LogsTest;
 import it.serverSystem.PingTest;
@@ -96,6 +97,7 @@ import static util.ItUtils.xooPlugin;
   WsLocalCallTest.class,
   WsTest.class,
   // quality profiles
+  QualityProfilesRestoreAndSearchTest.class,
   QualityProfilesPageTest.class,
   LogsTest.class
 })

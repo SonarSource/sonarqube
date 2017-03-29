@@ -41,16 +41,14 @@ type Props = {
 class ProjectAdminPageExtension extends React.Component {
   props: Props;
 
-  render () {
+  render() {
     const { extensionKey, pluginKey } = this.props.params;
     const { component } = this.props;
     const extension = component.configuration &&
-        component.configuration.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
-    return extension ? (
-            <Extension extension={extension} options={{ component }}/>
-        ) : (
-            <ExtensionNotFound/>
-        );
+      component.configuration.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
+    return extension
+      ? <Extension extension={extension} options={{ component }} />
+      : <ExtensionNotFound />;
   }
 }
 

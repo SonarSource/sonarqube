@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import { translate } from '../../../helpers/l10n';
@@ -35,52 +35,53 @@ export default class Stats extends React.Component {
   props: Props;
   state: State;
 
-  shouldComponentUpdate (nextProps: Props, nextState: State) {
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleCancelAllPending (e: Object) {
+  handleCancelAllPending(e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onCancelAllPending();
   }
 
-  handleShowFailing (e: Object) {
+  handleShowFailing(e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onShowFailing();
   }
 
-  renderPending () {
+  renderPending() {
     if (this.props.pendingCount == null) {
       return null;
     }
     if (this.props.pendingCount > 0) {
       return (
-          <span>
-            <span className="js-pending-count emphasised-measure">{this.props.pendingCount}</span>
-            &nbsp;
-            {translate('background_tasks.pending')}
-            <a
-                onClick={this.handleCancelAllPending.bind(this)}
-                className="js-cancel-pending icon-delete spacer-left"
-                title={translate('background_tasks.cancel_all_tasks')}
-                data-toggle="tooltip"
-                href="#"/>
-          </span>
+        <span>
+          <span className="js-pending-count emphasised-measure">{this.props.pendingCount}</span>
+          &nbsp;
+          {translate('background_tasks.pending')}
+          <a
+            onClick={this.handleCancelAllPending.bind(this)}
+            className="js-cancel-pending icon-delete spacer-left"
+            title={translate('background_tasks.cancel_all_tasks')}
+            data-toggle="tooltip"
+            href="#"
+          />
+        </span>
       );
     } else {
       return (
-          <span>
-            <span className="js-pending-count emphasised-measure">{this.props.pendingCount}</span>
-            &nbsp;
-            {translate('background_tasks.pending')}
-          </span>
+        <span>
+          <span className="js-pending-count emphasised-measure">{this.props.pendingCount}</span>
+          &nbsp;
+          {translate('background_tasks.pending')}
+        </span>
       );
     }
   }
 
-  renderFailures () {
+  renderFailures() {
     if (this.props.failingCount == null) {
       return null;
     }
@@ -91,41 +92,47 @@ export default class Stats extends React.Component {
 
     if (this.props.failingCount > 0) {
       return (
-          <span>
-            <a onClick={this.handleShowFailing.bind(this)}
-               className="js-failures-count emphasised-measure"
-               data-toggle="tooltip"
-               title="Count of projects where processing of most recent analysis report failed"
-               href="#">{this.props.failingCount}</a>
-            &nbsp;
-            {translate('background_tasks.failures')}
-          </span>
+        <span>
+          <a
+            onClick={this.handleShowFailing.bind(this)}
+            className="js-failures-count emphasised-measure"
+            data-toggle="tooltip"
+            title="Count of projects where processing of most recent analysis report failed"
+            href="#"
+          >
+            {this.props.failingCount}
+          </a>
+          &nbsp;
+          {translate('background_tasks.failures')}
+        </span>
       );
     } else {
       return (
-          <span>
-            <span className="js-failures-count emphasised-measure" data-toggle="tooltip"
-                  title="Count of projects where processing of most recent analysis report failed">
-              {this.props.failingCount}
-            </span>
-            &nbsp;
-            {translate('background_tasks.failures')}
+        <span>
+          <span
+            className="js-failures-count emphasised-measure"
+            data-toggle="tooltip"
+            title="Count of projects where processing of most recent analysis report failed"
+          >
+            {this.props.failingCount}
           </span>
+          &nbsp;
+          {translate('background_tasks.failures')}
+        </span>
       );
     }
   }
 
-  render () {
+  render() {
     return (
-        <section className="big-spacer-top big-spacer-bottom">
-          <span>
-            {this.renderPending()}
-          </span>
-          <span className="huge-spacer-left">
-            {this.renderFailures()}
-          </span>
-        </section>
-
+      <section className="big-spacer-top big-spacer-bottom">
+        <span>
+          {this.renderPending()}
+        </span>
+        <span className="huge-spacer-left">
+          {this.renderFailures()}
+        </span>
+      </section>
     );
   }
 }

@@ -36,9 +36,12 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PropertiesDao implements Dao {
 
@@ -170,6 +173,10 @@ public class PropertiesDao implements Dao {
     return executeLargeInputs(keys, partitionKeys -> getMapper(session).selectByKeys(partitionKeys, componentId));
   }
 
+  public List<PropertyDto> selectGlobalPropertiesByKeyQuery(DbSession session, String keyQuery) {
+    return getMapper(session).selectGlobalPropertiesByKeyQuery(buildLikeValue(keyQuery, WildcardPosition.BEFORE_AND_AFTER));
+  }
+
   /**
    * Saves the specified property and its value.
    * <p>
@@ -263,6 +270,16 @@ public class PropertiesDao implements Dao {
       deleteGlobalProperty(key, session);
       session.commit();
     }
+  }
+
+  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, int userId) {
+    List<Long> ids = getMapper(dbSession).selectIdsByOrganizationAndUser(organizationUuid, userId);
+    executeLargeInputsWithoutOutput(ids, subList -> getMapper(dbSession).deleteByIds(subList));
+  }
+
+  public void deleteByOrganizationAndMatchingLogin(DbSession dbSession, String organizationUuid, String login, List<String> propertyKeys) {
+    List<Long> ids = getMapper(dbSession).selectIdsByOrganizationAndMatchingLogin(organizationUuid, login, propertyKeys);
+    executeLargeInputsWithoutOutput(ids, list -> getMapper(dbSession).deleteByIds(list));
   }
 
   public void saveGlobalProperties(Map<String, String> properties) {

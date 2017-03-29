@@ -20,27 +20,28 @@
 import FormView from './form-view';
 
 export default FormView.extend({
-
-  sendRequest () {
+  sendRequest() {
     const that = this;
     this.model.set({
       name: this.$('#create-group-name').val(),
       description: this.$('#create-group-description').val()
     });
     this.disableForm();
-    return this.model.save(null, {
-      organization: this.collection.organization,
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      that.collection.refresh();
-      that.destroy();
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    return this.model
+      .save(null, {
+        organization: this.collection.organization,
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      })
+      .done(() => {
+        that.collection.refresh();
+        that.destroy();
+      })
+      .fail(jqXHR => {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
   }
 });
-

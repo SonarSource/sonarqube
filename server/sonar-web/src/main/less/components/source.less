@@ -127,15 +127,6 @@
   background-position: bottom;
 }
 
-.source-line-code-secondary-issue {
-  display: inline-block;
-  background-color: @issueBackgroundColor;
-
-  &.highlighted {
-    background-color: mix(#B3D4FF, @issueBackgroundColor, 40%);
-  }
-}
-
 .source-meta {
   vertical-align: top;
   width: 1px;
@@ -461,14 +452,8 @@
 }
 
 .source-viewer-issue-location {
-  float: right;
   max-width: 200px;
-  height: @source-line-height - 1px;
-  line-height: @source-line-height - 1px;
   margin-right: 10px;
-  padding: 0 10px;
-  background-color: #ffeaea;
-  font-size: 12px;
   .text-ellipsis;
 }
 
@@ -479,7 +464,6 @@
 .source-line-issue-locations {
   float: right;
   margin-right: -10px;
-  padding-bottom: 1px;
 
   &:empty {
     display: none;

@@ -19,34 +19,16 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 
 public class BulkChangeResult {
 
-  private final QualityProfileDto profile;
   private final List<String> errors = new ArrayList<>();
   private int succeeded = 0;
   private int failed = 0;
-  private final List<ActiveRuleChange> changes = Lists.newArrayList();
-
-  public BulkChangeResult() {
-    this(null);
-  }
-
-  public BulkChangeResult(@Nullable QualityProfileDto profile) {
-    this.profile = profile;
-  }
-
-  @CheckForNull
-  public QualityProfileDto profile() {
-    return profile;
-  }
+  private final List<ActiveRuleChange> changes = new ArrayList<>();
 
   public List<String> getErrors() {
     return errors;

@@ -26,13 +26,13 @@ import { parseError } from '../../code/utils';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     return deleteCondition(this.options.condition.id).then(
       () => {
         this.destroy();
@@ -45,11 +45,10 @@ export default ModalForm.extend({
     );
   },
 
-  serializeData () {
+  serializeData() {
     return {
       metric: this.options.metric,
       localizedMetricName: getLocalizedMetricName(this.options.metric)
     };
   }
 });
-

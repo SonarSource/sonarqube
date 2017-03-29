@@ -49,7 +49,7 @@ public class EsClientProvider extends ProviderAdapter {
       org.elasticsearch.common.settings.Settings.Builder esSettings = org.elasticsearch.common.settings.Settings.builder();
 
       // mandatory property defined by bootstrap process
-      esSettings.put("cluster.name", settings.getString(ProcessProperties.SEARCH_CLUSTER_NAME));
+      esSettings.put("cluster.name", settings.getString(ProcessProperties.CLUSTER_NAME));
 
       boolean clusterEnabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
       if (clusterEnabled && settings.getBoolean(ProcessProperties.CLUSTER_SEARCH_DISABLED)) {

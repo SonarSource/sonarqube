@@ -24,47 +24,47 @@ import Template from './templates/projects-create-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy () {
+  onDestroy() {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     const data = {
       name: this.$('#create-project-name').val(),
       branch: this.$('#create-project-branch').val(),
-      key: this.$('#create-project-key').val()
+      project: this.$('#create-project-key').val()
     };
     if (this.options.organization) {
       data.organization = this.options.organization.key;
     }
     this.disableForm();
     return createProject(data)
-        .then(project => {
-          if (this.options.refresh) {
-            this.options.refresh();
-          }
-          this.enableForm();
-          this.createdProject = project;
-          this.render();
-        })
-        .catch(error => {
-          this.enableForm();
-          error.response.json().then(r => this.showErrors(r.errors, r.warnings));
-        });
+      .then(project => {
+        if (this.options.refresh) {
+          this.options.refresh();
+        }
+        this.enableForm();
+        this.createdProject = project;
+        this.render();
+      })
+      .catch(error => {
+        this.enableForm();
+        error.response.json().then(r => this.showErrors(r.errors, r.warnings));
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...ModalForm.prototype.serializeData.apply(this, arguments),
       createdProject: this.createdProject

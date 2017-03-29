@@ -22,15 +22,15 @@ import { translate } from '../../../helpers/l10n';
 
 const EmptyOverview = ({ component }) => {
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
+    <div className="page page-limited">
+      <div className="alert alert-warning">
+        {translate('provisioning.no_analysis')}
       </div>
+      <div className="big-spacer-top">
+        <h4>{translate('key')}</h4>
+        <code>{component.key}</code>
+      </div>
+    </div>
   );
 };
 

@@ -23,35 +23,33 @@ import User from './user';
 export default Backbone.Collection.extend({
   model: User,
 
-  url () {
+  url() {
     return window.baseUrl + '/api/users/search';
   },
 
-  parse (r) {
+  parse(r) {
     this.total = +r.total;
     this.p = +r.p;
     this.ps = +r.ps;
     return r.users;
   },
 
-  fetch (options) {
+  fetch(options) {
     const d = (options && options.data) || {};
     this.q = d.q;
     return Backbone.Collection.prototype.fetch.call(this, options);
   },
 
-  fetchMore () {
+  fetchMore() {
     const p = this.p + 1;
     return this.fetch({ add: true, remove: false, data: { p, ps: this.ps, q: this.q } });
   },
 
-  refresh () {
+  refresh() {
     return this.fetch({ reset: true, data: { q: this.q } });
   },
 
-  hasMore () {
+  hasMore() {
     return this.total > this.p * this.ps;
   }
-
 });
-

@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -57,6 +57,7 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_NAME;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS;
 
 @ServerSide
@@ -133,20 +134,22 @@ public class UserIndex {
     return EsUtils.scroll(esClient, response.getScrollId(), DOC_CONVERTER);
   }
 
-  public SearchResult<UserDoc> search(@Nullable String searchText, SearchOptions options) {
+  public SearchResult<UserDoc> search(UserQuery userQuery, SearchOptions options) {
     SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
       .setSize(options.getLimit())
       .setFrom(options.getOffset())
       .addSort(FIELD_NAME, SortOrder.ASC);
 
-    BoolQueryBuilder filter = boolQuery()
-      .must(termQuery(FIELD_ACTIVE, true));
+    BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, true));
+    userQuery.getOrganizationUuid()
+      .ifPresent(o -> filter.must(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
+    userQuery.getExcludedOrganizationUuid()
+      .ifPresent(o -> filter.mustNot(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
 
-    QueryBuilder query;
-    if (StringUtils.isEmpty(searchText)) {
-      query = matchAllQuery();
-    } else {
-      query = QueryBuilders.multiMatchQuery(searchText,
+    QueryBuilder esQuery = matchAllQuery();
+    Optional<String> textQuery = userQuery.getTextQuery();
+    if (textQuery.isPresent()) {
+      esQuery = QueryBuilders.multiMatchQuery(textQuery.get(),
         FIELD_LOGIN,
         USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_LOGIN),
         FIELD_NAME,
@@ -156,7 +159,7 @@ public class UserIndex {
         .operator(MatchQueryBuilder.Operator.AND);
     }
 
-    request.setQuery(boolQuery().must(query).filter(filter));
+    request.setQuery(boolQuery().must(esQuery).filter(filter));
 
     return new SearchResult<>(request.get(), DOC_CONVERTER);
   }

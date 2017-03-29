@@ -22,10 +22,6 @@ import { IndexRoute } from 'react-router';
 import MaintenanceAppContainer from './components/MaintenanceAppContainer';
 import SetupAppContainer from './components/SetupAppContainer';
 
-export const maintenanceRoutes = (
-    <IndexRoute component={MaintenanceAppContainer}/>
-);
+export const maintenanceRoutes = <IndexRoute component={MaintenanceAppContainer} />;
 
-export const setupRoutes = (
-    <IndexRoute component={SetupAppContainer}/>
-);
+export const setupRoutes = <IndexRoute component={SetupAppContainer} />;

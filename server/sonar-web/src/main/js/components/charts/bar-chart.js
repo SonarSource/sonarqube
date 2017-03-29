@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import d3 from 'd3';
 import React from 'react';
+import { max } from 'd3-array';
+import { scaleLinear, scaleBand } from 'd3-scale';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
@@ -35,7 +36,7 @@ export const BarChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps () {
+  getDefaultProps() {
     return {
       xTicks: [],
       xValues: [],
@@ -43,21 +44,21 @@ export const BarChart = React.createClass({
     };
   },
 
-  getInitialState () {
+  getInitialState() {
     return { width: this.props.width, height: this.props.height };
   },
 
-  handleClick (point) {
+  handleClick(point) {
     this.props.onBarClick(point);
   },
 
-  renderXTicks (xScale, yScale) {
+  renderXTicks(xScale, yScale) {
     if (!this.props.xTicks.length) {
       return null;
     }
     const ticks = this.props.xTicks.map((tick, index) => {
       const point = this.props.data[index];
-      const x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
+      const x = Math.round(xScale(point.x) + xScale.bandwidth() / 2);
       const y = yScale.range()[0];
       const d = this.props.data[index];
       const tooltipAtts = {};
@@ -66,29 +67,29 @@ export const BarChart = React.createClass({
         tooltipAtts['data-toggle'] = 'tooltip';
       }
       return (
-          <text
-              key={index}
-              className="bar-chart-tick"
-              x={x}
-              y={y}
-              dy="1.5em"
-              onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
-              style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-              {...tooltipAtts}>
-            {tick}
-          </text>
+        <text
+          {...tooltipAtts}
+          key={index}
+          className="bar-chart-tick"
+          x={x}
+          y={y}
+          dy="1.5em"
+          onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}>
+          {tick}
+        </text>
       );
     });
     return <g>{ticks}</g>;
   },
 
-  renderXValues (xScale, yScale) {
+  renderXValues(xScale, yScale) {
     if (!this.props.xValues.length) {
       return null;
     }
     const ticks = this.props.xValues.map((value, index) => {
       const point = this.props.data[index];
-      const x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
+      const x = Math.round(xScale(point.x) + xScale.bandwidth() / 2);
       const y = yScale(point.y);
       const d = this.props.data[index];
       const tooltipAtts = {};
@@ -97,23 +98,23 @@ export const BarChart = React.createClass({
         tooltipAtts['data-toggle'] = 'tooltip';
       }
       return (
-          <text
-              key={index}
-              className="bar-chart-tick"
-              x={x}
-              y={y}
-              dy="-1em"
-              onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
-              style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-              {...tooltipAtts}>
-            {value}
-          </text>
+        <text
+          key={index}
+          className="bar-chart-tick"
+          x={x}
+          y={y}
+          dy="-1em"
+          onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+          {...tooltipAtts}>
+          {value}
+        </text>
       );
     });
     return <g>{ticks}</g>;
   },
 
-  renderBars (xScale, yScale) {
+  renderBars(xScale, yScale) {
     const bars = this.props.data.map((d, index) => {
       const x = Math.round(xScale(d.x));
       const maxY = yScale.range()[0];
@@ -125,49 +126,49 @@ export const BarChart = React.createClass({
         tooltipAtts['data-toggle'] = 'tooltip';
       }
       return (
-          <rect
-              key={index}
-              className="bar-chart-bar"
-              {...tooltipAtts}
-              x={x}
-              y={y}
-              width={this.props.barsWidth}
-              height={height}
-              onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
-              style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}/>
+        <rect
+          key={index}
+          className="bar-chart-bar"
+          {...tooltipAtts}
+          x={x}
+          y={y}
+          width={this.props.barsWidth}
+          height={height}
+          onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
+          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+        />
       );
     });
     return <g>{bars}</g>;
   },
 
-  render () {
+  render() {
     if (!this.state.width || !this.state.height) {
-      return <div/>;
+      return <div />;
     }
 
     const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     const innerPadding = (availableWidth - this.props.barsWidth * this.props.data.length) /
-        (this.props.data.length - 1);
+      (this.props.data.length - 1);
     const relativeInnerPadding = innerPadding / (innerPadding + this.props.barsWidth);
 
-    const maxY = d3.max(this.props.data, d => d.y);
-    const xScale = d3.scale.ordinal()
-        .domain(this.props.data.map(d => d.x))
-        .rangeBands([0, availableWidth], relativeInnerPadding, 0);
-    const yScale = d3.scale.linear()
-        .domain([0, maxY])
-        .range([availableHeight, 0]);
+    const maxY = max(this.props.data, d => d.y);
+    const xScale = scaleBand()
+      .domain(this.props.data.map(d => d.x))
+      .range([0, availableWidth])
+      .paddingInner(relativeInnerPadding);
+    const yScale = scaleLinear().domain([0, maxY]).range([availableHeight, 0]);
 
     return (
-        <svg className="bar-chart" width={this.state.width} height={this.state.height}>
-          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-            {this.renderXTicks(xScale, yScale)}
-            {this.renderXValues(xScale, yScale)}
-            {this.renderBars(xScale, yScale)}
-          </g>
-        </svg>
+      <svg className="bar-chart" width={this.state.width} height={this.state.height}>
+        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+          {this.renderXTicks(xScale, yScale)}
+          {this.renderXValues(xScale, yScale)}
+          {this.renderBars(xScale, yScale)}
+        </g>
+      </svg>
     );
   }
 });

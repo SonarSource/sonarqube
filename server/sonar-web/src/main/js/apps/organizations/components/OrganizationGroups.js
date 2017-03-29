@@ -29,12 +29,12 @@ class OrganizationGroups extends React.Component {
     organization: Organization
   };
 
-  componentDidMount () {
+  componentDidMount() {
     init(this.refs.container, this.props.organization);
   }
 
-  render () {
-    return <div ref="container"/>;
+  render() {
+    return <div ref="container" />;
   }
 }
 

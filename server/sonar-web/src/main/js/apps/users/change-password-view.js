@@ -23,12 +23,12 @@ import Template from './templates/users-change-password.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     const that = this;
     const oldPassword = this.$('#change-user-password-old-password').val();
     const password = this.$('#change-user-password-password').val();
@@ -38,23 +38,25 @@ export default ModalForm.extend({
       return;
     }
     this.disableForm();
-    this.model.changePassword(oldPassword, password, {
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      that.destroy();
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    this.model
+      .changePassword(oldPassword, password, {
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      })
+      .done(() => {
+        that.destroy();
+      })
+      .fail(jqXHR => {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return Object.assign({}, ModalForm.prototype.serializeData.apply(this, arguments), {
       isOwnPassword: this.options.currentUser.login === this.model.id
     });
   }
 });
-

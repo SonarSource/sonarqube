@@ -61,11 +61,11 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
         "Require 'Administer System' permission.<br/>" +
         "Note that additional information are returned by api/webhooks/delivery.")
       .setResponseExample(Resources.getResource(this.getClass(), "example-delivery.json"))
-      .setInternal(true)
       .setHandler(this);
 
     action.createParam(PARAM_ID)
       .setDescription("Id of delivery")
+      .setRequired(true)
       .setExampleValue(Uuids.UUID_EXAMPLE_06);
   }
 

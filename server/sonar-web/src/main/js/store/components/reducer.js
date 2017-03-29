@@ -18,14 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import keyBy from 'lodash/keyBy';
-import uniq from 'lodash/uniq';
-import { RECEIVE_COMPONENTS } from './actions';
+import { keyBy, uniq } from 'lodash';
+import { RECEIVE_COMPONENTS, RECEIVE_PROJECT_TAGS } from './actions';
 
 const byKey = (state = {}, action = {}) => {
   if (action.type === RECEIVE_COMPONENTS) {
     const changes = keyBy(action.components, 'key');
     return { ...state, ...changes };
+  }
+
+  if (action.type === RECEIVE_PROJECT_TAGS) {
+    const project = state[action.project];
+    if (project) {
+      return { ...state, [action.project]: { ...project, tags: action.tags } };
+    }
   }
 
   return state;
@@ -42,6 +48,4 @@ const keys = (state = [], action = {}) => {
 
 export default combineReducers({ byKey, keys });
 
-export const getComponent = (state, key) => (
-    state.byKey[key]
-);
+export const getComponent = (state, key) => state.byKey[key];

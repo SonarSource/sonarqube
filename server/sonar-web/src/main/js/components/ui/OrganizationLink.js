@@ -29,11 +29,9 @@ export default class OrganizationLink extends React.Component {
     }
   };
 
-  render () {
+  render() {
     const { children, organization, ...other } = this.props;
 
-    return (
-        <Link to={`/organizations/${organization.key}`} {...other}>{children}</Link>
-    );
+    return <Link to={`/organizations/${organization.key}`} {...other}>{children}</Link>;
   }
 }

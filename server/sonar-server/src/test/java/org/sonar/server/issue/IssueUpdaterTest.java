@@ -43,6 +43,8 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +70,7 @@ public class IssueUpdaterTest {
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
 
   private DbClient dbClient = dbTester.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
   private RuleDbTester ruleDbTester = new RuleDbTester(dbTester);
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
@@ -78,7 +81,7 @@ public class IssueUpdaterTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, issueIndexer), notificationManager);
+    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), notificationManager);
 
   @Test
   public void update_issue() throws Exception {

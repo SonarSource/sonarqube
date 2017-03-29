@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import keyBy from 'lodash/keyBy';
+import { keyBy } from 'lodash';
 import type {
   Action,
   ReceiveProjectActivityAction,
@@ -84,6 +84,4 @@ export default (state: State = {}, action: Action): State => {
   }
 };
 
-export const getAnalysis = (state: State, key: string): Analysis => (
-    state[key]
-);
+export const getAnalysis = (state: State, key: string): Analysis => state[key];

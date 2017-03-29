@@ -1,0 +1,44 @@
+exports[`test render code 1`] = `
+<td
+  className="source-line-code code has-issues"
+  data-line-number={3}>
+  <div
+    className="source-line-code-inner">
+    <pre
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<span class=\"k source-line-code-issue\">class</span><span class=\"\"> </span><span class=\"sym sym-1 issue-location\">Foo</span><span class=\"\"> {</span>",
+        }
+      } />
+    <div
+      className="source-line-issue-locations">
+      <a
+        className="source-viewer-issue-location issue-location-message selected"
+        href="#"
+        onClick={[Function]}
+        title="Fix that">
+        Fix that
+      </a>
+    </div>
+  </div>
+  <LineIssuesList
+    issueKeys={
+      Array [
+        "issue-1",
+        "issue-2",
+      ]
+    }
+    onIssueClick={[Function]}
+    selectedIssue="issue-1" />
+</td>
+`;
+
+exports[`test should handle empty location message 1`] = `
+<div
+  className="source-line-issue-locations">
+  <a
+    className="source-viewer-issue-location issue-location-message selected"
+    href="#"
+    onClick={[Function]} />
+</div>
+`;

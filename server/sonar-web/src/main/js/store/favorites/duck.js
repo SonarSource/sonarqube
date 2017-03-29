@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { uniq, without } from 'lodash';
 
 type Favorite = { key: string };
 
@@ -86,6 +85,4 @@ export default (state: State = [], action: Action): State => {
   return state;
 };
 
-export const isFavorite = (state: State, componentKey: string) => (
-    state.includes(componentKey)
-);
+export const isFavorite = (state: State, componentKey: string) => state.includes(componentKey);

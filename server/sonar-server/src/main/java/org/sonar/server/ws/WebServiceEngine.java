@@ -147,7 +147,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
     }
   }
 
-  private static void writeErrors(JsonWriter json, List<String> errorMessages) {
+  public static void writeErrors(JsonWriter json, List<String> errorMessages) {
     if (errorMessages.isEmpty()) {
       return;
     }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import keyBy from 'lodash/keyBy';
+import { keyBy } from 'lodash';
 import { RECEIVE_VALUES } from './actions';
 
 type State = { [key: string]: {} };
@@ -31,9 +31,9 @@ const reducer = (state: State = {}, action: Object) => {
 
   if (action.type === 'SET_APP_STATE') {
     const settingsByKey = {};
-    Object.keys(action.appState.settings).forEach(key => (
-        settingsByKey[key] = { value: action.appState.settings[key] }
-    ));
+    Object.keys(action.appState.settings).forEach(
+      key => settingsByKey[key] = { value: action.appState.settings[key] }
+    );
     return { ...state, ...settingsByKey };
   }
 

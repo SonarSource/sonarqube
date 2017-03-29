@@ -20,62 +20,64 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import groupBy from 'lodash/groupBy';
+import { groupBy } from 'lodash';
 import moment from 'moment';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { getProjectActivity } from '../../../store/rootReducer';
 import { getAnalyses } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
+import type { Analysis } from '../../../store/projectActivity/duck';
 
 class ProjectActivityAnalysesList extends React.Component {
   props: {
     project: string,
-    analyses?: Array<{
-      key: string,
-      date: string
-    }>,
+    analyses?: Array<Analysis>,
     canAdmin: boolean
   };
 
-  render () {
+  render() {
     if (!this.props.analyses) {
       return null;
     }
 
     if (this.props.analyses.length === 0) {
-      return (
-          <div className="note">{translate('no_results')}</div>
-      );
+      return <div className="note">{translate('no_results')}</div>;
     }
 
     const firstAnalysis = this.props.analyses[0];
 
-    const byDay = groupBy(this.props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());
+    const byDay = groupBy(this.props.analyses, analysis =>
+      moment(analysis.date).startOf('day').valueOf());
 
     return (
-        <div className="boxed-group boxed-group-inner">
-          <ul className="project-activity-days-list">
-            {Object.keys(byDay).map(day => (
-                <li key={day} className="project-activity-day" data-day={moment(Number(day)).format('YYYY-MM-DD')}>
-                  <div className="project-activity-date">
-                    <FormattedDate date={Number(day)} format="LL"/>
-                  </div>
+      <div className="boxed-group boxed-group-inner">
+        <ul className="project-activity-days-list">
+          {Object.keys(byDay).map(day => (
+            <li
+              key={day}
+              className="project-activity-day"
+              data-day={moment(Number(day)).format('YYYY-MM-DD')}>
+              <div className="project-activity-date">
+                <FormattedDate date={Number(day)} format="LL" />
+              </div>
 
-                  <ul className="project-activity-analyses-list">
-                    {byDay[day].map(analysis => (
-                        <ProjectActivityAnalysis
-                            key={analysis.key}
-                            analysis={analysis}
-                            isFirst={analysis === firstAnalysis}
-                            project={this.props.project}
-                            canAdmin={this.props.canAdmin}/>
-                    ))}
-                  </ul>
-                </li>
-            ))}
-          </ul>
-        </div>
+              <ul className="project-activity-analyses-list">
+                {byDay[day] != null &&
+                  byDay[day].map(analysis => (
+                    <ProjectActivityAnalysis
+                      key={analysis.key}
+                      analysis={analysis}
+                      isFirst={analysis === firstAnalysis}
+                      project={this.props.project}
+                      canAdmin={this.props.canAdmin}
+                    />
+                  ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 }

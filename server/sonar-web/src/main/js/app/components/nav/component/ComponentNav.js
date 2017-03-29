@@ -28,18 +28,18 @@ import { getTasksForComponent } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 
 export default React.createClass({
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
 
     this.loadStatus();
     this.populateRecentHistory();
   },
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   },
 
-  loadStatus () {
+  loadStatus() {
     getTasksForComponent(this.props.component.id).then(r => {
       if (this.mounted) {
         this.setState({
@@ -51,7 +51,7 @@ export default React.createClass({
     });
   },
 
-  populateRecentHistory () {
+  populateRecentHistory() {
     const { breadcrumbs } = this.props.component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
     if (['TRK', 'VW', 'DEV'].indexOf(qualifier) !== -1) {
@@ -64,33 +64,34 @@ export default React.createClass({
     }
   },
 
-  render () {
+  render() {
     return (
-        <nav className="navbar navbar-context page-container" id="context-navigation">
-          <div className="navbar-context-inner">
-            <div className="container">
-              <ComponentNavFavorite
-                  component={this.props.component.key}
-                  favorite={this.props.component.isFavorite}/>
+      <nav className="navbar navbar-context page-container" id="context-navigation">
+        <div className="navbar-context-inner">
+          <div className="container">
+            <ComponentNavFavorite
+              component={this.props.component.key}
+              favorite={this.props.component.isFavorite}
+            />
 
-              <ComponentNavBreadcrumbs
-                  component={this.props.component}
-                  breadcrumbs={this.props.component.breadcrumbs}/>
+            <ComponentNavBreadcrumbs
+              component={this.props.component}
+              breadcrumbs={this.props.component.breadcrumbs}
+            />
 
-              <TooltipsContainer options={{ delay: { show: 0, hide: 2000 } }}>
-                <ComponentNavMeta
-                    {...this.props}
-                    {...this.state}
-                    version={this.props.component.version}
-                    snapshotDate={this.props.component.snapshotDate}/>
-              </TooltipsContainer>
+            <TooltipsContainer options={{ delay: { show: 0, hide: 2000 } }}>
+              <ComponentNavMeta
+                {...this.props}
+                {...this.state}
+                version={this.props.component.version}
+                snapshotDate={this.props.component.snapshotDate}
+              />
+            </TooltipsContainer>
 
-              <ComponentNavMenu
-                  component={this.props.component}
-                  conf={this.props.conf}/>
-            </div>
+            <ComponentNavMenu component={this.props.component} conf={this.props.conf} />
           </div>
-        </nav>
+        </div>
+      </nav>
     );
   }
 });

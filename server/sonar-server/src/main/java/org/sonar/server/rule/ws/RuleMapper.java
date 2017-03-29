@@ -30,6 +30,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
@@ -291,7 +292,7 @@ public class RuleMapper {
 
   private static void setTemplateKey(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_TEMPLATE_KEY) && ruleDto.getTemplateId() != null) {
-      RuleDto templateRule = result.getTemplateRulesByRuleId().get(ruleDto.getTemplateId());
+      RuleDefinitionDto templateRule = result.getTemplateRulesByRuleId().get(ruleDto.getTemplateId());
       if (templateRule != null) {
         ruleResponse.setTemplateKey(templateRule.getKey().toString());
       }
@@ -308,14 +309,14 @@ public class RuleMapper {
 
   @CheckForNull
   private static DebtRemediationFunction defaultDebtRemediationFunction(final RuleDto ruleDto) {
-    final String function = ruleDto.getDefaultRemediationFunction();
+    final String function = ruleDto.getDefRemediationFunction();
     if (function == null || function.isEmpty()) {
       return null;
     } else {
       return new DefaultDebtRemediationFunction(
         DebtRemediationFunction.Type.valueOf(function.toUpperCase(Locale.ENGLISH)),
-        ruleDto.getDefaultRemediationGapMultiplier(),
-        ruleDto.getDefaultRemediationBaseEffort());
+        ruleDto.getDefRemediationGapMultiplier(),
+        ruleDto.getDefRemediationBaseEffort());
     }
   }
 

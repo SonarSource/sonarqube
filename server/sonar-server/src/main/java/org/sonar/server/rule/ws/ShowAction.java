@@ -30,8 +30,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.Rules.ShowResponse;
 
 import static java.util.Collections.singletonList;
@@ -49,11 +51,13 @@ public class ShowAction implements RulesWsAction {
   private final DbClient dbClient;
   private final RuleMapper mapper;
   private final ActiveRuleCompleter activeRuleCompleter;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public ShowAction(DbClient dbClient, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter) {
+  public ShowAction(DbClient dbClient, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapper = mapper;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -91,12 +95,13 @@ public class ShowAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, key);
+      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+      Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, defaultOrganizationUuid, key);
       checkFoundWithOptional(optionalRule, "Rule not found: " + key);
       RuleDto rule = optionalRule.get();
-      List<RuleDto> templateRules = new ArrayList<>();
+      List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
       if (rule.getTemplateId() != null) {
-        Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+        Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
         if (templateRule.isPresent()) {
           templateRules.add(templateRule.get());
         }

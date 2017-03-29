@@ -24,14 +24,13 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   collectionEvents: {
-    'all': 'render'
+    all: 'render'
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       total: this.collection.where({ _hidden: false }).length
     };
   }
 });
-

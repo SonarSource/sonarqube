@@ -29,6 +29,7 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationValidation;
@@ -40,7 +41,7 @@ import static org.sonar.server.organization.OrganizationCreation.NewOrganization
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class CreateAction implements OrganizationsAction {
+public class CreateAction implements OrganizationsWsAction {
   private static final String ACTION = "create";
 
   private final Settings settings;
@@ -68,7 +69,7 @@ public class CreateAction implements OrganizationsAction {
       .setPost(true)
       .setDescription("Create an organization.<br />" +
         "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization support must be enabled.")
-      .setResponseExample(getClass().getResource("example-create.json"))
+      .setResponseExample(getClass().getResource("create-example.json"))
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
@@ -101,9 +102,10 @@ public class CreateAction implements OrganizationsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       organizationFlags.checkEnabled(dbSession);
+      UserDto currentUser = dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin());
       OrganizationDto organization = organizationCreation.create(
         dbSession,
-        userSession.getUserId(),
+        currentUser,
         newOrganizationBuilder()
           .setName(name)
           .setKey(key)

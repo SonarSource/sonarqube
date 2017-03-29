@@ -43,6 +43,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -50,7 +51,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -243,7 +243,7 @@ public class ComponentActionTest {
   @Test
   public void return_extensions() throws Exception {
     init(createPages());
-    componentDbTester.insertProjectAndSnapshot(project);
+    componentDbTester.insertComponent(project);
     userSession.anonymous().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_extensions.json");
@@ -252,7 +252,7 @@ public class ComponentActionTest {
   @Test
   public void return_extensions_for_admin() throws Exception {
     init(createPages());
-    componentDbTester.insertProjectAndSnapshot(project);
+    componentDbTester.insertComponent(project);
     userSession.anonymous()
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());

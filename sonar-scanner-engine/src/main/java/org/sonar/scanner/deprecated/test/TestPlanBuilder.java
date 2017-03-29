@@ -53,4 +53,9 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
     return null;
   }
 
+  @CheckForNull
+  public DefaultTestPlan getTestPlanByFile(InputFile inputFile) {
+    return testPlanByFile.get(inputFile);
+  }
+
 }

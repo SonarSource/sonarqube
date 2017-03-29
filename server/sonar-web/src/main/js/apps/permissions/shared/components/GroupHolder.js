@@ -30,54 +30,51 @@ export default class GroupHolder extends React.Component {
     onToggle: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleClick (permission, e) {
+  handleClick(permission, e) {
     e.preventDefault();
     e.target.blur();
     this.props.onToggle(this.props.group, permission);
   }
 
-  render () {
+  render() {
     const { selectedPermission } = this.props;
     const permissionCells = this.props.permissionsOrder.map(p => (
-        <td key={p.key}
-            className="text-center text-middle"
-            style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
-          <button
-              className="button-clean"
-              onClick={this.handleClick.bind(this, p.key)}>
-            {this.props.permissions.includes(p.key) ? (
-                <i className="icon-checkbox icon-checkbox-checked"/>
-            ) : (
-                <i className="icon-checkbox"/>
-            )}
-          </button>
-        </td>
+      <td
+        key={p.key}
+        className="text-center text-middle"
+        style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}
+      >
+        <button className="button-clean" onClick={this.handleClick.bind(this, p.key)}>
+          {this.props.permissions.includes(p.key)
+            ? <i className="icon-checkbox icon-checkbox-checked" />
+            : <i className="icon-checkbox" />}
+        </button>
+      </td>
     ));
 
     const { group } = this.props;
 
     return (
-        <tr>
-          <td className="nowrap">
-            <div className="display-inline-block text-middle big-spacer-right">
-              <GroupIcon/>
+      <tr>
+        <td className="nowrap">
+          <div className="display-inline-block text-middle big-spacer-right">
+            <GroupIcon />
+          </div>
+          <div className="display-inline-block text-middle">
+            <div>
+              <strong>{group.name}</strong>
             </div>
-            <div className="display-inline-block text-middle">
-              <div>
-                <strong>{group.name}</strong>
-              </div>
-              <div className="little-spacer-top"
-                   style={{ whiteSpace: 'normal' }}>
-                {group.description}
-              </div>
+            <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
+              {group.description}
             </div>
-          </td>
-          {permissionCells}
-        </tr>
+          </div>
+        </td>
+        {permissionCells}
+      </tr>
     );
   }
 }

@@ -23,18 +23,22 @@ import { UnconnectedOrganizationAdmin } from '../OrganizationAdmin';
 
 it('should render children', () => {
   const organization = { canAdmin: true };
-  expect(shallow(
-    <UnconnectedOrganizationAdmin organization={organization}>
+  expect(
+    shallow(
+      <UnconnectedOrganizationAdmin organization={organization}>
         <div>hello</div>
       </UnconnectedOrganizationAdmin>
-  )).toMatchSnapshot();
+    )
+  ).toMatchSnapshot();
 });
 
 it('should not render anything', () => {
   const organization = { canAdmin: false };
-  expect(shallow(
-    <UnconnectedOrganizationAdmin organization={organization}>
+  expect(
+    shallow(
+      <UnconnectedOrganizationAdmin organization={organization}>
         <div>hello</div>
       </UnconnectedOrganizationAdmin>
-  )).toMatchSnapshot();
+    )
+  ).toMatchSnapshot();
 });

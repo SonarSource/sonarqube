@@ -24,20 +24,20 @@ import GlobalFooter from './GlobalFooter';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 
 export default class GlobalContainer extends React.Component {
-  render () {
+  render() {
     // it is important to pass `location` down to `GlobalNav` to trigger render on url change
 
     return (
-        <div className="global-container">
-          <div className="page-wrapper page-wrapper-global" id="container">
-            <div className="page-container">
-              <GlobalNav location={this.props.location}/>
-              <GlobalMessagesContainer/>
-              {this.props.children}
-            </div>
+      <div className="global-container">
+        <div className="page-wrapper page-wrapper-global" id="container">
+          <div className="page-container">
+            <GlobalNav location={this.props.location} />
+            <GlobalMessagesContainer />
+            {this.props.children}
           </div>
-          <GlobalFooter/>
         </div>
+        <GlobalFooter />
+      </div>
     );
   }
 }

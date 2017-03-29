@@ -19,10 +19,11 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
 
@@ -30,48 +31,39 @@ public interface QualityProfileMapper {
 
   void update(QualityProfileDto dto);
 
-  void delete(int id);
+  void deleteByKeys(@Param("profileKeys") Collection<String> profileKeys);
 
-  List<QualityProfileDto> selectAll();
-
-  @CheckForNull
-  QualityProfileDto selectDefaultProfile(@Param("language") String language);
-
-  List<QualityProfileDto> selectDefaultProfiles(@Param("languages") List<String> languages);
+  List<QualityProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
-  QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
+  QualityProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
-  List<QualityProfileDto> selectByNameAndLanguages(@Param("name") String name, @Param("languages") List<String> languages);
+  List<QualityProfileDto> selectDefaultProfiles(@Param("organizationUuid") String organizationUuid, @Param("languages") List<String> languages);
 
   @CheckForNull
-  QualityProfileDto selectById(@Param("id") Integer id);
+  QualityProfileDto selectByNameAndLanguage(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("language") String language);
+
+  List<QualityProfileDto> selectByNameAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("languages") List<String> languages);
 
   @CheckForNull
   QualityProfileDto selectByKey(String key);
 
-  List<QualityProfileDto> selectByLanguage(String language);
+  List<QualityProfileDto> selectByLanguage(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
   List<QualityProfileDto> selectByKeys(@Param("keys") List<String> keys);
 
   // INHERITANCE
 
-  @CheckForNull
-  QualityProfileDto selectParentById(int childId);
-
   List<QualityProfileDto> selectChildren(String key);
 
   // PROJECTS
 
-  List<ComponentDto> selectProjects(@Param("profileName") String profileName, @Param("language") String language);
-
-  List<QualityProfileProjectCount> countProjectsByProfile();
-
-  QualityProfileDto selectByProjectIdAndLanguage(@Param("projectId") Long projectId, @Param("language") String language);
+  List<KeyLongValue> countProjectsByProfileKey(@Param("organizationUuid") String organizationUuid);
 
   QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
 
-  List<QualityProfileDto> selectByProjectAndLanguages(@Param("projectKey") String projectKey, @Param("languages") List<String> input);
+  List<QualityProfileDto> selectByProjectAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("projectKey") String projectKey,
+    @Param("languages") List<String> input);
 
   void insertProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 
@@ -79,11 +71,20 @@ public interface QualityProfileMapper {
 
   void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 
-  void deleteAllProjectProfileAssociation(@Param("profileKey") String profileKey);
+  void deleteProjectAssociationByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
 
-  List<ProjectQprofileAssociationDto> selectSelectedProjects(@Param("profileKey") String profileKey, @Param("nameQuery") String nameQuery);
+  List<ProjectQprofileAssociationDto> selectSelectedProjects(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("profileKey") String profileKey,
+    @Param("nameQuery") String nameQuery);
 
-  List<ProjectQprofileAssociationDto> selectDeselectedProjects(@Param("profileKey") String profileKey, @Param("nameQuery") String nameQuery);
+  List<ProjectQprofileAssociationDto> selectDeselectedProjects(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("profileKey") String profileKey,
+    @Param("nameQuery") String nameQuery);
 
-  List<ProjectQprofileAssociationDto> selectProjectAssociations(@Param("profileKey") String profileKey, @Param("nameQuery") String nameQuery);
+  List<ProjectQprofileAssociationDto> selectProjectAssociations(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("profileKey") String profileKey,
+    @Param("nameQuery") String nameQuery);
 }

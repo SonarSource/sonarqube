@@ -32,6 +32,9 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -67,6 +70,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 
@@ -334,6 +338,26 @@ public class ItUtils {
     String content = newWsClient(orchestrator).wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", componentKey)).failIfNotSuccessful()
       .content();
     return ComponentNavigation.parse(content);
+  }
+
+  public static void restoreProfile(Orchestrator orchestrator, URL resource) {
+    restoreProfile(orchestrator, resource, null);
+  }
+
+  public static void restoreProfile(Orchestrator orchestrator, URL resource, String organization) {
+    URI uri;
+    try {
+      uri = resource.toURI();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException("Cannot find quality profile xml file '" + resource + "' in classpath");
+    }
+    newAdminWsClient(orchestrator)
+      .qualityProfiles()
+      .restoreProfile(
+        RestoreWsRequest.builder()
+          .setBackup(new File(uri))
+          .setOrganization(organization)
+          .build());
   }
 
   public static class ComponentNavigation {

@@ -30,12 +30,8 @@ class OrganizationPermissionTemplates extends React.Component {
     organization: Organization
   };
 
-  render () {
-    return (
-        <AppContainer
-            location={this.props.location}
-            organization={this.props.organization}/>
-    );
+  render() {
+    return <AppContainer location={this.props.location} organization={this.props.organization} />;
   }
 }
 

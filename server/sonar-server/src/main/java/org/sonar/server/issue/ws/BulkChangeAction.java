@@ -50,7 +50,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -197,19 +197,19 @@ public class BulkChangeAction implements IssuesWsAction {
     return bulkChangeData -> {
       BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
       IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
-      
+
       List<DefaultIssue> items = bulkChangeData.issues.stream()
         .filter(bulkChange(issueChangeContext, bulkChangeData, result))
         .collect(Collectors.toList());
       issueStorage.save(items);
-      items.stream().forEach(sendNotification(issueChangeContext, bulkChangeData));
+      items.forEach(sendNotification(issueChangeContext, bulkChangeData));
       return result;
     };
   }
 
   private Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
     return issue -> {
-      ActionContext actionContext = new ActionContext(issue, issueChangeContext);
+      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.projectsByUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
       return result.success.contains(issue.key());
@@ -260,10 +260,12 @@ public class BulkChangeAction implements IssuesWsAction {
   public static class ActionContext implements Action.Context {
     private final DefaultIssue issue;
     private final IssueChangeContext changeContext;
+    private final ComponentDto project;
 
-    public ActionContext(DefaultIssue issue, IssueChangeContext changeContext) {
+    public ActionContext(DefaultIssue issue, IssueChangeContext changeContext, ComponentDto project) {
       this.issue = issue;
       this.changeContext = changeContext;
+      this.project = project;
     }
 
     @Override
@@ -275,6 +277,11 @@ public class BulkChangeAction implements IssuesWsAction {
     public IssueChangeContext issueChangeContext() {
       return changeContext;
     }
+
+    @Override
+    public ComponentDto project() {
+      return project;
+    }
   }
 
   private class BulkChangeData {
@@ -283,7 +290,7 @@ public class BulkChangeAction implements IssuesWsAction {
     private final Collection<DefaultIssue> issues;
     private final Map<String, ComponentDto> projectsByUuid;
     private final Map<String, ComponentDto> componentsByUuid;
-    private final Map<RuleKey, RuleDto> rulesByKey;
+    private final Map<RuleKey, RuleDefinitionDto> rulesByKey;
     private final List<Action> availableActions;
 
     BulkChangeData(DbSession dbSession, Request request) {
@@ -300,9 +307,9 @@ public class BulkChangeAction implements IssuesWsAction {
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
           .collect(uniqueIndex(ComponentDto::uuid, identity()));
-      this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
+      this.rulesByKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
-        .collect(uniqueIndex(RuleDto::getKey, identity()));
+        .collect(uniqueIndex(RuleDefinitionDto::getKey, identity()));
 
       this.availableActions = actions.stream()
         .filter(action -> propertiesByActions.containsKey(action.key()))

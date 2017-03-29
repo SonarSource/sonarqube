@@ -29,15 +29,12 @@ export const updateState = changes => ({
 });
 
 export default createValue(
-    // should update
+  // should update
   (state, action) => action.type === actions.UPDATE_STATE,
-
-    // should reset
+  // should reset
   () => false,
-
-    // get next value
+  // get next value
   (state, action) => ({ ...state, ...action.changes }),
-
-    // default value
-    {}
+  // default value
+  {}
 );

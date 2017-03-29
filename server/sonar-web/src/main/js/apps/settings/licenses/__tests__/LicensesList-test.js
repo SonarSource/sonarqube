@@ -23,18 +23,18 @@ import LicensesList from '../LicensesList';
 import LicenseRowContainer from '../LicenseRowContainer';
 
 it('should render', () => {
-  const list = shallow(<LicensesList licenses={[]} fetchLicenses={jest.fn()}/>);
+  const list = shallow(<LicensesList licenses={[]} fetchLicenses={jest.fn()} />);
   expect(list.is('table')).toBe(true);
 });
 
 it('should fetch licenses', () => {
   const fetchLicenses = jest.fn(() => Promise.resolve());
-  mount(<LicensesList licenses={[]} fetchLicenses={fetchLicenses}/>);
+  mount(<LicensesList licenses={[]} fetchLicenses={fetchLicenses} />);
   expect(fetchLicenses).toBeCalled();
 });
 
 it('should render rows', () => {
-  const list = shallow(<LicensesList licenses={['foo', 'bar']} fetchLicenses={jest.fn()}/>);
+  const list = shallow(<LicensesList licenses={['foo', 'bar']} fetchLicenses={jest.fn()} />);
   expect(list.find(LicenseRowContainer).length).toBe(2);
   expect(list.find(LicenseRowContainer).at(0).prop('licenseKey')).toBe('foo');
   expect(list.find(LicenseRowContainer).at(1).prop('licenseKey')).toBe('bar');

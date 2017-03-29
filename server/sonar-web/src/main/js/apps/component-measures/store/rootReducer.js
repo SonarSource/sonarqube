@@ -34,82 +34,42 @@ export default combineReducers({
   status: statusReducer
 });
 
-export const getComponent = state => (
-    state.app.component
-);
+export const getComponent = state => state.app.component;
 
-export const getAllMetrics = state => (
-    state.app.metrics
-);
+export const getAllMetrics = state => state.app.metrics;
 
-export const getDetailsMetric = state => (
-    state.details.metric
-);
+export const getDetailsMetric = state => state.details.metric;
 
-export const getDetailsMeasure = state => (
-    state.details.measure
-);
+export const getDetailsMeasure = state => state.details.measure;
 
-export const getDetailsSecondaryMeasure = state => (
-    state.details.secondaryMeasure
-);
+export const getDetailsSecondaryMeasure = state => state.details.secondaryMeasure;
 
-export const getDetailsPeriods = state => (
-    state.details.periods
-);
+export const getDetailsPeriods = state => state.details.periods;
 
-export const isFetching = state => (
-    state.status.fetching
-);
+export const isFetching = state => state.status.fetching;
 
-export const getList = state => (
-    state.list
-);
+export const getList = state => state.list;
 
-export const getListComponents = state => (
-    state.list.components
-);
+export const getListComponents = state => state.list.components;
 
-export const getListSelected = state => (
-    state.list.selected
-);
+export const getListSelected = state => state.list.selected;
 
-export const getListTotal = state => (
-    state.list.total
-);
+export const getListTotal = state => state.list.total;
 
-export const getListPageIndex = state => (
-    state.list.pageIndex
-);
+export const getListPageIndex = state => state.list.pageIndex;
 
-export const getTree = state => (
-    state.tree
-);
+export const getTree = state => state.tree;
 
-export const getTreeComponents = state => (
-    state.tree.components
-);
+export const getTreeComponents = state => state.tree.components;
 
-export const getTreeBreadcrumbs = state => (
-    state.tree.breadcrumbs
-);
+export const getTreeBreadcrumbs = state => state.tree.breadcrumbs;
 
-export const getTreeSelected = state => (
-    state.tree.selected
-);
+export const getTreeSelected = state => state.tree.selected;
 
-export const getTreeTotal = state => (
-    state.tree.total
-);
+export const getTreeTotal = state => state.tree.total;
 
-export const getTreePageIndex = state => (
-    state.tree.pageIndex
-);
+export const getTreePageIndex = state => state.tree.pageIndex;
 
-export const getHomeDomains = state => (
-    state.home.domains
-);
+export const getHomeDomains = state => state.home.domains;
 
-export const getHomePeriods = state => (
-    state.home.periods
-);
+export const getHomePeriods = state => state.home.periods;

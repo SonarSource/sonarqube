@@ -42,6 +42,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
@@ -58,22 +59,19 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+    .setOrganizationUuid("org-1");
 
-  DbSession session = dbTester.getSession();
-
-  DbClient dbClient = dbTester.getDbClient();
-
-  System2 system2;
-
-  IssueCache issueCache;
-
-  ComputationStep step;
+  private DbSession session = dbTester.getSession();
+  private DbClient dbClient = dbTester.getDbClient();
+  private System2 system2;
+  private IssueCache issueCache;
+  private ComputationStep step;
 
   @Override
   protected ComputationStep step() {
@@ -87,7 +85,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(dbClient), issueCache);
+    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(dbClient, analysisMetadataHolder), issueCache);
   }
 
   @After
@@ -98,7 +96,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void insert_new_issue() {
     RuleDto rule = RuleTesting.newDto(RuleKey.of("xoo", "S01"));
-    dbClient.ruleDao().insert(session, rule);
+    dbTester.rules().insertRule(rule);
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     dbClient.componentDao().insert(session, project);
@@ -115,8 +113,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(Issue.STATUS_OPEN)
       .setNew(true)
-      .setType(RuleType.BUG)
-      ).close();
+      .setType(RuleType.BUG)).close();
 
     step.execute();
 
@@ -145,8 +142,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setResolution(Issue.RESOLUTION_FIXED)
       .setSelectedAt(NOW)
       .setNew(false)
-      .setChanged(true)
-      ).close();
+      .setChanged(true)).close();
 
     step.execute();
 
@@ -173,9 +169,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setIssueKey("ISSUE")
         .setUserLogin("john")
         .setMarkdownText("Some text")
-        .setNew(true)
-      )
-      ).close();
+        .setNew(true)))
+      .close();
 
     step.execute();
 
@@ -200,9 +195,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setCurrentChange(new FieldDiffs()
         .setIssueKey("ISSUE")
         .setUserLogin("john")
-        .setDiff("technicalDebt", null, 1L)
-      )
-      ).close();
+        .setDiff("technicalDebt", null, 1L)))
+      .close();
 
     step.execute();
 

@@ -20,10 +20,20 @@
 package org.sonar.process;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+
+import static java.lang.String.format;
+import static java.util.Collections.list;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 public final class NetworkUtils {
 
@@ -35,6 +45,44 @@ public final class NetworkUtils {
 
   public static int freePort() {
     return RANDOM_PORT_FINDER.getNextAvailablePort();
+  }
+
+  /**
+   * Identifying the localhost machine
+   * It will try to retrieve the hostname and the IPv4 addresses
+   *
+   * @return "hostname (ipv4_1, ipv4_2...)"
+   */
+  public static String getHostName() {
+    String hostname;
+    String ips;
+    try {
+      hostname = InetAddress.getLocalHost().getHostName();
+    } catch (UnknownHostException e) {
+      hostname = "unresolved hostname";
+    }
+
+    try {
+      ips = list(NetworkInterface.getNetworkInterfaces()).stream()
+        .flatMap(netif ->
+          list(netif.getInetAddresses()).stream()
+            .filter(inetAddress ->
+              // Removing IPv6 for the time being
+              inetAddress instanceof Inet4Address &&
+                // Removing loopback addresses, useless for identifying a server
+                !inetAddress.isLoopbackAddress() &&
+                // Removing interfaces without IPs
+                !isBlank(inetAddress.getHostAddress())
+            )
+            .map(InetAddress::getHostAddress)
+        )
+        .filter(p -> !isBlank(p))
+        .collect(Collectors.joining(","));
+    } catch (SocketException e) {
+      ips = "unresolved IPs";
+    }
+
+    return format("%s (%s)", hostname, ips);
   }
 
   static class RandomPortFinder {

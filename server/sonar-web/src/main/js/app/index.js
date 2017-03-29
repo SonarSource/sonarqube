@@ -25,11 +25,6 @@ import installExtensionsHandler from './utils/installExtensionsHandler';
 import { installGlobal } from '../helpers/l10n';
 import './styles/index';
 
-require('script!../libs/third-party/jquery-ui.js');
-require('script!../libs/third-party/select2.js');
-require('script!../libs/third-party/keymaster.js');
-require('script!../libs/third-party/bootstrap/tooltip.js');
-require('script!../libs/third-party/bootstrap/dropdown.js');
 require('script!../libs/select2-jquery-ui-fix.js');
 require('script!../libs/inputs.js');
 require('script!../libs/jquery-isolated-scroll.js');

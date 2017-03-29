@@ -24,16 +24,18 @@ import Template from '../templates/facets/issues-file-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender () {
+  onRender() {
     BaseFacet.prototype.onRender.apply(this, arguments);
-    const widths = this.$('.facet-stat').map(function () {
-      return $(this).outerWidth();
-    }).get();
+    const widths = this.$('.facet-stat')
+      .map(function() {
+        return $(this).outerWidth();
+      })
+      .get();
     const maxValueWidth = Math.max(...widths);
     return this.$('.facet-name').css('padding-right', maxValueWidth);
   },
 
-  getValuesWithLabels () {
+  getValuesWithLabels() {
     const values = this.model.getValues();
     const source = this.options.app.facets.components;
     values.forEach(v => {
@@ -50,11 +52,10 @@ export default BaseFacet.extend({
     return values;
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
     };
   }
 });
-

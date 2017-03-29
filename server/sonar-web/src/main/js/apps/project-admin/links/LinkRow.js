@@ -29,64 +29,64 @@ export default class LinkRow extends React.Component {
     onDelete: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleDeleteClick (e) {
+  handleDeleteClick(e) {
     e.preventDefault();
     e.target.blur();
     this.props.onDelete();
   }
 
-  renderIcon (iconClassName) {
+  renderIcon(iconClassName) {
     if (iconClassName === 'icon-issue') {
       return (
-          <div className="display-inline-block text-top spacer-right">
-            <BugTrackerIcon/>
-          </div>
+        <div className="display-inline-block text-top spacer-right">
+          <BugTrackerIcon />
+        </div>
       );
     }
 
     return (
-        <div className="display-inline-block text-top spacer-right">
-          <i className={iconClassName}/>
-        </div>
+      <div className="display-inline-block text-top spacer-right">
+        <i className={iconClassName} />
+      </div>
     );
   }
 
-  renderNameForProvided (link) {
+  renderNameForProvided(link) {
     return (
-        <div>
-          {this.renderIcon(`icon-${link.type}`)}
-          <div className="display-inline-block text-top">
-            <div>
-              <span className="js-name">{link.name}</span>
-            </div>
-            <div className="note little-spacer-top">
-              <span className="js-type">{`sonar.links.${link.type}`}</span>
-            </div>
+      <div>
+        {this.renderIcon(`icon-${link.type}`)}
+        <div className="display-inline-block text-top">
+          <div>
+            <span className="js-name">{link.name}</span>
+          </div>
+          <div className="note little-spacer-top">
+            <span className="js-type">{`sonar.links.${link.type}`}</span>
           </div>
         </div>
+      </div>
     );
   }
 
-  renderName (link) {
+  renderName(link) {
     if (isProvided(link)) {
       return this.renderNameForProvided(link);
     }
 
     return (
-        <div>
-          {this.renderIcon('icon-detach')}
-          <div className="display-inline-block text-top">
-            <span className="js-name">{link.name}</span>
-          </div>
+      <div>
+        {this.renderIcon('icon-detach')}
+        <div className="display-inline-block text-top">
+          <span className="js-name">{link.name}</span>
         </div>
+      </div>
     );
   }
 
-  renderUrl (link) {
+  renderUrl(link) {
     if (isClickable(link)) {
       return <a href={link.url} target="_blank">{link.url}</a>;
     }
@@ -94,29 +94,27 @@ export default class LinkRow extends React.Component {
     return link.url;
   }
 
-  renderDeleteButton (link) {
+  renderDeleteButton(link) {
     if (isProvided(link)) {
       return null;
     }
 
     return (
-        <button
-            className="button-red js-delete-button"
-            onClick={this.handleDeleteClick.bind(this)}>
-          {translate('delete')}
-        </button>
+      <button className="button-red js-delete-button" onClick={this.handleDeleteClick.bind(this)}>
+        {translate('delete')}
+      </button>
     );
   }
 
-  render () {
+  render() {
     const { link } = this.props;
 
     return (
-        <tr data-name={link.name}>
-          <td className="nowrap">{this.renderName(link)}</td>
-          <td className="nowrap js-url">{this.renderUrl(link)}</td>
-          <td className="thin nowrap">{this.renderDeleteButton(link)}</td>
-        </tr>
+      <tr data-name={link.name}>
+        <td className="nowrap">{this.renderName(link)}</td>
+        <td className="nowrap js-url">{this.renderUrl(link)}</td>
+        <td className="thin nowrap">{this.renderDeleteButton(link)}</td>
+      </tr>
     );
   }
 }

@@ -98,7 +98,7 @@ public class RuleParamDto {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
-  public static RuleParamDto createFor(RuleDto rule) {
+  public static RuleParamDto createFor(RuleDefinitionDto rule) {
     // Should eventually switch to RuleKey (RuleKey is available before insert)
     return new RuleParamDto().setRuleId(rule.getId());
   }

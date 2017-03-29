@@ -24,14 +24,13 @@ export default PopupView.extend({
   template: Template,
 
   collectionEvents: {
-    'sync': 'render'
+    sync: 'render'
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...PopupView.prototype.serializeData.apply(this, arguments),
       issue: this.options.issue.toJSON()
     };
   }
 });
-

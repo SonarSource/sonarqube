@@ -24,19 +24,16 @@ import { parseError } from '../../../code/utils';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
 
     const name = this.$('#create-link-name').val();
     const url = this.$('#create-link-url').val();
 
-    this.options.onCreate(name, url)
-        .then(() => this.destroy())
-        .catch(e => {
-          parseError(e).then(msg => this.showSingleError(msg));
-          this.enableForm();
-        });
+    this.options.onCreate(name, url).then(() => this.destroy()).catch(e => {
+      parseError(e).then(msg => this.showSingleError(msg));
+      this.enableForm();
+    });
   }
 });
-

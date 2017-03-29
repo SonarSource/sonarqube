@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import keyBy from 'lodash/keyBy';
-import omit from 'lodash/omit';
+import { keyBy, omit } from 'lodash';
 import { RECEIVE_PROJECT_LINKS, DELETE_PROJECT_LINK, ADD_PROJECT_LINK } from './actions';
 
 const links = (state = {}, action = {}) => {
@@ -40,5 +39,4 @@ const links = (state = {}, action = {}) => {
 
 export default links;
 
-export const getLink = (state, id) =>
-    state[id];
+export const getLink = (state, id) => state[id];

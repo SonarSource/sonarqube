@@ -29,61 +29,73 @@ export default Marionette.ItemView.extend({
     'click #start-migration': 'startMigration'
   },
 
-  initialize () {
-    const that = this;
+  initialize() {
     this.requestOptions = {
       type: 'GET',
       url: window.baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
     };
-    this.pollingInternal = setInterval(() => {
-      that.refresh();
-    }, 5000);
+    this.pollingInternal = setInterval(
+      () => {
+        this.refresh();
+      },
+      5000
+    );
+    this.wasStarting = false;
   },
 
-  refresh () {
-    const that = this;
+  refresh() {
     return Backbone.ajax(this.requestOptions).done(r => {
-      that.model.set(r);
-      that.render();
-      if (that.model.get('status') === 'UP' || that.model.get('state') === 'NO_MIGRATION') {
-        that.stopPolling();
+      if (r.status === 'STARTING') {
+        this.wasStarting = true;
       }
-      if (that.model.get('state') === 'MIGRATION_SUCCEEDED') {
-        that.goHome();
+      this.model.set(r);
+      this.render();
+      if (this.model.get('status') === 'UP' || this.model.get('state') === 'NO_MIGRATION') {
+        this.stopPolling();
+      }
+      if (this.model.get('status') === 'UP' && this.wasStarting) {
+        this.goHome();
+      }
+      if (this.model.get('state') === 'MIGRATION_SUCCEEDED') {
+        this.goHome();
       }
     });
   },
 
-  stopPolling () {
+  stopPolling() {
     clearInterval(this.pollingInternal);
   },
 
-  startMigration () {
-    const that = this;
+  startMigration() {
     Backbone.ajax({
       url: window.baseUrl + '/api/system/migrate_db',
       type: 'POST'
     }).done(r => {
-      that.model.set(r);
-      that.render();
+      this.model.set(r);
+      this.render();
     });
   },
 
-  onRender () {
-    $('.page-simple').toggleClass('panel-warning', this.model.get('state') === 'MIGRATION_REQUIRED');
+  onRender() {
+    $('.page-simple').toggleClass(
+      'panel-warning',
+      this.model.get('state') === 'MIGRATION_REQUIRED'
+    );
   },
 
-  goHome () {
-    setInterval(() => {
-      window.location = window.baseUrl + '/';
-    }, 2500);
+  goHome() {
+    setInterval(
+      () => {
+        window.location = window.baseUrl + '/';
+      },
+      2500
+    );
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       setup: this.options.setup
     };
   }
 });
-

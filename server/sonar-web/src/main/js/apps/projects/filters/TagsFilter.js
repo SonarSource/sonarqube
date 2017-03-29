@@ -1,0 +1,119 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+//@flow
+import React from 'react';
+import { debounce, difference, sortBy } from 'lodash';
+import Filter from './Filter';
+import FilterHeader from './FilterHeader';
+import SearchableFilterFooter from './SearchableFilterFooter';
+import SearchableFilterOption from './SearchableFilterOption';
+import { searchProjectTags } from '../../../api/components';
+
+type Props = {
+  query: {},
+  router: { push: ({ pathname: string, query?: {} }) => void },
+  value?: Array<string>,
+  facet?: {},
+  isFavorite?: boolean,
+  organization?: {},
+  maxFacetValue?: number
+};
+
+type State = {
+  isLoading: boolean,
+  search: string,
+  tags: Array<string>
+};
+
+const PAGE_SIZE = 20;
+
+export default class TagsFilter extends React.PureComponent {
+  getSearchOptions: () => [{ label: string, value: string }];
+  props: Props;
+  state: State = {
+    isLoading: false,
+    search: '',
+    tags: []
+  };
+  property = 'tags';
+
+  constructor(props: Props) {
+    super(props);
+    this.handleSearch = debounce(this.handleSearch.bind(this), 250);
+  }
+
+  renderOption = (option: string) => <SearchableFilterOption optionKey={option} />;
+
+  getSearchOptions(facet: {}, tags: Array<string>) {
+    let tagsCopy = [...tags];
+    if (facet) {
+      tagsCopy = difference(tagsCopy, Object.keys(facet));
+    }
+    return tagsCopy.map(tag => ({ label: tag, value: tag }));
+  }
+
+  handleSearch = (search?: string) => {
+    if (search !== this.state.search) {
+      search = search || '';
+      this.setState({ search, isLoading: true });
+      searchProjectTags({ q: search, ps: PAGE_SIZE }).then(result => {
+        this.setState({ isLoading: false, tags: result.tags });
+      });
+    }
+  };
+
+  getSortedOptions(facet: {} = {}) {
+    return sortBy(Object.keys(facet), [option => -facet[option], option => option]);
+  }
+
+  getFacetValueForOption = (facet: {}, option: string) => facet[option];
+
+  render() {
+    return (
+      <Filter
+        property={this.property}
+        options={this.getSortedOptions(this.props.facet)}
+        query={this.props.query}
+        renderOption={this.renderOption}
+        value={this.props.value}
+        facet={this.props.facet}
+        maxFacetValue={this.props.maxFacetValue}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={<FilterHeader name="Tags" />}
+        footer={
+          <SearchableFilterFooter
+            property={this.property}
+            query={this.props.query}
+            options={this.getSearchOptions(this.props.facet, this.state.tags)}
+            isLoading={this.state.isLoading}
+            onOpen={this.handleSearch}
+            onInputChange={this.handleSearch}
+            isFavorite={this.props.isFavorite}
+            organization={this.props.organization}
+            router={this.props.router}
+          />
+        }
+      />
+    );
+  }
+}

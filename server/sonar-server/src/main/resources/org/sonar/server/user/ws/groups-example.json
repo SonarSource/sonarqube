@@ -1,0 +1,21 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 25,
+    "total": 2
+  },
+  "groups": [
+    {
+      "id": 1,
+      "name": "sonar-admins",
+      "description": "Sonar Admins",
+      "selected": false
+    },
+    {
+      "id": 2,
+      "name": "sonar-users",
+      "description": "Sonar Users",
+      "selected": true
+    }
+  ]
+}

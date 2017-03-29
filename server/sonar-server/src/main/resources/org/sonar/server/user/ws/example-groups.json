@@ -1,9 +1,0 @@
-{
-  "p": 1,
-  "ps": 25,
-  "total": 2,
-  "groups": [
-    {"id": "2", "name": "sonar-admins", "description": "Sonar Admins", "selected": false},
-    {"id": "1", "name": "sonar-users", "description": "Sonar Users", "selected": true}
-  ]
-}

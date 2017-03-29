@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
 import { Task } from './types';
 
-export function updateTask (tasks: Task[], newTask: Task) {
+export function updateTask(tasks: Task[], newTask: Task) {
   return tasks.map(task => task.id === newTask.id ? newTask : task);
 }
 
-export function mapFiltersToParameters (filters: Object = {}) {
+export function mapFiltersToParameters(filters: Object = {}) {
   const parameters = {};
 
   if (filters.status === STATUSES.ALL) {
@@ -77,11 +77,11 @@ export function mapFiltersToParameters (filters: Object = {}) {
 const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
 
-function format (int, suffix) {
+function format(int, suffix) {
   return `${int}${suffix}`;
 }
 
-export function formatDuration (value: ?number) {
+export function formatDuration(value: ?number) {
   if (!value) {
     return '';
   }

@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,9 +30,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -62,8 +63,8 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
-  public List<QualityProfileDto> selectAll(DbSession session) {
-    return mapper(session).selectAll();
+  public List<QualityProfileDto> selectAll(DbSession session, OrganizationDto organization) {
+    return mapper(session).selectAll(organization.getUuid());
   }
 
   public void insert(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
@@ -96,18 +97,13 @@ public class QualityProfileDao implements Dao {
     mapper.update(profile);
   }
 
-  public void delete(DbSession session, int profileId) {
-    QualityProfileMapper mapper = mapper(session);
-    mapper.delete(profileId);
-  }
-
-  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, mapper(session)::selectDefaultProfiles);
+  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
+    return executeLargeInputs(languageKeys, chunk -> mapper(session).selectDefaultProfiles(organization.getUuid(), chunk));
   }
 
   @CheckForNull
-  public QualityProfileDto selectDefaultProfile(DbSession session, String language) {
-    return mapper(session).selectDefaultProfile(language);
+  public QualityProfileDto selectDefaultProfile(DbSession session, OrganizationDto organization, String language) {
+    return mapper(session).selectDefaultProfile(organization.getUuid(), language);
   }
 
   @CheckForNull
@@ -115,22 +111,12 @@ public class QualityProfileDao implements Dao {
     return mapper(session).selectByProjectAndLanguage(projectKey, language);
   }
 
-  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, String projectKey, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(projectKey, input));
+  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, String projectKey, Collection<String> languageKeys) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), projectKey, input));
   }
 
-  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, String language) {
-    return mapper(dbSession).selectByLanguage(language);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectById(DbSession session, int id) {
-    return mapper(session).selectById(id);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectParentById(DbSession session, int childId) {
-    return mapper(session).selectParentById(childId);
+  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
+    return mapper(dbSession).selectByLanguage(organization.getUuid(), language);
   }
 
   public List<QualityProfileDto> selectChildren(DbSession session, String key) {
@@ -150,25 +136,16 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
-    return mapper(session).selectByNameAndLanguage(name, language);
+  public QualityProfileDto selectByNameAndLanguage(OrganizationDto organization, String name, String language, DbSession session) {
+    return mapper(session).selectByNameAndLanguage(organization.getUuid(), name, language);
   }
 
-  public List<QualityProfileDto> selectByNameAndLanguages(String name, Collection<String> languageKeys, DbSession session) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(name, input));
+  public List<QualityProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organization.getUuid(), name, input));
   }
 
-  public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {
-    return mapper(session).selectProjects(profileName, language);
-  }
-
-  public Map<String, Long> countProjectsByProfileKey(DbSession dbSession) {
-    Map<String, Long> countByKey = new HashMap<>();
-    QualityProfileMapper mapper = mapper(dbSession);
-    for (QualityProfileProjectCount count : mapper.countProjectsByProfile()) {
-      countByKey.put(count.getProfileKey(), count.getProjectCount());
-    }
-    return countByKey;
+  public Map<String, Long> countProjectsByProfileKey(DbSession dbSession, OrganizationDto organization) {
+    return KeyLongValue.toMap(mapper(dbSession).countProjectsByProfileKey(organization.getUuid()));
   }
 
   public void insertProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
@@ -183,30 +160,39 @@ public class QualityProfileDao implements Dao {
     mapper(session).updateProjectProfileAssociation(projectUuid, newProfileKey, oldProfileKey);
   }
 
-  public void deleteAllProjectProfileAssociation(String profileKey, DbSession session) {
-    mapper(session).deleteAllProjectProfileAssociation(profileKey);
+  public void deleteProjectAssociationsByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteProjectAssociationByProfileKeys);
   }
 
-  public List<ProjectQprofileAssociationDto> selectSelectedProjects(String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectSelectedProjects(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectSelectedProjects(profileKey, nameQuery);
+    return mapper(session).selectSelectedProjects(organization.getUuid(), profileKey, nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectDeselectedProjects(profileKey, nameQuery);
+    return mapper(session).selectDeselectedProjects(organization.getUuid(), profileKey, nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectProjectAssociations(String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectProjectAssociations(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectProjectAssociations(profileKey, nameQuery);
+    return mapper(session).selectProjectAssociations(organization.getUuid(), profileKey, nameQuery);
   }
 
-  private String sqlQueryString(@Nullable String query) {
-    return query == null ? "%" : "%" + query.toUpperCase(Locale.ENGLISH) + "%";
+  private static String sqlQueryString(@Nullable String query) {
+    if (query == null) {
+      return "%";
+    }
+    return "%" + query.toUpperCase(Locale.ENGLISH) + "%";
   }
 
   private static QualityProfileMapper mapper(DbSession session) {
     return session.getMapper(QualityProfileMapper.class);
+  }
+
+  public void deleteByKeys(DbSession dbSession, Collection<String> profileKeys) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByKeys);
   }
 }

@@ -20,12 +20,12 @@
 // @flow
 import React from 'react';
 import Modal from 'react-modal';
-import type { Analysis, Event } from '../../../../store/projectActivity/duck';
+import type { Event } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
 
 type Props = {
-  analysis: Analysis,
-  deleteEvent: () => Promise<*>,
+  analysis: string,
+  deleteEvent: (string, string) => Promise<*>,
   event: Event,
   removeEventButtonText: string,
   removeEventQuestion: string,
@@ -36,7 +36,7 @@ type State = {
   processing: boolean
 };
 
-export default class RemoveVersionForm extends React.Component {
+export default class RemoveEventForm extends React.Component {
   mounted: boolean;
   props: Props;
 
@@ -44,11 +44,11 @@ export default class RemoveVersionForm extends React.Component {
     processing: false
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
@@ -72,42 +72,45 @@ export default class RemoveVersionForm extends React.Component {
   handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.deleteEvent(this.props.analysis, this.props.event.key)
-        .then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props
+      .deleteEvent(this.props.analysis, this.props.event.key)
+      .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
-  render () {
+  render() {
     return (
-        <Modal isOpen={true}
-               contentLabel="modal form"
-               className="modal"
-               overlayClassName="modal-overlay"
-               onRequestClose={this.closeForm}>
+      <Modal
+        isOpen={true}
+        contentLabel="modal form"
+        className="modal"
+        overlayClassName="modal-overlay"
+        onRequestClose={this.closeForm}
+      >
 
-          <header className="modal-head">
-            <h2>{translate(this.props.removeEventButtonText)}</h2>
-          </header>
+        <header className="modal-head">
+          <h2>{translate(this.props.removeEventButtonText)}</h2>
+        </header>
 
-          <form onSubmit={this.handleSubmit}>
-            <div className="modal-body">
-              {translate(this.props.removeEventQuestion)}
-            </div>
+        <form onSubmit={this.handleSubmit}>
+          <div className="modal-body">
+            {translate(this.props.removeEventQuestion)}
+          </div>
 
-            <footer className="modal-foot">
-              {this.state.processing ? (
-                      <i className="spinner"/>
-                  ) : (
-                      <div>
-                        <button type="submit" className="button-red" autoFocus={true}>{translate('delete')}</button>
-                        <button type="reset" className="button-link" onClick={this.closeForm}>
-                          {translate('cancel')}
-                        </button>
-                      </div>
-                  )}
-            </footer>
-          </form>
+          <footer className="modal-foot">
+            {this.state.processing
+              ? <i className="spinner" />
+              : <div>
+                  <button type="submit" className="button-red" autoFocus={true}>
+                    {translate('delete')}
+                  </button>
+                  <button type="reset" className="button-link" onClick={this.closeForm}>
+                    {translate('cancel')}
+                  </button>
+                </div>}
+          </footer>
+        </form>
 
-        </Modal>
+      </Modal>
     );
   }
 }

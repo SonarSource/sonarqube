@@ -26,7 +26,6 @@ dependencies {
   compile project(':server:sonar-process')
   compile project(':server:sonar-process-monitor')
 
-  compile 'com.hazelcast:hazelcast'
   // TODO all below are provided
 //  compile 'com.google.code.findbugs:jsr305'
   compile 'org.elasticsearch:elasticsearch'

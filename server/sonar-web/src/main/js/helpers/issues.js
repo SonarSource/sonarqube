@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
 
 type TextRange = {
@@ -41,6 +41,13 @@ type RawIssue = {
   author: string,
   comments?: Array<Comment>,
   component: string,
+  flows: Array<{
+    locations: Array<{
+      msg: string,
+      textRange: TextRange
+    }>
+  }>,
+  key: string,
   line?: number,
   project: string,
   rule: string,
@@ -49,9 +56,8 @@ type RawIssue = {
   textRange?: TextRange
 };
 
-export const sortBySeverity = (issues: Array<*>) => (
-  sortBy(issues, issue => SEVERITIES.indexOf(issue.severity))
-);
+export const sortBySeverity = (issues: Array<*>) =>
+  sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
 
 const injectRelational = (
   issue: RawIssue | Comment,
@@ -91,14 +97,16 @@ const prepareClosed = (issue: RawIssue) => {
 };
 
 const ensureTextRange = (issue: RawIssue) => {
-  return issue.line && !issue.textRange ? {
-    textRange: {
-      startLine: issue.line,
-      endLine: issue.line,
-      startOffset: 0,
-      endOffset: 999999
-    }
-  } : {};
+  return issue.line && !issue.textRange
+    ? {
+        textRange: {
+          startLine: issue.line,
+          endLine: issue.line,
+          startOffset: 0,
+          endOffset: 999999
+        }
+      }
+    : {};
 };
 
 export const parseIssueFromResponse = (

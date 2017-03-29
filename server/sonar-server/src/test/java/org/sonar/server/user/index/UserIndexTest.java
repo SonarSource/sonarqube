@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.index;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +29,9 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
@@ -45,6 +46,8 @@ public class UserIndexTest {
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   private UserIndex underTest;
+
+  private UserQuery.Builder userQuery = UserQuery.builder();
 
   @Before
   public void setUp() {
@@ -127,16 +130,40 @@ public class UserIndexTest {
 
   @Test
   public void searchUsers() throws Exception {
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, Arrays.asList("user_1", "u1")).setEmail("email1"));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.<String>emptyList()).setEmail("email2"));
 
-    assertThat(underTest.search(null, new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(underTest.search("user", new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(underTest.search("ser", new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(underTest.search(USER1_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(underTest.search(USER2_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(underTest.search("mail", new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(underTest.search("EMAIL1", new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(underTest.search(userQuery.build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search(userQuery.setTextQuery("user").build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search(userQuery.setTextQuery("ser").build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search(userQuery.setTextQuery(USER1_LOGIN).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(underTest.search(userQuery.setTextQuery(USER2_LOGIN).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(underTest.search(userQuery.setTextQuery("mail").build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search(userQuery.setTextQuery("EMAIL1").build(), new SearchOptions()).getDocs()).hasSize(1);
+  }
+
+  @Test
+  public void search_users_filter_by_organization_uuid() {
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
+      .setOrganizationUuids(newArrayList("O1", "O2")));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, emptyList()).setEmail("email2")
+      .setOrganizationUuids(newArrayList("O2")));
+
+    assertThat(underTest.search(userQuery.setOrganizationUuid("O42").build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(underTest.search(userQuery.setOrganizationUuid("O2").build(), new SearchOptions()).getDocs()).extracting(UserDoc::login).containsOnly(USER1_LOGIN, USER2_LOGIN);
+    assertThat(underTest.search(userQuery.setOrganizationUuid("O1").build(), new SearchOptions()).getDocs()).extracting(UserDoc::login).containsOnly(USER1_LOGIN);
+  }
+
+  @Test
+  public void search_users_filter_by_excluded_organization_uuid() {
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
+      .setOrganizationUuids(newArrayList("O1", "O2")));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, emptyList()).setEmail("email2")
+      .setOrganizationUuids(newArrayList("O2")));
+
+    assertThat(underTest.search(userQuery.setExcludedOrganizationUuid("O42").build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search(userQuery.setExcludedOrganizationUuid("O2").build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(underTest.search(userQuery.setExcludedOrganizationUuid("O1").build(), new SearchOptions()).getDocs()).hasSize(1);
   }
 
   private static UserDoc newUser(String login, List<String> scmAccounts) {

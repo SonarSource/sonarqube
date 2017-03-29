@@ -18,12 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export const domains = {
-  'Reliability': {
-    main: [
-      'bugs',
-      'new_bugs',
-      'reliability_rating'
-    ],
+  Reliability: {
+    main: ['bugs', 'new_bugs', 'reliability_rating'],
     order: [
       'bugs',
       'new_bugs',
@@ -33,12 +29,8 @@ export const domains = {
     ]
   },
 
-  'Security': {
-    main: [
-      'vulnerabilities',
-      'new_vulnerabilities',
-      'security_rating'
-    ],
+  Security: {
+    main: ['vulnerabilities', 'new_vulnerabilities', 'security_rating'],
     order: [
       'vulnerabilities',
       'new_vulnerabilities',
@@ -48,12 +40,8 @@ export const domains = {
     ]
   },
 
-  'Maintainability': {
-    main: [
-      'code_smells',
-      'new_code_smells',
-      'sqale_rating'
-    ],
+  Maintainability: {
+    main: ['code_smells', 'new_code_smells', 'sqale_rating'],
     order: [
       'code_smells',
       'new_code_smells',
@@ -66,12 +54,8 @@ export const domains = {
     ]
   },
 
-  'Coverage': {
-    main: [
-      'coverage',
-      'new_coverage',
-      'tests'
-    ],
+  Coverage: {
+    main: ['coverage', 'new_coverage', 'tests'],
     order: [
       'coverage',
       'new_coverage',
@@ -97,11 +81,8 @@ export const domains = {
     ]
   },
 
-  'Duplications': {
-    main: [
-      'duplicated_lines_density',
-      'new_duplicated_lines_density'
-    ],
+  Duplications: {
+    main: ['duplicated_lines_density', 'new_duplicated_lines_density'],
     order: [
       'duplicated_lines_density',
       'new_duplicated_lines_density',
@@ -113,10 +94,8 @@ export const domains = {
     ]
   },
 
-  'Size': {
-    main: [
-      'ncloc'
-    ],
+  Size: {
+    main: ['ncloc'],
     order: [
       'ncloc',
       'lines',
@@ -129,33 +108,18 @@ export const domains = {
     ]
   },
 
-  'Complexity': {
-    main: [
-      'complexity'
-    ],
-    order: [
-      'complexity',
-      'function_complexity',
-      'file_complexity',
-      'class_complexity'
-    ]
+  Complexity: {
+    main: ['complexity'],
+    order: ['complexity', 'function_complexity', 'file_complexity', 'class_complexity']
   },
 
-  'Releasability': {
-    main: [
-      'alert_status',
-      'releasability_rating'
-    ],
-    order: [
-      'alert_status'
-    ]
+  Releasability: {
+    main: ['alert_status', 'releasability_rating'],
+    order: ['alert_status']
   },
 
-  'Issues': {
-    main: [
-      'violations',
-      'new_violations'
-    ],
+  Issues: {
+    main: ['violations', 'new_violations'],
     order: [
       'violations',
       'new_violations',

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-function enableGravatar () {
+function enableGravatar() {
   const getStore = require('../../app/utils/getStore').default;
   const { getSettingValue } = require('../../store/rootReducer');
 
@@ -25,6 +25,6 @@ function enableGravatar () {
   return (getSettingValue(store.getState(), 'sonar.lf.enableGravatar') || {}).value === 'true';
 }
 
-module.exports = function (options) {
+module.exports = function(options) {
   return enableGravatar() ? options.fn(this) : options.inverse(this);
 };

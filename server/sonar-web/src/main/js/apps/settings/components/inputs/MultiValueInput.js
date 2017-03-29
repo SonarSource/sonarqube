@@ -28,17 +28,17 @@ export default class MultiValueInput extends React.Component {
     onChange: React.PropTypes.func.isRequired
   };
 
-  ensureValue () {
+  ensureValue() {
     return this.props.value || [];
   }
 
-  handleSingleInputChange (index, value) {
+  handleSingleInputChange(index, value) {
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1, value);
     this.props.onChange(newValue);
   }
 
-  handleDeleteValue (e, index) {
+  handleDeleteValue(e, index) {
     e.preventDefault();
     e.target.blur();
 
@@ -47,7 +47,7 @@ export default class MultiValueInput extends React.Component {
     this.props.onChange(newValue);
   }
 
-  prepareSetting () {
+  prepareSetting() {
     const { setting } = this.props;
     const newDefinition = { ...setting.definition, multiValues: false };
     return {
@@ -57,34 +57,38 @@ export default class MultiValueInput extends React.Component {
     };
   }
 
-  renderInput (value, index, isLast) {
+  renderInput(value, index, isLast) {
     return (
-        <li key={index} className="spacer-bottom">
-          <PrimitiveInput
-              setting={this.prepareSetting()}
-              value={value}
-              onChange={this.handleSingleInputChange.bind(this, index)}/>
+      <li key={index} className="spacer-bottom">
+        <PrimitiveInput
+          setting={this.prepareSetting()}
+          value={value}
+          onChange={this.handleSingleInputChange.bind(this, index)}
+        />
 
-          {!isLast && (
-              <div className="display-inline-block spacer-left">
-                <button className="js-remove-value button-clean" onClick={e => this.handleDeleteValue(e, index)}>
-                  <i className="icon-delete"/>
-                </button>
-              </div>
-          )}
-        </li>
+        {!isLast &&
+          <div className="display-inline-block spacer-left">
+            <button
+              className="js-remove-value button-clean"
+              onClick={e => this.handleDeleteValue(e, index)}
+            >
+              <i className="icon-delete" />
+            </button>
+          </div>}
+      </li>
     );
   }
 
-  render () {
+  render() {
     const displayedValue = [...this.ensureValue(), ...getEmptyValue(this.props.setting.definition)];
 
     return (
-        <div>
-          <ul>
-            {displayedValue.map((value, index) => this.renderInput(value, index, index === displayedValue.length - 1))}
-          </ul>
-        </div>
+      <div>
+        <ul>
+          {displayedValue.map((value, index) =>
+            this.renderInput(value, index, index === displayedValue.length - 1))}
+        </ul>
+      </div>
     );
   }
 }

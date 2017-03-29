@@ -19,18 +19,18 @@
  */
 import { getJSON } from '../helpers/request';
 
-export function getGlobalNavigation () {
+export function getGlobalNavigation() {
   const url = '/api/navigation/global';
   return getJSON(url);
 }
 
-export function getComponentNavigation (componentKey) {
+export function getComponentNavigation(componentKey) {
   const url = '/api/navigation/component';
   const data = { componentKey };
   return getJSON(url, data);
 }
 
-export function getSettingsNavigation () {
+export function getSettingsNavigation() {
   const url = '/api/navigation/settings';
   return getJSON(url);
 }

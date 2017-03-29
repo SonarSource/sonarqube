@@ -21,13 +21,13 @@ package org.sonar.server.es;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.file.Files;
 import java.util.Properties;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.sonar.process.LoopbackAddress;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessProperties;
@@ -76,7 +76,7 @@ public class EsServerHolder {
       .put("network.bind_host", "localhost")
       .put("cluster.name", clusterName)
       .build()).build();
-    client.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get(), port));
+    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), port));
 
     // wait for node to be ready
     client.admin().cluster().prepareHealth()
@@ -102,7 +102,7 @@ public class EsServerHolder {
       int port = NetworkUtils.freePort();
 
       Properties properties = new Properties();
-      properties.setProperty(ProcessProperties.SEARCH_CLUSTER_NAME, clusterName);
+      properties.setProperty(ProcessProperties.CLUSTER_NAME, clusterName);
       properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(port));
       properties.setProperty(ProcessProperties.SEARCH_HOST, hostName);
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());

@@ -22,9 +22,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { addCustomEvent } from '../../actions';
 import AddEventForm from './AddEventForm';
+import type { Analysis } from '../../../../store/projectActivity/duck';
 
-const AddCustomEventForm = props => (
-    <AddEventForm {...props} addEventButtonText="project_activity.add_custom_event"/>
+type Props = {
+  addEvent: () => Promise<*>,
+  analysis: Analysis
+};
+
+const AddCustomEventForm = (props: Props) => (
+  <AddEventForm {...props} addEventButtonText="project_activity.add_custom_event" />
 );
 
 const mapStateToProps = null;

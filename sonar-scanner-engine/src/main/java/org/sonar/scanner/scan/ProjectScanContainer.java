@@ -92,7 +92,6 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
-import org.sonar.scanner.source.CodeColorizers;
 import org.sonar.scanner.storage.Storages;
 
 public class ProjectScanContainer extends ComponentContainer {
@@ -136,7 +135,6 @@ public class ProjectScanContainer extends ComponentContainer {
       PhasesTimeProfiler.class,
       ResourceTypes.class,
       ProjectReactorValidator.class,
-      CodeColorizers.class,
       MetricProvider.class,
       ProjectAnalysisInfo.class,
       DefaultIndex.class,

@@ -22,7 +22,7 @@ import { createPermissionTemplate } from '../../../api/permissions';
 import { parseError } from '../../code/utils';
 
 export default FormView.extend({
-  sendRequest () {
+  sendRequest() {
     this.disableForm();
     const data = {
       name: this.$('#permission-template-name').val(),

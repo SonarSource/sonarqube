@@ -21,23 +21,34 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.List;
 import java.util.Map;
-import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableMap.copyOf;
 
 public class SearchData {
-  private List<QProfile> profiles;
+  private OrganizationDto organization;
+  private List<QualityProfileDto> profiles;
   private Map<String, Long> activeRuleCountByProfileKey;
   private Map<String, Long> activeDeprecatedRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
 
-  public List<QProfile> getProfiles() {
+  public SearchData setOrganization(OrganizationDto organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public OrganizationDto getOrganization() {
+    return organization;
+  }
+
+  public List<QualityProfileDto> getProfiles() {
     return profiles;
   }
 
-  public SearchData setProfiles(List<QProfile> profiles) {
+  public SearchData setProfiles(List<QualityProfileDto> profiles) {
     this.profiles = copyOf(profiles);
     return this;
   }

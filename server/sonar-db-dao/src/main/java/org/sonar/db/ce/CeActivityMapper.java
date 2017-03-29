@@ -23,6 +23,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
 public interface CeActivityMapper {
 
@@ -31,7 +32,7 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectByComponentUuid(@Param("componentUuid") String componentUuid);
 
-  List<CeActivityDto> selectByQuery(@Param("query") CeTaskQuery query, @Param("offset") int offset, @Param("pageSize") int pageSize);
+  List<CeActivityDto> selectByQuery(@Param("query") CeTaskQuery query, @Param("pagination") Pagination pagination);
 
   List<CeActivityDto> selectOlderThan(@Param("beforeDate") long beforeDate);
 

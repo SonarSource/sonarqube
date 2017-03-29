@@ -23,12 +23,13 @@ import GlobalNavMenu from '../GlobalNavMenu';
 
 it('should work with extensions', () => {
   const appState = {
-    globalPages: [{ key: 'foo', name: 'Foo' }]
+    globalPages: [{ key: 'foo', name: 'Foo' }],
+    qualifiers: ['TRK']
   };
   const currentUser = {
     isLoggedIn: false,
     permissions: { global: [] }
   };
-  const wrapper = shallow(<GlobalNavMenu appState={appState} currentUser={currentUser}/>);
+  const wrapper = shallow(<GlobalNavMenu appState={appState} currentUser={currentUser} />);
   expect(wrapper).toMatchSnapshot();
 });

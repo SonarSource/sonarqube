@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import without from 'lodash/without';
+import { without } from 'lodash';
 import { RECEIVE_PROJECT_PROFILES, SET_PROJECT_PROFILE } from './actions';
 
 const profilesByProject = (state = {}, action = {}) => {
@@ -28,10 +28,7 @@ const profilesByProject = (state = {}, action = {}) => {
 
   if (action.type === SET_PROJECT_PROFILE) {
     const profileKeys = state[action.projectKey];
-    const nextProfileKeys = [
-      ...without(profileKeys, action.oldProfileKey),
-      action.newProfileKey
-    ];
+    const nextProfileKeys = [...without(profileKeys, action.oldProfileKey), action.newProfileKey];
     return { ...state, [action.projectKey]: nextProfileKeys };
   }
 
@@ -40,5 +37,4 @@ const profilesByProject = (state = {}, action = {}) => {
 
 export default profilesByProject;
 
-export const getProfiles = (state, projectKey) =>
-    state[projectKey] || [];
+export const getProfiles = (state, projectKey) => state[projectKey] || [];

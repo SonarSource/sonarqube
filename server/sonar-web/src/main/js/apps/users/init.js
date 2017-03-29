@@ -28,7 +28,7 @@ import { getIdentityProviders } from '../../api/users';
 
 const App = new Marionette.Application();
 
-const init = function ({ el, currentUser }, providers) {
+const init = function({ el, currentUser }, providers) {
   // Layout
   this.layout = new Layout({ el });
   this.layout.render();
@@ -60,6 +60,6 @@ App.on('start', options => {
   getIdentityProviders().then(r => init.call(App, options, r.identityProviders));
 });
 
-export default function (el, currentUser) {
+export default function(el, currentUser) {
   App.start({ el, currentUser });
 }

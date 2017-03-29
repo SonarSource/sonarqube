@@ -23,14 +23,14 @@ import Template from '../templates/facets/coding-rules-available-since-facet.hbs
 export default BaseFacet.extend({
   template: Template,
 
-  events () {
+  events() {
     return {
       ...BaseFacet.prototype.events.apply(this, arguments),
       'change input': 'applyFacet'
     };
   },
 
-  onRender () {
+  onRender() {
     this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
     this.$el.attr('data-property', this.model.get('property'));
     this.$('input').datepicker({
@@ -44,15 +44,14 @@ export default BaseFacet.extend({
     }
   },
 
-  applyFacet () {
+  applyFacet() {
     const obj = {};
     const property = this.model.get('property');
     obj[property] = this.$('input').val();
     this.options.app.state.updateFilter(obj);
   },
 
-  getLabelsSource () {
+  getLabelsSource() {
     return this.options.app.languages;
   }
-
 });

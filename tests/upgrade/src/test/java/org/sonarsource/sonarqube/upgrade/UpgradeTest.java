@@ -120,7 +120,9 @@ public class UpgradeTest {
 
   private void upgrade(Version sqVersion) {
     checkSystemStatus(sqVersion, ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
-    checkUrlsBeforeUpgrade();
+    if (sqVersion.equals(VERSION_CURRENT)) {
+      checkUrlsBeforeUpgrade();
+    }
     ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
     assertThat(serverMigrationResponse.getStatus())
       .describedAs("Migration status of version " + sqVersion + " should be MIGRATION_SUCCEEDED")
@@ -204,7 +206,7 @@ public class UpgradeTest {
       .setOrchestratorProperty("orchestrator.keepDatabase", "true")
       .setOrchestratorProperty("javaVersion", LATEST_JAVA_RELEASE)
       .addPlugin("java")
-      .setStartupLogWatcher(log -> log.contains("Process[web] is up"));
+      .setStartupLogWatcher(log -> log.contains("Database must be upgraded"));
     orchestrator = builder.build();
     orchestrator.start();
     initSelenide(orchestrator);

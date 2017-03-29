@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
-public class SearchMyOrganizationsAction implements OrganizationsAction {
+public class SearchMyOrganizationsAction implements OrganizationsWsAction {
   private static final String ACTION = "search_my_organizations";
 
   private final UserSession userSession;
@@ -44,7 +44,7 @@ public class SearchMyOrganizationsAction implements OrganizationsAction {
     context.createAction(ACTION)
       .setPost(false)
       .setDescription("List keys of the organizations for which the currently authenticated user has the System Administer permission for.")
-      .setResponseExample(getClass().getResource("example-search_my_organization.json"))
+      .setResponseExample(getClass().getResource("search_my_organization-example.json"))
       .setInternal(true)
       .setSince("6.3")
       .setHandler(this);

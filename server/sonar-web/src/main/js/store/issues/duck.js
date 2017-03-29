@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import keyBy from 'lodash/keyBy';
+import { keyBy } from 'lodash';
 
 type Issue = { key: string };
 
@@ -47,6 +47,4 @@ const reducer = (state: State = {}, action: Action) => {
 
 export default reducer;
 
-export const getIssueByKey = (state: State, key: string): ?Issue => (
-  state[key]
-);
+export const getIssueByKey = (state: State, key: string): ?Issue => state[key];

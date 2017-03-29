@@ -31,15 +31,18 @@ const notifications = [
 ];
 
 it('should match snapshot', () => {
-  expect(shallow(
-    <UnconnectedProjectNotifications
-          project={{ key: 'foo', name: 'Foo' }}
-          notifications={notifications}
-          channels={channels}
-          types={types}
-          addNotification={jest.fn()}
-          removeNotification={jest.fn()}/>
-  )).toMatchSnapshot();
+  expect(
+    shallow(
+      <UnconnectedProjectNotifications
+        project={{ key: 'foo', name: 'Foo' }}
+        notifications={notifications}
+        channels={channels}
+        types={types}
+        addNotification={jest.fn()}
+        removeNotification={jest.fn()}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('should call `addNotification` and `removeNotification`', () => {
@@ -47,12 +50,13 @@ it('should call `addNotification` and `removeNotification`', () => {
   const removeNotification = jest.fn();
   const wrapper = shallow(
     <UnconnectedProjectNotifications
-          project={{ key: 'foo', name: 'Foo' }}
-          notifications={notifications}
-          channels={channels}
-          types={types}
-          addNotification={addNotification}
-          removeNotification={removeNotification}/>
+      project={{ key: 'foo', name: 'Foo' }}
+      notifications={notifications}
+      channels={channels}
+      types={types}
+      addNotification={addNotification}
+      removeNotification={removeNotification}
+    />
   );
   const notificationsList = wrapper.find(NotificationsList);
 

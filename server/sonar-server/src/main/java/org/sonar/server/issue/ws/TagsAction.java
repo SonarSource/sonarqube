@@ -20,13 +20,17 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.index.IssueIndex;
+
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 
 /**
  * List issue tags matching a given query.
@@ -34,10 +38,10 @@ import org.sonar.server.issue.IssueService;
  */
 public class TagsAction implements IssuesWsAction {
 
-  private final IssueService service;
+  private final IssueIndex issueIndex;
 
-  public TagsAction(IssueService service) {
-    this.service = service;
+  public TagsAction(IssueIndex issueIndex) {
+    this.issueIndex = issueIndex;
   }
 
   @Override
@@ -50,7 +54,7 @@ public class TagsAction implements IssuesWsAction {
     action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match tags against")
       .setExampleValue("misra");
-    action.createParam("ps")
+    action.createParam(PAGE_SIZE)
       .setDescription("The size of the list to return")
       .setExampleValue("25")
       .setDefaultValue("10");
@@ -60,11 +64,20 @@ public class TagsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
-    JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
-    for (String tag: service.listTags(query, pageSize)) {
-      json.value(tag);
+    List<String> tags = listTags(query, pageSize);
+    writeTags(response, tags);
+  }
+
+  private List<String> listTags(@Nullable String textQuery, int pageSize) {
+    return issueIndex.listTags(textQuery, pageSize);
+  }
+
+  private static void writeTags(Response response, List<String> tags) {
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject().name("tags").beginArray();
+      tags.forEach(json::value);
+      json.endArray().endObject();
     }
-    json.endArray().endObject().close();
   }
 
 }

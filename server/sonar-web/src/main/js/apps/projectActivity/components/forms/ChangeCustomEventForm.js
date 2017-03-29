@@ -22,11 +22,16 @@ import React from 'react';
 import { connect } from 'react-redux';
 import ChangeEventForm from './ChangeEventForm';
 import { changeEvent } from '../../actions';
+import type { Event } from '../../../../store/projectActivity/duck';
 
-const ChangeCustomEventForm = props => (
-    <ChangeEventForm
-        {...props}
-        changeEventButtonText="project_activity.change_custom_event"/>
+type Props = {
+  changeEvent: () => Promise<*>,
+  event: Event,
+  onClose: () => void
+};
+
+const ChangeCustomEventForm = (props: Props) => (
+  <ChangeEventForm {...props} changeEventButtonText="project_activity.change_custom_event" />
 );
 
 const mapStateToProps = null;

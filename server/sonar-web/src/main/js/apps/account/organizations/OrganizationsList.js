@@ -27,15 +27,15 @@ export default class OrganizationsList extends React.Component {
     organizations: Array<Organization>
   };
 
-  render () {
+  render() {
     return (
-        <ul className="account-projects-list">
-          {this.props.organizations.map(organization => (
-              <li key={organization.key}>
-                <OrganizationCard organization={organization}/>
-              </li>
-          ))}
-        </ul>
+      <ul className="account-projects-list">
+        {this.props.organizations.map(organization => (
+          <li key={organization.key}>
+            <OrganizationCard organization={organization} />
+          </li>
+        ))}
+      </ul>
     );
   }
 }

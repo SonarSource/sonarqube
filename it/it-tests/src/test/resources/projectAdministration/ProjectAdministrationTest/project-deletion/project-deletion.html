@@ -45,21 +45,6 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/projects</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForText</td>
-	<td>css=.page-header</td>
-	<td>*1 projects*</td>
-</tr>
-<tr>
-	<td>assertTextPresent</td>
-	<td>Sample</td>
-	<td></td>
-</tr>
-<tr>
-	<td>open</td>
 	<td>/project/deletion?id=sample</td>
 	<td></td>
 </tr>
@@ -90,18 +75,13 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/projects</td>
+	<td>/dashboard?id=sample</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>css=.page-header</td>
-	<td>*0 projects*</td>
-</tr>
-<tr>
-	<td>assertTextNotPresent</td>
-	<td>content</td>
-	<td>*Sample*</td>
+	<td>waitForElementPresent</td>
+	<td>css=.process-spinner-failed</td>
+	<td></td>
 </tr>
 </tbody>
 </table>

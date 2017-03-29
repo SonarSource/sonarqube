@@ -19,12 +19,12 @@
  */
 import { getJSON, post } from '../helpers/request';
 
-export function getCurrentUser () {
+export function getCurrentUser() {
   const url = '/api/users/current';
   return getJSON(url);
 }
 
-export function changePassword (login, password, previousPassword) {
+export function changePassword(login, password, previousPassword) {
   const url = '/api/users/change_password';
   const data = { login, password };
 
@@ -35,12 +35,12 @@ export function changePassword (login, password, previousPassword) {
   return post(url, data);
 }
 
-export function getIdentityProviders () {
+export function getIdentityProviders() {
   const url = '/api/users/identity_providers';
   return getJSON(url);
 }
 
-export function searchUsers (query) {
+export function searchUsers(query) {
   const url = '/api/users/search';
   const data = { q: query };
   return getJSON(url, data);

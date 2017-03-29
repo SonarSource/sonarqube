@@ -32,8 +32,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.ReactivationException;
 import org.sonar.server.rule.RuleCreator;
@@ -62,11 +64,13 @@ public class CreateAction implements RulesWsAction {
   private final DbClient dbClient;
   private final RuleCreator ruleCreator;
   private final RuleMapper ruleMapper;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper) {
+  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.ruleCreator = ruleCreator;
     this.ruleMapper = ruleMapper;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -144,7 +148,7 @@ public class CreateAction implements RulesWsAction {
         if (!isNullOrEmpty(params)) {
           newRule.setParameters(KeyValueFormat.parse(params));
         }
-        writeResponse(dbSession, request, response, ruleCreator.create(newRule));
+        writeResponse(dbSession, request, response, ruleCreator.create(dbSession, newRule));
       } catch (ReactivationException e) {
         write409(dbSession, request, response, e.ruleKey());
       }
@@ -161,10 +165,11 @@ public class CreateAction implements RulesWsAction {
   }
 
   private Rules.CreateResponse createResponse(DbSession dbSession, RuleKey ruleKey) {
-    RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, ruleKey);
-    List<RuleDto> templateRules = new ArrayList<>();
+    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+    RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationUuid, ruleKey);
+    List<RuleDefinitionDto> templateRules = new ArrayList<>();
     if (rule.getTemplateId() != null) {
-      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
       if (templateRule.isPresent()) {
         templateRules.add(templateRule.get());
       }

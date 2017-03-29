@@ -26,23 +26,24 @@ import { translate } from '../../../helpers/l10n';
 import RecentHistory from '../../../app/components/nav/component/RecentHistory';
 
 class Logout extends React.Component {
-  componentDidMount () {
-    this.props.doLogout()
-        .then(() => {
-          RecentHistory.clear();
-          window.location = window.baseUrl + '/';
-        })
-        .catch(() => {
-          /* do nothing */
-        });
+  componentDidMount() {
+    this.props
+      .doLogout()
+      .then(() => {
+        RecentHistory.clear();
+        window.location = window.baseUrl + '/';
+      })
+      .catch(() => {
+        /* do nothing */
+      });
   }
 
-  render () {
+  render() {
     return (
-        <div>
-          <GlobalMessagesContainer/>
-          {translate('logging_out')}
-        </div>
+      <div>
+        <GlobalMessagesContainer />
+        {translate('logging_out')}
+      </div>
     );
   }
 }

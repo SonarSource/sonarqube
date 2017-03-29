@@ -32,24 +32,26 @@ class Avatar extends React.Component {
     className: React.PropTypes.string
   };
 
-  render () {
+  render() {
     if (!this.props.enableGravatar) {
       return null;
     }
 
     const emailHash = md5.md5((this.props.email || '').toLowerCase()).trim();
     const url = this.props.gravatarServerUrl
-        .replace('{EMAIL_MD5}', emailHash)
-        .replace('{SIZE}', this.props.size * 2);
+      .replace('{EMAIL_MD5}', emailHash)
+      .replace('{SIZE}', this.props.size * 2);
 
     const className = classNames(this.props.className, 'rounded');
 
     return (
-        <img className={className}
-             src={url}
-             width={this.props.size}
-             height={this.props.size}
-             alt={this.props.email}/>
+      <img
+        className={className}
+        src={url}
+        width={this.props.size}
+        height={this.props.size}
+        alt={this.props.email}
+      />
     );
   }
 }

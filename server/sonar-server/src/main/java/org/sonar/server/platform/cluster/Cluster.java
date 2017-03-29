@@ -22,7 +22,7 @@ package org.sonar.server.platform.cluster;
 public interface Cluster {
 
   /**
-   * Cluster is enabled when property {@link ClusterProperties#ENABLED} is {@code true}
+   * Cluster is enabled when property {@link org.sonar.process.ProcessProperties#CLUSTER_ENABLED} is {@code true}
    */
   boolean isEnabled();
 

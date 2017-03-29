@@ -36,27 +36,27 @@ import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 
-export default function enhance (ComposedComponent) {
+export default function enhance(ComposedComponent) {
   return class extends React.Component {
     static displayName = `enhance(${ComposedComponent.displayName})}`;
 
-    shouldComponentUpdate (nextProps, nextState) {
+    shouldComponentUpdate(nextProps, nextState) {
       return shallowCompare(this, nextProps, nextState);
     }
 
-    getValue (measure) {
+    getValue(measure) {
       const { leakPeriod } = this.props;
 
       if (!measure) {
         return 0;
       }
 
-      return isDiffMetric(measure.metric.key) ?
-          getPeriodValue(measure, leakPeriod.index) :
-          measure.value;
+      return isDiffMetric(measure.metric.key)
+        ? getPeriodValue(measure, leakPeriod.index)
+        : measure.value;
     }
 
-    renderHeader (domain, label) {
+    renderHeader(domain, label) {
       const { component } = this.props;
       const domainUrl = {
         pathname: `/component_measures/domain/${domain}`,
@@ -64,15 +64,15 @@ export default function enhance (ComposedComponent) {
       };
 
       return (
-          <div className="overview-card-header">
-            <div className="overview-title">
-              <Link to={domainUrl}>{label}</Link>
-            </div>
+        <div className="overview-card-header">
+          <div className="overview-title">
+            <Link to={domainUrl}>{label}</Link>
           </div>
+        </div>
       );
     }
 
-    renderMeasure (metricKey) {
+    renderMeasure(metricKey) {
       const { measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
 
@@ -81,123 +81,110 @@ export default function enhance (ComposedComponent) {
       }
 
       return (
-          <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value">
-              <DrilldownLink component={component.key} metric={metricKey}>
+        <div className="overview-domain-measure">
+          <div className="overview-domain-measure-value">
+            <DrilldownLink component={component.key} metric={metricKey}>
               <span className="js-overview-main-tests">
                 {formatMeasure(measure.value, getShortType(measure.metric.type))}
               </span>
-              </DrilldownLink>
-            </div>
-
-            <div className="overview-domain-measure-label">
-              {measure.metric.name}
-            </div>
+            </DrilldownLink>
           </div>
+
+          <div className="overview-domain-measure-label">
+            {measure.metric.name}
+          </div>
+        </div>
       );
     }
 
-    renderMeasureVariation (metricKey, customLabel) {
+    renderMeasureVariation(metricKey, customLabel) {
       const NO_VALUE = '—';
       const { measures, leakPeriod } = this.props;
-
       const measure = measures.find(measure => measure.metric.key === metricKey);
       const periodValue = getPeriodValue(measure, leakPeriod.index);
-      const formatted = periodValue != null ?
-          formatMeasureVariation(periodValue, getShortType(measure.metric.type)) :
-          NO_VALUE;
-
+      const formatted = periodValue != null
+        ? formatMeasureVariation(periodValue, getShortType(measure.metric.type))
+        : NO_VALUE;
       return (
-          <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value">
-              {formatted}
-            </div>
-
-            <div className="overview-domain-measure-label">
-              {customLabel || measure.metric.name}
-            </div>
+        <div className="overview-domain-measure">
+          <div className="overview-domain-measure-value">
+            {formatted}
           </div>
+
+          <div className="overview-domain-measure-label">
+            {customLabel || measure.metric.name}
+          </div>
+        </div>
       );
     }
-
-    renderRating (metricKey) {
+    renderRating(metricKey) {
       const { component, measures } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
-
       if (!measure) {
         return null;
       }
-
       const value = this.getValue(measure);
-
       const title = getRatingTooltip(metricKey, value);
-
       return (
-          <div className="overview-domain-measure-sup" title={title} data-toggle="tooltip">
-            <DrilldownLink className="link-no-underline" component={component.key} metric={metricKey}>
-              <Rating value={value}/>
-            </DrilldownLink>
-          </div>
+        <div className="overview-domain-measure-sup" title={title} data-toggle="tooltip">
+          <DrilldownLink className="link-no-underline" component={component.key} metric={metricKey}>
+            <Rating value={value} />
+          </DrilldownLink>
+        </div>
       );
     }
-
-    renderIssues (metric, type) {
+    renderIssues(metric, type) {
       const { measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
       const value = this.getValue(measure);
-      const params = { resolved: 'false', types: type };
-
+      const params = {
+        resolved: 'false',
+        types: type
+      };
       if (isDiffMetric(metric)) {
         Object.assign(params, { sinceLeakPeriod: 'true' });
       }
-
       const formattedSnapshotDate = moment(component.snapshotDate).format('LLL');
       const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
-
       return (
-          <Link to={getComponentIssuesUrl(component.key, params)}>
-            <span title={tooltip} data-toggle="tooltip">
-              {formatMeasure(value, 'SHORT_INT')}
-            </span>
-          </Link>
+        <Link to={getComponentIssuesUrl(component.key, params)}>
+          <span title={tooltip} data-toggle="tooltip">
+            {formatMeasure(value, 'SHORT_INT')}
+          </span>
+        </Link>
       );
     }
-
-    renderTimeline (metricKey, range, children) {
+    renderTimeline(metricKey, range, children) {
       if (!this.props.history) {
         return null;
       }
-
       const history = this.props.history[metricKey];
-
       if (!history) {
         return null;
       }
-
       const props = {
         history,
         [range]: getPeriodDate(this.props.leakPeriod)
       };
-
       return (
-          <div className="overview-domain-timeline">
-            <Timeline {...props}/>
-            {children}
-          </div>
+        <div className="overview-domain-timeline">
+          <Timeline {...props} />
+          {children}
+        </div>
       );
     }
-
-    render () {
+    render() {
       return (
-          <ComposedComponent
-              {...this.props}
-              getValue={this.getValue.bind(this)}
-              renderHeader={this.renderHeader.bind(this)}
-              renderMeasure={this.renderMeasure.bind(this)}
-              renderMeasureVariation={this.renderMeasureVariation.bind(this)}
-              renderRating={this.renderRating.bind(this)}
-              renderIssues={this.renderIssues.bind(this)}
-              renderTimeline={this.renderTimeline.bind(this)}/>
+        <ComposedComponent
+          {...this.props}
+          getValue={this.getValue.bind(this)}
+          renderHeader={this.renderHeader.bind(this)}
+          renderMeasure={this.renderMeasure.bind(this)}
+          renderMeasureVariation={this.renderMeasureVariation.bind(this)}
+          renderRating={this.renderRating.bind(this)}
+          renderIssues={this.renderIssues.bind(this)}
+          renderTimeline={this.renderTimeline.bind(this)}
+        />
       );
     }
   };

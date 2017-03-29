@@ -42,43 +42,53 @@ class Issue extends React.PureComponent {
   node: HTMLElement;
   props: Props;
 
-  componentDidMount () {
+  static defaultProps = {
+    selected: false
+  };
+
+  componentDidMount() {
     this.renderIssueView();
     if (this.props.selected) {
       this.bindShortcuts();
     }
   }
 
-  componentWillUpdate (nextProps: Props) {
+  componentWillUpdate(nextProps: Props) {
     if (!nextProps.selected && this.props.selected) {
       this.unbindShortcuts();
     }
     this.destroyIssueView();
   }
 
-  componentDidUpdate (prevProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     this.renderIssueView();
     if (!prevProps.selected && this.props.selected) {
       this.bindShortcuts();
     }
+
+    // $FlowFixMe resolution doesn't exist in type `Model`
+    const { resolution } = this.props.issue;
+    if (!prevProps.issue.resolution && ['FALSE-POSITIVE', 'WONTFIX'].includes(resolution)) {
+      this.issueView.comment({ fromTransition: true });
+    }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     if (this.props.selected) {
       this.unbindShortcuts();
     }
     this.destroyIssueView();
   }
 
-  bindShortcuts () {
+  bindShortcuts() {
     document.addEventListener('keypress', this.handleKeyPress);
   }
 
-  unbindShortcuts () {
+  unbindShortcuts() {
     document.removeEventListener('keypress', this.handleKeyPress);
   }
 
-  doIssueAction (action: string) {
+  doIssueAction(action: string) {
     this.issueView.$('.js-issue-' + action).click();
   }
 
@@ -88,18 +98,25 @@ class Issue extends React.PureComponent {
 
     if (shouldHandle) {
       switch (e.key) {
-        case 'f': return this.doIssueAction('transition');
-        case 'a': return this.doIssueAction('assign');
-        case 'm': return this.doIssueAction('assign-to-me');
-        case 'p': return this.doIssueAction('plan');
-        case 'i': return this.doIssueAction('set-severity');
-        case 'c': return this.doIssueAction('comment');
-        case 't': return this.doIssueAction('edit-tags');
+        case 'f':
+          return this.doIssueAction('transition');
+        case 'a':
+          return this.doIssueAction('assign');
+        case 'm':
+          return this.doIssueAction('assign-to-me');
+        case 'p':
+          return this.doIssueAction('plan');
+        case 'i':
+          return this.doIssueAction('set-severity');
+        case 'c':
+          return this.doIssueAction('comment');
+        case 't':
+          return this.doIssueAction('edit-tags');
       }
     }
   };
 
-  renderIssueView () {
+  renderIssueView() {
     const model = this.props.issue.toJSON ? this.props.issue : new IssueModel(this.props.issue);
     this.issueView = new IssueView({
       model,
@@ -115,18 +132,19 @@ class Issue extends React.PureComponent {
     }
   }
 
-  destroyIssueView () {
+  destroyIssueView() {
     this.issueView.destroy();
   }
 
-  render () {
-    return <div className="issue-container" ref={node => this.node = node}/>;
+  render() {
+    return <div className="issue-container" ref={node => this.node = node} />;
   }
 }
 
-const onIssueChange = issue => dispatch => {
-  dispatch(receiveIssues([issue]));
-};
+const onIssueChange = issue =>
+  dispatch => {
+    dispatch(receiveIssues([issue]));
+  };
 
 const mapDispatchToProps = { onIssueChange };
 

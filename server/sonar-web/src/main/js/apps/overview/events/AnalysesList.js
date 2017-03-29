@@ -41,22 +41,22 @@ class AnalysesList extends React.Component {
     loading: true
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.fetchData();
   }
 
-  componentDidUpdate (prevProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.project !== this.props.project) {
       this.fetchData();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchData () {
+  fetchData() {
     this.setState({ loading: true });
     this.props.fetchRecentProjectActivity(this.props.project).then(() => {
       if (this.mounted) {
@@ -65,25 +65,23 @@ class AnalysesList extends React.Component {
     });
   }
 
-  renderList (analyses) {
+  renderList(analyses) {
     if (!analyses.length) {
       return (
-          <p className="spacer-top note">
-            {translate('no_results')}
-          </p>
+        <p className="spacer-top note">
+          {translate('no_results')}
+        </p>
       );
     }
 
     return (
-        <ul className="spacer-top">
-          {analyses.map(analysis => (
-              <Analysis key={analysis.key} analysis={analysis}/>
-          ))}
-        </ul>
+      <ul className="spacer-top">
+        {analyses.map(analysis => <Analysis key={analysis.key} analysis={analysis} />)}
+      </ul>
     );
   }
 
-  render () {
+  render() {
     const { analyses } = this.props;
     const { loading } = this.state;
 
@@ -92,19 +90,19 @@ class AnalysesList extends React.Component {
     }
 
     return (
-        <div className="overview-meta-card">
-          <h4 className="overview-meta-header">
-            {translate('project_activity.page')}
-          </h4>
+      <div className="overview-meta-card">
+        <h4 className="overview-meta-header">
+          {translate('project_activity.page')}
+        </h4>
 
-          {this.renderList(analyses)}
+        {this.renderList(analyses)}
 
-          <div className="spacer-top small">
-            <Link to={{ pathname: '/project/activity', query: { id: this.props.project } }}>
-              {translate('show_more')}
-            </Link>
-          </div>
+        <div className="spacer-top small">
+          <Link to={{ pathname: '/project/activity', query: { id: this.props.project } }}>
+            {translate('show_more')}
+          </Link>
         </div>
+      </div>
     );
   }
 }

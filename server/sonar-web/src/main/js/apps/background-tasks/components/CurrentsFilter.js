@@ -23,12 +23,12 @@ import Checkbox from '../../../components/controls/Checkbox';
 import { CURRENTS } from '../constants';
 
 const CurrentsFilter = ({ value, onChange }: { value: ?string, onChange: (string) => void }) => {
-  function handleChange (value) {
+  function handleChange(value) {
     const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
     onChange(newValue);
   }
 
-  function handleLabelClick (e) {
+  function handleLabelClick(e) {
     const newValue = value === CURRENTS.ALL ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
 
     e.preventDefault();
@@ -38,18 +38,19 @@ const CurrentsFilter = ({ value, onChange }: { value: ?string, onChange: (string
   const checked = value === CURRENTS.ONLY_CURRENTS;
 
   return (
-      <div className="bt-search-form-field">
-        <Checkbox checked={checked} onCheck={handleChange}/>
-        &nbsp;
-        <label
-            style={{ cursor: 'pointer' }}
-            role="checkbox"
-            tabIndex="0"
-            aria-checked={checked ? 'true' : 'false'}
-            onClick={handleLabelClick}>
-          Yes
-        </label>
-      </div>
+    <div className="bt-search-form-field">
+      <Checkbox checked={checked} onCheck={handleChange} />
+      &nbsp;
+      <label
+        style={{ cursor: 'pointer' }}
+        role="checkbox"
+        tabIndex="0"
+        aria-checked={checked ? 'true' : 'false'}
+        onClick={handleLabelClick}
+      >
+        Yes
+      </label>
+    </div>
   );
 };
 

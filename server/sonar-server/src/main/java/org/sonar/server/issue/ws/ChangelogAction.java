@@ -58,10 +58,12 @@ public class ChangelogAction implements IssuesWsAction {
 
   private final DbClient dbClient;
   private final IssueFinder issueFinder;
+  private final AvatarFactory avatarFactory;
 
-  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder) {
+  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, AvatarFactory avatarFactory) {
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
+    this.avatarFactory = avatarFactory;
   }
 
   @Override
@@ -94,20 +96,20 @@ public class ChangelogAction implements IssuesWsAction {
     return request -> new ChangeLogResults(dbSession, request.mandatoryParam(PARAM_ISSUE));
   }
 
-  private static Function<ChangeLogResults, ChangelogWsResponse> buildResponse() {
+  private Function<ChangeLogResults, ChangelogWsResponse> buildResponse() {
     return result -> Stream.of(ChangelogWsResponse.newBuilder())
       .peek(addChanges(result))
       .map(ChangelogWsResponse.Builder::build)
       .collect(Collectors.toOneElement());
   }
 
-  private static Consumer<ChangelogWsResponse.Builder> addChanges(ChangeLogResults results) {
+  private Consumer<ChangelogWsResponse.Builder> addChanges(ChangeLogResults results) {
     return response -> results.changes.stream()
       .map(toWsChangelog(results))
       .forEach(response::addChangelog);
   }
 
-  private static Function<FieldDiffs, Changelog> toWsChangelog(ChangeLogResults results) {
+  private Function<FieldDiffs, Changelog> toWsChangelog(ChangeLogResults results) {
     return change -> {
       String userLogin = change.userLogin();
       Changelog.Builder changelogBuilder = Changelog.newBuilder();
@@ -116,7 +118,7 @@ public class ChangelogAction implements IssuesWsAction {
       if (user != null) {
         changelogBuilder.setUser(user.getLogin());
         changelogBuilder.setUserName(user.getName());
-        setNullable(emptyToNull(user.getEmail()), changelogBuilder::setEmail);
+        setNullable(emptyToNull(user.getEmail()), email -> changelogBuilder.setAvatar(avatarFactory.create(email)));
       }
       change.diffs().entrySet().stream()
         .map(toWsDiff(results))

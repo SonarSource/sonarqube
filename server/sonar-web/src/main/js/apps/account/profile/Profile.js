@@ -38,38 +38,33 @@ class Profile extends React.Component {
     }
   };
 
-  render () {
+  render() {
     const { customOrganizations, user } = this.props;
 
     return (
-        <div className="account-body account-container">
-          <div className="spacer-bottom">
-            Login: <strong id="login">{user.login}</strong>
-          </div>
-
-          {!user.local && user.externalProvider !== 'sonarqube' && (
-              <div id="identity-provider" className="spacer-bottom">
-                <UserExternalIdentity user={user}/>
-              </div>
-          )}
-
-          {!!user.email && (
-              <div className="spacer-bottom">
-                Email: <strong id="email">{user.email}</strong>
-              </div>
-          )}
-
-          {!customOrganizations && (
-              <hr className="account-separator"/>
-          )}
-          {!customOrganizations && (
-              <UserGroups groups={user.groups}/>
-          )}
-
-          <hr className="account-separator"/>
-
-          <UserScmAccounts user={user} scmAccounts={user.scmAccounts}/>
+      <div className="account-body account-container">
+        <div className="spacer-bottom">
+          Login: <strong id="login">{user.login}</strong>
         </div>
+
+        {!user.local &&
+          user.externalProvider !== 'sonarqube' &&
+          <div id="identity-provider" className="spacer-bottom">
+            <UserExternalIdentity user={user} />
+          </div>}
+
+        {!!user.email &&
+          <div className="spacer-bottom">
+            Email: <strong id="email">{user.email}</strong>
+          </div>}
+
+        {!customOrganizations && <hr className="account-separator" />}
+        {!customOrganizations && <UserGroups groups={user.groups} />}
+
+        <hr className="account-separator" />
+
+        <UserScmAccounts user={user} scmAccounts={user.scmAccounts} />
+      </div>
     );
   }
 }

@@ -23,40 +23,43 @@ import PendingIcon from '../../../../components/shared/pending-icon';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 export default React.createClass({
-  render () {
+  render() {
     const metaList = [];
     const canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
-    const backgroundTasksUrl =
-        `${window.baseUrl}/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
+    const backgroundTasksUrl = window.baseUrl +
+      `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
 
     if (this.props.isInProgress) {
-      const tooltip = canSeeBackgroundTasks ?
-          translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl) :
-          translate('component_navigation.status.in_progress');
+      const tooltip = canSeeBackgroundTasks
+        ? translateWithParameters(
+            'component_navigation.status.in_progress.admin',
+            backgroundTasksUrl
+          )
+        : translate('component_navigation.status.in_progress');
       metaList.push(
         <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
-            <i className="spinner" style={{ marginTop: '-1px' }}/>
-            {' '}
-            <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
-          </li>
+          <i className="spinner" style={{ marginTop: '-1px' }} />
+          {' '}
+          <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
+        </li>
       );
     } else if (this.props.isPending) {
-      const tooltip = canSeeBackgroundTasks ?
-          translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl) :
-          translate('component_navigation.status.pending');
+      const tooltip = canSeeBackgroundTasks
+        ? translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl)
+        : translate('component_navigation.status.pending');
       metaList.push(
         <li key="isPending" data-toggle="tooltip" title={tooltip}>
-            <PendingIcon/> <span>{translate('background_task.status.PENDING')}</span>
-          </li>
+          <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
+        </li>
       );
     } else if (this.props.isFailed) {
-      const tooltip = canSeeBackgroundTasks ?
-          translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl) :
-          translate('component_navigation.status.failed');
+      const tooltip = canSeeBackgroundTasks
+        ? translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl)
+        : translate('component_navigation.status.failed');
       metaList.push(
         <li key="isFailed" data-toggle="tooltip" title={tooltip}>
-            <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
-          </li>
+          <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
+        </li>
       );
     }
 
@@ -69,9 +72,9 @@ export default React.createClass({
     }
 
     return (
-        <div className="navbar-context-meta">
-          <ul className="list-inline">{metaList}</ul>
-        </div>
+      <div className="navbar-context-meta">
+        <ul className="list-inline">{metaList}</ul>
+      </div>
     );
   }
 });

@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.db.rule.RuleMapper">
 
-  <sql id="selectColumns">
+  <sql id="selectDefinitionColumns">
     r.id,
     r.plugin_rule_key as "ruleKey",
     r.plugin_name as "repositoryKey",
@@ -16,198 +16,381 @@
     r.is_template as "isTemplate",
     r.language as "language",
     r.template_id as "templateId",
-    r.note_data as "noteData",
-    r.note_user_login as "noteUserLogin",
-    r.note_created_at as "noteCreatedAt",
-    r.note_updated_at as "noteUpdatedAt",
-    r.remediation_function as "remediationFunction",
     r.def_remediation_function as "defRemediationFunction",
-    r.remediation_gap_mult as "remediationGapMultiplier",
     r.def_remediation_gap_mult as "defRemediationGapMultiplier",
-    r.remediation_base_effort as "remediationBaseEffort",
     r.def_remediation_base_effort as "defRemediationBaseEffort",
     r.gap_description as "gapDescription",
-    r.tags as "tagsField",
     r.system_tags as "systemTagsField",
     r.rule_type as "type",
+  </sql>
+
+  <sql id="selectRuleTableColumns">
+    <include refid="selectDefinitionColumns"/>
     r.created_at as "createdAt",
     r.updated_at as "updatedAt"
   </sql>
 
+  <sql id="selectJoinedTablesColumns">
+    <include refid="selectDefinitionColumns"/>
+    r.created_at as "createdAtFromDefinition",
+    r.updated_at as "updatedAtFromDefinition",
+    rm.note_data as "noteData",
+    rm.note_user_login as "noteUserLogin",
+    rm.note_created_at as "noteCreatedAt",
+    rm.note_updated_at as "noteUpdatedAt",
+    rm.remediation_function as "remediationFunction",
+    rm.remediation_gap_mult as "remediationGapMultiplier",
+    rm.remediation_base_effort as "remediationBaseEffort",
+    rm.tags as "tagsField",
+    rm.created_at as "createdAtFromMetadata",
+    rm.updated_at as "updatedAtFromMetadata"
+  </sql>
+
+  <sql id="outerJoinRulesMetadata">
+    left outer join rules_metadata rm on
+      rm.rule_id = r.id
+      and rm.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+  </sql>
+
   <select id="selectAll" resultType="Rule">
     select
-    <include refid="selectColumns"/>
-    from rules r
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="outerJoinRulesMetadata"/>
   </select>
 
-  <select id="selectEnabled" resultType="Rule">
+  <select id="selectAllDefinitions" resultType="org.sonar.db.rule.RuleDefinitionDto">
     select
-    <include refid="selectColumns"/>
-    from rules r
-    where r.status != 'REMOVED'
+      <include refid="selectRuleTableColumns"/>
+    from
+      rules r
   </select>
 
-  <select id="selectById" parameterType="Long" resultType="Rule">
+  <select id="selectEnabled" resultType="org.sonar.db.rule.RuleDefinitionDto">
     select
-    <include refid="selectColumns"/>
-    from rules r WHERE r.id=#{id}
+      <include refid="selectRuleTableColumns"/>
+    from
+      rules r
+    where
+      r.status != 'REMOVED'
+  </select>
+
+  <select id="selectById" parameterType="map" resultType="Rule">
+    select
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="outerJoinRulesMetadata"/>
+    where
+      r.id=#{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectDefinitionById" parameterType="Long" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectRuleTableColumns"/>
+    from
+      rules r
+    where
+      r.id=#{id,jdbcType=INTEGER}
   </select>
 
   <select id="selectByIds" parameterType="map" resultType="Rule">
-    SELECT
-    <include refid="selectColumns"/>
-    FROM rules r
-    WHERE
-    <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
-      r.id=#{id}
-    </foreach>
+    select
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="outerJoinRulesMetadata"/>
+    where
+      <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
+        r.id=#{id,jdbcType=INTEGER}
+      </foreach>
+  </select>
+
+  <select id="selectDefinitionByIds" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectRuleTableColumns"/>
+    from
+      rules r
+    where
+      <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
+        r.id=#{id,jdbcType=INTEGER}
+      </foreach>
   </select>
 
   <select id="selectByKey" parameterType="map" resultType="Rule">
-    SELECT
-    <include refid="selectColumns"/>
-    FROM rules r WHERE r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+    select
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="outerJoinRulesMetadata"/>
+    where
+      r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
+      and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectDefinitionByKey" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
+    select
+      <include refid="selectRuleTableColumns"/>
+    from
+      rules r
+    where
+      r.plugin_name=#{repository,jdbcType=VARCHAR}
+      and r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByKeys" parameterType="map" resultType="Rule">
-    SELECT
-    <include refid="selectColumns"/>
-    FROM rules r
-    WHERE
-    <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
-      (r.plugin_name=#{ruleKey.repository} and r.plugin_rule_key=#{ruleKey.rule})
-    </foreach>
+    select
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="outerJoinRulesMetadata"/>
+    where
+      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+        (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
+      </foreach>
   </select>
 
-  <select id="selectByName" parameterType="String" resultType="Rule">
+  <select id="selectDefinitionByKeys" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
     select
-    <include refid="selectColumns"/>
-    from rules r WHERE r.name=#{name}
+      <include refid="selectRuleTableColumns"/>
+    from
+      rules r
+    where
+      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+        (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
+      </foreach>
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="Rule">
-    SELECT
-    <include refid="selectColumns"/>
-    FROM rules r
-    <where>
-      AND r.status != 'REMOVED'
+    select
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="outerJoinRulesMetadata"/>
+    where
+      r.status != 'REMOVED'
       <if test="query.repositoryKey!=null">
-        AND r.plugin_name = #{query.repositoryKey}
+        and r.plugin_name = #{query.repositoryKey,jdbcType=VARCHAR}
       </if>
       <if test="query.key!=null">
-        AND r.plugin_rule_key = #{query.key}
+        and r.plugin_rule_key = #{query.key,jdbcType=VARCHAR}
       </if>
       <if test="query.configKey!=null">
-        AND r.plugin_config_key = #{query.configKey}
+        and r.plugin_config_key = #{query.configKey,jdbcType=VARCHAR}
       </if>
-    </where>
-    ORDER BY r.updated_at DESC
+    order by
+      r.updated_at desc
   </select>
 
-  <update id="update" parameterType="Rule">
-    UPDATE rules SET
-    plugin_rule_key=#{ruleKey},
-    plugin_name=#{repositoryKey},
-    description=#{description},
-    description_format=#{descriptionFormat},
-    status=#{status},
-    name=#{name},
-    plugin_config_key=#{configKey},
-    priority=#{severity},
-    is_template=#{isTemplate},
-    language=#{language},
-    template_id=#{templateId},
-    note_data=#{noteData},
-    note_user_login=#{noteUserLogin},
-    note_created_at=#{noteCreatedAt},
-    note_updated_at=#{noteUpdatedAt},
-    remediation_function=#{remediationFunction},
-    def_remediation_function=#{defRemediationFunction},
-    remediation_gap_mult=#{remediationGapMultiplier},
-    def_remediation_gap_mult=#{defRemediationGapMultiplier},
-    remediation_base_effort=#{remediationBaseEffort},
-    def_remediation_base_effort=#{defRemediationBaseEffort},
-    gap_description=#{gapDescription},
-    tags=#{tagsField},
-    system_tags=#{systemTagsField},
-    rule_type=#{type},
-    updated_at=#{updatedAt}
-    WHERE id=#{id}
-  </update>
-
-  <sql id="insertColumns">
-    (plugin_rule_key, plugin_name, description, description_format, status, name, plugin_config_key, priority,
-    is_template, language, template_id,
-    remediation_function, def_remediation_function,
-    remediation_gap_mult, def_remediation_gap_mult, remediation_base_effort, def_remediation_base_effort,
-    gap_description, tags, system_tags, rule_type, note_data, note_user_login, note_created_at, note_updated_at,
-    created_at, updated_at)
-  </sql>
-
-  <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into rules
-    <include refid="insertColumns"/>
-    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
-    #{severity}, #{isTemplate}, #{language}, #{templateId},
-    #{remediationFunction}, #{defRemediationFunction},
-    #{remediationGapMultiplier}, #{defRemediationGapMultiplier}, #{remediationBaseEffort}, #{defRemediationBaseEffort},
-    #{gapDescription}, #{tagsField}, #{systemTagsField}, #{type,jdbcType=INTEGER}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-    #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
+  <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into rules (
+      plugin_rule_key,
+      plugin_name,
+      description,
+      description_format,
+      status,
+      name,
+      plugin_config_key,
+      priority,
+      is_template,
+      language,
+      template_id,
+      def_remediation_function,
+      def_remediation_gap_mult,
+      def_remediation_base_effort,
+      gap_description,
+      system_tags,
+      rule_type,
+      created_at,
+      updated_at
+    )
+    values (
+      #{ruleKey,jdbcType=VARCHAR},
+      #{repositoryKey,jdbcType=VARCHAR},
+      #{description,jdbcType=VARCHAR},
+      #{descriptionFormat,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR},
+      #{name,jdbcType=VARCHAR},
+      #{configKey,jdbcType=VARCHAR},
+      #{severity,jdbcType=INTEGER},
+      #{isTemplate,jdbcType=BOOLEAN},
+      #{language,jdbcType=VARCHAR},
+      #{templateId,jdbcType=INTEGER},
+      #{defRemediationFunction,jdbcType=VARCHAR},
+      #{defRemediationGapMultiplier,jdbcType=VARCHAR},
+      #{defRemediationBaseEffort,jdbcType=VARCHAR},
+      #{gapDescription,jdbcType=VARCHAR},
+      #{systemTagsField,jdbcType=VARCHAR},
+      #{type,jdbcType=TINYINT},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
   </insert>
 
+  <update id="updateDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto">
+    update rules set
+      plugin_rule_key=#{ruleKey,jdbcType=VARCHAR},
+      plugin_name=#{repositoryKey,jdbcType=VARCHAR},
+      description=#{description,jdbcType=VARCHAR},
+      description_format=#{descriptionFormat,jdbcType=VARCHAR},
+      status=#{status,jdbcType=VARCHAR},
+      name=#{name,jdbcType=VARCHAR},
+      plugin_config_key=#{configKey,jdbcType=VARCHAR},
+      priority=#{severity,jdbcType=INTEGER},
+      is_template=#{isTemplate,jdbcType=BOOLEAN},
+      language=#{language,jdbcType=VARCHAR},
+      template_id=#{templateId,jdbcType=INTEGER},
+      def_remediation_function=#{defRemediationFunction,jdbcType=VARCHAR},
+      def_remediation_gap_mult=#{defRemediationGapMultiplier,jdbcType=VARCHAR},
+      def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
+      gap_description=#{gapDescription,jdbcType=VARCHAR},
+      system_tags=#{systemTagsField,jdbcType=VARCHAR},
+      rule_type=#{type,jdbcType=TINYINT},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      id=#{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="countMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto" resultType="int">
+    select
+      count(1)
+    from
+      rules_metadata rm
+    where
+      rm.rule_id=#{ruleId,jdbcType=INTEGER}
+      and rm.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insertMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
+    insert into rules_metadata (
+      rule_id,
+      organization_uuid,
+      note_data,
+      note_user_login,
+      note_created_at,
+      note_updated_at,
+      remediation_function,
+      remediation_gap_mult,
+      remediation_base_effort,
+      tags,
+      created_at,
+      updated_at
+    )
+    values (
+      #{ruleId,jdbcType=INTEGER},
+      #{organizationUuid,jdbcType=VARCHAR},
+      #{noteData,jdbcType=CLOB},
+      #{noteUserLogin,jdbcType=VARCHAR},
+      #{noteCreatedAt,jdbcType=BIGINT},
+      #{noteUpdatedAt,jdbcType=BIGINT},
+      #{remediationFunction,jdbcType=VARCHAR},
+      #{remediationGapMultiplier,jdbcType=VARCHAR},
+      #{remediationBaseEffort,jdbcType=VARCHAR},
+      #{tagsField,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="updateMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
+    update rules_metadata set
+      note_data=#{noteData,jdbcType=CLOB},
+      note_user_login=#{noteUserLogin,jdbcType=VARCHAR},
+      note_created_at=#{noteCreatedAt,jdbcType=BIGINT},
+      note_updated_at=#{noteUpdatedAt,jdbcType=BIGINT},
+      remediation_function=#{remediationFunction,jdbcType=VARCHAR},
+      remediation_gap_mult=#{remediationGapMultiplier,jdbcType=VARCHAR},
+      remediation_base_effort=#{remediationBaseEffort,jdbcType=VARCHAR},
+      tags=#{tagsField,jdbcType=VARCHAR},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      rule_id=#{ruleId,jdbcType=INTEGER}
+      and organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </update>
+
   <delete id="deleteParams" parameterType="Integer">
-    delete from active_rule_parameters where rules_parameter_id=#{id}
+    delete from
+      active_rule_parameters
+    where
+      rules_parameter_id=#{id,jdbcType=INTEGER}
   </delete>
 
   <sql id="paramColumns">
-    p.id as "id", p.rule_id as "ruleId", p.name as "name", p.param_type as "type", p.default_value as "defaultValue",
+    p.id as "id",
+    p.rule_id as "ruleId",
+    p.name as "name",
+    p.param_type as "type",
+    p.default_value as "defaultValue",
     p.description as "description"
   </sql>
 
   <select id="selectParamsByRuleIds" resultType="RuleParam">
-    SELECT
-    <include refid="paramColumns"/>
-    FROM rules_parameters p
-    <where>
-      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">
-      p.rule_id=#{id}</foreach>)
-    </where>
+    select
+      <include refid="paramColumns"/>
+    from
+      rules_parameters p
+    where
+      <foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">
+        p.rule_id=#{id,jdbcType=INTEGER}
+      </foreach>
   </select>
 
   <select id="selectParamsByRuleKey" resultType="RuleParam" parameterType="org.sonar.api.rule.RuleKey">
-    SELECT
-    <include refid="paramColumns"/>
-    FROM rules_parameters p, rules r
-    WHERE p.rule_id=r.id
-    AND r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+    select
+      <include refid="paramColumns"/>
+    from
+      rules_parameters p, rules r
+    where
+      p.rule_id=r.id
+      and r.plugin_name=#{repository,jdbcType=VARCHAR}
+      and r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
   </select>
 
   <select id="selectParamsByRuleKeys" resultType="RuleParam" parameterType="map">
-    SELECT
-    <include refid="paramColumns"/>
-    FROM rules_parameters p
-    INNER JOIN rules r ON r.id=p.rule_id
-    WHERE
-    <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
-      (r.plugin_name=#{ruleKey.repository} AND r.plugin_rule_key=#{ruleKey.rule})
-    </foreach>
+    select
+      <include refid="paramColumns"/>
+    from
+      rules_parameters p
+    inner join rules r on
+      r.id=p.rule_id
+    where
+      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+        (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} AND r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
+      </foreach>
   </select>
 
   <delete id="deleteParameter" parameterType="Integer">
-    delete from rules_parameters where id=#{id}
+    delete from
+      rules_parameters
+    where
+      id=#{id,jdbcType=INTEGER}
   </delete>
 
   <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
-    VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
+    insert into rules_parameters (
+      rule_id,
+      name,
+      param_type,
+      default_value,
+      description
+    )
+    values (
+      #{ruleId,jdbcType=INTEGER},
+      #{name,jdbcType=VARCHAR},
+      #{type,jdbcType=VARCHAR},
+      #{defaultValue,jdbcType=VARCHAR},
+      #{description,jdbcType=VARCHAR}
+    )
   </insert>
 
   <update id="updateParameter" parameterType="RuleParam">
-    UPDATE rules_parameters SET
-    param_type=#{type},
-    default_value=#{defaultValue},
-    description=#{description}
-    WHERE id=#{id}
+    update rules_parameters set
+      param_type=#{type,jdbcType=VARCHAR},
+      default_value=#{defaultValue,jdbcType=VARCHAR},
+      description=#{description,jdbcType=VARCHAR}
+    where
+      id=#{id,jdbcType=INTEGER}
   </update>
 </mapper>
 

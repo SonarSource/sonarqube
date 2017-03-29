@@ -18,60 +18,115 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PageHeaderContainer from './PageHeaderContainer';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
+import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
+import '../styles.css';
 
 export default class AllProjects extends React.Component {
   static propTypes = {
     isFavorite: React.PropTypes.bool.isRequired,
+    location: React.PropTypes.object.isRequired,
     fetchProjects: React.PropTypes.func.isRequired,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object,
+    router: React.PropTypes.object.isRequired
   };
 
   state = {
     query: {}
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.handleQueryChange();
+    document.getElementById('footer').classList.add('search-navigator-footer');
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (prevProps.location.query !== this.props.location.query) {
       this.handleQueryChange();
     }
   }
 
-  handleQueryChange () {
+  componentWillUnmount() {
+    document.getElementById('footer').classList.remove('search-navigator-footer');
+  }
+
+  handleQueryChange() {
     const query = parseUrlQuery(this.props.location.query);
     this.setState({ query });
     this.props.fetchProjects(query, this.props.isFavorite, this.props.organization);
   }
 
-  render () {
-    const isFiltered = Object.keys(this.state.query).some(key => this.state.query[key] != null);
+  handleViewChange = view => {
+    const query = {
+      ...this.props.location.query,
+      view: view === 'list' ? undefined : view
+    };
+    if (query.view !== 'visualizations') {
+      Object.assign(query, { visualization: undefined });
+    }
+    this.props.router.push({
+      pathname: this.props.location.pathname,
+      query
+    });
+  };
+
+  handleVisualizationChange = visualization => {
+    this.props.router.push({
+      pathname: this.props.location.pathname,
+      query: {
+        ...this.props.location.query,
+        view: 'visualizations',
+        visualization
+      }
+    });
+  };
+
+  render() {
+    const { query } = this.state;
+    const isFiltered = Object.keys(query).some(key => query[key] != null);
+
+    const view = query.view || 'list';
+    const visualization = query.visualization || 'quality';
+
+    const top = this.props.organization ? 95 : 30;
 
     return (
-        <div className="page-with-sidebar page-with-left-sidebar projects-page">
-          <aside className="page-sidebar-fixed projects-sidebar">
+      <div className="page-with-sidebar page-with-left-sidebar projects-page">
+        <aside className="page-sidebar-fixed page-sidebar-sticky projects-sidebar">
+          <div className="page-sidebar-sticky-inner" style={{ top }}>
             <PageSidebar
-                query={this.state.query}
-                isFavorite={this.props.isFavorite}
-                organization={this.props.organization}/>
-          </aside>
-          <div className="page-main">
-            <ProjectsListContainer
-                isFavorite={this.props.isFavorite}
-                isFiltered={isFiltered}
-                organization={this.props.organization}/>
-            <ProjectsListFooterContainer
-                query={this.state.query}
-                isFavorite={this.props.isFavorite}
-                organization={this.props.organization}/>
+              query={query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+            />
           </div>
+        </aside>
+        <div className="page-main">
+          <PageHeaderContainer onViewChange={this.handleViewChange} view={view} />
+          {view === 'list' &&
+            <ProjectsListContainer
+              isFavorite={this.props.isFavorite}
+              isFiltered={isFiltered}
+              organization={this.props.organization}
+            />}
+          {view === 'list' &&
+            <ProjectsListFooterContainer
+              query={query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+            />}
+          {view === 'visualizations' &&
+            <VisualizationsContainer
+              onVisualizationChange={this.handleVisualizationChange}
+              sort={query.sort}
+              visualization={visualization}
+            />}
         </div>
+      </div>
     );
   }
 }

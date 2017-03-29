@@ -19,26 +19,83 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.NewParam;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 @ServerSide
 public class QProfileWsSupport {
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileWsSupport(UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public QProfileWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public void checkQProfileAdminPermission() {
-    userSession
-      .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+  public OrganizationDto getOrganization(DbSession dbSession, QualityProfileDto profile) {
+    requireNonNull(profile);
+    String organizationUuid = profile.getOrganizationUuid();
+    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+      .orElseThrow(() -> new IllegalStateException("Cannot load organization with uuid=" + organizationUuid));
+  }
+
+  public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
+    String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
+      .orElseGet(defaultOrganizationProvider.get()::getKey);
+    return WsUtils.checkFoundWithOptional(
+      dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
+      "No organization with key '%s'", organizationOrDefaultKey);
+  }
+
+  public static NewParam createOrganizationParam(NewAction action) {
+    return action
+      .createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org");
+  }
+
+  /**
+   * Get the Quality profile specified by the reference {@code ref}.
+   *
+   * @throws org.sonar.server.exceptions.NotFoundException if the specified organization or profile do not exist
+   */
+  public QualityProfileDto getProfile(DbSession dbSession, QProfileReference ref) {
+    QualityProfileDto profile;
+    if (ref.hasKey()) {
+      profile = dbClient.qualityProfileDao().selectByKey(dbSession, ref.getKey());
+      checkFound(profile, "Quality Profile with key '%s' does not exist", ref.getKey());
+    } else {
+      OrganizationDto org = getOrganizationByKey(dbSession, ref.getOrganizationKey().orElse(null));
+      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(org, ref.getName(), ref.getLanguage(), dbSession);
+      checkFound(profile, "Quality Profile for language '%s' and name '%s' does not exist%s", ref.getLanguage(), ref.getName(),
+        ref.getOrganizationKey().map(o -> " in organization '" + o + "'").orElse(""));
+    }
+    return profile;
+  }
+
+  public void checkPermission(DbSession dbSession, String qualityProfileKey) {
+    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
+    OrganizationDto organization = getOrganization(dbSession, qualityProfile);
+    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 }

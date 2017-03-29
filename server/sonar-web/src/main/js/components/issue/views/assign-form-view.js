@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import debounce from 'lodash/debounce';
-import uniqBy from 'lodash/uniqBy';
+import { debounce, uniqBy } from 'lodash';
 import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-assign-form.hbs';
 import OptionTemplate from '../templates/issue-assign-form-option.hbs';
@@ -30,7 +29,7 @@ export default ActionOptionsView.extend({
   template: Template,
   optionTemplate: OptionTemplate,
 
-  events () {
+  events() {
     return {
       ...ActionOptionsView.prototype.events.apply(this, arguments),
       'click input': 'onInputClick',
@@ -39,57 +38,60 @@ export default ActionOptionsView.extend({
     };
   },
 
-  initialize () {
+  initialize() {
     ActionOptionsView.prototype.initialize.apply(this, arguments);
     this.assignees = null;
     this.debouncedSearch = debounce(this.search, 250);
   },
 
-  getAssignee () {
+  getAssignee() {
     return this.model.get('assignee');
   },
 
-  getAssigneeName () {
+  getAssigneeName() {
     return this.model.get('assigneeName');
   },
 
-  onRender () {
+  onRender() {
     const that = this;
     ActionOptionsView.prototype.onRender.apply(this, arguments);
     this.renderTags();
-    setTimeout(() => {
-      that.$('input').focus();
-    }, 100);
+    setTimeout(
+      () => {
+        that.$('input').focus();
+      },
+      100
+    );
   },
 
-  renderTags () {
+  renderTags() {
     this.$('.menu').empty();
     this.getAssignees().forEach(this.renderAssignee, this);
     this.bindUIElements();
     this.selectInitialOption();
   },
 
-  renderAssignee (assignee) {
+  renderAssignee(assignee) {
     const html = this.optionTemplate(assignee);
     this.$('.menu').append(html);
   },
 
-  selectOption (e) {
+  selectOption(e) {
     const assignee = $(e.currentTarget).data('value');
     const assigneeName = $(e.currentTarget).data('text');
     this.submit(assignee, assigneeName);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  submit (assignee) {
+  submit(assignee) {
     return this.model.assign(assignee);
   },
 
-  onInputClick (e) {
+  onInputClick(e) {
     e.stopPropagation();
   },
 
-  onInputKeydown (e) {
+  onInputKeydown(e) {
     this.query = this.$('input').val();
     if (e.keyCode === 38) {
       this.selectPreviousOption();
@@ -108,7 +110,7 @@ export default ActionOptionsView.extend({
     }
   },
 
-  onInputKeyup () {
+  onInputKeyup() {
     let query = this.$('input').val();
     if (query !== this.query) {
       if (query.length < 2) {
@@ -119,7 +121,7 @@ export default ActionOptionsView.extend({
     }
   },
 
-  search (query) {
+  search(query) {
     const that = this;
     if (query.length > 1) {
       $.get(window.baseUrl + '/api/users/search', { q: query }).done(data => {
@@ -130,7 +132,7 @@ export default ActionOptionsView.extend({
     }
   },
 
-  resetAssignees (users) {
+  resetAssignees(users) {
     if (users) {
       this.assignees = users.map(user => {
         return { id: user.login, text: user.name };
@@ -141,7 +143,7 @@ export default ActionOptionsView.extend({
     this.renderTags();
   },
 
-  getAssignees () {
+  getAssignees() {
     if (this.assignees) {
       return this.assignees;
     }
@@ -153,7 +155,7 @@ export default ActionOptionsView.extend({
     return this.makeUnique(assignees);
   },
 
-  makeUnique (assignees) {
+  makeUnique(assignees) {
     return uniqBy(assignees, assignee => assignee.id);
   }
 });

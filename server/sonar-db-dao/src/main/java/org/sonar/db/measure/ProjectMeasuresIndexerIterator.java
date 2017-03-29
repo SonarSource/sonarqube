@@ -20,7 +20,7 @@
 package org.sonar.db.measure;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -219,7 +219,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       return;
     }
     if (NCLOC_LANGUAGE_DISTRIBUTION_KEY.equals(metricKey)) {
-      readTextValue(rs, measures::setLanguageDistribution);
+      readTextValue(rs, measures::setLanguages);
       return;
     }
     throw new IllegalArgumentException("Measure has no value");
@@ -303,7 +303,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
     private Map<String, Double> numericMeasures = new HashMap<>();
     private String qualityGateStatus;
-    private Map<String, Integer> languageDistribution = new HashMap<>();
+    private List<String> languages = new ArrayList<>();
 
     Measures addNumericMeasure(String metricKey, double value) {
       numericMeasures.put(metricKey, value);
@@ -324,13 +324,13 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       return qualityGateStatus;
     }
 
-    Measures setLanguageDistribution(String languageDistributionValue) {
-      this.languageDistribution = ImmutableMap.copyOf(parseStringInt(languageDistributionValue));
+    Measures setLanguages(String languageDistributionValue) {
+      this.languages = ImmutableList.copyOf(parseStringInt(languageDistributionValue).keySet());
       return this;
     }
 
-    public Map<String, Integer> getLanguageDistribution() {
-      return languageDistribution;
+    public List<String> getLanguages() {
+      return languages;
     }
   }
 

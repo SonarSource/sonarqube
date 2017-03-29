@@ -33,48 +33,48 @@ export default class Header extends React.Component {
     router: React.PropTypes.object
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleCreateClick = this.handleCreateClick.bind(this);
   }
 
-  handleCreateClick (e) {
+  handleCreateClick(e) {
     e.preventDefault();
     const { organization } = this.props;
 
-    new CreateView({ organization }).on('done', r => {
-      this.props.refresh().then(() => {
-        const pathname = organization ?
-            `/organizations/${organization.key}/permission_templates` :
-            '/permission_templates';
-        this.context.router.push({
-          pathname,
-          query: { id: r.permissionTemplate.id }
+    new CreateView({ organization })
+      .on('done', r => {
+        this.props.refresh().then(() => {
+          const pathname = organization
+            ? `/organizations/${organization.key}/permission_templates`
+            : '/permission_templates';
+          this.context.router.push({
+            pathname,
+            query: { id: r.permissionTemplate.id }
+          });
         });
-      });
-    }).render();
+      })
+      .render();
   }
 
-  render () {
+  render() {
     return (
-        <header id="project-permissions-header" className="page-header">
-          <h1 className="page-title">
-            {translate('permission_templates.page')}
-          </h1>
+      <header id="project-permissions-header" className="page-header">
+        <h1 className="page-title">
+          {translate('permission_templates.page')}
+        </h1>
 
-          {!this.props.ready && (
-              <i className="spinner"/>
-          )}
+        {!this.props.ready && <i className="spinner" />}
 
-          <div className="page-actions">
-            <button onClick={this.handleCreateClick}>
-              {translate('create')}
-            </button>
-          </div>
+        <div className="page-actions">
+          <button onClick={this.handleCreateClick}>
+            {translate('create')}
+          </button>
+        </div>
 
-          <p className="page-description">
-            {translate('permission_templates.page.description')}
-          </p>
-        </header>
+        <p className="page-description">
+          {translate('permission_templates.page.description')}
+        </p>
+      </header>
     );
   }
 }

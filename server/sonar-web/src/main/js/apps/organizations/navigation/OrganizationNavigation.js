@@ -46,109 +46,118 @@ export default class OrganizationNavigation extends React.Component {
     }
   };
 
-  renderAdministration () {
+  renderAdministration() {
     const { organization, location } = this.props;
 
     const adminActive = ADMIN_PATHS.some(path =>
-        location.pathname.endsWith(`organizations/${organization.key}/${path}`)
-    );
+      location.pathname.endsWith(`organizations/${organization.key}/${path}`));
 
     return (
-        <li className={adminActive ? 'active': ''}>
-          <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">
-            {translate('layout.settings')}&nbsp;<i className="icon-dropdown"/>
-          </a>
-          <ul className="dropdown-menu">
+      <li className={adminActive ? 'active' : ''}>
+        <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">
+          {translate('layout.settings')}&nbsp;<i className="icon-dropdown" />
+        </a>
+        <ul className="dropdown-menu">
+          <li>
+            <Link to={`/organizations/${organization.key}/groups`} activeClassName="active">
+              {translate('user_groups.page')}
+            </Link>
+          </li>
+          <li>
+            <Link to={`/organizations/${organization.key}/permissions`} activeClassName="active">
+              {translate('permissions.page')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to={`/organizations/${organization.key}/permission_templates`}
+              activeClassName="active"
+            >
+              {translate('permission_templates')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to={`/organizations/${organization.key}/projects_management`}
+              activeClassName="active"
+            >
+              {translate('projects_management')}
+            </Link>
+          </li>
+          <li>
+            <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
+              {translate('edit')}
+            </Link>
+          </li>
+          {organization.canDelete &&
             <li>
-              <Link to={`/organizations/${organization.key}/groups`} activeClassName="active">
-                {translate('user_groups.page')}
+              <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
+                {translate('delete')}
               </Link>
-            </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/permissions`} activeClassName="active">
-                {translate('permissions.page')}
-              </Link>
-            </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/permission_templates`} activeClassName="active">
-                {translate('permission_templates')}
-              </Link>
-            </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/projects_management`} activeClassName="active">
-                {translate('projects_management')}
-              </Link>
-            </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
-                {translate('edit')}
-              </Link>
-            </li>
-            {organization.canDelete && (
-                <li>
-                  <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
-                    {translate('delete')}
-                  </Link>
-                </li>
-            )}
-          </ul>
-        </li>
+            </li>}
+        </ul>
+      </li>
     );
   }
 
-  render () {
+  render() {
     const { organization, location } = this.props;
 
-    const isHomeActive =
-        location.pathname === `organizations/${organization.key}/projects` ||
-        location.pathname === `organizations/${organization.key}/projects/favorite`;
+    const isHomeActive = location.pathname === `organizations/${organization.key}/projects` ||
+      location.pathname === `organizations/${organization.key}/projects/favorite`;
 
     return (
-        <nav className="navbar navbar-context page-container" id="context-navigation">
-          <div className="navbar-context-inner">
-            <div className="container">
-              <h2 className="navbar-context-title">
-                <span className="navbar-context-title-qualifier little-spacer-right">
-                  <OrganizationIcon/>
-                </span>
-                <Link to={`/organizations/${organization.key}`} className="link-base-color">
-                  <strong>{organization.name}</strong>
-                </Link>
-              </h2>
+      <nav className="navbar navbar-context page-container" id="context-navigation">
+        <div className="navbar-context-inner">
+          <div className="container">
+            <h2 className="navbar-context-title">
+              <span className="navbar-context-title-qualifier little-spacer-right">
+                <OrganizationIcon />
+              </span>
+              <Link to={`/organizations/${organization.key}`} className="link-base-color">
+                <strong>{organization.name}</strong>
+              </Link>
+            </h2>
 
-              {organization.description != null && (
-                  <div className="navbar-context-description">
-                    <p className="text-limited text-top" title={organization.description}>{organization.description}</p>
-                  </div>
-              )}
+            {organization.description != null &&
+              <div className="navbar-context-description">
+                <p className="text-limited text-top" title={organization.description}>
+                  {organization.description}
+                </p>
+              </div>}
 
-
-              <div className="navbar-context-meta">
-                {!!organization.avatar && (
-                    <img src={organization.avatar} height={30} alt={organization.name}/>
-                )}
-                {organization.url != null && (
-                    <div>
-                      <p className="text-limited text-top">
-                        <a className="link-underline" href={organization.url} title={organization.url} rel="nofollow">
-                          {organization.url}
-                        </a>
-                      </p>
-                    </div>
-                )}
-              </div>
-
-              <ul className="nav navbar-nav nav-tabs">
-                <li>
-                  <Link to={`/organizations/${organization.key}/projects`} className={isHomeActive ? 'active': ''}>
-                    {translate('projects.page')}
-                  </Link>
-                </li>
-                {organization.canAdmin && this.renderAdministration()}
-              </ul>
+            <div className="navbar-context-meta">
+              {!!organization.avatar &&
+                <img src={organization.avatar} height={30} alt={organization.name} />}
+              {organization.url != null &&
+                <div>
+                  <p className="text-limited text-top">
+                    <a
+                      className="link-underline"
+                      href={organization.url}
+                      title={organization.url}
+                      rel="nofollow"
+                    >
+                      {organization.url}
+                    </a>
+                  </p>
+                </div>}
             </div>
+
+            <ul className="nav navbar-nav nav-tabs">
+              <li>
+                <Link
+                  to={`/organizations/${organization.key}/projects`}
+                  className={isHomeActive ? 'active' : ''}
+                >
+                  {translate('projects.page')}
+                </Link>
+              </li>
+              {organization.canAdmin && this.renderAdministration()}
+            </ul>
           </div>
-        </nav>
+        </div>
+      </nav>
     );
   }
 }

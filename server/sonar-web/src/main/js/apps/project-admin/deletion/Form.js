@@ -26,22 +26,22 @@ export default class Form extends React.Component {
     component: React.PropTypes.object.isRequired
   };
 
-  handleDelete (e) {
+  handleDelete(e) {
     e.preventDefault();
     new ConfirmationModal({ project: this.props.component })
-        .on('done', () => {
-          window.location = window.baseUrl + '/';
-        })
-        .render();
+      .on('done', () => {
+        window.location = window.baseUrl + '/';
+      })
+      .render();
   }
 
-  render () {
+  render() {
     return (
-        <form onSubmit={this.handleDelete.bind(this)}>
-          <button id="delete-project" className="button-red">
-            {translate('delete')}
-          </button>
-        </form>
+      <form onSubmit={this.handleDelete.bind(this)}>
+        <button id="delete-project" className="button-red">
+          {translate('delete')}
+        </button>
+      </form>
     );
   }
 }

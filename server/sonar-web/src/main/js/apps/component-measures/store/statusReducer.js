@@ -23,7 +23,7 @@ const initialState = {
   fetching: false
 };
 
-export default function drilldownReducer (state = initialState, action = {}) {
+export default function drilldownReducer(state = initialState, action = {}) {
   switch (action.type) {
     case START_FETCHING:
       return { ...state, fetching: true };
@@ -33,4 +33,3 @@ export default function drilldownReducer (state = initialState, action = {}) {
       return state;
   }
 }
-

@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import keyBy from 'lodash/keyBy';
-import values from 'lodash/values';
+import { keyBy, values } from 'lodash';
 import { RECEIVE_PROFILES } from './actions';
 
 const profiles = (state = {}, action = {}) => {
@@ -32,8 +31,6 @@ const profiles = (state = {}, action = {}) => {
 
 export default profiles;
 
-export const getAllProfiles = state =>
-    values(state);
+export const getAllProfiles = state => values(state);
 
-export const getProfile = (state, key) =>
-    state[key];
+export const getProfile = (state, key) => state[key];

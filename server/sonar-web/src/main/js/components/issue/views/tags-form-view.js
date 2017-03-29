@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import debounce from 'lodash/debounce';
-import difference from 'lodash/difference';
-import without from 'lodash/without';
+import { debounce, difference, without } from 'lodash';
 import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-tags-form.hbs';
 import OptionTemplate from '../templates/issue-tags-form-option.hbs';
@@ -33,7 +31,7 @@ export default ActionOptionsView.extend({
     'change:tags': 'renderTags'
   },
 
-  events () {
+  events() {
     return {
       ...ActionOptionsView.prototype.events.apply(this, arguments),
       'click input': 'onInputClick',
@@ -42,7 +40,7 @@ export default ActionOptionsView.extend({
     };
   },
 
-  initialize () {
+  initialize() {
     ActionOptionsView.prototype.initialize.apply(this, arguments);
     this.query = '';
     this.tags = [];
@@ -51,7 +49,7 @@ export default ActionOptionsView.extend({
     this.requestTags();
   },
 
-  requestTags (query) {
+  requestTags(query) {
     const that = this;
     return $.get(window.baseUrl + '/api/issues/tags', { ps: 10, q: query }).done(data => {
       that.tags = data.tags;
@@ -59,35 +57,42 @@ export default ActionOptionsView.extend({
     });
   },
 
-  onRender () {
+  onRender() {
     const that = this;
     ActionOptionsView.prototype.onRender.apply(this, arguments);
     this.renderTags();
-    setTimeout(() => {
-      that.$('input').focus();
-    }, 100);
+    setTimeout(
+      () => {
+        that.$('input').focus();
+      },
+      100
+    );
   },
 
-  selectInitialOption () {
+  selectInitialOption() {
     this.selected = Math.max(Math.min(this.selected, this.getOptions().length - 1), 0);
     this.makeActive(this.getOptions().eq(this.selected));
   },
 
-  filterTags (tags) {
+  filterTags(tags) {
     return tags.filter(tag => tag.indexOf(this.query) !== -1);
   },
 
-  renderTags () {
+  renderTags() {
     this.$('.menu').empty();
     this.filterTags(this.getTags()).forEach(this.renderSelectedTag, this);
     this.filterTags(difference(this.tags, this.getTags())).forEach(this.renderTag, this);
-    if (this.query.length > 0 && this.tags.indexOf(this.query) === -1 && this.getTags().indexOf(this.query) === -1) {
+    if (
+      this.query.length > 0 &&
+      this.tags.indexOf(this.query) === -1 &&
+      this.getTags().indexOf(this.query) === -1
+    ) {
       this.renderCustomTag(this.query);
     }
     this.selectInitialOption();
   },
 
-  renderSelectedTag (tag) {
+  renderSelectedTag(tag) {
     const html = this.optionTemplate({
       tag,
       selected: true,
@@ -96,7 +101,7 @@ export default ActionOptionsView.extend({
     return this.$('.menu').append(html);
   },
 
-  renderTag (tag) {
+  renderTag(tag) {
     const html = this.optionTemplate({
       tag,
       selected: false,
@@ -105,7 +110,7 @@ export default ActionOptionsView.extend({
     return this.$('.menu').append(html);
   },
 
-  renderCustomTag (tag) {
+  renderCustomTag(tag) {
     const html = this.optionTemplate({
       tag,
       selected: false,
@@ -114,7 +119,7 @@ export default ActionOptionsView.extend({
     return this.$('.menu').append(html);
   },
 
-  selectOption (e) {
+  selectOption(e) {
     e.preventDefault();
     e.stopPropagation();
     let tags = this.getTags().slice();
@@ -128,7 +133,7 @@ export default ActionOptionsView.extend({
     return this.submit(tags);
   },
 
-  submit (tags) {
+  submit(tags) {
     const that = this;
     const _tags = this.getTags();
     this.model.set({ tags });
@@ -142,11 +147,11 @@ export default ActionOptionsView.extend({
     }).fail(() => that.model.set({ tags: _tags }));
   },
 
-  onInputClick (e) {
+  onInputClick(e) {
     e.stopPropagation();
   },
 
-  onInputKeydown (e) {
+  onInputKeydown(e) {
     this.query = this.$('input').val();
     if (e.keyCode === 38) {
       this.selectPreviousOption();
@@ -165,7 +170,7 @@ export default ActionOptionsView.extend({
     }
   },
 
-  onInputKeyup () {
+  onInputKeyup() {
     const query = this.$('input').val();
     if (query !== this.query) {
       this.query = query;
@@ -173,20 +178,19 @@ export default ActionOptionsView.extend({
     }
   },
 
-  search (query) {
+  search(query) {
     this.query = query;
     return this.requestTags(query);
   },
 
-  resetAssignees (users) {
+  resetAssignees(users) {
     this.assignees = users.map(user => {
       return { id: user.login, text: user.name };
     });
     this.renderTags();
   },
 
-  getTags () {
+  getTags() {
     return this.model.get('tags') || [];
   }
 });
-

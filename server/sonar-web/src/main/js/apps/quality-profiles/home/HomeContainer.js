@@ -25,24 +25,22 @@ import ProfilesList from './ProfilesList';
 import { translate } from '../../../helpers/l10n';
 
 export default class HomeContainer extends React.Component {
-  render () {
+  render() {
     return (
-        <div>
-          <Helmet
-              title={translate('quality_profiles.page')}
-              titleTemplate="SonarQube - %s"/>
+      <div>
+        <Helmet title={translate('quality_profiles.page')} titleTemplate="SonarQube - %s" />
 
-          <PageHeader {...this.props}/>
+        <PageHeader {...this.props} />
 
-          <div className="page-with-sidebar">
-            <div className="page-main">
-              <ProfilesList {...this.props}/>
-            </div>
-            <div className="page-sidebar">
-              <Evolution {...this.props}/>
-            </div>
+        <div className="page-with-sidebar">
+          <div className="page-main">
+            <ProfilesList {...this.props} />
+          </div>
+          <div className="page-sidebar">
+            <Evolution {...this.props} />
           </div>
         </div>
+      </div>
     );
   }
 }

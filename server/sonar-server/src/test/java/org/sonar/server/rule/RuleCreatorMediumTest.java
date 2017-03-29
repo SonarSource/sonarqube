@@ -34,13 +34,16 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -59,18 +62,22 @@ public class RuleCreatorMediumTest {
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbSession dbSession;
-  DbClient db = tester.get(DbClient.class);
-  RuleDao dao = tester.get(RuleDao.class);
-  RuleCreator creator = tester.get(RuleCreator.class);
-  RuleIndex ruleIndex = tester.get(RuleIndex.class);
-  RuleIndexer ruleIndexer;
+  private DbSession dbSession;
+  private DbClient db = tester.get(DbClient.class);
+  private RuleDao dao = tester.get(RuleDao.class);
+  private RuleCreator creator = tester.get(RuleCreator.class);
+  private RuleIndex ruleIndex = tester.get(RuleIndex.class);
+  private RuleIndexer ruleIndexer;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
+    DbClient dbClient = tester.get(DbClient.class);
+    dbSession = dbClient.openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
+    String defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
+    defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid).get();
   }
 
   @After
@@ -90,11 +97,11 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "a.*"));
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
 
     dbSession.clearCache();
 
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, defaultOrganization.getUuid(), customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
@@ -104,9 +111,9 @@ public class RuleCreatorMediumTest {
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(rule.getLanguage()).isEqualTo("java");
     assertThat(rule.getConfigKey()).isEqualTo("S001");
-    assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(rule.getDefaultRemediationGapMultiplier()).isEqualTo("1h");
-    assertThat(rule.getDefaultRemediationBaseEffort()).isEqualTo("5min");
+    assertThat(rule.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(rule.getDefRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(rule.getDefRemediationBaseEffort()).isEqualTo("5min");
     assertThat(rule.getGapDescription()).isEqualTo("desc");
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
@@ -137,7 +144,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", ""));
 
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
     dbSession.clearCache();
 
     List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
@@ -161,7 +168,7 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY);
 
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
     dbSession.clearCache();
 
     List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
@@ -186,7 +193,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("myIntegers", "1,3"));
 
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
     dbSession.clearCache();
 
     List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
@@ -212,7 +219,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("myIntegers", "1,polop,2"));
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       Fail.failBecauseExceptionWasNotThrown(BadRequestException.class);
     } catch (BadRequestException iae) {
       assertThat(iae).hasMessage("Value 'polop' must be an integer.");
@@ -234,7 +241,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("first", "polop", "second", "palap"));
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       Fail.failBecauseExceptionWasNotThrown(BadRequestException.class);
     } catch (BadRequestException badRequest) {
       assertThat(badRequest.errors().toString()).contains("palap").contains("polop");
@@ -258,8 +265,8 @@ public class RuleCreatorMediumTest {
       .setDescription("Old description")
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(Severity.INFO);
-    dao.insert(dbSession, rule);
-    dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dao.insert(dbSession, rule.getDefinition());
+    dao.insertRuleParam(dbSession, rule.getDefinition(), dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -270,11 +277,11 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "c.*"));
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleKey customRuleKey = creator.create(dbSession, newRule);
 
     dbSession.clearCache();
 
-    RuleDto result = db.ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    RuleDefinitionDto result = db.ruleDao().selectOrFailDefinitionByKey(dbSession, customRuleKey);
     assertThat(result.getKey()).isEqualTo(RuleKey.of("java", key));
     assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
 
@@ -302,8 +309,8 @@ public class RuleCreatorMediumTest {
       .setName("Old name")
       .setDescription("Old description")
       .setSeverity(Severity.INFO);
-    dao.insert(dbSession, rule);
-    dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dao.insert(dbSession, rule.getDefinition());
+    dao.insertRuleParam(dbSession, rule.getDefinition(), dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -317,7 +324,7 @@ public class RuleCreatorMediumTest {
       .setPreventReactivation(true);
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ReactivationException.class);
@@ -339,7 +346,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The rule key \"*INVALID*\" is invalid, it should only contain: a-z, 0-9, \"_\"");
@@ -358,7 +365,7 @@ public class RuleCreatorMediumTest {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "a.*"));
-    creator.create(newRule);
+    creator.create(dbSession, newRule);
 
     try {
       // Create another custom rule having same key
@@ -368,7 +375,7 @@ public class RuleCreatorMediumTest {
         .setSeverity(Severity.MAJOR)
         .setStatus(RuleStatus.READY)
         .setParameters(ImmutableMap.of("regex", "a.*"));
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'CUSTOM_RULE' already exists");
@@ -387,7 +394,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The name is missing");
@@ -406,7 +413,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The description is missing");
@@ -425,7 +432,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The severity is missing");
@@ -445,7 +452,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Severity \"INVALID\" is invalid");
@@ -464,7 +471,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The status is missing");
@@ -475,7 +482,7 @@ public class RuleCreatorMediumTest {
   public void fail_to_create_custom_rule_when_wrong_rule_template() {
     // insert rule
     RuleDto rule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false);
-    dao.insert(dbSession, rule);
+    dao.insert(dbSession, rule.getDefinition());
     dbSession.commit();
 
     // Create custom rule with unknown template rule
@@ -487,7 +494,7 @@ public class RuleCreatorMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
-      creator.create(newRule);
+      creator.create(dbSession, newRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("This rule is not a template rule: java:S001");
@@ -495,21 +502,22 @@ public class RuleCreatorMediumTest {
   }
 
   private RuleDto createTemplateRule() {
-    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setIsTemplate(true)
       .setLanguage("java")
       .setConfigKey("S001")
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("5min")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("5min")
       .setGapDescription("desc")
       .setTags(Sets.newHashSet("usertag1", "usertag2"))
       .setSystemTags(Sets.newHashSet("tag1", "tag4"))
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule);
-    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
+    dao.insert(dbSession, templateRule.getDefinition());
+    dao.update(dbSession, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();
     ruleIndexer.index();
     return templateRule;
@@ -520,16 +528,16 @@ public class RuleCreatorMediumTest {
       .setIsTemplate(true)
       .setLanguage("java")
       .setConfigKey("S002")
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("5min")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("5min")
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule);
-    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
+    dao.insert(dbSession, templateRule.getDefinition());
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition())
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
-    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();
     ruleIndexer.index();
     return templateRule;
@@ -540,19 +548,19 @@ public class RuleCreatorMediumTest {
       .setIsTemplate(true)
       .setLanguage("java")
       .setConfigKey("S003")
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationGapMultiplier("1h")
-      .setDefaultRemediationBaseEffort("5min")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("5min")
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule);
-    RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
+    dao.insert(dbSession, templateRule.getDefinition());
+    RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule.getDefinition())
       .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");
-    dao.insertRuleParam(dbSession, templateRule, ruleParam1Dto);
-    RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule)
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParam1Dto);
+    RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule.getDefinition())
       .setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0");
-    dao.insertRuleParam(dbSession, templateRule, ruleParam2Dto);
+    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParam2Dto);
     dbSession.commit();
     return templateRule;
   }

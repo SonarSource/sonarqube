@@ -25,23 +25,22 @@ import { parseError } from '../../../code/utils';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
 
     deleteLink(this.options.link.id)
-        .then(() => {
-          this.trigger('done');
-          this.destroy();
-        })
-        .catch(e => {
-          parseError(e).then(msg => this.showSingleError(msg));
-          this.enableForm();
-        });
+      .then(() => {
+        this.trigger('done');
+        this.destroy();
+      })
+      .catch(e => {
+        parseError(e).then(msg => this.showSingleError(msg));
+        this.enableForm();
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return { link: this.options.link };
   }
 });
-

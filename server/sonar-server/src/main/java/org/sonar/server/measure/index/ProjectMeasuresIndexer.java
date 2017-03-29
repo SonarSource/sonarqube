@@ -76,6 +76,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       case PROJECT_CREATION:
         // provisioned projects are supported by WS api/components/search_projects
       case NEW_ANALYSIS:
+      case PROJECT_TAGS_UPDATE:
         doIndex(createBulkIndexer(Size.REGULAR), projectUuid);
         break;
       default:
@@ -134,6 +135,6 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       .setTags(project.getTags())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
       .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
-      .setLanguages(projectMeasures.getMeasures().getLanguageDistribution());
+      .setLanguages(projectMeasures.getMeasures().getLanguages());
   }
 }

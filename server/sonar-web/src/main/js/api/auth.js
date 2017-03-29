@@ -29,17 +29,12 @@ const basicCheckStatus = response => {
   }
 };
 
-export const login = (login, password) => (
-    request('/api/authentication/login')
-        .setMethod('POST')
-        .setData({ login, password })
-        .submit()
-        .then(basicCheckStatus)
-);
+export const login = (login, password) =>
+  request('/api/authentication/login')
+    .setMethod('POST')
+    .setData({ login, password })
+    .submit()
+    .then(basicCheckStatus);
 
-export const logout = () => (
-    request('/api/authentication/logout')
-        .setMethod('POST')
-        .submit()
-        .then(basicCheckStatus)
-);
+export const logout = () =>
+  request('/api/authentication/logout').setMethod('POST').submit().then(basicCheckStatus);

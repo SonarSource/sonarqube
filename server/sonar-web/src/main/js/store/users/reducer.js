@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import uniq from 'lodash/uniq';
+import { uniq } from 'lodash';
 import { RECEIVE_CURRENT_USER } from './actions';
 
 const usersByLogin = (state = {}, action = {}) => {
@@ -47,6 +47,4 @@ const currentUser = (state = null, action = {}) => {
 
 export default combineReducers({ usersByLogin, userLogins, currentUser });
 
-export const getCurrentUser = state => (
-    state.currentUser
-);
+export const getCurrentUser = state => state.currentUser;

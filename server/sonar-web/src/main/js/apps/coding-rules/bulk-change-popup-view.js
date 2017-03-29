@@ -29,7 +29,7 @@ export default PopupView.extend({
     'click .js-bulk-change': 'doAction'
   },
 
-  doAction (e) {
+  doAction(e) {
     const action = $(e.currentTarget).data('action');
     const param = $(e.currentTarget).data('param');
     new BulkChangeModalView({
@@ -39,7 +39,7 @@ export default PopupView.extend({
     }).render();
   },
 
-  serializeData () {
+  serializeData() {
     const query = this.options.app.state.get('query');
     const profileKey = query.qprofile;
     const profile = this.options.app.qualityProfiles.find(p => p.key === profileKey);

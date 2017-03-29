@@ -2,22 +2,13 @@ dependencies {
   compile project(':server:sonar-process')
   compile 'org.slf4j:slf4j-api'
   compile 'ch.qos.logback:logback-classic'
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
+  compile 'com.hazelcast:hazelcast'
   provided 'com.google.code.findbugs:jsr305'
 
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile 'com.google.guava:guava'
-  testCompile project(':server:sonar-process').sourceSets.test.output
-  testCompile 'com.github.kevinsawicki:http-request'
-}
-
-test {
-  // FIXME requires '../sonar-process/target' directory
-  exclude 'org/sonar/process/monitor/MonitorTest.class'
+  testCompile 'com.hazelcast:hazelcast-client'
 }
 
 artifactoryPublish.skip = true

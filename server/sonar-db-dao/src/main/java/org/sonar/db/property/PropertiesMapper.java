@@ -46,6 +46,13 @@ public interface PropertiesMapper {
   List<PropertyDto> selectDescendantModuleProperties(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
     @Param(value = "excludeDisabled") boolean excludeDisabled);
 
+  List<Long> selectIdsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
+
+  List<Long> selectIdsByOrganizationAndMatchingLogin(@Param("organizationUuid") String organizationUuid, @Param("login") String login,
+                                                     @Param("propertyKeys") List<String> propertyKeys);
+
+  List<PropertyDto> selectGlobalPropertiesByKeyQuery(@Param("textQuery") String textQuery);
+
   void insertAsEmpty(@Param("key") String key, @Nullable @Param("userId") Integer userId, @Nullable @Param("componentId") Long componentId,
     @Param("now") long now);
 
@@ -67,5 +74,8 @@ public interface PropertiesMapper {
 
   int deleteByQuery(@Param("query") PropertyQuery query);
 
+  void deleteByIds(@Param("ids") List<Long> ids);
+
   int renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
+
 }

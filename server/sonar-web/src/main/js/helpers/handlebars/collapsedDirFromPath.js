@@ -19,6 +19,6 @@
  */
 import { collapsedDirFromPath } from '../path';
 
-module.exports = function (path) {
+module.exports = function(path) {
   return collapsedDirFromPath(path);
 };

@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import debounce from 'lodash/debounce';
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { debounce, uniq, without } from 'lodash';
 import Header from './header';
 import Search from './search';
 import Projects from './projects';
@@ -34,7 +32,7 @@ export default React.createClass({
     organization: React.PropTypes.object
   },
 
-  getInitialState () {
+  getInitialState() {
     return {
       ready: false,
       projects: [],
@@ -47,15 +45,15 @@ export default React.createClass({
     };
   },
 
-  componentWillMount () {
+  componentWillMount() {
     this.requestProjects = debounce(this.requestProjects, 250);
   },
 
-  componentDidMount () {
+  componentDidMount() {
     this.requestProjects();
   },
 
-  getFilters () {
+  getFilters() {
     const filters = { ps: PAGE_SIZE };
     if (this.state.page !== 1) {
       filters.p = this.state.page;
@@ -69,7 +67,7 @@ export default React.createClass({
     return filters;
   },
 
-  requestProjects () {
+  requestProjects() {
     switch (this.state.type) {
       case TYPE.ALL:
         this.requestAllProjects();
@@ -82,11 +80,11 @@ export default React.createClass({
         break;
       default:
 
-        // should never happen
+      // should never happen
     }
   },
 
-  requestGhosts () {
+  requestGhosts() {
     const data = this.getFilters();
     getGhosts(data).then(r => {
       let projects = r.projects.map(project => ({
@@ -101,7 +99,7 @@ export default React.createClass({
     });
   },
 
-  requestProvisioned () {
+  requestProvisioned() {
     const data = this.getFilters();
     getProvisioned(data).then(r => {
       let projects = r.projects.map(project => ({
@@ -116,7 +114,7 @@ export default React.createClass({
     });
   },
 
-  requestAllProjects () {
+  requestAllProjects() {
     const data = this.getFilters();
     data.qualifiers = this.state.qualifiers;
     getComponents(data).then(r => {
@@ -128,65 +126,73 @@ export default React.createClass({
     });
   },
 
-  loadMore () {
-    this.setState({ ready: false, page: this.state.page + 1 },
-      this.requestProjects);
+  loadMore() {
+    this.setState({ ready: false, page: this.state.page + 1 }, this.requestProjects);
   },
 
-  onSearch (query) {
-    this.setState({
-      ready: false,
-      page: 1,
-      query,
-      selection: []
-    }, this.requestProjects);
+  onSearch(query) {
+    this.setState(
+      {
+        ready: false,
+        page: 1,
+        query,
+        selection: []
+      },
+      this.requestProjects
+    );
   },
 
-  onTypeChanged (newType) {
-    this.setState({
-      ready: false,
-      page: 1,
-      query: '',
-      type: newType,
-      qualifiers: 'TRK',
-      selection: []
-    }, this.requestProjects);
+  onTypeChanged(newType) {
+    this.setState(
+      {
+        ready: false,
+        page: 1,
+        query: '',
+        type: newType,
+        qualifiers: 'TRK',
+        selection: []
+      },
+      this.requestProjects
+    );
   },
 
-  onQualifierChanged (newQualifier) {
-    this.setState({
-      ready: false,
-      page: 1,
-      query: '',
-      type: TYPE.ALL,
-      qualifiers: newQualifier,
-      selection: []
-    }, this.requestProjects);
+  onQualifierChanged(newQualifier) {
+    this.setState(
+      {
+        ready: false,
+        page: 1,
+        query: '',
+        type: TYPE.ALL,
+        qualifiers: newQualifier,
+        selection: []
+      },
+      this.requestProjects
+    );
   },
 
-  onProjectSelected (project) {
-    const newSelection = uniq([].concat(this.state.selection, project.id));
+  onProjectSelected(project) {
+    const newSelection = uniq([].concat(this.state.selection, project.key));
     this.setState({ selection: newSelection });
   },
 
-  onProjectDeselected (project) {
-    const newSelection = without(this.state.selection, project.id);
+  onProjectDeselected(project) {
+    const newSelection = without(this.state.selection, project.key);
     this.setState({ selection: newSelection });
   },
 
-  onAllSelected () {
-    const newSelection = this.state.projects.map(project => project.id);
+  onAllSelected() {
+    const newSelection = this.state.projects.map(project => project.key);
     this.setState({ selection: newSelection });
   },
 
-  onAllDeselected () {
+  onAllDeselected() {
     this.setState({ selection: [] });
   },
 
-  deleteProjects () {
+  deleteProjects() {
     this.setState({ ready: false });
-    const ids = this.state.selection.join(',');
-    const data = { ids };
+    const projects = this.state.selection.join(',');
+    const data = { projects };
     if (this.props.organization) {
       Object.assign(data, { organization: this.props.organization.key });
     }
@@ -195,41 +201,47 @@ export default React.createClass({
     });
   },
 
-  render () {
+  render() {
     return (
-        <div className="page page-limited">
-          <Header
-              hasProvisionPermission={this.props.hasProvisionPermission}
-              selection={this.state.selection}
-              total={this.state.total}
-              query={this.state.query}
-              qualifier={this.state.qualifiers}
-              refresh={this.requestProjects}
-              organization={this.props.organization}/>
+      <div className="page page-limited">
+        <Header
+          hasProvisionPermission={this.props.hasProvisionPermission}
+          selection={this.state.selection}
+          total={this.state.total}
+          query={this.state.query}
+          qualifier={this.state.qualifiers}
+          refresh={this.requestProjects}
+          organization={this.props.organization}
+        />
 
-          <Search {...this.props} {...this.state}
-              onSearch={this.onSearch}
-              onTypeChanged={this.onTypeChanged}
-              onQualifierChanged={this.onQualifierChanged}
-              onAllSelected={this.onAllSelected}
-              onAllDeselected={this.onAllDeselected}
-              deleteProjects={this.deleteProjects}/>
+        <Search
+          {...this.props}
+          {...this.state}
+          onSearch={this.onSearch}
+          onTypeChanged={this.onTypeChanged}
+          onQualifierChanged={this.onQualifierChanged}
+          onAllSelected={this.onAllSelected}
+          onAllDeselected={this.onAllDeselected}
+          deleteProjects={this.deleteProjects}
+        />
 
-          <Projects
-              ready={this.state.ready}
-              projects={this.state.projects}
-              refresh={this.requestProjects}
-              selection={this.state.selection}
-              onProjectSelected={this.onProjectSelected}
-              onProjectDeselected={this.onProjectDeselected}
-              organization={this.props.organization}/>
+        <Projects
+          ready={this.state.ready}
+          projects={this.state.projects}
+          refresh={this.requestProjects}
+          selection={this.state.selection}
+          onProjectSelected={this.onProjectSelected}
+          onProjectDeselected={this.onProjectDeselected}
+          organization={this.props.organization}
+        />
 
-          <ListFooter
-              ready={this.state.ready}
-              count={this.state.projects.length}
-              total={this.state.total}
-              loadMore={this.loadMore}/>
-        </div>
+        <ListFooter
+          ready={this.state.ready}
+          count={this.state.projects.length}
+          total={this.state.total}
+          loadMore={this.loadMore}
+        />
+      </div>
     );
   }
 });

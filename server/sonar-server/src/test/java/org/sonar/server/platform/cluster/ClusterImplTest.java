@@ -22,9 +22,8 @@ package org.sonar.server.platform.cluster;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ public class ClusterImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Settings settings = new MapSettings(new PropertyDefinitions(ClusterProperties.definitions()));
+  private Settings settings = new MapSettings();
 
   @Test
   public void cluster_is_disabled_by_default() {

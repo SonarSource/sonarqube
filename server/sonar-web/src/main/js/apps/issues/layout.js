@@ -33,29 +33,30 @@ export default Marionette.LayoutView.extend({
     workspaceComponentViewerRegion: '.issues-workspace-component-viewer'
   },
 
-  onRender () {
+  onRender() {
     this.$('.search-navigator').addClass('sticky');
     const top = this.$('.search-navigator').offset().top;
     this.$('.search-navigator-workspace-header').css({ top });
     this.$('.search-navigator-side').css({ top }).isolatedScroll();
   },
 
-  showSpinner (region) {
-    return this[region].show(new Marionette.ItemView({
-      template: () => '<i class="spinner"></i>'
-    }));
+  showSpinner(region) {
+    return this[region].show(
+      new Marionette.ItemView({
+        template: () => '<i class="spinner"></i>'
+      })
+    );
   },
 
-  showComponentViewer () {
+  showComponentViewer() {
     this.scroll = $(window).scrollTop();
     this.$('.issues').addClass('issues-extended-view');
   },
 
-  hideComponentViewer () {
+  hideComponentViewer() {
     this.$('.issues').removeClass('issues-extended-view');
     if (this.scroll != null) {
       $(window).scrollTop(this.scroll);
     }
   }
 });
-

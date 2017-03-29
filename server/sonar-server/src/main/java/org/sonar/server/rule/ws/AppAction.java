@@ -19,71 +19,81 @@
  */
 package org.sonar.server.rule.ws;
 
-import java.util.Locale;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
+
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 public class AppAction implements RulesWsAction {
 
   private final Languages languages;
   private final DbClient dbClient;
-  private final I18n i18n;
   private final UserSession userSession;
+  private final RuleWsSupport wsSupport;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public AppAction(Languages languages, DbClient dbClient, I18n i18n, UserSession userSession,
+  public AppAction(Languages languages, DbClient dbClient, UserSession userSession, RuleWsSupport wsSupport,
     DefaultOrganizationProvider defaultOrganizationProvider) {
     this.languages = languages;
     this.dbClient = dbClient;
-    this.i18n = i18n;
     this.userSession = userSession;
+    this.wsSupport = wsSupport;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("app")
+    WebService.NewAction action = controller.createAction("app")
       .setDescription("Get data required for rendering the page 'Coding Rules'.")
       .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.5")
       .setInternal(true)
       .setHandler(this);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setSince("6.4")
+      .setExampleValue("my-org");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      addPermissions(json);
-      addProfiles(json, dbSession);
+      addPermissions(organization, json);
+      addProfiles(dbSession, organization, json);
       addLanguages(json);
       addRuleRepositories(json, dbSession);
-      addStatuses(json);
       json.endObject().close();
     }
   }
 
-  private void addPermissions(JsonWriter json) {
-    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
-    json.prop("canWrite", canWrite);
+  private void addPermissions(OrganizationDto organization, JsonWriter json) {
+    boolean isAdminister = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+    json.prop("canWrite", isAdminister);
+    json.prop("canCustomizeRule", isAdminister && organization.getUuid().equals(defaultOrganizationProvider.get().getUuid()));
+    json.prop("canCreateCustomRule", isAdminister && organization.getUuid().equals(defaultOrganizationProvider.get().getUuid()));
   }
 
-  private void addProfiles(JsonWriter json, DbSession dbSession) {
+  private void addProfiles(DbSession dbSession, OrganizationDto organization, JsonWriter json) {
     json.name("qualityprofiles").beginArray();
-    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession)) {
+    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession, organization)) {
       if (languageIsSupported(profile)) {
         json
           .beginObject()
@@ -120,15 +130,4 @@ public class AppAction implements RulesWsAction {
         .endObject());
     json.endArray();
   }
-
-  private void addStatuses(JsonWriter json) {
-    json.name("statuses").beginObject();
-    for (RuleStatus status : RuleStatus.values()) {
-      if (status != RuleStatus.REMOVED) {
-        json.prop(status.toString(), i18n.message(Locale.getDefault(), "rules.status." + status.toString().toLowerCase(Locale.ENGLISH), status.toString()));
-      }
-    }
-    json.endObject();
-  }
-
 }

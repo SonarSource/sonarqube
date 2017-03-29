@@ -20,23 +20,20 @@
 import Marionette from 'backbone.marionette';
 
 export default Marionette.ItemView.extend({
-
-  initialize (options) {
+  initialize(options) {
     this.listenTo(options.app.state, 'change:selectedIndex', this.select);
   },
 
-  onRender () {
+  onRender() {
     this.select();
   },
 
-  select () {
+  select() {
     const selected = this.model.get('index') === this.options.app.state.get('selectedIndex');
     this.$el.toggleClass('selected', selected);
   },
 
-  selectCurrent () {
+  selectCurrent() {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
   }
-
 });
-

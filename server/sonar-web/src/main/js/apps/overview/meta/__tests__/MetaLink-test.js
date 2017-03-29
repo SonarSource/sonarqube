@@ -30,9 +30,7 @@ it('should match snapshot', () => {
     type: 'foo'
   };
 
-  expect(shallow(
-    <MetaLink link={link}/>
-  )).toMatchSnapshot();
+  expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
 });
 
 it('should expand and collapse link', () => {
@@ -43,7 +41,7 @@ it('should expand and collapse link', () => {
     type: 'foo'
   };
 
-  const wrapper = shallow(<MetaLink link={link}/>);
+  const wrapper = shallow(<MetaLink link={link} />);
   expect(wrapper).toMatchSnapshot();
 
   // expand

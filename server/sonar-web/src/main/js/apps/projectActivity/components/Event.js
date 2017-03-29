@@ -47,11 +47,11 @@ export default class Event extends React.Component {
     deleting: false
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
@@ -75,44 +75,39 @@ export default class Event extends React.Component {
     }
   };
 
-  render () {
+  render() {
     const { event, canAdmin } = this.props;
     const canChange = ['OTHER', 'VERSION'].includes(event.category);
-    const canDelete = event.category === 'OTHER' || (event.category === 'VERSION' && !this.props.isFirst);
+    const canDelete = event.category === 'OTHER' ||
+      (event.category === 'VERSION' && !this.props.isFirst);
     const showActions = canAdmin && (canChange || canDelete);
 
     return (
-        <div className="project-activity-event">
-          <EventInner event={this.props.event}/>
+      <div className="project-activity-event">
+        <EventInner event={this.props.event} />
 
-          {showActions && (
-              <div className="project-activity-event-actions">
-                {canChange && (
-                    <button className="js-change-event button-clean" onClick={this.startChanging}>
-                      <ChangeIcon/>
-                    </button>
-                )}
-                {canDelete && (
-                    <button className="js-delete-event button-clean" onClick={this.startDeleting}>
-                      <DeleteIcon/>
-                    </button>
-                )}
-              </div>
-          )}
+        {showActions &&
+          <div className="project-activity-event-actions">
+            {canChange &&
+              <button className="js-change-event button-clean" onClick={this.startChanging}>
+                <ChangeIcon />
+              </button>}
+            {canDelete &&
+              <button className="js-delete-event button-clean" onClick={this.startDeleting}>
+                <DeleteIcon />
+              </button>}
+          </div>}
 
-          {this.state.changing && (
-              <ChangeCustomEventForm
-                  event={this.props.event}
-                  onClose={this.stopChanging}/>
-          )}
+        {this.state.changing &&
+          <ChangeCustomEventForm event={this.props.event} onClose={this.stopChanging} />}
 
-          {this.state.deleting && (
-              <RemoveCustomEventForm
-                  analysis={this.props.analysis}
-                  event={this.props.event}
-                  onClose={this.stopDeleting}/>
-          )}
-        </div>
+        {this.state.deleting &&
+          <RemoveCustomEventForm
+            analysis={this.props.analysis}
+            event={this.props.event}
+            onClose={this.stopDeleting}
+          />}
+      </div>
     );
   }
 }

@@ -26,13 +26,13 @@ import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthe
 import '../account.css';
 
 class Account extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     if (!this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();
     }
   }
 
-  render () {
+  render() {
     const { currentUser, children } = this.props;
 
     if (!currentUser.isLoggedIn) {
@@ -40,16 +40,16 @@ class Account extends React.Component {
     }
 
     return (
-        <div id="account-page">
-          <header className="account-header">
-            <div className="account-container clearfix">
-              <UserCard user={currentUser}/>
-              <Nav user={currentUser} customOrganizations={this.props.customOrganizations}/>
-            </div>
-          </header>
+      <div id="account-page">
+        <header className="account-header">
+          <div className="account-container clearfix">
+            <UserCard user={currentUser} />
+            <Nav user={currentUser} customOrganizations={this.props.customOrganizations} />
+          </div>
+        </header>
 
-          {children}
-        </div>
+        {children}
+      </div>
     );
   }
 }

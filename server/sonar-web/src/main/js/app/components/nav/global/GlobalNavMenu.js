@@ -33,113 +33,128 @@ export default class GlobalNavMenu extends React.Component {
     globalPages: []
   };
 
-  activeLink (url) {
+  activeLink(url) {
     return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
   }
 
-  renderProjects () {
-    const pathname = this.props.currentUser.isLoggedIn ? '/projects/favorite' : '/projects';
+  renderProjects() {
     return (
-        <li>
-          <Link to={{ pathname }} activeClassName="active">
-            {translate('projects.page')}
-          </Link>
-        </li>
+      <li>
+        <Link to="/projects" activeClassName="active">
+          {translate('projects.page')}
+        </Link>
+      </li>
     );
   }
 
-  renderIssuesLink () {
-    const query = this.props.currentUser.isLoggedIn ? '#resolved=false|assigned_to_me=true' : '#resolved=false';
+  renderPortfolios() {
+    return (
+      <li>
+        <Link to="/portfolios" activeClassName="active">
+          {translate('portfolios.page')}
+        </Link>
+      </li>
+    );
+  }
+
+  renderIssuesLink() {
+    const query = this.props.currentUser.isLoggedIn
+      ? '#resolved=false|assigned_to_me=true'
+      : '#resolved=false';
     const url = '/issues' + query;
     return (
-        <li>
-          <Link to={url} className={this.activeLink('/issues')}>
-            {translate('issues.page')}
-            </Link>
-        </li>
+      <li>
+        <Link to={url} className={this.activeLink('/issues')}>
+          {translate('issues.page')}
+        </Link>
+      </li>
     );
   }
 
-  renderRulesLink () {
+  renderRulesLink() {
     return (
-        <li>
-          <Link to="/coding_rules" className={this.activeLink('/coding_rules')}>
-            {translate('coding_rules.page')}
-          </Link>
-        </li>
+      <li>
+        <Link to="/coding_rules" className={this.activeLink('/coding_rules')}>
+          {translate('coding_rules.page')}
+        </Link>
+      </li>
     );
   }
 
-  renderProfilesLink () {
+  renderProfilesLink() {
     return (
-        <li>
-          <Link to="/profiles" activeClassName="active">
-            {translate('quality_profiles.page')}
-          </Link>
-        </li>
+      <li>
+        <Link to="/profiles" activeClassName="active">
+          {translate('quality_profiles.page')}
+        </Link>
+      </li>
     );
   }
 
-  renderQualityGatesLink () {
+  renderQualityGatesLink() {
     return (
-        <li>
-          <Link to="/quality_gates" activeClassName="active">
-            {translate('quality_gates.page')}
-          </Link>
-        </li>
+      <li>
+        <Link to="/quality_gates" activeClassName="active">
+          {translate('quality_gates.page')}
+        </Link>
+      </li>
     );
   }
 
-  renderAdministrationLink () {
+  renderAdministrationLink() {
     if (!isUserAdmin(this.props.currentUser)) {
       return null;
     }
     return (
-        <li>
-          <Link to="/settings" className="navbar-admin-link" activeClassName="active">
-            {translate('layout.settings')}
-          </Link>
-        </li>
+      <li>
+        <Link to="/settings" className="navbar-admin-link" activeClassName="active">
+          {translate('layout.settings')}
+        </Link>
+      </li>
     );
   }
 
   renderGlobalPageLink = ({ key, name }) => {
     return (
-        <li key={key}>
-          <Link to={`/extension/${key}`}>{name}</Link>
-        </li>
+      <li key={key}>
+        <Link to={`/extension/${key}`}>{name}</Link>
+      </li>
     );
   };
 
-  renderMore () {
+  renderMore() {
     const { globalPages } = this.props.appState;
-    if (globalPages.length === 0) {
+    const withoutPortfolios = globalPages.filter(page => page.key !== 'governance/portfolios');
+    if (withoutPortfolios.length === 0) {
       return null;
     }
     return (
-        <li className="dropdown">
-          <a className="dropdown-toggle" id="global-navigation-more" data-toggle="dropdown" href="#">
-            {translate('more')}&nbsp;
-            <span className="icon-dropdown"/>
-          </a>
-          <ul className="dropdown-menu">
-            {globalPages.map(this.renderGlobalPageLink)}
-          </ul>
-        </li>
+      <li className="dropdown">
+        <a className="dropdown-toggle" id="global-navigation-more" data-toggle="dropdown" href="#">
+          {translate('more')}&nbsp;
+          <span className="icon-dropdown" />
+        </a>
+        <ul className="dropdown-menu">
+          {withoutPortfolios.map(this.renderGlobalPageLink)}
+        </ul>
+      </li>
     );
   }
 
-  render () {
+  render() {
+    const governanceInstalled = this.props.appState.qualifiers.includes('VW');
+
     return (
-        <ul className="nav navbar-nav">
-          {this.renderProjects()}
-          {this.renderIssuesLink()}
-          {this.renderRulesLink()}
-          {this.renderProfilesLink()}
-          {this.renderQualityGatesLink()}
-          {this.renderAdministrationLink()}
-          {this.renderMore()}
-        </ul>
+      <ul className="nav navbar-nav">
+        {this.renderProjects()}
+        {governanceInstalled && this.renderPortfolios()}
+        {this.renderIssuesLink()}
+        {this.renderRulesLink()}
+        {this.renderProfilesLink()}
+        {this.renderQualityGatesLink()}
+        {this.renderAdministrationLink()}
+        {this.renderMore()}
+      </ul>
     );
   }
 }

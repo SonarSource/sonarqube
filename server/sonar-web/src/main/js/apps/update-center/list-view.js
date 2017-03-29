@@ -24,4 +24,3 @@ export default Marionette.CollectionView.extend({
   tagName: 'ul',
   childView: ListItemView
 });
-

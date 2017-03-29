@@ -69,8 +69,8 @@ public class PermissionTemplateDao implements Dao {
     return mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, Collections.emptyList());
   }
 
-  public List<String> selectGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, String organizationUuid, long templateId) {
-    return mapper(session).selectGroupNamesByQueryAndTemplate(organizationUuid, templateId, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+  public List<String> selectGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, long templateId) {
+    return mapper(session).selectGroupNamesByQueryAndTemplate(templateId, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
   public int countGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, String organizationUuid, long templateId) {
@@ -124,7 +124,6 @@ public class PermissionTemplateDao implements Dao {
       partitionedTemplateIds -> {
         parameters.put("templateIds", partitionedTemplateIds);
         mapper(dbSession).usersCountByTemplateIdAndPermission(parameters, resultHandler);
-        return null;
       });
   }
 
@@ -140,7 +139,6 @@ public class PermissionTemplateDao implements Dao {
       partitionedTemplateIds -> {
         parameters.put("templateIds", partitionedTemplateIds);
         mapper(dbSession).groupsCountByTemplateIdAndPermission(parameters, resultHandler);
-        return null;
       });
   }
 
@@ -176,6 +174,10 @@ public class PermissionTemplateDao implements Dao {
       .setUserId(userId);
     mapper(session).deleteUserPermission(permissionTemplateUser);
     session.commit();
+  }
+
+  public void deleteUserPermissionsByOrganization(DbSession dbSession, String organizationUuid, int userId) {
+    mapper(dbSession).deleteUserPermissionsByOrganization(organizationUuid, userId);
   }
 
   public void insertGroupPermission(DbSession session, long templateId, @Nullable Integer groupId, String permission) {
@@ -233,7 +235,6 @@ public class PermissionTemplateDao implements Dao {
       templateMapper.deleteGroupPermissionsByTemplateIds(subList);
       templateMapper.deleteUserPermissionsByTemplateIds(subList);
       templateMapper.deleteByIds(subList);
-      return null;
     });
   }
 }

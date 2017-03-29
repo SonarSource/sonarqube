@@ -22,11 +22,11 @@ import Measure from '../../components/Measure';
 
 const MeasureCell = ({ component, metric }) => {
   return (
-      <td className="thin nowrap text-right">
-        <span id={'component-measures-component-measure-' + component.key + '-' + metric.key}>
-          <Measure measure={{ value: component.value, leak: component.leak }} metric={metric}/>
-        </span>
-      </td>
+    <td className="thin nowrap text-right">
+      <span id={'component-measures-component-measure-' + component.key + '-' + metric.key}>
+        <Measure measure={{ value: component.value, leak: component.leak }} metric={metric} />
+      </span>
+    </td>
   );
 };
 

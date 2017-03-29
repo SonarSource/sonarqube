@@ -30,7 +30,7 @@ import static org.sonar.process.ProcessUtils.awaitTermination;
 public class ProcessUtilsTest {
 
   @Rule
-  public Timeout timeout= Timeout.seconds(5);
+  public Timeout timeout = Timeout.seconds(5);
 
   @Test
   public void private_constructor() {
@@ -39,7 +39,7 @@ public class ProcessUtilsTest {
 
   @Test
   public void awaitTermination_does_not_fail_on_null_Thread_argument() {
-    awaitTermination((Thread) null);
+    awaitTermination(null);
   }
 
   @Test
@@ -50,22 +50,14 @@ public class ProcessUtilsTest {
   @Test
   public void awaitTermination_ignores_interrupted_exception_of_current_thread() throws InterruptedException {
     final EverRunningThread runningThread = new EverRunningThread();
-    final Thread safeJoiner = new Thread() {
-      @Override
-      public void run() {
-        awaitTermination(runningThread);
+    final Thread safeJoiner = new Thread(() -> awaitTermination(runningThread));
+    final Thread simpleJoiner = new Thread(() -> {
+      try {
+        runningThread.join();
+      } catch (InterruptedException e) {
+        System.err.println("runningThread interruption detected in SimpleJoiner");
       }
-    };
-    final Thread simpleJoiner = new Thread() {
-      @Override
-      public void run() {
-        try {
-          runningThread.join();
-        } catch (InterruptedException e) {
-          System.err.println("runningThread interruption detected in SimpleJoiner");
-        }
-      }
-    };
+    });
     runningThread.start();
     safeJoiner.start();
     simpleJoiner.start();
@@ -81,7 +73,7 @@ public class ProcessUtilsTest {
     }
 
     // safeJoiner must still be alive
-    assertThat(safeJoiner.isAlive()).isTrue() ;
+    assertThat(safeJoiner.isAlive()).isTrue();
 
     // stop runningThread
     runningThread.stopIt();
@@ -92,11 +84,6 @@ public class ProcessUtilsTest {
 
     // wait for safeJoiner to stop because runningThread has stopped, if it doesn't, the test will fail with a timeout
     safeJoiner.join();
-  }
-
-  @Test
-  public void awaitTermination_of_vararg_does_not_fail_when_there_is_a_null_or_current_thread() {
-    awaitTermination(null, Thread.currentThread(), null);
   }
 
   private static class EverRunningThread extends Thread {

@@ -24,15 +24,15 @@ import { translate } from '../../../helpers/l10n';
 const link = 'https://redirect.sonarsource.com/doc/fix-the-leak.html';
 
 export default class AboutLeakPeriod extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="boxed-group">
-          <h2>{translate('about_page.fix_the_leak')}</h2>
-          <div className="boxed-group-inner">
-            <p className="about-page-text">{translate('about_page.fix_the_leak.text')}</p>
-            <ReadMore link={link}/>
-          </div>
+      <div className="boxed-group">
+        <h2>{translate('about_page.fix_the_leak')}</h2>
+        <div className="boxed-group-inner">
+          <p className="about-page-text">{translate('about_page.fix_the_leak.text')}</p>
+          <ReadMore link={link} />
         </div>
+      </div>
     );
   }
 }

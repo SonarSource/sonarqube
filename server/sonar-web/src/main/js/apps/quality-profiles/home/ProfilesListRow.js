@@ -35,41 +35,41 @@ export default class ProfilesListRow extends React.Component {
     updateProfiles: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  renderName () {
+  renderName() {
     const { profile } = this.props;
     const offset = 25 * (profile.depth - 1);
     return (
-        <div style={{ paddingLeft: offset }}>
-          <ProfileLink profileKey={profile.key}>
-            {profile.name}
-          </ProfileLink>
-        </div>
+      <div style={{ paddingLeft: offset }}>
+        <ProfileLink profileKey={profile.key}>
+          {profile.name}
+        </ProfileLink>
+      </div>
     );
   }
 
-  renderProjects () {
+  renderProjects() {
     const { profile } = this.props;
 
     if (profile.isDefault) {
       return (
-          <span className="badge">
-            {translate('default')}
-          </span>
+        <span className="badge">
+          {translate('default')}
+        </span>
       );
     }
 
     return (
-        <span>
-          {profile.projectCount}
-        </span>
+      <span>
+        {profile.projectCount}
+      </span>
     );
   }
 
-  renderRules () {
+  renderRules() {
     const { profile } = this.props;
 
     const activeRulesUrl = getRulesUrl({
@@ -84,27 +84,28 @@ export default class ProfilesListRow extends React.Component {
     });
 
     return (
-        <div>
-          {profile.activeDeprecatedRuleCount > 0 && (
-              <span className="spacer-right">
-                <Link to={deprecatedRulesUrl}
-                      className="badge badge-normal-size badge-danger-light"
-                      title={translate('quality_profiles.deprecated_rules')}
-                      data-toggle="tooltip">
-                  {profile.activeDeprecatedRuleCount}
-                </Link>
-              </span>
-          )}
+      <div>
+        {profile.activeDeprecatedRuleCount > 0 &&
+          <span className="spacer-right">
+            <Link
+              to={deprecatedRulesUrl}
+              className="badge badge-normal-size badge-danger-light"
+              title={translate('quality_profiles.deprecated_rules')}
+              data-toggle="tooltip"
+            >
+              {profile.activeDeprecatedRuleCount}
+            </Link>
+          </span>}
 
-          <Link to={activeRulesUrl}>
-            {profile.activeRuleCount}
-          </Link>
-        </div>
+        <Link to={activeRulesUrl}>
+          {profile.activeRuleCount}
+        </Link>
+      </div>
     );
   }
 
-  renderUpdateDate () {
-    const date = <ProfileDate date={this.props.profile.userUpdatedAt}/>;
+  renderUpdateDate() {
+    const date = <ProfileDate date={this.props.profile.userUpdatedAt} />;
     if (isStagnant(this.props.profile)) {
       return <span className="badge badge-normal-size badge-focus">{date}</span>;
     } else {
@@ -112,9 +113,9 @@ export default class ProfilesListRow extends React.Component {
     }
   }
 
-  renderUsageDate () {
+  renderUsageDate() {
     const { lastUsed } = this.props.profile;
-    const date = <ProfileDate date={lastUsed}/>;
+    const date = <ProfileDate date={lastUsed} />;
     if (!lastUsed) {
       return <span className="badge badge-normal-size badge-focus">{date}</span>;
     } else {
@@ -122,40 +123,42 @@ export default class ProfilesListRow extends React.Component {
     }
   }
 
-  render () {
+  render() {
     return (
-        <tr className="quality-profiles-table-row"
-            data-key={this.props.profile.key}
-            data-name={this.props.profile.name}>
-          <td className="quality-profiles-table-name">
-            {this.renderName()}
-          </td>
-          <td className="quality-profiles-table-projects thin nowrap text-right">
-            {this.renderProjects()}
-          </td>
-          <td className="quality-profiles-table-rules thin nowrap text-right">
-            {this.renderRules()}
-          </td>
-          <td className="quality-profiles-table-date thin nowrap text-right">
-            {this.renderUpdateDate()}
-          </td>
-          <td className="quality-profiles-table-date thin nowrap text-right">
-            {this.renderUsageDate()}
-          </td>
-          {this.props.canAdmin && (
-              <td className="quality-profiles-table-actions thin nowrap text-right">
-                <div className="dropdown">
-                  <button className="dropdown-toggle" data-toggle="dropdown">
-                    <i className="icon-dropdown"/>
-                  </button>
-                  <ProfileActions
-                      profile={this.props.profile}
-                      canAdmin={this.props.canAdmin}
-                      updateProfiles={this.props.updateProfiles}/>
-                </div>
-              </td>
-          )}
-        </tr>
+      <tr
+        className="quality-profiles-table-row"
+        data-key={this.props.profile.key}
+        data-name={this.props.profile.name}
+      >
+        <td className="quality-profiles-table-name">
+          {this.renderName()}
+        </td>
+        <td className="quality-profiles-table-projects thin nowrap text-right">
+          {this.renderProjects()}
+        </td>
+        <td className="quality-profiles-table-rules thin nowrap text-right">
+          {this.renderRules()}
+        </td>
+        <td className="quality-profiles-table-date thin nowrap text-right">
+          {this.renderUpdateDate()}
+        </td>
+        <td className="quality-profiles-table-date thin nowrap text-right">
+          {this.renderUsageDate()}
+        </td>
+        {this.props.canAdmin &&
+          <td className="quality-profiles-table-actions thin nowrap text-right">
+            <div className="dropdown">
+              <button className="dropdown-toggle" data-toggle="dropdown">
+                <i className="icon-dropdown" />
+              </button>
+              <ProfileActions
+                profile={this.props.profile}
+                canAdmin={this.props.canAdmin}
+                updateProfiles={this.props.updateProfiles}
+              />
+            </div>
+          </td>}
+      </tr>
     );
   }
 }

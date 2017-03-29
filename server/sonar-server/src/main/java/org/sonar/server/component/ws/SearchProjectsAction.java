@@ -78,7 +78,8 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FIL
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_SIZE;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 public class SearchProjectsAction implements ComponentsWsAction {
 
@@ -105,14 +106,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setResponseExample(getClass().getResource("search_projects-example.json"))
-      .setChangelog(new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGE, PARAM_FILTER)))
+      .setChangelog(new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGES, PARAM_FILTER)))
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)
+      .setDescription("Comma-separated list of the fields to be returned in response")
       .setSince("6.4");
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("the organization to search projects in")
       .setRequired(false)
+      .setInternal(true)
       .setSince("6.3");
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -227,7 +230,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Ordering<ComponentDto> ordering = Ordering.explicit(projectUuids).onResultOf(ComponentDto::uuid);
     List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, projectUuids));
     Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);
-    return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid);
+    return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid, query);
   }
 
   private static boolean hasFavoriteFilter(List<Criterion> criteria) {
@@ -285,8 +288,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults,
-    Map<String, OrganizationDto> organizationsByUuid) {
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
     Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
       userSession.isLoggedIn());
 
@@ -301,15 +303,18 @@ public class SearchProjectsAction implements ComponentsWsAction {
           .forEach(response::addComponents);
         return response;
       })
-      .map(response -> addFacets(searchResults.facets, response))
+      .map(response -> addFacets(searchResults, response))
       .map(SearchProjectsWsResponse.Builder::build)
       .findFirst()
       .orElseThrow(() -> new IllegalStateException("SearchProjectsWsResponse not built"));
   }
 
-  private static SearchProjectsWsResponse.Builder addFacets(Facets esFacets, SearchProjectsWsResponse.Builder wsResponse) {
+  private static SearchProjectsWsResponse.Builder addFacets(SearchResults searchResults, SearchProjectsWsResponse.Builder wsResponse) {
+    Facets esFacets = searchResults.facets;
     EsToWsFacet esToWsFacet = new EsToWsFacet();
 
+    searchResults.query.getLanguages().ifPresent(languages -> addMandatoryValuesToFacet(esFacets, FILTER_LANGUAGES, languages));
+    searchResults.query.getTags().ifPresent(tags -> addMandatoryValuesToFacet(esFacets, FILTER_TAGS, tags));
     Common.Facets wsFacets = esFacets.getAll().entrySet().stream()
       .map(esToWsFacet)
       .collect(Collector.of(
@@ -323,6 +328,18 @@ public class SearchProjectsAction implements ComponentsWsAction {
     wsResponse.setFacets(wsFacets);
 
     return wsResponse;
+  }
+
+  private static void addMandatoryValuesToFacet(Facets facets, String facetName, Iterable<String> mandatoryValues) {
+    Map<String, Long> buckets = facets.get(facetName);
+    if (buckets == null) {
+      return;
+    }
+    for (String mandatoryValue : mandatoryValues) {
+      if (!buckets.containsKey(mandatoryValue)) {
+        buckets.put(mandatoryValue, 0L);
+      }
+    }
   }
 
   private static class EsToWsFacet implements Function<Entry<String, LinkedHashMap<String, Long>>, Common.Facet> {
@@ -413,14 +430,17 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final Set<String> favoriteProjectUuids;
     private final Facets facets;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
+    private final ProjectMeasuresQuery query;
     private final int total;
 
-    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid) {
+    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
+      ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;
       this.total = (int) searchResults.getTotal();
       this.facets = searchResults.getFacets();
       this.analysisByProjectUuid = analysisByProjectUuid;
+      this.query = query;
     }
   }
 }

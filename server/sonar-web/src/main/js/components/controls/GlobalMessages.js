@@ -23,11 +23,13 @@ import { ERROR, SUCCESS } from '../../store/globalMessages/duck';
 
 export default class GlobalMessages extends React.Component {
   static propTypes = {
-    messages: React.PropTypes.arrayOf(React.PropTypes.shape({
-      id: React.PropTypes.string.isRequired,
-      message: React.PropTypes.string.isRequired,
-      level: React.PropTypes.oneOf([ERROR, SUCCESS])
-    })),
+    messages: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        id: React.PropTypes.string.isRequired,
+        message: React.PropTypes.string.isRequired,
+        level: React.PropTypes.oneOf([ERROR, SUCCESS])
+      })
+    ),
     closeGlobalMessage: React.PropTypes.func.isRequired
   };
 
@@ -37,16 +39,19 @@ export default class GlobalMessages extends React.Component {
       'process-spinner-success': message.level === SUCCESS
     });
     return (
-        <div key={message.id} className={className}>
-          {message.message}
-          <button className="process-spinner-close" onClick={() => this.props.closeGlobalMessage(message.id)}>
-            <i className="icon-close"/>
-          </button>
-        </div>
+      <div key={message.id} className={className}>
+        {message.message}
+        <button
+          className="process-spinner-close"
+          onClick={() => this.props.closeGlobalMessage(message.id)}
+        >
+          <i className="icon-close" />
+        </button>
+      </div>
     );
   };
 
-  render () {
+  render() {
     const { messages } = this.props;
 
     if (messages.length === 0) {
@@ -54,9 +59,9 @@ export default class GlobalMessages extends React.Component {
     }
 
     return (
-        <div className="processes-container">
-          {messages.map(this.renderMessage)}
-        </div>
+      <div className="processes-container">
+        {messages.map(this.renderMessage)}
+      </div>
     );
   }
 }

@@ -22,12 +22,21 @@ import React from 'react';
 import { connect } from 'react-redux';
 import RemoveEventForm from './RemoveEventForm';
 import { deleteEvent } from '../../actions';
+import type { Event } from '../../../../store/projectActivity/duck';
 
-const RemoveCustomEventForm = props => (
-    <RemoveEventForm
-        {...props}
-        removeEventButtonText="project_activity.remove_custom_event"
-        removeEventQuestion="project_activity.remove_custom_event.question"/>
+type Props = {
+  analysis: string,
+  event: Event,
+  deleteEvent: (string, string) => Promise<*>,
+  onClose: () => void
+};
+
+const RemoveCustomEventForm = (props: Props) => (
+  <RemoveEventForm
+    {...props}
+    removeEventButtonText="project_activity.remove_custom_event"
+    removeEventQuestion="project_activity.remove_custom_event.question"
+  />
 );
 
 const mapStateToProps = null;

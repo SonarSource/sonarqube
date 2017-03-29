@@ -19,7 +19,7 @@
  */
 import { getJSON } from '../helpers/request';
 
-export function getLanguages () {
+export function getLanguages() {
   const url = '/api/languages/list';
   return getJSON(url).then(r => r.languages);
 }

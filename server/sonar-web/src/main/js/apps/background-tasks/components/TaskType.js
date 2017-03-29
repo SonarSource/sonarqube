@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import { Task } from '../types';
 import { translate } from '../../../helpers/l10n';
 
 const TaskType = ({ task }: { task: Task }) => {
   return (
-      <span className="note nowrap spacer-left">
-        {'['}
-        {translate('background_task.type', task.type)}
-        {']'}
-      </span>
+    <span className="note nowrap spacer-left">
+      {'['}
+      {translate('background_task.type', task.type)}
+      {']'}
+    </span>
   );
 };
 

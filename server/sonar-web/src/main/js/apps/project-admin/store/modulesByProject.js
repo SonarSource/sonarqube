@@ -46,5 +46,4 @@ const modulesByProject = (state = {}, action = {}) => {
 
 export default modulesByProject;
 
-export const getProjectModules = (state, projectKey) =>
-    state[projectKey];
+export const getProjectModules = (state, projectKey) => state[projectKey];

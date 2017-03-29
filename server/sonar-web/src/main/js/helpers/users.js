@@ -24,6 +24,4 @@ type User = {
   }
 };
 
-export const isUserAdmin = (user: User): boolean => (
-    user.permissions.global.includes('admin')
-);
+export const isUserAdmin = (user: User): boolean => user.permissions.global.includes('admin');

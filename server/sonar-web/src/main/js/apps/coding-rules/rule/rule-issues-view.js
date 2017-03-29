@@ -24,7 +24,7 @@ import Template from '../templates/rule/coding-rules-rule-issues.hbs';
 export default Marionette.ItemView.extend({
   template: Template,
 
-  initialize () {
+  initialize() {
     const that = this;
     this.total = null;
     this.projects = [];
@@ -33,7 +33,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  requestIssues () {
+  requestIssues() {
     const that = this;
     const url = window.baseUrl + '/api/issues/search';
     const options = {
@@ -57,13 +57,14 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       total: this.total,
       projects: this.projects,
-      baseSearchUrl: window.baseUrl + '/issues/search#resolved=false|rules=' + encodeURIComponent(this.model.id)
+      baseSearchUrl: window.baseUrl +
+        '/issues/search#resolved=false|rules=' +
+        encodeURIComponent(this.model.id)
     };
   }
 });
-

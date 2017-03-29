@@ -28,10 +28,9 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface GroupPermissionMapper {
 
-  List<String> selectGroupNamesByQuery(@Param("organizationUuid") String organizationUuid,
-    @Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
 
-  int countGroupsByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query);
+  int countGroupsByQuery(@Param("query") PermissionQuery query);
 
   List<GroupPermissionDto> selectByGroupIds(@Param("organizationUuid") String organizationUuid,
     @Param("groupIds") List<Integer> groupIds, @Nullable @Param("projectId") Long projectId);

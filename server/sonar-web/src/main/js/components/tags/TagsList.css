@@ -1,0 +1,21 @@
+.tags-list {
+  white-space: nowrap;
+}
+
+.tags-list i::before {
+  font-size: 12px;
+}
+
+.tags-list i.icon-dropdown::before {
+  top: 1px;
+}
+
+.tags-list span {
+  display: inline-block;
+  vertical-align: text-top;
+  text-align: left;
+  max-width: 220px;
+  padding-left: 4px;
+  padding-right: 4px;
+  margin-top: 2px;
+}

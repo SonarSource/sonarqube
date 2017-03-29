@@ -41,12 +41,7 @@ public class CustomMeasureDao implements Dao {
   }
 
   public void deleteByMetricIds(DbSession session, List<Integer> metricIds) {
-    DatabaseUtils.executeLargeInputsWithoutOutput(
-      metricIds,
-      input -> {
-        mapper(session).deleteByMetricIds(metricIds);
-        return null;
-      });
+    DatabaseUtils.executeLargeInputsWithoutOutput(metricIds, input -> mapper(session).deleteByMetricIds(metricIds));
   }
 
   @CheckForNull

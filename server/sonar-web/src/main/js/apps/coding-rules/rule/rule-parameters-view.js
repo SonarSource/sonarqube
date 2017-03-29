@@ -24,15 +24,15 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   modelEvents: {
-    'change': 'render'
+    change: 'render'
   },
 
-  onRender () {
+  onRender() {
     const params = this.model.get('params');
     this.$el.toggleClass('hidden', params == null || params.length === 0);
   },
 
-  serializeData () {
+  serializeData() {
     const isEditable = this.options.app.canWrite && this.model.get('isCustom');
 
     return {
@@ -42,4 +42,3 @@ export default Marionette.ItemView.extend({
     };
   }
 });
-

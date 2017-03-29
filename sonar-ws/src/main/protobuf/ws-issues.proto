@@ -41,7 +41,7 @@ message SearchWsResponse {
   repeated Issue issues = 6;
   repeated Component components = 7;
   optional sonarqube.ws.commons.Rules rules = 8;
-  optional sonarqube.ws.commons.Users users = 9;
+  optional Users users = 9;
 
   // Deprecated since 5.5, action plan has been removed
   optional ActionPlans unusedActionPlans = 10;
@@ -54,7 +54,7 @@ message Operation {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated sonarqube.ws.commons.User users = 4;
+  repeated Users.User users = 4;
   // Deprecated since 5.5, action plan has been removed
   repeated ActionPlan actiunusedActionPlansonPlans = 5;
 }
@@ -191,9 +191,11 @@ message ChangelogWsResponse {
   message Changelog {
     optional string user = 1;
     optional string userName = 2;
-    optional string email = 3;
+    // Email is no more returned since 6.3
+    optional string deprecatedEmail = 3;
     optional string creationDate = 4;
     repeated Diff diffs = 5;
+    optional string avatar = 6;
 
     message Diff {
       optional string key = 1;
@@ -209,6 +211,17 @@ message BulkChangeWsResponse {
   optional int64 success = 2;
   optional int64 ignored = 3;
   optional int64 failures = 4;
+}
+
+message Users {
+  repeated User users = 1;
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional string avatar = 3;
+    optional bool active = 4;
+  }
 }
 
 

@@ -20,39 +20,53 @@
 package org.sonar.server.user.ws;
 
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsUsers.GroupsWsResponse;
+import org.sonarqube.ws.WsUsers.GroupsWsResponse.Group;
+import org.sonarqube.ws.client.user.GroupsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SELECTED;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_ORGANIZATION;
 
 public class GroupsAction implements UsersWsAction {
 
-  private static final String PARAM_LOGIN = "login";
-
-  private static final String FIELD_ID = "id";
-  private static final String FIELD_NAME = "name";
-  private static final String FIELD_DESCRIPTION = "description";
-  private static final String FIELD_SELECTED = "selected";
+  private static final int MAX_PAGE_SIZE = 500;
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public GroupsAction(DbClient dbClient, UserSession userSession) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -60,7 +74,11 @@ public class GroupsAction implements UsersWsAction {
     NewAction action = context.createAction("groups")
       .setDescription("Lists the groups a user belongs to. Requires Administer System permission.")
       .setHandler(this)
-      .setResponseExample(getClass().getResource("example-groups.json"))
+      .setResponseExample(getClass().getResource("groups-example.json"))
+      .addSelectionModeParam()
+      .addSearchQuery("users", "group names")
+      .addPagingParams(25)
+      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"))
       .setSince("5.2");
 
     action.createParam(PARAM_LOGIN)
@@ -68,67 +86,62 @@ public class GroupsAction implements UsersWsAction {
       .setExampleValue("admin")
       .setRequired(true);
 
-    action.addSelectionModeParam();
-
-    action.addSearchQuery("users", "group names");
-
-    action.addPagingParams(25);
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setExampleValue("my-org")
+      .setInternal(true)
+      .setSince("6.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    GroupsWsResponse groupsWsResponse = doHandle(toGroupsRequest(request));
+    writeProtobuf(groupsWsResponse, request, response);
+  }
 
-    String login = request.mandatoryParam(PARAM_LOGIN);
-    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    int page = request.mandatoryParamAsInt(Param.PAGE);
-    String queryString = request.param(Param.TEXT_QUERY);
-    String selected = request.mandatoryParam(Param.SELECTED);
-
-    GroupMembershipQuery query = GroupMembershipQuery.builder()
-      .login(login)
-      .groupSearch(queryString)
-      .membership(getMembership(selected))
-      .pageIndex(page)
-      .pageSize(pageSize)
-      .build();
+  private GroupsWsResponse doHandle(GroupsRequest request) {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-      if (user == null) {
-        throw new NotFoundException(String.format("User with login '%s' has not been found", login));
-      }
+      OrganizationDto organization = findOrganizationByKey(dbSession, request.getOrganization());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+
+      String login = request.getLogin();
+      GroupMembershipQuery query = GroupMembershipQuery.builder()
+        .organizationUuid(organization.getUuid())
+        .groupSearch(request.getQuery())
+        .membership(getMembership(request.getSelected()))
+        .pageIndex(request.getPage())
+        .pageSize(request.getPageSize())
+        .build();
+      UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "Unknown user: %s", login);
       int total = dbClient.groupMembershipDao().countGroups(dbSession, query, user.getId());
-      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
-      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getId(), paging.offset(), pageSize);
-
-      JsonWriter json = response.newJsonWriter().beginObject();
-      writeGroups(json, groups);
-      writePaging(json, paging);
-      json.endObject().close();
+      Paging paging = forPageIndex(query.pageIndex()).withPageSize(query.pageSize()).andTotal(total);
+      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getId(), paging.offset(), query.pageSize());
+      return buildResponse(groups, paging);
     }
   }
 
-  private static void writeGroups(JsonWriter json, List<GroupMembershipDto> groups) {
-    json.name("groups").beginArray();
-    for (GroupMembershipDto group : groups) {
-      json.beginObject()
-        .prop(FIELD_ID, group.getId().toString())
-        .prop(FIELD_NAME, group.getName())
-        .prop(FIELD_DESCRIPTION, group.getDescription())
-        .prop(FIELD_SELECTED, group.getUserId() != null)
-        .endObject();
-    }
-    json.endArray();
+  private OrganizationDto findOrganizationByKey(DbSession dbSession, @Nullable String key) {
+    String effectiveKey = key == null ? defaultOrganizationProvider.get().getKey() : key;
+    Optional<OrganizationDto> org = dbClient.organizationDao().selectByKey(dbSession, effectiveKey);
+    checkFoundWithOptional(org, "No organization with key '%s'", key);
+    return org.get();
   }
 
-  private static void writePaging(JsonWriter json, Paging paging) {
-    json.prop("p", paging.pageIndex())
-      .prop("ps", paging.pageSize())
-      .prop("total", paging.total());
+  private static GroupsRequest toGroupsRequest(Request request) {
+    int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
+    checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
+    return GroupsRequest.builder()
+      .setLogin(request.mandatoryParam(PARAM_LOGIN))
+      .setOrganization(request.param(PARAM_ORGANIZATION))
+      .setSelected(request.mandatoryParam(SELECTED))
+      .setQuery(request.param(TEXT_QUERY))
+      .setPage(request.mandatoryParamAsInt(PAGE))
+      .setPageSize(pageSize)
+      .build();
   }
 
-  private String getMembership(String selected) {
+  private static String getMembership(String selected) {
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
     String membership = GroupMembershipQuery.ANY;
     if (SelectionMode.SELECTED == selectionMode) {
@@ -138,4 +151,25 @@ public class GroupsAction implements UsersWsAction {
     }
     return membership;
   }
+
+  private static GroupsWsResponse buildResponse(List<GroupMembershipDto> groups, Paging paging) {
+    GroupsWsResponse.Builder responseBuilder = GroupsWsResponse.newBuilder();
+    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group)));
+    responseBuilder.getPagingBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total())
+      .build();
+    return responseBuilder.build();
+  }
+
+  private static Group toWsGroup(GroupMembershipDto group) {
+    Group.Builder groupBuilder = Group.newBuilder()
+      .setId(group.getId())
+      .setName(group.getName())
+      .setSelected(group.getUserId() != null);
+    Protobuf.setNullable(group.getDescription(), groupBuilder::setDescription);
+    return groupBuilder.build();
+  }
+
 }

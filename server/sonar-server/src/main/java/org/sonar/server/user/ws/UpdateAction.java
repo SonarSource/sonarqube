@@ -68,7 +68,7 @@ public class UpdateAction implements UsersWsAction {
       .setSince("3.7")
       .setPost(true)
       .setHandler(this)
-      .setResponseExample(getClass().getResource("example-update.json"));
+      .setResponseExample(getClass().getResource("update-example.json"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")

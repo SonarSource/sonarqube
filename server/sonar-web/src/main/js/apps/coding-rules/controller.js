@@ -24,11 +24,9 @@ import RuleDetailsView from './rule-details-view';
 
 export default Controller.extend({
   pageSize: 200,
-  ruleFields: [
-    'name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity'
-  ],
+  ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity'],
 
-  _searchParameters () {
+  _searchParameters() {
     const fields = this.ruleFields.slice();
     const profile = this.app.state.get('query').qprofile;
     if (profile != null) {
@@ -49,7 +47,7 @@ export default Controller.extend({
     return params;
   },
 
-  fetchList (firstPage) {
+  fetchList(firstPage) {
     firstPage = firstPage == null ? true : firstPage;
     if (firstPage) {
       this.app.state.set({ selectedIndex: 0, page: 1 }, { silent: true });
@@ -84,12 +82,12 @@ export default Controller.extend({
     });
   },
 
-  isRulePermalink () {
+  isRulePermalink() {
     const query = this.app.state.get('query');
     return query.rule_key != null && this.app.list.length === 1;
   },
 
-  requestFacet (id) {
+  requestFacet(id) {
     const url = window.baseUrl + '/api/rules/search';
     const facet = this.app.facets.get(id);
     const options = { facets: id, ps: 1, ...this.app.state.get('query') };
@@ -101,14 +99,14 @@ export default Controller.extend({
     });
   },
 
-  parseQuery () {
+  parseQuery() {
     const q = Controller.prototype.parseQuery.apply(this, arguments);
     delete q.asc;
     delete q.s;
     return q;
   },
 
-  getRuleDetails (rule) {
+  getRuleDetails(rule) {
     const that = this;
     const url = window.baseUrl + '/api/rules/show';
     const options = {
@@ -121,7 +119,7 @@ export default Controller.extend({
     });
   },
 
-  showDetails (rule) {
+  showDetails(rule) {
     const that = this;
     const ruleModel = typeof rule === 'string' ? new Rule({ key: rule }) : rule;
     this.app.layout.workspaceDetailsRegion.reset();
@@ -139,12 +137,12 @@ export default Controller.extend({
     });
   },
 
-  showDetailsForSelected () {
+  showDetailsForSelected() {
     const rule = this.app.list.at(this.app.state.get('selectedIndex'));
     this.showDetails(rule);
   },
 
-  hideDetails (firstPage) {
+  hideDetails(firstPage) {
     key.setScope('list');
     this.app.state.unset('rule');
     this.app.layout.workspaceDetailsRegion.reset();
@@ -155,7 +153,7 @@ export default Controller.extend({
     }
   },
 
-  activateCurrent () {
+  activateCurrent() {
     if (this.app.layout.detailsShow()) {
       this.app.workspaceDetailsView.$('#coding-rules-quality-profile-activate').click();
     } else {
@@ -165,12 +163,11 @@ export default Controller.extend({
     }
   },
 
-  deactivateCurrent () {
+  deactivateCurrent() {
     if (!this.app.layout.detailsShow()) {
       const rule = this.app.list.at(this.app.state.get('selectedIndex'));
       const ruleView = this.app.workspaceListView.children.findByModel(rule);
       ruleView.$('.coding-rules-detail-quality-profile-deactivate').click();
     }
   }
-
 });

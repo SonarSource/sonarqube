@@ -27,27 +27,27 @@ export default Backbone.Model.extend({
     _system: false
   },
 
-  _matchAttribute (attr, query) {
+  _matchAttribute(attr, query) {
     const value = this.get(attr) || '';
     return value.toLowerCase().includes(query.toLowerCase());
   },
 
-  match (query) {
+  match(query) {
     return this._matchAttribute('name', query) ||
-        this._matchAttribute('category', query) ||
-        this._matchAttribute('description', query);
+      this._matchAttribute('category', query) ||
+      this._matchAttribute('description', query);
   },
 
-  _action (options) {
+  _action(options) {
     const that = this;
     const opts = {
       ...options,
       type: 'POST',
       data: { key: this.id },
-      success () {
+      success() {
         options.success(that);
       },
-      error (jqXHR) {
+      error(jqXHR) {
         that.set({ _status: 'failed', _errors: jqXHR.responseJSON.errors });
       }
     };
@@ -56,31 +56,30 @@ export default Backbone.Model.extend({
     return xhr;
   },
 
-  install () {
+  install() {
     return this._action({
       url: window.baseUrl + '/api/plugins/install',
-      success (model) {
+      success(model) {
         model.set({ _status: 'installing' });
       }
     });
   },
 
-  update () {
+  update() {
     return this._action({
       url: window.baseUrl + '/api/plugins/update',
-      success (model) {
+      success(model) {
         model.set({ _status: 'updating' });
       }
     });
   },
 
-  uninstall () {
+  uninstall() {
     return this._action({
       url: window.baseUrl + '/api/plugins/uninstall',
-      success (model) {
+      success(model) {
         model.set({ _status: 'uninstalling' });
       }
     });
   }
 });
-

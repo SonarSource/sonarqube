@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import inRange from 'lodash/inRange';
+import { inRange } from 'lodash';
 import './SizeRating.css';
 
 export default class SizeRating extends React.Component {
@@ -35,17 +35,15 @@ export default class SizeRating extends React.Component {
     muted: false
   };
 
-  render () {
+  render() {
     const { value } = this.props;
 
     if (value == null) {
-      return (
-          <div className="size-rating size-rating-muted">&nbsp;</div>
-      );
+      return <div className="size-rating size-rating-muted">&nbsp;</div>;
     }
 
     let letter;
-    if (inRange(value, 1000)) {
+    if (inRange(value, 0, 1000)) {
       letter = 'XS';
     } else if (inRange(value, 1000, 10000)) {
       letter = 'S';
@@ -62,8 +60,6 @@ export default class SizeRating extends React.Component {
       'size-rating-muted': this.props.muted
     });
 
-    return (
-        <div className={className}>{letter}</div>
-    );
+    return <div className={className}>{letter}</div>;
   }
 }

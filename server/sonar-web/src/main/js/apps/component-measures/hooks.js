@@ -19,7 +19,7 @@
  */
 import { hasHistory } from './utils';
 
-export function checkHistoryExistence (nextState, replace) {
+export function checkHistoryExistence(nextState, replace) {
   const { metricKey } = nextState.params;
 
   if (!hasHistory(metricKey)) {

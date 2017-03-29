@@ -19,71 +19,298 @@
  */
 package org.sonar.server.rule.ws;
 
-import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.i18n.I18n;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleRepositoryDto;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class AppActionTest {
 
+  private static final Language LANG1 = LanguageTesting.newLanguage("xoo", "Xoo");
+  private static final Language LANG2 = LanguageTesting.newLanguage("ws", "Whitespace");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private Languages languages = mock(Languages.class);
+  private Languages languages = new Languages(LANG1, LANG2);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private I18n i18n = mock(I18n.class);
+  private RuleWsSupport wsSupport = new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
+  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession, wsSupport, defaultOrganizationProvider);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, db.getDbClient(), i18n, userSessionRule, defaultOrganizationProvider);
-    WsTester tester = new WsTester(new RulesWs(app));
+  public void test_definition() {
+    WebService.Action definition = tester.getDef();
 
-    userSessionRule.addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.key()).isEqualTo("app");
+    assertThat(definition.params()).hasSize(1);
+    assertThat(definition.param("organization"))
+      .matches(p -> p.isInternal())
+      .matches(p -> p.since().equals("6.4"))
+      .matches(p -> !p.isRequired());
+  }
 
-    QualityProfileDto profile1 = QProfileTesting.newXooP1("org-123");
-    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY);
-    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1);
-    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile2);
-    db.commit();
+  @Test
+  public void response_contains_rule_repositories() {
+    insertRules();
 
-    Language xoo = mock(Language.class);
-    when(xoo.getKey()).thenReturn("xoo");
-    when(xoo.getName()).thenReturn("Xoo");
-    Language whitespace = mock(Language.class);
-    when(whitespace.getKey()).thenReturn("ws");
-    when(whitespace.getName()).thenReturn("Whitespace");
-    when(languages.get("xoo")).thenReturn(xoo);
-    when(languages.all()).thenReturn(new Language[] {xoo, whitespace});
+    String json = tester.newRequest().execute().getInput();
+    assertJson(json).isSimilarTo("{" +
+      "\"repositories\": [" +
+      "    {" +
+      "      \"key\": \"xoo\"," +
+      "      \"name\": \"SonarQube\"," +
+      "      \"language\": \"xoo\"" +
+      "    }," +
+      "    {" +
+      "      \"key\": \"squid\"," +
+      "      \"name\": \"SonarQube\"," +
+      "      \"language\": \"ws\"" +
+      "    }" +
+      "  ]" +
+      "}");
+  }
 
+  @Test
+  public void response_contains_languages() {
+    String json = tester.newRequest().execute().getInput();
+
+    assertJson(json).isSimilarTo("{" +
+      "\"languages\": {" +
+      "    \"xoo\": \"Xoo\"," +
+      "    \"ws\": \"Whitespace\"" +
+      "  }" +
+      "}");
+  }
+
+  @Test
+  public void response_contains_quality_profiles_of_default_organization() {
+    insertQualityProfiles(db.getDefaultOrganization());
+
+    String json = tester.newRequest().execute().getInput();
+    assertJson(json).isSimilarTo("{" +
+      "\"qualityprofiles\": [" +
+      "    {" +
+      "      \"key\": \"XOO_P1\"," +
+      "      \"name\": \"P1\"," +
+      "      \"lang\": \"xoo\"" +
+      "    }," +
+      "    {" +
+      "      \"key\": \"XOO_P2\"," +
+      "      \"name\": \"P2\"," +
+      "      \"lang\": \"xoo\"," +
+      "      \"parentKey\": \"XOO_P1\"" +
+      "    }" +
+      "  ]" +
+      "}");
+  }
+
+  @Test
+  public void response_contains_quality_profiles_of_specified_organization() {
+    OrganizationDto org = db.organizations().insert();
+    insertQualityProfiles(org);
+
+    String json = tester.newRequest()
+      .setParam("organization", org.getKey())
+      .execute().getInput();
+
+    assertJson(json).isSimilarTo("{" +
+      "\"qualityprofiles\": [" +
+      "    {" +
+      "      \"key\": \"XOO_P1\"," +
+      "      \"name\": \"P1\"," +
+      "      \"lang\": \"xoo\"" +
+      "    }," +
+      "    {" +
+      "      \"key\": \"XOO_P2\"," +
+      "      \"name\": \"P2\"," +
+      "      \"lang\": \"xoo\"," +
+      "      \"parentKey\": \"XOO_P1\"" +
+      "    }" +
+      "  ]" +
+      "}");
+  }
+
+  @Test
+  public void throw_NotFoundException_if_organization_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization with key 'does_not_exist'");
+
+    tester.newRequest()
+      .setParam("organization", "does_not_exist")
+      .execute();
+  }
+
+  @Test
+  public void canWrite_is_true_if_user_is_profile_administrator_of_default_organization() {
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+
+    String json = tester.newRequest().execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canWrite\": true }");
+  }
+
+  @Test
+  public void canWrite_is_true_if_user_is_profile_administrator_of_specified_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+
+    String json = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canWrite\": true }");
+  }
+
+  @Test
+  public void canWrite_is_false_if_user_is_not_profile_administrator_of_specified_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization1);
+
+    String json = tester.newRequest()
+      .setParam("organization", organization2.getKey())
+      .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canWrite\": false }");
+  }
+
+  @Test
+  public void canWrite_is_false_if_user_is_not_profile_administrator_of_default_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+
+    String json = tester.newRequest().execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canWrite\": false }");
+  }
+
+  @Test
+  public void canCustomizeRule_is_true_if_user_is_profile_administrator_of_default_organization_and_no_organization_is_specified() {
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+
+    String json = tester.newRequest().execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": true }");
+  }
+
+  @Test
+  public void canCustomizeRule_is_true_if_user_is_profile_administrator_of_specified_default_organization() {
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+
+    String json = tester.newRequest()
+        .setParam("organization", db.getDefaultOrganization().getKey())
+        .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": true }");
+  }
+
+  @Test
+  public void canCustomizeRule_is_false_if_user_is_profile_administrator_of_specified_non_default_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+
+    String json = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": false }");
+  }
+
+  @Test
+  public void canCustomizeRule_is_false_if_user_is_not_profile_administrator_of_specified_non_default_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization1);
+
+    String json = tester.newRequest()
+      .setParam("organization", organization2.getKey())
+      .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": false }");
+  }
+
+  @Test
+  public void canCreateCustomRule_is_true_if_user_is_profile_administrator_of_default_organization_and_no_organization_is_specified() {
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+
+    String json = tester.newRequest().execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": true }");
+  }
+
+  @Test
+  public void canCreateCustomRule_is_true_if_user_is_profile_administrator_of_specified_default_organization() {
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+
+    String json = tester.newRequest()
+        .setParam("organization", db.getDefaultOrganization().getKey())
+        .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": true }");
+  }
+
+  @Test
+  public void canCreateCustomRule_is_false_if_user_is_profile_administrator_of_specified_non_default_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+
+    String json = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": false }");
+  }
+
+  @Test
+  public void canCreateCustomRule_is_false_if_user_is_not_profile_administrator_of_specified_non_default_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization1);
+
+    String json = tester.newRequest()
+      .setParam("organization", organization2.getKey())
+      .execute().getInput();
+
+    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": false }");
+  }
+
+  private void insertRules() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
     db.getDbClient().ruleRepositoryDao().insert(db.getSession(), asList(repo1, repo2));
     db.getSession().commit();
+  }
 
-    when(i18n.message(isA(Locale.class), anyString(), anyString())).thenAnswer(
-      invocation -> invocation.getArguments()[1]);
-
-    tester.newGetRequest("api/rules", "app").execute().assertJson(this.getClass(), "app.json");
+  private void insertQualityProfiles(OrganizationDto organization) {
+    QualityProfileDto profile1 = QProfileTesting.newXooP1(organization);
+    QualityProfileDto profile2 = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
+    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1);
+    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile2);
+    db.commit();
   }
 }

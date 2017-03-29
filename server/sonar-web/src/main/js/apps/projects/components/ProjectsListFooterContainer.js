@@ -33,10 +33,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  loadMore: () => dispatch(fetchMoreProjects(ownProps.query, ownProps.isFavorite, ownProps.organization))
+  loadMore: () =>
+    dispatch(fetchMoreProjects(ownProps.query, ownProps.isFavorite, ownProps.organization))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProjectsListFooter);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectsListFooter);

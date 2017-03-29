@@ -25,13 +25,15 @@ export type TextRange = {
   endOffset: number
 };
 
+export type FlowLocation = {
+  msg: string,
+  textRange?: TextRange
+};
+
 export type Issue = {
   key: string,
   flows: Array<{
-    locations?: Array<{
-      msg: string,
-      textRange?: TextRange
-    }>
+    locations?: Array<FlowLocation>
   }>,
   line?: number,
   message: string,

@@ -25,12 +25,11 @@ export default Router.extend({
     ':query': 'index'
   },
 
-  home () {
+  home() {
     return this.navigate('resolved=false', { trigger: true, replace: true });
   },
 
-  index (query) {
+  index(query) {
     this.options.app.state.setQuery(this.options.app.controller.parseQuery(query));
   }
 });
-

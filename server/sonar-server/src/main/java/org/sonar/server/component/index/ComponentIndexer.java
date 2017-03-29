@@ -66,6 +66,8 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   @Override
   public void indexProject(String projectUuid, Cause cause) {
     switch (cause) {
+      case PROJECT_TAGS_UPDATE:
+        break;
       case PROJECT_CREATION:
       case PROJECT_KEY_UPDATE:
       case NEW_ANALYSIS:

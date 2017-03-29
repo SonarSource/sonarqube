@@ -20,8 +20,7 @@
 // @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
+import { groupBy, sortBy } from 'lodash';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 import { getSubCategoryName, getSubCategoryDescription } from '../utils';
@@ -32,41 +31,46 @@ export default class SubCategoryDefinitionsList extends React.Component {
     settings: React.PropTypes.array.isRequired
   };
 
-  shouldComponentUpdate (nextProps: {}, nextState: ?{}) {
+  shouldComponentUpdate(nextProps: {}, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  renderEmailForm (subCategoryKey: string) {
+  renderEmailForm(subCategoryKey: string) {
     const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';
     if (!isEmailSettings) {
       return null;
     }
-    return <EmailForm/>;
+    return <EmailForm />;
   }
 
-  render () {
+  render() {
     const bySubCategory = groupBy(this.props.settings, setting => setting.definition.subCategory);
     const subCategories = Object.keys(bySubCategory).map(key => ({
       key,
       name: getSubCategoryName(bySubCategory[key][0].definition.category, key),
       description: getSubCategoryDescription(bySubCategory[key][0].definition.category, key)
     }));
-    const sortedSubCategories = sortBy(subCategories, subCategory => subCategory.name.toLowerCase());
+    const sortedSubCategories = sortBy(subCategories, subCategory =>
+      subCategory.name.toLowerCase());
 
     return (
-        <ul className="settings-sub-categories-list">
-          {sortedSubCategories.map(subCategory => (
-              <li key={subCategory.key}>
-                <h2 className="settings-sub-category-name">{subCategory.name}</h2>
-                {subCategory.description != null && (
-                    <div className="settings-sub-category-description markdown"
-                         dangerouslySetInnerHTML={{ __html: subCategory.description }}/>
-                )}
-                <DefinitionsList settings={bySubCategory[subCategory.key]} component={this.props.component}/>
-                {this.renderEmailForm(subCategory.key)}
-              </li>
-          ))}
-        </ul>
+      <ul className="settings-sub-categories-list">
+        {sortedSubCategories.map(subCategory => (
+          <li key={subCategory.key}>
+            <h2 className="settings-sub-category-name">{subCategory.name}</h2>
+            {subCategory.description != null &&
+              <div
+                className="settings-sub-category-description markdown"
+                dangerouslySetInnerHTML={{ __html: subCategory.description }}
+              />}
+            <DefinitionsList
+              settings={bySubCategory[subCategory.key]}
+              component={this.props.component}
+            />
+            {this.renderEmailForm(subCategory.key)}
+          </li>
+        ))}
+      </ul>
     );
   }
 }

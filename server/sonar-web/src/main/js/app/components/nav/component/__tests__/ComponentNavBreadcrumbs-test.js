@@ -23,7 +23,7 @@ import { Unconnected } from '../ComponentNavBreadcrumbs';
 
 it('should not render breadcrumbs with one element', () => {
   const breadcrumbs = [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }];
-  const result = shallow(<Unconnected breadcrumbs={breadcrumbs}/>);
+  const result = shallow(<Unconnected breadcrumbs={breadcrumbs} />);
   expect(result).toMatchSnapshot();
 });
 
@@ -32,8 +32,10 @@ it('should render organization', () => {
   const organization = { key: 'foo', name: 'The Foo Organization' };
   const result = shallow(
     <Unconnected
-          breadcrumbs={breadcrumbs}
-          organization={organization}
-          shouldOrganizationBeDisplayed={true}/>);
+      breadcrumbs={breadcrumbs}
+      organization={organization}
+      shouldOrganizationBeDisplayed={true}
+    />
+  );
   expect(result).toMatchSnapshot();
 });

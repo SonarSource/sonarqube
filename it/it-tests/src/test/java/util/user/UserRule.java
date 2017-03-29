@@ -123,9 +123,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
   public void deactivateUsers(List<String> userLogins) {
     for (String userLogin : userLogins) {
       if (getUserByLogin(userLogin).isPresent()) {
-        adminWsClient().wsConnector().call(
-          new PostRequest("api/users/deactivate")
-            .setParam("login", userLogin));
+        adminWsClient().wsConnector().call(new PostRequest("api/users/deactivate").setParam("login", userLogin)).failIfNotSuccessful();
       }
     }
   }
@@ -220,8 +218,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
           .setParam("login", userLogin)
           .setParam("selected", "selected");
       addOrganizationParam(request);
-      WsResponse response = adminWsClient().wsConnector().call(request);
-      assertThat(response.code()).isEqualTo(200);
+      WsResponse response = adminWsClient().wsConnector().call(request).failIfNotSuccessful();
       return Groups.parse(response.content());
     }
 
@@ -232,8 +229,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
             .setParam("login", userLogin)
             .setParam("name", group);
         addOrganizationParam(request);
-        WsResponse response = adminWsClient().wsConnector().call(request);
-        assertThat(response.code()).isEqualTo(204);
+        adminWsClient().wsConnector().call(request).failIfNotSuccessful();
       }
     }
   }

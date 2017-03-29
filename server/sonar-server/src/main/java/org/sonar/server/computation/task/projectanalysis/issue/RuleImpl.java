@@ -123,9 +123,9 @@ public class RuleImpl implements Rule {
     if (fn != null) {
       return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(fn), dto.getRemediationGapMultiplier(), dto.getRemediationBaseEffort());
     }
-    String defaultFn = dto.getDefaultRemediationFunction();
+    String defaultFn = dto.getDefRemediationFunction();
     if (defaultFn != null) {
-      return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(defaultFn), dto.getDefaultRemediationGapMultiplier(), dto.getDefaultRemediationBaseEffort());
+      return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(defaultFn), dto.getDefRemediationGapMultiplier(), dto.getDefRemediationBaseEffort());
     }
     return null;
   }

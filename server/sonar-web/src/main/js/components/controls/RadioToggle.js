@@ -22,10 +22,12 @@ import React from 'react';
 export default class RadioToggle extends React.Component {
   static propTypes = {
     value: React.PropTypes.string,
-    options: React.PropTypes.arrayOf(React.PropTypes.shape({
-      value: React.PropTypes.string.isRequired,
-      label: React.PropTypes.string.isRequired
-    })).isRequired,
+    options: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        value: React.PropTypes.string.isRequired,
+        label: React.PropTypes.string.isRequired
+      })
+    ).isRequired,
     name: React.PropTypes.string.isRequired,
     onCheck: React.PropTypes.func.isRequired
   };
@@ -35,39 +37,40 @@ export default class RadioToggle extends React.Component {
     value: null
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.renderOption = this.renderOption.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange (e) {
+  handleChange(e) {
     const newValue = e.currentTarget.value;
     this.props.onCheck(newValue);
   }
 
-  renderOption (option) {
+  renderOption(option) {
     const checked = option.value === this.props.value;
     const htmlId = this.props.name + '__' + option.value;
     return (
-        <li key={option.value}>
-          <input
-              type="radio"
-              name={this.props.name}
-              value={option.value}
-              id={htmlId}
-              checked={checked}
-              onChange={this.handleChange}/>
+      <li key={option.value}>
+        <input
+          type="radio"
+          name={this.props.name}
+          value={option.value}
+          id={htmlId}
+          checked={checked}
+          onChange={this.handleChange}
+        />
 
-          <label htmlFor={htmlId}>{option.label}</label>
-        </li>
+        <label htmlFor={htmlId}>{option.label}</label>
+      </li>
     );
   }
 
-  render () {
+  render() {
     return (
-        <ul className="radio-toggle">
-          {this.props.options.map(this.renderOption)}
-        </ul>
+      <ul className="radio-toggle">
+        {this.props.options.map(this.renderOption)}
+      </ul>
     );
   }
 }

@@ -29,6 +29,7 @@ import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -78,6 +79,8 @@ public abstract class Action {
     DefaultIssue issue();
 
     IssueChangeContext issueChangeContext();
+
+    ComponentDto project();
   }
 
 }

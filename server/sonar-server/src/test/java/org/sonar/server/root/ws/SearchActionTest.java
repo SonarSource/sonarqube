@@ -34,11 +34,13 @@ import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsRoot;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
@@ -61,9 +63,9 @@ public class SearchActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
     assertThat(action.since()).isEqualTo("6.2");
-    assertThat(action.description()).isEqualTo("Search for root user.<br/>" +
+    assertThat(action.description()).isEqualTo("Search for root users.<br/>" +
       "Requires to be root.");
-    assertThat(action.responseExample()).isNull();
+    assertThat(action.responseExample()).isNotNull();
     assertThat(action.deprecatedKey()).isNull();
     assertThat(action.deprecatedSince()).isNull();
     assertThat(action.handler()).isSameAs(underTest);
@@ -91,6 +93,18 @@ public class SearchActionTest {
     logInAsRoot();
 
     assertThat(executeRequest()).isEmpty();
+  }
+
+  @Test
+  public void test_response_example() {
+    logInAsRoot();
+    UserDto user = UserTesting.newUserDto().setLogin("daniel").setName("Daniel").setEmail("daniel@corp.com");
+    UserDto rootDto = userDao.insert(dbSession, user);
+    userDao.setRoot(dbSession, rootDto.getLogin(), true);
+    dbSession.commit();
+
+    TestResponse response = wsTester.newRequest().setMediaType(MediaTypes.JSON).execute();
+    assertJson(response.getInput()).isSimilarTo(wsTester.getDef().responseExampleAsString());
   }
 
   @Test

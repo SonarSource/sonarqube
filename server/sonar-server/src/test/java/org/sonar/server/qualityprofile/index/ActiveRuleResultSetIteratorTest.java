@@ -19,10 +19,8 @@
  */
 package org.sonar.server.qualityprofile.index;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -53,11 +51,12 @@ public class ActiveRuleResultSetIteratorTest {
 
     ActiveRuleKey key = ActiveRuleKey.of("sonar-way", RuleKey.of("xoo", "S001"));
     ActiveRuleDoc activeRule = activeRulesByKey.get(key);
+    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(1500000000000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1600000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(1_500_000_000_000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(1_600_000_000_000L);
   }
 
   @Test
@@ -71,27 +70,30 @@ public class ActiveRuleResultSetIteratorTest {
 
     ActiveRuleKey key = ActiveRuleKey.of("sonar-way", RuleKey.of("xoo", "S002"));
     ActiveRuleDoc activeRule = activeRulesByKey.get(key);
+    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(2000000000000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(2100000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(2_000_000_000_000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(2_100_000_000_000L);
 
     key = ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001"));
     activeRule = activeRulesByKey.get(key);
+    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(INFO);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(1700000000000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1800000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(1_700_000_000_000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(1_800_000_000_000L);
 
     key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
     activeRule = activeRulesByKey.get(key);
+    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(BLOCKER);
     assertThat(activeRule.inheritance()).isEqualTo(INHERITED);
-    assertThat(activeRule.createdAt()).isEqualTo(1500000000000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1600000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(1_500_000_000_000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(1_600_000_000_000L);
   }
 
   @Test
@@ -136,16 +138,7 @@ public class ActiveRuleResultSetIteratorTest {
   }
 
   private static Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey(ActiveRuleResultSetIterator it) {
-    return Maps.uniqueIndex(it, DocToKey.INSTANCE);
-  }
-
-  private enum DocToKey implements Function<ActiveRuleDoc, ActiveRuleKey> {
-    INSTANCE;
-
-    @Override
-    public ActiveRuleKey apply(@Nonnull ActiveRuleDoc doc) {
-      return doc.key();
-    }
+    return Maps.uniqueIndex(it, ActiveRuleDoc::key);
   }
 
 }

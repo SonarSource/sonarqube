@@ -31,38 +31,37 @@ export default class TemplateHeader extends React.Component {
     topQualifiers: React.PropTypes.array.isRequired
   };
 
-  render () {
+  render() {
     const { template, organization } = this.props;
 
-    const pathname = organization ?
-        `/organizations/${organization.key}/permission_templates` :
-        '/permission_templates';
+    const pathname = organization
+      ? `/organizations/${organization.key}/permission_templates`
+      : '/permission_templates';
 
     return (
-        <header id="project-permissions-header" className="page-header">
-          <div className="note spacer-bottom">
-            <Link to={pathname} className="text-muted">
-              {translate('permission_templates.page')}
-            </Link>
-          </div>
+      <header id="project-permissions-header" className="page-header">
+        <div className="note spacer-bottom">
+          <Link to={pathname} className="text-muted">
+            {translate('permission_templates.page')}
+          </Link>
+        </div>
 
-          <h1 className="page-title">
-            {template.name}
-          </h1>
+        <h1 className="page-title">
+          {template.name}
+        </h1>
 
-          {this.props.loading && (
-              <i className="spinner"/>
-          )}
+        {this.props.loading && <i className="spinner" />}
 
-          <div className="pull-right">
-            <ActionsCell
-                organization={this.props.organization}
-                permissionTemplate={this.props.template}
-                topQualifiers={this.props.topQualifiers}
-                refresh={this.props.refresh}
-                fromDetails={true}/>
-          </div>
-        </header>
+        <div className="pull-right">
+          <ActionsCell
+            organization={this.props.organization}
+            permissionTemplate={this.props.template}
+            topQualifiers={this.props.topQualifiers}
+            refresh={this.props.refresh}
+            fromDetails={true}
+          />
+        </div>
+      </header>
     );
   }
 }

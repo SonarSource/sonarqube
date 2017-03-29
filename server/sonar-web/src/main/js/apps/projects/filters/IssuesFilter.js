@@ -19,35 +19,54 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
+import FilterHeader from './FilterHeader';
+import SortingFilter from './SortingFilter';
 import Rating from '../../../components/ui/Rating';
 
-export default class IssuesFilter extends React.Component {
-  renderOption = (option, selected) => {
+export default class IssuesFilter extends React.PureComponent {
+  static propTypes = {
+    property: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
+  };
+
+  renderOption(option, selected) {
     return (
-        <span>
-          <Rating value={option} small={true} muted={!selected}/>
-          {option > 1 && option < 5 && (
-              <span className="note spacer-left">and worse</span>
-          )}
-        </span>
+      <span>
+        <Rating value={option} small={true} muted={!selected} />
+        {option > 1 && option < 5 && <span className="note spacer-left">and worse</span>}
+      </span>
     );
-  };
+  }
 
-  getFacetValueForOption = (facet, option) => {
+  getFacetValueForOption(facet, option) {
     return facet[option];
-  };
+  }
 
-  render () {
+  render() {
     return (
-        <FilterContainer
-            property={this.props.property}
-            getOptions={() => [1, 2, 3, 4, 5]}
-            renderName={() => this.props.name}
-            renderOption={this.renderOption}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <FilterContainer
+        property={this.props.property}
+        options={[1, 2, 3, 4, 5]}
+        query={this.props.query}
+        renderOption={this.renderOption}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={
+          <FilterHeader name={this.props.name}>
+            <SortingFilter
+              property={this.props.property}
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+            />
+          </FilterHeader>
+        }
+      />
     );
   }
 }

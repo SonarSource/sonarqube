@@ -29,30 +29,36 @@ export default class SimpleContainer extends React.Component {
     ])
   };
 
-  componentDidMount () {
-    document.querySelector('html').classList.add('dashboard-page');
+  componentDidMount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
   }
 
-  componentWillUnmount () {
-    document.querySelector('html').classList.remove('dashboard-page');
+  componentWillUnmount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
   }
 
-  render () {
+  render() {
     return (
-        <div className="global-container">
-          <div className="page-wrapper page-wrapper-global" id="container">
-            <nav className="navbar navbar-global page-container" id="global-navigation">
-              <div className="navbar-header"/>
-            </nav>
+      <div className="global-container">
+        <div className="page-wrapper page-wrapper-global" id="container">
+          <nav className="navbar navbar-global page-container" id="global-navigation">
+            <div className="navbar-header" />
+          </nav>
 
-            <div id="bd" className="page-wrapper-simple">
-              <div id="nonav" className="page-simple">
-                {this.props.children}
-              </div>
+          <div id="bd" className="page-wrapper-simple">
+            <div id="nonav" className="page-simple">
+              {this.props.children}
             </div>
           </div>
-          <GlobalFooter/>
         </div>
+        <GlobalFooter />
+      </div>
     );
   }
 }

@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.users;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "WsUsers";
 option optimize_for = SPEED;
@@ -48,3 +50,18 @@ message CreateWsResponse {
     optional bool local = 6;
   }
 }
+
+// WS api/users/groups
+message GroupsWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Group groups = 2;
+
+  message Group {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional string description = 3;
+    optional bool selected = 4;
+  }
+}
+
+

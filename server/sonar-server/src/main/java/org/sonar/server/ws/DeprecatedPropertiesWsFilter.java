@@ -57,6 +57,7 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 public class DeprecatedPropertiesWsFilter extends ServletFilter {
 
   private static final Splitter VALUE_SPLITTER = Splitter.on(",").omitEmptyStrings();
+  private static final String SEPARATOR = "/";
 
   private final WebServiceEngine webServiceEngine;
 
@@ -67,7 +68,7 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
   @Override
   public UrlPattern doGetPattern() {
     return UrlPattern.builder()
-      .includes("/" + CONTROLLER_PROPERTIES + "/*")
+      .includes(SEPARATOR + CONTROLLER_PROPERTIES + "/*")
       .build();
   }
 
@@ -181,10 +182,10 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
     }
 
     private Optional<String> getKey() {
-      if (originalPath.equals("/" + CONTROLLER_PROPERTIES)) {
+      if (originalPath.equals(SEPARATOR + CONTROLLER_PROPERTIES)) {
         return Optional.empty();
       }
-      String key = originalPath.replace("/" + CONTROLLER_PROPERTIES + "/", "");
+      String key = originalPath.replace(SEPARATOR + CONTROLLER_PROPERTIES + SEPARATOR, "");
       return key.isEmpty() ? Optional.empty() : Optional.of(key);
     }
 
@@ -229,14 +230,14 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
         additionalMultiParams.putAll(PARAM_VALUES, values);
       }
       addParameterIfPresent(PARAM_COMPONENT, component);
-      redirectedPath = CONTROLLER_SETTINGS + "/" + ACTION_SET;
+      redirectedPath = CONTROLLER_SETTINGS + SEPARATOR + ACTION_SET;
       redirectedMethod = "POST";
     }
 
     private void redirectToReset(Optional<String> key, Optional<String> component) {
       addParameterIfPresent(PARAM_KEYS, key);
       addParameterIfPresent(PARAM_COMPONENT, component);
-      redirectedPath = CONTROLLER_SETTINGS + "/" + ACTION_RESET;
+      redirectedPath = CONTROLLER_SETTINGS + SEPARATOR + ACTION_RESET;
       redirectedMethod = "POST";
     }
 

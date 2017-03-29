@@ -40,73 +40,73 @@ export default Marionette.ItemView.extend({
     'click .js-user-tokens': 'onTokensClick'
   },
 
-  initialize () {
+  initialize() {
     this.scmLimit = 3;
     this.groupsLimit = 3;
   },
 
-  onRender () {
+  onRender() {
     this.$el.attr('data-login', this.model.id);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy () {
+  onDestroy() {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onMoreScmClick (e) {
+  onMoreScmClick(e) {
     e.preventDefault();
     this.showMoreScm();
   },
 
-  onMoreGroupsClick (e) {
+  onMoreGroupsClick(e) {
     e.preventDefault();
     this.showMoreGroups();
   },
 
-  onUpdateClick (e) {
+  onUpdateClick(e) {
     e.preventDefault();
     this.updateUser();
   },
 
-  onChangePasswordClick (e) {
+  onChangePasswordClick(e) {
     e.preventDefault();
     this.changePassword();
   },
 
-  onDeactivateClick (e) {
+  onDeactivateClick(e) {
     e.preventDefault();
     this.deactivateUser();
   },
 
-  onGroupsClick (e) {
+  onGroupsClick(e) {
     e.preventDefault();
     this.showGroups();
   },
 
-  onTokensClick (e) {
+  onTokensClick(e) {
     e.preventDefault();
     this.showTokens();
   },
 
-  showMoreScm () {
+  showMoreScm() {
     this.scmLimit = 10000;
     this.render();
   },
 
-  showMoreGroups () {
+  showMoreGroups() {
     this.groupsLimit = 10000;
     this.render();
   },
 
-  updateUser () {
+  updateUser() {
     new UpdateView({
       model: this.model,
       collection: this.model.collection
     }).render();
   },
 
-  changePassword () {
+  changePassword() {
     new ChangePasswordView({
       model: this.model,
       collection: this.model.collection,
@@ -114,19 +114,19 @@ export default Marionette.ItemView.extend({
     }).render();
   },
 
-  deactivateUser () {
+  deactivateUser() {
     new DeactivateView({ model: this.model }).render();
   },
 
-  showGroups () {
+  showGroups() {
     new GroupsView({ model: this.model }).render();
   },
 
-  showTokens () {
+  showTokens() {
     new TokensView({ model: this.model }).render();
   },
 
-  serializeData () {
+  serializeData() {
     const scmAccounts = this.model.get('scmAccounts');
     const scmAccountsLimit = scmAccounts.length > this.scmLimit ? this.scmLimit - 1 : this.scmLimit;
 
@@ -134,8 +134,9 @@ export default Marionette.ItemView.extend({
     const groupsLimit = groups.length > this.groupsLimit ? this.groupsLimit - 1 : this.groupsLimit;
 
     const externalProvider = this.model.get('externalProvider');
-    const identityProvider = this.model.get('local') ? null :
-        this.options.providers.find(provider => externalProvider === provider.key);
+    const identityProvider = this.model.get('local')
+      ? null
+      : this.options.providers.find(provider => externalProvider === provider.key);
 
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
@@ -148,4 +149,3 @@ export default Marionette.ItemView.extend({
     };
   }
 });
-

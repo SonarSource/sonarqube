@@ -22,8 +22,7 @@ package org.sonar.server.ws;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.Paging;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.user.UserDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonarqube.ws.Common;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -43,7 +42,7 @@ public class WsResponseCommonFormat {
       .setTotal(paging.total());
   }
 
-  public Common.Rule.Builder formatRule(RuleDto rule) {
+  public Common.Rule.Builder formatRule(RuleDefinitionDto rule) {
     Common.Rule.Builder builder = Common.Rule.newBuilder()
       .setKey(rule.getKey().toString())
       .setName(nullToEmpty(rule.getName()))
@@ -57,11 +56,4 @@ public class WsResponseCommonFormat {
     return builder;
   }
 
-  public Common.User.Builder formatUser(UserDto user) {
-    return Common.User.newBuilder()
-      .setLogin(user.getLogin())
-      .setName(nullToEmpty(user.getName()))
-      .setEmail(nullToEmpty(user.getEmail()))
-      .setActive(user.isActive());
-  }
 }

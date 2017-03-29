@@ -19,17 +19,18 @@
  */
 import React from 'react';
 
-export default function IconBubbles () {
+export default function IconBubbles() {
   /* eslint max-len: 0 */
   return (
-      <svg className="measure-tab-icon"
-           viewBox="0 0 512 448"
-           fillRule="evenodd"
-           clipRule="evenodd"
-           strokeLinejoin="round"
-           strokeMiterlimit="1.414">
-        <path
-            d="M352 256c52.984 0 96 43.016 96 96s-43.016 96-96 96-96-43.016-96-96 43.016-96 96-96zM128 96c70.645 0 128 57.355 128 128 0 70.645-57.355 128-128 128C57.355 352 0 294.645 0 224 0 153.355 57.355 96 128 96zM352 0c52.984 0 96 43.016 96 96s-43.016 96-96 96-96-43.016-96-96 43.016-96 96-96z"/>
-      </svg>
+    <svg
+      className="measure-tab-icon"
+      viewBox="0 0 512 448"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      strokeLinejoin="round"
+      strokeMiterlimit="1.414"
+    >
+      <path d="M352 256c52.984 0 96 43.016 96 96s-43.016 96-96 96-96-43.016-96-96 43.016-96 96-96zM128 96c70.645 0 128 57.355 128 128 0 70.645-57.355 128-128 128C57.355 352 0 294.645 0 224 0 153.355 57.355 96 128 96zM352 0c52.984 0 96 43.016 96 96s-43.016 96-96 96-96-43.016-96-96 43.016-96 96-96z" />
+    </svg>
   );
 }

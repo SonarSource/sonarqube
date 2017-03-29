@@ -27,15 +27,14 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface UserPermissionMapper {
 
-  List<UserPermissionDto> selectByQuery(@Param("organizationUuid") String organizationUuid,
-    @Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
+  List<UserPermissionDto> selectByQuery(@Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
 
   /**
-   * Count the number of distinct users returned by {@link #selectByQuery(String, PermissionQuery, Collection, RowBounds)}
+   * Count the number of distinct users returned by {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
    * {@link PermissionQuery#getPageOffset()} and {@link PermissionQuery#getPageSize()} are ignored.
    *
    * @param useNull must always be null. It is needed for using the sql of 
-   * {@link #selectByQuery(String, PermissionQuery, Collection, RowBounds)}
+   * {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
    */
   int countUsersByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query,
     @Nullable @Param("userLogins") Collection<String> useNull);
@@ -61,4 +60,6 @@ public interface UserPermissionMapper {
   List<String> selectProjectPermissionsOfUser(@Param("userId") int userId, @Param("projectId") long projectId);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
+
+  void deleteOrganizationMemberPermissions(@Param("organizationUuid") String organizationUuid, @Param("userId") int login);
 }

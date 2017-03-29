@@ -19,14 +19,11 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -40,58 +37,29 @@ public class QProfileLookup {
     this.db = db;
   }
 
-  public List<QProfile> allProfiles(DbSession dbSession) {
-    return toQProfiles(db.qualityProfileDao().selectAll(dbSession));
+  public List<QualityProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
+    return db.qualityProfileDao().selectAll(dbSession, organization);
   }
 
-  public List<QProfile> profiles(DbSession dbSession, String language) {
-    return toQProfiles(db.qualityProfileDao().selectByLanguage(dbSession, language));
+  public List<QualityProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {
+    return db.qualityProfileDao().selectByLanguage(dbSession, organization, language);
   }
 
-  @CheckForNull
-  public QProfile profile(String name, String language) {
-    try (DbSession dbSession = db.openSession(false)) {
-      QualityProfileDto dto = findQualityProfile(name, language, dbSession);
-      if (dto != null) {
-        return QProfile.from(dto);
-      }
-      return null;
-    }
-  }
-
-  public List<QProfile> ancestors(QualityProfileDto profile, DbSession session) {
-    List<QProfile> ancestors = newArrayList();
-    incrementAncestors(QProfile.from(profile), ancestors, session);
+  public List<QualityProfileDto> ancestors(QualityProfileDto profile, DbSession session) {
+    List<QualityProfileDto> ancestors = newArrayList();
+    incrementAncestors(profile, ancestors, session);
     return ancestors;
   }
 
-  private void incrementAncestors(QProfile profile, List<QProfile> ancestors, DbSession session) {
-    if (profile.parent() != null) {
-      QualityProfileDto parentDto = db.qualityProfileDao().selectParentById(session, profile.id());
+  private void incrementAncestors(QualityProfileDto profile, List<QualityProfileDto> ancestors, DbSession session) {
+    if (profile.getParentKee() != null) {
+      QualityProfileDto parentDto = db.qualityProfileDao().selectByKey(session, profile.getParentKee());
       if (parentDto == null) {
-        throw new IllegalStateException("Cannot find parent of profile : " + profile.id());
+        throw new IllegalStateException("Cannot find parent of profile : " + profile.getId());
       }
-      QProfile parent = QProfile.from(parentDto);
-      ancestors.add(parent);
-      incrementAncestors(parent, ancestors, session);
+      ancestors.add(parentDto);
+      incrementAncestors(parentDto, ancestors, session);
     }
   }
 
-  private static List<QProfile> toQProfiles(List<QualityProfileDto> dtos) {
-    return newArrayList(Iterables.transform(dtos, ToQProfile.INSTANCE));
-  }
-
-  @CheckForNull
-  private QualityProfileDto findQualityProfile(String name, String language, DbSession session) {
-    return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
-  }
-
-  private enum ToQProfile implements Function<QualityProfileDto, QProfile> {
-    INSTANCE;
-
-    @Override
-    public QProfile apply(@Nonnull QualityProfileDto input) {
-      return QProfile.from(input);
-    }
-  }
 }

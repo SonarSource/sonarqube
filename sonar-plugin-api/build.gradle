@@ -12,8 +12,6 @@ dependencies {
   // shaded, but not relocated
   compile project(':sonar-check-api')
   // TODO exclusions
-  compile project(':sonar-colorizer')
-  // TODO exclusions
   compile project(':sonar-duplications')
 
   // TODO not shaded

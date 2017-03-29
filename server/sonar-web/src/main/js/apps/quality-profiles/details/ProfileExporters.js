@@ -25,40 +25,40 @@ export default class ProfileExporters extends React.Component {
     exporters: React.PropTypes.array.isRequired
   };
 
-  getExportUrl (exporter) {
-    return window.baseUrl + '/api/qualityprofiles/export' +
-        '?exporterKey=' + encodeURIComponent(exporter.key) +
-        '&language=' + encodeURIComponent(this.props.profile.language) +
-        '&name=' + encodeURIComponent(this.props.profile.name);
+  getExportUrl(exporter) {
+    return window.baseUrl +
+      '/api/qualityprofiles/export' +
+      '?exporterKey=' +
+      encodeURIComponent(exporter.key) +
+      '&language=' +
+      encodeURIComponent(this.props.profile.language) +
+      '&name=' +
+      encodeURIComponent(this.props.profile.name);
   }
 
-  render () {
+  render() {
     const { exporters, profile } = this.props;
-    const exportersForLanguage = exporters.filter(e => (
-        e.languages.includes(profile.language)
-    ));
+    const exportersForLanguage = exporters.filter(e => e.languages.includes(profile.language));
 
     if (exportersForLanguage.length === 0) {
       return null;
     }
 
     return (
-        <div className="quality-profile-box quality-profile-exporters">
-          <header className="big-spacer-bottom">
-            <h2>{translate('quality_profiles.exporters')}</h2>
-          </header>
-          <ul>
-            {exportersForLanguage.map(exporter => (
-                <li key={exporter.key}
-                    data-key={exporter.key}
-                    className="spacer-top">
-                  <a href={this.getExportUrl(exporter)} target="_blank">
-                    {exporter.name}
-                  </a>
-                </li>
-            ))}
-          </ul>
-        </div>
+      <div className="quality-profile-box quality-profile-exporters">
+        <header className="big-spacer-bottom">
+          <h2>{translate('quality_profiles.exporters')}</h2>
+        </header>
+        <ul>
+          {exportersForLanguage.map(exporter => (
+            <li key={exporter.key} data-key={exporter.key} className="spacer-top">
+              <a href={this.getExportUrl(exporter)} target="_blank">
+                {exporter.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 }

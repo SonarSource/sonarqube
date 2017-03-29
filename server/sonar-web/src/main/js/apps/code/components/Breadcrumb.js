@@ -21,10 +21,7 @@ import React from 'react';
 import ComponentName from './ComponentName';
 
 const Breadcrumb = ({ rootComponent, component, canBrowse }) => (
-    <ComponentName
-        rootComponent={rootComponent}
-        component={component}
-        canBrowse={canBrowse}/>
+  <ComponentName rootComponent={rootComponent} component={component} canBrowse={canBrowse} />
 );
 
 export default Breadcrumb;

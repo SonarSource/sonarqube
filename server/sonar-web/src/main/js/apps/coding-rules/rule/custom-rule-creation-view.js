@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 export default ModalFormView.extend({
   template: Template,
 
-  ui () {
+  ui() {
     return {
       ...ModalFormView.prototype.ui.apply(this, arguments),
       customRuleCreationKey: '#coding-rules-custom-rule-creation-key',
@@ -42,7 +42,7 @@ export default ModalFormView.extend({
     };
   },
 
-  events () {
+  events() {
     return {
       ...ModalFormView.prototype.events.apply(this, arguments),
       'input @ui.customRuleCreationName': 'generateKey',
@@ -59,31 +59,36 @@ export default ModalFormView.extend({
     };
   },
 
-  generateKey () {
+  generateKey() {
     if (!this.keyModifiedByUser && this.ui.customRuleCreationKey) {
-      const generatedKey = latinize(this.ui.customRuleCreationName.val()).replace(/[^A-Za-z0-9]/g, '_');
+      const generatedKey = latinize(this.ui.customRuleCreationName.val()).replace(
+        /[^A-Za-z0-9]/g,
+        '_'
+      );
       this.ui.customRuleCreationKey.val(generatedKey);
     }
   },
 
-  flagKey () {
+  flagKey() {
     this.keyModifiedByUser = true;
   },
 
-  onRender () {
+  onRender() {
     ModalFormView.prototype.onRender.apply(this, arguments);
 
     this.keyModifiedByUser = false;
 
-    const format = function (state) {
+    const format = function(state) {
       if (!state.id) {
         return state.text;
       } else {
         return `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}`;
       }
     };
-    const severity = (this.model && this.model.get('severity')) || this.options.templateRule.get('severity');
-    const status = (this.model && this.model.get('status')) || this.options.templateRule.get('status');
+    const severity = (this.model && this.model.get('severity')) ||
+      this.options.templateRule.get('severity');
+    const status = (this.model && this.model.get('status')) ||
+      this.options.templateRule.get('status');
 
     this.ui.customRuleCreationSeverity.val(severity);
     this.ui.customRuleCreationSeverity.select2({
@@ -100,9 +105,9 @@ export default ModalFormView.extend({
     });
   },
 
-  create (e) {
+  create(e) {
     e.preventDefault();
-    const action = (this.model && this.model.has('key')) ? 'update' : 'create';
+    const action = this.model && this.model.has('key') ? 'update' : 'create';
     const options = {
       name: this.ui.customRuleCreationName.val(),
       markdown_description: this.ui.customRuleCreationHtmlDescription.val(),
@@ -118,22 +123,24 @@ export default ModalFormView.extend({
         prevent_reactivation: true
       });
     }
-    const params = this.ui.customRuleCreationParameters.map(function () {
-      const node = $(this);
-      let value = node.val();
-      if (!value && action === 'create') {
-        value = node.prop('placeholder') || '';
-      }
-      return {
-        key: node.prop('name'),
-        value
-      };
-    }).get();
+    const params = this.ui.customRuleCreationParameters
+      .map(function() {
+        const node = $(this);
+        let value = node.val();
+        if (!value && action === 'create') {
+          value = node.prop('placeholder') || '';
+        }
+        return {
+          key: node.prop('name'),
+          value
+        };
+      })
+      .get();
     options.params = params.map(param => param.key + '=' + csvEscape(param.value)).join(';');
     this.sendRequest(action, options);
   },
 
-  reactivate () {
+  reactivate() {
     const options = {
       name: this.existingRule.name,
       markdown_description: this.existingRule.mdDesc,
@@ -148,7 +155,7 @@ export default ModalFormView.extend({
     this.sendRequest('create', options);
   },
 
-  sendRequest (action, options) {
+  sendRequest(action, options) {
     this.$('.alert').addClass('hidden');
     const that = this;
     const url = window.baseUrl + '/api/rules/' + action;
@@ -160,26 +167,28 @@ export default ModalFormView.extend({
         // do not show global error
         400: null
       }
-    }).done(() => {
-      if (that.options.templateRule) {
-        that.options.app.controller.showDetails(that.options.templateRule);
-      } else {
-        that.options.app.controller.showDetails(that.model);
-      }
-      that.destroy();
-    }).fail(jqXHR => {
-      if (jqXHR.status === 409) {
-        that.existingRule = jqXHR.responseJSON.rule;
-        that.showErrors([], [{ msg: translate('coding_rules.reactivate.help') }]);
-        that.ui.customRuleCreationCreate.addClass('hidden');
-        that.ui.customRuleCreationReactivate.removeClass('hidden');
-      } else {
-        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-      }
-    });
+    })
+      .done(() => {
+        if (that.options.templateRule) {
+          that.options.app.controller.showDetails(that.options.templateRule);
+        } else {
+          that.options.app.controller.showDetails(that.model);
+        }
+        that.destroy();
+      })
+      .fail(jqXHR => {
+        if (jqXHR.status === 409) {
+          that.existingRule = jqXHR.responseJSON.rule;
+          that.showErrors([], [{ msg: translate('coding_rules.reactivate.help') }]);
+          that.ui.customRuleCreationCreate.addClass('hidden');
+          that.ui.customRuleCreationReactivate.removeClass('hidden');
+        } else {
+          that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+        }
+      });
   },
 
-  serializeData () {
+  serializeData() {
     let params = {};
     if (this.options.templateRule) {
       params = this.options.templateRule.get('params');

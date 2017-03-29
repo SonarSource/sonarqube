@@ -18,24 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import omitBy from 'lodash/omitBy';
-import isNil from 'lodash/isNil';
 import Filter from './Filter';
-import { getProjectsAppFacetByProperty, getProjectsAppMaxFacetValue } from '../../../store/rootReducer';
+import {
+  getProjectsAppFacetByProperty,
+  getProjectsAppMaxFacetValue
+} from '../../../store/rootReducer';
 
 const mapStateToProps = (state, ownProps) => ({
   value: ownProps.query[ownProps.property],
   facet: getProjectsAppFacetByProperty(state, ownProps.property),
-  maxFacetValue: getProjectsAppMaxFacetValue(state),
-  getFilterUrl: part => {
-    const basePathName = ownProps.organization ?
-        `/organizations/${ownProps.organization.key}/projects` :
-        '/projects';
-    const pathname = basePathName + (ownProps.isFavorite ? '/favorite' : '');
-    const query = omitBy({ ...ownProps.query, ...part }, isNil);
-    return { pathname, query };
-  }
+  maxFacetValue: getProjectsAppMaxFacetValue(state)
 });
-
-export default connect(mapStateToProps)(withRouter(Filter));
+export default connect(mapStateToProps)(Filter);

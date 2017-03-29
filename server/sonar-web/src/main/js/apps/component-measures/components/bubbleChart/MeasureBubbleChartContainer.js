@@ -32,7 +32,4 @@ const mapDispatchToProps = () => {
   return {};
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MeasureBubbleChart);
+export default connect(mapStateToProps, mapDispatchToProps)(MeasureBubbleChart);

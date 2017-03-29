@@ -44,7 +44,7 @@ export default class PrimitiveInput extends React.Component {
     onChange: React.PropTypes.func.isRequired
   };
 
-  render () {
+  render() {
     const { setting, value, onChange, ...other } = this.props;
     const { definition } = setting;
 
@@ -52,24 +52,26 @@ export default class PrimitiveInput extends React.Component {
 
     if (definition.type === types.TYPE_SINGLE_SELECT_LIST) {
       return (
-          <InputForSingleSelectList
-              name={name}
-              value={value}
-              isDefault={isDefaultOrInherited(setting)}
-              options={definition.options}
-              onChange={onChange}
-              {...other}/>
+        <InputForSingleSelectList
+          name={name}
+          value={value}
+          isDefault={isDefaultOrInherited(setting)}
+          options={definition.options}
+          onChange={onChange}
+          {...other}
+        />
       );
     }
 
     const InputComponent = typeMapping[definition.type] || InputForString;
     return (
-        <InputComponent
-            name={name}
-            value={value}
-            isDefault={isDefaultOrInherited(setting)}
-            onChange={onChange}
-            {...other}/>
+      <InputComponent
+        name={name}
+        value={value}
+        isDefault={isDefaultOrInherited(setting)}
+        onChange={onChange}
+        {...other}
+      />
     );
   }
 }

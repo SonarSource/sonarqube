@@ -20,105 +20,106 @@
 import React from 'react';
 
 export default class WildcardsHelp extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="huge-spacer-top">
-          <h2 className="spacer-bottom">Wildcards</h2>
-          <p className="spacer-bottom">Following rules are applied:</p>
+      <div className="huge-spacer-top">
+        <h2 className="spacer-bottom">Wildcards</h2>
+        <p className="spacer-bottom">Following rules are applied:</p>
 
-          <table className="data spacer-bottom">
-            <tbody>
-              <tr>
-                <td>*</td>
-                <td>Match zero or more characters</td>
-              </tr>
-              <tr>
-                <td>**</td>
-                <td>Match zero or more directories</td>
-              </tr>
-              <tr>
-                <td>?</td>
-                <td>Match a single character</td>
-              </tr>
-            </tbody>
-          </table>
+        <table className="data spacer-bottom">
+          <tbody>
+            <tr>
+              <td>*</td>
+              <td>Match zero or more characters</td>
+            </tr>
+            <tr>
+              <td>**</td>
+              <td>Match zero or more directories</td>
+            </tr>
+            <tr>
+              <td>?</td>
+              <td>Match a single character</td>
+            </tr>
+          </tbody>
+        </table>
 
-          <table className="data zebra">
-            <thead>
-              <tr>
-                <th>Example</th>
-                <th>Matches</th>
-                <th>Does not match</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>**/foo/*.js</td>
-                <td>
-                  <ul>
-                    <li>src/foo/bar.js</li>
-                    <li>lib/ui/foo/bar.js</li>
-                  </ul>
-                </td>
-                <td>
-                  <ul>
-                    <li>src/bar.js</li>
-                    <li>src/foo2/bar.js</li>
-                  </ul>
-                </td>
-              </tr>
-              <tr>
-                <td>src/foo/*bar*.js</td>
-                 <td>
-                   <ul>
-                     <li>src/foo/bar.js</li>
-                     <li>src/foo/bar1.js</li>
-                     <li>src/foo/bar123.js</li>
-                     <li>src/foo/123bar123.js</li>
-                   </ul>
-                 </td>
-                 <td>
-                   <ul>
-                     <li>src/foo/ui/bar.js</li>
-                     <li>src/bar.js</li>
-                   </ul>
-                 </td>
-               </tr>
-               <tr>
-                 <td>src/foo/**</td>
-                 <td>
-                   <ul>
-                     <li>src/foo/bar.js</li>
-                     <li>src/foo/ui/bar.js</li>
-                   </ul>
-                 </td>
-                 <td>
-                   <ul>
-                     <li>src/bar/foo/bar.js</li>
-                     <li>src/bar.js</li>
-                   </ul>
-                 </td>
-               </tr>
-               <tr>
-                 <td>**/foo?.js
-                </td>
-                <td>
-                  <ul>
-                    <li>src/foo1.js</li>
-                    <li>src/bar/foo1.js</li>
-                  </ul>
-                </td>
-                <td>
-                  <ul>
-                    <li>src/foo.js</li>
-                    <li>src/foo12.js</li>
-                    <li>src/12foo3.js</li>
-                  </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table className="data zebra">
+          <thead>
+            <tr>
+              <th>Example</th>
+              <th>Matches</th>
+              <th>Does not match</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>**/foo/*.js</td>
+              <td>
+                <ul>
+                  <li>src/foo/bar.js</li>
+                  <li>lib/ui/foo/bar.js</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>src/bar.js</li>
+                  <li>src/foo2/bar.js</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>src/foo/*bar*.js</td>
+              <td>
+                <ul>
+                  <li>src/foo/bar.js</li>
+                  <li>src/foo/bar1.js</li>
+                  <li>src/foo/bar123.js</li>
+                  <li>src/foo/123bar123.js</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>src/foo/ui/bar.js</li>
+                  <li>src/bar.js</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>src/foo/**</td>
+              <td>
+                <ul>
+                  <li>src/foo/bar.js</li>
+                  <li>src/foo/ui/bar.js</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>src/bar/foo/bar.js</li>
+                  <li>src/bar.js</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                **/foo?.js
+              </td>
+              <td>
+                <ul>
+                  <li>src/foo1.js</li>
+                  <li>src/bar/foo1.js</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>src/foo.js</li>
+                  <li>src/foo12.js</li>
+                  <li>src/12foo3.js</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

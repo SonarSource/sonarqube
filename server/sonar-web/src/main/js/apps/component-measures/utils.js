@@ -19,27 +19,28 @@
  */
 import bubbles from './config/bubbles';
 import {
-    formatMeasure,
-    formatMeasureVariation,
-    getRatingTooltip as nextGetRatingTooltip
+  formatMeasure,
+  formatMeasureVariation,
+  getRatingTooltip as nextGetRatingTooltip
 } from '../../helpers/measures';
 
-export function isDiffMetric (metric) {
+export function isDiffMetric(metric) {
   return metric.key.indexOf('new_') === 0;
 }
 
-export function getLeakValue (measure, periodIndex = 1) {
+export function getLeakValue(measure, periodIndex = 1) {
   if (!measure) {
     return null;
   }
 
-  const period = measure.periods ?
-      measure.periods.find(period => period.index === periodIndex) : null;
+  const period = measure.periods
+    ? measure.periods.find(period => period.index === periodIndex)
+    : null;
 
   return period ? period.value : null;
 }
 
-export function getSingleMeasureValue (measures) {
+export function getSingleMeasureValue(measures) {
   if (!measures || !measures.length) {
     return null;
   }
@@ -47,20 +48,21 @@ export function getSingleMeasureValue (measures) {
   return measures[0].value;
 }
 
-export function getSingleLeakValue (measures, periodIndex = 1) {
+export function getSingleLeakValue(measures, periodIndex = 1) {
   if (!measures || !measures.length) {
     return null;
   }
 
   const measure = measures[0];
 
-  const period = measure.periods ?
-      measure.periods.find(period => period.index === periodIndex) : null;
+  const period = measure.periods
+    ? measure.periods.find(period => period.index === periodIndex)
+    : null;
 
   return period ? period.value : null;
 }
 
-export function formatLeak (value, metric) {
+export function formatLeak(value, metric) {
   if (isDiffMetric(metric)) {
     return formatMeasure(value, metric.type);
   } else {
@@ -68,8 +70,8 @@ export function formatLeak (value, metric) {
   }
 }
 
-export function enhanceWithLeak (measures, periodIndex = 1) {
-  function enhanceSingle (measure) {
+export function enhanceWithLeak(measures, periodIndex = 1) {
+  function enhanceSingle(measure) {
     return { ...measure, leak: getLeakValue(measure, periodIndex) };
   }
 
@@ -80,45 +82,43 @@ export function enhanceWithLeak (measures, periodIndex = 1) {
   }
 }
 
-export function enhanceWithSingleMeasure (components, periodIndex = 1) {
-  return components
-      .map(component => {
-        return {
-          ...component,
-          value: getSingleMeasureValue(component.measures),
-          leak: getSingleLeakValue(component.measures, periodIndex)
-        };
-      });
+export function enhanceWithSingleMeasure(components, periodIndex = 1) {
+  return components.map(component => {
+    return {
+      ...component,
+      value: getSingleMeasureValue(component.measures),
+      leak: getSingleLeakValue(component.measures, periodIndex)
+    };
+  });
 }
 
-export function enhanceWithMeasure (components, metric, periodIndex = 1) {
-  return components
-      .map(component => {
-        const measuresWithLeak = enhanceWithLeak(component.measures, periodIndex);
-        const measure = measuresWithLeak.find(measure => measure.metric === metric);
-        const value = measure ? measure.value : null;
-        const leak = measure ? measure.leak : null;
-        return { ...component, value, leak, measures: measuresWithLeak };
-      });
+export function enhanceWithMeasure(components, metric, periodIndex = 1) {
+  return components.map(component => {
+    const measuresWithLeak = enhanceWithLeak(component.measures, periodIndex);
+    const measure = measuresWithLeak.find(measure => measure.metric === metric);
+    const value = measure ? measure.value : null;
+    const leak = measure ? measure.leak : null;
+    return { ...component, value, leak, measures: measuresWithLeak };
+  });
 }
 
-export function hasHistory (metricKey) {
+export function hasHistory(metricKey) {
   return metricKey.indexOf('new_') !== 0;
 }
 
-export function hasBubbleChart (domainName) {
+export function hasBubbleChart(domainName) {
   return !!bubbles[domainName];
 }
 
-export function hasTreemap (metric) {
+export function hasTreemap(metric) {
   return ['PERCENT', 'RATING', 'LEVEL'].indexOf(metric.type) !== -1;
 }
 
-export function filterOutEmptyMeasures (components) {
+export function filterOutEmptyMeasures(components) {
   return components.filter(component => component.value !== null || component.leak !== null);
 }
 
-export function getRatingTooltip (metricKey, value) {
+export function getRatingTooltip(metricKey, value) {
   const finalMetricKey = metricKey.indexOf('new_') === 0 ? metricKey.substr(4) : metricKey;
   const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
   if (KNOWN_RATINGS.includes(finalMetricKey)) {

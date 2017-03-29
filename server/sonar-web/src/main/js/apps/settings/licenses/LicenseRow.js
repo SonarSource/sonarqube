@@ -29,43 +29,44 @@ export default class LicenseRow extends React.Component {
     setLicense: React.PropTypes.func.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleSet (value) {
-    return this.props.setLicense(this.props.license.key, value).catch(() => { /* do nothing */ });
+  handleSet(value) {
+    return this.props.setLicense(this.props.license.key, value).catch(() => {
+      /* do nothing */
+    });
   }
 
-  render () {
+  render() {
     const { license } = this.props;
 
     return (
-        <tr className="js-license" data-license-key={license.key}>
-          <td className="text-middle"><LicenseStatus license={license}/></td>
-          <td className="js-product text-middle">
-            <div className={license.invalidProduct ? 'text-danger' : null}>
-              {license.name || license.key}
-            </div>
-          </td>
-          <td className="js-organization text-middle">{license.organization}</td>
-          <td className="js-expiration text-middle">
-            {license.expiration != null && (
-                <div className={license.invalidExpiration ? 'text-danger' : null}>
-                  {moment(license.expiration).format('LL')}
-                </div>
-            )}
-          </td>
-          <td className="js-type text-middle">{license.type}</td>
-          <td className="js-server-id text-middle">
-            <div className={license.invalidServerId ? 'text-danger' : null}>
-              {license.serverId}
-            </div>
-          </td>
-          <td className="text-right">
-            <LicenseChangeForm license={license} onChange={value => this.handleSet(value)}/>
-          </td>
-        </tr>
+      <tr className="js-license" data-license-key={license.key}>
+        <td className="text-middle"><LicenseStatus license={license} /></td>
+        <td className="js-product text-middle">
+          <div className={license.invalidProduct ? 'text-danger' : null}>
+            {license.name || license.key}
+          </div>
+        </td>
+        <td className="js-organization text-middle">{license.organization}</td>
+        <td className="js-expiration text-middle">
+          {license.expiration != null &&
+            <div className={license.invalidExpiration ? 'text-danger' : null}>
+              {moment(license.expiration).format('LL')}
+            </div>}
+        </td>
+        <td className="js-type text-middle">{license.type}</td>
+        <td className="js-server-id text-middle">
+          <div className={license.invalidServerId ? 'text-danger' : null}>
+            {license.serverId}
+          </div>
+        </td>
+        <td className="text-right">
+          <LicenseChangeForm license={license} onChange={value => this.handleSet(value)} />
+        </td>
+      </tr>
     );
   }
 }

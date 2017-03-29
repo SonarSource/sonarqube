@@ -19,10 +19,17 @@
  */
 import { connect } from 'react-redux';
 import EncryptionApp from './EncryptionApp';
-import { checkSecretKey, generateSecretKey, encryptValue, startGeneration } from '../store/encryptionPage/actions';
+import {
+  checkSecretKey,
+  generateSecretKey,
+  encryptValue,
+  startGeneration
+} from '../store/encryptionPage/actions';
 import { getSettingsAppEncryptionState } from '../../../store/rootReducer';
 
-export default connect(
-  state => getSettingsAppEncryptionState(state),
-    { checkSecretKey, generateSecretKey, encryptValue, startGeneration }
-)(EncryptionApp);
+export default connect(state => getSettingsAppEncryptionState(state), {
+  checkSecretKey,
+  generateSecretKey,
+  encryptValue,
+  startGeneration
+})(EncryptionApp);

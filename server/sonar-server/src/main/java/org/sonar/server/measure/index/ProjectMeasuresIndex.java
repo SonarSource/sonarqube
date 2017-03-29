@@ -27,15 +27,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
@@ -47,6 +53,8 @@ import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
@@ -63,6 +71,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.measure.index.ProjectMeasuresDoc.QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
@@ -73,7 +82,8 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -85,23 +95,22 @@ public class ProjectMeasuresIndex extends BaseIndex {
     RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
     ALERT_STATUS_KEY,
-    FILTER_LANGUAGE);
+    FILTER_LANGUAGES,
+    FILTER_TAGS);
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 
-  private static final String FIELD_LANGUAGES_KEY = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_KEY;
-  private static final String FIELD_LANGUAGES_VALUE = FIELD_LANGUAGES + "." + ProjectMeasuresIndexDefinition.FIELD_LANGUAGES_VALUE;
-
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
-    .put(NCLOC_KEY, (esSearch, filters) -> addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters))
-    .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, filters) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters))
-    .put(COVERAGE_KEY, (esSearch, filters) -> addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters))
-    .put(SQALE_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, SQALE_RATING_KEY, filters))
-    .put(RELIABILITY_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters))
-    .put(SECURITY_RATING_KEY, (esSearch, filters) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, filters))
-    .put(ALERT_STATUS_KEY, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet())))
-    .put(FILTER_LANGUAGE, (esSearch, filters) -> esSearch.addAggregation(createStickyFacet(FILTER_LANGUAGE, filters, createLanguagesFacet())))
+    .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, 1_000d, 10_000d, 100_000d, 500_000d))
+    .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, 3d, 5d, 10d, 20d))
+    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, 30d, 50d, 70d, 80d))
+    .put(SQALE_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SQALE_RATING_KEY, facetBuilder))
+    .put(RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, facetBuilder))
+    .put(SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, facetBuilder))
+    .put(ALERT_STATUS_KEY, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, facetBuilder, createQualityGateFacet())))
+    .put(FILTER_LANGUAGES, ProjectMeasuresIndex::addLanguagesFacet)
+    .put(FIELD_TAGS, ProjectMeasuresIndex::addTagsFacet)
     .build();
 
   private final AuthorizationTypeSupport authorizationTypeSupport;
@@ -123,7 +132,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     filters.values().forEach(esFilter::must);
     requestBuilder.setQuery(esFilter);
 
-    addFacets(requestBuilder, searchOptions, filters);
+    addFacets(requestBuilder, searchOptions, filters, query);
     addSort(query, requestBuilder);
     return new SearchIdResult<>(requestBuilder.get(), id -> id);
   }
@@ -151,44 +160,54 @@ public class ProjectMeasuresIndex extends BaseIndex {
         .order(query.isAsc() ? ASC : DESC));
   }
 
-  private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters) {
+  private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder, Double... thresholds) {
+    esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder, createRangeFacet(metricKey, thresholds)));
+  }
+
+  private static void addRatingFacet(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder) {
+    esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder, createRatingFacet(metricKey)));
+  }
+
+  private static void addLanguagesFacet(SearchRequestBuilder esSearch, ProjectMeasuresQuery query, StickyFacetBuilder facetBuilder) {
+    Optional<Set<String>> languages = query.getLanguages();
+    esSearch.addAggregation(facetBuilder.buildStickyFacet(FIELD_LANGUAGES, FILTER_LANGUAGES, languages.isPresent() ? languages.get().toArray() : new Object[] {}));
+  }
+
+  private static void addTagsFacet(SearchRequestBuilder esSearch, ProjectMeasuresQuery query, StickyFacetBuilder facetBuilder) {
+    Optional<Set<String>> tags = query.getTags();
+    esSearch.addAggregation(facetBuilder.buildStickyFacet(FIELD_TAGS, FILTER_TAGS, tags.isPresent() ? tags.get().toArray() : new Object[] {}));
+  }
+
+  private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters, ProjectMeasuresQuery query) {
+    StickyFacetBuilder facetBuilder = new StickyFacetBuilder(matchAllQuery(), filters);
     options.getFacets().stream()
       .filter(FACET_FACTORIES::containsKey)
       .map(FACET_FACTORIES::get)
-      .forEach(factory -> factory.addFacet(esSearch, filters));
+      .forEach(factory -> factory.addFacet(esSearch, query, facetBuilder));
   }
 
-  private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, List<Double> thresholds, Map<String, QueryBuilder> filters) {
-    esSearch.addAggregation(createStickyFacet(metricKey, filters, createRangeFacet(metricKey, thresholds)));
-  }
-
-  private static void addRatingFacet(SearchRequestBuilder esSearch, String metricKey, Map<String, QueryBuilder> filters) {
-    esSearch.addAggregation(createStickyFacet(metricKey, filters, createRatingFacet(metricKey)));
-  }
-
-  private static AbstractAggregationBuilder createStickyFacet(String metricKey, Map<String, QueryBuilder> filters, AbstractAggregationBuilder aggregationBuilder) {
-    StickyFacetBuilder facetBuilder = new StickyFacetBuilder(matchAllQuery(), filters);
-    BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(metricKey);
+  private static AbstractAggregationBuilder createStickyFacet(String facetKey, StickyFacetBuilder facetBuilder, AbstractAggregationBuilder aggregationBuilder) {
+    BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(facetKey);
     return AggregationBuilders
-      .global(metricKey)
-      .subAggregation(AggregationBuilders.filter("facet_filter_" + metricKey)
+      .global(facetKey)
+      .subAggregation(AggregationBuilders.filter("facet_filter_" + facetKey)
         .filter(facetFilter)
         .subAggregation(aggregationBuilder));
   }
 
-  private static AbstractAggregationBuilder createRangeFacet(String metricKey, List<Double> thresholds) {
+  private static AbstractAggregationBuilder createRangeFacet(String metricKey, Double... thresholds) {
     RangeBuilder rangeAgg = AggregationBuilders.range(metricKey)
       .field(FIELD_MEASURES_VALUE);
-    final int lastIndex = thresholds.size() - 1;
-    IntStream.range(0, thresholds.size())
+    final int lastIndex = thresholds.length - 1;
+    IntStream.range(0, thresholds.length)
       .forEach(i -> {
         if (i == 0) {
-          rangeAgg.addUnboundedTo(thresholds.get(0));
-          rangeAgg.addRange(thresholds.get(0), thresholds.get(1));
+          rangeAgg.addUnboundedTo(thresholds[0]);
+          rangeAgg.addRange(thresholds[0], thresholds[1]);
         } else if (i == lastIndex) {
-          rangeAgg.addUnboundedFrom(thresholds.get(lastIndex));
+          rangeAgg.addUnboundedFrom(thresholds[lastIndex]);
         } else {
-          rangeAgg.addRange(thresholds.get(i), thresholds.get(i + 1));
+          rangeAgg.addRange(thresholds[i], thresholds[i + 1]);
         }
       });
 
@@ -220,16 +239,6 @@ public class ProjectMeasuresIndex extends BaseIndex {
     return qualityGateStatusFilter;
   }
 
-  private static AbstractAggregationBuilder createLanguagesFacet() {
-    return AggregationBuilders.nested("nested_" + FILTER_LANGUAGE)
-      .path(FIELD_LANGUAGES)
-      .subAggregation(
-        AggregationBuilders.terms(FILTER_LANGUAGE)
-          .field(FIELD_LANGUAGES_KEY)
-          .subAggregation(AggregationBuilders.sum("size_" + FILTER_LANGUAGE)
-            .field(FIELD_LANGUAGES_VALUE)));
-  }
-
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
     filters.put("__authorization", authorizationTypeSupport.createQueryFilter());
@@ -253,8 +262,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .ifPresent(projectUuids -> filters.put("ids", termsQuery("_id", projectUuids)));
 
     query.getLanguages()
-      .ifPresent(languages -> filters.put(FILTER_LANGUAGE,
-        nestedQuery(FIELD_LANGUAGES, boolQuery().filter(termsQuery(FIELD_LANGUAGES_KEY, languages)))));
+      .ifPresent(languages -> filters.put(FILTER_LANGUAGES, termsQuery(FIELD_LANGUAGES, languages)));
 
     query.getOrganizationUuid()
       .ifPresent(organizationUuid -> filters.put(FIELD_ORGANIZATION_UUID, termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
@@ -298,9 +306,38 @@ public class ProjectMeasuresIndex extends BaseIndex {
     }
   }
 
+  public List<String> searchTags(@Nullable String textQuery, int pageSize) {
+    checkArgument(pageSize <= 100, "Page size must be lower than or equals to " + 100);
+    if (pageSize == 0) {
+      return emptyList();
+    }
+
+    TermsBuilder tagFacet = AggregationBuilders.terms(FIELD_TAGS)
+      .field(FIELD_TAGS)
+      .size(pageSize)
+      .minDocCount(1)
+      .order(Terms.Order.term(true));
+    if (textQuery != null) {
+      tagFacet.include(".*" + escapeSpecialRegexChars(textQuery) + ".*");
+    }
+
+    SearchRequestBuilder searchQuery = getClient()
+      .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
+      .setQuery(authorizationTypeSupport.createQueryFilter())
+      .setFetchSource(false)
+      .setSize(0)
+      .addAggregation(tagFacet);
+
+    Terms aggregation = searchQuery.get().getAggregations().get(FIELD_TAGS);
+
+    return aggregation.getBuckets().stream()
+      .map(Bucket::getKeyAsString)
+      .collect(Collectors.toList());
+  }
+
   @FunctionalInterface
   private interface FacetSetter {
-    void addFacet(SearchRequestBuilder esSearch, Map<String, QueryBuilder> filters);
+    void addFacet(SearchRequestBuilder esSearch, ProjectMeasuresQuery query, StickyFacetBuilder facetBuilder);
   }
 
 }

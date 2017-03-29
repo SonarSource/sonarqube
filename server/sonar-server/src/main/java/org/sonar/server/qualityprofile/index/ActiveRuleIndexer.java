@@ -19,16 +19,14 @@
  */
 package org.sonar.server.qualityprofile.index;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -63,15 +61,12 @@ public class ActiveRuleIndexer extends BaseIndexer {
   }
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
-    DbSession dbSession = dbClient.openSession(false);
     long maxDate;
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ActiveRuleResultSetIterator rowIt = ActiveRuleResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
       maxDate = doIndex(bulk, rowIt);
       rowIt.close();
       return maxDate;
-    } finally {
-      dbSession.close();
     }
   }
 
@@ -90,19 +85,22 @@ public class ActiveRuleIndexer extends BaseIndexer {
   }
 
   public void index(List<ActiveRuleChange> changes) {
-    deleteKeys(FluentIterable.from(changes)
-      .filter(MatchDeactivatedRule.INSTANCE)
-      .transform(ActiveRuleChangeToKey.INSTANCE)
-      .toList());
+    deleteKeys(changes.stream()
+      .filter(c -> c.getType().equals(ActiveRuleChange.Type.DEACTIVATED))
+      .map(ActiveRuleChange::getKey)
+      .collect(Collectors.toList(changes.size())));
+
     index();
   }
 
-  public void deleteProfile(String qualityProfileKey) {
+  public void deleteByProfileKeys(Collection<String> profileKeys) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
     bulk.start();
-    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
-      .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, qualityProfileKey)));
-    bulk.addDeletion(search);
+    profileKeys.forEach(profileKey -> {
+      SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
+        .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, profileKey)));
+      bulk.addDeletion(search);
+    });
     bulk.stop();
   }
 
@@ -126,23 +124,4 @@ public class ActiveRuleIndexer extends BaseIndexer {
       .parent(doc.key().ruleKey().toString())
       .source(doc.getFields());
   }
-
-  private enum MatchDeactivatedRule implements Predicate<ActiveRuleChange> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull ActiveRuleChange input) {
-      return input.getType().equals(ActiveRuleChange.Type.DEACTIVATED);
-    }
-  }
-
-  private enum ActiveRuleChangeToKey implements Function<ActiveRuleChange, ActiveRuleKey> {
-    INSTANCE;
-
-    @Override
-    public ActiveRuleKey apply(@Nonnull ActiveRuleChange input) {
-      return input.getKey();
-    }
-  }
-
 }

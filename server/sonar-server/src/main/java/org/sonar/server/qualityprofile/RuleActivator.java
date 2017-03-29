@@ -39,7 +39,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -82,12 +82,7 @@ public class RuleActivator {
     return doActivate(dbSession, activation, context);
   }
 
-  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QProfileName profileName) {
-    RuleActivatorContext context = contextFactory.create(profileName, activation.getRuleKey(), dbSession);
-    return doActivate(dbSession, activation, context);
-  }
-
-  List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QualityProfileDto profileDto) {
+  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QualityProfileDto profileDto) {
     RuleActivatorContext context = contextFactory.create(profileDto, activation.getRuleKey(), dbSession);
     return doActivate(dbSession, activation, context);
   }
@@ -141,7 +136,7 @@ public class RuleActivator {
     }
 
     if (!stopPropagation) {
-      changes.addAll(cascadeActivation(dbSession, activation, context.profile().getKey()));
+      changes.addAll(cascadeActivation(dbSession, activation, context.profile()));
     }
 
     if (!changes.isEmpty()) {
@@ -229,16 +224,21 @@ public class RuleActivator {
     return null;
   }
 
-  private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation, String profileKey) {
+  private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation, QualityProfileDto qualityProfileDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
 
     // get all inherited profiles
-    List<QualityProfileDto> children = db.qualityProfileDao().selectChildren(session, profileKey);
+    String qualityProfileKey = qualityProfileDto.getKey();
+    List<QualityProfileDto> children = getChildren(session, qualityProfileKey);
     for (QualityProfileDto child : children) {
       RuleActivation childActivation = new RuleActivation(activation).setCascade(true);
-      changes.addAll(activate(session, childActivation, child.getKey()));
+      changes.addAll(activate(session, childActivation, child));
     }
     return changes;
+  }
+
+  protected List<QualityProfileDto> getChildren(DbSession session, String qualityProfileKey) {
+    return db.qualityProfileDao().selectChildren(session, qualityProfileKey);
   }
 
   private ActiveRuleDto persist(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
@@ -323,16 +323,11 @@ public class RuleActivator {
    * Deactivate a rule on a Quality profile. Does nothing if the rule is not activated, but
    * fails (fast) if the rule or the profile does not exist.
    */
-  List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      List<ActiveRuleChange> changes = deactivate(dbSession, key);
-      dbSession.commit();
-      activeRuleIndexer.index(changes);
-      return changes;
-    } finally {
-      dbSession.close();
-    }
+  public List<ActiveRuleChange> deactivateAndUpdateIndex(DbSession dbSession, ActiveRuleKey key) {
+    List<ActiveRuleChange> changes = deactivate(dbSession, key);
+    dbSession.commit();
+    activeRuleIndexer.index(changes);
+    return changes;
   }
 
   /**
@@ -345,7 +340,7 @@ public class RuleActivator {
   /**
    * Deactivate a rule on a Quality profile WITHOUT committing db session, WITHOUT checking permissions, and forcing removal of inherited rules
    */
-  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
+  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDefinitionDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRuleId(dbSession, ruleDto.getId());
     for (ActiveRuleDto activeRule : activeRules) {
@@ -375,7 +370,7 @@ public class RuleActivator {
     persist(change, context, dbSession);
 
     // get all inherited profiles
-    List<QualityProfileDto> profiles = db.qualityProfileDao().selectChildren(dbSession, key.qProfile());
+    List<QualityProfileDto> profiles = getChildren(dbSession, key.qProfile());
 
     for (QualityProfileDto profile : profiles) {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), key.ruleKey());
@@ -403,7 +398,7 @@ public class RuleActivator {
     return value;
   }
 
-  BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
+  public BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
     DbSession dbSession = db.openSession(false);
     BulkChangeResult result = new BulkChangeResult();
     try {
@@ -433,7 +428,7 @@ public class RuleActivator {
     return result;
   }
 
-  BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
+  public BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
     DbSession dbSession = db.openSession(false);
     BulkChangeResult result = new BulkChangeResult();
     try {

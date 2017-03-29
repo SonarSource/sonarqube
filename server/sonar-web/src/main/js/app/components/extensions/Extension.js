@@ -25,6 +25,7 @@ import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { getExtensionStart } from './utils';
+import getStore from '../../utils/getStore';
 
 type Props = {
   currentUser: Object,
@@ -42,23 +43,25 @@ class Extension extends React.Component {
   props: Props;
   stop: ?Function;
 
-  componentDidMount () {
+  componentDidMount() {
     this.startExtension();
   }
 
-  componentDidUpdate (prevProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.extension !== this.props.extension) {
       this.stopExtension();
       this.startExtension();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.stopExtension();
   }
 
   handleStart = (start: Function) => {
+    const store = getStore();
     this.stop = start({
+      store,
       el: this.container,
       currentUser: this.props.currentUser,
       router: this.props.router,
@@ -70,21 +73,21 @@ class Extension extends React.Component {
     this.props.onFail(translate('page_extension_failed'));
   };
 
-  startExtension () {
+  startExtension() {
     const { extension } = this.props;
     getExtensionStart(extension.key).then(this.handleStart, this.handleFailure);
   }
 
-  stopExtension () {
+  stopExtension() {
     this.stop && this.stop();
     this.stop = null;
   }
 
-  render () {
+  render() {
     return (
-        <div>
-          <div ref={container => this.container = container}/>
-        </div>
+      <div>
+        <div ref={container => this.container = container} />
+      </div>
     );
   }
 }

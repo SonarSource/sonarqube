@@ -26,12 +26,12 @@ export default React.createClass({
     loadMore: React.PropTypes.func.isRequired
   },
 
-  loadMore (e) {
+  loadMore(e) {
     e.preventDefault();
     this.props.loadMore();
   },
 
-  renderLoadMoreLink () {
+  renderLoadMoreLink() {
     const hasMore = this.props.total > this.props.count;
     if (!hasMore) {
       return null;
@@ -39,12 +39,12 @@ export default React.createClass({
     return <a onClick={this.loadMore} className="spacer-left" href="#">show more</a>;
   },
 
-  render () {
+  render() {
     return (
-        <footer className="spacer-top note text-center">
-          {this.props.count}/{this.props.total} shown
-          {this.renderLoadMoreLink()}
-        </footer>
+      <footer className="spacer-top note text-center">
+        {this.props.count}/{this.props.total} shown
+        {this.renderLoadMoreLink()}
+      </footer>
     );
   }
 });

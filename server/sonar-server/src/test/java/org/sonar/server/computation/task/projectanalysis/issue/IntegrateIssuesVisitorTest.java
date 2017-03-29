@@ -281,7 +281,7 @@ public class IntegrateIssuesVisitorTest {
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), ruleDto);
+    dbTester.rules().insertRule(ruleDto);
     ruleRepositoryRule.add(ruleKey);
 
     IssueDto issue = IssueTesting.newDto(ruleDto, file, project)

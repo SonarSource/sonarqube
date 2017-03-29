@@ -33,13 +33,15 @@ describe('#collapsedDirFromPath()', () => {
   });
 
   it('should cut long path', () => {
-    expect(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js'))
-        .toBe('src/.../js/components/navigator/app/models/');
+    expect(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')).toBe(
+      'src/.../js/components/navigator/app/models/'
+    );
   });
 
   it('should cut very long path', () => {
-    expect(collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js'))
-        .toBe('src/.../js/components/navigator/app/models/');
+    expect(
+      collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js')
+    ).toBe('src/.../js/components/navigator/app/models/');
   });
 });
 

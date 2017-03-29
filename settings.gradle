@@ -14,7 +14,6 @@ include 'server:sonar-web'
 
 include 'sonar-application'
 include 'sonar-check-api'
-include 'sonar-colorizer'
 include 'sonar-core'
 include 'sonar-duplications'
 include 'sonar-home'

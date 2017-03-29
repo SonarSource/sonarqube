@@ -39,11 +39,11 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -92,7 +92,6 @@ public class RuleActivatorMediumTest {
 
   RuleIndexer ruleIndexer;
 
-  ActiveRuleIndex activeRuleIndex;
   ActiveRuleIndexer activeRuleIndexer;
 
   QualityProfileDto profileDto;
@@ -103,7 +102,6 @@ public class RuleActivatorMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     ruleActivator = tester.get(RuleActivator.class);
-    activeRuleIndex = tester.get(ActiveRuleIndex.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     ruleIndexer = tester.get(RuleIndexer.class);
 
@@ -114,21 +112,21 @@ public class RuleActivatorMediumTest {
     RuleDto xooRule2 = newXooX2().setSeverity("INFO");
     RuleDto xooTemplateRule1 = newTemplateRule(TEMPLATE_RULE_KEY)
       .setSeverity("MINOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, javaRule);
-    db.ruleDao().insert(dbSession, xooRule1);
-    db.ruleDao().insert(dbSession, xooRule2);
-    db.ruleDao().insert(dbSession, xooTemplateRule1);
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insert(dbSession, javaRule.getDefinition());
+    db.ruleDao().insert(dbSession, xooRule1.getDefinition());
+    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
+    db.ruleDao().insert(dbSession, xooTemplateRule1.getDefinition());
+    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
       .setName("min").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooTemplateRule1.getDefinition(), RuleParamDto.createFor(xooTemplateRule1.getDefinition())
       .setName("format").setType(RuleParamType.STRING.type()));
 
     RuleDto xooCustomRule1 = newCustomRule(xooTemplateRule1).setRuleKey(CUSTOM_RULE_KEY.rule())
       .setSeverity("MINOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, xooCustomRule1);
-    db.ruleDao().insertRuleParam(dbSession, xooCustomRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.ruleDao().insert(dbSession, xooCustomRule1.getDefinition());
+    db.ruleDao().insertRuleParam(dbSession, xooCustomRule1.getDefinition(), RuleParamDto.createFor(xooTemplateRule1.getDefinition())
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile P1
@@ -458,7 +456,7 @@ public class RuleActivatorMediumTest {
 
   @Test
   public void fail_to_activate_if_rule_with_removed_status() {
-    RuleDto ruleDto = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
+    RuleDefinitionDto ruleDto = db.ruleDao().selectOrFailDefinitionByKey(dbSession, XOO_X1);
     ruleDto.setStatus(RuleStatus.REMOVED);
     db.ruleDao().update(dbSession, ruleDto);
     dbSession.commit();
@@ -509,7 +507,7 @@ public class RuleActivatorMediumTest {
     activate(activation, XOO_P1_KEY);
 
     // deactivation
-    ruleActivator.deactivate(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
+    ruleActivator.deactivateAndUpdateIndex(dbSession, ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
 
     verifyZeroActiveRules(XOO_P1_KEY);
     assertProfileHasBeenUpdatedManually(XOO_P1_KEY);
@@ -519,7 +517,7 @@ public class RuleActivatorMediumTest {
   public void ignore_deactivation_if_rule_not_activated() {
     // deactivation
     ActiveRuleKey key = ActiveRuleKey.of(XOO_P1_KEY, XOO_X1);
-    ruleActivator.deactivate(key);
+    ruleActivator.deactivateAndUpdateIndex(dbSession, key);
 
     verifyZeroActiveRules(XOO_P1_KEY);
   }
@@ -528,7 +526,7 @@ public class RuleActivatorMediumTest {
   public void deactivation_fails_if_rule_not_found() {
     ActiveRuleKey key = ActiveRuleKey.of(XOO_P1_KEY, RuleKey.of("xoo", "x3"));
     try {
-      ruleActivator.deactivate(key);
+      ruleActivator.deactivateAndUpdateIndex(dbSession, key);
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Rule not found: xoo:x3");
@@ -540,7 +538,7 @@ public class RuleActivatorMediumTest {
   public void deactivation_fails_if_profile_not_found() {
     ActiveRuleKey key = ActiveRuleKey.of("unknown", XOO_X1);
     try {
-      ruleActivator.deactivate(key);
+      ruleActivator.deactivateAndUpdateIndex(dbSession, key);
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Quality profile not found: unknown");
@@ -554,14 +552,14 @@ public class RuleActivatorMediumTest {
     activate(activation, XOO_P1_KEY);
 
     // set rule as removed
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
+    RuleDefinitionDto rule = db.ruleDao().selectOrFailDefinitionByKey(dbSession, XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
     db.ruleDao().update(dbSession, rule);
     dbSession.commit();
     dbSession.clearCache();
 
     // deactivation
-    ruleActivator.deactivate(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
+    ruleActivator.deactivateAndUpdateIndex(dbSession, ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
 
     verifyZeroActiveRules(XOO_P1_KEY);
   }
@@ -755,7 +753,7 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRuleInDb(XOO_P3_KEY, XOO_X1, BLOCKER, INHERITED, ImmutableMap.of("max", "7"));
 
     // deactivate on root
-    ruleActivator.deactivate(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
+    ruleActivator.deactivateAndUpdateIndex(dbSession, ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
 
     verifyZeroActiveRules(XOO_P1_KEY);
     verifyZeroActiveRules(XOO_P2_KEY);
@@ -785,7 +783,7 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRuleInDb(XOO_P3_KEY, XOO_X1, BLOCKER, INHERITED, ImmutableMap.of("max", "8"));
 
     // deactivate on parent -> do not propagate on children because they're overriding values
-    ruleActivator.deactivate(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
+    ruleActivator.deactivateAndUpdateIndex(dbSession, ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
     dbSession.clearCache();
     verifyZeroActiveRules(XOO_P1_KEY);
     verifyZeroActiveRules(XOO_P2_KEY);
@@ -807,7 +805,7 @@ public class RuleActivatorMediumTest {
 
     // try to deactivate on child
     try {
-      ruleActivator.deactivate(ActiveRuleKey.of(XOO_P2_KEY, XOO_X1));
+      ruleActivator.deactivateAndUpdateIndex(dbSession, ActiveRuleKey.of(XOO_P2_KEY, XOO_X1));
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Cannot deactivate inherited rule 'xoo:x1'");
@@ -898,7 +896,7 @@ public class RuleActivatorMediumTest {
     // Generate more rules than the search's max limit
     int bulkSize = SearchOptions.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {
-      db.ruleDao().insert(dbSession, newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo"));
+      db.ruleDao().insert(dbSession, newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo").getDefinition());
     }
     dbSession.commit();
     ruleIndexer.index();
@@ -1026,7 +1024,7 @@ public class RuleActivatorMediumTest {
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2("org-123"));
 
     // mark rule x1 as REMOVED
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, XOO_X1);
+    RuleDefinitionDto rule = db.ruleDao().selectOrFailDefinitionByKey(dbSession, XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
     db.ruleDao().update(dbSession, rule);
     dbSession.commit();

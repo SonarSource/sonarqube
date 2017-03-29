@@ -24,20 +24,21 @@ import { getCurrentUser, getAppState } from '../../store/rootReducer';
 import { getRootQualifiers } from '../../store/appState/duck';
 
 class AppContainer extends React.Component {
-  render () {
-    const hasProvisionPermission = this.props.organization ?
-        this.props.organization.canProvisionProjects :
-        this.props.user.permissions.global.indexOf('provisioning') !== -1;
+  render() {
+    const hasProvisionPermission = this.props.organization
+      ? this.props.organization.canProvisionProjects
+      : this.props.user.permissions.global.indexOf('provisioning') !== -1;
 
-    const topLevelQualifiers = this.props.organization && !this.props.organization.isDefault ?
-        ['TRK'] :
-        this.props.rootQualifiers;
+    const topLevelQualifiers = this.props.organization && !this.props.organization.isDefault
+      ? ['TRK']
+      : this.props.rootQualifiers;
 
     return (
-        <Main
-            hasProvisionPermission={hasProvisionPermission}
-            topLevelQualifiers={topLevelQualifiers}
-            organization={this.props.organization}/>
+      <Main
+        hasProvisionPermission={hasProvisionPermission}
+        topLevelQualifiers={topLevelQualifiers}
+        organization={this.props.organization}
+      />
     );
   }
 }
@@ -47,6 +48,4 @@ const mapStateToProps = state => ({
   user: getCurrentUser(state)
 });
 
-export default connect(
-  mapStateToProps
-)(AppContainer);
+export default connect(mapStateToProps)(AppContainer);

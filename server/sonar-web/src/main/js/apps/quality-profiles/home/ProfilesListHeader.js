@@ -28,56 +28,55 @@ export default class ProfilesListHeader extends React.Component {
     currentFilter: React.PropTypes.string
   };
 
-  renderFilterToggle () {
+  renderFilterToggle() {
     const { languages, currentFilter } = this.props;
-    const currentLanguage = currentFilter &&
-        languages.find(l => l.key === currentFilter);
+    const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
 
-    const label = currentFilter ?
-        translateWithParameters(
-          'quality_profiles.x_Profiles',
-          currentLanguage.name) :
-        translate('quality_profiles.all_profiles');
+    const label = currentFilter
+      ? translateWithParameters('quality_profiles.x_Profiles', currentLanguage.name)
+      : translate('quality_profiles.all_profiles');
 
     return (
-        <a className="dropdown-toggle link-no-underline js-language-filter"
-           href="#"
-           data-toggle="dropdown">
-          {label} <i className="icon-dropdown"/>
-        </a>
+      <a
+        className="dropdown-toggle link-no-underline js-language-filter"
+        href="#"
+        data-toggle="dropdown"
+      >
+        {label} <i className="icon-dropdown" />
+      </a>
     );
   }
 
-  renderFilterMenu () {
+  renderFilterMenu() {
     return (
-        <ul className="dropdown-menu">
-          <li>
-            <IndexLink to="/profiles/">
-              {translate('quality_profiles.all_profiles')}
+      <ul className="dropdown-menu">
+        <li>
+          <IndexLink to="/profiles/">
+            {translate('quality_profiles.all_profiles')}
+          </IndexLink>
+        </li>
+        {this.props.languages.map(language => (
+          <li key={language.key}>
+            <IndexLink
+              to={{ pathname: '/profiles/', query: { language: language.key } }}
+              className="js-language-filter-option"
+              data-language={language.key}
+            >
+              {language.name}
             </IndexLink>
           </li>
-          {this.props.languages.map(language => (
-              <li key={language.key}>
-                <IndexLink
-                    to={{ pathname: '/profiles/', query: { language: language.key } }}
-                    className="js-language-filter-option"
-                    data-language={language.key}>
-                  {language.name}
-                </IndexLink>
-              </li>
-          ))}
-        </ul>
+        ))}
+      </ul>
     );
   }
 
-  render () {
+  render() {
     if (this.props.languages.length < 2) {
       return null;
     }
 
     const { languages, currentFilter } = this.props;
-    const currentLanguage = currentFilter &&
-        languages.find(l => l.key === currentFilter);
+    const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
 
     // if unknown language, then
     if (currentFilter && !currentLanguage) {
@@ -85,12 +84,12 @@ export default class ProfilesListHeader extends React.Component {
     }
 
     return (
-        <header className="quality-profiles-list-header clearfix">
-          <div className="dropdown">
-            {this.renderFilterToggle()}
-            {this.renderFilterMenu()}
-          </div>
-        </header>
+      <header className="quality-profiles-list-header clearfix">
+        <div className="dropdown">
+          {this.renderFilterToggle()}
+          {this.renderFilterMenu()}
+        </div>
+      </header>
     );
   }
 }

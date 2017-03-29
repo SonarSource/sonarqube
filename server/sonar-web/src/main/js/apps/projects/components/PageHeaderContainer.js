@@ -21,6 +21,4 @@ import { connect } from 'react-redux';
 import PageHeader from './PageHeader';
 import { getProjectsAppState } from '../../../store/rootReducer';
 
-export default connect(
-  state => getProjectsAppState(state)
-)(PageHeader);
+export default connect(state => getProjectsAppState(state))(PageHeader);

@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
@@ -43,6 +43,7 @@ public class UserMembershipQuery {
   public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
   private final int groupId;
+  private final String organizationUuid;
   private final String membership;
 
   private final String memberSearch;
@@ -59,6 +60,7 @@ public class UserMembershipQuery {
 
   private UserMembershipQuery(Builder builder) {
     this.groupId = builder.groupId;
+    this.organizationUuid = builder.organizationUuid;
     this.membership = builder.membership;
     this.memberSearch = builder.memberSearch;
     this.memberSearchSql = memberSearch == null ? null : buildLikeValue(memberSearch, BEFORE_AND_AFTER);
@@ -69,6 +71,10 @@ public class UserMembershipQuery {
 
   public int groupId() {
     return groupId;
+  }
+
+  public String organizationUuid() {
+    return organizationUuid;
   }
 
   @CheckForNull
@@ -98,6 +104,7 @@ public class UserMembershipQuery {
 
   public static class Builder {
     private Integer groupId;
+    private String organizationUuid;
     private String membership;
     private String memberSearch;
 
@@ -109,6 +116,11 @@ public class UserMembershipQuery {
 
     public Builder groupId(Integer groupId) {
       this.groupId = groupId;
+      return this;
+    }
+
+    public Builder organizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
       return this;
     }
 
@@ -148,7 +160,8 @@ public class UserMembershipQuery {
     }
 
     public UserMembershipQuery build() {
-      checkNotNull(groupId, "Group ID cant be null.");
+      requireNonNull(groupId, "Group ID cant be null.");
+      requireNonNull(organizationUuid, "Organization UUID cannot be null");
       initMembership();
       initPageIndex();
       initPageSize();

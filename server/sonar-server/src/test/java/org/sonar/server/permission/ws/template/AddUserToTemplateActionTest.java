@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
@@ -63,7 +65,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), CODEVIEWER);
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, CODEVIEWER)).containsExactly(user.getLogin());
   }
 
   @Test
@@ -76,7 +78,24 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
       .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
       .execute();
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, CODEVIEWER)).containsExactly(user.getLogin());
+  }
+
+  @Test
+  public void add_user_to_template_by_name_and_organization() throws Exception {
+    OrganizationDto organizationDto = db.organizations().insert();
+    PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate(organizationDto);
+    addUserAsMemberOfOrganization(organizationDto);
+    loginAsAdmin(organizationDto);
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .execute();
+
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, CODEVIEWER)).containsExactly(user.getLogin());
   }
 
   @Test
@@ -86,7 +105,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(user.getLogin());
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate, ISSUE_ADMIN)).containsExactly(user.getLogin());
   }
 
   @Test
@@ -154,6 +173,40 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
     newRequest(user.getLogin(), "unknown-key", CODEVIEWER);
   }
 
+  @Test
+  public void fail_if_organization_does_not_exist() throws Exception {
+    loginAsAdmin(db.getDefaultOrganization());
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization with key 'Unknown'");
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .setParam(PARAM_ORGANIZATION, "Unknown")
+      .execute();  }
+
+  @Test
+  public void fail_to_add_permission_when_user_is_not_member_of_given_organization() throws Exception {
+    // User is not member of given organization
+    OrganizationDto otherOrganization = db.organizations().insert();
+    addUserAsMemberOfOrganization(otherOrganization);
+    OrganizationDto organization = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
+    PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate(organization);
+    loginAsAdmin(organization);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("User 'user-login' is not member of organization 'Organization key'");
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+  }
+
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) throws Exception {
     TestRequest request = newRequest();
     if (userLogin != null) {
@@ -169,9 +222,13 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
     request.execute();
   }
 
-  private List<String> getLoginsInTemplateAndPermission(long templateId, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
+  private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, String permission) {
+    PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, templateId);
+      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getId());
+  }
+
+  private void addUserAsMemberOfOrganization(OrganizationDto organization) {
+    db.organizations().addMember(organization, user);
   }
 }

@@ -42,10 +42,8 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -62,7 +60,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.Assert.fail;
 
 public class IssueServiceMediumTest {
 
@@ -89,89 +86,6 @@ public class IssueServiceMediumTest {
   @After
   public void after() {
     session.close();
-  }
-
-  private void index() {
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
-  }
-
-  @Test
-  public void assign() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
-
-    UserDto user = new UserDto().setLogin("perceval").setName("Perceval");
-    db.userDao().insert(session, user);
-    session.commit();
-    index();
-
-    assertThat(getIssueByKey(issue.getKey()).assignee()).isNull();
-
-    service.assign(issue.getKey(), user.getLogin());
-
-    assertThat(getIssueByKey(issue.getKey()).assignee()).isEqualTo("perceval");
-  }
-
-  @Test
-  public void unassign() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("perceval"));
-
-    UserDto user = new UserDto().setLogin("perceval").setName("Perceval");
-    db.userDao().insert(session, user);
-    session.commit();
-    index();
-
-    assertThat(getIssueByKey(issue.getKey()).assignee()).isEqualTo("perceval");
-
-    service.assign(issue.getKey(), "");
-
-    assertThat(getIssueByKey(issue.getKey()).assignee()).isNull();
-  }
-
-  @Test
-  public void fail_to_assign_on_unknown_user() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
-
-    try {
-      service.assign(issue.getKey(), "unknown");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Unknown user: unknown");
-    }
-  }
-
-  @Test
-  public void list_tags() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")));
-    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")));
-    saveIssue(IssueTesting.newDto(rule, file, project));
-    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
-
-    assertThat(service.listTags(null, 5)).containsOnly("convention", "java8", "bug" /* from issues */, "systag1", "systag2" /* from rules */);
-    assertThat(service.listTags(null, 2)).containsOnly("bug", "convention");
-    assertThat(service.listTags("vent", 5)).containsOnly("convention");
-    assertThat(service.listTags("sys", 5)).containsOnly("systag1", "systag2");
-    assertThat(service.listTags(null, 1)).containsOnly("bug");
-    assertThat(service.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug", "systag1", "systag2", "tag1", "tag2");
-    assertThat(service.listTags("invalidRegexp[", 5)).isEmpty();
   }
 
   @Test
@@ -261,7 +175,11 @@ public class IssueServiceMediumTest {
   }
 
   private RuleDto newRule(RuleDto rule) {
-    tester.get(RuleDao.class).insert(session, rule);
+    RuleDao ruleDao = tester.get(RuleDao.class);
+    ruleDao.insert(session, rule.getDefinition());
+    if (rule.getOrganizationUuid() != null) {
+      ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
+    }
     session.commit();
     ruleIndexer.index();
     return rule;
@@ -280,7 +198,7 @@ public class IssueServiceMediumTest {
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project),
-      GroupIdOrAnyone.forAnyone(organization.getUuid()));
+        GroupIdOrAnyone.forAnyone(organization.getUuid()));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
     userSessionRule.logIn();
 

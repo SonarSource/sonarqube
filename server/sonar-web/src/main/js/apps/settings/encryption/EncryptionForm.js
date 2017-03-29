@@ -28,59 +28,66 @@ export default class EncryptionForm extends React.Component {
 
   state = { value: '' };
 
-  handleEncrypt (e) {
+  handleEncrypt(e) {
     e.preventDefault();
     this.props.encryptValue(this.state.value);
   }
 
-  handleGenerateNewKey (e) {
+  handleGenerateNewKey(e) {
     e.preventDefault();
     this.props.generateSecretKey();
   }
 
-  render () {
+  render() {
     return (
-        <div id="encryption-form-container">
-          <div className="spacer-bottom">
-            Secret key is registered. You can encrypt any property value with the following form:
-          </div>
-
-          <form id="encryption-form" className="big-spacer-bottom" onSubmit={e => this.handleEncrypt(e)}>
-            <input
-                id="encryption-form-value"
-                className="input-large"
-                type="text"
-                autoFocus={true}
-                required={true}
-                value={this.state.value}
-                onChange={e => this.setState({ value: e.target.value })}/>
-            <button className="spacer-left">Encrypt</button>
-          </form>
-
-          {this.props.encryptedValue != null && (
-              <div>
-                Encrypted Value:{' '}
-                <input
-                    id="encrypted-value"
-                    className="input-clear input-code input-super-large"
-                    type="text"
-                    readOnly={true}
-                    value={this.props.encryptedValue}/>
-              </div>
-          )}
-
-          <div className="huge-spacer-top bordered-top">
-            <div className="big-spacer-top spacer-bottom">
-              Note that the secret key can be changed, but all the encrypted properties will have to be updated.
-              {' '}
-              <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">More information</a>
-            </div>
-
-            <form id="encryption-new-key-form" onSubmit={e => this.handleGenerateNewKey(e)}>
-              <button>Generate New Secret Key</button>
-            </form>
-          </div>
+      <div id="encryption-form-container">
+        <div className="spacer-bottom">
+          Secret key is registered. You can encrypt any property value with the following form:
         </div>
+
+        <form
+          id="encryption-form"
+          className="big-spacer-bottom"
+          onSubmit={e => this.handleEncrypt(e)}
+        >
+          <input
+            id="encryption-form-value"
+            className="input-large"
+            type="text"
+            autoFocus={true}
+            required={true}
+            value={this.state.value}
+            onChange={e => this.setState({ value: e.target.value })}
+          />
+          <button className="spacer-left">Encrypt</button>
+        </form>
+
+        {this.props.encryptedValue != null &&
+          <div>
+            Encrypted Value:{' '}
+            <input
+              id="encrypted-value"
+              className="input-clear input-code input-super-large"
+              type="text"
+              readOnly={true}
+              value={this.props.encryptedValue}
+            />
+          </div>}
+
+        <div className="huge-spacer-top bordered-top">
+          <div className="big-spacer-top spacer-bottom">
+            Note that the secret key can be changed, but all the encrypted properties will have to be updated.
+            {' '}
+            <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">
+              More information
+            </a>
+          </div>
+
+          <form id="encryption-new-key-form" onSubmit={e => this.handleGenerateNewKey(e)}>
+            <button>Generate New Secret Key</button>
+          </form>
+        </div>
+      </div>
     );
   }
 }

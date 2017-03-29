@@ -23,22 +23,28 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.index.UserIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
+import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_002;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
-public class DeleteAction implements OrganizationsAction {
+public class DeleteAction implements OrganizationsWsAction {
   private static final String ACTION = "delete";
 
   private final UserSession userSession;
@@ -46,14 +52,18 @@ public class DeleteAction implements OrganizationsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final ComponentCleanerService componentCleanerService;
   private final OrganizationFlags organizationFlags;
+  private final UserIndexer userIndexer;
+  private final QProfileFactory qProfileFactory;
 
   public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags) {
+    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags, UserIndexer userIndexer, QProfileFactory qProfileFactory) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.componentCleanerService = componentCleanerService;
     this.organizationFlags = organizationFlags;
+    this.userIndexer = userIndexer;
+    this.qProfileFactory = qProfileFactory;
   }
 
   @Override
@@ -66,10 +76,11 @@ public class DeleteAction implements OrganizationsAction {
       .setSince("6.2")
       .setHandler(this);
 
-    action.createParam(PARAM_KEY)
+    action.createParam(PARAM_ORGANIZATION)
       .setRequired(true)
       .setDescription("Organization key")
-      .setExampleValue("foo-company");
+      .setDeprecatedKey(PARAM_KEY, "6.4")
+      .setExampleValue(KEY_ORG_EXAMPLE_002);
   }
 
   @Override
@@ -79,51 +90,64 @@ public class DeleteAction implements OrganizationsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       organizationFlags.checkEnabled(dbSession);
 
-      String key = request.mandatoryParam(PARAM_KEY);
+      String key = request.mandatoryParam(PARAM_ORGANIZATION);
       preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());
 
-      OrganizationDto organizationDto = checkFoundWithOptional(
+      OrganizationDto organization = checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, key),
         "Organization with key '%s' not found",
         key);
 
-      if (organizationDto.isGuarded()) {
+      if (organization.isGuarded()) {
         userSession.checkIsSystemAdministrator();
       } else {
-        userSession.checkPermission(ADMINISTER, organizationDto);
+        userSession.checkPermission(ADMINISTER, organization);
       }
 
-      deleteProjects(dbSession, organizationDto.getUuid());
-      deletePermissions(dbSession, organizationDto.getUuid());
-      deleteGroups(dbSession, organizationDto.getUuid());
-      deleteOrganization(key, dbSession);
+      deleteProjects(dbSession, organization);
+      deletePermissions(dbSession, organization);
+      deleteGroups(dbSession, organization);
+      deleteQualityProfiles(dbSession, organization);
+      deleteOrganization(dbSession, organization);
 
       response.noContent();
     }
   }
 
-  private void deleteProjects(DbSession dbSession, String organizationUuid) {
-    List<ComponentDto> roots = dbClient.componentDao().selectAllRootsByOrganization(dbSession, organizationUuid);
+  private void deleteProjects(DbSession dbSession, OrganizationDto organization) {
+    List<ComponentDto> roots = dbClient.componentDao().selectAllRootsByOrganization(dbSession, organization.getUuid());
     componentCleanerService.delete(dbSession, roots);
   }
 
-  private void deletePermissions(DbSession dbSession, String organizationUuid) {
-    dbClient.permissionTemplateDao().deleteByOrganization(dbSession, organizationUuid);
+  private void deletePermissions(DbSession dbSession, OrganizationDto organization) {
+    dbClient.permissionTemplateDao().deleteByOrganization(dbSession, organization.getUuid());
     dbSession.commit();
-    dbClient.userPermissionDao().deleteByOrganization(dbSession, organizationUuid);
+    dbClient.userPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
     dbSession.commit();
-    dbClient.groupPermissionDao().deleteByOrganization(dbSession, organizationUuid);
-    dbSession.commit();
-  }
-
-  private void deleteGroups(DbSession dbSession, String organizationUuid) {
-    dbClient.groupDao().deleteByOrganization(dbSession, organizationUuid);
+    dbClient.groupPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
     dbSession.commit();
   }
 
-  private void deleteOrganization(String key, DbSession dbSession) {
-    dbClient.organizationDao().deleteByKey(dbSession, key);
+  private void deleteGroups(DbSession dbSession, OrganizationDto organization) {
+    dbClient.groupDao().deleteByOrganization(dbSession, organization.getUuid());
     dbSession.commit();
+  }
+
+  private void deleteQualityProfiles(DbSession dbSession, OrganizationDto organization) {
+    List<QualityProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession, organization);
+    List<String> profileKeys = profiles.stream()
+      .map(QualityProfileDto::getKey)
+      .collect(Collectors.toArrayList(profiles.size()));
+    qProfileFactory.deleteByKeys(dbSession, profileKeys);
+    dbSession.commit();
+  }
+
+  private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {
+    List<String> logins = dbClient.organizationMemberDao().selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
+    dbClient.organizationMemberDao().deleteByOrganizationUuid(dbSession, organization.getUuid());
+    dbClient.organizationDao().deleteByUuid(dbSession, organization.getUuid());
+    dbSession.commit();
+    userIndexer.index(logins);
   }
 
   private static void preventDeletionOfDefaultOrganization(String key, DefaultOrganization defaultOrganization) {

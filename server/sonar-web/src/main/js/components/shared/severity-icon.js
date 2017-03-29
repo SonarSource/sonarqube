@@ -20,11 +20,11 @@
 import React from 'react';
 
 export default React.createClass({
-  render () {
+  render() {
     if (!this.props.severity) {
       return null;
     }
     const className = 'icon-severity-' + this.props.severity.toLowerCase();
-    return <i className={className}/>;
+    return <i className={className} />;
   }
 });

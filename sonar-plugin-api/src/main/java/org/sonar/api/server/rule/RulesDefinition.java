@@ -52,6 +52,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
@@ -751,7 +752,7 @@ public interface RulesDefinition {
     public NewRule setHtmlDescription(@Nullable URL classpathUrl) {
       if (classpathUrl != null) {
         try {
-          setHtmlDescription(IOUtils.toString(classpathUrl));
+          setHtmlDescription(IOUtils.toString(classpathUrl, UTF_8));
         } catch (IOException e) {
           throw new IllegalStateException("Fail to read: " + classpathUrl, e);
         }
@@ -772,12 +773,12 @@ public interface RulesDefinition {
     }
 
     /**
-     * Load description from a file available in classpath. Example : <code>setMarkdownDescription(getClass().getResource("/myrepo/Rule1234.md")</code>
+     * Load description from a file available in classpath. Example : {@code setMarkdownDescription(getClass().getResource("/myrepo/Rule1234.md")}
      */
     public NewRule setMarkdownDescription(@Nullable URL classpathUrl) {
       if (classpathUrl != null) {
         try {
-          setMarkdownDescription(IOUtils.toString(classpathUrl));
+          setMarkdownDescription(IOUtils.toString(classpathUrl, UTF_8));
         } catch (IOException e) {
           throw new IllegalStateException("Fail to read: " + classpathUrl, e);
         }

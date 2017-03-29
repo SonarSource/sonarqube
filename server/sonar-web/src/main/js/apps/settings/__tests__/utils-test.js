@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getEmptyValue, getDefaultValue } from '../utils';
-import { TYPE_PROPERTY_SET, TYPE_STRING, TYPE_SINGLE_SELECT_LIST, TYPE_BOOLEAN } from '../constants';
+import {
+  TYPE_PROPERTY_SET,
+  TYPE_STRING,
+  TYPE_SINGLE_SELECT_LIST,
+  TYPE_BOOLEAN
+} from '../constants';
 
-const fields = [
-  { key: 'foo', type: TYPE_STRING },
-  { key: 'bar', type: TYPE_SINGLE_SELECT_LIST }
-];
+const fields = [{ key: 'foo', type: TYPE_STRING }, { key: 'bar', type: TYPE_SINGLE_SELECT_LIST }];
 
 describe('#getEmptyValue()', () => {
   it('should work for property sets', () => {
@@ -49,7 +51,10 @@ describe('#getDefaultValue()', () => {
   };
 
   it('should work for boolean field when passing true', () => check(true, 'settings.boolean.true'));
-  it('should work for boolean field when passing "true"', () => check('true', 'settings.boolean.true'));
-  it('should work for boolean field when passing false', () => check(false, 'settings.boolean.false'));
-  it('should work for boolean field when passing "false"', () => check('false', 'settings.boolean.false'));
+  it('should work for boolean field when passing "true"', () =>
+    check('true', 'settings.boolean.true'));
+  it('should work for boolean field when passing false', () =>
+    check(false, 'settings.boolean.false'));
+  it('should work for boolean field when passing "false"', () =>
+    check('false', 'settings.boolean.false'));
 });

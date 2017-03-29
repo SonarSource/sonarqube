@@ -23,7 +23,7 @@ import Template from './UpdateKeyConfirmation.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.showSpinner();
@@ -32,11 +32,10 @@ export default ModalForm.extend({
     this.destroy();
   },
 
-  serializeData () {
+  serializeData() {
     return {
       component: this.options.component,
       newKey: this.options.newKey
     };
   }
 });
-

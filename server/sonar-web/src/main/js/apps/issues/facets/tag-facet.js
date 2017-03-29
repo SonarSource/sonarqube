@@ -21,7 +21,7 @@ import CustomValuesFacet from './custom-values-facet';
 import { translate } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
-  prepareSearch () {
+  prepareSearch() {
     let url = window.baseUrl + '/api/issues/tags?ps=10';
     const tags = this.options.app.state.get('query').tags;
     if (tags != null) {
@@ -31,20 +31,20 @@ export default CustomValuesFacet.extend({
       placeholder: translate('search_verb'),
       minimumInputLength: 0,
       allowClear: false,
-      formatNoMatches () {
+      formatNoMatches() {
         return translate('select2.noMatches');
       },
-      formatSearching () {
+      formatSearching() {
         return translate('select2.searching');
       },
       width: '100%',
       ajax: {
         url,
         quietMillis: 300,
-        data (term) {
+        data(term) {
           return { q: term, ps: 10 };
         },
-        results (data) {
+        results(data) {
           const results = data.tags.map(tag => {
             return { id: tag, text: tag };
           });
@@ -54,7 +54,7 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  getValuesWithLabels () {
+  getValuesWithLabels() {
     const values = this.model.getValues();
     values.forEach(v => {
       v.label = v.val;
@@ -63,7 +63,7 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())

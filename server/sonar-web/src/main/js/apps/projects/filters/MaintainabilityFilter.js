@@ -21,12 +21,7 @@ import React from 'react';
 import IssuesFilter from './IssuesFilter';
 
 export default class MaintainabilityFilter extends React.Component {
-  render () {
-    return (
-        <IssuesFilter
-            {...this.props}
-            name="Maintainability"
-            property="maintainability"/>
-    );
+  render() {
+    return <IssuesFilter {...this.props} name="Maintainability" property="maintainability" />;
   }
 }

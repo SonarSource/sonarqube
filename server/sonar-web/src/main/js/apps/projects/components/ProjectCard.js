@@ -17,69 +17,91 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import classNames from 'classnames';
+import moment from 'moment';
 import { Link } from 'react-router';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
-import { translate } from '../../../helpers/l10n';
 import Organization from '../../../components/shared/Organization';
+import TagsList from '../../../components/tags/TagsList';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class ProjectCard extends React.Component {
-  static propTypes = {
-    project: React.PropTypes.object,
-    organization: React.PropTypes.object
+export default class ProjectCard extends React.PureComponent {
+  props: {
+    measures: { [string]: string },
+    organization?: {},
+    project?: {
+      analysisDate?: string,
+      key: string,
+      name: string,
+      tags: Array<string>,
+      isFavorite?: boolean,
+      organization?: string
+    }
   };
 
-  render () {
+  render() {
     const { project } = this.props;
 
     if (project == null) {
       return null;
     }
 
-    const areProjectMeasuresLoaded = this.props.measures != null;
-    const isProjectAnalyzed = areProjectMeasuresLoaded &&
-        (this.props.measures['ncloc'] != null || this.props.measures['sqale_rating'] != null);
+    // check reliability_rating because only some measures can be loaded
+    // if coming from visualizations tab
+    const areProjectMeasuresLoaded = this.props.measures != null &&
+      this.props.measures['reliability_rating'] != null;
+    const isProjectAnalyzed = project.analysisDate != null;
+    const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
 
-    const className = classNames('boxed-group', 'project-card', { 'boxed-group-loading': !areProjectMeasuresLoaded });
-
+    const className = classNames('boxed-group', 'project-card', {
+      'boxed-group-loading': !areProjectMeasuresLoaded
+    });
 
     return (
-        <div data-key={project.key} className={className}>
-          {isProjectAnalyzed && (
-              <div className="boxed-group-actions">
-                <ProjectCardQualityGate status={this.props.measures['alert_status']}/>
-              </div>
-          )}
-          <div className="boxed-group-header">
-            {project.isFavorite != null && (
-                <FavoriteContainer className="spacer-right" componentKey={project.key}/>
-            )}
-            <h2 className="project-card-name">
-              {this.props.organization == null && project.organization != null && (
-                <span className="text-normal">
-                  <Organization organizationKey={project.organization}/>
-                </span>
-              )}
-              <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
-                {project.name}
-              </Link>
-            </h2>
-          </div>
-          {isProjectAnalyzed ? (
-                  <div className="boxed-group-inner">
-                    <ProjectCardMeasures measures={this.props.measures}/>
-                  </div>
-              ) : (
-                  <div className="boxed-group-inner">
-                    <div className="note project-card-not-analyzed">
-                      {translate('projects.not_analyzed')}
-                    </div>
-                  </div>
-              )}
+      <div data-key={project.key} className={className}>
+        {displayQualityGate &&
+          <div className="boxed-group-actions">
+            <ProjectCardQualityGate status={this.props.measures['alert_status']} />
+          </div>}
+
+        <div className="boxed-group-header">
+          {project.isFavorite != null &&
+            <FavoriteContainer className="spacer-right" componentKey={project.key} />}
+          <h2 className="project-card-name">
+            {this.props.organization == null &&
+              project.organization != null &&
+              <span className="text-normal">
+                <Organization organizationKey={project.organization} />
+              </span>}
+            <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
+              {project.name}
+            </Link>
+          </h2>
+          {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
+
+        {isProjectAnalyzed
+          ? <div className="boxed-group-inner">
+              {areProjectMeasuresLoaded && <ProjectCardMeasures measures={this.props.measures} />}
+            </div>
+          : <div className="boxed-group-inner">
+              <div className="note project-card-not-analyzed">
+                {translate('projects.not_analyzed')}
+              </div>
+            </div>}
+
+        {isProjectAnalyzed &&
+          <div className="project-card-analysis-date note">
+            {translateWithParameters(
+              'overview.last_analysis_on_x',
+              moment(project.analysisDate).format('LLL')
+            )}
+          </div>}
+      </div>
     );
   }
 }

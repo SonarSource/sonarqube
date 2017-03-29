@@ -26,21 +26,21 @@ export default class ProfileRulesRow extends React.Component {
     renderTotal: React.PropTypes.func.isRequired
   };
 
-  render () {
+  render() {
     const { renderTitle, renderCount, renderTotal } = this.props;
 
     return (
-        <tr>
-          <td>
-            {renderTitle()}
-          </td>
-          <td className="thin nowrap text-right">
-            {renderCount()}
-          </td>
-          <td className="thin nowrap text-right">
-            {renderTotal()}
-          </td>
-        </tr>
+      <tr>
+        <td>
+          {renderTitle()}
+        </td>
+        <td className="thin nowrap text-right">
+          {renderCount()}
+        </td>
+        <td className="thin nowrap text-right">
+          {renderTotal()}
+        </td>
+      </tr>
     );
   }
 }

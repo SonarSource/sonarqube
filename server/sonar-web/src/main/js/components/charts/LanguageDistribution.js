@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import find from 'lodash/find';
-import sortBy from 'lodash/sortBy';
+import { find, sortBy } from 'lodash';
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import { Histogram } from './histogram';
@@ -33,20 +32,20 @@ export default class LanguageDistribution extends React.Component {
 
   state = {};
 
-  componentDidMount () {
+  componentDidMount() {
     this.mounted = true;
     this.requestLanguages();
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.mounted = false;
   }
 
-  requestLanguages () {
+  requestLanguages() {
     getLanguages().then(languages => {
       if (this.mounted) {
         this.setState({ languages });
@@ -54,7 +53,7 @@ export default class LanguageDistribution extends React.Component {
     });
   }
 
-  getLanguageName (langKey) {
+  getLanguageName(langKey) {
     if (this.state.languages) {
       const lang = find(this.state.languages, { key: langKey });
       return lang ? lang.name : translate('unknown');
@@ -63,32 +62,30 @@ export default class LanguageDistribution extends React.Component {
     }
   }
 
-  cutLanguageName (name) {
+  cutLanguageName(name) {
     return name.length > 10 ? `${name.substr(0, 7)}...` : name;
   }
 
-  render () {
-    let data = this.props.distribution.split(';')
-        .map((point, index) => {
-          const tokens = point.split('=');
-          return { x: parseInt(tokens[1], 10), y: index, value: tokens[0] };
-        });
+  render() {
+    let data = this.props.distribution.split(';').map((point, index) => {
+      const tokens = point.split('=');
+      return { x: parseInt(tokens[1], 10), y: index, value: tokens[0] };
+    });
 
     data = sortBy(data, d => -d.x);
 
-    const yTicks = data
-        .map(point => this.getLanguageName(point.value))
-        .map(this.cutLanguageName);
+    const yTicks = data.map(point => this.getLanguageName(point.value)).map(this.cutLanguageName);
     const yValues = data.map(point => formatMeasure(point.x, 'SHORT_INT'));
 
     return (
-        <Histogram
-            data={data}
-            yTicks={yTicks}
-            yValues={yValues}
-            barsWidth={10}
-            height={data.length * 25}
-            padding={[0, 60, 0, 80]}/>
+      <Histogram
+        data={data}
+        yTicks={yTicks}
+        yValues={yValues}
+        barsWidth={10}
+        height={data.length * 25}
+        padding={[0, 60, 0, 80]}
+      />
     );
   }
 }

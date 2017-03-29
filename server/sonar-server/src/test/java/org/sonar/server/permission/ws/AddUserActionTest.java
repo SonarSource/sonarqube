@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws;
 
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
@@ -30,7 +29,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -62,6 +60,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Test
   public void add_permission_to_user_on_default_organization_if_organization_is_not_specified() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
+
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -73,7 +72,9 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Test
   public void add_permission_to_user_on_specified_organization() throws Exception {
     OrganizationDto organization = db.organizations().insert();
+    addUserAsMemberOfOrganization(organization);
     loginAsAdmin(organization);
+
     newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -86,9 +87,10 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_id() throws Exception {
     OrganizationDto organization = db.organizations().insert();
+    addUserAsMemberOfOrganization(organization);
     ComponentDto project = db.components().insertProject(organization);
-
     loginAsAdmin(organization);
+
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
@@ -102,8 +104,8 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_key() throws Exception {
     ComponentDto project = db.components().insertProject();
-
     loginAsAdmin(db.getDefaultOrganization());
+
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
@@ -117,8 +119,8 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Test
   public void add_permission_to_view() throws Exception {
     ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setKey("view-key"));
-
     loginAsAdmin(db.getDefaultOrganization());
+
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, view.uuid())
@@ -263,7 +265,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(ISSUE_ADMIN);
   }
 
-@Test
+  @Test
   public void organization_parameter_must_not_be_set_on_project_permissions() {
     ComponentDto project = db.components().insertProject();
     loginAsAdmin(db.getDefaultOrganization());
@@ -279,18 +281,26 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .execute();
   }
 
-  private void executeRequest(UserDto userDto, String permission) throws Exception {
-    executeRequest(userDto, permission, null);
+  @Test
+  public void fail_to_add_permission_when_user_is_not_member_of_given_organization() throws Exception {
+    // User is not member of given organization
+    OrganizationDto otherOrganization = db.organizations().insert();
+    addUserAsMemberOfOrganization(otherOrganization);
+    OrganizationDto organization = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
+    loginAsAdmin(organization);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("User 'ray.bradbury' is not member of organization 'Organization key'");
+
+    newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
   }
 
-  private void executeRequest(UserDto userDto, String permission, @Nullable OrganizationDto organizationDto) throws Exception {
-    TestRequest request = newRequest()
-      .setParam(PARAM_USER_LOGIN, userDto.getLogin())
-      .setParam(PARAM_PERMISSION, permission);
-    if (organizationDto != null) {
-      request.setParam(PARAM_ORGANIZATION, organizationDto.getKey());
-    }
-    request.execute();
+  private void addUserAsMemberOfOrganization(OrganizationDto organization) {
+    db.organizations().addMember(organization, user);
   }
 
 }

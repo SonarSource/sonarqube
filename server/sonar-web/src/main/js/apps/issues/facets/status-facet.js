@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-status-facet.hbs';
 
 export default BaseFacet.extend({
   template: Template,
 
-  sortValues (values) {
+  sortValues(values) {
     const order = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED'];
     return sortBy(values, v => order.indexOf(v.val));
   }
 });
-

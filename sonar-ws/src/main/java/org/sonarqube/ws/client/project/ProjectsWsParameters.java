@@ -41,8 +41,8 @@ public class ProjectsWsParameters {
   public static final String PARAM_TO = "to";
   public static final String PARAM_DRY_RUN = "dryRun";
 
-
-  public static final String FILTER_LANGUAGE = "language";
+  public static final String FILTER_LANGUAGES = "languages";
+  public static final String FILTER_TAGS = "tags";
 
   private ProjectsWsParameters() {
     // static utils only

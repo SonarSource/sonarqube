@@ -26,11 +26,11 @@ export default ModalFormView.extend({
   template: Template,
   successTemplate: TemplateSuccess,
 
-  getTemplate () {
+  getTemplate() {
     return this.selectedLanguage ? this.successTemplate : this.template;
   },
 
-  onRender () {
+  onRender() {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('select').select2({
       width: '250px',
@@ -38,33 +38,31 @@ export default ModalFormView.extend({
     });
   },
 
-  onFormSubmit () {
+  onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest () {
+  sendRequest() {
     const language = this.$('#restore-built-in-profiles-language').val();
-    this.selectedLanguage = this.options.languages
-        .find(l => l.key === language).name;
+    this.selectedLanguage = this.options.languages.find(l => l.key === language).name;
     restoreBuiltInProfiles(language)
-        .then(() => {
-          this.done = true;
-          this.render();
-          this.trigger('done');
-        })
-        .catch(e => {
-          this.enableForm();
-          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
-        });
+      .then(() => {
+        this.done = true;
+        this.render();
+        this.trigger('done');
+      })
+      .catch(e => {
+        this.enableForm();
+        e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+      });
   },
 
-  serializeData () {
+  serializeData() {
     return {
       languages: this.options.languages,
       selectedLanguage: this.selectedLanguage
     };
   }
 });
-

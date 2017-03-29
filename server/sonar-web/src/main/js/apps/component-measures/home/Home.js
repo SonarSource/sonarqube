@@ -24,17 +24,17 @@ import { getLeakPeriod } from '../../../helpers/periods';
 import { translate, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default class Home extends React.Component {
-  componentDidMount () {
+  componentDidMount() {
     document.querySelector('html').classList.add('dashboard-page');
     this.props.onDisplay();
     this.props.fetchMeasures();
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  render () {
+  render() {
     const { component, domains, periods } = this.props;
 
     if (domains == null) {
@@ -44,38 +44,41 @@ export default class Home extends React.Component {
     const leakPeriod = getLeakPeriod(periods);
 
     return (
-        <section id="component-measures-home" className="page page-container page-limited">
-          <header id="component-measures-home-header" className="home-header">
-            <nav className="nav-pills pull-left">
-              <ul>
-                <li>
-                  <IndexLink
-                      to={{ pathname: '/component_measures', query: { id: component.key } }}
-                      activeClassName="active">
-                    {translate('all')}
-                  </IndexLink>
+      <section id="component-measures-home" className="page page-container page-limited">
+        <header id="component-measures-home-header" className="home-header">
+          <nav className="nav-pills pull-left">
+            <ul>
+              <li>
+                <IndexLink
+                  to={{ pathname: '/component_measures', query: { id: component.key } }}
+                  activeClassName="active"
+                >
+                  {translate('all')}
+                </IndexLink>
+              </li>
+              {domains.map(domain => (
+                <li key={domain.name}>
+                  <Link
+                    to={{
+                      pathname: `/component_measures/domain/${domain.name}`,
+                      query: { id: component.key }
+                    }}
+                    activeClassName="active"
+                  >
+                    {getLocalizedMetricDomain(domain.name)}
+                  </Link>
                 </li>
-                {domains.map(domain => (
-                    <li key={domain.name}>
-                      <Link
-                          to={{ pathname: `/component_measures/domain/${domain.name}`, query: { id: component.key } }}
-                          activeClassName="active">
-                        {getLocalizedMetricDomain(domain.name)}
-                      </Link>
-                    </li>
-                ))}
-              </ul>
-            </nav>
+              ))}
+            </ul>
+          </nav>
 
-            {leakPeriod != null && (
-                <LeakPeriodLegend period={leakPeriod}/>
-            )}
-          </header>
+          {leakPeriod != null && <LeakPeriodLegend period={leakPeriod} />}
+        </header>
 
-          <main id="component-measures-home-main">
-            {this.props.children}
-          </main>
-        </section>
+        <main id="component-measures-home-main">
+          {this.props.children}
+        </main>
+      </section>
     );
   }
 }

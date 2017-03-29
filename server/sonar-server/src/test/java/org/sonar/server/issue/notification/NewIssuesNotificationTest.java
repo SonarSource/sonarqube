@@ -31,7 +31,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.user.index.UserIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,8 +78,8 @@ public class NewIssuesNotificationTest {
     addIssueNTimes(newIssue2(), 3);
     when(dbClient.componentDao().selectOrFailByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
     when(dbClient.componentDao().selectOrFailByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
-    when(dbClient.ruleDao().selectOrFailByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-world")))).thenReturn(newRule("Rule the World", "Java"));
-    when(dbClient.ruleDao().selectOrFailByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-universe")))).thenReturn(newRule("Rule the Universe", "Clojure"));
+    when(dbClient.ruleDao().selectOrFailDefinitionByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-world")))).thenReturn(newRule("Rule the World", "Java"));
+    when(dbClient.ruleDao().selectOrFailDefinitionByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-universe")))).thenReturn(newRule("Rule the Universe", "Clojure"));
 
     underTest.setStatistics("project-long-name", stats);
 
@@ -139,8 +139,8 @@ public class NewIssuesNotificationTest {
       .setEffort(Duration.create(10L));
   }
 
-  private RuleDto newRule(String name, String language) {
-    return new RuleDto()
+  private RuleDefinitionDto newRule(String name, String language) {
+    return new RuleDefinitionDto()
       .setName(name)
       .setLanguage(language);
   }

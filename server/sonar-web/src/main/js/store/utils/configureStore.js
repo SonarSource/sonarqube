@@ -30,15 +30,11 @@ if (process.env.NODE_ENV !== 'production') {
   composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
 }
 
-const finalCreateStore = compose(
-  applyMiddleware(...middlewares),
-  ...composed
-)(createStore);
+const finalCreateStore = compose(applyMiddleware(...middlewares), ...composed)(createStore);
 
-export default function configureStore (rootReducer, initialState) {
+export default function configureStore(rootReducer, initialState) {
   return finalCreateStore(rootReducer, initialState);
 }
 
-export const configureTestStore = (rootReducer, initialState) => (
-    createStore(rootReducer, initialState)
-);
+export const configureTestStore = (rootReducer, initialState) =>
+  createStore(rootReducer, initialState);

@@ -23,11 +23,7 @@ import { connect } from 'react-redux';
 import Header from './Header';
 import Table from './Table';
 import DeletionModal from './views/DeletionModal';
-import {
-    fetchProjectLinks,
-    deleteProjectLink,
-    createProjectLink
-} from '../store/actions';
+import { fetchProjectLinks, deleteProjectLink, createProjectLink } from '../store/actions';
 import { getProjectAdminProjectLinks, getComponent } from '../../../store/rootReducer';
 
 class Links extends React.Component {
@@ -36,38 +32,37 @@ class Links extends React.Component {
     links: React.PropTypes.array
   };
 
-  componentWillMount () {
+  componentWillMount() {
     this.handleCreateLink = this.handleCreateLink.bind(this);
     this.handleDeleteLink = this.handleDeleteLink.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.fetchProjectLinks(this.props.component.key);
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleCreateLink (name, url) {
+  handleCreateLink(name, url) {
     return this.props.createProjectLink(this.props.component.key, name, url);
   }
 
-  handleDeleteLink (link) {
-    new DeletionModal({ link }).on('done', () => {
-      this.props.deleteProjectLink(this.props.component.key, link.id);
-    }).render();
+  handleDeleteLink(link) {
+    new DeletionModal({ link })
+      .on('done', () => {
+        this.props.deleteProjectLink(this.props.component.key, link.id);
+      })
+      .render();
   }
 
-  render () {
+  render() {
     return (
-        <div className="page page-limited">
-          <Header
-              onCreate={this.handleCreateLink}/>
-          <Table
-              links={this.props.links}
-              onDelete={this.handleDeleteLink}/>
-        </div>
+      <div className="page page-limited">
+        <Header onCreate={this.handleCreateLink} />
+        <Table links={this.props.links} onDelete={this.handleDeleteLink} />
+      </div>
     );
   }
 }
@@ -77,7 +72,8 @@ const mapStateToProps = (state, ownProps) => ({
   links: getProjectAdminProjectLinks(state, ownProps.location.query.id)
 });
 
-export default connect(
-  mapStateToProps,
-    { fetchProjectLinks, createProjectLink, deleteProjectLink }
-)(Links);
+export default connect(mapStateToProps, {
+  fetchProjectLinks,
+  createProjectLink,
+  deleteProjectLink
+})(Links);

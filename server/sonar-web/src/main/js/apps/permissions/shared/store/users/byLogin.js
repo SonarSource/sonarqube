@@ -17,8 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import keyBy from 'lodash/keyBy';
-import { RECEIVE_HOLDERS_SUCCESS, GRANT_PERMISSION_TO_USER, REVOKE_PERMISSION_TO_USER } from '../actions';
+import { keyBy } from 'lodash';
+import {
+  RECEIVE_HOLDERS_SUCCESS,
+  GRANT_PERMISSION_TO_USER,
+  REVOKE_PERMISSION_TO_USER
+} from '../actions';
 
 const byLogin = (state = {}, action = {}) => {
   if (action.type === RECEIVE_HOLDERS_SUCCESS) {
@@ -30,8 +34,7 @@ const byLogin = (state = {}, action = {}) => {
     return { ...state, [action.login]: newUser };
   } else if (action.type === REVOKE_PERMISSION_TO_USER) {
     const newUser = { ...state[action.login] };
-    newUser.permissions = newUser.permissions
-        .filter(p => p !== action.permission);
+    newUser.permissions = newUser.permissions.filter(p => p !== action.permission);
     return { ...state, [action.login]: newUser };
   } else {
     return state;

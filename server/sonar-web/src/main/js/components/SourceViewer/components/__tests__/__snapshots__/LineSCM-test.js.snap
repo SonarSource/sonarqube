@@ -1,0 +1,43 @@
+exports[`test does not allow to click 1`] = `
+<td
+  className="source-meta source-line-scm">
+  <div
+    className="source-line-scm-inner"
+    data-author="foo" />
+</td>
+`;
+
+exports[`test does not render scm details 1`] = `
+<td
+  className="source-meta source-line-scm"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0} />
+`;
+
+exports[`test render scm details 1`] = `
+<td
+  className="source-meta source-line-scm"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}>
+  <div
+    className="source-line-scm-inner"
+    data-author="foo" />
+</td>
+`;
+
+exports[`test render scm details for the first line 1`] = `
+<td
+  className="source-meta source-line-scm"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}>
+  <div
+    className="source-line-scm-inner"
+    data-author="foo" />
+</td>
+`;

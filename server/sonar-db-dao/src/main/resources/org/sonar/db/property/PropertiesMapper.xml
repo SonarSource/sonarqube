@@ -95,9 +95,9 @@
   <select id="selectByKey" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>
-    from 
+    from
       properties p
-    where 
+    where
       p.prop_key=#{key}
       <if test="resourceId == null">
         and p.resource_id is null
@@ -136,7 +136,7 @@
   <select id="selectByKeysAndComponentIds" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>
-    from 
+    from
       properties p
     where
       p.prop_key in
@@ -179,6 +179,39 @@
         and p.user_id=#{query.userId,jdbcType=INTEGER}
       </if>
     </where>
+  </select>
+
+  <select id="selectGlobalPropertiesByKeyQuery" resultType="ScrapProperty">
+    select
+    <include refid="columnsToScrapPropertyDto"/>
+    from
+    properties p
+    where
+    p.resource_id is null
+    and p.user_id is null
+    and p.prop_key like #{textQuery,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectIdsByOrganizationAndUser" parameterType="map" resultType="long">
+    select py.id
+    from properties py
+      inner join projects ps on py.resource_id = ps.id
+    where
+    py.user_id=#{userId,jdbcType=INTEGER}
+    and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectIdsByOrganizationAndMatchingLogin" parameterType="String" resultType="long">
+    select py.id
+    from properties py
+      inner join projects ps on py.resource_id = ps.id
+    where
+    py.text_value like #{login,jdbcType=VARCHAR}
+    and py.prop_key in
+    <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
+      #{property,jdbcType=VARCHAR}
+    </foreach>
+    and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
   <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
@@ -308,6 +341,15 @@
         and user_id=#{query.userId,jdbcType=INTEGER}
       </if>
     </where>
+  </delete>
+
+  <delete id="deleteByIds" parameterType="long">
+    delete from properties
+    where
+    id in
+    <foreach collection="ids" open="(" close=")" item="id" separator=",">
+      #{id}
+    </foreach>
   </delete>
 
   <update id="renamePropertyKey" parameterType="map">

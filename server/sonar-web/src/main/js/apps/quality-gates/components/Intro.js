@@ -20,13 +20,13 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function Intro () {
+export default function Intro() {
   return (
-      <div className="search-navigator-workspace">
-        <div className="search-navigator-intro markdown">
-          <p>{translate('quality_gates.intro.1')}</p>
-          <p>{translate('quality_gates.intro.2')}</p>
-        </div>
+    <div className="search-navigator-workspace">
+      <div className="search-navigator-intro markdown">
+        <p>{translate('quality_gates.intro.1')}</p>
+        <p>{translate('quality_gates.intro.2')}</p>
       </div>
+    </div>
   );
 }

@@ -20,7 +20,12 @@
 import React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
 import { translate } from '../../../helpers/l10n';
-import { Notification, NotificationsState, ChannelsState, TypesState } from '../../../store/notifications/duck';
+import {
+  Notification,
+  NotificationsState,
+  ChannelsState,
+  TypesState
+} from '../../../store/notifications/duck';
 
 export default class NotificationsList extends React.Component {
   props: {
@@ -32,13 +37,13 @@ export default class NotificationsList extends React.Component {
     notifications: NotificationsState
   };
 
-  isEnabled (type: string, channel: string): boolean {
-    return !!this.props.notifications.find(notification => (
-        notification.type === type && notification.channel === channel
-    ));
+  isEnabled(type: string, channel: string): boolean {
+    return !!this.props.notifications.find(
+      notification => notification.type === type && notification.channel === channel
+    );
   }
 
-  handleCheck (type: string, channel: string, checked: boolean) {
+  handleCheck(type: string, channel: string, checked: boolean) {
     if (checked) {
       this.props.onAdd({ type, channel });
     } else {
@@ -46,25 +51,26 @@ export default class NotificationsList extends React.Component {
     }
   }
 
-  render () {
+  render() {
     const { channels, checkboxId, types } = this.props;
 
     return (
-        <tbody>
-          {types.map(type => (
-              <tr key={type}>
-                <td>{translate('notification.dispatcher', type)}</td>
-                {channels.map(channel => (
-                    <td key={channel} className="text-center">
-                      <Checkbox
-                          checked={this.isEnabled(type, channel)}
-                          id={checkboxId(type, channel)}
-                          onCheck={checked => this.handleCheck(type, channel, checked)}/>
-                    </td>
-                ))}
-              </tr>
-          ))}
-        </tbody>
+      <tbody>
+        {types.map(type => (
+          <tr key={type}>
+            <td>{translate('notification.dispatcher', type)}</td>
+            {channels.map(channel => (
+              <td key={channel} className="text-center">
+                <Checkbox
+                  checked={this.isEnabled(type, channel)}
+                  id={checkboxId(type, channel)}
+                  onCheck={checked => this.handleCheck(type, channel, checked)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
     );
   }
 }

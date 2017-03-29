@@ -47,14 +47,17 @@
     WHERE id=#{id}
   </update>
 
-  <update id="delete" parameterType="int">
-    DELETE FROM rules_profiles WHERE id=#{id}
+  <update id="deleteByKeys" parameterType="String">
+    delete from rules_profiles
+    where kee in
+      <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
   </update>
 
   <select id="selectAll" parameterType="map" resultType="QualityProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
+    WHERE p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     ORDER BY p.name, p.language
   </select>
 
@@ -62,20 +65,20 @@
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    WHERE p.name=#{name} AND p.language=#{language}
+    WHERE p.name=#{name, jdbcType=VARCHAR}
+    AND p.language=#{language, jdbcType=VARCHAR}
+    <if test="organizationUuid != null">
+      AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    </if>
   </select>
 
   <select id="selectByNameAndLanguages" parameterType="map" resultType="QualityProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      p.name=#{name}
-      AND p.language in
-      <foreach collection="languages" open="(" close=")" item="language" separator=",">
-        #{language}
-      </foreach>
-    </where>
+    WHERE p.name=#{name, jdbcType=VARCHAR}
+    AND p.language IN <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByKey" parameterType="string" resultType="QualityProfile">
@@ -100,21 +103,8 @@
     <include refid="profilesColumns"/>
     FROM rules_profiles p
     WHERE p.language=#{language}
+    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY p.name
-  </select>
-
-  <select id="selectById" parameterType="Integer" resultType="QualityProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.id=#{id}
-  </select>
-
-  <select id="selectParentById" parameterType="int" resultType="QualityProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    INNER JOIN rules_profiles child ON child.parent_kee=p.kee and child.id=#{id}
   </select>
 
   <select id="selectChildren" parameterType="string" resultType="QualityProfile">
@@ -129,45 +119,28 @@
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      p.is_default=${_true}
-      AND p.language=#{language}
-    </where>
+    WHERE p.is_default=${_true}
+    AND p.language=#{language, jdbcType=VARCHAR}
+    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectDefaultProfiles" parameterType="map" resultType="QualityProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      p.is_default=${_true}
-      AND p.language in
-      <foreach collection="languages" open="(" close=")" item="language" separator=",">
-        #{language}
-      </foreach>
-    </where>
-  </select>
-
-  <select id="selectProjects" resultType="Component">
-    SELECT projects.id as id, projects.name as name, projects.kee as kee, projects.uuid as uuid
-    FROM projects projects
-    JOIN project_qprofiles pp ON pp.project_uuid = projects.uuid
-    JOIN rules_profiles prof ON pp.profile_key = prof.kee
-    <where>
-      AND prof.name = #{profileName}
-      AND prof.language = #{language}
-    </where>
+    WHERE p.is_default=${_true}
+    AND p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectSelectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM projects pj
     JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey}
-    <where>
-      AND pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery}
-    </where>
+    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
@@ -175,12 +148,11 @@
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey}
-    <where>
-      AND pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery}
+    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
       AND pp.profile_key IS NULL
-    </where>
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
@@ -188,31 +160,21 @@
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey}
-    <where>
-      AND pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery}
-    </where>
+    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
-  <select id="countProjectsByProfile" resultType="org.sonar.db.qualityprofile.QualityProfileProjectCount">
-    SELECT pp.profile_key as profileKey, count(projects.id) as projectCount
-    FROM projects projects
-    INNER JOIN project_qprofiles pp ON pp.project_uuid=projects.uuid
-    INNER JOIN rules_profiles prof ON pp.profile_key=prof.kee
-    WHERE projects.enabled=${_true}
-    GROUP BY pp.profile_key
-  </select>
-
-  <select id="selectByProjectIdAndLanguage" parameterType="map" resultType="QualityProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    JOIN project_qprofiles pp ON pp.profile_key=p.kee
-    JOIN projects project ON pp.project_uuid=project.uuid
-    AND project.id=#{projectId}
-    WHERE p.language=#{language}
+  <select id="countProjectsByProfileKey" resultType="KeyLongValue" parameterType="map">
+    select pp.profile_key as "key", count(projects.id) as "value"
+    from projects projects
+    inner join project_qprofiles pp ON pp.project_uuid = projects.uuid
+    inner join rules_profiles prof ON pp.profile_key = prof.kee
+    where projects.enabled = ${_true}
+    and prof.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    group by pp.profile_key
   </select>
 
   <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
@@ -229,13 +191,10 @@
     <include refid="profilesColumns"/>
     FROM rules_profiles p
     JOIN project_qprofiles pp ON pp.profile_key=p.kee
-    JOIN projects project ON pp.project_uuid=project.uuid AND project.kee=#{projectKey}
-    <where>
-      p.language in
-      <foreach collection="languages" open="(" close=")" item="language" separator=",">
-        #{language}
-      </foreach>
-    </where>
+    JOIN projects project ON pp.project_uuid=project.uuid AND project.kee=#{projectKey, jdbcType=VARCHAR}
+    JOIN organizations org ON project.organization_uuid = org.uuid AND p.organization_uuid = org.uuid
+    WHERE p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+    AND org.uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <insert id="insertProjectProfileAssociation" keyColumn="id" useGeneratedKeys="true">
@@ -250,8 +209,12 @@
     DELETE FROM project_qprofiles WHERE project_uuid=#{projectUuid} AND profile_key=#{profileKey}
   </update>
 
-  <update id="deleteAllProjectProfileAssociation">
-    DELETE FROM project_qprofiles WHERE profile_key=#{profileKey}
+  <update id="deleteProjectAssociationByProfileKeys" parameterType="String">
+    delete from project_qprofiles
+    where profile_key in
+    <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
+      #{profileKey, jdbcType=VARCHAR}
+    </foreach>
   </update>
 
 </mapper>

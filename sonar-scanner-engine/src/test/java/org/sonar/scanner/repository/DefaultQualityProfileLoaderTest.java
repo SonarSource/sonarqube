@@ -19,87 +19,114 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.api.utils.MessageException;
-
-import org.sonarqube.ws.QualityProfiles;
-import com.google.common.io.Resources;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.repository.DefaultQualityProfileLoader;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.WsTestUtil;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class DefaultQualityProfileLoaderTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  private DefaultQualityProfileLoader qpLoader;
-  private ScannerWsClient wsClient;
-  private InputStream is;
+  private ScannerWsClient wsClient = mock(ScannerWsClient.class);
+  private Settings settings = new MapSettings();
+  private DefaultQualityProfileLoader underTest = new DefaultQualityProfileLoader(settings, wsClient);
 
-  @Before
-  public void setUp() throws IOException {
-    wsClient = mock(ScannerWsClient.class);
-    is = mock(InputStream.class);
-    when(is.read()).thenReturn(-1);
-    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232", is);
-    qpLoader = new DefaultQualityProfileLoader(wsClient);
+  @Test
+  public void load_gets_profiles_for_specified_project_and_profile_name() throws IOException {
+    prepareCallWithResults();
+    underTest.load("foo", "bar");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo&profileName=bar");
   }
 
   @Test
-  public void testEncoding() throws IOException {
-    InputStream is = createEncodedQP("qp");
-    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232", is);
-
-    List<QualityProfile> loaded = qpLoader.load("foo#2", "my-profile#2");
-    WsTestUtil.verifyCall(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232");
-    verifyNoMoreInteractions(wsClient);
-    assertThat(loaded).hasSize(1);
+  public void load_gets_all_profiles_for_specified_project() throws IOException {
+    prepareCallWithResults();
+    underTest.load("foo", null);
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo");
   }
 
   @Test
-  public void testNoProfile() throws IOException {
-    InputStream is = createEncodedQP();
-    WsTestUtil.mockStream(wsClient, is);
+  public void load_encodes_url_parameters() throws IOException {
+    prepareCallWithResults();
+    underTest.load("foo#2", "bar#2");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=bar%232");
+  }
+
+  @Test
+  public void load_sets_organization_parameter_if_defined_in_settings() throws IOException {
+    settings.setProperty("sonar.organization", "my-org");
+    prepareCallWithResults();
+    underTest.load("foo", null);
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo&organization=my-org");
+  }
+
+  @Test
+  public void loadDefault_gets_profiles_with_specified_name() throws IOException {
+    prepareCallWithResults();
+    underTest.loadDefault("foo");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?defaults=true&profileName=foo");
+  }
+
+  @Test
+  public void loadDefault_gets_all_default_profiles() throws IOException {
+    prepareCallWithResults();
+    underTest.loadDefault(null);
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?defaults=true");
+  }
+
+  @Test
+  public void loadDefault_encodes_url_parameters() throws IOException {
+    prepareCallWithResults();
+    underTest.loadDefault("foo#2");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?defaults=true&profileName=foo%232");
+  }
+
+  @Test
+  public void loadDefault_sets_organization_parameter_if_defined_in_settings() throws IOException {
+    settings.setProperty("sonar.organization", "my-org");
+    prepareCallWithResults();
+    underTest.loadDefault("foo");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?defaults=true&profileName=foo&organization=my-org");
+  }
+
+  @Test
+  public void load_throws_MessageException_if_no_profiles_are_available_for_specified_project() throws IOException {
+    prepareCallWithEmptyResults();
 
     exception.expect(MessageException.class);
     exception.expectMessage("No quality profiles");
 
-    qpLoader.load("project", null);
+    underTest.load("project", null);
     verifyNoMoreInteractions(wsClient);
   }
 
-  @Test
-  public void use_real_response() throws IOException {
-    InputStream is = getTestResource("quality_profile_search_default");
-    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true", is);
-
-    List<QualityProfile> loaded = qpLoader.loadDefault(null);
-    WsTestUtil.verifyCall(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true");
-    verifyNoMoreInteractions(wsClient);
-    assertThat(loaded).hasSize(1);
+  private void verifyCalledPath(String expectedPath) {
+    WsTestUtil.verifyCall(wsClient, expectedPath);
   }
 
-  private InputStream getTestResource(String name) throws IOException {
-    return Resources.asByteSource(this.getClass().getResource(this.getClass().getSimpleName() + "/" + name))
-      .openBufferedStream();
+  private void prepareCallWithResults() throws IOException {
+    WsTestUtil.mockStream(wsClient, createStreamOfProfiles("qp"));
   }
 
-  private static InputStream createEncodedQP(String... names) throws IOException {
+  private void prepareCallWithEmptyResults() throws IOException {
+    WsTestUtil.mockStream(wsClient, createStreamOfProfiles());
+  }
+
+  private static InputStream createStreamOfProfiles(String... names) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     QualityProfiles.SearchWsResponse.Builder responseBuilder = QualityProfiles.SearchWsResponse.newBuilder();
 

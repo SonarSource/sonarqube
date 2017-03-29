@@ -19,37 +19,65 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
+import FilterHeader from './FilterHeader';
+import SortingFilter from './SortingFilter';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
-import { getDuplicationsRatingLabel, getDuplicationsRatingAverageValue } from '../../../helpers/ratings';
+import {
+  getDuplicationsRatingLabel,
+  getDuplicationsRatingAverageValue
+} from '../../../helpers/ratings';
 
-export default class DuplicationsFilter extends React.Component {
-  renderOption = (option, selected) => {
-    return (
-        <span>
-          <DuplicationsRating value={getDuplicationsRatingAverageValue(option)} size="small" muted={!selected}/>
-          <span className="spacer-left">
-            {getDuplicationsRatingLabel(option)}
-          </span>
-        </span>
-    );
+export default class DuplicationsFilter extends React.PureComponent {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
   };
 
-  getFacetValueForOption = (facet, option) => {
+  property = 'duplications';
+
+  renderOption(option, selected) {
+    return (
+      <span>
+        <DuplicationsRating
+          value={getDuplicationsRatingAverageValue(option)}
+          size="small"
+          muted={!selected}
+        />
+        <span className="spacer-left">
+          {getDuplicationsRatingLabel(option)}
+        </span>
+      </span>
+    );
+  }
+
+  getFacetValueForOption(facet, option) {
     const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*'];
     return facet[map[option - 1]];
-  };
+  }
 
-  render () {
+  render() {
     return (
-        <FilterContainer
-            property="duplications"
-            getOptions={() => [1, 2, 3, 4, 5]}
-            renderName={() => 'Duplications'}
-            renderOption={this.renderOption}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <FilterContainer
+        property={this.property}
+        options={[1, 2, 3, 4, 5]}
+        query={this.props.query}
+        renderOption={this.renderOption}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={
+          <FilterHeader name="Duplications">
+            <SortingFilter
+              property={this.property}
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+            />
+          </FilterHeader>
+        }
+      />
     );
   }
 }

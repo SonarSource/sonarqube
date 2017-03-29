@@ -27,6 +27,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.user.User;
 import org.sonar.server.es.BaseDoc;
 
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
+
 public class UserDoc extends BaseDoc implements User {
 
   public UserDoc(Map<String, Object> fields) {
@@ -77,6 +79,10 @@ public class UserDoc extends BaseDoc implements User {
     return getField(UserIndexDefinition.FIELD_SCM_ACCOUNTS);
   }
 
+  public List<String> organizationUuids() {
+    return getField(FIELD_ORGANIZATION_UUIDS);
+  }
+
   public long createdAt() {
     return getFieldAsDate(UserIndexDefinition.FIELD_CREATED_AT).getTime();
   }
@@ -107,6 +113,11 @@ public class UserDoc extends BaseDoc implements User {
 
   public UserDoc setScmAccounts(@Nullable List<String> s) {
     setField(UserIndexDefinition.FIELD_SCM_ACCOUNTS, s);
+    return this;
+  }
+
+  public UserDoc setOrganizationUuids(@Nullable List<String> organizationUuids) {
+    setField(FIELD_ORGANIZATION_UUIDS, organizationUuids);
     return this;
   }
 

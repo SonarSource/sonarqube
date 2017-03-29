@@ -28,7 +28,7 @@ it('should render list of projects with no selection', () => {
     { id: '2', key: 'b', name: 'B', qualifier: 'TRK' }
   ];
 
-  const result = shallow(<Projects projects={projects} selection={[]} refresh={jest.fn()}/>);
+  const result = shallow(<Projects projects={projects} selection={[]} refresh={jest.fn()} />);
   expect(result.find('tr').length).toBe(2);
   expect(result.find(Checkbox).filterWhere(n => n.prop('checked')).length).toBe(0);
 });
@@ -38,9 +38,11 @@ it('should render list of projects with one selected', () => {
     { id: '1', key: 'a', name: 'A', qualifier: 'TRK' },
     { id: '2', key: 'b', name: 'B', qualifier: 'TRK' }
   ];
-  const selection = ['1'];
+  const selection = ['a'];
 
-  const result = shallow(<Projects projects={projects} selection={selection} refresh={jest.fn()}/>);
+  const result = shallow(
+    <Projects projects={projects} selection={selection} refresh={jest.fn()} />
+  );
   expect(result.find('tr').length).toBe(2);
   expect(result.find(Checkbox).filterWhere(n => n.prop('checked')).length).toBe(1);
 });

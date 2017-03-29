@@ -26,4 +26,3 @@ export default Marionette.CompositeView.extend({
   childView: ListItemView,
   childViewContainer: 'tbody'
 });
-

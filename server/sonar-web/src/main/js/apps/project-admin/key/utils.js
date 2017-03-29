@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export const reloadUpdateKeyPage = componentKey => {
-  setTimeout(() => {
-    window.location = window.baseUrl +
-        '/project/key?id=' + encodeURIComponent(componentKey);
-  }, 3000);
+  setTimeout(
+    () => {
+      window.location = window.baseUrl + '/project/key?id=' + encodeURIComponent(componentKey);
+    },
+    3000
+  );
 };

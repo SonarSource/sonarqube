@@ -75,6 +75,4 @@ export default (state: AppState = defaultValue, action: Action) => {
   return state;
 };
 
-export const getRootQualifiers = (state: AppState) => (
-    state.qualifiers
-);
+export const getRootQualifiers = (state: AppState) => state.qualifiers;

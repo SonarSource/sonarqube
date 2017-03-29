@@ -170,6 +170,18 @@
       and p.qualifier='TRK'
   </select>
 
+  <select id="selectByComponentsAndMetrics" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid and analysis.islast=${_true}
+    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
+    <where>
+    and p.uuid in <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">#{componentUuid,jdbcType=VARCHAR}</foreach>
+    and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId,jdbcType=INTEGER}</foreach>
+    and pm.person_id is null
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
     insert into project_measures (
     value,

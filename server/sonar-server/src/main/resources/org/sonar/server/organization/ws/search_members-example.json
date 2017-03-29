@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "login": "ada.lovelace",
+      "name": "Ada Lovelace",
+      "avatar": "680b0001b4952664631511a81a4edc59"
+    },
+    {
+      "login": "grace.hopper",
+      "name": "Grace Hopper",
+      "avatar": "36d90b0b8cc8639e4960e46116dce02c"
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 2
+  }
+}

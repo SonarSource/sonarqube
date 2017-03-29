@@ -22,11 +22,11 @@ import React from 'react';
 import Rating from '../Rating';
 
 it('should render with numeric value', () => {
-  const rating = shallow(<Rating value={2}/>);
+  const rating = shallow(<Rating value={2} />);
   expect(rating.is('.rating-B')).toBe(true);
 });
 
 it('should render with string value', () => {
-  const rating = shallow(<Rating value="2.0"/>);
+  const rating = shallow(<Rating value="2.0" />);
   expect(rating.is('.rating-B')).toBe(true);
 });

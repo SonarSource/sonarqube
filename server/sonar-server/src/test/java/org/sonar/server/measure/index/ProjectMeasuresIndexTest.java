@@ -20,6 +20,7 @@
 package org.sonar.server.measure.index;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
@@ -47,6 +49,8 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -57,6 +61,7 @@ import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexTest {
@@ -67,7 +72,7 @@ public class ProjectMeasuresIndexTest {
   private static final String COVERAGE = "coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
   private static final String NCLOC = "ncloc";
-  private static final String LANGUAGE = "language";
+  private static final String LANGUAGES = "languages";
 
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
   private static final ComponentDto PROJECT1 = newProjectDto(ORG).setUuid("Project-1").setName("Project 1").setKey("key-1");
@@ -80,6 +85,9 @@ public class ProjectMeasuresIndexTest {
 
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -278,10 +286,10 @@ public class ProjectMeasuresIndexTest {
   public void filter_on_languages() {
     ComponentDto project4 = newProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
     index(
-      newDoc(PROJECT1).setLanguages(ImmutableMap.of("java", 6)),
-      newDoc(PROJECT2).setLanguages(ImmutableMap.of("xoo", 8)),
-      newDoc(PROJECT3).setLanguages(ImmutableMap.of("xoo", 18)),
-      newDoc(project4).setLanguages(ImmutableMap.of("<null>", 10, "java", 2, "xoo", 12)));
+      newDoc(PROJECT1).setLanguages(singletonList("java")),
+      newDoc(PROJECT2).setLanguages(singletonList("xoo")),
+      newDoc(PROJECT3).setLanguages(singletonList("xoo")),
+      newDoc(project4).setLanguages(asList("<null>", "java", "xoo")));
 
     assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java", "xoo")), PROJECT1, PROJECT2, PROJECT3, project4);
     assertResults(new ProjectMeasuresQuery().setLanguages(newHashSet("java")), PROJECT1, project4);
@@ -987,46 +995,255 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void facet_languages() {
     index(
-      newDoc().setLanguages(ImmutableMap.of("java", 6)),
-      newDoc().setLanguages(ImmutableMap.of("java", 8)),
-      newDoc().setLanguages(ImmutableMap.of("xoo", 18)),
-      newDoc().setLanguages(ImmutableMap.of("xml", 4)),
-      newDoc().setLanguages(ImmutableMap.of("<null>", 2, "java", 5)),
-      newDoc().setLanguages(ImmutableMap.of("<null>", 10, "java", 2, "xoo", 12)));
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(singletonList("xoo")),
+      newDoc().setLanguages(singletonList("xml")),
+      newDoc().setLanguages(asList("<null>", "java")),
+      newDoc().setLanguages(asList("<null>", "java", "xoo")));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets();
 
-    assertThat(facets.get(LANGUAGE)).containsOnly(
-      entry("<null>", 12L),
-      entry("java", 21L),
-      entry("xoo", 30L),
-      entry("xml", 4L));
+    assertThat(facets.get(LANGUAGES)).containsOnly(
+      entry("<null>", 2L),
+      entry("java", 4L),
+      entry("xoo", 2L),
+      entry("xml", 1L));
   }
 
-  // TODO
+  @Test
+  public void facet_languages_is_limited_to_10_languages() {
+    index(
+      newDoc().setLanguages(asList("<null>", "java", "xoo", "css", "cpp")),
+      newDoc().setLanguages(asList("xml", "php", "python", "perl", "ruby")),
+      newDoc().setLanguages(asList("js", "scala")));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets();
+
+    assertThat(facets.get(LANGUAGES)).hasSize(10);
+  }
+
   @Test
   public void facet_languages_is_sticky() {
+    index(
+      newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
+      newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
+      newDoc(NCLOC, 10d).setLanguages(singletonList("xoo")),
+      newDoc(NCLOC, 100d).setLanguages(singletonList("xml")),
+      newDoc(NCLOC, 100d).setLanguages(asList("<null>", "java")),
+      newDoc(NCLOC, 5000d).setLanguages(asList("<null>", "java", "xoo")));
 
+    Facets facets = underTest.search(
+      new ProjectMeasuresQuery().setLanguages(ImmutableSet.of("java")),
+      new SearchOptions().addFacets(LANGUAGES, NCLOC)).getFacets();
+
+    // Sticky facet on language does not take into account language filter
+    assertThat(facets.get(LANGUAGES)).containsOnly(
+      entry("<null>", 2L),
+      entry("java", 4L),
+      entry("xoo", 2L),
+      entry("xml", 1L));
+    // But facet on ncloc does well take account into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 3L),
+      entry("1000.0-10000.0", 1L),
+      entry("10000.0-100000.0", 0L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
+  }
+
+  @Test
+  public void facet_languages_returns_more_than_10_languages_when_languages_filter_contains_value_not_in_top_10() {
+    index(
+      newDoc().setLanguages(asList("<null>", "java", "xoo", "css", "cpp")),
+      newDoc().setLanguages(asList("xml", "php", "python", "perl", "ruby")),
+      newDoc().setLanguages(asList("js", "scala")));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery().setLanguages(ImmutableSet.of("xoo", "xml")), new SearchOptions().addFacets(LANGUAGES)).getFacets();
+
+    assertThat(facets.get(LANGUAGES)).containsOnly(
+      entry("<null>", 1L),
+      entry("cpp", 1L),
+      entry("css", 1L),
+      entry("java", 1L),
+      entry("js", 1L),
+      entry("perl", 1L),
+      entry("php", 1L),
+      entry("python", 1L),
+      entry("ruby", 1L),
+      entry("scala", 1L),
+      entry("xoo", 1L),
+      entry("xml", 1L)
+    );
   }
 
   @Test
   public void facet_languages_contains_only_projects_authorized_for_user() throws Exception {
     // User can see these projects
     indexForUser(USER1,
-      newDoc().setLanguages(ImmutableMap.of("java", 6)),
-      newDoc().setLanguages(ImmutableMap.of("java", 1, "xoo", 5)));
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(asList("java", "xoo")));
 
     // User cannot see these projects
     indexForUser(USER2,
-      newDoc().setLanguages(ImmutableMap.of("java", 5)),
-      newDoc().setLanguages(ImmutableMap.of("java", 2, "xoo", 12)));
+      newDoc().setLanguages(singletonList("java")),
+      newDoc().setLanguages(asList("java", "xoo")));
 
     userSession.logIn(USER1);
-    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGE)).getFacets().get(LANGUAGE);
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(LANGUAGES)).getFacets().get(LANGUAGES);
 
     assertThat(result).containsOnly(
-      entry("java", 7L),
-      entry("xoo", 5L));
+      entry("java", 2L),
+      entry("xoo", 1L));
+  }
+
+  @Test
+  public void facet_tags() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("finance", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "finance")),
+      newDoc().setTags(newArrayList("marketing", "offshore")),
+      newDoc().setTags(newArrayList("finance", "marketing")),
+      newDoc().setTags(newArrayList("finance")));
+
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+
+    assertThat(result).containsOnly(
+      entry("finance", 5L),
+      entry("marketing", 3L),
+      entry("offshore", 2L),
+      entry("java", 1L),
+      entry("javascript", 1L));
+  }
+
+  @Test
+  public void facet_tags_is_sticky() {
+    index(
+      newDoc().setTags(newArrayList("finance")).setQualityGateStatus(OK.name()),
+      newDoc().setTags(newArrayList("finance")).setQualityGateStatus(ERROR.name()),
+      newDoc().setTags(newArrayList("cpp")).setQualityGateStatus(WARN.name()));
+
+    Facets facets = underTest.search(
+      new ProjectMeasuresQuery().setTags(newHashSet("cpp")),
+      new SearchOptions().addFacets(FIELD_TAGS).addFacets(ALERT_STATUS_KEY))
+      .getFacets();
+
+    assertThat(facets.get(FIELD_TAGS)).containsOnly(
+      entry("finance", 2L),
+      entry("cpp", 1L));
+    assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
+      entry(OK.name(), 0L),
+      entry(ERROR.name(), 0L),
+      entry(WARN.name(), 1L));
+  }
+
+  @Test
+  public void facet_tags_size_limited_to_10() {
+    index(
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("solo")));
+
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+
+    assertThat(result).hasSize(10).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10");
+  }
+
+  @Test
+  public void facet_tags_returns_more_than_10_tags_when_tags_filter_contains_value_not_in_top_10() {
+    index(
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
+      newDoc().setTags(newArrayList("solo", "solo2")));
+
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(ImmutableSet.of("solo", "solo2")), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+
+    assertThat(result).hasSize(12).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10", "solo", "solo2");
+  }
+
+  @Test
+  public void search_tags() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags("off", 10);
+
+    assertThat(result).containsOnly("offshore", "official", "Madhoff");
+  }
+
+  @Test
+  public void search_tags_return_all_tags() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 10);
+
+    assertThat(result).containsOnly("offshore", "official", "Madhoff", "finance", "marketing", "java", "javascript");
+  }
+
+  @Test
+  public void search_tags_in_lexical_order() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 10);
+
+    assertThat(result).containsExactly("Madhoff", "finance", "java", "javascript", "marketing", "official", "offshore");
+  }
+
+  @Test
+  public void search_tags_only_of_authorized_projects() {
+    indexForUser(USER1,
+      newDoc(PROJECT1).setTags(singletonList("finance")),
+      newDoc(PROJECT2).setTags(singletonList("marketing")));
+    indexForUser(USER2,
+      newDoc(PROJECT3).setTags(singletonList("offshore")));
+
+    userSession.logIn(USER1);
+
+    List<String> result = underTest.searchTags(null, 10);
+
+    assertThat(result).containsOnly("finance", "marketing");
+  }
+
+  @Test
+  public void search_tags_with_no_tags() {
+    List<String> result = underTest.searchTags("whatever", 10);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void search_tags_with_page_size_at_0() {
+    index(newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 0);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void fail_if_page_size_greater_than_100() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be lower than or equals to 100");
+
+    underTest.searchTags("whatever", 101);
   }
 
   private void index(ProjectMeasuresDoc... docs) {

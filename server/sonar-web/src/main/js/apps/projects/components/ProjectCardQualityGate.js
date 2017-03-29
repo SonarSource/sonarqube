@@ -21,12 +21,12 @@ import React from 'react';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
 
-export default class ProjectCardQualityGate extends React.Component {
+export default class ProjectCardQualityGate extends React.PureComponent {
   static propTypes = {
     status: React.PropTypes.string
   };
 
-  render () {
+  render() {
     const { status } = this.props;
 
     if (!status) {
@@ -34,15 +34,15 @@ export default class ProjectCardQualityGate extends React.Component {
     }
 
     return (
-        <div className="project-card-measure project-card-quality-gate">
-          <div className="project-card-measure-inner">
-            <span className="small spacer-right">
-              {translate('overview.quality_gate')}
-              {':'}
-            </span>
-            <Level level={status} small={true}/>
-          </div>
+      <div className="project-card-measure project-card-quality-gate">
+        <div className="project-card-measure-inner">
+          <span className="small spacer-right">
+            {translate('overview.quality_gate')}
+            {':'}
+          </span>
+          <Level level={status} small={true} />
         </div>
+      </div>
     );
   }
 }

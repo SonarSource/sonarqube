@@ -23,11 +23,11 @@ import Issue from '../models/issue';
 export default Backbone.Collection.extend({
   model: Issue,
 
-  url () {
+  url() {
     return window.baseUrl + '/api/issues/search';
   },
 
-  _injectRelational (issue, source, baseField, lookupField) {
+  _injectRelational(issue, source, baseField, lookupField) {
     const baseValue = issue[baseField];
     if (baseValue != null && Array.isArray(source) && source.length > 0) {
       const lookupValue = source.find(candidate => candidate[lookupField] === baseValue);
@@ -41,7 +41,7 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  _injectCommentsRelational (issue, users) {
+  _injectCommentsRelational(issue, users) {
     if (issue.comments) {
       const that = this;
       const newComments = issue.comments.map(comment => {
@@ -55,7 +55,7 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  _prepareClosed (issue) {
+  _prepareClosed(issue) {
     if (issue.status === 'CLOSED') {
       issue.flows = [];
       delete issue.textRange;
@@ -63,7 +63,7 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  ensureTextRange (issue) {
+  ensureTextRange(issue) {
     if (issue.line && !issue.textRange) {
       // FIXME 999999
       issue.textRange = {
@@ -76,7 +76,7 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  parse (r) {
+  parse(r) {
     const that = this;
 
     this.paging = {
@@ -99,4 +99,3 @@ export default Backbone.Collection.extend({
     });
   }
 });
-

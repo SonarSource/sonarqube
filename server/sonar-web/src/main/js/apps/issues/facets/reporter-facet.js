@@ -20,22 +20,22 @@
 import CustomValuesFacet from './custom-values-facet';
 
 export default CustomValuesFacet.extend({
-  getUrl () {
+  getUrl() {
     return window.baseUrl + '/api/users/search';
   },
 
-  prepareAjaxSearch () {
+  prepareAjaxSearch() {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data (term, page) {
+      data(term, page) {
         return { q: term, p: page };
       },
       results: window.usersToSelect2
     };
   },
 
-  getValuesWithLabels () {
+  getValuesWithLabels() {
     const values = this.model.getValues();
     const source = this.options.app.facets.users;
     values.forEach(v => {
@@ -52,11 +52,10 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData () {
+  serializeData() {
     return {
       ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
     };
   }
 });
-

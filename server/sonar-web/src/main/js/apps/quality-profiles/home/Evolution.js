@@ -28,13 +28,13 @@ export default class Evolution extends React.Component {
     profiles: ProfilesListType.isRequired
   };
 
-  render () {
+  render() {
     return (
-        <div className="quality-profiles-evolution">
-          <EvolutionDeprecated profiles={this.props.profiles}/>
-          <EvolutionStagnant profiles={this.props.profiles}/>
-          <EvolutionRules/>
-        </div>
+      <div className="quality-profiles-evolution">
+        <EvolutionDeprecated profiles={this.props.profiles} />
+        <EvolutionStagnant profiles={this.props.profiles} />
+        <EvolutionRules />
+      </div>
     );
   }
 }

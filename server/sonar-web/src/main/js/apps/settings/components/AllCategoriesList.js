@@ -24,8 +24,8 @@ import CategoriesList from './CategoriesList';
 import { getSettingsAppAllCategories } from '../../../store/rootReducer';
 
 class AllCategoriesList extends React.Component {
-  render () {
-    return <CategoriesList {...this.props}/>;
+  render() {
+    return <CategoriesList {...this.props} />;
   }
 }
 
@@ -33,6 +33,4 @@ const mapStateToProps = state => ({
   categories: getSettingsAppAllCategories(state)
 });
 
-export default connect(
-  mapStateToProps
-)(AllCategoriesList);
+export default connect(mapStateToProps)(AllCategoriesList);

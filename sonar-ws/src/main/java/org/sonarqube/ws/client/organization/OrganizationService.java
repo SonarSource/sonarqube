@@ -26,6 +26,7 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonarqube.ws.Organizations.CreateWsResponse;
 import static org.sonarqube.ws.Organizations.UpdateWsResponse;
 
@@ -37,6 +38,7 @@ public class OrganizationService extends BaseService {
 
   public SearchWsResponse search(SearchWsRequest request) {
     GetRequest get = new GetRequest(path("search"))
+      .setParam("organizations", inlineMultipleParamValue(request.getOrganizations()))
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize());
 
@@ -67,8 +69,24 @@ public class OrganizationService extends BaseService {
 
   public void delete(@Nullable String key) {
     PostRequest post = new PostRequest(path("delete"))
-      .setParam("key", key);
+      .setParam("organization", key);
 
     call(post).failIfNotSuccessful();
+  }
+
+  public void addMember(String organizationKey, String login) {
+    PostRequest post = new PostRequest(path("add_member"))
+      .setParam("organization", requireNonNull(organizationKey))
+      .setParam("login", requireNonNull(login));
+
+    call(post);
+  }
+
+  public void removeMember(String organizationKey, String login) {
+    PostRequest post = new PostRequest(path("remove_member"))
+      .setParam("organization", requireNonNull(organizationKey))
+      .setParam("login", requireNonNull(login));
+
+    call(post);
   }
 }

@@ -31,6 +31,6 @@ export default () => {
   store.dispatch(requireAuthorization());
   history.replace({
     pathname: '/sessions/new',
-    query: { 'return_to': returnTo }
+    query: { return_to: returnTo }
   });
 };

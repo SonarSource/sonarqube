@@ -22,9 +22,8 @@ import React from 'react';
 import Toggle from '../Toggle';
 import { click } from '../../../helpers/testUtils';
 
-function getSample (props) {
-  return (
-      <Toggle value={true} onChange={() => true} {...props}/>);
+function getSample(props) {
+  return <Toggle value={true} onChange={() => true} {...props} />;
 }
 
 it('should render', () => {

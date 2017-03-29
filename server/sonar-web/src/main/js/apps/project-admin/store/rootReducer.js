@@ -18,23 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import profiles, {
-    getProfile,
-    getAllProfiles as nextGetAllProfiles
-} from './profiles';
+import profiles, { getProfile, getAllProfiles as nextGetAllProfiles } from './profiles';
 import profilesByProject, { getProfiles } from './profilesByProject';
 import gates, { getAllGates as nextGetAllGates, getGate } from './gates';
 import gateByProject, { getProjectGate as nextGetProjectGate } from './gateByProject';
 import links, { getLink } from './links';
 import linksByProject, { getLinks } from './linksByProject';
-import components, {
-    getComponentByKey as nextGetComponentByKey
-} from './components';
-import modulesByProject, {
-    getProjectModules as nextGetProjectModules
-} from './modulesByProject';
+import components, { getComponentByKey as nextGetComponentByKey } from './components';
+import modulesByProject, { getProjectModules as nextGetProjectModules } from './modulesByProject';
 import globalMessages, {
-    getGlobalMessages as nextGetGlobalMessages
+  getGlobalMessages as nextGetGlobalMessages
 } from '../../../store/globalMessages/duck';
 
 const rootReducer = combineReducers({
@@ -51,34 +44,28 @@ const rootReducer = combineReducers({
 
 export default rootReducer;
 
-export const getProfileByKey = (state, profileKey) =>
-    getProfile(state.profiles, profileKey);
+export const getProfileByKey = (state, profileKey) => getProfile(state.profiles, profileKey);
 
-export const getAllProfiles = state =>
-    nextGetAllProfiles(state.profiles);
+export const getAllProfiles = state => nextGetAllProfiles(state.profiles);
 
 export const getProjectProfiles = (state, projectKey) =>
-    getProfiles(state.profilesByProject, projectKey)
-        .map(profileKey => getProfileByKey(state, profileKey));
+  getProfiles(state.profilesByProject, projectKey).map(profileKey =>
+    getProfileByKey(state, profileKey));
 
-export const getGateById = (state, gateId) =>
-    getGate(state.gates, gateId);
+export const getGateById = (state, gateId) => getGate(state.gates, gateId);
 
-export const getAllGates = state =>
-    nextGetAllGates(state.gates);
+export const getAllGates = state => nextGetAllGates(state.gates);
 
 export const getProjectGate = (state, projectKey) =>
-    getGateById(state, nextGetProjectGate(state.gateByProject, projectKey));
+  getGateById(state, nextGetProjectGate(state.gateByProject, projectKey));
 
-export const getLinkById = (state, linkId) =>
-    getLink(state.links, linkId);
+export const getLinkById = (state, linkId) => getLink(state.links, linkId);
 
 export const getProjectLinks = (state, projectKey) =>
-    getLinks(state.linksByProject, projectKey)
-        .map(linkId => getLinkById(state, linkId));
+  getLinks(state.linksByProject, projectKey).map(linkId => getLinkById(state, linkId));
 
 export const getComponentByKey = (state, componentKey) =>
-    nextGetComponentByKey(state.components, componentKey);
+  nextGetComponentByKey(state.components, componentKey);
 
 export const getProjectModules = (state, projectKey) => {
   const moduleKeys = nextGetProjectModules(state.modulesByProject, projectKey);
@@ -88,5 +75,4 @@ export const getProjectModules = (state, projectKey) => {
   return moduleKeys.map(moduleKey => getComponentByKey(state, moduleKey));
 };
 
-export const getGlobalMessages = state =>
-    nextGetGlobalMessages(state.globalMessages);
+export const getGlobalMessages = state => nextGetGlobalMessages(state.globalMessages);

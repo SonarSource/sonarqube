@@ -22,19 +22,19 @@ import { IndexLink } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
 export default class ProfileNotFound extends React.Component {
-  render () {
+  render() {
     return (
-        <div className="quality-profile-not-found">
-          <div className="note spacer-bottom">
-            <IndexLink to="/profiles/" className="text-muted">
-              {translate('quality_profiles.page')}
-            </IndexLink>
-          </div>
-
-          <div>
-            {translate('quality_profiles.not_found')}
-          </div>
+      <div className="quality-profile-not-found">
+        <div className="note spacer-bottom">
+          <IndexLink to="/profiles/" className="text-muted">
+            {translate('quality_profiles.page')}
+          </IndexLink>
         </div>
+
+        <div>
+          {translate('quality_profiles.not_found')}
+        </div>
+      </div>
     );
   }
 }

@@ -19,30 +19,37 @@
  */
 import React from 'react';
 import FilterContainer from './FilterContainer';
+import FilterHeader from './FilterHeader';
 import Level from '../../../components/ui/Level';
 
-export default class QualityGateFilter extends React.Component {
-  renderOption = (option, selected) => {
-    return (
-        <Level level={option} small={true} muted={!selected}/>
-    );
+export default class QualityGateFilter extends React.PureComponent {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object
   };
 
-  getFacetValueForOption = (facet, option) => {
+  renderOption(option, selected) {
+    return <Level level={option} small={true} muted={!selected} />;
+  }
+
+  getFacetValueForOption(facet, option) {
     return facet[option];
-  };
+  }
 
-  render () {
+  render() {
     return (
-        <FilterContainer
-            property="gate"
-            getOptions={() => ['OK', 'WARN', 'ERROR']}
-            renderName={() => 'Quality Gate'}
-            renderOption={this.renderOption}
-            getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}/>
+      <FilterContainer
+        property="gate"
+        options={['OK', 'WARN', 'ERROR']}
+        query={this.props.query}
+        renderOption={this.renderOption}
+        isFavorite={this.props.isFavorite}
+        organization={this.props.organization}
+        getFacetValueForOption={this.getFacetValueForOption}
+        highlightUnder={1}
+        header={<FilterHeader name="Quality Gate" />}
+      />
     );
   }
 }

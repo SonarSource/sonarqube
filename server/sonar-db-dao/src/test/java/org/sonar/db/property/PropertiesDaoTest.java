@@ -40,10 +40,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -444,8 +446,7 @@ public class PropertiesDaoTest {
       .extracting("key", "resourceId").containsOnly(
         tuple(key, project.getId()),
         tuple(key, project2.getId()),
-        tuple(anotherKey, project2.getId())
-      );
+        tuple(anotherKey, project2.getId()));
 
     assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(123456789L))).isEmpty();
   }
@@ -482,6 +483,24 @@ public class PropertiesDaoTest {
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(123456789L))).isEmpty();
+  }
+
+  @Test
+  public void select_global_properties_by_key_query() throws SQLException {
+    // global
+    insertProperty("sonar.plugin1.licenseHash.secured", "one", null, null);
+    insertProperty("sonar.plugin2.licenseHash.secured", "two", null, null);
+    // on component and user
+    insertProperty("sonar.plugin1.licenseHash.secure", "one", 10L, null);
+    insertProperty("sonar.plugin1.licenseHash.secure", "two", 10L, 100);
+
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), ".licenseHash.secured")).extracting(PropertyDto::getKey, PropertyDto::getValue)
+      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"), tuple("sonar.plugin2.licenseHash.secured", "two"));
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "plugin1.licenseHash.secured")).extracting(PropertyDto::getKey, PropertyDto::getValue)
+      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"));
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "plugin1")).extracting(PropertyDto::getKey, PropertyDto::getValue)
+      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"));
+    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "unknown")).isEmpty();
   }
 
   @Test
@@ -828,6 +847,50 @@ public class PropertiesDaoTest {
   }
 
   @Test
+  public void delete_by_organization_and_user() throws SQLException {
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto anotherOrganization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto anotherProject = dbTester.components().insertProject(anotherOrganization);
+    UserDto user = dbTester.users().insertUser();
+    UserDto anotherUser = dbTester.users().insertUser();
+    insertProperty("KEY_11", "VALUE", project.getId(), user.getId());
+    insertProperty("KEY_12", "VALUE", project.getId(), user.getId());
+    insertProperty("KEY_11", "VALUE", project.getId(), anotherUser.getId());
+    insertProperty("KEY_11", "VALUE", anotherProject.getId(), user.getId());
+
+    underTest.deleteByOrganizationAndUser(session, organization.getUuid(), user.getId());
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).build(), session))
+      .hasSize(1)
+      .extracting(PropertyDto::getUserId).containsOnly(anotherUser.getId());
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(anotherProject.getId()).build(), session)).extracting(PropertyDto::getUserId)
+      .hasSize(1).containsOnly(user.getId());
+  }
+
+  @Test
+  public void delete_by_organization_and_matching_login() throws SQLException {
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto anotherOrganization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto anotherProject = dbTester.components().insertProject(anotherOrganization);
+    UserDto user = dbTester.users().insertUser();
+    UserDto anotherUser = dbTester.users().insertUser();
+    insertProperty("KEY_11", user.getLogin(), project.getId(), null);
+    insertProperty("KEY_12", user.getLogin(), project.getId(), null);
+    insertProperty("KEY_11", anotherUser.getLogin(), project.getId(), null);
+    insertProperty("KEY_11", user.getLogin(), anotherProject.getId(), null);
+
+    underTest.deleteByOrganizationAndMatchingLogin(session, organization.getUuid(), user.getLogin(), newArrayList("KEY_11", "KEY_12"));
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).build(), session))
+      .hasSize(1)
+      .extracting(PropertyDto::getValue).containsOnly(anotherUser.getLogin());
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(anotherProject.getId()).build(), session)).extracting(PropertyDto::getValue)
+      .hasSize(1).containsOnly(user.getLogin());
+  }
+
+  @Test
   public void saveGlobalProperties_insert_property_if_does_not_exist_in_db() {
     when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
 
@@ -993,13 +1056,11 @@ public class PropertiesDaoTest {
   }
 
   private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId) throws SQLException {
-    DbSession session = dbTester.getSession();
     PropertyDto dto = new PropertyDto().setKey(key)
-      .setResourceId(resourceId == null ? null : resourceId.longValue())
+      .setResourceId(resourceId)
       .setUserId(userId == null ? null : userId)
       .setValue(value);
-    dbTester.getDbClient().propertiesDao().saveProperty(session, dto);
-    session.commit();
+    dbTester.properties().insertProperty(dto);
 
     return (long) dbTester.selectFirst(session, "select id as \"id\" from properties" +
       " where prop_key='" + key + "'" +

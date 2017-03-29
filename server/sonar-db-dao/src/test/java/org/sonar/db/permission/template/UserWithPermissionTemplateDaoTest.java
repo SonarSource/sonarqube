@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.PermissionQuery;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -41,16 +42,16 @@ public class UserWithPermissionTemplateDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbSession dbSession = dbTester.getSession();
+  private DbSession dbSession = dbTester.getSession();
 
-  PermissionTemplateDao dao = dbTester.getDbClient().permissionTemplateDao();
+  private PermissionTemplateDao underTest = dbTester.getDbClient().permissionTemplateDao();
 
   @Test
   public void select_logins() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().build(), TEMPLATE_ID)).containsOnly("user1", "user2", "user3");
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().withAtLeastOnePermission().setPermission("user").build(),
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().build(), TEMPLATE_ID)).containsOnly("user1", "user2", "user3");
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().withAtLeastOnePermission().setPermission("user").build(),
       TEMPLATE_ID)).containsOnly("user1", "user2");
   }
 
@@ -58,16 +59,16 @@ public class UserWithPermissionTemplateDaoTest {
   public void return_no_logins_on_unknown_template_key() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().setPermission("user").withAtLeastOnePermission().build(), 999L)).isEmpty();
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().setPermission("user").withAtLeastOnePermission().build(), 999L)).isEmpty();
   }
 
   @Test
   public void select_only_logins_with_permission() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(
       dbSession,
-      builder().setPermission("user").withAtLeastOnePermission().build(),
+      newQuery().setPermission("user").withAtLeastOnePermission().build(),
       TEMPLATE_ID)).containsOnly("user1", "user2");
   }
 
@@ -75,7 +76,7 @@ public class UserWithPermissionTemplateDaoTest {
   public void select_only_enable_users() {
     dbTester.prepareDbUnit(getClass(), "select_only_enable_users.xml");
 
-    List<String> result = dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().setPermission("user").build(), TEMPLATE_ID);
+    List<String> result = underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().setPermission("user").build(), TEMPLATE_ID);
     assertThat(result).hasSize(2);
 
     // Disabled user should not be returned
@@ -86,13 +87,13 @@ public class UserWithPermissionTemplateDaoTest {
   public void search_by_user_name() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    List<String> result = dao.selectUserLoginsByQueryAndTemplate(
-      dbSession, builder().withAtLeastOnePermission().setPermission("user").setSearchQuery("SEr1").build(),
+    List<String> result = underTest.selectUserLoginsByQueryAndTemplate(
+      dbSession, newQuery().withAtLeastOnePermission().setPermission("user").setSearchQuery("SEr1").build(),
       TEMPLATE_ID);
     assertThat(result).containsOnly("user1");
 
-    result = dao.selectUserLoginsByQueryAndTemplate(
-      dbSession, builder().withAtLeastOnePermission().setPermission("user").setSearchQuery("user").build(),
+    result = underTest.selectUserLoginsByQueryAndTemplate(
+      dbSession, newQuery().withAtLeastOnePermission().setPermission("user").setSearchQuery("user").build(),
       TEMPLATE_ID);
     assertThat(result).hasSize(2);
   }
@@ -101,31 +102,31 @@ public class UserWithPermissionTemplateDaoTest {
   public void should_be_sorted_by_user_name() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions_should_be_sorted_by_user_name.xml");
 
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().build(), TEMPLATE_ID)).containsOnly("user1", "user2", "user3");
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().build(), TEMPLATE_ID)).containsOnly("user1", "user2", "user3");
   }
 
   @Test
   public void should_be_paginated() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().setPageIndex(1).setPageSize(2).build(), TEMPLATE_ID)).containsOnly("user1", "user2");
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().setPageIndex(2).setPageSize(2).build(), TEMPLATE_ID)).containsOnly("user3");
-    assertThat(dao.selectUserLoginsByQueryAndTemplate(dbSession, builder().setPageIndex(3).setPageSize(1).build(), TEMPLATE_ID)).containsOnly("user3");
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().setPageIndex(1).setPageSize(2).build(), TEMPLATE_ID)).containsOnly("user1", "user2");
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().setPageIndex(2).setPageSize(2).build(), TEMPLATE_ID)).containsOnly("user3");
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession, newQuery().setPageIndex(3).setPageSize(1).build(), TEMPLATE_ID)).containsOnly("user3");
   }
 
   @Test
   public void count_users() throws Exception {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    assertThat(dao.countUserLoginsByQueryAndTemplate(dbSession, builder().build(), TEMPLATE_ID)).isEqualTo(3);
-    assertThat(dao.countUserLoginsByQueryAndTemplate(dbSession, builder().withAtLeastOnePermission().setPermission("user").build(), TEMPLATE_ID)).isEqualTo(2);
+    assertThat(underTest.countUserLoginsByQueryAndTemplate(dbSession, newQuery().build(), TEMPLATE_ID)).isEqualTo(3);
+    assertThat(underTest.countUserLoginsByQueryAndTemplate(dbSession, newQuery().withAtLeastOnePermission().setPermission("user").build(), TEMPLATE_ID)).isEqualTo(2);
   }
 
   @Test
   public void select_user_permission_templates_by_template_and_logins() throws Exception {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    assertThat(dao.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, singletonList("user1")))
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, singletonList("user1")))
       .extracting(PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
       .containsOnly(
         tuple("user1", UserRole.USER),
@@ -133,7 +134,7 @@ public class UserWithPermissionTemplateDaoTest {
         tuple("user1", UserRole.CODEVIEWER)
       );
 
-    assertThat(dao.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, asList("user1", "user2", "user3")))
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, asList("user1", "user2", "user3")))
       .extracting(PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
       .containsOnly(
         tuple("user1", UserRole.USER),
@@ -142,8 +143,12 @@ public class UserWithPermissionTemplateDaoTest {
         tuple("user2", UserRole.USER)
       );
 
-    assertThat(dao.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, singletonList("unknown"))).isEmpty();
-    assertThat(dao.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, Collections.emptyList())).isEmpty();
-    assertThat(dao.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 123L, singletonList("user1"))).isEmpty();
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 123L, singletonList("user1"))).isEmpty();
+  }
+
+  private PermissionQuery.Builder newQuery() {
+    return builder().setOrganizationUuid("ORG_UUID");
   }
 }

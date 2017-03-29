@@ -22,19 +22,22 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
   idAttribute: 'key',
 
-  addExtraAttributes (repositories) {
+  addExtraAttributes(repositories) {
     const repo = repositories.find(repo => repo.key === this.get('repo')) || this.get('repo');
     const repoName = repo != null ? repo.name : repo;
     const isManual = this.get('repo') === 'manual';
     const isCustom = this.has('templateKey');
-    this.set({
-      repoName,
-      isManual,
-      isCustom
-    }, { silent: true });
+    this.set(
+      {
+        repoName,
+        isManual,
+        isCustom
+      },
+      { silent: true }
+    );
   },
 
-  getInactiveProfiles (actives, profiles) {
+  getInactiveProfiles(actives, profiles) {
     return actives.map(profile => {
       const profileBase = profiles.find(p => p.key === profile.qProfile);
       if (profileBase != null) {

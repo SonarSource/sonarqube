@@ -36,6 +36,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -67,9 +68,10 @@ public class QProfileResetMediumTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbClient db;
-  DbSession dbSession;
-  QProfileReset reset;
+  private DbClient db;
+  private DbSession dbSession;
+  private QProfileReset reset;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void before() {
@@ -77,6 +79,7 @@ public class QProfileResetMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     reset = tester.get(QProfileReset.class);
+    defaultOrganization = QProfileTesting.getDefaultOrganization(tester, db, dbSession);
   }
 
   @After
@@ -90,7 +93,7 @@ public class QProfileResetMediumTest {
     }
     RULE_DEFS.set(rules);
     PROFILE_DEFS.set(profile);
-    tester.get(Platform.class).executeStartupTasks();
+    tester.get(Platform.class).restart();
 
     db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
@@ -122,7 +125,7 @@ public class QProfileResetMediumTest {
       defProfile);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
+    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
 
     // Change the severity and the value of the parameter in the active rule
@@ -139,7 +142,8 @@ public class QProfileResetMediumTest {
     assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
     assertThat(activeRuleParamDtos.get(0).getValue()).isEqualTo("false");
 
-    reset.resetLanguage(ServerTester.Xoo.KEY);
+    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()).get();
+    reset.resetLanguage(dbSession, organization, ServerTester.Xoo.KEY);
     dbSession.commit();
 
     // Severity and parameter value come back to origin after reset
@@ -170,7 +174,7 @@ public class QProfileResetMediumTest {
       }
     }, defProfile);
 
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
+    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), RuleKey.of("xoo", "x1"));
 
     // Change param in the rule def
@@ -188,7 +192,8 @@ public class QProfileResetMediumTest {
       }
     }, defProfile);
 
-    reset.resetLanguage(ServerTester.Xoo.KEY);
+    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()).get();
+    reset.resetLanguage(dbSession, organization, ServerTester.Xoo.KEY);
 
     // Parameter value come back to origin after reset
     ActiveRuleDto activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);

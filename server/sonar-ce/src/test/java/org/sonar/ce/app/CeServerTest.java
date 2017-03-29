@@ -140,19 +140,6 @@ public class CeServerTest {
   }
 
   @Test
-  public void getStatus_returns_OPERATIONAL_when_waiting_for_WebServer_failed() throws InterruptedException {
-    final CountDownLatch webServerWatcherCalled = new CountDownLatch(1);
-    CeServer ceServer = newCeServer(() -> {
-      webServerWatcherCalled.countDown();
-      return false;
-    }, DoNothingComputeEngine.INSTANCE);
-
-    ceServer.start();
-    ceServer.awaitStop();
-    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
-  }
-
-  @Test
   public void awaitStop_throws_ISE_if_called_before_start() throws IOException {
     CeServer ceServer = newCeServer();
 
@@ -208,23 +195,6 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_unblocks_when_waiting_for_WebServer_failed() throws InterruptedException {
-    final CountDownLatch webServerWatcherCalled = new CountDownLatch(1);
-    CeServer ceServer = newCeServer(new StartupBarrier() {
-      @Override
-      public boolean waitForOperational() {
-        webServerWatcherCalled.countDown();
-        return false;
-      }
-    }, DoNothingComputeEngine.INSTANCE);
-
-    ceServer.start();
-    // if awaitStop does not unblock, the test will fail with timeout
-    ceServer.awaitStop();
-  }
-
-
-  @Test
   public void awaitStop_unblocks_when_waiting_for_ComputeEngine_startup_fails() throws InterruptedException, IOException {
     CeServer ceServer = newCeServer(new ComputeEngine() {
       @Override
@@ -273,15 +243,7 @@ public class CeServerTest {
   private CeServer newCeServer(ComputeEngine computeEngine) throws IOException {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
     this.underTest = new CeServer(
-      // return instantly simulating WebServer is already operational
-      () -> true,
       computeEngine, minimumViableSystem);
-    return underTest;
-  }
-
-  private CeServer newCeServer(StartupBarrier startupBarrier, ComputeEngine computeEngine) {
-    checkState(this.underTest == null, "Only one CeServer can be created per test method");
-    this.underTest = new CeServer(startupBarrier, computeEngine, minimumViableSystem);
     return underTest;
   }
 

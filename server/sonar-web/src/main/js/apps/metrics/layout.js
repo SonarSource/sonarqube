@@ -29,4 +29,3 @@ export default Marionette.LayoutView.extend({
     listFooterRegion: '#metrics-list-footer'
   }
 });
-

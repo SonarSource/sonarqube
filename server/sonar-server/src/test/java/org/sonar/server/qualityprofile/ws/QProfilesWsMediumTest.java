@@ -32,20 +32,17 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -58,6 +55,11 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 
@@ -75,6 +77,7 @@ public class QProfilesWsMediumTest {
   private WsTester wsTester;
   private RuleIndexer ruIndexer = tester.get(RuleIndexer.class);
   private ActiveRuleIndexer activeRuIndexer = tester.get(ActiveRuleIndexer.class);
+  private OrganizationDto organization;
 
   @Before
   public void setUp() {
@@ -85,6 +88,8 @@ public class QProfilesWsMediumTest {
 
     ruIndexer = tester.get(RuleIndexer.class);
     activeRuIndexer = tester.get(ActiveRuleIndexer.class);
+    organization = OrganizationTesting.newOrganizationDto().setKey("org-123");
+    db.organizationDao().insert(session, organization);
   }
 
   @After
@@ -95,7 +100,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void deactivate_rule() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
     session.commit();
     ruIndexer.index();
@@ -105,9 +110,9 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.DEACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
-    request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_DEACTIVATE_RULE);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
     request.execute();
     session.clearCache();
 
@@ -118,10 +123,10 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_deactivate_rule() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
-    RuleDto rule1 = createRule(profile.getLanguage(), "toto2");
-    RuleDto rule2 = createRule(profile.getLanguage(), "toto3");
-    RuleDto rule3 = createRule(profile.getLanguage(), "toto4");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto1");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "toto2");
+    RuleDefinitionDto rule2 = createRule(profile.getLanguage(), "toto3");
+    RuleDefinitionDto rule3 = createRule(profile.getLanguage(), "toto4");
     createActiveRule(rule0, profile);
     createActiveRule(rule2, profile);
     createActiveRule(rule3, profile);
@@ -134,8 +139,8 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -147,8 +152,8 @@ public class QProfilesWsMediumTest {
   public void bulk_deactivate_rule_not_all() throws Exception {
     QualityProfileDto profile = createProfile("java");
     QualityProfileDto php = createProfile("php");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
-    RuleDto rule1 = createRule(profile.getLanguage(), "toto2");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto1");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "toto2");
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
     createActiveRule(rule0, php);
@@ -161,8 +166,8 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -174,8 +179,8 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_deactivate_rule_by_profile() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "hello");
-    RuleDto rule1 = createRule(profile.getLanguage(), "world");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "hello");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "world");
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
     session.commit();
@@ -186,8 +191,8 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "hello");
     WsTester.Result result = request.execute();
     session.clearCache();
@@ -199,7 +204,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void activate_rule() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
     ruIndexer.index();
 
@@ -207,9 +212,9 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
-    request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -220,7 +225,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void activate_rule_diff_languages() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule("php", "toto");
+    RuleDefinitionDto rule = createRule("php", "toto");
     session.commit();
     ruIndexer.index();
 
@@ -229,9 +234,9 @@ public class QProfilesWsMediumTest {
 
     try {
       // 1. Activate Rule
-      WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
-      request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
-      request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
+      WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
+      request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+      request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
       request.execute();
       session.clearCache();
       fail();
@@ -243,7 +248,7 @@ public class QProfilesWsMediumTest {
   @Test
   public void activate_rule_override_severity() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
     ruIndexer.index();
 
@@ -251,10 +256,10 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
-    request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
-    request.setParam(RuleActivationActions.SEVERITY, "MINOR");
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
+    request.setParam(PARAM_SEVERITY, "MINOR");
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -279,8 +284,8 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(PARAM_LANGUAGES, "java");
     request.execute().assertJson(getClass(), "bulk_activate_rule.json");
     session.clearCache();
@@ -304,8 +309,8 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, php.getKey());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, php.getKey());
     request.setParam(PARAM_LANGUAGES, "php");
     request.execute().assertJson(getClass(), "bulk_activate_rule_not_all.json");
     session.clearCache();
@@ -328,8 +333,8 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule with query returning 0 hits
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "php");
     request.execute();
     session.clearCache();
@@ -338,8 +343,8 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
 
     // 1. Activate Rule with query returning 1 hits
-    request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
+    request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "world");
     request.execute();
     session.commit();
@@ -351,8 +356,8 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_activate_rule_by_query_with_severity() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
+    RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto");
+    RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "tata");
     session.commit();
     ruIndexer.index();
 
@@ -365,9 +370,9 @@ public class QProfilesWsMediumTest {
       new SearchOptions()).getIds()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(BulkRuleActivationActions.PROFILE_KEY, profile.getKey());
-    request.setParam(BulkRuleActivationActions.SEVERITY, "MINOR");
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    request.setParam(ActivateRulesAction.PROFILE_KEY, profile.getKey());
+    request.setParam(ActivateRulesAction.SEVERITY, "MINOR");
     request.execute();
     session.commit();
 
@@ -392,8 +397,8 @@ public class QProfilesWsMediumTest {
     ruIndexer.index();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, javaProfile.getKey());
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    request.setParam(PARAM_PROFILE_KEY, javaProfile.getKey());
     request.setParam(PARAM_QPROFILE, javaProfile.getKey());
     request.setParam("activation", "false");
     request.execute().assertJson(getClass(), "does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile.json");
@@ -405,11 +410,11 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void reset() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    QualityProfileDto subProfile = QProfileTesting.newXooP2("org-123").setParentKee(QProfileTesting.XOO_P1_KEY);
+    QualityProfileDto profile = QProfileTesting.newXooP1(organization);
+    QualityProfileDto subProfile = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(session, profile, subProfile);
 
-    RuleDto rule = createRule(profile.getLanguage(), "rule");
+    RuleDefinitionDto rule = createRule(profile.getLanguage(), "rule");
     ActiveRuleDto active1 = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     ActiveRuleDto active2 = ActiveRuleDto.createFor(subProfile, rule)
@@ -425,7 +430,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectOrFailByKey(session, active2.getKey()).getSeverityString()).isEqualTo("MINOR");
 
     // 1. reset child rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
     request.setParam("profile_key", subProfile.getKey());
     request.setParam("rule_key", rule.getKey().toString());
     request.setParam("reset", "true");
@@ -436,159 +441,22 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectOrFailByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
   }
 
-  @Test
-  public void add_project_with_key_and_uuid() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
-
-    // Second call must not fail, do nothing
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
-  }
-
-  @Test
-  public void change_project_association_with_key_and_uuid() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile1 = QProfileTesting.newXooP1("org-123");
-    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123");
-    db.qualityProfileDao().insert(session, profile1, profile2);
-    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile1.getKey(), session);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", profile2.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile2.getKee());
-  }
-
-  @Test
-  public void add_project_with_name_language_and_key() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("language", "xoo").setParam("profileName", profile.getName()).setParam("projectKey", project.getKey())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_missing_language() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileName", "polop").setParam("projectKey", "palap")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_missing_name() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("language", "xoo").setParam("projectKey", "palap")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_too_many_profile_parameters() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", "plouf").setParam("language", "xoo").setParam("profileName", "polop").setParam("projectUuid", "palap")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_missing_project() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", "plouf")
-      .execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void add_project_too_many_project_parameters() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("profileKey", "plouf").setParam("projectUuid", "polop").setParam("projectKey", "palap")
-      .execute();
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void add_project_unknown_profile() throws Exception {
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
-      .setParam("projectUuid", "plouf").setParam("profileName", "polop").setParam("language", "xoo")
-      .execute();
-  }
-
-  @Test
-  public void remove_project_with_key_and_uuid() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "remove_project")
-      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo")).isNull();
-  }
-
-  @Test
-  public void remove_project_with_name_language_and_key() throws Exception {
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(session, organizationDto);
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
-    db.componentDao().insert(session, project);
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    db.qualityProfileDao().insert(session, profile);
-    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
-
-    session.commit();
-
-    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "remove_project")
-      .setParam("language", "xoo").setParam("profileName", profile.getName()).setParam("projectKey", project.getKey())
-      .execute().assertNoContent();
-    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo")).isNull();
-  }
-
   private QualityProfileDto createProfile(String lang) {
-    QualityProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, "P" + lang), "p" + lang);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto(organization, new QProfileName(lang, "P" + lang), "p" + lang);
     db.qualityProfileDao().insert(session, profile);
     return profile;
   }
 
-  private RuleDto createRule(String lang, String id) {
+  private RuleDefinitionDto createRule(String lang, String id) {
     RuleDto rule = RuleTesting.newDto(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.ruleDao().insert(session, rule);
-    return rule;
+    db.ruleDao().insert(session, rule.getDefinition());
+    return rule.getDefinition();
   }
 
-  private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     db.activeRuleDao().insert(session, activeRule);

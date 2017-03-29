@@ -44,13 +44,19 @@ class ProjectActivityApp extends React.Component {
     filter: null
   };
 
-  componentDidMount () {
-    document.querySelector('html').classList.add('dashboard-page');
+  componentDidMount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
     this.props.fetchProjectActivity(this.props.location.query.id);
   }
 
-  componentWillUnmount () {
-    document.querySelector('html').classList.remove('dashboard-page');
+  componentWillUnmount() {
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
   }
 
   handleFilter = (filter: ?string) => {
@@ -58,25 +64,23 @@ class ProjectActivityApp extends React.Component {
     this.props.fetchProjectActivity(this.props.location.query.id, filter);
   };
 
-  render () {
+  render() {
     const project = this.props.location.query.id;
     const { configuration } = this.props.project;
     const canAdmin = configuration ? configuration.showHistory : false;
 
     return (
-        <div id="project-activity" className="page page-limited">
-          <ProjectActivityPageHeader
-              project={project}
-              filter={this.state.filter}
-              changeFilter={this.handleFilter}/>
+      <div id="project-activity" className="page page-limited">
+        <ProjectActivityPageHeader
+          project={project}
+          filter={this.state.filter}
+          changeFilter={this.handleFilter}
+        />
 
-          <ProjectActivityAnalysesList
-              project={project}
-              canAdmin={canAdmin}/>
+        <ProjectActivityAnalysesList project={project} canAdmin={canAdmin} />
 
-          <ProjectActivityPageFooter
-              project={project}/>
-        </div>
+        <ProjectActivityPageFooter project={project} />
+      </div>
     );
   }
 }

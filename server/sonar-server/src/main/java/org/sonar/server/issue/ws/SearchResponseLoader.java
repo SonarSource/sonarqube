@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
@@ -113,7 +112,7 @@ public class SearchResponseLoader {
 
   private void loadRules(Collector collector, DbSession dbSession, SearchResponseData result) {
     if (collector.contains(RULES)) {
-      result.setRules(dbClient.ruleDao().selectByKeys(dbSession, collector.<RuleKey>get(RULES)));
+      result.setRules(dbClient.ruleDao().selectDefinitionByKeys(dbSession, collector.get(RULES)));
     }
   }
 

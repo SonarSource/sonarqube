@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.QProfileTesting;
@@ -80,14 +81,14 @@ public class RuleDeleterMediumTest {
       .setLanguage("xoo")
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST);
-    dao.insert(dbSession, templateRule);
+    dao.insert(dbSession, templateRule.getDefinition());
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule)
       .setLanguage("xoo")
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST);
-    dao.insert(dbSession, customRule);
+    dao.insert(dbSession, customRule.getDefinition());
 
     // Create a quality profile
     QualityProfileDto profileDto = QProfileTesting.newXooP1("org-123");
@@ -104,7 +105,7 @@ public class RuleDeleterMediumTest {
     deleter.delete(customRule.getKey());
 
     // Verify custom rule have status REMOVED
-    RuleDto customRuleReloaded = dao.selectOrFailByKey(dbSession, customRule.getKey());
+    RuleDefinitionDto customRuleReloaded = dao.selectOrFailDefinitionByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(customRuleReloaded.getUpdatedAt()).isNotEqualTo(PAST);
@@ -120,7 +121,7 @@ public class RuleDeleterMediumTest {
   public void fail_to_delete_if_not_custom() {
     // Create rule
     RuleKey ruleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(ruleKey));
+    dao.insert(dbSession, RuleTesting.newDto(ruleKey).getDefinition());
     dbSession.commit();
 
     try {

@@ -19,6 +19,6 @@
  */
 import { collapsePath } from '../path';
 
-module.exports = function (path) {
+module.exports = function(path) {
   return collapsePath(path);
 };

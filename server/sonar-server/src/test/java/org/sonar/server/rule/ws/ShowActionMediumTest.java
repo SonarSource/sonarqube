@@ -30,12 +30,14 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
@@ -65,11 +67,11 @@ public class ShowActionMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn()
     .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
 
-  WsTester wsTester;
-
-  RuleService ruleService;
-  RuleDao ruleDao;
-  DbSession session;
+  private WsTester wsTester;
+  private RuleService ruleService;
+  private RuleDao ruleDao;
+  private DbSession session;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
@@ -78,6 +80,7 @@ public class ShowActionMediumTest {
     ruleService = tester.get(RuleService.class);
     ruleDao = tester.get(RuleDao.class);
     session = tester.get(DbClient.class).openSession(false);
+    defaultOrganization = tester.get(DbClient.class).organizationDao().selectByUuid(session, defaultOrganizationProvider.get().getUuid()).get();
   }
 
   @After
@@ -87,7 +90,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setDescriptionFormat(Format.HTML)
@@ -98,9 +101,11 @@ public class ShowActionMediumTest {
       .setTags(newHashSet("tag1", "tag2"))
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG);
-    ruleDao.insert(session, ruleDto);
-    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
-    ruleDao.insertRuleParam(session, ruleDto, param);
+    RuleDefinitionDto definition = ruleDto.getDefinition();
+    ruleDao.insert(session, definition);
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    RuleParamDto param = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, definition, param);
     session.commit();
     session.clearCache();
 
@@ -111,20 +116,21 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_default_debt_infos() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationGapMultiplier("5d")
-      .setDefaultRemediationBaseEffort("10h")
+      .setDefRemediationFunction("LINEAR_OFFSET")
+      .setDefRemediationGapMultiplier("5d")
+      .setDefRemediationBaseEffort("10h")
       .setRemediationFunction(null)
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort(null);
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata());
     session.commit();
     session.clearCache();
 
@@ -137,20 +143,21 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_overridden_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction(null)
-      .setDefaultRemediationGapMultiplier(null)
-      .setDefaultRemediationBaseEffort(null)
+      .setDefRemediationFunction(null)
+      .setDefRemediationGapMultiplier(null)
+      .setDefRemediationBaseEffort(null)
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
     session.clearCache();
 
@@ -161,20 +168,21 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_default_and_overridden_debt_infos() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction("LINEAR")
-      .setDefaultRemediationGapMultiplier("5min")
-      .setDefaultRemediationBaseEffort(null)
+      .setDefRemediationFunction("LINEAR")
+      .setDefRemediationGapMultiplier("5min")
+      .setDefRemediationBaseEffort(null)
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
     session.clearCache();
 
@@ -193,13 +201,10 @@ public class ShowActionMediumTest {
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction(null)
-      .setDefaultRemediationGapMultiplier(null)
-      .setDefaultRemediationBaseEffort(null)
-      .setRemediationFunction(null)
-      .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort(null);
-    ruleDao.insert(session, ruleDto);
+      .setDefRemediationFunction(null)
+      .setDefRemediationGapMultiplier(null)
+      .setDefRemediationBaseEffort(null);
+    ruleDao.insert(session, ruleDto.getDefinition());
     session.commit();
     session.clearCache();
 
@@ -212,7 +217,7 @@ public class ShowActionMediumTest {
   public void encode_html_description_of_custom_rule() throws Exception {
     // Template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(session, templateRule);
+    ruleDao.insert(session, templateRule.getDefinition());
     session.commit();
 
     // Custom rule
@@ -221,7 +226,7 @@ public class ShowActionMediumTest {
       .setSeverity(MINOR)
       .setStatus(RuleStatus.READY)
       .setMarkdownDescription("<div>line1\nline2</div>");
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(customRule);
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(session, customRule);
     session.clearCache();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
@@ -231,20 +236,21 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_deprecated_rule_rem_function_fields() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), defaultOrganization)
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
-      .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationGapMultiplier("6d")
-      .setDefaultRemediationBaseEffort("11h")
+      .setDefRemediationFunction("LINEAR_OFFSET")
+      .setDefRemediationGapMultiplier("6d")
+      .setDefRemediationBaseEffort("11h")
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
-    ruleDao.insert(session, ruleDto);
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
@@ -264,9 +270,10 @@ public class ShowActionMediumTest {
       .setType(RuleType.BUG)
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    ruleDao.insert(session, ruleDto);
-    RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
-    ruleDao.insertRuleParam(session, ruleDto, regexParam);
+    RuleDefinitionDto definition = ruleDto.getDefinition();
+    ruleDao.insert(session, definition);
+    RuleParamDto regexParam = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, definition, regexParam);
 
     QualityProfileDto profile = QualityProfileDto.createFor("profile")
       .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())

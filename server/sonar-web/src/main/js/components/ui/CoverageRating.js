@@ -22,22 +22,22 @@ import React from 'react';
 import { DonutChart } from '../charts/donut-chart';
 
 const SIZE_TO_WIDTH_MAPPING = {
-  'small': 16,
-  'normal': 24,
-  'big': 40
+  small: 16,
+  normal: 24,
+  big: 40
 };
 
 const SIZE_TO_THICKNESS_MAPPING = {
-  'small': 2,
-  'normal': 3,
-  'big': 3
+  small: 2,
+  normal: 3,
+  big: 3
 };
 
 export default class CoverageRating extends React.Component {
   props: {
     value: number | string,
     size?: 'small' | 'normal' | 'big',
-    muted?: boolean,
+    muted?: boolean
   };
 
   static defaultProps = {
@@ -45,7 +45,7 @@ export default class CoverageRating extends React.Component {
     muted: false
   };
 
-  render () {
+  render() {
     let data = [{ value: 100, fill: '#ccc ' }];
 
     if (this.props.value != null) {
@@ -62,12 +62,6 @@ export default class CoverageRating extends React.Component {
     // $FlowFixMe
     const thickness = SIZE_TO_THICKNESS_MAPPING[this.props.size];
 
-    return (
-        <DonutChart
-            data={data}
-            width={size}
-            height={size}
-            thickness={thickness}/>
-    );
+    return <DonutChart data={data} width={size} height={size} thickness={thickness} />;
   }
 }

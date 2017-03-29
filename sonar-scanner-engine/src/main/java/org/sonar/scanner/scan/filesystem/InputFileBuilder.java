@@ -34,7 +34,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class InputFileBuilder {
-  private static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
+  public static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
   private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
   private final String moduleKey;
   private final Path moduleBaseDir;
@@ -65,7 +65,7 @@ public class InputFileBuilder {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, idGenerator.get());
     String language = langDetection.language(indexedFile);
     if (language == null && langDetection.forcedLanguage() != null) {
-      LOG.warn("File '{}' is ignored because it doens't belong to the forced langauge '{}'", file.toAbsolutePath(), langDetection.forcedLanguage());
+      LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", file.toAbsolutePath(), langDetection.forcedLanguage());
       return null;
     }
     indexedFile.setLanguage(language);

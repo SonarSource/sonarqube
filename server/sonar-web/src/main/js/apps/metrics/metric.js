@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import defaults from 'lodash/defaults';
-import pick from 'lodash/pick';
+import { defaults, pick } from 'lodash';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
   idAttribute: 'id',
 
-  urlRoot () {
+  urlRoot() {
     return window.baseUrl + '/api/metrics';
   },
 
-  sync (method, model, options) {
+  sync(method, model, options) {
     const opts = options || {};
     if (method === 'create') {
       defaults(opts, {
@@ -54,4 +53,3 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   }
 });
-

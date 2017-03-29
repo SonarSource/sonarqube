@@ -27,7 +27,8 @@ public class ProjectTagsWsModule extends Module {
   protected void configureModule() {
     add(
       ProjectTagsWs.class,
-      SetAction.class
+      SetAction.class,
+      SearchAction.class
     );
   }
 }

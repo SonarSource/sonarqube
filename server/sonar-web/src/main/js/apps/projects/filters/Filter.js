@@ -20,37 +20,49 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
+import { getFilterUrl } from './utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
-export default class Filter extends React.Component {
+export default class Filter extends React.PureComponent {
   static propTypes = {
-    value: React.PropTypes.any,
     property: React.PropTypes.string.isRequired,
-    getOptions: React.PropTypes.func.isRequired,
+    options: React.PropTypes.array.isRequired,
+    query: React.PropTypes.object.isRequired,
+    renderOption: React.PropTypes.func.isRequired,
+
+    value: React.PropTypes.any,
+    facet: React.PropTypes.object,
     maxFacetValue: React.PropTypes.number,
     optionClassName: React.PropTypes.string,
-
-    renderName: React.PropTypes.func.isRequired,
-    renderOption: React.PropTypes.func.isRequired,
+    isFavorite: React.PropTypes.bool,
+    organization: React.PropTypes.object,
 
     getFacetValueForOption: React.PropTypes.func,
 
     halfWidth: React.PropTypes.bool,
+    highlightUnder: React.PropTypes.number,
 
-    getFilterUrl: React.PropTypes.func.isRequired
+    header: React.PropTypes.object,
+    footer: React.PropTypes.object
   };
 
   static defaultProps = {
     halfWidth: false
   };
 
-  isSelected (option) {
+  isSelected(option) {
     const { value } = this.props;
     return Array.isArray(value) ? value.includes(option) : option === value;
   }
 
-  getPath (option) {
+  highlightUnder(option) {
+    return this.props.highlightUnder != null &&
+      option !== null &&
+      option > this.props.highlightUnder;
+  }
+
+  getPath(option) {
     const { property, value } = this.props;
     let urlOption;
 
@@ -63,58 +75,60 @@ export default class Filter extends React.Component {
     } else {
       urlOption = this.isSelected(option) ? null : option;
     }
-    return this.props.getFilterUrl({ [property]: urlOption });
+    return getFilterUrl(this.props, { [property]: urlOption });
   }
 
-  renderHeader () {
-    return (
-        <div className="search-navigator-facet-header projects-facet-header">
-          {this.props.renderName()}
-        </div>
-    );
-  }
-
-  renderOptionBar (facetValue) {
+  renderOptionBar(facetValue) {
     if (facetValue == null || !this.props.maxFacetValue) {
       return null;
     }
-
     return (
-        <div className="projects-facet-bar">
-          <div className="projects-facet-bar-inner"
-               style={{ width: facetValue / this.props.maxFacetValue * 60 }}/>
-        </div>
+      <div className="projects-facet-bar">
+        <div
+          className="projects-facet-bar-inner"
+          style={{ width: facetValue / this.props.maxFacetValue * 60 }}
+        />
+      </div>
     );
   }
 
-  renderOption (option) {
-    const { facet, getFacetValueForOption } = this.props;
-    const className = classNames('facet', 'search-navigator-facet', 'projects-facet', {
-      'active': this.isSelected(option),
-      'search-navigator-facet-half': this.props.halfWidth
-    }, this.props.optionClassName);
+  renderOption(option) {
+    const { facet, getFacetValueForOption, value } = this.props;
+    const className = classNames(
+      'facet',
+      'search-navigator-facet',
+      'projects-facet',
+      {
+        active: this.isSelected(option),
+        'search-navigator-facet-half': this.props.halfWidth,
+        'search-navigator-facet-highlight-under': this.highlightUnder(option)
+      },
+      this.props.optionClassName
+    );
 
     const path = this.getPath(option);
+    const facetValue = facet && getFacetValueForOption
+      ? getFacetValueForOption(facet, option)
+      : null;
 
-    const facetValue = (facet && getFacetValueForOption) ? getFacetValueForOption(facet, option) : null;
+    const isUnderSelectedOption = this.highlightUnder(value) && option > value;
 
     return (
-        <Link key={option} className={className} to={path} data-key={option}>
-          <span className="facet-name">
-            {this.props.renderOption(option, this.isSelected(option))}
-          </span>
-          {facetValue != null && (
-              <span className="facet-stat">
-                {formatMeasure(facetValue, 'SHORT_INT')}
-                {this.renderOptionBar(facetValue)}
-              </span>
-          )}
-        </Link>
+      <Link key={option} className={className} to={path} data-key={option}>
+        <span className="facet-name">
+          {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
+        </span>
+        {facetValue != null &&
+          <span className="facet-stat">
+            {formatMeasure(facetValue, 'SHORT_INT')}
+            {this.renderOptionBar(facetValue)}
+          </span>}
+      </Link>
     );
   }
 
-  renderOptions () {
-    const options = this.props.getOptions(this.props.facet);
+  renderOptions() {
+    const { options } = this.props;
     if (options && options.length > 0) {
       return (
         <div className="search-navigator-facet-list">
@@ -130,12 +144,13 @@ export default class Filter extends React.Component {
     }
   }
 
-  render () {
+  render() {
     return (
-        <div className="search-navigator-facet-box" data-key={this.props.property}>
-          {this.renderHeader()}
-          {this.renderOptions()}
-        </div>
+      <div className="search-navigator-facet-box" data-key={this.props.property}>
+        {this.props.header}
+        {this.renderOptions()}
+        {this.props.footer}
+      </div>
     );
   }
 }

@@ -23,19 +23,19 @@ import ItemObject from './item-object';
 import ItemLogLevel from './item-log-level';
 
 export default React.createClass({
-  render () {
+  render() {
     if (this.props.name === 'Logs Level') {
-      return <ItemLogLevel value={this.props.value}/>;
+      return <ItemLogLevel value={this.props.value} />;
     }
 
     const rawValue = this.props.value;
     let formattedValue;
     switch (typeof this.props.value) {
       case 'boolean':
-        formattedValue = <ItemBoolean value={rawValue}/>;
+        formattedValue = <ItemBoolean value={rawValue} />;
         break;
       case 'object':
-        formattedValue = <ItemObject value={rawValue}/>;
+        formattedValue = <ItemObject value={rawValue} />;
         break;
       default:
         formattedValue = <code>{rawValue}</code>;

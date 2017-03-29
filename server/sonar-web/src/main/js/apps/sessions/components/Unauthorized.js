@@ -25,25 +25,24 @@ export default class Unauthorized extends React.Component {
     location: React.PropTypes.object.isRequired
   };
 
-  render () {
+  render() {
     const { message } = this.props.location.query;
 
     return (
-        <div className="text-center">
-          <p id="unauthorized">
-            You&apos;re not authorized to access this page. Please contact the administrator.
-          </p>
+      <div className="text-center">
+        <p id="unauthorized">
+          You&apos;re not authorized to access this page. Please contact the administrator.
+        </p>
 
-          {!!message && (
-              <p className="spacer-top">
-                Reason : {message}
-              </p>
-          )}
+        {!!message &&
+          <p className="spacer-top">
+            Reason : {message}
+          </p>}
 
-          <div className="big-spacer-top">
-            <a href={window.baseUrl + '/'}>Home</a>
-          </div>
+        <div className="big-spacer-top">
+          <a href={window.baseUrl + '/'}>Home</a>
         </div>
+      </div>
     );
   }
 }

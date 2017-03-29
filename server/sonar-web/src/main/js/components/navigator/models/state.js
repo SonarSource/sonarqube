@@ -20,7 +20,7 @@
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
-  defaults () {
+  defaults() {
     return {
       page: 1,
       maxResultsReached: false,
@@ -29,12 +29,12 @@ export default Backbone.Model.extend({
     };
   },
 
-  nextPage () {
+  nextPage() {
     const page = this.get('page');
     this.set({ page: page + 1 });
   },
 
-  clearQuery (query) {
+  clearQuery(query) {
     const q = {};
     Object.keys(query).forEach(key => {
       if (query[key]) {
@@ -44,7 +44,7 @@ export default Backbone.Model.extend({
     return q;
   },
 
-  _areQueriesEqual (a, b) {
+  _areQueriesEqual(a, b) {
     let equal = Object.keys(a).length === Object.keys(b).length;
     Object.keys(a).forEach(key => {
       equal = equal && a[key] === b[key];
@@ -52,7 +52,7 @@ export default Backbone.Model.extend({
     return equal;
   },
 
-  updateFilter (obj, options) {
+  updateFilter(obj, options) {
     const oldQuery = this.get('query');
     let query = { ...oldQuery, ...obj };
     const opts = { force: false, ...options };
@@ -62,10 +62,9 @@ export default Backbone.Model.extend({
     }
   },
 
-  setQuery (query) {
+  setQuery(query) {
     this.set({ query }, { silent: true });
     this.set({ changed: true });
     this.trigger('change:query');
   }
 });
-

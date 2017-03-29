@@ -38,6 +38,7 @@ public interface GroupMembershipMapper {
 
   List<LoginGroup> selectGroupsByLogins(@Param("logins") List<String> logins);
 
+  List<LoginGroup> selectGroupsByLoginsAndOrganization(@Param("logins") List<String> logins, @Param("organizationUuid") String organizationUuid);
+
   List<Integer> selectGroupIdsByUserId(@Param("userId") int userId);
-  
 }

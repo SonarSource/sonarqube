@@ -25,16 +25,16 @@ import { getMeasuresAppList } from '../../../store/rootReducer';
 
 export const UPDATE_STORE = 'measuresApp/drilldown/list/UPDATE_STORE';
 
-function updateStore (state) {
+function updateStore(state) {
   return { type: UPDATE_STORE, state };
 }
 
-function getComplementary (metric) {
+function getComplementary(metric) {
   const comp = complementary[metric] || [];
   return [metric, ...comp];
 }
 
-function makeRequest (baseComponent, metric, options, periodIndex = 1) {
+function makeRequest(baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
   const ps = 100;
   const finalOptions = { asc, ps, metricSortFilter: 'withMeasuresOnly' };
@@ -56,7 +56,7 @@ function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   return getComponentTree('leaves', baseComponent.key, getComplementary(metric.key), finalOptions);
 }
 
-function fetchLeaves (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
+function fetchLeaves(baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
   return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
@@ -76,7 +76,7 @@ function fetchLeaves (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
  * @param metric
  * @param periodIndex
  */
-export function fetchList (baseComponent, metric, periodIndex = 1) {
+export function fetchList(baseComponent, metric, periodIndex = 1) {
   return (dispatch, getState) => {
     const list = getMeasuresAppList(getState());
     if (list.baseComponent === baseComponent && list.metric === metric) {
@@ -85,17 +85,19 @@ export function fetchList (baseComponent, metric, periodIndex = 1) {
 
     dispatch(startFetching());
     return fetchLeaves(baseComponent, metric, 1, periodIndex).then(r => {
-      dispatch(updateStore({
-        ...r,
-        baseComponent,
-        metric
-      }));
+      dispatch(
+        updateStore({
+          ...r,
+          baseComponent,
+          metric
+        })
+      );
       dispatch(stopFetching());
     });
   };
 }
 
-export function fetchMore (periodIndex) {
+export function fetchMore(periodIndex) {
   return (dispatch, getState) => {
     const { baseComponent, metric, pageIndex, components } = getMeasuresAppList(getState());
     dispatch(startFetching());
@@ -111,7 +113,7 @@ export function fetchMore (periodIndex) {
  * Select specified component from the list
  * @param component A component to select
  */
-export function selectComponent (component) {
+export function selectComponent(component) {
   return dispatch => {
     dispatch(updateStore({ selected: component }));
   };
@@ -120,7 +122,7 @@ export function selectComponent (component) {
 /**
  * Select next element from the list of components
  */
-export function selectNext () {
+export function selectNext() {
   return (dispatch, getState) => {
     const { components, selected } = getMeasuresAppList(getState());
     const selectedIndex = components.indexOf(selected);
@@ -134,7 +136,7 @@ export function selectNext () {
 /**
  * Select previous element from the list of components
  */
-export function selectPrevious () {
+export function selectPrevious() {
   return (dispatch, getState) => {
     const { components, selected } = getMeasuresAppList(getState());
     const selectedIndex = components.indexOf(selected);

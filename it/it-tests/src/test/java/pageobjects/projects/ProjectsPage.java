@@ -27,6 +27,8 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectsPage {
 
@@ -47,6 +49,10 @@ public class ProjectsPage {
     return new ProjectItem(element);
   }
 
+  public ProjectItem getProjectByIdx(Integer idx) {
+    return new ProjectItem(getProjects().get(idx));
+  }
+
   public FacetItem getFacetByProperty(String facetProperty) {
     SelenideElement element = getFacets().find(Condition.attribute("data-key", facetProperty));
     return new FacetItem(element);
@@ -55,6 +61,32 @@ public class ProjectsPage {
   public ProjectsPage shouldHaveTotal(int total) {
     // warning - number is localized
     $("#projects-total").shouldHave(text(String.valueOf(total)));
+    return this;
+  }
+
+  public ProjectsPage shouldDisplayAllProjects() {
+    assertThat(url()).endsWith("/projects");
+    return this;
+  }
+
+  public ProjectsPage shouldDisplayFavoriteProjects() {
+    assertThat(url()).endsWith("/projects/favorite");
+    return this;
+  }
+
+  public ProjectsPage selectAllProjects() {
+    $("#all-projects").click();
+    return shouldDisplayAllProjects();
+  }
+
+  public ProjectsPage selectFavoriteProjects() {
+    $("#favorite-projects").click();
+    return shouldDisplayFavoriteProjects();
+  }
+
+  public ProjectsPage searchProject(String search) {
+    SelenideElement searchInput = $(".projects-facet-search input");
+    searchInput.setValue("").sendKeys(search);
     return this;
   }
 }

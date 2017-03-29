@@ -116,9 +116,9 @@ public class UsersActionTest {
   @Test
   public void return_members_by_group_id() throws Exception {
     GroupDto group = db.users().insertGroup();
-    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
-    db.users().insertMember(group, user1);
-    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -132,9 +132,11 @@ public class UsersActionTest {
   public void references_group_by_its_name() throws Exception {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "the-group");
-    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
-    db.users().insertMember(group, user1);
-    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertMember(group, lovelace);
+    db.organizations().addMember(org, lovelace);
+    db.organizations().addMember(org, hopper);
     loginAsAdmin(org);
 
     newUsersRequest()
@@ -148,9 +150,9 @@ public class UsersActionTest {
   @Test
   public void references_group_in_default_organization_by_its_name() throws Exception {
     GroupDto group = db.users().insertGroup();
-    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
-    db.users().insertMember(group, user1);
-    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -177,9 +179,9 @@ public class UsersActionTest {
   @Test
   public void selected_users() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a group");
-    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
-    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
-    db.users().insertMember(group, user1);
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -197,9 +199,9 @@ public class UsersActionTest {
   @Test
   public void deselected_users() throws Exception {
     GroupDto group = db.users().insertGroup();
-    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
-    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
-    db.users().insertMember(group, user1);
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -212,9 +214,9 @@ public class UsersActionTest {
   @Test
   public void paging() throws Exception {
     GroupDto group = db.users().insertGroup();
-    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
-    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
-    db.users().insertMember(group, user1);
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
@@ -236,9 +238,9 @@ public class UsersActionTest {
   @Test
   public void filtering_by_name_email_and_login() throws Exception {
     GroupDto group = db.users().insertGroup();
-    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace").setEmail("ada@email.com"));
-    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper").setEmail("grace@hopper.com"));
-    db.users().insertMember(group, user1);
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace").setEmail("ada@email.com"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper").setEmail("grace@hopper.com"));
+    db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()

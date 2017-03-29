@@ -25,16 +25,16 @@ export default class UserCard extends React.Component {
     user: React.PropTypes.object.isRequired
   };
 
-  render () {
+  render() {
     const { user } = this.props;
 
     return (
-        <div className="account-user">
-          <div id="avatar" className="pull-left account-user-avatar">
-            <Avatar email={user.email} size={60}/>
-          </div>
-          <h1 id="name" className="pull-left">{user.name}</h1>
+      <div className="account-user">
+        <div id="avatar" className="pull-left account-user-avatar">
+          <Avatar email={user.email} size={60} />
         </div>
+        <h1 id="name" className="pull-left">{user.name}</h1>
+      </div>
     );
   }
 }

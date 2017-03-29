@@ -28,6 +28,4 @@ const createStore = () => {
   return store;
 };
 
-export default () => (
-    store ? store : createStore()
-);
+export default () => store ? store : createStore();

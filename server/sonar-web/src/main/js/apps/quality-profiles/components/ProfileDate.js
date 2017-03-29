@@ -27,23 +27,21 @@ export default class ProfileDate extends React.Component {
     date: React.PropTypes.string
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  render () {
+  render() {
     const { date } = this.props;
 
     if (!date) {
-      return (
-          <span>{translate('never')}</span>
-      );
+      return <span>{translate('never')}</span>;
     }
 
     return (
-        <span title={moment(date).format('LLL')} data-toggle="tooltip">
-          {moment(date).fromNow()}
-        </span>
+      <span title={moment(date).format('LLL')} data-toggle="tooltip">
+        {moment(date).fromNow()}
+      </span>
     );
   }
 }

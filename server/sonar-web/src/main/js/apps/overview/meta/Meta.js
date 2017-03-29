@@ -26,6 +26,7 @@ import MetaQualityGate from './MetaQualityGate';
 import MetaQualityProfiles from './MetaQualityProfiles';
 import AnalysesList from '../events/AnalysesList';
 import MetaSize from './MetaSize';
+import MetaTags from './MetaTags';
 import { areThereCustomOrganizations } from '../../../store/rootReducer';
 
 const Meta = ({ component, measures, areThereCustomOrganizations }) => {
@@ -41,39 +42,31 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
 
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
-
   const shouldShowOrganizationKey = component.organization != null && areThereCustomOrganizations;
 
   return (
-      <div className="overview-meta">
-        {hasDescription && (
-            <div className="overview-meta-card overview-meta-description">
-              {description}
-            </div>
-        )}
+    <div className="overview-meta">
+      {hasDescription &&
+        <div className="overview-meta-card overview-meta-description">
+          {description}
+        </div>}
 
-        <MetaSize component={component} measures={measures}/>
+      <MetaSize component={component} measures={measures} />
 
-        {shouldShowQualityGate && (
-            <MetaQualityGate gate={qualityGate}/>
-        )}
+      {isProject && <MetaTags component={component} />}
 
-        {shouldShowQualityProfiles && (
-            <MetaQualityProfiles profiles={qualityProfiles}/>
-        )}
+      {shouldShowQualityGate && <MetaQualityGate gate={qualityGate} />}
 
-        <MetaLinks component={component}/>
+      {shouldShowQualityProfiles && <MetaQualityProfiles profiles={qualityProfiles} />}
 
-        <MetaKey component={component}/>
+      <MetaLinks component={component} />
 
-        {shouldShowOrganizationKey && (
-            <MetaOrganizationKey component={component}/>
-        )}
+      <MetaKey component={component} />
 
-        {isProject && (
-            <AnalysesList project={component.key}/>
-        )}
-      </div>
+      {shouldShowOrganizationKey && <MetaOrganizationKey component={component} />}
+
+      {isProject && <AnalysesList project={component.key} />}
+    </div>
   );
 };
 

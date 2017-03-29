@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import pick from 'lodash/pick';
+import { pick } from 'lodash';
 import { DISPLAY_HOME } from './../app/actions';
 import { UPDATE_STORE, INIT } from './treeViewActions';
 
@@ -27,7 +27,7 @@ const initialState = {
   total: 0
 };
 
-export default function drilldownReducer (state = initialState, action = {}) {
+export default function drilldownReducer(state = initialState, action = {}) {
   switch (action.type) {
     case DISPLAY_HOME:
       return initialState;

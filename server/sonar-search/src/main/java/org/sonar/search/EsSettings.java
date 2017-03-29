@@ -49,9 +49,8 @@ public class EsSettings implements EsSettingsMBean {
 
   EsSettings(Props props) {
     this.props = props;
-    // name of ES cluster must always be set, even if clustering of SQ is disabled
-    this.clusterName = props.nonNullValue(ProcessProperties.SEARCH_CLUSTER_NAME);
 
+    this.clusterName = props.nonNullValue(ProcessProperties.CLUSTER_NAME);
     this.clusterEnabled = props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED);
     if (this.clusterEnabled) {
       this.nodeName = props.value(CLUSTER_SEARCH_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());

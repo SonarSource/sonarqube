@@ -20,7 +20,7 @@
 import Issue from '../../../components/issue/models/issue';
 
 export default Issue.extend({
-  reset (attrs, options) {
+  reset(attrs, options) {
     const keepFields = ['index', 'selected', 'comments'];
     keepFields.forEach(field => {
       attrs[field] = this.get(field);
@@ -28,4 +28,3 @@ export default Issue.extend({
     return Issue.prototype.reset.call(this, attrs, options);
   }
 });
-

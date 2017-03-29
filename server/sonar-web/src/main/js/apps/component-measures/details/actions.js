@@ -32,11 +32,11 @@ export const RECEIVE_MEASURE = 'measuresApp/details/RECEIVE_MEASURE';
  * Action Creators
  */
 
-function requestMeasure (metric) {
+function requestMeasure(metric) {
   return { type: REQUEST_MEASURE, metric };
 }
 
-function receiveMeasure (measure, secondaryMeasure, periods) {
+function receiveMeasure(measure, secondaryMeasure, periods) {
   return { type: RECEIVE_MEASURE, measure, secondaryMeasure, periods };
 }
 
@@ -44,7 +44,7 @@ function receiveMeasure (measure, secondaryMeasure, periods) {
  * Workflow
  */
 
-export function fetchMeasure (metricKey, periodIndex = 1) {
+export function fetchMeasure(metricKey, periodIndex = 1) {
   return (dispatch, getState) => {
     const state = getState();
     const component = getMeasuresAppComponent(state);
@@ -64,11 +64,9 @@ export function fetchMeasure (metricKey, periodIndex = 1) {
     const metric = metrics.find(m => m.key === metricKey);
     dispatch(requestMeasure(metric));
 
-    return getMeasuresAndMeta(
-      component.key,
-      metricsToRequest,
-        { additionalFields: 'periods' }
-    ).then(r => {
+    return getMeasuresAndMeta(component.key, metricsToRequest, {
+      additionalFields: 'periods'
+    }).then(r => {
       const measures = enhanceWithLeak(r.component.measures, periodIndex);
       const measure = measures.find(m => m.metric === metricKey);
       const secondaryMeasure = measures.find(m => m.metric !== metricKey);

@@ -20,9 +20,13 @@
 package org.sonar.scanner.mediumtest.fs;
 
 import com.google.common.collect.ImmutableMap;
+
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Random;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -215,6 +219,7 @@ public class FileSystemMediumTest {
     assertThat(logs.getAllAsString()).contains("2 files indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
     assertThat(logs.getAllAsString()).doesNotContain("'src/sample.java' generated metadata");
+
   }
 
   @Test
@@ -246,25 +251,33 @@ public class FileSystemMediumTest {
   public void dontPublishFilesWithoutDetectedLanguage() throws IOException {
     builder = createBuilder();
 
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    Path mainDir = baseDir.toPath().resolve("src").resolve("main");
+    Files.createDirectories(mainDir);
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    Path testDir = baseDir.toPath().resolve("src").resolve("test");
+    Files.createDirectories(testDir);
 
-    File javaFile = new File(srcDir, "sample.java");
-    FileUtils.write(javaFile, "Sample xoo\ncontent");
+    Path testXooFile = testDir.resolve("sample.java");
+    Files.write(testXooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
+
+    Path xooFile = mainDir.resolve("sample.xoo");
+    Files.write(xooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
+
+    Path javaFile = mainDir.resolve("sample.java");
+    Files.write(javaFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
 
     TaskResult result = tester.newTask()
       .properties(builder
-        .put("sonar.sources", "src")
+        .put("sonar.sources", "src/main")
+        .put("sonar.tests", "src/test")
         .build())
       .start();
 
-    assertThat(logs.getAllAsString()).contains("2 files indexed");
-    assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
-    assertThat(logs.getAllAsString()).doesNotContain("'src/sample.java' generated metadata");
-    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/sample.java");
+    assertThat(logs.getAllAsString()).contains("3 files indexed");
+    assertThat(logs.getAllAsString()).contains("'src/main/sample.xoo' generated metadata");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/main/sample.java' generated metadata");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/test/sample.java' generated metadata");
+    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
     assertThat(result.getReportComponent(javaInputFile.key())).isNull();
   }
 
@@ -297,10 +310,74 @@ public class FileSystemMediumTest {
     assertThat(logs.getAllAsString()).contains("1 file indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' indexed with language 'null'");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' generated metadata");
-    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
-    assertThat(result.getReportComponent(javaInputFile.key())).isNotNull();
+    DefaultInputFile inputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
+    assertThat(result.getReportComponent(inputFile.key())).isNotNull();
 
     tester2.stop();
+  }
+
+  @Test
+  public void lazyIssueExclusion() throws IOException {
+    LogOutputRecorder logs = new LogOutputRecorder();
+    ScannerMediumTester tester2 = ScannerMediumTester.builder()
+      .registerPlugin("xoo", new XooPlugin())
+      .addDefaultQProfile("xoo", "Sonar Way")
+      .addRules(new XooRulesDefinition())
+      .setLogOutput(logs)
+      .addActiveRule("xoo", "OneIssuePerFile", null, "OneIssuePerFile", "MAJOR", null, "xoo")
+      .build();
+    tester2.start();
+
+    builder = createBuilder();
+    builder.put("sonar.issue.ignore.allfile", "1")
+      .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern");
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File unknownFile = new File(srcDir, "myfile.binary");
+    byte[] b = new byte[512];
+    new Random().nextBytes(b);
+    FileUtils.writeByteArrayToFile(unknownFile, b);
+
+    tester2.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' indexed with language 'null'");
+    assertThat(logs.getAllAsString()).doesNotContain("Scanning com.foo.project:src/myfile.binary");
+    assertThat(logs.getAllAsString()).containsOnlyOnce("Scanning com.foo.project:src/sample.xoo");
+
+    tester2.stop();
+
+  }
+
+  @Test
+  public void preloadIssueExclusions() throws IOException {
+    builder = createBuilder();
+    builder.put("sonar.issue.ignore.allfile", "1")
+      .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern")
+      .put("sonar.preloadFileMetadata", "true");
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File unknownFile = new File(srcDir, "myfile.binary");
+    FileUtils.write(unknownFile, "some text");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).containsOnlyOnce("Scanning com.foo.project:src/myfile.binary");
   }
 
   @Test
