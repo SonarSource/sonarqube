@@ -18,23 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
-import AddMemberForm from '../AddMemberForm';
+import { shallow } from 'enzyme';
+import MembersListHeader from '../MembersListHeader';
 
-const memberLogins = ['admin'];
-
-it('should render and open the modal', () => {
-  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ open: true });
+it('should render without the total', () => {
+  const wrapper = shallow(
+    <MembersListHeader handleSearch={jest.fn()} />
+  );
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should correctly handle user interactions', () => {
-  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  click(wrapper.find('button'));
-  expect(wrapper.state('open')).toBeTruthy();
-  wrapper.instance().closeForm();
-  expect(wrapper.state('open')).toBeFalsy();
+it('should render with the total', () => {
+  const wrapper = shallow(
+    <MembersListHeader handleSearch={jest.fn()} total={8} />
+  );
+  expect(wrapper).toMatchSnapshot();
 });

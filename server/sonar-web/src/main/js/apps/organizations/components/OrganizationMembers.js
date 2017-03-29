@@ -19,10 +19,10 @@
  */
 // @flow
 import React from 'react';
-import PageHeader from './PageHeader';
+import MembersPageHeader from './MembersPageHeader';
+import MembersListHeader from './MembersListHeader';
 import MembersList from './MembersList';
 import AddMemberForm from './forms/AddMemberForm';
-import UsersSearch from '../../users/components/UsersSearch';
 import ListFooter from '../../../components/controls/ListFooter';
 import type { Organization, OrgGroup } from '../../../store/organizations/duck';
 import type { Member } from '../../../store/organizationsMembers/actions';
@@ -38,18 +38,19 @@ type Props = {
   fetchOrganizationGroups: (organizationKey: string) => void,
   addOrganizationMember: (organizationKey: string, member: Member) => void,
   removeOrganizationMember: (organizationKey: string, member: Member) => void,
-  updateOrganizationMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void,
+  updateOrganizationMemberGroups: (
+    member: Member,
+    add: Array<string>,
+    remove: Array<string>
+  ) => void
 };
 
 export default class OrganizationMembers extends React.PureComponent {
   props: Props;
 
   componentDidMount() {
-    const notLoadedYet = this.props.members.length < 1 || this.props.status.query != null;
-    if (!this.props.loading && notLoadedYet) {
-      this.handleSearchMembers();
-    }
-    if (this.props.organizationGroups.length <= 0) {
+    this.handleSearchMembers();
+    if (this.props.organization.canAdmin) {
       this.props.fetchOrganizationGroups(this.props.organization.key);
     }
   }
@@ -74,15 +75,15 @@ export default class OrganizationMembers extends React.PureComponent {
     const { organization, status, members } = this.props;
     return (
       <div className="page page-limited">
-        <PageHeader loading={status.loading} total={status.total}>
+        <MembersPageHeader loading={status.loading} total={status.total}>
           {organization.canAdmin &&
             <div className="page-actions">
               <div className="button-group">
                 <AddMemberForm memberLogins={this.props.memberLogins} addMember={this.addMember} />
               </div>
             </div>}
-        </PageHeader>
-        <UsersSearch onSearch={this.handleSearchMembers} />
+        </MembersPageHeader>
+        <MembersListHeader total={status.total} handleSearch={this.handleSearchMembers} />
         <MembersList
           members={members}
           organizationGroups={this.props.organizationGroups}

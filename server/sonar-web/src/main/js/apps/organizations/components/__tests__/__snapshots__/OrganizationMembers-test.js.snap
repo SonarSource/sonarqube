@@ -1,10 +1,11 @@
 exports[`test should not render actions for non admin 1`] = `
 <div
   className="page page-limited">
-  <PageHeader
+  <MembersPageHeader
     total={2} />
-  <UsersSearch
-    onSearch={[Function]} />
+  <MembersListHeader
+    handleSearch={[Function]}
+    total={2} />
   <MembersList
     members={
       Array [
@@ -40,7 +41,7 @@ exports[`test should not render actions for non admin 1`] = `
 exports[`test should render actions for admin 1`] = `
 <div
   className="page page-limited">
-  <PageHeader
+  <MembersPageHeader
     loading={true}
     total={2}>
     <div
@@ -51,9 +52,10 @@ exports[`test should render actions for admin 1`] = `
           addMember={[Function]} />
       </div>
     </div>
-  </PageHeader>
-  <UsersSearch
-    onSearch={[Function]} />
+  </MembersPageHeader>
+  <MembersListHeader
+    handleSearch={[Function]}
+    total={2} />
   <MembersList
     members={
       Array [

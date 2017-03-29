@@ -24,7 +24,8 @@ import classNames from 'classnames';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 type Props = {
-  onSearch: (query?: string) => void
+  onSearch: (query?: string) => void,
+  className?: string
 };
 
 type State = {
@@ -55,12 +56,12 @@ export default class UsersSearch extends React.PureComponent {
 
   render() {
     const { query } = this.state;
+    const searchBoxClass = classNames('search-box', this.props.className);
     const inputClassName = classNames('search-box-input', {
       touched: query != null && query.length === 1
     });
     return (
-      <div className="panel panel-vertical bordered-bottom spacer-bottom">
-        <div className="search-box">
+        <div className={searchBoxClass}>
           <button className="search-box-submit button-clean">
             <i className="icon-search" />
           </button>
@@ -76,7 +77,6 @@ export default class UsersSearch extends React.PureComponent {
             {translateWithParameters('select2.tooShort', 2)}
           </span>
         </div>
-      </div>
     );
   }
 }

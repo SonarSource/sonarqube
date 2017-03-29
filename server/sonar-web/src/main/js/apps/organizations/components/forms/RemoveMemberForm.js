@@ -41,7 +41,8 @@ export default class RemoveMemberForm extends React.PureComponent {
     open: false
   };
 
-  openForm = () => {
+  openForm = (evt: MouseEvent) => {
+    evt.preventDefault();
     this.setState({ open: true });
   };
 

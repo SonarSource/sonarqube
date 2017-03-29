@@ -1,4 +1,4 @@
-exports[`test should not render actions and groups for non admin 1`] = `
+exports[`test should groups at 0 if the groupCount field is not defined (just added user) 1`] = `
 <tr>
   <td
     className="thin nowrap">
@@ -9,29 +9,16 @@ exports[`test should not render actions and groups for non admin 1`] = `
   <td
     className="nowrap text-middle">
     <strong>
+      john
+    </strong>
+    <span
+      className="note little-spacer-left">
       John Doe
-    </strong>
-  </td>
-</tr>
-`;
-
-exports[`test should render actions and groups for admin 1`] = `
-<tr>
-  <td
-    className="thin nowrap">
-    <Connect(Avatar)
-      hash=""
-      size={36} />
-  </td>
-  <td
-    className="nowrap text-middle">
-    <strong>
-      Admin Istrator
-    </strong>
+    </span>
   </td>
   <td
     className="text-right text-middle">
-    organization.members.x_group(s).3
+    organization.members.x_groups.0
   </td>
   <td
     className="nowrap text-middle text-right">
@@ -49,7 +36,108 @@ exports[`test should render actions and groups for admin 1`] = `
       <ul
         className="dropdown-menu dropdown-menu-right">
         <li>
+          <ManageMemberGroupsForm
+            member={
+              Object {
+                "avatar": "7daf6c79d4802916d83f6266e24850af",
+                "login": "john",
+                "name": "John Doe",
+              }
+            }
+            organization={
+              Object {
+                "canAdmin": true,
+                "key": "foo",
+                "name": "Foo",
+              }
+            } />
+        </li>
+        <li
+          className="divider"
+          role="separator" />
+        <li>
           <RemoveMemberForm
+            member={
+              Object {
+                "avatar": "7daf6c79d4802916d83f6266e24850af",
+                "login": "john",
+                "name": "John Doe",
+              }
+            }
+            organization={
+              Object {
+                "canAdmin": true,
+                "key": "foo",
+                "name": "Foo",
+              }
+            } />
+        </li>
+      </ul>
+    </div>
+  </td>
+</tr>
+`;
+
+exports[`test should not render actions and groups for non admin 1`] = `
+<tr>
+  <td
+    className="thin nowrap">
+    <Connect(Avatar)
+      hash=""
+      size={36} />
+  </td>
+  <td
+    className="nowrap text-middle">
+    <strong>
+      admin
+    </strong>
+    <span
+      className="note little-spacer-left">
+      Admin Istrator
+    </span>
+  </td>
+</tr>
+`;
+
+exports[`test should render actions and groups for admin 1`] = `
+<tr>
+  <td
+    className="thin nowrap">
+    <Connect(Avatar)
+      hash=""
+      size={36} />
+  </td>
+  <td
+    className="nowrap text-middle">
+    <strong>
+      admin
+    </strong>
+    <span
+      className="note little-spacer-left">
+      Admin Istrator
+    </span>
+  </td>
+  <td
+    className="text-right text-middle">
+    organization.members.x_groups.3
+  </td>
+  <td
+    className="nowrap text-middle text-right">
+    <div
+      className="dropdown">
+      <button
+        className="dropdown-toggle little-spacer-right"
+        data-toggle="dropdown">
+        <i
+          className="icon-settings" />
+         
+        <i
+          className="icon-dropdown" />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right">
+        <li>
+          <ManageMemberGroupsForm
             member={
               Object {
                 "avatar": "",
@@ -70,7 +158,7 @@ exports[`test should render actions and groups for admin 1`] = `
           className="divider"
           role="separator" />
         <li>
-          <ManageMemberGroupsForm
+          <RemoveMemberForm
             member={
               Object {
                 "avatar": "",

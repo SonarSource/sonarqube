@@ -19,27 +19,29 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import PageHeader from '../PageHeader';
+import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
 
-it('should render the members page header', () => {
+const group = {
+  id: '7',
+  name: 'professionals',
+  description: '',
+  membersCount: 12
+};
+
+it('should render unchecked', () => {
   const wrapper = shallow(
-    <PageHeader />
+    <OrganizationGroupCheckbox group={group} checked={false} onCheck={jest.fn()} />
   );
   expect(wrapper).toMatchSnapshot();
-  wrapper.setProps({ loading: true });
-  expect(wrapper.find('.spinner')).toMatchSnapshot();
 });
 
-it('should render the members page header with the total', () => {
-  const wrapper = shallow(<PageHeader total="5" />);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render its children', () => {
+it('should be able to toggle check', () => {
+  const onCheck = jest.fn((group, checked) => wrapper.setProps({ checked }));
   const wrapper = shallow(
-    <PageHeader loading={true} total="5">
-      <span>children test</span>
-    </PageHeader>
+    <OrganizationGroupCheckbox group={group} checked={true} onCheck={onCheck} />
   );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.instance().toggleCheck();
+  expect(onCheck.mock.calls).toMatchSnapshot();
   expect(wrapper).toMatchSnapshot();
 });
