@@ -52,6 +52,8 @@ public interface CeQueueMapper {
 
   void resetAllToPendingStatus(@Param("updatedAt") long updatedAt);
 
+  int resetToPendingForWorker(@Param("workerUuid") String workerUuid, @Param("updatedAt") long updatedAt);
+
   int updateIf(@Param("uuid") String uuid,
     @Param("new") UpdateIf.NewProperties newProperties,
     @Param("old") UpdateIf.OldProperties oldProperties);

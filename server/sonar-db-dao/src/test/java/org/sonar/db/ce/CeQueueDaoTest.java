@@ -257,6 +257,50 @@ public class CeQueueDaoTest {
   }
 
   @Test
+  public void resetToPendingForWorker_resets_status_of_non_pending_tasks_only_for_specified_workerUuid() {
+    long startedAt = 2_099_888L;
+    CeQueueDto u1 = insert("u1", CeQueueDto.Status.IN_PROGRESS, 1, WORKER_UUID_1, startedAt);
+    CeQueueDto u2 = insert("u2", CeQueueDto.Status.PENDING, 1, WORKER_UUID_1, startedAt);
+    CeQueueDto u3 = insert("u3", CeQueueDto.Status.PENDING, 0, WORKER_UUID_1, startedAt);
+    CeQueueDto u4 = insert("u4", CeQueueDto.Status.IN_PROGRESS, 2, WORKER_UUID_1, startedAt);
+    CeQueueDto o1 = insert("o1", CeQueueDto.Status.IN_PROGRESS, 1, WORKER_UUID_2, startedAt);
+    CeQueueDto o2 = insert("o2", CeQueueDto.Status.PENDING, 1, WORKER_UUID_2, startedAt);
+    CeQueueDto o3 = insert("o3", CeQueueDto.Status.PENDING, 0, WORKER_UUID_2, startedAt);
+    CeQueueDto o4 = insert("o4", CeQueueDto.Status.IN_PROGRESS, 2, WORKER_UUID_2, startedAt);
+
+    underTestAlwaysIncreasingSystem2.resetToPendingForWorker(db.getSession(), WORKER_UUID_1);
+
+    verifyResetToPendingForWorker(u1);
+    verifyUnchangedByResetToPendingForWorker(u2);
+    verifyUnchangedByResetToPendingForWorker(u3);
+    verifyResetToPendingForWorker(u4);
+    verifyUnchangedByResetToPendingForWorker(o1);
+    verifyUnchangedByResetToPendingForWorker(o2);
+    verifyUnchangedByResetToPendingForWorker(o3);
+    verifyUnchangedByResetToPendingForWorker(o4);
+  }
+
+  private void verifyResetToPendingForWorker(CeQueueDto original) {
+    CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid()).get();
+    assertThat(dto.getStatus()).isEqualTo(CeQueueDto.Status.PENDING);
+    assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
+    assertThat(dto.getStartedAt()).isNull();
+    assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
+    assertThat(dto.getUpdatedAt()).isGreaterThan(original.getUpdatedAt());
+    assertThat(dto.getWorkerUuid()).isEqualTo(original.getWorkerUuid());
+  }
+
+  private void verifyUnchangedByResetToPendingForWorker(CeQueueDto original) {
+    CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid()).get();
+    assertThat(dto.getStatus()).isEqualTo(original.getStatus());
+    assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
+    assertThat(dto.getStartedAt()).isEqualTo(original.getStartedAt());
+    assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
+    assertThat(dto.getUpdatedAt()).isEqualTo(original.getUpdatedAt());
+    assertThat(dto.getWorkerUuid()).isEqualTo(original.getWorkerUuid());
+  }
+
+  @Test
   public void peek_none_if_no_pendings() throws Exception {
     assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT).isPresent()).isFalse();
 
@@ -505,6 +549,20 @@ public class CeQueueDaoTest {
     dto.setStatus(status);
     dto.setSubmitterLogin("henri");
     dto.setExecutionCount(executionCount);
+    underTestAlwaysIncreasingSystem2.insert(db.getSession(), dto);
+    db.getSession().commit();
+    return dto;
+  }
+
+  private CeQueueDto insert(String uuid, CeQueueDto.Status status, int executionCount, String workerUuid, Long startedAt) {
+    CeQueueDto dto = new CeQueueDto();
+    dto.setUuid(uuid);
+    dto.setTaskType(CeTaskTypes.REPORT);
+    dto.setStatus(status);
+    dto.setSubmitterLogin("henri");
+    dto.setExecutionCount(executionCount);
+    dto.setWorkerUuid(workerUuid);
+    dto.setStartedAt(startedAt);
     underTestAlwaysIncreasingSystem2.insert(db.getSession(), dto);
     db.getSession().commit();
     return dto;
