@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.taskprocessor;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 

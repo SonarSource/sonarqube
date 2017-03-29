@@ -19,11 +19,11 @@
  */
 package org.sonar.server.computation.queue;
 
-import com.google.common.base.Optional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -70,7 +70,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
     requireNonNull(workerUuid, "workerUuid can't be null");
 
     if (peekPaused.get()) {
-      return Optional.absent();
+      return Optional.empty();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<CeQueueDto> dto = dbClient.ceQueueDao().peek(dbSession, workerUuid, MAX_EXECUTION_COUNT);
@@ -79,7 +79,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         task = loadTask(dbSession, dto.get());
         queueStatus.addInProgress();
       }
-      return Optional.fromNullable(task);
+      return Optional.ofNullable(task);
 
     }
   }

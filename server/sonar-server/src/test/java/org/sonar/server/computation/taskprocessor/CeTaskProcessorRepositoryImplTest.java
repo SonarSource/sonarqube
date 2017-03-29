@@ -29,7 +29,6 @@ import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class CeTaskProcessorRepositoryImplTest {
   private static final String SOME_CE_TASK_TYPE = "some type";
@@ -73,7 +72,7 @@ public class CeTaskProcessorRepositoryImplTest {
   public void getForTask_returns_absent_if_repository_is_empty() {
     CeTaskProcessorRepositoryImpl underTest = new CeTaskProcessorRepositoryImpl(new CeTaskProcessor[] {});
 
-    assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isAbsent();
+    assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isEmpty();
   }
 
   @Test
@@ -83,7 +82,7 @@ public class CeTaskProcessorRepositoryImplTest {
       createCeTaskProcessor(SOME_CE_TASK_TYPE + "_2", SOME_CE_TASK_TYPE + "_3"),
     });
 
-    assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isAbsent();
+    assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isEmpty();
   }
 
   @Test

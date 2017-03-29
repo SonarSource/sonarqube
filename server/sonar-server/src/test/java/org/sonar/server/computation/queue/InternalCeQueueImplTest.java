@@ -19,10 +19,10 @@
  */
 package org.sonar.server.computation.queue;
 
-import com.google.common.base.Optional;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -49,7 +49,6 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
