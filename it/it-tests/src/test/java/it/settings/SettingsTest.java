@@ -189,7 +189,7 @@ public class SettingsTest {
 
     assertThat(adminSettingsService.values(ValuesRequest.builder().build()).getSettingsList())
       .extracting(Setting::getKey)
-      .contains(PLUGIN_SETTING_KEY, "hidden", "sonar.forceAuthentication", "sonar.defaultGroup",
+      .contains(PLUGIN_SETTING_KEY, "hidden", "sonar.forceAuthentication",
         // Settings for scanner
         "sonar.core.startTime");
 

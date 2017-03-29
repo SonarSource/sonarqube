@@ -191,8 +191,20 @@ public interface CoreProperties {
   @Deprecated
   String CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY = "sonar.allowUsersToSignUp";
 
+  /**
+   * @deprecated since 6.4. The default group is hardcoded to 'sonar-users'
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-9014">SONAR-9014/a>
+   */
+  @Deprecated
   String CORE_DEFAULT_GROUP = "sonar.defaultGroup";
+
+  /**
+   * @deprecated since 6.4. The default group is hardcoded to 'sonar-users'
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-9014">SONAR-9014/a>
+   */
+  @Deprecated
   String CORE_DEFAULT_GROUP_DEFAULT_VALUE = "sonar-users";
+  
   boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
 
   /**
