@@ -19,12 +19,12 @@
  */
 package util.user;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -156,8 +156,8 @@ public class UserRule extends ExternalResource implements GroupManagement {
     @Override
     public void createGroup(String name, @Nullable String description) {
       PostRequest request = new PostRequest("api/user_groups/create")
-          .setParam("name", name)
-          .setParam("description", description);
+        .setParam("name", name)
+        .setParam("description", description);
       addOrganizationParam(request);
       adminWsClient().wsConnector().call(request);
     }
@@ -179,7 +179,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
       for (String groupName : groupNames) {
         if (getGroupByName(groupName).isPresent()) {
           PostRequest request = new PostRequest("api/user_groups/delete")
-              .setParam("name", groupName);
+            .setParam("name", groupName);
           addOrganizationParam(request);
           adminWsClient().wsConnector().call(request);
         }
@@ -206,17 +206,17 @@ public class UserRule extends ExternalResource implements GroupManagement {
     }
 
     @Override
-    public void verifyUserGroupMembership(String userLogin, String... groups) {
+    public void verifyUserGroupMembership(String userLogin, String... expectedGroups) {
       Groups userGroup = getUserGroups(userLogin);
-      List<String> userGroupName = FluentIterable.from(userGroup.getGroups()).transform(ToGroupName.INSTANCE).toList();
-      assertThat(userGroupName).containsOnly(groups);
+      List<String> userGroupName = userGroup.getGroups().stream().map(Groups.Group::getName).collect(Collectors.toList());
+      assertThat(userGroupName).containsOnly(expectedGroups);
     }
 
     @Override
     public Groups getUserGroups(String userLogin) {
       GetRequest request = new GetRequest("api/users/groups")
-          .setParam("login", userLogin)
-          .setParam("selected", "selected");
+        .setParam("login", userLogin)
+        .setParam("selected", "selected");
       addOrganizationParam(request);
       WsResponse response = adminWsClient().wsConnector().call(request).failIfNotSuccessful();
       return Groups.parse(response.content());
@@ -226,8 +226,8 @@ public class UserRule extends ExternalResource implements GroupManagement {
     public void associateGroupsToUser(String userLogin, String... groups) {
       for (String group : groups) {
         PostRequest request = new PostRequest("api/user_groups/add_user")
-            .setParam("login", userLogin)
-            .setParam("name", group);
+          .setParam("login", userLogin)
+          .setParam("name", group);
         addOrganizationParam(request);
         adminWsClient().wsConnector().call(request).failIfNotSuccessful();
       }
@@ -314,12 +314,4 @@ public class UserRule extends ExternalResource implements GroupManagement {
     }
   }
 
-  private enum ToGroupName implements Function<Groups.Group, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull Groups.Group group) {
-      return group.getName();
-    }
-  }
 }
