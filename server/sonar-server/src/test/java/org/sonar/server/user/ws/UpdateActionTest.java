@@ -45,14 +45,13 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateActionTest {
 
   private static final OrganizationCreation ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE = null;
 
-  private final Settings settings = new MapSettings().setProperty("sonar.defaultGroup", "sonar-users");
+  private final Settings settings = new MapSettings();
 
   private System2 system2 = new System2();
 
@@ -71,12 +70,10 @@ public class UpdateActionTest {
 
   @Before
   public void setUp() {
-    dbClient.groupDao().insert(session, newGroupDto().setName("sonar-users"));
-    session.commit();
-
+    dbTester.users().insertGroup(dbTester.getDefaultOrganization(), "sonar-users");
     userIndexer = new UserIndexer(dbClient, esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE),
+      new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, system2, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE),
       userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
   }
