@@ -773,12 +773,12 @@ public interface RulesDefinition {
     }
 
     /**
-     * Load description from a file available in classpath. Example : <code>setMarkdownDescription(getClass().getResource("/myrepo/Rule1234.md")</code>
+     * Load description from a file available in classpath. Example : {@code setMarkdownDescription(getClass().getResource("/myrepo/Rule1234.md")}
      */
     public NewRule setMarkdownDescription(@Nullable URL classpathUrl) {
       if (classpathUrl != null) {
         try {
-          setMarkdownDescription(IOUtils.toString(classpathUrl));
+          setMarkdownDescription(IOUtils.toString(classpathUrl, UTF_8));
         } catch (IOException e) {
           throw new IllegalStateException("Fail to read: " + classpathUrl, e);
         }
