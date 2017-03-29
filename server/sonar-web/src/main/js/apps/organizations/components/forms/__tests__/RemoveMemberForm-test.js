@@ -19,10 +19,10 @@
  */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
+import { click, mockEvent } from '../../../../../helpers/testUtils';
 import RemoveMemberForm from '../RemoveMemberForm';
 
-const member = {};
+const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const removeMember = jest.fn();
 const organization = { name: 'MyOrg' };
 
@@ -39,6 +39,11 @@ it('should correctly handle user interactions', () => {
   const wrapper = mount(
     <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
   );
+  const instance = wrapper.instance();
   click(wrapper.find('a'));
   expect(wrapper.state('open')).toBeTruthy();
+  instance.handleSubmit(mockEvent);
+  expect(removeMember.mock.calls).toMatchSnapshot();
+  instance.closeForm();
+  expect(wrapper.state('open')).toBeFalsy();
 });

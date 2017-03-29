@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import { getJSON, post } from '../helpers/request';
 
 export function getCurrentUser() {
@@ -24,15 +25,22 @@ export function getCurrentUser() {
   return getJSON(url);
 }
 
-export function changePassword(login, password, previousPassword) {
+export function changePassword(login: string, password: string, previousPassword?: string) {
   const url = '/api/users/change_password';
-  const data = { login, password };
-
+  const data: { login: string, password: string, previousPassword?: string } = { login, password };
   if (previousPassword != null) {
     data.previousPassword = previousPassword;
   }
-
   return post(url, data);
+}
+
+export function getUserGroups(login: string, organization?: string) {
+  const url = '/api/users/groups';
+  const data: { login: string, organization?: string, q?: string } = { login };
+  if (organization) {
+    data.organization = organization;
+  }
+  return getJSON(url, data);
 }
 
 export function getIdentityProviders() {
@@ -40,9 +48,9 @@ export function getIdentityProviders() {
   return getJSON(url);
 }
 
-export function searchUsers(query, pageSize) {
+export function searchUsers(query: string, pageSize?: number) {
   const url = '/api/users/search';
-  const data = { q: query };
+  const data: { q: string, ps?: number } = { q: query };
   if (pageSize != null) {
     data.ps = pageSize;
   }

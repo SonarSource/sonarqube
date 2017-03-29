@@ -113,6 +113,9 @@ export const getNotificationPerProjectTypes = state =>
 export const getOrganizationByKey = (state, key) =>
   fromOrganizations.getOrganizationByKey(state.organizations, key);
 
+export const getOrganizationGroupsByKey = (state, key) =>
+  fromOrganizations.getOrganizationGroupsByKey(state.organizations, key);
+
 export const getMyOrganizations = state =>
   fromOrganizations.getMyOrganizations(state.organizations);
 

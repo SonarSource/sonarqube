@@ -32,6 +32,13 @@ export type Organization = {
   url?: string
 };
 
+export type OrgGroup = {
+  id: string,
+  name: string,
+  description: string,
+  membersCount: number
+};
+
 type ReceiveOrganizationsAction = {
   type: 'RECEIVE_ORGANIZATIONS',
   organizations: Array<Organization>
@@ -40,6 +47,12 @@ type ReceiveOrganizationsAction = {
 type ReceiveMyOrganizationsAction = {
   type: 'RECEIVE_MY_ORGANIZATIONS',
   organizations: Array<Organization>
+};
+
+type ReceiveOrganizationGroups = {
+  type: 'RECEIVE_ORGANIZATION_GROUPS',
+  key: string,
+  groups: Array<OrgGroup>
 };
 
 type CreateOrganizationAction = {
@@ -61,6 +74,7 @@ type DeleteOrganizationAction = {
 type Action =
   | ReceiveOrganizationsAction
   | ReceiveMyOrganizationsAction
+  | ReceiveOrganizationGroups
   | CreateOrganizationAction
   | UpdateOrganizationAction
   | DeleteOrganizationAction;
@@ -69,11 +83,16 @@ type ByKeyState = {
   [key: string]: Organization
 };
 
+type GroupsState = {
+  [key: string]: Array<OrgGroup>
+};
+
 type MyState = Array<string>;
 
 type State = {
   byKey: ByKeyState,
-  my: MyState
+  my: MyState,
+  groups: GroupsState
 };
 
 export const receiveOrganizations = (
@@ -88,6 +107,12 @@ export const receiveMyOrganizations = (
 ): ReceiveMyOrganizationsAction => ({
   type: 'RECEIVE_MY_ORGANIZATIONS',
   organizations
+});
+
+export const receiveOrganizationGroups = (key: string, groups: Array<OrgGroup>): receiveOrganizationGroups => ({
+  type: 'RECEIVE_ORGANIZATION_GROUPS',
+  key,
+  groups
 });
 
 export const createOrganization = (organization: Organization): CreateOrganizationAction => ({
@@ -153,9 +178,20 @@ const my = (state: MyState = [], action: Action) => {
   }
 };
 
-export default combineReducers({ byKey, my });
+const groups = (state: GroupsState = {}, action: Action) => {
+  switch (action.type) {
+    case 'RECEIVE_ORGANIZATION_GROUPS':
+      return { ...state, [action.key]: action.groups };
+    default:
+      return state;
+  }
+};
+
+export default combineReducers({ byKey, my, groups });
 
 export const getOrganizationByKey = (state: State, key: string): Organization => state.byKey[key];
+
+export const getOrganizationGroupsByKey = (state: State, key: string): Array<OrgGroup> => state.groups[key] || [];
 
 export const getMyOrganizations = (state: State): Array<Organization> =>
   state.my.map(key => getOrganizationByKey(state, key));

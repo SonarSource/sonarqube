@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
-import AddMemberForm from '../AddMemberForm';
+//@flow
+import { getJSON, post } from '../helpers/request';
 
-const memberLogins = ['admin'];
-const addMember = jest.fn();
+export function searchUsersGroups(query?: string, organization?: string) {
+  const url = '/api/user_groups/search';
+  const data: { q?: string, organization?: string } = {};
+  if (query) {
+    data.q = query;
+  }
+  if (organization) {
+    data.organization = organization;
+  }
+  return getJSON(url, data);
+}
 
-it('should render and open the modal', () => {
-  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={addMember} />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
-});
+export function addUserToGroup(groupId: string, login: string) {
+  const url = '/api/user_groups/add_user';
+  return post(url, { id: groupId, login });
+}
 
-it('should correctly handle user interactions', () => {
-  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={addMember} />);
-  click(wrapper.find('button'));
-  expect(wrapper.state('open')).toBeTruthy();
-  wrapper.instance().closeForm();
-  expect(wrapper.state('open')).toBeFalsy();
-});
+export function removeUserFromGroup(groupId: string, login: string) {
+  const url = '/api/user_groups/remove_user';
+  return post(url, { id: groupId, login });
+}

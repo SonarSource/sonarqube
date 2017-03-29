@@ -19,12 +19,13 @@
  */
 import { combineReducers } from 'redux';
 import { uniq, keyBy } from 'lodash';
-import { RECEIVE_CURRENT_USER } from './actions';
+import { RECEIVE_CURRENT_USER, RECEIVE_USER } from './actions';
 import { actions as membersActions } from '../organizationsMembers/actions';
 
 const usersByLogin = (state = {}, action = {}) => {
   switch (action.type) {
     case RECEIVE_CURRENT_USER:
+    case RECEIVE_USER:
       return { ...state, [action.user.login]: action.user };
     case membersActions.RECEIVE_MEMBERS:
     case membersActions.RECEIVE_MORE_MEMBERS:
@@ -39,6 +40,7 @@ const usersByLogin = (state = {}, action = {}) => {
 const userLogins = (state = [], action = {}) => {
   switch (action.type) {
     case RECEIVE_CURRENT_USER:
+    case RECEIVE_USER:
       return uniq([...state, action.user.login]);
     case membersActions.RECEIVE_MEMBERS:
     case membersActions.RECEIVE_MORE_MEMBERS:

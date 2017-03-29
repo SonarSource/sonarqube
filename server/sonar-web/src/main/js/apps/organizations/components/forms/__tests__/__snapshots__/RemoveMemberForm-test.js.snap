@@ -1,3 +1,16 @@
+exports[`test should correctly handle user interactions 1`] = `
+Array [
+  Array [
+    Object {
+      "avatar": "",
+      "groupCount": 3,
+      "login": "admin",
+      "name": "Admin Istrator",
+    },
+  ],
+]
+`;
+
 exports[`test should render and open the modal 1`] = `
 <a
   href="#"
@@ -32,7 +45,7 @@ exports[`test should render and open the modal 2`] = `
       onSubmit={[Function]}>
       <div
         className="modal-body">
-        organization.members.remove_x..MyOrg
+        organization.members.remove_x.Admin Istrator.MyOrg
         <ul
           className="list-styled">
           <li>

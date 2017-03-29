@@ -24,18 +24,21 @@ import MembersList from './MembersList';
 import AddMemberForm from './forms/AddMemberForm';
 import UsersSearch from '../../users/components/UsersSearch';
 import ListFooter from '../../../components/controls/ListFooter';
-import type { Organization } from '../../../store/organizations/duck';
+import type { Organization, OrgGroup } from '../../../store/organizations/duck';
 import type { Member } from '../../../store/organizationsMembers/actions';
 
 type Props = {
   members: Array<Member>,
   memberLogins: Array<string>,
+  organizationGroups: Array<OrgGroup>,
   status: { loading?: boolean, total?: number, pageIndex?: number, query?: string },
   organization: Organization,
   fetchOrganizationMembers: (organizationKey: string, query?: string) => void,
   fetchMoreOrganizationMembers: (organizationKey: string, query?: string) => void,
-  addOrganizationMember: (organizationKey: string, login: Member) => void,
-  removeOrganizationMember: (organizationKey: string, login: Member) => void
+  fetchOrganizationGroups: (organizationKey: string) => void,
+  addOrganizationMember: (organizationKey: string, member: Member) => void,
+  removeOrganizationMember: (organizationKey: string, member: Member) => void,
+  updateOrganizationMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void,
 };
 
 export default class OrganizationMembers extends React.PureComponent {
@@ -45,6 +48,9 @@ export default class OrganizationMembers extends React.PureComponent {
     const notLoadedYet = this.props.members.length < 1 || this.props.status.query != null;
     if (!this.props.loading && notLoadedYet) {
       this.handleSearchMembers();
+    }
+    if (this.props.organizationGroups.length <= 0) {
+      this.props.fetchOrganizationGroups(this.props.organization.key);
     }
   }
 
@@ -79,8 +85,10 @@ export default class OrganizationMembers extends React.PureComponent {
         <UsersSearch onSearch={this.handleSearchMembers} />
         <MembersList
           members={members}
+          organizationGroups={this.props.organizationGroups}
           organization={organization}
           removeMember={this.removeMember}
+          updateMemberGroups={this.props.updateOrganizationMemberGroups}
         />
         {status.total != null &&
           <ListFooter
