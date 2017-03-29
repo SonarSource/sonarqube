@@ -20,12 +20,12 @@
 package org.sonar.ce.queue;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
@@ -99,7 +99,7 @@ public class CeQueueImpl implements CeQueue {
     if (dto.getComponentUuid() == null) {
       return new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid()).apply(dto);
     }
-    Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, dto.getComponentUuid());
+    com.google.common.base.Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, dto.getComponentUuid());
     if (componentDto.isPresent()) {
       return new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid(), ImmutableMap.of(dto.getComponentUuid(), componentDto.get())).apply(dto);
     }

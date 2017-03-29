@@ -20,12 +20,12 @@
 package org.sonar.db.ce;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -193,7 +193,7 @@ public class CeQueueDaoTest {
     insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING);
 
     underTest.deleteByUuid(db.getSession(), "UNKNOWN");
-    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1).isPresent()).isTrue();
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
 
     underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1).isPresent()).isFalse();
@@ -276,7 +276,7 @@ public class CeQueueDaoTest {
 
     // peek first one
     Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT);
-    assertThat(peek.isPresent()).isTrue();
+    assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
     assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
@@ -285,7 +285,7 @@ public class CeQueueDaoTest {
 
     // peek second one
     peek = underTest.peek(db.getSession(), WORKER_UUID_2, MAX_EXECUTION_COUNT);
-    assertThat(peek.isPresent()).isTrue();
+    assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
     assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_2);
@@ -304,7 +304,7 @@ public class CeQueueDaoTest {
     insert(TASK_UUID_2, COMPONENT_UUID_1, PENDING);
 
     Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT);
-    assertThat(peek.isPresent()).isTrue();
+    assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
     assertThat(peek.get().getExecutionCount()).isEqualTo(1);

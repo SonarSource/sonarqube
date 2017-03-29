@@ -19,12 +19,12 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -92,12 +92,12 @@ public class TaskAction implements CeWsAction {
       WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
-        Optional<ComponentDto> component = loadComponent(dbSession, queueDto.get().getComponentUuid());
+        com.google.common.base.Optional<ComponentDto> component = loadComponent(dbSession, queueDto.get().getComponentUuid());
         checkPermission(component);
         wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get(), component));
       } else {
         CeActivityDto ceActivityDto = WsUtils.checkFoundWithOptional(dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid), "No activity found for task '%s'", taskUuid);
-        Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
+        com.google.common.base.Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
         checkPermission(component);
         Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
         maskErrorStacktrace(ceActivityDto, additionalFields);
@@ -108,14 +108,14 @@ public class TaskAction implements CeWsAction {
     }
   }
 
-  private Optional<ComponentDto> loadComponent(DbSession dbSession, @Nullable String projectUuid) {
+  private com.google.common.base.Optional<ComponentDto> loadComponent(DbSession dbSession, @Nullable String projectUuid) {
     if (projectUuid == null) {
-      return Optional.absent();
+      return com.google.common.base.Optional.absent();
     }
     return dbClient.componentDao().selectByUuid(dbSession, projectUuid);
   }
 
-  private void checkPermission(Optional<ComponentDto> component) {
+  private void checkPermission(com.google.common.base.Optional<ComponentDto> component) {
     if (component.isPresent()) {
       String orgUuid = component.get().getOrganizationUuid();
       if (!userSession.hasPermission(OrganizationPermission.ADMINISTER, orgUuid) &&

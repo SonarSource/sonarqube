@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -67,7 +67,7 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     } catch (Exception e) {
       LOG.error("Failed to pop the queue of analysis reports", e);
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   private void executeTask(CeTask task) {
