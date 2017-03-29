@@ -123,7 +123,7 @@ public class SsoAuthenticatorTest {
 
     underTest.authenticate(request, response);
 
-    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
+    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2, sonarUsers);
     verifyTokenIsUpdated(NOW);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
@@ -188,12 +188,12 @@ public class SsoAuthenticatorTest {
   public void does_not_update_groups_when_no_group_headers() throws Exception {
     startWithSso();
     setNotUserInToken();
-    insertUser(DEFAULT_USER, group1);
+    insertUser(DEFAULT_USER, group1, sonarUsers);
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, null);
 
     underTest.authenticate(request, response);
 
-    verityUserGroups(DEFAULT_LOGIN, group1);
+    verityUserGroups(DEFAULT_LOGIN, group1, sonarUsers);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
@@ -269,7 +269,7 @@ public class SsoAuthenticatorTest {
 
     underTest.authenticate(request, response);
 
-    verifyUserInDb("AnotherLogin", "Another name", "Another email", group2);
+    verifyUserInDb("AnotherLogin", "Another name", "Another email", group2, sonarUsers);
     verifyTokenIsUpdated(NOW);
     verify(authenticationEvent).loginSuccess(request, "AnotherLogin", Source.sso());
   }
@@ -286,7 +286,7 @@ public class SsoAuthenticatorTest {
 
     underTest.authenticate(request, response);
 
-    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
+    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2, sonarUsers);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
@@ -302,7 +302,7 @@ public class SsoAuthenticatorTest {
 
     underTest.authenticate(request, response);
 
-    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
+    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2, sonarUsers);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
@@ -314,7 +314,7 @@ public class SsoAuthenticatorTest {
 
     underTest.authenticate(request, response);
 
-    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null, group1, group2);
+    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null, group1, group2, sonarUsers);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
