@@ -21,7 +21,6 @@ package org.sonar.ce.taskprocessor;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.assertj.guava.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +28,6 @@ import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class CeTaskProcessorRepositoryImplTest {
   private static final String SOME_CE_TASK_TYPE = "some type";
@@ -73,7 +71,7 @@ public class CeTaskProcessorRepositoryImplTest {
   public void getForTask_returns_absent_if_repository_is_empty() {
     CeTaskProcessorRepositoryImpl underTest = new CeTaskProcessorRepositoryImpl(new CeTaskProcessor[] {});
 
-    Assertions.assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isAbsent();
+    assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isEmpty();
   }
 
   @Test
@@ -83,7 +81,7 @@ public class CeTaskProcessorRepositoryImplTest {
       createCeTaskProcessor(SOME_CE_TASK_TYPE + "_2", SOME_CE_TASK_TYPE + "_3"),
     });
 
-    Assertions.assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isAbsent();
+    assertThat(underTest.getForCeTask(createCeTask(SOME_CE_TASK_TYPE, SOME_COMPONENT_KEY))).isEmpty();
   }
 
   @Test

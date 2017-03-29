@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.queue.CeTask;
@@ -57,7 +57,7 @@ public class CeTaskProcessorRepositoryRule extends ExternalResource implements C
   public Optional<CeTaskProcessor> getForCeTask(CeTask ceTask) {
     CeTaskProcessor taskProcessor = index.get(ceTask.getType());
     checkState(taskProcessor != null, "CeTaskProcessor was not set in rule for task %s", ceTask);
-    return taskProcessor instanceof NoCeTaskProcessor ? Optional.<CeTaskProcessor>absent() : Optional.of(taskProcessor);
+    return taskProcessor instanceof NoCeTaskProcessor ? Optional.empty() : Optional.of(taskProcessor);
   }
 
   private enum NoCeTaskProcessor implements CeTaskProcessor {

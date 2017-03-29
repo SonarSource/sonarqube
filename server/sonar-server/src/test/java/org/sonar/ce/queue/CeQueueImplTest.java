@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.queue;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;

@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.queue;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTask;

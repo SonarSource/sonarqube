@@ -197,12 +197,12 @@ public class ActivityAction implements CeWsAction {
       return Optional.absent();
     }
 
-    Optional<CeQueueDto> queue = dbClient.ceQueueDao().selectByUuid(dbSession, textQuery);
+    java.util.Optional<CeQueueDto> queue = dbClient.ceQueueDao().selectByUuid(dbSession, textQuery);
     if (queue.isPresent()) {
       return Optional.of(formatter.formatQueue(dbSession, queue.get()));
     }
 
-    Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
+    java.util.Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
     if (activity.isPresent()) {
       return Optional.of(formatter.formatActivity(dbSession, activity.get()));
     }
