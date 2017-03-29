@@ -19,11 +19,12 @@
  */
 package org.sonar.core.config;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
+
+import static java.util.Collections.singletonList;
 
 class SecurityProperties {
 
@@ -32,14 +33,7 @@ class SecurityProperties {
   }
 
   static List<PropertyDefinition> all() {
-    return ImmutableList.of(
-      PropertyDefinition.builder(CoreProperties.CORE_DEFAULT_GROUP)
-        .defaultValue(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE)
-        .name("Default user group")
-        .description("Any new users will automatically join this group.")
-        .category(CoreProperties.CATEGORY_SECURITY)
-        .build(),
-
+    return singletonList(
       PropertyDefinition.builder(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY)
         .defaultValue(Boolean.toString(CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE))
         .name("Force user authentication")

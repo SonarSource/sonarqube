@@ -26,7 +26,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.CoreProperties;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -160,7 +159,7 @@ public final class UserIdentity {
      * <ul>
      *   <li>When groups are not empty, group membership is synchronized when user logs in :
      *   <ul>
-     *     <li>User won't belong anymore to a group that is not in the list (even the default group defined in {@link CoreProperties#CORE_DEFAULT_GROUP})</li>
+     *     <li>User won't belong anymore to a group that is not in the list (even the default group defined in 'sonar-users')</li>
      *     <li>User will belong only to groups that exist in SonarQube</li>
      *     <li>Groups that don't exist in SonarQube are silently ignored</li>
      *   </ul>

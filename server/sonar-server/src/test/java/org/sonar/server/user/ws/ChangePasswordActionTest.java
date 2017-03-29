@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -56,8 +55,7 @@ public class ChangePasswordActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
-  private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), new MapSettings(), db.getDbClient(),
-    new UserIndexer(db.getDbClient(), esTester.client()),
+  private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), esTester.client()),
     System2.INSTANCE,
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationCreation.class));
@@ -66,7 +64,7 @@ public class ChangePasswordActionTest {
 
   @Before
   public void setUp() {
-    db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-users"));
+    db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test
