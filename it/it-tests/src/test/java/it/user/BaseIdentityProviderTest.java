@@ -220,7 +220,7 @@ public class BaseIdentityProviderTest {
 
     authenticateWithFakeAuthProvider();
 
-    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP1, GROUP2);
+    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP1, GROUP2, "sonar-users");
   }
 
   @Test
@@ -237,7 +237,7 @@ public class BaseIdentityProviderTest {
 
     authenticateWithFakeAuthProvider();
 
-    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP2, GROUP3);
+    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP2, GROUP3, "sonar-users");
   }
 
   @Test
@@ -253,7 +253,7 @@ public class BaseIdentityProviderTest {
     authenticateWithFakeAuthProvider();
 
     // User is not member to any group
-    userRule.verifyUserGroupMembership(USER_LOGIN);
+    userRule.verifyUserGroupMembership(USER_LOGIN, "sonar-users");
   }
 
   @Test
