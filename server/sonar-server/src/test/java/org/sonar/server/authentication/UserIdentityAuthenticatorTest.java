@@ -25,8 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
@@ -74,24 +72,21 @@ public class UserIdentityAuthenticatorTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
-  private Settings settings = new MapSettings();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
-    settings,
     db.getDbClient(),
     mock(UserIndexer.class),
     System2.INSTANCE,
     defaultOrganizationProvider,
-      organizationCreation);
+    organizationCreation);
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider);
   private GroupDto defaultGroup;
 
   @Before
   public void setUp() throws Exception {
-    settings.setProperty("sonar.defaultGroup", DEFAULT_GROUP);
-    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP);
+    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test

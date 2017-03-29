@@ -20,12 +20,10 @@
 package org.sonar.server.usergroups.ws;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -34,16 +32,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class UpdateActionTest {
@@ -59,16 +50,7 @@ public class UpdateActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private PersistentSettings settings = mock(PersistentSettings.class);
-  private WsTester ws = new WsTester(
-    new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider), settings, defaultOrganizationProvider)));
-
-  @Before
-  public void setUp() throws Exception {
-    GroupWsSupport groupSupport = new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
-    ws = new WsTester(new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, groupSupport, settings, defaultOrganizationProvider)));
-    when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
-  }
+  private WsTester ws = new WsTester(new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider))));
 
   @Test
   public void update_both_name_and_description() throws Exception {
@@ -133,38 +115,6 @@ public class UpdateActionTest {
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
       .execute();
-
-    verify(settings).saveProperty(any(DbSession.class), eq(DEFAULT_GROUP_NAME_KEY), eq("new-name"));
-  }
-
-  @Test
-  public void update_default_group_name_does_not_update_default_group_setting_when_null() throws Exception {
-    when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(null);
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
-    loginAsAdminOnDefaultOrganization();
-
-    newRequest()
-      .setParam("id", group.getId().toString())
-      .setParam("name", "new-name")
-      .execute();
-
-    verify(settings, never()).saveProperty(any(DbSession.class), eq(DEFAULT_GROUP_NAME_KEY), eq("new-name"));
-  }
-
-  @Test
-  public void do_not_update_default_group_of_default_organization_if_updating_group_on_non_default_organization() throws Exception {
-    OrganizationDto org = db.organizations().insert();
-    when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
-    GroupDto groupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
-    GroupDto group = db.users().insertGroup(org, DEFAULT_GROUP_NAME_VALUE);
-    loginAsAdmin(org);
-
-    newRequest()
-      .setParam("id", group.getId().toString())
-      .setParam("name", "new-name")
-      .execute();
-
-    verify(settings, never()).saveProperty(any(DbSession.class), eq(DEFAULT_GROUP_NAME_KEY), eq("new-name"));
   }
 
   @Test

@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -60,7 +59,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
 import static org.sonar.db.user.UserTesting.newDisabledUser;
 import static org.sonar.db.user.UserTesting.newLocalUser;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -87,12 +85,11 @@ public class UserUpdaterTest {
   private DbClient dbClient = db.getDbClient();
   private NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
-  private Settings settings = new MapSettings();
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, defaultOrganizationProvider, organizationCreation);
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, system2, defaultOrganizationProvider, organizationCreation);
 
   @Before
   public void setUp() {
@@ -461,25 +458,9 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void doest_not_fail_when_no_default_group() {
-    settings.setProperty(CORE_DEFAULT_GROUP, (String) null);
-
-    underTest.create(db.getSession(), NewUser.builder()
-      .setLogin("user")
-      .setName("User")
-      .setEmail("user@mail.com")
-      .setPassword("password")
-      .setScmAccounts(newArrayList("u1", "u_1"))
-      .build());
-
-    assertThat(dbClient.userDao().selectByLogin(session, "user")).isNotNull();
-  }
-
-  @Test
   public void fail_to_associate_default_group_when_default_group_does_not_exist() {
-    settings.setProperty(CORE_DEFAULT_GROUP, "polop");
     expectedException.expect(ServerException.class);
-    expectedException.expectMessage("The default group 'polop' for new users does not exist. Please update the general security settings to fix this issue.");
+    expectedException.expectMessage("The default group 'sonar-users' for new users does not exist.");
 
     underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
@@ -1099,10 +1080,7 @@ public class UserUpdaterTest {
   }
 
   private GroupDto createDefaultGroup() {
-    settings.setProperty(CORE_DEFAULT_GROUP, DEFAULT_GROUP);
-    GroupDto groupDto = GroupTesting.newGroupDto().setName(DEFAULT_GROUP).setOrganizationUuid(db.getDefaultOrganization().getUuid());
-    db.users().insertGroup(groupDto);
-    return groupDto;
+    return db.users().insertGroup(GroupTesting.newGroupDto().setName(DEFAULT_GROUP).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
   }
 
 }
