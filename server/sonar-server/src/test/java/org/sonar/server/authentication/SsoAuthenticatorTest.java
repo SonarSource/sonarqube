@@ -89,6 +89,7 @@ public class SsoAuthenticatorTest {
 
   private GroupDto group1;
   private GroupDto group2;
+  private GroupDto sonarUsers;
 
   private System2 system2 = mock(System2.class);
   private Settings settings = new MapSettings();
@@ -97,7 +98,7 @@ public class SsoAuthenticatorTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private UserIdentityAuthenticator userIdentityAuthenticator = new UserIdentityAuthenticator(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, defaultOrganizationProvider, organizationCreation),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, defaultOrganizationProvider, organizationCreation),
     defaultOrganizationProvider);
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
@@ -111,7 +112,7 @@ public class SsoAuthenticatorTest {
     when(system2.now()).thenReturn(NOW);
     group1 = db.users().insertGroup(db.getDefaultOrganization(), GROUP1);
     group2 = db.users().insertGroup(db.getDefaultOrganization(), GROUP2);
-    db.commit();
+    sonarUsers = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test
@@ -135,7 +136,7 @@ public class SsoAuthenticatorTest {
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, null, null, null);
     underTest.authenticate(request, response);
 
-    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null);
+    verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null, sonarUsers);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 

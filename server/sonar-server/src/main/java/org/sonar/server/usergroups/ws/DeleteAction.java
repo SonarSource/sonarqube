@@ -20,21 +20,20 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
@@ -44,15 +43,12 @@ public class DeleteAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
-  private final Settings settings;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, Settings settings,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public DeleteAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
-    this.settings = settings;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
@@ -95,11 +91,10 @@ public class DeleteAction implements UserGroupsWsAction {
    * are not implemented.
    */
   private void checkNotTryingToDeleteDefaultGroup(DbSession dbSession, GroupId group) {
-    String defaultGroupName = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
-    if (defaultGroupName != null && group.getOrganizationUuid().equals(defaultOrganizationProvider.get().getUuid())) {
-      Optional<GroupDto> defaultGroup = dbClient.groupDao().selectByName(dbSession, group.getOrganizationUuid(), defaultGroupName);
+    if (group.getOrganizationUuid().equals(defaultOrganizationProvider.get().getUuid())) {
+      Optional<GroupDto> defaultGroup = dbClient.groupDao().selectByName(dbSession, group.getOrganizationUuid(), SONAR_USERS_GROUP_NAME);
       checkArgument(!defaultGroup.isPresent() || defaultGroup.get().getId() != group.getId(),
-        format("Default group '%s' cannot be deleted", defaultGroupName));
+        format("Default group '%s' cannot be deleted", SONAR_USERS_GROUP_NAME));
     }
   }
 
