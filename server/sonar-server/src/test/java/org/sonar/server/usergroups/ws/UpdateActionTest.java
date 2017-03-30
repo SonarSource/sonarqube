@@ -114,17 +114,6 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_default_group_name_also_update_default_group_property() throws Exception {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
-    loginAsAdminOnDefaultOrganization();
-
-    newRequest()
-      .setParam("id", group.getId().toString())
-      .setParam("name", "new-name")
-      .execute();
-  }
-
-  @Test
   public void require_admin_permission_on_organization() throws Exception {
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
@@ -237,6 +226,34 @@ public class UpdateActionTest {
 
     newRequest()
       .setParam("id", "42")
+      .execute();
+  }
+
+  @Test
+  public void fail_to_update_default_group_name() throws Exception {
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
+    loginAsAdminOnDefaultOrganization();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
+
+    newRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("name", "new name")
+      .execute();
+  }
+
+  @Test
+  public void fail_to_update_default_group_description() throws Exception {
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
+    loginAsAdminOnDefaultOrganization();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
+
+    newRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("description", "new description")
       .execute();
   }
 
