@@ -47,6 +47,7 @@ public class SearchWsRequest {
   private List<String> languages;
   private List<String> moduleUuids;
   private Boolean onComponentOnly;
+  private String organization;
   private Integer page;
   private Integer pageSize;
   private List<String> projectKeys;
@@ -259,6 +260,16 @@ public class SearchWsRequest {
 
   public SearchWsRequest setOnComponentOnly(Boolean onComponentOnly) {
     this.onComponentOnly = onComponentOnly;
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public SearchWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 

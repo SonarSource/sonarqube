@@ -277,6 +277,7 @@ public class IssueIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
 
     addDatesFilter(filters, query);
 
@@ -584,6 +585,11 @@ public class IssueIndex {
   @CheckForNull
   private static QueryBuilder createTermsFilter(String field, Collection<?> values) {
     return values.isEmpty() ? null : termsQuery(field, values);
+  }
+
+  @CheckForNull
+  private static QueryBuilder createTermFilter(String field, @Nullable String value) {
+    return value == null ? null : termQuery(field, value);
   }
 
   public List<String> listTags(@Nullable String textQuery, int maxNumberOfTags) {
