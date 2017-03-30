@@ -108,9 +108,10 @@ export default class ProfileHeader extends React.PureComponent {
 
         <h1 className="page-title">
           <ProfileLink
-            organization={organization}
-            profileKey={profile.key}
-            className="link-base-color">
+            className="link-base-color"
+            language={profile.language}
+            name={profile.name}
+            organization={organization}>
             <span>{profile.name}</span>
           </ProfileLink>
         </h1>
@@ -120,7 +121,9 @@ export default class ProfileHeader extends React.PureComponent {
             {this.renderUpdateDate()}
             {this.renderUsageDate()}
             <li>
-              <Link to={getProfileChangelogPath(profile.key, organization)} className="button">
+              <Link
+                to={getProfileChangelogPath(profile.name, profile.language, organization)}
+                className="button">
                 {translate('changelog')}
               </Link>
             </li>

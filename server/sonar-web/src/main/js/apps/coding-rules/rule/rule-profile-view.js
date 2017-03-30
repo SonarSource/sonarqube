@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
 import $ from 'jquery';
 import { sortBy } from 'lodash';
 import Backbone from 'backbone';
@@ -150,12 +151,12 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  getProfilePath(profileKey) {
+  getProfilePath(language, name) {
     const { organization } = this.options.app;
-    const encodedKey = encodeURIComponent(profileKey);
+    const query = stringify({ language, name });
     return organization
-      ? `${window.baseUrl}/organizations/${organization}/quality_profiles/show?key=${encodedKey}`
-      : `${window.baseUrl}/profiles/show?key=${encodedKey}`;
+      ? `${window.baseUrl}/organizations/${organization}/quality_profiles/show?${query}`
+      : `${window.baseUrl}/profiles/show?${query}`;
   },
 
   serializeData() {
@@ -168,7 +169,7 @@ export default Marionette.ItemView.extend({
       parameters: this.enhanceParameters(),
       templateKey: this.options.rule.get('templateKey'),
       isTemplate: this.options.rule.get('isTemplate'),
-      profilePath: this.getProfilePath(this.model.get('key')),
+      profilePath: this.getProfilePath(this.model.get('lang'), this.model.get('name')),
       parentProfilePath: parent && this.getProfilePath(parent.key)
     };
   }

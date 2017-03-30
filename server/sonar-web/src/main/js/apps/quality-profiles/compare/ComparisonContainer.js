@@ -93,7 +93,12 @@ export default class ComparisonContainer extends React.PureComponent {
   }
 
   handleCompare = (withKey: string) => {
-    const path = getProfileComparePath(this.props.profile.key, this.props.organization, withKey);
+    const path = getProfileComparePath(
+      this.props.profile.name,
+      this.props.profile.language,
+      this.props.organization,
+      withKey
+    );
     this.context.router.push(path);
   };
 

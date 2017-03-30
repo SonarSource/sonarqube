@@ -91,11 +91,9 @@ export function getComponentPermissionsUrl(componentKey) {
 
 /**
  * Generate URL for a quality profile
- * @param {string} key
- * @returns {Object}
  */
-export function getQualityProfileUrl(key, organization) {
-  return getProfilePath(key, organization);
+export function getQualityProfileUrl(name, language, organization) {
+  return getProfilePath(name, language, organization);
 }
 
 /**

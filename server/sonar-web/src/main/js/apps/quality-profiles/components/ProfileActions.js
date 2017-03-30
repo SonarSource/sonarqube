@@ -31,6 +31,7 @@ import type { Profile } from '../propTypes';
 
 type Props = {
   canAdmin: boolean,
+  fromList: boolean,
   organization: ?string,
   profile: Profile,
   updateProfiles: () => Promise<*>
@@ -39,6 +40,10 @@ type Props = {
 export default class ProfileActions extends React.PureComponent {
   props: Props;
 
+  static defaultProps = {
+    fromList: false
+  };
+
   static contextTypes = {
     router: React.PropTypes.object
   };
@@ -46,7 +51,15 @@ export default class ProfileActions extends React.PureComponent {
   handleRenameClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
     new RenameProfileView({ profile: this.props.profile })
-      .on('done', () => this.props.updateProfiles())
+      .on('done', (newName: string) => {
+        this.props.updateProfiles().then(() => {
+          if (!this.props.fromList) {
+            this.context.router.replace(
+              getProfilePath(newName, this.props.profile.language, this.props.organization)
+            );
+          }
+        });
+      })
       .render();
   };
 
@@ -55,7 +68,9 @@ export default class ProfileActions extends React.PureComponent {
     new CopyProfileView({ profile: this.props.profile })
       .on('done', profile => {
         this.props.updateProfiles().then(() => {
-          this.context.router.push(getProfilePath(profile.key, this.props.organization));
+          this.context.router.push(
+            getProfilePath(profile.name, profile.language, this.props.organization)
+          );
         });
       })
       .render();
@@ -107,7 +122,7 @@ export default class ProfileActions extends React.PureComponent {
         </li>
         <li>
           <Link
-            to={getProfileComparePath(profile.key, this.props.organization)}
+            to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
             id="quality-profile-compare">
             {translate('compare')}
           </Link>

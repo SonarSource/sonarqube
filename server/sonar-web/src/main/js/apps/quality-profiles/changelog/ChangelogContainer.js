@@ -125,23 +125,37 @@ export default class ChangelogContainer extends React.PureComponent {
   }
 
   handleFromDateChange = (fromDate?: string) => {
-    const path = getProfileChangelogPath(this.props.profile.key, this.props.organization, {
-      since: fromDate,
-      to: this.props.location.query.to
-    });
+    const path = getProfileChangelogPath(
+      this.props.profile.name,
+      this.props.profile.language,
+      this.props.organization,
+      {
+        since: fromDate,
+        to: this.props.location.query.to
+      }
+    );
     this.context.router.push(path);
   };
 
   handleToDateChange = (toDate?: string) => {
-    const path = getProfileChangelogPath(this.props.profile.key, this.props.organization, {
-      since: this.props.location.query.since,
-      to: toDate
-    });
+    const path = getProfileChangelogPath(
+      this.props.profile.name,
+      this.props.profile.language,
+      this.props.organization,
+      {
+        since: this.props.location.query.since,
+        to: toDate
+      }
+    );
     this.context.router.push(path);
   };
 
   handleReset = () => {
-    const path = getProfileChangelogPath(this.props.profile.key, this.props.organization);
+    const path = getProfileChangelogPath(
+      this.props.profile.name,
+      this.props.profile.language,
+      this.props.organization
+    );
     this.context.router.push(path);
   };
 

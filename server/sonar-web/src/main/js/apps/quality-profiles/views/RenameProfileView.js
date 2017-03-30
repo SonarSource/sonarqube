@@ -33,9 +33,9 @@ export default ModalFormView.extend({
   sendRequest() {
     const name = this.$('#rename-profile-name').val();
     renameProfile(this.options.profile.key, name)
-      .then(profile => {
+      .then(() => {
         this.destroy();
-        this.trigger('done', profile);
+        this.trigger('done', name);
       })
       .catch(e => {
         if (e.response.status === 400) {

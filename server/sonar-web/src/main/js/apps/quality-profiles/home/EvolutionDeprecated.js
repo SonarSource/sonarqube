@@ -61,9 +61,10 @@ export default class EvolutionDeprecated extends React.PureComponent {
             <li key={profile.key} className="spacer-top">
               <div className="text-ellipsis">
                 <ProfileLink
-                  organization={this.props.organization}
-                  profileKey={profile.key}
-                  className="link-no-underline">
+                  className="link-no-underline"
+                  language={profile.language}
+                  name={profile.name}
+                  organization={this.props.organization}>
                   {profile.name}
                 </ProfileLink>
               </div>

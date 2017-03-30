@@ -85,8 +85,8 @@ class MetaQualityProfiles extends React.Component {
     const languageName = languageFromStore ? languageFromStore.name : profile.language;
 
     const path = this.props.customOrganizations
-      ? getQualityProfileUrl(profile.key, this.props.component.organization)
-      : getQualityProfileUrl(profile.key);
+      ? getQualityProfileUrl(profile.name, profile.language, this.props.component.organization)
+      : getQualityProfileUrl(profile.name, profile.language);
 
     const inner = (
       <div className="text-ellipsis">
