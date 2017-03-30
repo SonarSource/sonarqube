@@ -175,6 +175,16 @@
       id asc
   </sql>
 
+  <select id="selectPendingByMinimumExecutionCount" resultType="org.sonar.db.ce.CeQueueDto">
+    select
+      <include refid="columns"/>
+    from
+      ce_queue cq
+    where
+      cq.status = 'PENDING'
+      and cq.execution_count >= #{minExecutionCount,jdbcType=INTEGER}
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.ce.CeQueueDto" useGeneratedKeys="false">
     insert into ce_queue
     (

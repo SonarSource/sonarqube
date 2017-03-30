@@ -41,6 +41,11 @@ public interface CeQueueMapper {
   @CheckForNull
   CeQueueDto selectByUuid(@Param("uuid") String uuid);
 
+  /**
+   * Select all pending tasks which execution count is greater than or equal to the specified {@code minExecutionCount}.
+   */
+  List<CeQueueDto> selectPendingByMinimumExecutionCount(@Param("minExecutionCount") int minExecutionCount);
+
   int countByStatusAndComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("componentUuid") String componentUuid);
 
   void insert(CeQueueDto dto);
@@ -52,5 +57,4 @@ public interface CeQueueMapper {
     @Param("old") UpdateIf.OldProperties oldProperties);
 
   void deleteByUuid(@Param("uuid") String uuid);
-
 }

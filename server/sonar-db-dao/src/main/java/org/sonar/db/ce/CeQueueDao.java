@@ -80,6 +80,10 @@ public class CeQueueDao implements Dao {
     return Optional.fromNullable(mapper(session).selectByUuid(uuid));
   }
 
+  public List<CeQueueDto> selectPendingByMinimumExecutionCount(DbSession dbSession, int minExecutionCount) {
+    return mapper(dbSession).selectPendingByMinimumExecutionCount(minExecutionCount);
+  }
+
   public CeQueueDto insert(DbSession session, CeQueueDto dto) {
     if (dto.getCreatedAt() == 0L || dto.getUpdatedAt() == 0L) {
       long now = system2.now();
