@@ -20,13 +20,16 @@
 package pageobjects.issues;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
 import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssuesPage {
 
@@ -48,5 +51,27 @@ public class IssuesPage {
   public Issue getFirstIssue() {
     getIssuesElements().shouldHave(sizeGreaterThan(0));
     return new Issue(getIssuesElements().first());
+  }
+
+  public IssuesPage bulkChangeOpen() {
+    $("#issues-bulk-change").shouldBe(visible).click();
+    $("a.js-bulk-change").shouldBe(visible).click();
+    $("#bulk-change-form").shouldBe(visible);
+    return this;
+  }
+
+  public IssuesPage bulkChangeAssigneeSearchCount(String query, Integer count) {
+    if (!$(".select2-drop-active").isDisplayed()) {
+      $("#bulk-change-form #s2id_assignee").shouldBe(visible).click();
+    }
+    SelenideElement input = $(".select2-drop-active input").shouldBe(visible);
+    input.val("").sendKeys(query);
+    if (count > 0) {
+      $(".select2-drop-active .select2-results li.select2-result").shouldBe(visible);
+      assertThat($$(".select2-drop-active .select2-results li.select2-result").size()).isEqualTo(count);
+    } else {
+      $(".select2-drop-active .select2-results li.select2-no-results").shouldBe(visible);
+    }
+    return this;
   }
 }
