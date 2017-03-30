@@ -22,8 +22,6 @@ package org.sonar.server.computation.queue;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 
 /**
@@ -34,14 +32,10 @@ import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 @ComputeEngineSide
 public class CeQueueInitializer implements ServerStartHandler {
 
-  private final DbClient dbClient;
-  private final CeQueueCleaner cleaner;
   private final CeProcessingScheduler scheduler;
   private boolean done = false;
 
-  public CeQueueInitializer(DbClient dbClient, CeQueueCleaner cleaner, CeProcessingScheduler scheduler) {
-    this.dbClient = dbClient;
-    this.cleaner = cleaner;
+  public CeQueueInitializer(CeProcessingScheduler scheduler) {
     this.scheduler = scheduler;
   }
 
@@ -54,9 +48,6 @@ public class CeQueueInitializer implements ServerStartHandler {
   }
 
   private void initCe() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      cleaner.clean(dbSession);
-      scheduler.startScheduling();
-    }
+    scheduler.startScheduling();
   }
 }

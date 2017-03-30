@@ -20,6 +20,7 @@
 package org.sonar.server.computation.queue;
 
 import java.util.List;
+import org.picocontainer.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Logger;
@@ -32,7 +33,7 @@ import org.sonar.db.DbSession;
  * CE workers must not be started before execution of this class.
  */
 @ComputeEngineSide
-public class CeQueueCleaner {
+public class CeQueueCleaner implements Startable {
 
   private static final Logger LOGGER = Loggers.get(CeQueueCleaner.class);
 
@@ -46,11 +47,14 @@ public class CeQueueCleaner {
     this.queue = queue;
   }
 
-  public void clean(DbSession dbSession) {
+  @Override
+  public void start() {
     if (serverUpgradeStatus.isUpgraded()) {
       cleanOnUpgrade();
     } else {
-      verifyConsistency(dbSession);
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        verifyConsistency(dbSession);
+      }
     }
   }
 
@@ -72,5 +76,10 @@ public class CeQueueCleaner {
     List<String> uuids = dbClient.ceTaskInputDao().selectUuidsNotInQueue(dbSession);
     dbClient.ceTaskInputDao().deleteByUuids(dbSession, uuids);
     dbSession.commit();
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 }

@@ -46,34 +46,34 @@ public class CeQueueCleanerTest {
   private CeQueueCleaner underTest = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, queue);
 
   @Test
-  public void reset_in_progress_tasks_to_pending() throws IOException {
+  public void start_resets_in_progress_tasks_to_pending() throws IOException {
     insertInQueue("TASK_1", CeQueueDto.Status.PENDING);
     insertInQueue("TASK_2", CeQueueDto.Status.IN_PROGRESS);
 
-    underTest.clean(dbTester.getSession());
+    underTest.start();
 
     assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.PENDING)).isEqualTo(2);
     assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.IN_PROGRESS)).isEqualTo(0);
   }
 
   @Test
-  public void clear_queue_if_version_upgrade() {
+  public void start_clears_queue_if_version_upgrade() {
     when(serverUpgradeStatus.isUpgraded()).thenReturn(true);
 
-    underTest.clean(dbTester.getSession());
+    underTest.start();
 
     verify(queue).clear();
   }
 
   @Test
-  public void delete_orphan_report_files() throws Exception {
+  public void start_deletes_orphan_report_files() throws Exception {
     // analysis reports are persisted but the associated
     // task is not in the queue
     insertInQueue("TASK_1", CeQueueDto.Status.PENDING);
     insertTaskData("TASK_1");
     insertTaskData("TASK_2");
 
-    underTest.clean(dbTester.getSession());
+    underTest.start();
 
     CeTaskInputDao dataDao = dbTester.getDbClient().ceTaskInputDao();
     Optional<CeTaskInputDao.DataStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1");
