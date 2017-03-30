@@ -225,6 +225,23 @@ public class RemoveUserActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_to_remove_user_from_default_group() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup(organization, "sonar-users");
+    db.users().insertMember(group, user);
+    loginAsAdmin(organization);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
+
+    newRequest()
+      .setParam("id", Integer.toString(group.getId()))
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .execute();
+  }
+
   private TestRequest newRequest() {
     return ws.newRequest();
   }
