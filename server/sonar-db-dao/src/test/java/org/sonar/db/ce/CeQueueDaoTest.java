@@ -160,6 +160,35 @@ public class CeQueueDaoTest {
   }
 
   @Test
+  public void selectPendingByMinimumExecutionCount_returns_pending_tasks_with_executionCount_greater_or_equal_to_argument() {
+    insert("p1", CeQueueDto.Status.PENDING, 0);
+    insert("p2", CeQueueDto.Status.PENDING, 1);
+    insert("p3", CeQueueDto.Status.PENDING, 2);
+    insert("i1", CeQueueDto.Status.IN_PROGRESS, 0);
+    insert("i2", CeQueueDto.Status.IN_PROGRESS, 1);
+    insert("i3", CeQueueDto.Status.IN_PROGRESS, 2);
+
+    assertThat(underTest.selectPendingByMinimumExecutionCount(db.getSession(), 0))
+      .extracting(CeQueueDto::getUuid)
+      .containsOnly("p1", "p2", "p3");
+    assertThat(underTest.selectPendingByMinimumExecutionCount(db.getSession(), 1))
+      .extracting(CeQueueDto::getUuid)
+      .containsOnly("p2", "p3");
+    assertThat(underTest.selectPendingByMinimumExecutionCount(db.getSession(), 2))
+      .extracting(CeQueueDto::getUuid)
+      .containsOnly("p3");
+    assertThat(underTest.selectPendingByMinimumExecutionCount(db.getSession(), 3))
+      .isEmpty();
+    assertThat(underTest.selectPendingByMinimumExecutionCount(db.getSession(), 3 + Math.abs(new Random().nextInt(20))))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectPendingByMinimumExecutionCount_does_not_return_non_pending_tasks() {
+
+  }
+
+  @Test
   public void test_delete() {
     insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING);
 
