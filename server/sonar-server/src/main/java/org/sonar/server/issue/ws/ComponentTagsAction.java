@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.IssueQueryService;
+import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.IssueService;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
@@ -45,9 +45,9 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
 public class ComponentTagsAction implements IssuesWsAction {
 
   private final IssueService service;
-  private final IssueQueryService queryService;
+  private final IssueQueryFactory queryService;
 
-  public ComponentTagsAction(IssueService service, IssueQueryService queryService) {
+  public ComponentTagsAction(IssueService service, IssueQueryFactory queryService) {
     this.service = service;
     this.queryService = queryService;
   }
