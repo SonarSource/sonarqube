@@ -25,6 +25,13 @@ import { getOrganization, areThereCustomOrganizations } from '../../store/organi
 export default WorkspaceHeaderView.extend({
   template: Template,
 
+  initialize() {
+    this.context = {
+      isContext: this.options.app.state.get('isContext'),
+      organization: this.options.app.state.get('contextOrganization')
+    };
+  },
+
   events() {
     return {
       ...WorkspaceHeaderView.prototype.events.apply(this, arguments),
@@ -95,6 +102,7 @@ export default WorkspaceHeaderView.extend({
     const query = this.options.app.controller.getQueryAsObject();
     new BulkChangeForm({
       query,
+      context: this.context,
       onChange: () => this.afterBulkChange()
     }).render();
   },
@@ -105,6 +113,7 @@ export default WorkspaceHeaderView.extend({
     const query = { issues: selectedKeys.join() };
     new BulkChangeForm({
       query,
+      context: this.context,
       onChange: () => this.afterBulkChange()
     }).render();
   },
