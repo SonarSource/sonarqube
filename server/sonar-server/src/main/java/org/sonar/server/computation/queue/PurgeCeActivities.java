@@ -21,9 +21,8 @@ package org.sonar.server.computation.queue;
 
 import java.util.Calendar;
 import java.util.Set;
+import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.platform.Server;
-import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -33,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 
 @ComputeEngineSide
-public class PurgeCeActivities implements ServerStartHandler {
+public class PurgeCeActivities implements Startable {
 
   private static final Logger LOGGER = Loggers.get(PurgeCeActivities.class);
 
@@ -46,7 +45,7 @@ public class PurgeCeActivities implements ServerStartHandler {
   }
 
   @Override
-  public void onServerStart(Server server) {
+  public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Calendar sixMonthsAgo = Calendar.getInstance();
       sixMonthsAgo.setTimeInMillis(system2.now());
@@ -61,5 +60,10 @@ public class PurgeCeActivities implements ServerStartHandler {
       dbClient.ceScannerContextDao().deleteByUuids(dbSession, ceActivityUuids);
       dbSession.commit();
     }
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 }
