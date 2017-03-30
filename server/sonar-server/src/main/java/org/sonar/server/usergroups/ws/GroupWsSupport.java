@@ -71,31 +71,27 @@ public class GroupWsSupport {
    * or if the virtual group "Anyone" is requested.
    */
   public GroupId findGroup(DbSession dbSession, Request request) {
+    return GroupId.from(findGroupDto(dbSession, request));
+  }
+
+  public GroupDto findGroupDto(DbSession dbSession, Request request) {
     Integer id = request.paramAsInt(PARAM_GROUP_ID);
     String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
     String name = request.param(PARAM_GROUP_NAME);
-    return findGroup(dbSession, GroupWsRef.create(id, organizationKey, name));
+    return findGroupDto(dbSession, GroupWsRef.create(id, organizationKey, name));
   }
 
-  /**
-   * Finds a user group by its reference. If organization is not defined then group
-   * is searched in default organization.
-   *
-   * @return non-null group
-   * @throws NotFoundException if the requested group does not exist
-   * @throws NotFoundException if the requested group is Anyone
-   */
-  public GroupId findGroup(DbSession dbSession, GroupWsRef ref) {
+  public GroupDto findGroupDto(DbSession dbSession, GroupWsRef ref) {
     if (ref.hasId()) {
       GroupDto group = dbClient.groupDao().selectById(dbSession, ref.getId());
       checkFound(group, "No group with id '%s'", ref.getId());
-      return GroupId.from(group);
+      return group;
     }
 
     OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
     Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), ref.getName());
     checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", ref.getName(), org.getKey());
-    return GroupId.from(group.get());
+    return group.get();
   }
 
   public GroupIdOrAnyone findGroupOrAnyone(DbSession dbSession, GroupWsRef ref) {
