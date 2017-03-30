@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -26,6 +27,7 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
@@ -60,7 +62,8 @@ public class AddUserAction implements UserGroupsWsAction {
         "Requires the following permission: 'Administer System'.", PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(new Change("6.4", "It's no longer possible to add a user to the default group"));
 
     defineGroupWsParameters(action);
     defineLoginWsParameter(action);
@@ -69,7 +72,7 @@ public class AddUserAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupId groupId = support.findGroup(dbSession, request);
+      GroupDto groupId = support.findGroupDto(dbSession, request);
       userSession.checkLoggedIn().checkPermission(ADMINISTER, groupId.getOrganizationUuid());
 
       String login = request.mandatoryParam(PARAM_LOGIN);
@@ -78,6 +81,7 @@ public class AddUserAction implements UserGroupsWsAction {
 
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
       checkMembership(dbSession, organization, user);
+      support.checkGroupIsNotDefault(groupId);
 
       if (!isMemberOf(dbSession, user, groupId)) {
         UserGroupDto membershipDto = new UserGroupDto().setGroupId(groupId.getId()).setUserId(user.getId());
@@ -89,7 +93,7 @@ public class AddUserAction implements UserGroupsWsAction {
     }
   }
 
-  private boolean isMemberOf(DbSession dbSession, UserDto user, GroupId groupId) {
+  private boolean isMemberOf(DbSession dbSession, UserDto user, GroupDto groupId) {
     return dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, user.getId()).contains(groupId.getId());
   }
 

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
@@ -70,8 +71,9 @@ public class RemoveUserAction implements UserGroupsWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupId group = support.findGroup(dbSession, request);
+      GroupDto group = support.findGroupDto(dbSession, request);
       userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
+      support.checkGroupIsNotDefault(group);
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = getUser(dbSession, login);
@@ -88,7 +90,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
   /**
    * Ensure that there are still users with admin global permission if user is removed from the group.
    */
-  private void ensureLastAdminIsNotRemoved(DbSession dbSession, GroupId group, UserDto user) {
+  private void ensureLastAdminIsNotRemoved(DbSession dbSession, GroupDto group, UserDto user) {
     int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
       group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getId(), user.getId());
     checkRequest(remainingAdmins > 0, "The last administrator user cannot be removed");

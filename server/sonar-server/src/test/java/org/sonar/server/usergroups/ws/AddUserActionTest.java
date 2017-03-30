@@ -256,6 +256,23 @@ public class AddUserActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_to_add_user_to_default_group() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    addUserAsMemberOfOrganization(organization, user);
+    GroupDto group = db.users().insertGroup(organization, "sonar-users");
+    loginAsAdmin(organization);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
+
+    newRequest()
+      .setParam("id", Integer.toString(group.getId()))
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .execute();
+  }
+
   private void executeRequest(GroupDto groupDto, UserDto userDto) throws Exception {
     newRequest()
       .setParam("id", groupDto.getId().toString())
