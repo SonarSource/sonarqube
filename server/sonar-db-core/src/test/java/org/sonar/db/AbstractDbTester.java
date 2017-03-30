@@ -33,9 +33,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -238,6 +240,8 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
         } else if (value instanceof Integer) {
           // To be consistent, all INTEGER types are mapped as Long
           value = ((Integer) value).longValue();
+        } else if (value instanceof Timestamp) {
+          value = new Date(((Timestamp) value).getTime());
         }
         columns.put(metaData.getColumnLabel(i), value);
       }
