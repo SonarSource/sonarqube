@@ -44,6 +44,7 @@ public class DbVersion64 implements DbVersion {
       .add(1614, "Upgrade loaded template entries for quality profiles", UpgradeQualityTemplateLoadedTemplates.class)
       .add(1615, "Create table RULES_METADATA", CreateRulesMetadata.class)
       .add(1616, "Populate table RULES_METADATA", PopulateRulesMetadata.class)
-      .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class);
+      .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class)
+      .add(1618, "Restore 'sonar-users' group", RestoreSonarUsersGroups.class);
   }
 }
