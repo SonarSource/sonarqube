@@ -34,6 +34,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.WsUserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -145,6 +146,10 @@ public class GroupWsSupport {
     // because MySQL cannot create a unique index
     // on a UTF-8 VARCHAR larger than 255 characters on InnoDB
     checkRequest(!dbClient.groupDao().selectByName(dbSession, organizationUuid, name).isPresent(), "Group '%s' already exists", name);
+  }
+
+  void checkGroupIsNotDefault(GroupDto groupDto) {
+    checkArgument(!SONAR_USERS_GROUP_NAME.equals(groupDto.getName()), "Default group '%s' cannot be used to perform this action", SONAR_USERS_GROUP_NAME);
   }
 
   static WsUserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount) {
