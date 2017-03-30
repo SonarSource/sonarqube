@@ -46,7 +46,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueQueryServiceTest {
+public class IssueQueryFactoryTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -57,7 +57,7 @@ public class IssueQueryServiceTest {
 
   private ComponentService componentService = new ComponentService(db.getDbClient(), userSession);
   private System2 system = mock(System2.class);
-  private IssueQueryService underTest = new IssueQueryService(db.getDbClient(), componentService, system, userSession);
+  private IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), componentService, system, userSession);
 
   @Test
   public void create_from_parameters() {
@@ -137,11 +137,11 @@ public class IssueQueryServiceTest {
 
   @Test
   public void parse_list_of_rules() {
-    assertThat(IssueQueryService.toRules(null)).isNull();
-    assertThat(IssueQueryService.toRules("")).isEmpty();
-    assertThat(IssueQueryService.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
-    assertThat(IssueQueryService.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
-    assertThat(IssueQueryService.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(IssueQueryFactory.toRules(null)).isNull();
+    assertThat(IssueQueryFactory.toRules("")).isEmpty();
+    assertThat(IssueQueryFactory.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
+    assertThat(IssueQueryFactory.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(IssueQueryFactory.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
   }
 
   @Test

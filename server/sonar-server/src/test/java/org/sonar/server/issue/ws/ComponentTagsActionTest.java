@@ -30,7 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.IssueQueryService;
+import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsTester;
 
@@ -46,7 +46,7 @@ public class ComponentTagsActionTest {
   private IssueService service;
 
   @Mock
-  private IssueQueryService queryService;
+  private IssueQueryFactory queryService;
 
   private ComponentTagsAction componentTagsAction;
 

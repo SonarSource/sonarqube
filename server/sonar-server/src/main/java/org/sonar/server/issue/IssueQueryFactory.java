@@ -83,7 +83,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
  */
 @ServerSide
-public class IssueQueryService {
+public class IssueQueryFactory {
 
   public static final String LOGIN_MYSELF = "__me__";
 
@@ -93,7 +93,7 @@ public class IssueQueryService {
   private final System2 system;
   private final UserSession userSession;
 
-  public IssueQueryService(DbClient dbClient, ComponentService componentService, System2 system, UserSession userSession) {
+  public IssueQueryFactory(DbClient dbClient, ComponentService componentService, System2 system, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentService = componentService;
     this.system = system;

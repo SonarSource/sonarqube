@@ -42,7 +42,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.IssueQueryService;
+import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
@@ -103,15 +103,15 @@ public class SearchAction implements IssuesWsAction {
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
-  private final IssueQueryService issueQueryService;
+  private final IssueQueryFactory issueQueryFactory;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
 
-  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryService issueQueryService,
+  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
     SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
-    this.issueQueryService = issueQueryService;
+    this.issueQueryFactory = issueQueryFactory;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
   }
@@ -305,7 +305,7 @@ public class SearchAction implements IssuesWsAction {
     // prepare the Elasticsearch request
     SearchOptions options = createSearchOptionsFromRequest(request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
-    IssueQuery query = issueQueryService.createFromRequest(request);
+    IssueQuery query = issueQueryFactory.createFromRequest(request);
 
     // execute request
     SearchResult<IssueDoc> result = issueIndex.search(query, options);
@@ -371,7 +371,7 @@ public class SearchAction implements IssuesWsAction {
     List<String> assigneesFromRequest = request.getAssignees();
     if (assigneesFromRequest != null) {
       assignees.addAll(assigneesFromRequest);
-      assignees.remove(IssueQueryService.LOGIN_MYSELF);
+      assignees.remove(IssueQueryFactory.LOGIN_MYSELF);
     }
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getLogin()));
@@ -394,7 +394,7 @@ public class SearchAction implements IssuesWsAction {
           return;
         }
         requestParams.stream()
-          .filter(param -> !buckets.containsKey(param) && !IssueQueryService.LOGIN_MYSELF.equals(param))
+          .filter(param -> !buckets.containsKey(param) && !IssueQueryFactory.LOGIN_MYSELF.equals(param))
           // Prevent appearance of a glitch value due to dedicated parameter for this facet
           .forEach(param -> buckets.put(param, 0L));
       });

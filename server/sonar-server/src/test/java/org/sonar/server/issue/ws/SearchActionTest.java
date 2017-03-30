@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.issue.IssueQueryService;
+import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -40,10 +40,10 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private IssueIndex index = mock(IssueIndex.class);
-  private IssueQueryService issueQueryService = mock(IssueQueryService.class);
+  private IssueQueryFactory issueQueryFactory = mock(IssueQueryFactory.class);
   private SearchResponseLoader searchResponseLoader = mock(SearchResponseLoader.class);
   private SearchResponseFormat searchResponseFormat = mock(SearchResponseFormat.class);
-  private SearchAction underTest = new SearchAction(userSession, index, issueQueryService, searchResponseLoader, searchResponseFormat);
+  private SearchAction underTest = new SearchAction(userSession, index, issueQueryFactory, searchResponseLoader, searchResponseFormat);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
