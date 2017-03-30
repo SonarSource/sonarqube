@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component;
 
-import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,7 +31,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -54,14 +52,6 @@ public class ComponentServiceTest {
   private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
 
   private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexer);
-
-  @Test
-  public void should_fail_silently_on_components_not_found_if_told_so() {
-    String moduleKey = "sample:root:module";
-    String fileKey = "sample:root:module:Foo.xoo";
-
-    assertThat(underTest.componentUuids(dbSession, Arrays.asList(moduleKey, fileKey), true)).isEmpty();
-  }
 
   @Test
   public void bulk_update() {

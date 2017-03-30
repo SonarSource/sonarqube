@@ -20,8 +20,6 @@
 package org.sonar.server.issue;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
@@ -55,9 +52,8 @@ public class IssueQueryFactoryTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private ComponentService componentService = new ComponentService(db.getDbClient(), userSession);
   private System2 system = mock(System2.class);
-  private IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), componentService, system, userSession);
+  private IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), system, userSession);
 
   @Test
   public void create_from_parameters() {
@@ -66,30 +62,28 @@ public class IssueQueryFactoryTest {
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
-    Map<String, Object> map = new HashMap<>();
-    map.put("issues", newArrayList("anIssueKey"));
-    map.put("severities", newArrayList("MAJOR", "MINOR"));
-    map.put("statuses", newArrayList("CLOSED"));
-    map.put("resolutions", newArrayList("FALSE-POSITIVE"));
-    map.put("resolved", true);
-    map.put("projectKeys", newArrayList(project.key()));
-    map.put("moduleUuids", newArrayList(module.uuid()));
-    map.put("directories", newArrayList("aDirPath"));
-    map.put("fileUuids", newArrayList(file.uuid()));
-    map.put("assignees", newArrayList("joanna"));
-    map.put("languages", newArrayList("xoo"));
-    map.put("tags", newArrayList("tag1", "tag2"));
-    map.put("organization", organization.getKey());
-    map.put("assigned", true);
-    map.put("planned", true);
-    map.put("hideRules", true);
-    map.put("createdAfter", "2013-04-16T09:08:24+0200");
-    map.put("createdBefore", "2013-04-17T09:08:24+0200");
-    map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
-    map.put("sort", "CREATION_DATE");
-    map.put("asc", true);
+    SearchWsRequest request = new SearchWsRequest()
+      .setIssues(asList("anIssueKey"))
+      .setSeverities(asList("MAJOR", "MINOR"))
+      .setStatuses(asList("CLOSED"))
+      .setResolutions(asList("FALSE-POSITIVE"))
+      .setResolved(true)
+      .setProjectKeys(asList(project.key()))
+      .setModuleUuids(asList(module.uuid()))
+      .setDirectories(asList("aDirPath"))
+      .setFileUuids(asList(file.uuid()))
+      .setAssignees(asList("joanna"))
+      .setLanguages(asList("xoo"))
+      .setTags(asList("tag1", "tag2"))
+      .setOrganization(organization.getKey())
+      .setAssigned(true)
+      .setCreatedAfter("2013-04-16T09:08:24+0200")
+      .setCreatedBefore("2013-04-17T09:08:24+0200")
+      .setRules(asList("squid:AvoidCycle", "findbugs:NullReference"))
+      .setSort("CREATION_DATE")
+      .setAsc(true);
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.issueKeys()).containsOnly("anIssueKey");
     assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
@@ -105,7 +99,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(query.onComponentOnly()).isFalse();
     assertThat(query.assigned()).isTrue();
-    assertThat(query.hideRules()).isTrue();
     assertThat(query.rules()).hasSize(2);
     assertThat(query.directories()).containsOnly("aDirPath");
     assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
@@ -120,7 +113,7 @@ public class IssueQueryFactoryTest {
       .setCreatedAfter("2013-04-16")
       .setCreatedBefore("2013-04-17");
 
-    IssueQuery query = underTest.createFromRequest(request);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDate("2013-04-16"));
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDate("2013-04-18"));
@@ -128,10 +121,11 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void add_unknown_when_no_component_found() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("components", newArrayList("does_not_exist"));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentKeys(asList("does_not_exist"));
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
+
     assertThat(query.componentUuids()).containsOnly("<UNKNOWN>");
   }
 
@@ -146,61 +140,61 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void fail_if_components_and_components_uuid_params_are_set_at_the_same_time() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("components", newArrayList("foo"));
-    map.put("componentUuids", newArrayList("bar"));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentKeys(asList("foo"))
+      .setComponentUuids(asList("bar"));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys, componentUuids, components, componentRoots, componentUuids");
 
-    underTest.createFromMap(map);
+    underTest.create(request);
   }
 
   @Test
   public void fail_if_both_projects_and_projectUuids_params_are_set() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("projects", newArrayList("foo"));
-    map.put("projectUuids", newArrayList("bar"));
+    SearchWsRequest request = new SearchWsRequest()
+      .setProjectKeys(asList("foo"))
+      .setProjectUuids(asList("bar"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("projects and projectUuids cannot be set simultaneously");
+    expectedException.expectMessage("Parameters projects and projectUuids cannot be set simultaneously");
 
-    underTest.createFromMap(map);
+    underTest.create(request);
   }
 
   @Test
   public void fail_if_both_componentRoots_and_componentRootUuids_params_are_set() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentRoots", newArrayList("foo"));
-    map.put("componentRootUuids", newArrayList("bar"));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentRoots(asList("foo"))
+      .setComponentRootUuids(asList("bar"));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys, componentUuids, components, componentRoots, componentUuids");
 
-    underTest.createFromMap(map);
+    underTest.create(request);
   }
 
   @Test
   public void fail_if_componentRoots_references_components_with_different_qualifier() {
     ComponentDto project = db.components().insertProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentRoots", newArrayList(project.key(), file.key()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentRoots(asList(project.key(), file.key()));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("All components must have the same qualifier, found FIL,TRK");
 
-    underTest.createFromMap(map);
+    underTest.create(request);
   }
 
   @Test
   public void param_componentRootUuids_enables_search_in_view_tree_if_user_has_permission_on_view() {
     ComponentDto view = db.components().insertView();
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentRootUuids", newArrayList(view.uuid()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentRootUuids(asList(view.uuid()));
     userSession.addProjectUuidPermissions(UserRole.USER, view.uuid());
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.viewUuids()).containsOnly(view.uuid());
     assertThat(query.onComponentOnly()).isFalse();
@@ -210,10 +204,10 @@ public class IssueQueryFactoryTest {
   public void return_empty_results_if_not_allowed_to_search_for_subview() {
     ComponentDto view = db.components().insertView();
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubView(view));
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentRootUuids", newArrayList(subView.uuid()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentRootUuids(asList(subView.uuid()));
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.viewUuids()).containsOnly("<UNKNOWN>");
   }
@@ -221,10 +215,10 @@ public class IssueQueryFactoryTest {
   @Test
   public void param_componentUuids_enables_search_on_project_tree_by_default() {
     ComponentDto project = db.components().insertProject();
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentUuids", newArrayList(project.uuid()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentUuids(asList(project.uuid()));
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
     assertThat(query.projectUuids()).containsExactly(project.uuid());
     assertThat(query.onComponentOnly()).isFalse();
   }
@@ -232,11 +226,11 @@ public class IssueQueryFactoryTest {
   @Test
   public void onComponentOnly_restricts_search_to_specified_componentKeys() {
     ComponentDto project = db.components().insertProject();
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentKeys", newArrayList(project.key()));
-    map.put("onComponentOnly", true);
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentKeys(asList(project.key()))
+      .setOnComponentOnly(true);
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).containsExactly(project.uuid());
@@ -247,10 +241,10 @@ public class IssueQueryFactoryTest {
   public void should_search_in_tree_with_module_uuid() {
     ComponentDto project = db.components().insertProject();
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentUuids", newArrayList(module.uuid()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentUuids(asList(module.uuid()));
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
     assertThat(query.moduleRootUuids()).containsExactly(module.uuid());
     assertThat(query.onComponentOnly()).isFalse();
   }
@@ -259,10 +253,10 @@ public class IssueQueryFactoryTest {
   public void param_componentUuids_enables_search_in_directory_tree() {
     ComponentDto project = db.components().insertProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentUuids", newArrayList(dir.uuid()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentUuids(asList(dir.uuid()));
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.moduleUuids()).containsOnly(dir.moduleUuid());
     assertThat(query.directories()).containsOnly(dir.path());
@@ -273,10 +267,10 @@ public class IssueQueryFactoryTest {
   public void param_componentUuids_enables_search_by_file() {
     ComponentDto project = db.components().insertProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentUuids", newArrayList(file.uuid()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentUuids(asList(file.uuid()));
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.fileUuids()).containsExactly(file.uuid());
   }
@@ -285,25 +279,25 @@ public class IssueQueryFactoryTest {
   public void param_componentUuids_enables_search_by_test_file() {
     ComponentDto project = db.components().insertProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project).setQualifier(Qualifiers.UNIT_TEST_FILE));
-    Map<String, Object> map = new HashMap<>();
-    map.put("componentUuids", newArrayList(file.uuid()));
+    SearchWsRequest request = new SearchWsRequest()
+      .setComponentUuids(asList(file.uuid()));
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.fileUuids()).containsExactly(file.uuid());
   }
 
   @Test
   public void fail_if_created_after_and_created_since_are_both_set() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("createdAfter", "2013-07-25T07:35:00+0100");
-    map.put("createdInLast", "palap");
+    SearchWsRequest request = new SearchWsRequest()
+      .setCreatedAfter("2013-07-25T07:35:00+0100")
+      .setCreatedInLast("palap");
 
     try {
-      underTest.createFromMap(map);
+      underTest.create(request);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("createdAfter and createdInLast cannot be set simultaneously");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Parameters createdAfter and createdInLast cannot be set simultaneously");
     }
   }
 
@@ -311,18 +305,17 @@ public class IssueQueryFactoryTest {
   public void set_created_after_from_created_since() {
     Date now = DateUtils.parseDateTime("2013-07-25T07:35:00+0100");
     when(system.now()).thenReturn(now.getTime());
-    Map<String, Object> map = new HashMap<>();
-
-    map.put("createdInLast", "1y2m3w4d");
-    assertThat(underTest.createFromMap(map).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+    SearchWsRequest request = new SearchWsRequest()
+      .setCreatedInLast("1y2m3w4d");
+    assertThat(underTest.create(request).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
   }
 
   @Test
   public void fail_if_since_leak_period_and_created_after_set_at_the_same_time() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("'createdAfter' and 'sinceLeakPeriod' cannot be set simultaneously");
+    expectedException.expectMessage("Parameters 'createdAfter' and 'sinceLeakPeriod' cannot be set simultaneously");
 
-    underTest.createFromRequest(new SearchWsRequest()
+    underTest.create(new SearchWsRequest()
       .setSinceLeakPeriod(true)
       .setCreatedAfter("2013-07-25T07:35:00+0100"));
   }
@@ -332,7 +325,7 @@ public class IssueQueryFactoryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("One and only one component must be provided when searching since leak period");
 
-    underTest.createFromRequest(new SearchWsRequest().setSinceLeakPeriod(true));
+    underTest.create(new SearchWsRequest().setSinceLeakPeriod(true));
   }
 
   @Test
@@ -340,9 +333,9 @@ public class IssueQueryFactoryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("One and only one component must be provided when searching since leak period");
 
-    underTest.createFromRequest(new SearchWsRequest()
+    underTest.create(new SearchWsRequest()
       .setSinceLeakPeriod(true)
-      .setComponentUuids(newArrayList("component-uuid", "project-uuid")));
+      .setComponentUuids(newArrayList("foo", "bar")));
   }
 
   @Test
@@ -350,17 +343,18 @@ public class IssueQueryFactoryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("'unknown-date' cannot be parsed as either a date or date+time");
 
-    underTest.createFromRequest(new SearchWsRequest()
+    underTest.create(new SearchWsRequest()
       .setCreatedAfter("unknown-date"));
   }
 
   @Test
   public void return_empty_results_if_organization_with_specified_key_does_not_exist() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("organization", "does_not_exist");
+    SearchWsRequest request = new SearchWsRequest()
+      .setOrganization("does_not_exist");
 
-    IssueQuery query = underTest.createFromMap(map);
+    IssueQuery query = underTest.create(request);
 
     assertThat(query.organizationUuid()).isEqualTo("<UNKNOWN>");
   }
+
 }

@@ -221,7 +221,6 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
-
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -305,7 +304,7 @@ public class SearchAction implements IssuesWsAction {
     // prepare the Elasticsearch request
     SearchOptions options = createSearchOptionsFromRequest(request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
-    IssueQuery query = issueQueryFactory.createFromRequest(request);
+    IssueQuery query = issueQueryFactory.create(request);
 
     // execute request
     SearchResult<IssueDoc> result = issueIndex.search(query, options);
