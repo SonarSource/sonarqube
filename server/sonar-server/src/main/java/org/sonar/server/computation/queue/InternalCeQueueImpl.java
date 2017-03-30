@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -150,6 +151,19 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       queueStatus.addSuccess(executionTimeInMs);
     } else {
       queueStatus.addError(executionTimeInMs);
+    }
+  }
+
+  @Override
+  public void cancelWornOuts() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<CeQueueDto> wornOutTasks = dbClient.ceQueueDao().selectPendingByMinimumExecutionCount(dbSession, MAX_EXECUTION_COUNT);
+      wornOutTasks.forEach(queueDto -> {
+        CeActivityDto activityDto = new CeActivityDto(queueDto);
+        activityDto.setStatus(CeActivityDto.Status.CANCELED);
+        updateQueueStatus(CeActivityDto.Status.CANCELED, activityDto);
+        remove(dbSession, queueDto, activityDto);
+      });
     }
   }
 
