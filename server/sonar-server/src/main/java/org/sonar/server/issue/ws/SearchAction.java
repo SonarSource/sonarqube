@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.Collection;
@@ -38,6 +37,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -49,7 +49,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
@@ -84,6 +83,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLANNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
@@ -221,6 +221,7 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
+
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -234,7 +235,7 @@ public class SearchAction implements IssuesWsAction {
 
     action.createParam(PARAM_COMPONENT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
-        "A component can be a view, developer, project, module, directory or file.")
+        "A component can be a view, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_COMPONENTS)
       .setDeprecatedSince("5.1")
@@ -285,6 +286,13 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER)
       .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
   }
 
   @Override
@@ -301,7 +309,7 @@ public class SearchAction implements IssuesWsAction {
 
     // execute request
     SearchResult<IssueDoc> result = issueIndex.search(query, options);
-    List<String> issueKeys = from(result.getDocs()).transform(IssueDocToKey.INSTANCE).toList();
+    List<String> issueKeys = result.getDocs().stream().map(IssueDoc::key).collect(Collectors.toList(result.getDocs().size()));
 
     // load the additional information to be returned in response
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(additionalFields, issueKeys);
@@ -453,6 +461,7 @@ public class SearchAction implements IssuesWsAction {
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
       .setModuleUuids(request.paramAsStrings(PARAM_MODULE_UUIDS))
       .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setProjectKeys(request.paramAsStrings(PARAM_PROJECT_KEYS))
@@ -467,14 +476,5 @@ public class SearchAction implements IssuesWsAction {
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
       .setTypes(request.paramAsStrings(PARAM_TYPES));
-  }
-
-  private enum IssueDocToKey implements Function<IssueDoc, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(IssueDoc input) {
-      return input.key();
-    }
   }
 }

@@ -44,7 +44,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISOPeriodFormat;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
@@ -54,6 +53,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
@@ -83,7 +83,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
  */
 @ServerSide
-@ComputeEngineSide
 public class IssueQueryService {
 
   public static final String LOGIN_MYSELF = "__me__";
@@ -102,9 +101,7 @@ public class IssueQueryService {
   }
 
   public IssueQuery createFromMap(Map<String, Object> params) {
-    DbSession session = dbClient.openSession(false);
-    try {
-
+    try (DbSession dbSession = dbClient.openSession(false)) {
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_ISSUES)))
         .severities(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_SEVERITIES)))
@@ -120,10 +117,11 @@ public class IssueQueryService {
         .hideRules(RubyUtils.toBoolean(params.get(IssuesWsParameters.PARAM_HIDE_RULES)))
         .createdAt(RubyUtils.toDate(params.get(IssuesWsParameters.PARAM_CREATED_AT)))
         .createdAfter(buildCreatedAfterFromDates(RubyUtils.toDate(params.get(PARAM_CREATED_AFTER)), (String) params.get(PARAM_CREATED_IN_LAST)))
-        .createdBefore(RubyUtils.toDate(parseEndingDateOrDateTime((String) params.get(IssuesWsParameters.PARAM_CREATED_BEFORE))));
+        .createdBefore(RubyUtils.toDate(parseEndingDateOrDateTime((String) params.get(IssuesWsParameters.PARAM_CREATED_BEFORE))))
+        .organizationUuid(convertOrganizationKeyToUuid(dbSession, (String) params.get(IssuesWsParameters.PARAM_ORGANIZATION)));
 
       Set<String> allComponentUuids = Sets.newHashSet();
-      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,
+      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession,
         RubyUtils.toBoolean(params.get(IssuesWsParameters.PARAM_ON_COMPONENT_ONLY)),
         RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENTS)),
         RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENT_UUIDS)),
@@ -132,7 +130,7 @@ public class IssueQueryService {
         RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENT_ROOTS)),
         allComponentUuids);
 
-      addComponentParameters(builder, session,
+      addComponentParameters(builder, dbSession,
         effectiveOnComponentOnly,
         allComponentUuids,
         RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_PROJECT_UUIDS)),
@@ -157,9 +155,6 @@ public class IssueQueryService {
         builder.facetMode(IssuesWsParameters.FACET_MODE_COUNT);
       }
       return builder.build();
-
-    } finally {
-      session.close();
     }
   }
 
@@ -176,8 +171,7 @@ public class IssueQueryService {
   }
 
   public IssueQuery createFromRequest(SearchWsRequest request) {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(request.getIssues())
         .severities(request.getSeverities())
@@ -192,10 +186,11 @@ public class IssueQueryService {
         .assigned(request.getAssigned())
         .createdAt(parseDateOrDateTime(request.getCreatedAt()))
         .createdBefore(parseEndingDateOrDateTime(request.getCreatedBefore()))
-        .facetMode(request.getFacetMode());
+        .facetMode(request.getFacetMode())
+        .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()));
 
       Set<String> allComponentUuids = Sets.newHashSet();
-      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,
+      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession,
         request.getOnComponentOnly(),
         request.getComponents(),
         request.getComponentUuids(),
@@ -204,7 +199,7 @@ public class IssueQueryService {
         request.getComponentRoots(),
         allComponentUuids);
 
-      addComponentParameters(builder, session,
+      addComponentParameters(builder, dbSession,
         effectiveOnComponentOnly,
         allComponentUuids,
         request.getProjectUuids(),
@@ -214,7 +209,7 @@ public class IssueQueryService {
         request.getFileUuids(),
         request.getAuthors());
 
-      builder.createdAfter(buildCreatedAfterFromRequest(session, request, allComponentUuids));
+      builder.createdAfter(buildCreatedAfterFromRequest(dbSession, request, allComponentUuids));
 
       String sort = request.getSort();
       if (!Strings.isNullOrEmpty(sort)) {
@@ -223,9 +218,16 @@ public class IssueQueryService {
       }
       return builder.build();
 
-    } finally {
-      session.close();
     }
+  }
+
+  @CheckForNull
+  private String convertOrganizationKeyToUuid(DbSession dbSession, @Nullable String organizationKey) {
+    if (organizationKey == null) {
+      return null;
+    }
+    Optional<OrganizationDto> organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+    return organization.map(OrganizationDto::getUuid).orElse(UNKNOWN);
   }
 
   private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, Set<String> componentUuids) {
@@ -240,7 +242,6 @@ public class IssueQueryService {
 
     checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
     String uuid = componentUuids.iterator().next();
-    // TODO use ComponentFinder instead
     Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, uuid);
     return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
   }
@@ -249,10 +250,7 @@ public class IssueQueryService {
   private Date findCreatedAfterFromComponentUuid(DbSession dbSession, String uuid) {
     ComponentDto component = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "Component with id '%s' not found", uuid);
     Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.uuid());
-    if (snapshot.isPresent()) {
-      return longToDate(snapshot.get().getPeriodDate());
-    }
-    return null;
+    return snapshot.map(s -> longToDate(s.getPeriodDate())).orElse(null);
   }
 
   private List<String> buildAssignees(@Nullable List<String> assigneesFromParams) {
@@ -271,7 +269,7 @@ public class IssueQueryService {
     return assignees;
   }
 
-  private boolean mergeDeprecatedComponentParameters(DbSession session, Boolean onComponentOnly,
+  private boolean mergeDeprecatedComponentParameters(DbSession session, @Nullable Boolean onComponentOnly,
     @Nullable Collection<String> components,
     @Nullable Collection<String> componentUuids,
     @Nullable Collection<String> componentKeys,
@@ -336,11 +334,11 @@ public class IssueQueryService {
     builder.fileUuids(fileUuids);
 
     if (!componentUuids.isEmpty()) {
-      addComponentsBasedOnQualifier(builder, session, componentUuids, authors);
+      addComponentsBasedOnQualifier(builder, session, componentUuids);
     }
   }
 
-  protected void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids, Collection<String> authors) {
+  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids) {
     Set<String> qualifiers = componentService.getDistinctQualifiers(session, componentUuids);
     if (qualifiers.isEmpty()) {
       // Qualifier not found, defaulting to componentUuids (e.g <UNKNOWN>)
@@ -356,14 +354,6 @@ public class IssueQueryService {
       case Qualifiers.VIEW:
       case Qualifiers.SUBVIEW:
         addViewsOrSubViews(builder, componentUuids, uniqueQualifier);
-        break;
-      case "DEV":
-        // XXX No constant for developer !!!
-        Collection<String> actualAuthors = authorsFromParamsOrFromDeveloper(session, componentUuids, authors);
-        builder.authors(actualAuthors);
-        break;
-      case "DEV_PRJ":
-        addDeveloperTechnicalProjects(builder, session, componentUuids, authors);
         break;
       case Qualifiers.PROJECT:
         builder.projectUuids(componentUuids);
@@ -395,20 +385,6 @@ public class IssueQueryService {
       filteredViewUuids.add(UNKNOWN);
     }
     builder.viewUuids(filteredViewUuids);
-  }
-
-  private void addDeveloperTechnicalProjects(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids, Collection<String> authors) {
-    Collection<ComponentDto> technicalProjects = dbClient.componentDao().selectByUuids(session, componentUuids);
-    Collection<String> developerUuids = Collections2.transform(technicalProjects, ComponentDto::projectUuid);
-    Collection<String> authorsFromProjects = authorsFromParamsOrFromDeveloper(session, developerUuids, authors);
-    builder.authors(authorsFromProjects);
-    Collection<String> projectUuids = Collections2.transform(technicalProjects, ComponentDto::getCopyResourceUuid);
-    builder.projectUuids(projectUuids);
-  }
-
-  private Collection<String> authorsFromParamsOrFromDeveloper(DbSession session, Collection<String> componentUuids,
-    @Nullable Collection<String> authors) {
-    return authors == null ? dbClient.authorDao().selectScmAccountsByDeveloperUuids(session, componentUuids) : authors;
   }
 
   private void addDirectories(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids) {

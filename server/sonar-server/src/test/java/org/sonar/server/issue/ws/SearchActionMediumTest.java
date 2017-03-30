@@ -116,20 +116,6 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void define_action() {
-    WebService.Controller controller = wsTester.controller("api/issues");
-
-    WebService.Action search = controller.action("search");
-    assertThat(search).isNotNull();
-    assertThat(search.handler()).isNotNull();
-    assertThat(search.since()).isEqualTo("3.6");
-    assertThat(search.isPost()).isFalse();
-    assertThat(search.isInternal()).isFalse();
-    assertThat(search.responseExampleAsString()).isNotEmpty();
-    assertThat(search.params()).hasSize(39);
-  }
-
-  @Test
   public void empty_search() throws Exception {
     WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
     WsTester.Result result = request.execute();
