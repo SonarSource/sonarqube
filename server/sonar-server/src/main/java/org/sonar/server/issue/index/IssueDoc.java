@@ -44,7 +44,7 @@ public class IssueDoc extends BaseDoc implements Issue {
   }
 
   public IssueDoc() {
-    super(Maps.newHashMap());
+    super(Maps.newHashMapWithExpectedSize(30));
   }
 
   @Override
@@ -98,7 +98,7 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public RuleKey ruleKey() {
-    return RuleKey.parse((String) getField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY));
+    return RuleKey.parse(getField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY));
   }
 
   @Override
@@ -112,7 +112,7 @@ public class IssueDoc extends BaseDoc implements Issue {
   }
 
   public boolean isManualSeverity() {
-    return BooleanUtils.isTrue((Boolean) getField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY));
+    return BooleanUtils.isTrue(getField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY));
   }
 
   @Nullable
@@ -272,6 +272,11 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH);
   }
 
+  @CheckForNull
+  public String organizationUuid() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID);
+  }
+
   public IssueDoc setKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_KEY, s);
     return this;
@@ -415,6 +420,11 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   public IssueDoc setType(RuleType type) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TYPE, type.toString());
+    return this;
+  }
+
+  public IssueDoc setOrganizationUuid(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, s);
     return this;
   }
 }

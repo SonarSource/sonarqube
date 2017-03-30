@@ -57,6 +57,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_MESSAGE = "message";
   public static final String FIELD_ISSUE_MODULE_UUID = "module";
   public static final String FIELD_ISSUE_MODULE_PATH = "modulePath";
+  public static final String FIELD_ISSUE_ORGANIZATION_UUID = "organization";
   public static final String FIELD_ISSUE_PROJECT_UUID = "project";
   public static final String FIELD_ISSUE_DIRECTORY_PATH = "dirPath";
   public static final String FIELD_ISSUE_RESOLUTION = "resolution";
@@ -105,6 +106,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.stringFieldBuilder(FIELD_ISSUE_MESSAGE).disableNorms().build();
     type.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();
     type.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
+    type.stringFieldBuilder(FIELD_ISSUE_ORGANIZATION_UUID).build();
     type.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.stringFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
     type.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
