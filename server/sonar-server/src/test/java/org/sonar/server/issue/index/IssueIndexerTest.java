@@ -20,21 +20,29 @@
 package org.sonar.server.issue.index;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexer;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -48,9 +56,10 @@ public class IssueIndexerTest {
 
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
-
   @Rule
   public DbTester dbTester = DbTester.create(system2);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndexer underTest = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbTester.getDbClient()));
 
@@ -70,55 +79,102 @@ public class IssueIndexerTest {
   }
 
   @Test
-  public void index_all_issues() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
+  public void indexOnStartup_loads_and_indexes_all_issues() {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(org);
+    ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir, "F1"));
+    RuleDto rule = dbTester.rules().insertRule();
+    IssueDto issue = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
 
     underTest.indexOnStartup(null);
 
     List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
     assertThat(docs).hasSize(1);
-    IssueDoc doc = docs.get(0);
-    assertThat(doc.key()).isEqualTo("ABCDE");
-    assertThat(doc.projectUuid()).isEqualTo("THE_PROJECT");
-    assertThat(doc.componentUuid()).isEqualTo("THE_FILE");
-    assertThat(doc.moduleUuid()).isEqualTo("THE_PROJECT");
-    assertThat(doc.modulePath()).isEqualTo(".THE_PROJECT.");
-    assertThat(doc.directoryPath()).isEqualTo("src/main/java");
-    assertThat(doc.severity()).isEqualTo("BLOCKER");
-    assertThat(doc.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));
-
-    // functional date
-    assertThat(doc.updateDate().getTime()).isEqualTo(1368828000000L);
-
-    // technical date
-    assertThat(doc.getTechnicalUpdateDate().getTime()).isEqualTo(1550000000000L);
+    verifyDoc(docs.get(0), org, project, file, rule, issue);
   }
 
   @Test
-  public void indexProject_creates_docs_of_specific_project() {
-    dbTester.prepareDbUnit(getClass(), "index_project.xml");
+  public void index_loads_and_indexes_issues_with_specified_keys() {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(org);
+    ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir, "F1"));
+    RuleDto rule = dbTester.rules().insertRule();
+    IssueDto issue1 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
+    IssueDto issue2 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
 
-    underTest.indexProject("THE_PROJECT_1", ProjectIndexer.Cause.NEW_ANALYSIS);
+    underTest.index(asList(issue1.getKey()));
 
-    verifyIssueKeys("ABCDE");
+    List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
+    assertThat(docs).hasSize(1);
+    verifyDoc(docs.get(0), org, project, file, rule, issue1);
+  }
+
+  @Test
+  public void index_throws_NoSuchElementException_if_the_specified_key_does_not_exist() {
+    try {
+      underTest.index(asList("does_not_exist"));
+      fail();
+    } catch (NoSuchElementException e) {
+      assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
+    }
+  }
+
+  @Test
+  public void indexProject_loads_and_indexes_issues_with_specified_project_uuid() {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project1 = dbTester.components().insertProject(org);
+    ComponentDto file1 = dbTester.components().insertComponent(ComponentTesting.newFileDto(project1));
+    ComponentDto project2 = dbTester.components().insertProject(org);
+    ComponentDto file2 = dbTester.components().insertComponent(ComponentTesting.newFileDto(project2));
+    RuleDto rule = dbTester.rules().insertRule();
+    IssueDto issue1 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file1, project1));
+    IssueDto issue2 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file2, project2));
+
+    underTest.indexProject(project1.projectUuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
+
+    List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
+    assertThat(docs).hasSize(1);
+    verifyDoc(docs.get(0), org, project1, file1, rule, issue1);
   }
 
   @Test
   public void indexProject_does_nothing_when_project_is_being_created() {
-    dbTester.prepareDbUnit(getClass(), "index_project.xml");
-
-    underTest.indexProject("THE_PROJECT_1", ProjectIndexer.Cause.PROJECT_CREATION);
-
-    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(0);
+    verifyThatProjectIsNotIndexed(ProjectIndexer.Cause.PROJECT_CREATION);
   }
 
   @Test
-  public void indexProject_does_nothing_when_project_key_is_being_renamed() {
-    dbTester.prepareDbUnit(getClass(), "index_project.xml");
+  public void indexProject_does_nothing_when_project_is_being_renamed() {
+    verifyThatProjectIsNotIndexed(ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+  }
 
-    underTest.indexProject("THE_PROJECT_1", ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+  private void verifyThatProjectIsNotIndexed(ProjectIndexer.Cause cause) {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(org);
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = dbTester.rules().insertRule();
+    IssueDto issue = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
 
-    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(0);
+    underTest.indexProject(project.projectUuid(), cause);
+
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
+  }
+
+  private static void verifyDoc(IssueDoc doc, OrganizationDto org, ComponentDto project, ComponentDto file, RuleDto rule, IssueDto issue) {
+    assertThat(doc.key()).isEqualTo(issue.getKey());
+    assertThat(doc.projectUuid()).isEqualTo(project.uuid());
+    assertThat(doc.componentUuid()).isEqualTo(file.uuid());
+    assertThat(doc.moduleUuid()).isEqualTo(project.uuid());
+    assertThat(doc.modulePath()).isEqualTo(file.moduleUuidPath());
+    assertThat(doc.directoryPath()).isEqualTo(StringUtils.substringBeforeLast(file.path(), "/"));
+    assertThat(doc.severity()).isEqualTo(issue.getSeverity());
+    assertThat(doc.ruleKey()).isEqualTo(rule.getKey());
+    assertThat(doc.organizationUuid()).isEqualTo(org.getUuid());
+    // functional date
+    assertThat(doc.updateDate().getTime()).isEqualTo(issue.getIssueUpdateTime());
+    // technical date
+    assertThat(doc.getTechnicalUpdateDate().getTime()).isEqualTo(issue.getUpdatedAt());
   }
 
   @Test
@@ -188,7 +244,7 @@ public class IssueIndexerTest {
     issueDoc.setTechnicalUpdateDate(new Date());
     issueDoc.setProjectUuid("non-exitsing-parent");
     new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbTester.getDbClient()))
-      .index(Arrays.asList(issueDoc).iterator());
+      .index(asList(issueDoc).iterator());
 
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(1L);
   }
