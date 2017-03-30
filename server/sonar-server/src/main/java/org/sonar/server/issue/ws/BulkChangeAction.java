@@ -171,7 +171,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .setDescription("To add a comment to a list of issues")
       .setExampleValue("Here is my comment");
     action.createParam(PARAM_SEND_NOTIFICATIONS)
-      .setDescription("Available since version 4.0")
+      .setSince("4.0")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
   }
