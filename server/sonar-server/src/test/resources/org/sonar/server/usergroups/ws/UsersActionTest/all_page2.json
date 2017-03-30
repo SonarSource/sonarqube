@@ -1,8 +1,0 @@
-{
-  "p": 2,
-  "ps": 1,
-  "total": 2,
-  "users": [
-    {"login": "grace", "name": "Grace Hopper", "selected": false}
-  ]
-}
