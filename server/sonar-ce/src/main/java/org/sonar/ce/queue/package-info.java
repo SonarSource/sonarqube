@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.queue;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
-import org.sonar.server.computation.queue.CeQueueInitializer;
-import org.sonar.server.computation.queue.InternalCeQueueImpl;
-
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
-
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      CeTasksMBeanImpl.class,
-      
-      // init queue state and queue processing
-      CeQueueInitializer.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
