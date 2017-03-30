@@ -21,27 +21,23 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISOPeriodFormat;
 import org.sonar.api.resources.Qualifiers;
@@ -49,22 +45,19 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.RubyUtils;
-import org.sonarqube.ws.client.issue.IssuesWsParameters;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
@@ -89,88 +82,16 @@ public class IssueQueryFactory {
 
   private static final String UNKNOWN = "<UNKNOWN>";
   private final DbClient dbClient;
-  private final ComponentService componentService;
   private final System2 system;
   private final UserSession userSession;
 
-  public IssueQueryFactory(DbClient dbClient, ComponentService componentService, System2 system, UserSession userSession) {
+  public IssueQueryFactory(DbClient dbClient, System2 system, UserSession userSession) {
     this.dbClient = dbClient;
-    this.componentService = componentService;
     this.system = system;
     this.userSession = userSession;
   }
 
-  public IssueQuery createFromMap(Map<String, Object> params) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueQuery.Builder builder = IssueQuery.builder()
-        .issueKeys(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_ISSUES)))
-        .severities(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_SEVERITIES)))
-        .statuses(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_STATUSES)))
-        .resolutions(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_RESOLUTIONS)))
-        .resolved(RubyUtils.toBoolean(params.get(IssuesWsParameters.PARAM_RESOLVED)))
-        .rules(toRules(params.get(IssuesWsParameters.PARAM_RULES)))
-        .assignees(buildAssignees(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_ASSIGNEES))))
-        .languages(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_LANGUAGES)))
-        .tags(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_TAGS)))
-        .types(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_TYPES)))
-        .assigned(RubyUtils.toBoolean(params.get(IssuesWsParameters.PARAM_ASSIGNED)))
-        .hideRules(RubyUtils.toBoolean(params.get(IssuesWsParameters.PARAM_HIDE_RULES)))
-        .createdAt(RubyUtils.toDate(params.get(IssuesWsParameters.PARAM_CREATED_AT)))
-        .createdAfter(buildCreatedAfterFromDates(RubyUtils.toDate(params.get(PARAM_CREATED_AFTER)), (String) params.get(PARAM_CREATED_IN_LAST)))
-        .createdBefore(RubyUtils.toDate(parseEndingDateOrDateTime((String) params.get(IssuesWsParameters.PARAM_CREATED_BEFORE))))
-        .organizationUuid(convertOrganizationKeyToUuid(dbSession, (String) params.get(IssuesWsParameters.PARAM_ORGANIZATION)));
-
-      Set<String> allComponentUuids = Sets.newHashSet();
-      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession,
-        RubyUtils.toBoolean(params.get(IssuesWsParameters.PARAM_ON_COMPONENT_ONLY)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENTS)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENT_UUIDS)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENT_KEYS)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENT_ROOT_UUIDS)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_COMPONENT_ROOTS)),
-        allComponentUuids);
-
-      addComponentParameters(builder, dbSession,
-        effectiveOnComponentOnly,
-        allComponentUuids,
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_PROJECT_UUIDS)),
-        RubyUtils.toStrings(
-          ObjectUtils.defaultIfNull(
-            params.get(IssuesWsParameters.PARAM_PROJECT_KEYS),
-            params.get(IssuesWsParameters.PARAM_PROJECTS))),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_MODULE_UUIDS)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_DIRECTORIES)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_FILE_UUIDS)),
-        RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_AUTHORS)));
-
-      String sort = (String) params.get(IssuesWsParameters.PARAM_SORT);
-      if (!Strings.isNullOrEmpty(sort)) {
-        builder.sort(sort);
-        builder.asc(RubyUtils.toBoolean(params.get(IssuesWsParameters.PARAM_ASC)));
-      }
-      String facetMode = (String) params.get(IssuesWsParameters.FACET_MODE);
-      if (!Strings.isNullOrEmpty(facetMode)) {
-        builder.facetMode(facetMode);
-      } else {
-        builder.facetMode(IssuesWsParameters.FACET_MODE_COUNT);
-      }
-      return builder.build();
-    }
-  }
-
-  @CheckForNull
-  private Date buildCreatedAfterFromDates(@Nullable Date createdAfter, @Nullable String createdInLast) {
-    checkArgument(createdAfter == null || createdInLast == null, format("%s and %s cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
-
-    Date actualCreatedAfter = createdAfter;
-    if (createdInLast != null) {
-      actualCreatedAfter = new DateTime(system.now()).minus(
-        ISOPeriodFormat.standard().parsePeriod("P" + createdInLast.toUpperCase(Locale.ENGLISH))).toDate();
-    }
-    return actualCreatedAfter;
-  }
-
-  public IssueQuery createFromRequest(SearchWsRequest request) {
+  public IssueQuery create(SearchWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(request.getIssues())
@@ -222,6 +143,18 @@ public class IssueQueryFactory {
   }
 
   @CheckForNull
+  private Date buildCreatedAfterFromDates(@Nullable Date createdAfter, @Nullable String createdInLast) {
+    checkArgument(createdAfter == null || createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
+
+    Date actualCreatedAfter = createdAfter;
+    if (createdInLast != null) {
+      actualCreatedAfter = new DateTime(system.now()).minus(
+        ISOPeriodFormat.standard().parsePeriod("P" + createdInLast.toUpperCase(Locale.ENGLISH))).toDate();
+    }
+    return actualCreatedAfter;
+  }
+
+  @CheckForNull
   private String convertOrganizationKeyToUuid(DbSession dbSession, @Nullable String organizationKey) {
     if (organizationKey == null) {
       return null;
@@ -238,7 +171,7 @@ public class IssueQueryFactory {
       return buildCreatedAfterFromDates(createdAfter, createdInLast);
     }
 
-    checkRequest(createdAfter == null, "'%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
+    checkRequest(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
 
     checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
     String uuid = componentUuids.iterator().next();
@@ -286,31 +219,31 @@ public class IssueQueryFactory {
       allComponentUuids.addAll(componentRootUuids);
       effectiveOnComponentOnly = false;
     } else if (componentRoots != null) {
-      allComponentUuids.addAll(componentUuids(session, componentRoots));
+      allComponentUuids.addAll(convertComponentKeysToUuids(session, componentRoots));
       effectiveOnComponentOnly = false;
     } else if (components != null) {
-      allComponentUuids.addAll(componentUuids(session, components));
+      allComponentUuids.addAll(convertComponentKeysToUuids(session, components));
       effectiveOnComponentOnly = true;
     } else if (componentUuids != null) {
       allComponentUuids.addAll(componentUuids);
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     } else if (componentKeys != null) {
-      allComponentUuids.addAll(componentUuids(session, componentKeys));
+      allComponentUuids.addAll(convertComponentKeysToUuids(session, componentKeys));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     }
     return effectiveOnComponentOnly;
   }
 
   private static boolean atMostOneNonNullElement(Object... objects) {
-    return !from(Arrays.asList(objects))
-      .filter(notNull())
-      .anyMatch(new HasTwoOrMoreElements());
+    return Arrays.stream(objects)
+      .filter(Objects::nonNull)
+      .count() <= 1;
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
     boolean onComponentOnly,
     Collection<String> componentUuids,
-    @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
+    @Nullable Collection<String> projectUuids, @Nullable Collection<String> projectKeys,
     @Nullable Collection<String> moduleUuids,
     @Nullable Collection<String> directories,
     @Nullable Collection<String> fileUuids,
@@ -323,11 +256,11 @@ public class IssueQueryFactory {
     }
 
     builder.authors(authors);
-    checkArgument(projectUuids == null || projects == null, "projects and projectUuids cannot be set simultaneously");
+    checkArgument(projectUuids == null || projectKeys == null, "Parameters projects and projectUuids cannot be set simultaneously");
     if (projectUuids != null) {
       builder.projectUuids(projectUuids);
-    } else {
-      builder.projectUuids(componentUuids(session, projects));
+    } else if (projectKeys != null) {
+      builder.projectUuids(convertComponentKeysToUuids(session, projectKeys));
     }
     builder.moduleUuids(moduleUuids);
     builder.directories(directories);
@@ -339,21 +272,27 @@ public class IssueQueryFactory {
   }
 
   private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids) {
-    Set<String> qualifiers = componentService.getDistinctQualifiers(session, componentUuids);
-    if (qualifiers.isEmpty()) {
-      // Qualifier not found, defaulting to componentUuids (e.g <UNKNOWN>)
+    if (componentUuids.isEmpty()) {
       builder.componentUuids(componentUuids);
       return;
     }
+
+    List<ComponentDto> components = dbClient.componentDao().selectByUuids(session, componentUuids);
+    if (components.isEmpty()) {
+      builder.componentUuids(componentUuids);
+      return;
+    }
+
+    Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(Collectors.toHashSet());
     if (qualifiers.size() > 1) {
       throw new IllegalArgumentException("All components must have the same qualifier, found " + Joiner.on(',').join(qualifiers));
     }
 
-    String uniqueQualifier = qualifiers.iterator().next();
-    switch (uniqueQualifier) {
+    String qualifier = qualifiers.iterator().next();
+    switch (qualifier) {
       case Qualifiers.VIEW:
       case Qualifiers.SUBVIEW:
-        addViewsOrSubViews(builder, componentUuids, uniqueQualifier);
+        addViewsOrSubViews(builder, componentUuids);
         break;
       case Qualifiers.PROJECT:
         builder.projectUuids(componentUuids);
@@ -362,7 +301,7 @@ public class IssueQueryFactory {
         builder.moduleRootUuids(componentUuids);
         break;
       case Qualifiers.DIRECTORY:
-        addDirectories(builder, session, componentUuids);
+        addDirectories(builder, components);
         break;
       case Qualifiers.FILE:
       case Qualifiers.UNIT_TEST_FILE:
@@ -373,11 +312,10 @@ public class IssueQueryFactory {
     }
   }
 
-  private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<String> componentUuids, String uniqueQualifier) {
-    List<String> filteredViewUuids = newArrayList();
-    for (String viewUuid : componentUuids) {
-      if ((Qualifiers.VIEW.equals(uniqueQualifier) && userSession.hasComponentUuidPermission(UserRole.USER, viewUuid))
-        || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && userSession.hasComponentUuidPermission(UserRole.USER, viewUuid))) {
+  private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<String> viewOrSubViewUuids) {
+    List<String> filteredViewUuids = new ArrayList<>();
+    for (String viewUuid : viewOrSubViewUuids) {
+      if (userSession.hasComponentUuidPermission(UserRole.USER, viewUuid)) {
         filteredViewUuids.add(viewUuid);
       }
     }
@@ -387,10 +325,10 @@ public class IssueQueryFactory {
     builder.viewUuids(filteredViewUuids);
   }
 
-  private void addDirectories(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids) {
+  private static void addDirectories(IssueQuery.Builder builder, List<ComponentDto> directories) {
     Collection<String> directoryModuleUuids = Sets.newHashSet();
     Collection<String> directoryPaths = Sets.newHashSet();
-    for (ComponentDto directory : componentService.getByUuids(session, componentUuids)) {
+    for (ComponentDto directory : directories) {
       directoryModuleUuids.add(directory.moduleUuid());
       directoryPaths.add(directory.path());
     }
@@ -398,13 +336,12 @@ public class IssueQueryFactory {
     builder.directories(directoryPaths);
   }
 
-  private Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys) {
-    Collection<String> componentUuids = Lists.newArrayList();
-    componentUuids.addAll(componentService.componentUuids(session, componentKeys, true));
+  private Collection<String> convertComponentKeysToUuids(DbSession dbSession, Collection<String> componentKeys) {
+    List<String> componentUuids = dbClient.componentDao().selectByKeys(dbSession, componentKeys).stream().map(ComponentDto::uuid).collect(Collectors.toList());
     // If unknown components are given, but no components are found, then all issues will be returned,
     // so we add this hack in order to return no issue in this case.
-    if (componentKeys != null && !componentKeys.isEmpty() && componentUuids.isEmpty()) {
-      componentUuids.add(UNKNOWN);
+    if (!componentKeys.isEmpty() && componentUuids.isEmpty()) {
+      return singletonList(UNKNOWN);
     }
     return componentUuids;
   }
@@ -429,19 +366,5 @@ public class IssueQueryFactory {
       return Collections2.transform(rules, RuleKey::parse);
     }
     return null;
-  }
-
-  private static class HasTwoOrMoreElements implements Predicate<Object> {
-    private AtomicInteger counter;
-
-    private HasTwoOrMoreElements() {
-      this.counter = new AtomicInteger();
-    }
-
-    @Override
-    public boolean apply(@Nonnull Object input) {
-      Objects.requireNonNull(input);
-      return counter.incrementAndGet() >= 2;
-    }
   }
 }

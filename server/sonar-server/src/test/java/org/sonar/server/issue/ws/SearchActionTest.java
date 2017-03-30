@@ -55,7 +55,7 @@ public class SearchActionTest {
     assertThat(def.since()).isEqualTo("3.6");
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
-    assertThat(def.params()).extracting("key").containsOnly(
+    assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
       "actionPlans", "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components",
       "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "languages", "moduleUuids", "onComponentOnly",
       "organization", "p", "planned", "projectKeys", "projectUuids", "projects", "ps", "reporters", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",

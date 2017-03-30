@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.Resources;
 import java.util.Map;
 import org.sonar.api.server.ws.Request;
@@ -31,8 +29,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.IssueService;
-import org.sonarqube.ws.client.issue.IssuesWsParameters;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
+import static java.util.Collections.singletonList;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_COMPONENT_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUID;
@@ -40,7 +39,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
 
 /**
  * List issue tags matching a given query.
- * @since 5.1
  */
 public class ComponentTagsAction implements IssuesWsAction {
 
@@ -75,13 +73,12 @@ public class ComponentTagsAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Builder<String, Object> paramBuilder = ImmutableMap.<String, Object>builder()
-      .put(IssuesWsParameters.PARAM_COMPONENT_UUIDS, request.mandatoryParam(PARAM_COMPONENT_UUID))
-      .put(IssuesWsParameters.PARAM_RESOLVED, false);
-    if (request.hasParam(PARAM_CREATED_AFTER)) {
-      paramBuilder.put(PARAM_CREATED_AFTER, request.param(PARAM_CREATED_AFTER));
-    }
-    IssueQuery query = queryService.createFromMap(paramBuilder.build());
+    SearchWsRequest searchWsRequest = new SearchWsRequest()
+      .setComponentUuids(singletonList(request.mandatoryParam(PARAM_COMPONENT_UUID)))
+      .setResolved(false)
+      .setCreatedAfter(request.param(PARAM_CREATED_AFTER));
+
+    IssueQuery query = queryService.create(searchWsRequest);
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject().name("tags").beginArray();
