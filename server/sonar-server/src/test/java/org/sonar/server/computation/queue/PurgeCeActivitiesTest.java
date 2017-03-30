@@ -21,7 +21,6 @@ package org.sonar.server.computation.queue;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -29,7 +28,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +46,7 @@ public class PurgeCeActivitiesTest {
     insertWithDate("RECENT", 1_500_000_000_000L);
     when(system2.now()).thenReturn(1_500_000_000_100L);
 
-    underTest.onServerStart(mock(Server.class));
+    underTest.start();
 
     assertThat(dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "VERY_OLD").isPresent()).isFalse();
     assertThat(dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "RECENT").isPresent()).isTrue();
