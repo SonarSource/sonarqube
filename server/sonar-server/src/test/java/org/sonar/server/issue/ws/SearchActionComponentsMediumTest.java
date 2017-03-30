@@ -58,7 +58,6 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
-import org.sonar.server.ws.WsTester.Result;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.MediaTypes;
@@ -597,61 +596,6 @@ public class SearchActionComponentsMediumTest {
 
   }
 
-  @Test
-  public void search_by_developer() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(defaultOrganization, "P1").setKey("PK1"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
-    ComponentDto developer = insertComponent(ComponentTesting.newDeveloper(otherOrganization1, "Anakin Skywalker"));
-    db.authorDao().insertAuthor(session, "vader", developer.getId());
-    db.authorDao().insertAuthor(session, "anakin@skywalker.name", developer.getId());
-    RuleDto newRule = newRule();
-    IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("vader").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");
-    IssueDto issue2 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("anakin@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4");
-
-    db.issueDao().insert(session, issue1, issue2);
-    session.commit();
-    indexIssues();
-
-    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
-      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, developer.uuid())
-      .execute()
-      .assertJson(this.getClass(), "search_by_developer.json");
-  }
-
-  @Test
-  public void search_by_developer_technical_project() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization1, "P1").setKey("PK1"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
-
-    ComponentDto otherProject = insertComponent(ComponentTesting.newProjectDto(otherOrganization2, "P2").setKey("PK2"));
-    setDefaultProjectPermission(otherProject);
-    ComponentDto otherFile = insertComponent(newFileDto(otherProject, null, "F2").setKey("FK2"));
-
-    ComponentDto developer = insertComponent(ComponentTesting.newDeveloper(defaultOrganization, "Anakin Skywalker"));
-    ComponentDto technicalProject = insertComponent(ComponentTesting.newDevProjectCopy("COPY_P1", project, developer));
-    insertComponent(ComponentTesting.newDevProjectCopy("COPY_P2", otherProject, developer));
-
-    db.authorDao().insertAuthor(session, "vader", developer.getId());
-    db.authorDao().insertAuthor(session, "anakin@skywalker.name", developer.getId());
-    RuleDto newRule = newRule();
-
-    IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("vader").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");
-    IssueDto issue2 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("anakin@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4");
-    IssueDto issueX = IssueTesting.newDto(newRule, otherFile, otherProject).setAuthorLogin("anakin@skywalker.name").setKee("82fd47d4-b650-4037-7b11-80bc82fd47d4");
-
-    db.issueDao().insert(session, issue1, issue2, issueX);
-    session.commit();
-    indexIssues();
-
-    Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
-      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, technicalProject.uuid())
-      .execute();
-    result
-      .assertJson(this.getClass(), "search_by_developer.json");
-  }
-
   private RuleDto newRule() {
     RuleDto rule = RuleTesting.newXooX1()
       .setName("Rule name")
@@ -671,7 +615,8 @@ public class SearchActionComponentsMediumTest {
     userSessionRule.logIn().setSystemAdministrator();
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
-    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project),
+      GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
   }
 
