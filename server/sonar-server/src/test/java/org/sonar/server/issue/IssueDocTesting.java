@@ -69,6 +69,7 @@ public class IssueDocTesting {
       .setModuleUuid(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.moduleUuid() : componentDto.uuid())
       .setModuleUuidPath(componentDto.moduleUuidPath())
       .setProjectUuid(componentDto.projectUuid())
+      .setOrganizationUuid(componentDto.getOrganizationUuid())
       // File path make no sens on modules and projects
       .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null);
   }
