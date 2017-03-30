@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,12 +31,14 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
@@ -50,17 +51,20 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsTester ws;
-
-  @Before
-  public void setUp() {
-    ws = new WsTester(new UserGroupsWs(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport())));
-  }
+  private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport()));
 
   @Test
   public void search_empty() throws Exception {
     loginAsDefaultOrgAdmin();
-    newRequest().execute().assertJson(getClass(), "empty.json");
+
+    String result = newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"p\": 1,\n" +
+      "  \"ps\": 100,\n" +
+      "  \"total\": 0,\n" +
+      "  \"groups\": []\n" +
+      "}");
   }
 
   @Test
@@ -70,9 +74,19 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
     insertGroup(db.getDefaultOrganization(), "customer2", 0);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
-
     loginAsDefaultOrgAdmin();
-    newRequest().execute().assertJson(getClass(), "five_groups.json");
+
+    String result = newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"groups\": [\n" +
+      "    {\"name\": \"admins\", \"description\": \"Admins\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer1\", \"description\": \"Customer1\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer2\", \"description\": \"Customer2\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer3\", \"description\": \"Customer3\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"users\", \"description\": \"Users\", \"membersCount\": 0}\n" +
+      "  ]\n" +
+      "}");
   }
 
   @Test
@@ -82,9 +96,19 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
     insertGroup(db.getDefaultOrganization(), "customer2", 4);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
-
     loginAsDefaultOrgAdmin();
-    newRequest().execute().assertJson(getClass(), "with_members.json");
+
+    String result = newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"groups\": [\n" +
+      "    {\"name\": \"admins\", \"description\": \"Admins\", \"membersCount\": 1},\n" +
+      "    {\"name\": \"customer1\", \"description\": \"Customer1\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer2\", \"description\": \"Customer2\", \"membersCount\": 4},\n" +
+      "    {\"name\": \"customer3\", \"description\": \"Customer3\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"users\", \"description\": \"Users\", \"membersCount\": 5}\n" +
+      "  ]\n" +
+      "}\n");
   }
 
   @Test
@@ -94,9 +118,17 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer%_%/1", 0);
     insertGroup(db.getDefaultOrganization(), "customer%_%/2", 0);
     insertGroup(db.getDefaultOrganization(), "customer%_%/3", 0);
-
     loginAsDefaultOrgAdmin();
-    newRequest().setParam(Param.TEXT_QUERY, "tomer%_%/").execute().assertJson(getClass(), "customers.json");
+
+    String result = newRequest().setParam(Param.TEXT_QUERY, "tomer%_%/").execute().getInput();
+
+    assertJson(result).ignoreFields("id").isSimilarTo("{\n" +
+      "  \"groups\": [\n" +
+      "    {\"name\": \"customer%_%/1\", \"description\": \"Customer%_%/1\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer%_%/2\", \"description\": \"Customer%_%/2\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer%_%/3\", \"description\": \"Customer%_%/3\", \"membersCount\": 0}\n" +
+      "  ]\n" +
+      "}\n");
   }
 
   @Test
@@ -106,46 +138,65 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
     insertGroup(db.getDefaultOrganization(), "customer2", 0);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
-
     loginAsDefaultOrgAdmin();
-    newRequest()
-      .setParam(Param.PAGE_SIZE, "3").execute().assertJson(getClass(), "page_1.json");
-    newRequest()
-      .setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "2").execute().assertJson(getClass(), "page_2.json");
-    newRequest()
-      .setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "3").execute().assertJson(getClass(), "page_3.json");
+
+    assertJson(newRequest().setParam(Param.PAGE_SIZE, "3").execute().getInput()).isSimilarTo("{\n" +
+      "  \"p\": 1,\n" +
+      "  \"ps\": 3,\n" +
+      "  \"total\": 5,\n" +
+      "  \"groups\": [\n" +
+      "    {\"name\": \"admins\", \"description\": \"Admins\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer1\", \"description\": \"Customer1\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"customer2\", \"description\": \"Customer2\", \"membersCount\": 0}\n" +
+      "  ]\n" +
+      "}\n");
+    assertJson(newRequest().setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "2").execute().getInput()).isSimilarTo("{\n" +
+      "  \"p\": 2,\n" +
+      "  \"ps\": 3,\n" +
+      "  \"total\": 5,\n" +
+      "  \"groups\": [\n" +
+      "    {\"name\": \"customer3\", \"description\": \"Customer3\", \"membersCount\": 0},\n" +
+      "    {\"name\": \"users\", \"description\": \"Users\", \"membersCount\": 0}\n" +
+      "  ]\n" +
+      "}\n");
+    assertJson(newRequest().setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "3").execute().getInput()).isSimilarTo("{\n" +
+      "  \"p\": 3,\n" +
+      "  \"ps\": 3,\n" +
+      "  \"total\": 5,\n" +
+      "  \"groups\": []\n" +
+      "}\n");
   }
 
   @Test
   public void search_with_fields() throws Exception {
     insertGroup(db.getDefaultOrganization(), "sonar-users", 0);
-
     loginAsDefaultOrgAdmin();
-    assertThat(newRequest().execute().outputAsString())
+
+    assertThat(newRequest().execute().getInput())
       .contains("id")
       .contains("name")
       .contains("description")
       .contains("membersCount");
 
-    assertThat(newRequest().setParam(Param.FIELDS, "").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "").execute().getInput())
       .contains("id")
       .contains("name")
       .contains("description")
       .contains("membersCount");
 
-    assertThat(newRequest().setParam(Param.FIELDS, "name").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "name").execute().getInput())
       .contains("id")
       .contains("name")
       .doesNotContain("description")
       .doesNotContain("membersCount");
 
-    assertThat(newRequest().setParam(Param.FIELDS, "description").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "description").execute().getInput())
       .contains("id")
       .doesNotContain("name")
       .contains("description")
       .doesNotContain("membersCount");
 
-    assertThat(newRequest().setParam(Param.FIELDS, "membersCount").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "membersCount").execute().getInput())
       .contains("id")
       .doesNotContain("name")
       .doesNotContain("description")
@@ -161,12 +212,9 @@ public class SearchActionTest {
     loginAsDefaultOrgAdmin();
     userSession.addPermission(ADMINISTER, org);
 
-    newRequest()
-      .setParam("organization", org.getKey())
-      .execute()
-      .assertJson(
-        "{\"total\":1,\"p\":1,\"ps\":100," +
-          "\"groups\":[{\"id\":\"" + group.getId() + "\",\"name\":\"users\"}]}\n");
+    String result = newRequest().setParam("organization", org.getKey()).execute().getInput();
+
+    assertJson(result).isSimilarTo("{\"groups\":[{\"id\":\"" + group.getId() + "\",\"name\":\"users\"}]}\n");
   }
 
   @Test
@@ -177,8 +225,8 @@ public class SearchActionTest {
     newRequest().execute();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newGetRequest("api/user_groups", "search");
+  private TestRequest newRequest() {
+    return ws.newRequest();
   }
 
   private void insertGroup(OrganizationDto org, String name, int numberOfMembers) {
