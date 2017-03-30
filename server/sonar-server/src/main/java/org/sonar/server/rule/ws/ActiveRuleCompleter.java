@@ -19,18 +19,16 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -38,6 +36,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -55,6 +54,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
+import static org.sonar.core.util.Protobuf.setNullable;
 
 /**
  * Add details about active rules to api/rules/search and api/rules/show
@@ -79,14 +79,14 @@ public class ActiveRuleCompleter {
   }
 
   private Collection<String> writeActiveRules(DbSession dbSession, SearchResponse.Builder response, RuleQuery query, List<RuleDto> rules) {
-    Collection<String> qProfileKeys = newHashSet();
+    Collection<String> qProfileKeys = new HashSet<>();
     Rules.Actives.Builder activesBuilder = response.getActivesBuilder();
 
     String profileKey = query.getQProfileKey();
     if (profileKey != null) {
       // Load details of active rules on the selected profile
       List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profileKey);
-      Map<RuleKey, ActiveRuleDto> activeRuleByRuleKey = from(activeRuleDtos).uniqueIndex(ActiveRuleToRuleKey.INSTANCE);
+      Map<RuleKey, ActiveRuleDto> activeRuleByRuleKey = activeRuleDtos.stream().collect(Collectors.uniqueIndex(d -> d.getKey().ruleKey()));
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
 
       for (RuleDto rule : rules) {
@@ -98,7 +98,7 @@ public class ActiveRuleCompleter {
     } else {
       // Load details of all active rules
       List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleIds(dbSession, Lists.transform(rules, RuleDto::getId));
-      Multimap<RuleKey, ActiveRuleDto> activeRulesByRuleKey = from(activeRuleDtos).index(ActiveRuleToRuleKey.INSTANCE);
+      Multimap<RuleKey, ActiveRuleDto> activeRulesByRuleKey = from(activeRuleDtos).index(d -> d.getKey().ruleKey());
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
       for (RuleDto rule : rules) {
         qProfileKeys = writeActiveRules(rule.getKey(), activeRulesByRuleKey.get(rule.getKey()), activeRuleParamsByActiveRuleKey, activesBuilder);
@@ -175,7 +175,7 @@ public class ActiveRuleCompleter {
   }
 
   private Rules.QProfiles.Builder buildQProfiles(DbSession dbSession, Collection<String> harvestedProfileKeys) {
-    Map<String, QualityProfileDto> qProfilesByKey = Maps.newHashMap();
+    Map<String, QualityProfileDto> qProfilesByKey = new HashMap<>();
     for (String qProfileKey : harvestedProfileKeys) {
       if (!qProfilesByKey.containsKey(qProfileKey)) {
         QualityProfileDto profile = loadProfile(dbSession, qProfileKey);
@@ -201,34 +201,22 @@ public class ActiveRuleCompleter {
   }
 
   @CheckForNull
-  QualityProfileDto loadProfile(DbSession dbSession, String qProfileKey) {
+  private QualityProfileDto loadProfile(DbSession dbSession, String qProfileKey) {
     return dbClient.qualityProfileDao().selectByKey(dbSession, qProfileKey);
   }
 
   private void writeProfile(Map<String, Rules.QProfile> profilesResponse, QualityProfileDto profile) {
     Rules.QProfile.Builder profileResponse = Rules.QProfile.newBuilder();
-    if (profile.getName() != null) {
-      profileResponse.setName(profile.getName());
-    }
+    setNullable(profile.getName(), profileResponse::setName);
+
     if (profile.getLanguage() != null) {
       profileResponse.setLang(profile.getLanguage());
       Language language = languages.get(profile.getLanguage());
       String langName = language == null ? profile.getLanguage() : language.getName();
       profileResponse.setLangName(langName);
     }
-    if (profile.getParentKee() != null) {
-      profileResponse.setParent(profile.getParentKee());
-    }
+    setNullable(profile.getParentKee(), profileResponse::setParent);
 
     profilesResponse.put(profile.getKey(), profileResponse.build());
-  }
-
-  private enum ActiveRuleToRuleKey implements Function<ActiveRuleDto, RuleKey> {
-    INSTANCE;
-
-    @Override
-    public RuleKey apply(@Nonnull ActiveRuleDto input) {
-      return input.getKey().ruleKey();
-    }
   }
 }
