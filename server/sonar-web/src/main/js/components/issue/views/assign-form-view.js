@@ -24,6 +24,7 @@ import Template from '../templates/issue-assign-form.hbs';
 import OptionTemplate from '../templates/issue-assign-form-option.hbs';
 import { translate } from '../../../helpers/l10n';
 import getCurrentUserFromStore from '../../../app/utils/getCurrentUserFromStore';
+import { areThereCustomOrganizations } from '../../../store/organizations/utils';
 
 export default ActionOptionsView.extend({
   template: Template,
@@ -41,6 +42,9 @@ export default ActionOptionsView.extend({
   initialize() {
     ActionOptionsView.prototype.initialize.apply(this, arguments);
     this.assignees = null;
+    this.organizationKey = areThereCustomOrganizations()
+      ? this.model.get('projectOrganization')
+      : null;
     this.debouncedSearch = debounce(this.search, 250);
   },
 
@@ -124,7 +128,14 @@ export default ActionOptionsView.extend({
   search(query) {
     const that = this;
     if (query.length > 1) {
-      $.get(window.baseUrl + '/api/users/search', { q: query }).done(data => {
+      const searchUrl = this.organizationKey != null
+        ? '/organizations/search_members'
+        : '/users/search';
+      const queryData = { q: query };
+      if (this.organizationKey != null) {
+        queryData.organization = this.organizationKey;
+      }
+      $.get(window.baseUrl + '/api' + searchUrl, queryData).done(data => {
         that.resetAssignees(data.users);
       });
     } else {

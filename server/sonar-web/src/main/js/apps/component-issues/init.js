@@ -45,7 +45,8 @@ const init = function({ el, component, currentUser }) {
     contextQuery: { componentUuids: this.config.resource },
     contextComponentUuid: this.config.resource,
     contextComponentName: this.config.resourceName,
-    contextComponentQualifier: this.config.resourceQualifier
+    contextComponentQualifier: this.config.resourceQualifier,
+    contextOrganization: component.organization
   });
   this.updateContextFacets();
   this.list = new Issues();
