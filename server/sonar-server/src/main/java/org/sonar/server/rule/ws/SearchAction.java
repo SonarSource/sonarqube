@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
@@ -29,15 +27,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -46,6 +43,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -63,7 +61,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
@@ -98,13 +96,19 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TEMPLATE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TYPES;
 
-/**
- * @since 4.4
- */
 public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
+  private static final String[] POSSIBLE_FACETS = new String[] {
+    FACET_LANGUAGES,
+    FACET_REPOSITORIES,
+    FACET_TAGS,
+    FACET_SEVERITIES,
+    FACET_ACTIVE_SEVERITIES,
+    FACET_STATUSES,
+    FACET_TYPES,
+    FACET_OLD_DEFAULT};
 
   private final RuleQueryFactory ruleQueryFactory;
   private final DbClient dbClient;
@@ -129,14 +133,10 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_LIMIT)
       .setHandler(this);
 
-    Collection<String> possibleFacets = possibleFacets();
-    WebService.NewParam paramFacets = action.createParam(FACETS)
+    action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
-      .setPossibleValues(possibleFacets);
-    if (possibleFacets != null && possibleFacets.size() > 1) {
-      Iterator<String> it = possibleFacets.iterator();
-      paramFacets.setExampleValue(String.format("%s,%s", it.next(), it.next()));
-    }
+      .setPossibleValues(POSSIBLE_FACETS)
+      .setExampleValue(format("%s,%s", POSSIBLE_FACETS[0], POSSIBLE_FACETS[1]));
 
     WebService.NewParam paramFields = action.createParam(FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default, except actives." +
@@ -149,7 +149,7 @@ public class SearchAction implements RulesWsAction {
         "</ul>")
       .setPossibleValues(OPTIONAL_FIELDS);
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
-    paramFields.setExampleValue(String.format("%s,%s", it.next(), it.next()));
+    paramFields.setExampleValue(format("%s,%s", it.next(), it.next()));
 
     doDefinition(action);
   }
@@ -176,13 +176,13 @@ public class SearchAction implements RulesWsAction {
     return responseBuilder.build();
   }
 
-  protected void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, SearchOptions context) {
+  private static void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, SearchOptions context) {
     response.setTotal(searchResult.total);
     response.setP(context.getPage());
     response.setPs(context.getLimit());
   }
 
-  protected void doDefinition(WebService.NewAction action) {
+  private void doDefinition(WebService.NewAction action) {
     action.setDescription("Search for a collection of relevant rules matching a specified query.<br/>" +
       "Since 5.5, following fields in the response have been deprecated :" +
       "<ul>" +
@@ -201,22 +201,6 @@ public class SearchAction implements RulesWsAction {
     defineRuleSearchParameters(action);
   }
 
-  @CheckForNull
-  protected Collection<String> possibleFacets() {
-    return Arrays.asList(
-      FACET_LANGUAGES,
-      FACET_REPOSITORIES,
-      FACET_TAGS,
-      FACET_SEVERITIES,
-      FACET_ACTIVE_SEVERITIES,
-      FACET_STATUSES,
-      FACET_TYPES,
-      FACET_OLD_DEFAULT);
-  }
-
-  /**
-   * public visibility because used by {@link org.sonar.server.qualityprofile.ws.BulkRuleActivationActions}
-   */
   public static void defineRuleSearchParameters(WebService.NewAction action) {
     action
       .createParam(TEXT_QUERY)
@@ -324,7 +308,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected SearchOptions buildSearchOptions(SearchWsRequest request) {
+  private static SearchOptions buildSearchOptions(SearchWsRequest request) {
     SearchOptions context = loadCommonContext(request);
     SearchOptions searchOptions = new SearchOptions()
       .setLimit(context.getLimit())
@@ -351,7 +335,7 @@ public class SearchAction implements RulesWsAction {
     return context;
   }
 
-  protected SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
+  private SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
     SearchIdResult<RuleKey> result = ruleIndex.search(query, context);
     List<RuleKey> ruleKeys = result.getIds();
     // rule order is managed by ES
@@ -364,11 +348,11 @@ public class SearchAction implements RulesWsAction {
         rules.add(rule);
       }
     }
-    List<Integer> ruleIds = from(rules).transform(RuleDtoToId.INSTANCE).toList();
-    List<Integer> templateRuleIds = from(rules)
-      .transform(RuleDtoToTemplateId.INSTANCE)
-      .filter(Predicates.notNull())
-      .toList();
+    List<Integer> ruleIds = rules.stream().map(RuleDto::getId).collect(Collectors.toList());
+    List<Integer> templateRuleIds = rules.stream()
+      .map(RuleDto::getTemplateId)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
     List<RuleDefinitionDto> templateRules = dbClient.ruleDao().selectDefinitionByIds(dbSession, templateRuleIds);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds);
     return new SearchResult()
@@ -379,7 +363,7 @@ public class SearchAction implements RulesWsAction {
       .setTotal(result.getTotal());
   }
 
-  protected void doContextResponse(DbSession dbSession, SearchWsRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
+  private void doContextResponse(DbSession dbSession, SearchWsRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
     writeRules(response, result, contextForResponse);
     if (contextForResponse.getFields().contains("actives")) {
@@ -387,7 +371,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected void writeFacets(SearchResponse.Builder response, SearchWsRequest request, SearchOptions context, SearchResult results) {
+  private static void writeFacets(SearchResponse.Builder response, SearchWsRequest request, SearchOptions context, SearchResult results) {
     addMandatoryFacetValues(results, FACET_LANGUAGES, request.getLanguages());
     addMandatoryFacetValues(results, FACET_REPOSITORIES, request.getRepositories());
     addMandatoryFacetValues(results, FACET_STATUSES, ALL_STATUSES_EXCEPT_REMOVED);
@@ -438,7 +422,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable Collection<String> mandatoryValues) {
+  private static void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable Collection<String> mandatoryValues) {
     Map<String, Long> facetValues = results.facets.get(facetName);
     if (facetValues != null) {
       Collection<String> valuesToAdd = mandatoryValues == null ? Lists.newArrayList() : mandatoryValues;
@@ -539,24 +523,6 @@ public class SearchAction implements RulesWsAction {
     public SearchResult setFacets(Facets facets) {
       this.facets = facets;
       return this;
-    }
-  }
-
-  private enum RuleDtoToId implements Function<RuleDto, Integer> {
-    INSTANCE;
-
-    @Override
-    public Integer apply(@Nonnull RuleDto input) {
-      return input.getId();
-    }
-  }
-
-  private enum RuleDtoToTemplateId implements Function<RuleDto, Integer> {
-    INSTANCE;
-
-    @Override
-    public Integer apply(@Nonnull RuleDto input) {
-      return input.getTemplateId();
     }
   }
 
