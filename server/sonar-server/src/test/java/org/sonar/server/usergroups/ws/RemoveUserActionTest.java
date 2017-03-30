@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,8 +33,11 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
@@ -52,13 +54,7 @@ public class RemoveUserActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsTester ws;
-
-  @Before
-  public void setUp() {
-    GroupWsSupport groupSupport = new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
-    ws = new WsTester(new UserGroupsWs(new RemoveUserAction(db.getDbClient(), userSession, groupSupport)));
-  }
+  private WsActionTester ws = new WsActionTester(new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider)));
 
   @Test
   public void does_nothing_if_user_is_not_in_group() throws Exception {
@@ -72,8 +68,7 @@ public class RemoveUserActionTest {
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("login", user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
   }
@@ -90,8 +85,7 @@ public class RemoveUserActionTest {
     newRequest()
       .setParam("id", users.getId().toString())
       .setParam("login", user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
   }
@@ -107,8 +101,7 @@ public class RemoveUserActionTest {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
   }
@@ -128,8 +121,7 @@ public class RemoveUserActionTest {
       .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
   }
@@ -150,10 +142,26 @@ public class RemoveUserActionTest {
     newRequest()
       .setParam("id", admins.getId().toString())
       .setParam("login", user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(users.getId());
+  }
+
+  @Test
+  public void response_status_is_no_content() throws Exception {
+    // keep an administrator
+    insertAnAdministratorInDefaultOrganization();
+    GroupDto users = db.users().insertGroup(db.getDefaultOrganization(), "users");
+    UserDto user = db.users().insertUser("my-admin");
+    db.users().insertMember(users, user);
+    loginAsAdminOnDefaultOrganization();
+
+    TestResponse response = newRequest()
+      .setParam("id", users.getId().toString())
+      .setParam("login", user.getLogin())
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
   }
 
   @Test
@@ -217,8 +225,8 @@ public class RemoveUserActionTest {
       .execute();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/user_groups", "remove_user");
+  private TestRequest newRequest() {
+    return ws.newRequest();
   }
 
   private void loginAsAdminOnDefaultOrganization() {
