@@ -40,14 +40,9 @@ public class GroupIdOrAnyone {
   private final Integer id;
   private final String organizationUuid;
 
-  public GroupIdOrAnyone(String organizationUuid, @Nullable Integer id) {
+  private GroupIdOrAnyone(String organizationUuid, @Nullable Integer id) {
     this.id = id;
     this.organizationUuid = requireNonNull(organizationUuid);
-  }
-
-  public GroupIdOrAnyone(GroupDto group) {
-    this.id = requireNonNull(group.getId());
-    this.organizationUuid = requireNonNull(group.getOrganizationUuid());
   }
 
   public boolean isAnyone() {

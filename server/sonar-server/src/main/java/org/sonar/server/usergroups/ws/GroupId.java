@@ -37,7 +37,7 @@ public class GroupId {
   private final int id;
   private final String organizationUuid;
 
-  public GroupId(String organizationUuid, int id) {
+  private GroupId(String organizationUuid, int id) {
     this.id = id;
     this.organizationUuid = requireNonNull(organizationUuid);
   }
