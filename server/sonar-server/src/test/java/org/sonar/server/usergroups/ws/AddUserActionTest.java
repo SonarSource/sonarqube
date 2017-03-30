@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,9 +32,13 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
@@ -51,12 +54,7 @@ public class AddUserActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsTester ws;
-
-  @Before
-  public void setUp() {
-    ws = new WsTester(new UserGroupsWs(new AddUserAction(db.getDbClient(), userSession, newGroupWsSupport())));
-  }
+  private WsActionTester ws = new WsActionTester(new AddUserAction(db.getDbClient(), userSession, newGroupWsSupport()));
 
   @Test
   public void add_user_to_group_referenced_by_its_id() throws Exception {
@@ -67,8 +65,7 @@ public class AddUserActionTest {
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("login", user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group.getId());
   }
@@ -82,8 +79,7 @@ public class AddUserActionTest {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group.getId());
   }
@@ -100,8 +96,7 @@ public class AddUserActionTest {
       .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group.getId());
   }
@@ -118,8 +113,7 @@ public class AddUserActionTest {
     newRequest()
       .setParam("id", admins.getId().toString())
       .setParam("login", user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(admins.getId(), users.getId());
   }
@@ -134,8 +128,7 @@ public class AddUserActionTest {
     newRequest()
       .setParam("id", users.getId().toString())
       .setParam("login", user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     // do not insert duplicated row
     assertThat(db.users().selectGroupIdsOfUser(user)).hasSize(1).containsOnly(users.getId());
@@ -152,11 +145,24 @@ public class AddUserActionTest {
     newRequest()
       .setParam("id", users.getId().toString())
       .setParam("login", user2.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupIdsOfUser(user1)).containsOnly(users.getId());
     assertThat(db.users().selectGroupIdsOfUser(user2)).containsOnly(users.getId());
+  }
+
+  @Test
+  public void response_status_is_no_content() throws Exception {
+    GroupDto group = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
+    loginAsAdminOnDefaultOrganization();
+
+    TestResponse response = newRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("login", user.getLogin())
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
   }
 
   @Test
@@ -165,6 +171,7 @@ public class AddUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No group with id '42'");
 
     newRequest()
       .setParam("id", "42")
@@ -178,6 +185,7 @@ public class AddUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Could not find a user with login 'my-admin'");
 
     newRequest()
       .setParam("id", group.getId().toString())
@@ -228,8 +236,24 @@ public class AddUserActionTest {
       .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
-      .execute()
-      .assertNoContent();
+      .execute();
+  }
+
+  @Test
+  public void fail_to_add_user_to_anyone() throws Exception {
+    OrganizationDto organization = db.organizations().insert(org -> org.setKey("org"));
+    UserDto user = db.users().insertUser();
+    addUserAsMemberOfOrganization(organization, user);
+    loginAsAdmin(organization);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No group with name 'Anyone' in organization 'org'");
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, ANYONE)
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
+      .execute();
   }
 
   private void executeRequest(GroupDto groupDto, UserDto userDto) throws Exception {
@@ -239,8 +263,8 @@ public class AddUserActionTest {
       .execute();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/user_groups", "add_user");
+  private TestRequest newRequest() {
+    return ws.newRequest();
   }
 
   private void loginAsAdminOnDefaultOrganization() {

@@ -33,14 +33,15 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpdateActionTest {
 
-  private static final String DEFAULT_GROUP_NAME_KEY = "sonar.defaultGroup";
-  private static final String DEFAULT_GROUP_NAME_VALUE = "DEFAULT_GROUP_NAME_VALUE";
+  private static final String DEFAULT_GROUP_NAME_VALUE = "sonar-users";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -50,7 +51,7 @@ public class UpdateActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsTester ws = new WsTester(new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider))));
+  private WsActionTester ws = new WsActionTester(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider)));
 
   @Test
   public void update_both_name_and_description() throws Exception {
@@ -59,17 +60,19 @@ public class UpdateActionTest {
     db.users().insertMember(group, user);
     loginAsAdminOnDefaultOrganization();
 
-    newRequest()
+    String result = newRequest()
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
       .setParam("description", "New Description")
-      .execute().assertJson("{" +
-        "  \"group\": {" +
-        "    \"name\": \"new-name\"," +
-        "    \"description\": \"New Description\"," +
-        "    \"membersCount\": 1" +
-        "  }" +
-        "}");
+      .execute().getInput();
+
+    assertJson(result).isSimilarTo("{" +
+      "  \"group\": {" +
+      "    \"name\": \"new-name\"," +
+      "    \"description\": \"New Description\"," +
+      "    \"membersCount\": 1" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -77,16 +80,18 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
-    newRequest()
+    String result = newRequest()
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
-      .execute().assertJson("{" +
-        "  \"group\": {" +
-        "    \"name\": \"new-name\"," +
-        "    \"description\": \"" + group.getDescription() + "\"," +
-        "    \"membersCount\": 0" +
-        "  }" +
-        "}");
+      .execute().getInput();
+
+    assertJson(result).isSimilarTo("{" +
+      "  \"group\": {" +
+      "    \"name\": \"new-name\"," +
+      "    \"description\": \"" + group.getDescription() + "\"," +
+      "    \"membersCount\": 0" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -94,16 +99,18 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
-    newRequest()
+    String result = newRequest()
       .setParam("id", group.getId().toString())
       .setParam("description", "New Description")
-      .execute().assertJson("{" +
-        "  \"group\": {" +
-        "    \"name\": \"" + group.getName() + "\"," +
-        "    \"description\": \"New Description\"," +
-        "    \"membersCount\": 0" +
-        "  }" +
-        "}");
+      .execute().getInput();
+
+    assertJson(result).isSimilarTo("{" +
+      "  \"group\": {" +
+      "    \"name\": \"" + group.getName() + "\"," +
+      "    \"description\": \"New Description\"," +
+      "    \"membersCount\": 0" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -233,8 +240,8 @@ public class UpdateActionTest {
       .execute();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/user_groups", "update");
+  private TestRequest newRequest() {
+    return ws.newRequest();
   }
 
   private void loginAsAdminOnDefaultOrganization() {
