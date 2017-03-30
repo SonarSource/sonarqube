@@ -100,7 +100,10 @@ public class OrganizationQualityProfilesPageTest {
   @Test
   public void testNotFound() {
     Navigation nav = Navigation.get(orchestrator);
-    nav.open("/organizations/test-org/quality_profiles/show?key=unknown");
+    nav.open("/organizations/" + ORGANIZATION + "/quality_profiles/show?key=unknown");
+    $(".quality-profile-not-found").should(Condition.visible);
+
+    nav.open("/organizations/" + ORGANIZATION + "/quality_profiles/show?language=xoo&name=unknown");
     $(".quality-profile-not-found").should(Condition.visible);
   }
 

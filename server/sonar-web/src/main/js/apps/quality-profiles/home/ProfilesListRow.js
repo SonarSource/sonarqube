@@ -48,7 +48,10 @@ export default class ProfilesListRow extends React.PureComponent {
     const offset = 25 * (profile.depth - 1);
     return (
       <div style={{ paddingLeft: offset }}>
-        <ProfileLink organization={this.props.organization} profileKey={profile.key}>
+        <ProfileLink
+          language={profile.language}
+          name={profile.name}
+          organization={this.props.organization}>
           {profile.name}
         </ProfileLink>
       </div>
@@ -161,6 +164,7 @@ export default class ProfilesListRow extends React.PureComponent {
               </button>
               <ProfileActions
                 canAdmin={this.props.canAdmin}
+                fromList={true}
                 organization={this.props.organization}
                 profile={this.props.profile}
                 updateProfiles={this.props.updateProfiles}

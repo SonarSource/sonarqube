@@ -73,7 +73,9 @@ export default class PageHeader extends React.PureComponent {
       })
         .on('done', profile => {
           this.props.updateProfiles().then(() => {
-            this.context.router.push(getProfilePath(profile.key, this.props.organization));
+            this.context.router.push(
+              getProfilePath(profile.name, profile.language, this.props.organization)
+            );
           });
         })
         .render();

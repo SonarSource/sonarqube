@@ -24,18 +24,19 @@ import { getProfilePath } from '../utils';
 
 type Props = {
   children?: React.Element<*>,
-  organization: ?string,
-  profileKey: string
+  language: string,
+  name: string,
+  organization: ?string
 };
 
 export default class ProfileLink extends React.PureComponent {
   props: Props;
 
   render() {
-    const { profileKey, organization, children, ...other } = this.props;
+    const { name, language, organization, children, ...other } = this.props;
     return (
       <Link
-        to={getProfilePath(profileKey, organization)}
+        to={getProfilePath(name, language, organization)}
         activeClassName="link-no-underline"
         {...other}>
         {children}

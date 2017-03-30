@@ -28,19 +28,51 @@ import type { Profile } from '../propTypes';
 type Props = {
   canAdmin: boolean,
   children: React.Element<*>,
-  location: { query: { key: string } },
+  location: {
+    pathname: string,
+    query: { key?: string, language: string, name: string }
+  },
   organization: ?string,
   profiles: Array<Profile>,
+  router: { replace: () => void },
   updateProfiles: () => Promise<*>
 };
 
 export default class ProfileContainer extends React.PureComponent {
   props: Props;
 
+  componentDidMount() {
+    const { location, profiles, router } = this.props;
+    if (location.query.key) {
+      // try to find a quality profile with the given key
+      // if managed to find one, redirect to a new version
+      // otherwise do nothing, `render` will show not found page
+      const profile = profiles.find(profile => profile.key === location.query.key);
+      if (profile) {
+        router.replace({
+          pathname: location.pathname,
+          query: { language: profile.language, name: profile.name }
+        });
+      }
+    }
+  }
+
   render() {
     const { organization, profiles, location, ...other } = this.props;
-    const { key } = location.query;
-    const profile = profiles.find(profile => profile.key === key);
+    const { key, language, name } = location.query;
+
+    if (key) {
+      // if there is a `key` parameter,
+      // then if we managed to find a quality profile with this key
+      // then we will be redirected in `componentDidMount`
+      // otherwise show `ProfileNotFound`
+      const profile = profiles.find(profile => profile.key === location.query.key);
+      return profile ? null : <ProfileNotFound organization={organization} />;
+    }
+
+    const profile = profiles.find(
+      profile => profile.language === language && profile.name === name
+    );
 
     if (!profile) {
       return <ProfileNotFound organization={organization} />;

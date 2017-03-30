@@ -85,7 +85,11 @@ public class QualityProfilesPageTest {
   @Test
   public void testNotFound() {
     Navigation nav = Navigation.get(orchestrator);
+
     nav.open("/profiles/show?key=unknown");
+    $(".quality-profile-not-found").should(Condition.visible);
+
+    nav.open("/profiles/show?language=xoo&name=unknown");
     $(".quality-profile-not-found").should(Condition.visible);
   }
 

@@ -34,26 +34,19 @@ type Props = {
   updateProfiles: () => Promise<*>
 };
 
+type ProfileInheritanceDetails = {
+  activeRuleCount: number,
+  key: string,
+  language: string,
+  name: string,
+  overridingRuleCount?: number
+};
+
 type State = {
-  ancestors?: Array<{
-    activeRuleCount: number,
-    key: string,
-    name: string,
-    overridingRuleCount?: number
-  }>,
-  children?: Array<{
-    activeRuleCount: number,
-    key: string,
-    name: string,
-    overridingRuleCount?: number
-  }>,
+  ancestors?: Array<ProfileInheritanceDetails>,
+  children?: Array<ProfileInheritanceDetails>,
   loading: boolean,
-  profile?: {
-    activeRuleCount: number,
-    key: string,
-    name: string,
-    overridingRuleCount?: number
-  }
+  profile?: ProfileInheritanceDetails
 };
 
 export default class ProfileInheritance extends React.PureComponent {
@@ -129,6 +122,7 @@ export default class ProfileInheritance extends React.PureComponent {
                     className="js-inheritance-ancestor"
                     depth={index}
                     key={ancestor.key}
+                    language={this.props.profile.language}
                     organization={this.props.organization}
                     profile={ancestor}
                   />
@@ -138,6 +132,7 @@ export default class ProfileInheritance extends React.PureComponent {
                 className={currentClassName}
                 depth={this.state.ancestors ? this.state.ancestors.length : 0}
                 displayLink={false}
+                language={this.props.profile.language}
                 organization={this.props.organization}
                 profile={this.state.profile}
               />
@@ -148,6 +143,7 @@ export default class ProfileInheritance extends React.PureComponent {
                     className="js-inheritance-child"
                     depth={this.state.ancestors ? this.state.ancestors.length + 1 : 0}
                     key={child.key}
+                    language={this.props.profile.language}
                     organization={this.props.organization}
                     profile={child}
                   />

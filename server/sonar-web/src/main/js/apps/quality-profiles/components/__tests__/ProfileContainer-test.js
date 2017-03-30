@@ -26,12 +26,12 @@ import ProfileHeader from '../../details/ProfileHeader';
 import { createFakeProfile } from '../../utils';
 
 it('should render ProfileHeader', () => {
-  const targetProfile = createFakeProfile({ key: 'profile1' });
-  const profiles = [targetProfile, createFakeProfile({ key: 'profile2' })];
+  const targetProfile = createFakeProfile({ language: 'js', name: 'fake' });
+  const profiles = [targetProfile, createFakeProfile({ language: 'js', name: 'another' })];
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-      location={{ query: { key: 'profile1' } }}
+      location={{ query: { language: 'js', name: 'fake' } }}
       profiles={profiles}
       canAdmin={false}
       updateProfiles={updateProfiles}>
@@ -46,10 +46,13 @@ it('should render ProfileHeader', () => {
 });
 
 it('should render ProfileNotFound', () => {
-  const profiles = [createFakeProfile({ key: 'profile1' }), createFakeProfile({ key: 'profile2' })];
+  const profiles = [
+    createFakeProfile({ language: 'js', name: 'fake' }),
+    createFakeProfile({ language: 'js', name: 'another' })
+  ];
   const output = shallow(
     <ProfileContainer
-      location={{ query: { key: 'random' } }}
+      location={{ query: { language: 'js', name: 'random' } }}
       profiles={profiles}
       canAdmin={false}
       updateProfiles={() => true}>
@@ -60,11 +63,11 @@ it('should render ProfileNotFound', () => {
 });
 
 it('should render Helmet', () => {
-  const profiles = [createFakeProfile({ key: 'profile1', name: 'First Profile' })];
+  const profiles = [createFakeProfile({ language: 'js', name: 'First Profile' })];
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-      location={{ query: { key: 'profile1' } }}
+      location={{ query: { language: 'js', name: 'First Profile' } }}
       profiles={profiles}
       canAdmin={false}
       updateProfiles={updateProfiles}>

@@ -70,36 +70,38 @@ export const getProfilesPath = (organization: ?string) =>
   organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
 
 export const getProfilesForLanguagePath = (language: string, organization: ?string) => ({
-  pathname: organization ? `/organizations/${organization}/quality_profiles` : '/profiles',
+  pathname: getProfilesPath(organization),
   query: { language }
 });
 
-export const getProfilePath = (profile: string, organization: ?string) => ({
-  pathname: organization
-    ? `/organizations/${organization}/quality_profiles/show`
-    : '/profiles/show',
-  query: { key: profile }
+export const getProfilePath = (name: string, language: string, organization: ?string) => ({
+  pathname: getProfilesPath(organization) + '/show',
+  query: { name, language }
 });
 
-export const getProfileComparePath = (profile: string, organization: ?string, withKey?: string) => {
-  const query: Object = { key: profile };
+export const getProfileComparePath = (
+  name: string,
+  language: string,
+  organization: ?string,
+  withKey?: string
+) => {
+  const query: Object = { language, name };
   if (withKey) {
     Object.assign(query, { withKey });
   }
   return {
-    pathname: organization
-      ? `/organizations/${organization}/quality_profiles/compare`
-      : '/profiles/compare',
+    pathname: getProfilesPath(organization) + '/compare',
     query
   };
 };
 
 export const getProfileChangelogPath = (
-  profile: string,
+  name: string,
+  language: string,
   organization: ?string,
   filter?: { since?: string, to?: string }
 ) => {
-  const query: Object = { key: profile };
+  const query: Object = { language, name };
   if (filter) {
     if (filter.since) {
       Object.assign(query, { since: filter.since });
@@ -109,9 +111,7 @@ export const getProfileChangelogPath = (
     }
   }
   return {
-    pathname: organization
-      ? `/organizations/${organization}/quality_profiles/changelog`
-      : '/profiles/changelog',
+    pathname: getProfilesPath(organization) + '/changelog',
     query
   };
 };
