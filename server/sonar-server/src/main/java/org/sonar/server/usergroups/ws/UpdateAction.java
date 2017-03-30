@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -35,6 +36,7 @@ import org.sonarqube.ws.WsUserGroups;
 
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
@@ -64,7 +66,8 @@ public class UpdateAction implements UserGroupsWsAction {
       .setHandler(this)
       .setPost(true)
       .setResponseExample(getClass().getResource("example-update.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(new Change("6.4", "The default group is no longer editable"));
 
     action.createParam(PARAM_GROUP_ID)
       .setDescription("Identifier of the group.")
@@ -73,8 +76,9 @@ public class UpdateAction implements UserGroupsWsAction {
 
     action.createParam(PARAM_GROUP_NAME)
       .setDescription(String.format("New optional name for the group. A group name cannot be larger than %d characters and must be unique. " +
-        "The value 'anyone' (whatever the case) is reserved and cannot be used. If value is empty or not defined, then name is not changed.", GROUP_NAME_MAX_LENGTH))
-      .setExampleValue("sonar-users");
+        "Value 'anyone' and '%s' (whatever the case) are reserved and cannot be used. If value is empty or not defined, then name is not changed.", GROUP_NAME_MAX_LENGTH,
+        SONAR_USERS_GROUP_NAME))
+      .setExampleValue("my-group");
 
     action.createParam(PARAM_GROUP_DESCRIPTION)
       .setDescription(String.format("New optional description for the group. A group description cannot be larger than %d characters. " +
@@ -91,6 +95,7 @@ public class UpdateAction implements UserGroupsWsAction {
       Optional<OrganizationDto> org = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
       checkFoundWithOptional(org, "Could not find organization with id '%s'.", group.getOrganizationUuid());
       userSession.checkPermission(ADMINISTER, org.get());
+      support.checkGroupIsNotDefault(group);
 
       boolean changed = false;
       String newName = request.param(PARAM_GROUP_NAME);
@@ -128,4 +133,5 @@ public class UpdateAction implements UserGroupsWsAction {
     respBuilder.setGroup(toProtobuf(organization, group, membersCount));
     writeProtobuf(respBuilder.build(), request, response);
   }
+
 }
