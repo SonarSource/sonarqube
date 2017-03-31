@@ -41,6 +41,7 @@ export default class MultiSelectOption extends React.PureComponent {
 
   handleSelect = (evt: SyntheticInputEvent) => {
     evt.stopPropagation();
+    evt.preventDefault();
     evt.target.blur();
     this.props.onSelectChange(this.props.element, !this.props.selected);
   };
