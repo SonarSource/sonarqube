@@ -81,6 +81,7 @@ public final class SqTables {
     "properties",
     "qprofile_changes",
     "rules",
+    "rules_metadata",
     "rules_parameters",
     "rules_profiles",
     "rule_repositories",

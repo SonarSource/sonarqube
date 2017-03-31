@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import org.apache.commons.lang.RandomStringUtils;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -36,11 +37,58 @@ public class RuleDbTester {
     this.db = db;
   }
 
-  public RuleDefinitionDto insertRule(RuleDefinitionDto ruleDto) {
-    RuleDao ruleDao = db.getDbClient().ruleDao();
-    ruleDao.insert(db.getSession(), ruleDto);
+  public RuleDefinitionDto insert() {
+    return insert(RuleTesting.newRule());
+  }
+
+  public RuleDefinitionDto insert(RuleKey key) {
+    return insert(RuleTesting.newRule(key));
+  }
+
+  public RuleDefinitionDto insert(Consumer<RuleDefinitionDto> populater) {
+    RuleDefinitionDto rule = RuleTesting.newRule();
+    populater.accept(rule);
+    return insert(rule);
+  }
+
+  public RuleDefinitionDto insert(RuleKey key, Consumer<RuleDefinitionDto> populater) {
+    RuleDefinitionDto rule = RuleTesting.newRule(key);
+    populater.accept(rule);
+    return insert(rule);
+  }
+
+  public RuleDefinitionDto insert(RuleDefinitionDto rule) {
+    db.getDbClient().ruleDao().insert(db.getSession(), rule);
     db.commit();
-    return ruleDto;
+    return rule;
+  }
+
+  public RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, OrganizationDto organization) {
+    return insertOrUpdateMetadata(rule, organization, r -> {});
+  }
+
+  public RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, OrganizationDto organization, Consumer<RuleMetadataDto> populater) {
+    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, organization);
+    populater.accept(dto);
+    return insertOrUpdateMetadata(dto);
+  }
+
+  public RuleMetadataDto insertOrUpdateMetadata(RuleMetadataDto metadata) {
+    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata);
+    db.commit();
+    return metadata;
+  }
+
+  public RuleParamDto insertRuleParam(RuleDefinitionDto rule) {
+    return insertRuleParam(rule, p -> {});
+  }
+
+  public RuleParamDto insertRuleParam(RuleDefinitionDto rule, Consumer<RuleParamDto> populater) {
+    RuleParamDto param = RuleTesting.newRuleParam(rule);
+    populater.accept(param);
+    db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule, param);
+    db.commit();
+    return param;
   }
 
   public RuleDto insertRule(RuleDto ruleDto) {
@@ -49,7 +97,7 @@ public class RuleDbTester {
     db.commit();
     RuleMetadataDto metadata = ruleDto.getMetadata();
     if (metadata.getOrganizationUuid() != null) {
-      ruleDao.update(db.getSession(), metadata.setRuleId(ruleDto.getId()));
+      ruleDao.insertOrUpdate(db.getSession(), metadata.setRuleId(ruleDto.getId()));
       db.commit();
     }
     return ruleDto;

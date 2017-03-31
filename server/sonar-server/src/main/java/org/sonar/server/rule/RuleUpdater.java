@@ -348,7 +348,7 @@ public class RuleUpdater {
   private void update(DbSession session, RuleDto rule) {
     rule.setUpdatedAt(system.now());
     dbClient.ruleDao().update(session, rule.getDefinition());
-    dbClient.ruleDao().update(session, rule.getMetadata());
+    dbClient.ruleDao().insertOrUpdate(session, rule.getMetadata());
   }
 
 }

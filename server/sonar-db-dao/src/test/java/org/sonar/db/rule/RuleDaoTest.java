@@ -398,7 +398,7 @@ public class RuleDaoTest {
     dbTester.prepareDbUnit(getClass(), "update.xml");
     String organizationUuid = "org-1";
 
-    RuleMetadataDto ruleToUpdate = new RuleMetadataDto()
+    RuleMetadataDto metadataToUpdate = new RuleMetadataDto()
       .setRuleId(1)
       .setOrganizationUuid(organizationUuid)
       .setNoteData("My note")
@@ -412,7 +412,7 @@ public class RuleDaoTest {
       .setCreatedAt(3_500_000_000_000L)
       .setUpdatedAt(4_000_000_000_000L);
 
-    underTest.update(dbTester.getSession(), ruleToUpdate);
+    underTest.insertOrUpdate(dbTester.getSession(), metadataToUpdate);
     dbTester.getSession().commit();
 
     RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organizationUuid, RuleKey.of("checkstyle", "AvoidNull"));
@@ -468,7 +468,7 @@ public class RuleDaoTest {
         .setCreatedAt(6_500_000_000_000L)
         .setUpdatedAt(7_000_000_000_000L);
 
-    underTest.update(dbTester.getSession(), metadataV1);
+    underTest.insertOrUpdate(dbTester.getSession(), metadataV1);
     dbTester.commit();
 
     assertThat(dbTester.countRowsOfTable("RULES_METADATA")).isEqualTo(1);
@@ -501,7 +501,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getCreatedAt()).isEqualTo(3_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(4_000_000_000_000L);
 
-    underTest.update(dbTester.getSession(), metadataV2);
+    underTest.insertOrUpdate(dbTester.getSession(), metadataV2);
     dbTester.commit();
 
     ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organizationUuid, RuleKey.of("checkstyle", "AvoidNull"));

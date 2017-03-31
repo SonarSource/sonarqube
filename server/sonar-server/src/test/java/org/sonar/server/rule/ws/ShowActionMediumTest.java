@@ -102,7 +102,7 @@ public class ShowActionMediumTest {
       .setType(RuleType.BUG);
     RuleDefinitionDto definition = ruleDto.getDefinition();
     ruleDao.insert(session, definition);
-    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     RuleParamDto param = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, definition, param);
     session.commit();
@@ -129,7 +129,7 @@ public class ShowActionMediumTest {
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort(null);
     ruleDao.insert(session, ruleDto.getDefinition());
-    ruleDao.update(session, ruleDto.getMetadata());
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata());
     session.commit();
     session.clearCache();
 
@@ -156,7 +156,7 @@ public class ShowActionMediumTest {
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
     ruleDao.insert(session, ruleDto.getDefinition());
-    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
     session.clearCache();
 
@@ -181,7 +181,7 @@ public class ShowActionMediumTest {
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
     ruleDao.insert(session, ruleDto.getDefinition());
-    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
     session.clearCache();
 
@@ -249,7 +249,7 @@ public class ShowActionMediumTest {
       .setRemediationGapMultiplier("5d")
       .setRemediationBaseEffort("10h");
     ruleDao.insert(session, ruleDto.getDefinition());
-    ruleDao.update(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")

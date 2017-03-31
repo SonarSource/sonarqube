@@ -183,7 +183,7 @@ public class IssueServiceMediumTest {
     RuleDao ruleDao = tester.get(RuleDao.class);
     ruleDao.insert(session, rule.getDefinition());
     if (rule.getOrganizationUuid() != null) {
-      ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
+      ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
     }
     session.commit();
     ruleIndexer.index(organization, rule.getKey());

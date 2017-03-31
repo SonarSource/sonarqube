@@ -183,7 +183,7 @@ public class RuleCreator {
         .setTags(tags)
         .setCreatedAt(system2.now())
         .setUpdatedAt(system2.now());
-      dbClient.ruleDao().update(dbSession, ruleMetadata);
+      dbClient.ruleDao().insertOrUpdate(dbSession, ruleMetadata);
     }
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {

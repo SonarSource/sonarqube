@@ -133,11 +133,11 @@ public class SearchActionMediumTest {
     RuleDto rule1 = RuleTesting.newXooX1(defaultOrganizationDto)
       .setType(RuleType.BUG);
     insertRule(rule1.getDefinition());
-    ruleDao.update(dbSession, rule1.getMetadata().setRuleId(rule1.getId()));
+    ruleDao.insertOrUpdate(dbSession, rule1.getMetadata().setRuleId(rule1.getId()));
     RuleDto rule2 = RuleTesting.newXooX2(defaultOrganizationDto)
       .setType(RuleType.VULNERABILITY);
     insertRule(rule2.getDefinition());
-    ruleDao.update(dbSession, rule2.getMetadata().setRuleId(rule2.getId()));
+    ruleDao.insertOrUpdate(dbSession, rule2.getMetadata().setRuleId(rule2.getId()));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -228,7 +228,7 @@ public class SearchActionMediumTest {
       .setRemediationGapMultiplier("2h")
       .setRemediationBaseEffort("25min");
     insertRule(ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -247,7 +247,7 @@ public class SearchActionMediumTest {
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("5min");
     insertRule(ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -266,7 +266,7 @@ public class SearchActionMediumTest {
       .setRemediationGapMultiplier("1h")
       .setRemediationBaseEffort(null);
     insertRule(ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -484,7 +484,7 @@ public class SearchActionMediumTest {
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
     RuleDto rule = RuleTesting.newXooX1(defaultOrganizationDto).setNoteData("this is *bold*");
     insertRule(rule.getDefinition());
-    ruleDao.update(dbSession, rule.getMetadata().setRuleId(rule.getId()));
+    ruleDao.insertOrUpdate(dbSession, rule.getMetadata().setRuleId(rule.getId()));
 
     dbSession.commit();
 
@@ -620,7 +620,7 @@ public class SearchActionMediumTest {
       .setRemediationGapMultiplier("2h")
       .setRemediationBaseEffort("25min");
     insertRule(ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester()

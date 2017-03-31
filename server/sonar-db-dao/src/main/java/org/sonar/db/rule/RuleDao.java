@@ -126,7 +126,7 @@ public class RuleDao implements Dao {
     mapper(session).updateDefinition(dto);
   }
 
-  public void update(DbSession session, RuleMetadataDto dto) {
+  public void insertOrUpdate(DbSession session, RuleMetadataDto dto) {
     if (mapper(session).countMetadata(dto) > 0) {
       mapper(session).updateMetadata(dto);
     } else {
