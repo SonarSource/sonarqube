@@ -19,11 +19,11 @@
  */
 package org.sonar.ce;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
+import org.sonar.ce.monitoring.CEQueueStatusImpl;
+import org.sonar.ce.monitoring.CeTasksMBeanImpl;
 import org.sonar.ce.queue.CeQueueInitializer;
 import org.sonar.ce.queue.InternalCeQueueImpl;
+import org.sonar.core.platform.Module;
 
 public class CeQueueModule extends Module {
   @Override
