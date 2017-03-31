@@ -116,7 +116,7 @@ public class RuleServiceMediumTest {
   private void insertRule(RuleKey key, Set<String> tags, Set<String> systemTags) {
     RuleDto ruleDto = RuleTesting.newDto(key, defaultOrganization).setTags(tags).setSystemTags(systemTags);
     dao.insert(dbSession, ruleDto.getDefinition());
-    dao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    dao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
     ruleIndexer.index(defaultOrganization, ruleDto.getKey());
   }

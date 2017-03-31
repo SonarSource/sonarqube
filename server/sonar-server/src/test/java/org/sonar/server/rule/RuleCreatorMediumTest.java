@@ -515,7 +515,7 @@ public class RuleCreatorMediumTest {
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
     dao.insert(dbSession, templateRule.getDefinition());
-    dao.update(dbSession, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    dao.insertOrUpdate(dbSession, templateRule.getMetadata().setRuleId(templateRule.getId()));
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();

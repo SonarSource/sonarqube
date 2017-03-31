@@ -77,7 +77,7 @@ public class CreateActionMediumTest {
     // Template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"), defaultOrganization);
     ruleDao.insert(session, templateRule.getDefinition());
-    ruleDao.update(session, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    ruleDao.insertOrUpdate(session, templateRule.getMetadata().setRuleId(templateRule.getId()));
     RuleParamDto param = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, templateRule.getDefinition(), param);
     session.commit();

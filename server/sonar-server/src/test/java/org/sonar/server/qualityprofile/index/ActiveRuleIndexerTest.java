@@ -143,7 +143,7 @@ public class ActiveRuleIndexerTest {
 
     // Index one active rule
     RuleDefinitionDto rule = RuleTesting.newDto(RULE_KEY_1).getDefinition();
-    dbTester.rules().insertRule(rule);
+    dbTester.rules().insert(rule);
     QualityProfileDto profile = QualityProfileDto.createFor("qp")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("xoo")
@@ -160,7 +160,7 @@ public class ActiveRuleIndexerTest {
 
     // Index another active rule
     RuleDefinitionDto rule2 = RuleTesting.newDto(RULE_KEY_2).getDefinition();
-    dbTester.rules().insertRule(rule2);
+    dbTester.rules().insert(rule2);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profile, rule2).setSeverity(Severity.CRITICAL)
       .setCreatedAt(now).setUpdatedAt(now);
     dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule2);

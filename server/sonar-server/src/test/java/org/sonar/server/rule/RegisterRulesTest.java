@@ -190,7 +190,7 @@ public class RegisterRulesTest {
     rule1.setTags(newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
     rule1.setNoteUserLogin("marius");
-    dbClient.ruleDao().update(dbTester.getSession(), rule1.getMetadata());
+    dbClient.ruleDao().insertOrUpdate(dbTester.getSession(), rule1.getMetadata());
     dbTester.getSession().commit();
 
     when(system.now()).thenReturn(DATE2.getTime());

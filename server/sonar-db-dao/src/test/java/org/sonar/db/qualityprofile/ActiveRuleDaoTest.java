@@ -91,9 +91,9 @@ public class ActiveRuleDaoTest {
 
     dbClient.qualityProfileDao().insert(dbSession, profile1);
     dbClient.qualityProfileDao().insert(dbSession, profile2);
-    dbTester.rules().insertRule(rule1);
-    dbTester.rules().insertRule(rule2);
-    dbTester.rules().insertRule(rule3);
+    dbTester.rules().insert(rule1);
+    dbTester.rules().insert(rule2);
+    dbTester.rules().insert(rule3);
 
     rule1Param1 = new RuleParamDto()
       .setName("param1")
@@ -201,7 +201,7 @@ public class ActiveRuleDaoTest {
   @Test
   public void select_by_profile_ignore_removed_rules() throws Exception {
     RuleDefinitionDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED).getDefinition();
-    dbTester.rules().insertRule(removedRule);
+    dbTester.rules().insert(removedRule);
     ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();

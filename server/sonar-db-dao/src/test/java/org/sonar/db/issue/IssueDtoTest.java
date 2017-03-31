@@ -30,7 +30,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -116,7 +116,7 @@ public class IssueDtoTest {
   public void set_rule() {
     IssueDto dto = new IssueDto()
       .setKee("100")
-      .setRule(new RuleDto().setId(1).setRuleKey("AvoidCycle").setRepositoryKey("squid"))
+      .setRule(new RuleDefinitionDto().setId(1).setRuleKey("AvoidCycle").setRepositoryKey("squid"))
       .setLanguage("xoo");
 
     assertThat(dto.getRuleId()).isEqualTo(1);

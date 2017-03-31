@@ -111,7 +111,7 @@ public class UpdateActionMediumTest {
       .setRemediationGapMultiplier("15min")
       .setRemediationBaseEffort("3h");
     ruleDao.insert(session, rule.getDefinition());
-    ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
+    ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
     session.commit();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
@@ -128,7 +128,7 @@ public class UpdateActionMediumTest {
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"), defaultOrganization);
     RuleDefinitionDto definition = templateRule.getDefinition();
     ruleDao.insert(session, definition);
-    ruleDao.update(session, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    ruleDao.insertOrUpdate(session, templateRule.getMetadata().setRuleId(templateRule.getId()));
     RuleParamDto param = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, definition, param);
     session.commit();

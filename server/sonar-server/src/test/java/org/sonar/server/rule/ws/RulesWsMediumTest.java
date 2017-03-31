@@ -114,7 +114,7 @@ public class RulesWsMediumTest {
 
     RuleDto rule = RuleTesting.newXooX1(defaultOrganization);
     ruleDao.insert(session, rule.getDefinition());
-    ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
+    ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule.getDefinition()).setSeverity("BLOCKER");
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
@@ -146,13 +146,13 @@ public class RulesWsMediumTest {
       .setTags(ImmutableSet.of("hello", "world"))
       .setSystemTags(Collections.<String>emptySet());
     ruleDao.insert(session, rule.getDefinition());
-    ruleDao.update(session, rule.getMetadata().setRuleId(rule.getId()));
+    ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
 
     RuleDto rule2 = RuleTesting.newXooX2(defaultOrganization)
       .setTags(ImmutableSet.of("hello", "java"))
       .setSystemTags(ImmutableSet.of("sys1"));
     ruleDao.insert(session, rule2.getDefinition());
-    ruleDao.update(session, rule2.getMetadata().setRuleId(rule2.getId()));
+    ruleDao.insertOrUpdate(session, rule2.getMetadata().setRuleId(rule2.getId()));
 
     session.commit();
     ruleIndexer.index(defaultOrganization, Stream.of(rule, rule2).map(RuleDto::getKey).collect(Collectors.toList()));

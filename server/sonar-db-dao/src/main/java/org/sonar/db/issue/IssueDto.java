@@ -42,6 +42,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -447,7 +448,7 @@ public final class IssueDto implements Serializable {
     return ruleKey;
   }
 
-  public IssueDto setRule(RuleDto rule) {
+  public IssueDto setRule(RuleDefinitionDto rule) {
     Preconditions.checkNotNull(rule.getId(), "Rule must be persisted.");
     this.ruleId = rule.getId();
     this.ruleKey = rule.getRuleKey();
@@ -471,7 +472,7 @@ public final class IssueDto implements Serializable {
   /**
    * Should only be used to persist in E/S
    * <p/>
-   * Please use {@link #setRule(RuleDto)} instead
+   * Please use {@link #setRule(RuleDefinitionDto)} instead
    */
   public IssueDto setLanguage(String language) {
     this.language = language;
@@ -590,7 +591,7 @@ public final class IssueDto implements Serializable {
   /**
    * Should only be used to persist in E/S
    * <p/>
-   * Please use {@link #setRule(RuleDto)} instead
+   * Please use {@link #setRule(RuleDefinitionDto)} instead
    */
   public IssueDto setRuleKey(String repo, String rule) {
     this.ruleRepo = repo;
