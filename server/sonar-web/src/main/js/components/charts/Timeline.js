@@ -21,8 +21,8 @@ import $ from 'jquery';
 import moment from 'moment';
 import React from 'react';
 import { extent, max } from 'd3-array';
-import { scaleLinear, scaleOrdinal, scaleTime } from 'd3-scale';
-import { line as d3Line } from 'd3-shape';
+import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
+import { line as d3Line, curveBasis } from 'd3-shape';
 import { ResizeMixin } from '../mixins/resize-mixin';
 import { TooltipsMixin } from '../mixins/tooltips-mixin';
 
@@ -31,7 +31,7 @@ const Timeline = React.createClass({
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     padding: React.PropTypes.arrayOf(React.PropTypes.number),
     height: React.PropTypes.number,
-    interpolate: React.PropTypes.string
+    basisCurve: React.PropTypes.bool
   },
 
   mixins: [ResizeMixin, TooltipsMixin],
@@ -39,7 +39,7 @@ const Timeline = React.createClass({
   getDefaultProps() {
     return {
       padding: [10, 10, 10, 10],
-      interpolate: 'basis'
+      basisCurve: true
     };
   },
 
@@ -51,11 +51,11 @@ const Timeline = React.createClass({
   },
 
   getRatingScale(availableHeight) {
-    return scaleOrdinal().domain([5, 4, 3, 2, 1]).rangePoints([availableHeight, 0]);
+    return scalePoint().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
   },
 
   getLevelScale(availableHeight) {
-    return scaleOrdinal().domain(['ERROR', 'WARN', 'OK']).rangePoints([availableHeight, 0]);
+    return scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
   },
 
   getYScale(availableHeight) {
@@ -154,7 +154,10 @@ const Timeline = React.createClass({
   },
 
   renderLine(xScale, yScale) {
-    const p = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y)).interpolate(this.props.interpolate);
+    const p = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y));
+    if (this.props.basisCurve) {
+      p.curve(curveBasis);
+    }
     return <path className="line-chart-path" d={p(this.props.data)} />;
   },
 

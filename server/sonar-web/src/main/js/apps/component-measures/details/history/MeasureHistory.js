@@ -122,6 +122,7 @@ export default class MeasureHistory extends React.Component {
     return (
       <div style={{ height: HEIGHT }}>
         <Timeline
+          basisCurve={false}
           key={metric.key}
           data={data}
           metricType={metric.type}
