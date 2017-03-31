@@ -133,21 +133,21 @@ public class OrganizationMembershipTest {
   @Test
   public void should_display_members_page() {
     String orgKey = createOrganization();
-    String user1 = createUser();
-    String user2 = createUser();
+    userRule.createUser("foo", "pwd");
+    userRule.createUser("bar", "pwd");
     createUser();
 
-    adminClient.organizations().addMember(orgKey, user1);
-    adminClient.organizations().addMember(orgKey, user2);
+    adminClient.organizations().addMember(orgKey, "foo");
+    adminClient.organizations().addMember(orgKey, "bar");
 
     MembersPage page = nav.openOrganizationMembers(orgKey);
     page
       .canNotAddMember()
       .shouldHaveTotal(3);
     page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator");
-    page.getMembersByIdx(1).shouldBeNamed(user1, user1);
+    page.getMembersByIdx(1).shouldBeNamed("bar", "bar");
     page.getMembersByIdx(2)
-      .shouldBeNamed(user2, user2)
+      .shouldBeNamed("foo", "foo")
       .shouldNotHaveActions();
   }
 
@@ -175,16 +175,16 @@ public class OrganizationMembershipTest {
   @Test
   public void admin_can_add_members() {
     String orgKey = createOrganization();
-    String user1 = createUser();
+    userRule.createUser("foo", "pwd");
     createUser();
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page
       .shouldHaveTotal(1)
-      .addMember(user1)
+      .addMember("foo")
       .shouldHaveTotal(2);
     page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator").shouldHaveGroups(1);
-    page.getMembersByIdx(1).shouldBeNamed(user1, user1).shouldHaveGroups(0);
+    page.getMembersByIdx(1).shouldBeNamed("foo", "foo").shouldHaveGroups(0);
   }
 
   @Test
@@ -220,6 +220,22 @@ public class OrganizationMembershipTest {
       .manageGroupsSelect("owners")
       .manageGroupsSave()
       .shouldHaveGroups(0);
+  }
+
+  @Test
+  public void groups_count_should_be_updated_when_a_member_was_just_added() {
+    String orgKey = createOrganization();
+    String user1 = createUser();
+
+    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    page
+      .addMember(user1)
+      .getMembersByIdx(1)
+      .shouldHaveGroups(0)
+      .manageGroupsOpen()
+      .manageGroupsSelect("owners")
+      .manageGroupsSave()
+      .shouldHaveGroups(1);
   }
 
   private void verifyMembership(String login, String organizationKey, boolean isMember) {

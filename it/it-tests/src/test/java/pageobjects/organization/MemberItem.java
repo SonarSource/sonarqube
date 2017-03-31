@@ -20,12 +20,12 @@
 
 package pageobjects.organization;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 
 import static com.codeborne.selenide.Selenide.$;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class MemberItem {
   private final SelenideElement elt;
@@ -44,18 +44,18 @@ public class MemberItem {
   public MemberItem shouldHaveGroups(Integer groups) {
     ElementsCollection tds = this.elt.$$("td");
     tds.get(2).should(Condition.exist);
-    assertThat(tds.get(2).text()).contains(groups.toString());
+    tds.get(2).shouldHave(Condition.text(groups.toString()));
     return this;
   }
 
   public MemberItem shouldNotHaveActions() {
-    assertThat(this.elt.$$("td").size()).isLessThan(3);
+    this.elt.$$("td").shouldHave(CollectionCondition.sizeLessThan(3));
     return this;
   }
 
   public MemberItem removeMembership() {
     ElementsCollection tds = this.elt.$$("td");
-    assertThat(tds.size()).isGreaterThan(3);
+    tds.shouldHave(CollectionCondition.sizeGreaterThan(3));
     SelenideElement actionTd = tds.get(3);
     actionTd.$("button").should(Condition.exist).click();
     actionTd.$$(".dropdown-menu > li").get(2).shouldBe(Condition.visible).click();
@@ -66,7 +66,7 @@ public class MemberItem {
 
   public MemberItem manageGroupsOpen() {
     ElementsCollection tds = this.elt.$$("td");
-    assertThat(tds.size()).isGreaterThan(3);
+    tds.shouldHave(CollectionCondition.sizeGreaterThan(3));
     SelenideElement actionTd = tds.get(3);
     actionTd.$("button").should(Condition.exist).click();
     actionTd.$$(".dropdown-menu > li").get(0).shouldBe(Condition.visible).click();
