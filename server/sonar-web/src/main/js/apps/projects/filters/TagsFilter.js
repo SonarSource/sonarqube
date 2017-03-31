@@ -19,7 +19,7 @@
  */
 //@flow
 import React from 'react';
-import { debounce, difference, sortBy } from 'lodash';
+import { debounce, difference, sortBy, size } from 'lodash';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
@@ -42,7 +42,7 @@ type State = {
   tags: Array<string>
 };
 
-const PAGE_SIZE = 20;
+const LIST_SIZE = 10;
 
 export default class TagsFilter extends React.PureComponent {
   getSearchOptions: () => [{ label: string, value: string }];
@@ -66,14 +66,14 @@ export default class TagsFilter extends React.PureComponent {
     if (facet) {
       tagsCopy = difference(tagsCopy, Object.keys(facet));
     }
-    return tagsCopy.map(tag => ({ label: tag, value: tag }));
+    return tagsCopy.slice(0, LIST_SIZE).map(tag => ({ label: tag, value: tag }));
   }
 
   handleSearch = (search?: string) => {
     if (search !== this.state.search) {
       search = search || '';
       this.setState({ search, isLoading: true });
-      searchProjectTags({ q: search, ps: PAGE_SIZE }).then(result => {
+      searchProjectTags({ q: search, ps: size(this.props.facet || {}) + LIST_SIZE }).then(result => {
         this.setState({ isLoading: false, tags: result.tags });
       });
     }

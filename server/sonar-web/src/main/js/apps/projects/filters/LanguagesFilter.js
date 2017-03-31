@@ -37,16 +37,15 @@ type Props = {
   maxFacetValue?: number
 };
 
+const LIST_SIZE = 10;
+
 export default class LanguagesFilter extends React.PureComponent {
   getSearchOptions: () => [{ label: string, value: string }];
   props: Props;
   property = 'languages';
 
   renderOption = (option: string) => (
-    <SearchableFilterOption
-      optionKey={option}
-      option={getLanguageByKey(this.props.languages, option)}
-    />
+    <SearchableFilterOption optionKey={option} option={getLanguageByKey(this.props.languages, option)} />
   );
 
   getSearchOptions(facet: {}, languages: {}) {
@@ -54,7 +53,7 @@ export default class LanguagesFilter extends React.PureComponent {
     if (facet) {
       languageKeys = difference(languageKeys, Object.keys(facet));
     }
-    return languageKeys.map(key => ({ label: languages[key].name, value: key }));
+    return languageKeys.slice(0, LIST_SIZE).map(key => ({ label: languages[key].name, value: key }));
   }
 
   getSortedOptions(facet: {} = {}) {
