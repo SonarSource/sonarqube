@@ -79,5 +79,6 @@ public class DeactivateRuleAction implements QProfileWsAction {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(qualityProfileKey, ruleKey);
       ruleActivator.deactivateAndUpdateIndex(dbSession, activeRuleKey);
     }
+    response.noContent();
   }
 }

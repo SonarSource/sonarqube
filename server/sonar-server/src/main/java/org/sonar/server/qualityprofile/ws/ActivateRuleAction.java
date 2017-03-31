@@ -110,6 +110,7 @@ public class ActivateRuleAction implements QProfileWsAction {
       dbSession.commit();
       activeRuleIndexer.index(changes);
     }
+    response.noContent();
   }
 
   private static RuleKey readRuleKey(Request request) {
