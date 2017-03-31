@@ -52,13 +52,12 @@ export default class SimpleBubbleChart extends React.PureComponent {
   }
 
   getTooltip(project: Project, x: ?number, y: ?number, size: ?number, color?: number) {
-    /* eslint-disable max-len */
     const fullProjectName = this.props.displayOrganizations && project.organization
-      ? `<div class="little-spacer-bottom">${project.organization.name} / <strong>${project.name}</strong></div>`
-      : `<div class="little-spacer-bottom"><strong>${project.name}</strong></div>`;
+      ? `${project.organization.name} / <strong>${project.name}</strong>`
+      : `<strong>${project.name}</strong>`;
 
     const inner = [
-      fullProjectName,
+      `<div class="little-spacer-bottom">${fullProjectName}</div>`,
       this.getMetricTooltip(this.props.xMetric, x),
       this.getMetricTooltip(this.props.yMetric, y),
       this.getMetricTooltip(this.props.sizeMetric, size)
