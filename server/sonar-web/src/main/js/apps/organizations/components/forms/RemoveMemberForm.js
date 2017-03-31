@@ -69,13 +69,21 @@ export default class RemoveMemberForm extends React.PureComponent {
           <h2>{translate('users.remove')}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
-            {translateWithParameters(
-              'organization.members.remove_x',
-              this.props.member.name,
-              this.props.organization.name
-            )}
-            <ul className="list-styled">
+          <div className="modal-body markdown">
+            <p>
+              {translateWithParameters(
+                'organization.members.remove_x',
+                this.props.member.name,
+                this.props.organization.name
+              )}
+            </p>
+            <p>
+              {translateWithParameters(
+                'organization.members.remove_warning_x',
+                this.props.member.name
+              )}
+            </p>
+            <ul>
               <li>{translate('organization.members.browse_projects')}</li>
               <li>{translate('projects_role.codeviewer')}</li>
               <li>{translate('projects_role.issueadmin')}</li>
