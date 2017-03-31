@@ -47,7 +47,7 @@ public class IssueWsModule extends Module {
       IssueService.class,
       IssueQueryFactory.class,
       IssuesWs.class,
-      AvatarFactoryImpl.class,
+      AvatarResolverImpl.class,
       SearchResponseLoader.class,
       SearchResponseFormat.class,
       OperationResponseWriter.class,

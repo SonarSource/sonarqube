@@ -58,9 +58,9 @@ public class ChangelogAction implements IssuesWsAction {
 
   private final DbClient dbClient;
   private final IssueFinder issueFinder;
-  private final AvatarFactory avatarFactory;
+  private final AvatarResolver avatarFactory;
 
-  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, AvatarFactory avatarFactory) {
+  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, AvatarResolver avatarFactory) {
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
     this.avatarFactory = avatarFactory;
@@ -118,7 +118,7 @@ public class ChangelogAction implements IssuesWsAction {
       if (user != null) {
         changelogBuilder.setUser(user.getLogin());
         changelogBuilder.setUserName(user.getName());
-        setNullable(emptyToNull(user.getEmail()), email -> changelogBuilder.setAvatar(avatarFactory.create(email)));
+        setNullable(emptyToNull(user.getEmail()), email -> changelogBuilder.setAvatar(avatarFactory.create(user)));
       }
       change.diffs().entrySet().stream()
         .map(toWsDiff(results))

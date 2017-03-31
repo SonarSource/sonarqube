@@ -20,11 +20,12 @@
 
 package org.sonar.server.issue.ws;
 
-public interface AvatarFactory {
+import org.sonar.db.user.UserDto;
+
+public interface AvatarResolver {
 
   /**
-   * Creates an avatar hash to load a user's avatar (ex: Gravatar identified by an email hash)
+   * Creates an avatar ID to load a user's avatar (ex: Gravatar identified by an email hash)
    */
-  String create(String email);
+  String create(UserDto user);
 }
-

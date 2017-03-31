@@ -69,9 +69,9 @@ public class SearchResponseFormat {
   private final Durations durations;
   private final WsResponseCommonFormat commonFormat;
   private final Languages languages;
-  private final AvatarFactory avatarFactory;
+  private final AvatarResolver avatarFactory;
 
-  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages, AvatarFactory avatarFactory) {
+  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages, AvatarResolver avatarFactory) {
     this.durations = durations;
     this.commonFormat = commonFormat;
     this.languages = languages;
@@ -351,7 +351,7 @@ public class SearchResponseFormat {
       .setLogin(user.getLogin())
       .setName(nullToEmpty(user.getName()))
       .setActive(user.isActive());
-    setNullable(user.getEmail(), email -> builder.setAvatar(avatarFactory.create(email)));
+    setNullable(user.getEmail(), email -> builder.setAvatar(avatarFactory.create(user)));
     return builder;
   }
 

@@ -21,16 +21,18 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.hash.Hashing;
+import org.sonar.db.user.UserDto;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
-public class AvatarFactoryImpl implements AvatarFactory {
+public class AvatarResolverImpl implements AvatarResolver {
 
   @Override
-  public String create(String email) {
-    return hash(requireNonNull(email, "Email cannot be null"));
+  public String create(UserDto user) {
+    UserDto userDto = requireNonNull(user, "User cannot be null");
+    return hash(requireNonNull(userDto.getEmail(), "Email cannot be null"));
   }
 
   private static String hash(String text) {

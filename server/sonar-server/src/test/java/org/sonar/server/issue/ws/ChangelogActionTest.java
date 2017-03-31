@@ -46,8 +46,6 @@ import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -68,9 +66,7 @@ public class ChangelogActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private AvatarFactory avatarFactory = mock(AvatarFactory.class);
-
-  private WsActionTester tester = new WsActionTester(new ChangelogAction(db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), avatarFactory));
+  private WsActionTester tester = new WsActionTester(new ChangelogAction(db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new AvatarResolverImpl()));
 
   @Test
   public void return_changelog() throws Exception {
@@ -78,14 +74,13 @@ public class ChangelogActionTest {
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER"));
-    mockAvatar(user.getEmail(), "avatar");
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).getUser()).isNotNull().isEqualTo(user.getLogin());
     assertThat(result.getChangelogList().get(0).getUserName()).isNotNull().isEqualTo(user.getName());
-    assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo("avatar");
+    assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo("93942e96f5acd83e2e047ad8fe03114d");
     assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
     assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue).containsOnly(tuple("severity", "MAJOR", "BLOCKER"));
   }
@@ -262,7 +257,6 @@ public class ChangelogActionTest {
       .setUserLogin(user.getLogin())
       .setDiff("severity", "MAJOR", "BLOCKER")
       .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+0100")));
-    mockAvatar(user.getEmail(), "avatar");
 
     String result = tester.newRequest().setParam("issue", issueDto.getKey()).execute().getInput();
 
@@ -298,13 +292,7 @@ public class ChangelogActionTest {
   }
 
   private UserDto insertUser() {
-    UserDto user = db.users().insertUser();
-    mockAvatar(user.getEmail(), "avatar");
-    return user;
-  }
-
-  private void mockAvatar(String email, String avatar) {
-    when(avatarFactory.create(email)).thenReturn(avatar);
+    return db.users().insertUser(user -> user.setEmail("test@email.com"));
   }
 
 }

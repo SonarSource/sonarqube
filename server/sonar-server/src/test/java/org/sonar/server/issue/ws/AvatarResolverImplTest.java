@@ -25,24 +25,33 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
-public class AvatarFactoryImplTest {
+public class AvatarResolverImplTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AvatarFactoryImpl underTest = new AvatarFactoryImpl();
+  private AvatarResolverImpl underTest = new AvatarResolverImpl();
 
   @Test
   public void create() throws Exception {
-    String avatar = underTest.create("john@doo.com");
+    String avatar = underTest.create(newUserDto("john", "John", "john@doo.com"));
 
     assertThat(avatar).isEqualTo("9297bfb538f650da6143b604e82a355d");
   }
 
   @Test
   public void create_is_case_insensitive() throws Exception {
-    assertThat(underTest.create("john@doo.com")).isEqualTo(underTest.create("John@Doo.com"));
+    assertThat(underTest.create(newUserDto("john", "John", "john@doo.com"))).isEqualTo(underTest.create(newUserDto("john", "John", "John@Doo.com")));
+  }
+
+  @Test
+  public void fail_with_NP_when_user_is_null() throws Exception {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("User cannot be null");
+
+    underTest.create(null);
   }
 
   @Test
@@ -50,6 +59,6 @@ public class AvatarFactoryImplTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Email cannot be null");
 
-    underTest.create(null);
+    underTest.create(newUserDto("john", "John", null));
   }
 }
