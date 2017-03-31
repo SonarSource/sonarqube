@@ -22,6 +22,7 @@ package org.sonar.ce.queue;
 import java.io.IOException;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
+import org.sonar.ce.cleaning.CeCleaningScheduler;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 
 import static org.mockito.Mockito.mock;
@@ -32,26 +33,26 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class CeQueueInitializerTest {
 
   private Server server = mock(Server.class);
-  private CeProcessingScheduler scheduler = mock(CeProcessingScheduler.class);
-  private CeQueueInitializer underTest = new CeQueueInitializer(scheduler);
+  private CeProcessingScheduler processingScheduler = mock(CeProcessingScheduler.class);
+  private CeCleaningScheduler cleaningScheduler = mock(CeCleaningScheduler.class);
+  private CeQueueInitializer underTest = new CeQueueInitializer(processingScheduler, cleaningScheduler);
 
   @Test
   public void clean_queue_then_start_scheduler_of_workers() throws IOException {
     underTest.onServerStart(server);
 
-    verify(scheduler).startScheduling();
+    verify(processingScheduler).startScheduling();
+    verify(cleaningScheduler).startScheduling();
   }
 
   @Test
   public void onServerStart_has_no_effect_if_called_twice_to_support_medium_test_doing_startup_tasks_multiple_times() {
+    underTest.onServerStart(server);
+    reset(processingScheduler, cleaningScheduler);
 
     underTest.onServerStart(server);
 
-    reset(scheduler);
-
-    underTest.onServerStart(server);
-
-    verifyZeroInteractions(scheduler);
+    verifyZeroInteractions(processingScheduler, cleaningScheduler);
 
   }
 }

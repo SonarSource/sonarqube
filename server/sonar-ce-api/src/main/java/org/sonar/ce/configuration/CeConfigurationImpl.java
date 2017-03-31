@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.configuration;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
@@ -38,11 +37,13 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   private static final Logger LOG = Loggers.get(CeConfigurationImpl.class);
 
-  @VisibleForTesting
-  protected static final int DEFAULT_WORKER_COUNT = 1;
+  private static final int DEFAULT_WORKER_COUNT = 1;
   // 2 seconds
-  @VisibleForTesting
-  protected static final long DEFAULT_QUEUE_POLLING_DELAY = 2 * 1000L;
+  private static final long DEFAULT_QUEUE_POLLING_DELAY = 2 * 1000L;
+  // 1 minute
+  private static final long CANCEL_WORN_OUTS_INITIAL_DELAY = 1;
+  // 10 minutes
+  private static final long CANCEL_WORN_OUTS_DELAY = 10;
 
   private final int workerCount;
 
@@ -95,5 +96,15 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   @Override
   public long getQueuePollingDelay() {
     return DEFAULT_QUEUE_POLLING_DELAY;
+  }
+
+  @Override
+  public long getCancelWornOutsInitialDelay() {
+    return CANCEL_WORN_OUTS_INITIAL_DELAY;
+  }
+
+  @Override
+  public long getCancelWornOutsDelay() {
+    return CANCEL_WORN_OUTS_DELAY;
   }
 }

@@ -134,6 +134,16 @@ public class CeTasksMBeanImplTest {
     public long getQueuePollingDelay() {
       throw new UnsupportedOperationException("getQueuePollingDelay is not implemented");
     }
+
+    @Override
+    public long getCancelWornOutsInitialDelay() {
+      throw new UnsupportedOperationException("getCancelWornOutsInitialDelay is not implemented");
+    }
+
+    @Override
+    public long getCancelWornOutsDelay() {
+      throw new UnsupportedOperationException("getCancelWornOutsDelay is not implemented");
+    }
   }
 
   @CheckForNull

@@ -43,6 +43,7 @@ import org.sonar.ce.CeConfigurationModule;
 import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
+import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
@@ -391,6 +392,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       InternalPropertiesImpl.class,
       ProjectSettingsFactory.class,
+
+      // cleaning
+      CeCleaningModule.class
     };
   }
 
