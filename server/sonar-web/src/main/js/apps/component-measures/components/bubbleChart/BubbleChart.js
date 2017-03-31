@@ -106,6 +106,7 @@ export default class BubbleChart extends React.Component {
   }
 
   getTooltip(component) {
+    /* eslint-disable max-len */
     const inner = [
       component.name,
       `${this.xMetric.name}: ${formatMeasure(getMeasure(component, this.xMetric.key), this.xMetric.type)}`,

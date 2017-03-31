@@ -107,15 +107,17 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
         contentLabel="modal form"
         className="modal"
         overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}
-      >
+        onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('organization.members.manage_groups')}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
             <strong>
-              {translateWithParameters('organization.members.members_groups', this.props.member.name)}
+              {translateWithParameters(
+                'organization.members.members_groups',
+                this.props.member.name
+              )}
             </strong>{' '}{this.state.loading && <i className="spinner" />}
             {!this.state.loading &&
               <ul className="list-spaced">

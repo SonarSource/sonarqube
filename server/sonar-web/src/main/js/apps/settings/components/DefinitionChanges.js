@@ -53,8 +53,7 @@ export default class DefinitionChanges extends React.Component {
 
         <button
           className="js-cancel-changes big-spacer-left button-link"
-          onClick={e => this.handleCancelChange(e)}
-        >
+          onClick={e => this.handleCancelChange(e)}>
           {translate('cancel')}
         </button>
       </div>

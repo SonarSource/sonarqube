@@ -67,8 +67,7 @@ export default class MetaLink extends React.Component {
           className="link-with-icon"
           href={link.url}
           target="_blank"
-          onClick={!isClickable(link) && this.handleClick}
-        >
+          onClick={!isClickable(link) && this.handleClick}>
           {this.renderLinkIcon(link)}
           &nbsp;
           {link.name}

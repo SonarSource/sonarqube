@@ -84,8 +84,7 @@ export default class RemoveEventForm extends React.Component {
         contentLabel="modal form"
         className="modal"
         overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}
-      >
+        onRequestClose={this.closeForm}>
 
         <header className="modal-head">
           <h2>{translate(this.props.removeEventButtonText)}</h2>

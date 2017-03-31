@@ -92,8 +92,7 @@ export default class MeasureDetails extends React.Component {
           <IndexLink
             to={{ pathname: '/component_measures', query: { id: component.key } }}
             id="component-measures-back-to-all-measures"
-            className="text-muted"
-          >
+            className="text-muted">
             {translate('component_measures.all_measures')}
           </IndexLink>
           {!!metric.domain &&
@@ -104,8 +103,7 @@ export default class MeasureDetails extends React.Component {
                   pathname: `/component_measures/domain/${metric.domain}`,
                   query: { id: component.key }
                 }}
-                className="text-muted"
-              >
+                className="text-muted">
                 {translateWithParameters('component_measures.domain_measures', metric.domain)}
               </Link>
             </span>}
@@ -124,8 +122,7 @@ export default class MeasureDetails extends React.Component {
             metric={metric}
             tab={tab}
             leakPeriod={period}
-            leakPeriodDate={periodDate}
-          >
+            leakPeriodDate={periodDate}>
             {children}
           </MeasureDrilldown>}
       </section>

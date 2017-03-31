@@ -84,8 +84,7 @@ export default class Search extends React.PureComponent {
               tabIndex="0"
               role="checkbox"
               aria-checked={showInternal ? 'true' : 'false'}
-              onClick={onToggleInternal}
-            >
+              onClick={onToggleInternal}>
               Show Internal API
             </span>
             <i
@@ -106,8 +105,7 @@ export default class Search extends React.PureComponent {
               tabIndex="0"
               role="checkbox"
               aria-checked={showDeprecated ? 'true' : 'false'}
-              onClick={onToggleDeprecated}
-            >
+              onClick={onToggleDeprecated}>
               Show Deprecated API
             </span>
             <i

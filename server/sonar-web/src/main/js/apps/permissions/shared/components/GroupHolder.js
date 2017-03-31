@@ -46,8 +46,7 @@ export default class GroupHolder extends React.Component {
       <td
         key={p.key}
         className="text-center text-middle"
-        style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}
-      >
+        style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
         <button className="button-clean" onClick={this.handleClick.bind(this, p.key)}>
           {this.props.permissions.includes(p.key)
             ? <i className="icon-checkbox icon-checkbox-checked" />

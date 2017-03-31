@@ -83,8 +83,7 @@ class Duplications extends React.Component {
           <DrilldownLink
             component={component.key}
             metric={newDuplicationsMeasure.metric.key}
-            period={leakPeriod.index}
-          >
+            period={leakPeriod.index}>
             <span className="js-overview-main-new-duplications">
               {formatMeasure(newDuplicationsValue, 'PERCENT')}
             </span>
@@ -99,8 +98,7 @@ class Duplications extends React.Component {
             className="spacer-right overview-domain-secondary-measure-value"
             component={component.key}
             metric={newLinesMeasure.metric.key}
-            period={leakPeriod.index}
-          >
+            period={leakPeriod.index}>
             <span className="js-overview-main-new-lines">
               {formatMeasure(newLinesValue, 'SHORT_INT')}
             </span>

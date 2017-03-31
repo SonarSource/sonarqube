@@ -26,31 +26,20 @@ const admin = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 
 const john = { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af' };
 
 it('should not render actions and groups for non admin', () => {
-  const wrapper = shallow(
-    <MembersListItem
-      organization={organization}
-      member={admin}
-    />
-  );
+  const wrapper = shallow(<MembersListItem organization={organization} member={admin} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render actions and groups for admin', () => {
   const wrapper = shallow(
-    <MembersListItem
-      organization={{ ...organization, canAdmin: true }}
-      member={admin}
-    />
+    <MembersListItem organization={{ ...organization, canAdmin: true }} member={admin} />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should groups at 0 if the groupCount field is not defined (just added user)', () => {
   const wrapper = shallow(
-    <MembersListItem
-      organization={{ ...organization, canAdmin: true }}
-      member={john}
-    />
+    <MembersListItem organization={{ ...organization, canAdmin: true }} member={john} />
   );
   expect(wrapper).toMatchSnapshot();
 });

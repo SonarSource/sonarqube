@@ -22,9 +22,7 @@ import { shallow } from 'enzyme';
 import MembersPageHeader from '../MembersPageHeader';
 
 it('should render the members page header', () => {
-  const wrapper = shallow(
-    <MembersPageHeader />
-  );
+  const wrapper = shallow(<MembersPageHeader />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ loading: true });
   expect(wrapper.find('.spinner')).toMatchSnapshot();

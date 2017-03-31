@@ -36,7 +36,7 @@ export default class UsersSearch extends React.PureComponent {
   props: Props;
   state: State = {
     query: ''
-  }
+  };
 
   constructor(props: Props) {
     super(props);
@@ -45,7 +45,7 @@ export default class UsersSearch extends React.PureComponent {
 
   handleSearch = (query: string) => {
     this.props.onSearch(query);
-  }
+  };
 
   handleInputChange = ({ target }: { target: HTMLInputElement }) => {
     this.setState({ query: target.value });
@@ -61,22 +61,22 @@ export default class UsersSearch extends React.PureComponent {
       touched: query != null && query.length === 1
     });
     return (
-        <div className={searchBoxClass}>
-          <button className="search-box-submit button-clean">
-            <i className="icon-search" />
-          </button>
-          <input
-            type="search"
-            value={query}
-            className={inputClassName}
-            placeholder={translate('search_verb')}
-            onChange={this.handleInputChange}
-            autoComplete="off"
-          />
-          <span className="note spacer-left text-middle">
-            {translateWithParameters('select2.tooShort', 2)}
-          </span>
-        </div>
+      <div className={searchBoxClass}>
+        <button className="search-box-submit button-clean">
+          <i className="icon-search" />
+        </button>
+        <input
+          type="search"
+          value={query}
+          className={inputClassName}
+          placeholder={translate('search_verb')}
+          onChange={this.handleInputChange}
+          autoComplete="off"
+        />
+        <span className="note spacer-left text-middle">
+          {translateWithParameters('select2.tooShort', 2)}
+        </span>
+      </div>
     );
   }
 }

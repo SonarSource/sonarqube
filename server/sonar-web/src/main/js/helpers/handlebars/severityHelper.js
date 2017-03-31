@@ -21,6 +21,7 @@ import Handlebars from 'handlebars/runtime';
 import { translate } from '../../helpers/l10n';
 
 module.exports = function(severity) {
+  /* eslint-disable max-len */
   return new Handlebars.default.SafeString(
     `<i class="icon-severity-${severity.toLowerCase()}"></i>&nbsp;${translate('severity', severity)}`
   );

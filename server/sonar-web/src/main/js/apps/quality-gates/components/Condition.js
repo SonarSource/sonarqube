@@ -268,14 +268,12 @@ export default class Condition extends Component {
                   <button
                     className="update-condition"
                     disabled={!this.state.changed}
-                    onClick={this.handleUpdateClick.bind(this)}
-                  >
+                    onClick={this.handleUpdateClick.bind(this)}>
                     {translate('update_verb')}
                   </button>
                   <button
                     className="button-red delete-condition"
-                    onClick={this.handleDeleteClick.bind(this)}
-                  >
+                    onClick={this.handleDeleteClick.bind(this)}>
                     {translate('delete')}
                   </button>
                 </div>
@@ -286,8 +284,7 @@ export default class Condition extends Component {
                   <a
                     className="action cancel-add-condition"
                     href="#"
-                    onClick={this.handleCancelClick.bind(this)}
-                  >
+                    onClick={this.handleCancelClick.bind(this)}>
                     {translate('cancel')}
                   </a>
                 </div>}

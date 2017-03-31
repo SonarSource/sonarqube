@@ -101,8 +101,7 @@ export default class QualityGateConditions extends React.Component {
     return (
       <div
         id="overview-quality-gate-conditions-list"
-        className="overview-quality-gate-conditions-list clearfix"
-      >
+        className="overview-quality-gate-conditions-list clearfix">
         {sortedConditions.map(condition => (
           <QualityGateCondition
             key={condition.measure.metric.key}

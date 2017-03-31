@@ -71,16 +71,14 @@ export default class OrganizationNavigation extends React.Component {
           <li>
             <Link
               to={`/organizations/${organization.key}/permission_templates`}
-              activeClassName="active"
-            >
+              activeClassName="active">
               {translate('permission_templates')}
             </Link>
           </li>
           <li>
             <Link
               to={`/organizations/${organization.key}/projects_management`}
-              activeClassName="active"
-            >
+              activeClassName="active">
               {translate('projects_management')}
             </Link>
           </li>
@@ -136,8 +134,7 @@ export default class OrganizationNavigation extends React.Component {
                       className="link-underline"
                       href={organization.url}
                       title={organization.url}
-                      rel="nofollow"
-                    >
+                      rel="nofollow">
                       {organization.url}
                     </a>
                   </p>
@@ -148,8 +145,7 @@ export default class OrganizationNavigation extends React.Component {
               <li>
                 <Link
                   to={`/organizations/${organization.key}/projects`}
-                  className={isHomeActive ? 'active' : ''}
-                >
+                  className={isHomeActive ? 'active' : ''}>
                   {translate('projects.page')}
                 </Link>
               </li>

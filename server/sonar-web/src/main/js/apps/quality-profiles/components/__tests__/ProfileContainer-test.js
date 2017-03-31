@@ -34,8 +34,7 @@ it('should render ProfileHeader', () => {
       location={{ query: { key: 'profile1' } }}
       profiles={profiles}
       canAdmin={false}
-      updateProfiles={updateProfiles}
-    >
+      updateProfiles={updateProfiles}>
       <div />
     </ProfileContainer>
   );
@@ -53,8 +52,7 @@ it('should render ProfileNotFound', () => {
       location={{ query: { key: 'random' } }}
       profiles={profiles}
       canAdmin={false}
-      updateProfiles={() => true}
-    >
+      updateProfiles={() => true}>
       <div />
     </ProfileContainer>
   );
@@ -69,8 +67,7 @@ it('should render Helmet', () => {
       location={{ query: { key: 'profile1' } }}
       profiles={profiles}
       canAdmin={false}
-      updateProfiles={updateProfiles}
-    >
+      updateProfiles={updateProfiles}>
       <div />
     </ProfileContainer>
   );

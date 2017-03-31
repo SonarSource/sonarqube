@@ -168,6 +168,7 @@ const Timeline = React.createClass({
       .map(event => {
         const key = `${event.date.getTime()}-${event.snapshot.y}`;
         const className = `line-chart-point js-event-circle-${event.date.getTime()}`;
+        /* eslint-disable max-len */
         const tooltip = [
           `<span class="nowrap">${event.version}</span>`,
           `<span class="nowrap">${moment(event.date).format('LL')}</span>`,

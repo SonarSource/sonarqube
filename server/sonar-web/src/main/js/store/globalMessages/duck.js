@@ -85,7 +85,8 @@ const globalMessages = (state: State = [], action: Action = {}) => {
       return [
         {
           id: uniqueId('global-message-'),
-          message: 'You are not authorized to access this page. Please log in with more privileges and try again.',
+          message: 'You are not authorized to access this page. ' +
+            'Please log in with more privileges and try again.',
           level: ERROR
         }
       ];

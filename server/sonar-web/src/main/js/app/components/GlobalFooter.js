@@ -36,8 +36,11 @@ class GlobalFooter extends React.Component {
               Embedded database should be used for evaluation purpose only
             </p>
             <p>
-              The embedded database will not scale, it will not support upgrading to newer versions of SonarQube,
-              and there is no support for migrating your data out of it into a different database engine.
+              The embedded database will not scale, it will not support upgrading to newer
+              {' '}
+              versions of SonarQube, and there is no support for migrating your data out of it
+              {' '}
+              into a different database engine.
             </p>
           </div>}
 

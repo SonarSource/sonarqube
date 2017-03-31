@@ -40,8 +40,7 @@ export default class ProfilesListHeader extends React.Component {
       <a
         className="dropdown-toggle link-no-underline js-language-filter"
         href="#"
-        data-toggle="dropdown"
-      >
+        data-toggle="dropdown">
         {label} <i className="icon-dropdown" />
       </a>
     );
@@ -60,8 +59,7 @@ export default class ProfilesListHeader extends React.Component {
             <IndexLink
               to={{ pathname: '/profiles/', query: { language: language.key } }}
               className="js-language-filter-option"
-              data-language={language.key}
-            >
+              data-language={language.key}>
               {language.name}
             </IndexLink>
           </li>

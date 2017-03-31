@@ -62,6 +62,7 @@ export default class QualityModel extends React.PureComponent {
     color1: number,
     color2: number
   ) {
+    /* eslint-disable max-len */
     const fullProjectName = this.props.displayOrganizations && project.organization
       ? `<div class="little-spacer-bottom">${project.organization.name} / <strong>${project.name}</strong></div>`
       : `<div class="little-spacer-bottom"><strong>${project.name}</strong></div>`;

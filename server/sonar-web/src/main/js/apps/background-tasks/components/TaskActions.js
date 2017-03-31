@@ -90,8 +90,7 @@ export default class TaskActions extends React.Component {
                 <a
                   className="js-task-show-scanner-context"
                   href="#"
-                  onClick={this.handleShowScannerContextClick.bind(this)}
-                >
+                  onClick={this.handleShowScannerContextClick.bind(this)}>
                   <i className="spacer-right icon-list icon-gray" />
                   {translate('background_tasks.show_scanner_context')}
                 </a>
@@ -101,8 +100,7 @@ export default class TaskActions extends React.Component {
                 <a
                   className="js-task-show-stacktrace"
                   href="#"
-                  onClick={this.handleShowStacktraceClick.bind(this)}
-                >
+                  onClick={this.handleShowStacktraceClick.bind(this)}>
                   <i className="spacer-right icon-list icon-red" />
                   {translate('background_tasks.show_stacktrace')}
                 </a>

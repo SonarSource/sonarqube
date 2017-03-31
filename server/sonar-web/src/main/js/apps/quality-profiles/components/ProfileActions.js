@@ -110,8 +110,7 @@ export default class ProfileActions extends React.Component {
         <li>
           <Link
             to={{ pathname: '/profiles/compare', query: { key: profile.key } }}
-            id="quality-profile-compare"
-          >
+            id="quality-profile-compare">
             {translate('compare')}
           </Link>
         </li>
@@ -133,8 +132,7 @@ export default class ProfileActions extends React.Component {
             <a
               id="quality-profile-set-as-default"
               href="#"
-              onClick={this.handleSetDefaultClick.bind(this)}
-            >
+              onClick={this.handleSetDefaultClick.bind(this)}>
               {translate('set_as_default')}
             </a>
           </li>}

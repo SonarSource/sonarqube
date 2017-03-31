@@ -72,8 +72,7 @@ export default class Projects extends React.Component {
         <td className="nowrap">
           <Link
             to={{ pathname: '/dashboard', query: { id: project.key } }}
-            className="link-with-icon"
-          >
+            className="link-with-icon">
             <QualifierIcon qualifier={project.qualifier} />
             {' '}
             <span>{project.name}</span>

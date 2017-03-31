@@ -148,8 +148,7 @@ export default class LineCode extends React.PureComponent {
         className={className}
         title={location.msg}
         onClick={e =>
-          this.handleLocationMessageClick(e, location.flowIndex, location.locationIndex)}
-      >
+          this.handleLocationMessageClick(e, location.flowIndex, location.locationIndex)}>
         {location.index && <strong>{location.index}: </strong>}
         {location.msg ? limitString(location.msg) : ''}
       </a>

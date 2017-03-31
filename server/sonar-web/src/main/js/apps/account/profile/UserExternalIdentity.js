@@ -78,8 +78,7 @@ export default class UserExternalIdentity extends React.Component {
     return (
       <div
         className="identity-provider"
-        style={{ backgroundColor: identityProvider.backgroundColor }}
-      >
+        style={{ backgroundColor: identityProvider.backgroundColor }}>
         <img
           src={window.baseUrl + identityProvider.iconPath}
           width="14"

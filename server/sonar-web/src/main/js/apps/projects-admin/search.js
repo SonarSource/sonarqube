@@ -149,8 +149,7 @@ export default React.createClass({
                 <button
                   onClick={this.deleteProjects}
                   className="button-red"
-                  disabled={!isSomethingSelected}
-                >
+                  disabled={!isSomethingSelected}>
                   Delete
                 </button>
               </td>

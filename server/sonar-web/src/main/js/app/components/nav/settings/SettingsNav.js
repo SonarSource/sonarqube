@@ -87,8 +87,7 @@ class SettingsNav extends React.Component {
                   className="dropdown-toggle"
                   data-toggle="dropdown"
                   id="settings-navigation-configuration"
-                  href="#"
-                >
+                  href="#">
                   {translate('sidebar.project_settings')} <i className="icon-dropdown" />
                 </a>
                 <ul className="dropdown-menu">

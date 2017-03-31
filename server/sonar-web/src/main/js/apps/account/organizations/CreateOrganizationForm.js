@@ -122,8 +122,7 @@ class CreateOrganizationForm extends React.Component {
         contentLabel="modal form"
         className="modal"
         overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}
-      >
+        onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('my_account.create_organization')}</h2>
         </header>

@@ -30,7 +30,8 @@ export default Popup.extend({
   getPermalink(e) {
     e.preventDefault();
     const { component, line } = this.options;
-    const url = `${window.baseUrl}/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;
+    const url = window.baseUrl +
+      `/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;
     const windowParams = 'resizable=1,scrollbars=1,status=1';
     window.open(url, component.name, windowParams);
   }

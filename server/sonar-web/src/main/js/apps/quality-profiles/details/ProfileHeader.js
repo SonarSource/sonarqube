@@ -92,8 +92,7 @@ export default class ProfileHeader extends React.Component {
           {' / '}
           <Link
             to={{ pathname: '/profiles/', query: { language: profile.language } }}
-            className="text-muted"
-          >
+            className="text-muted">
             {profile.languageName}
           </Link>
         </div>
@@ -111,8 +110,7 @@ export default class ProfileHeader extends React.Component {
             <li>
               <Link
                 to={{ pathname: '/profiles/changelog', query: { key: profile.key } }}
-                className="button"
-              >
+                className="button">
                 {translate('changelog')}
               </Link>
             </li>

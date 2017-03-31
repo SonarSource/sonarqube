@@ -209,8 +209,7 @@ class Template extends React.Component {
           groups={store.groups}
           onSelectPermission={this.handleSelectPermission}
           onToggleUser={this.handleToggleUser}
-          onToggleGroup={this.handleToggleGroup}
-        >
+          onToggleGroup={this.handleToggleGroup}>
 
           <SearchForm
             query={store.query}

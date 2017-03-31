@@ -60,8 +60,7 @@ export default class Menu extends React.PureComponent {
                 className={classNames('list-group-item', {
                   active: isDomainPathActive(domain.path, splat)
                 })}
-                to={'/web_api/' + domain.path}
-              >
+                to={'/web_api/' + domain.path}>
                 <h3 className="list-group-item-heading">
                   {domain.path}
                   {domain.deprecated && <DeprecatedBadge />}
