@@ -26,9 +26,7 @@ const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
 const fakeRouter = { push: () => {} };
 
 it('should render the tags without the ones in the facet', () => {
-  const wrapper = shallow(
-    <TagsFilter query={{ tags: null }} router={fakeRouter} facet={tagsFacet} />
-  );
+  const wrapper = shallow(<TagsFilter query={{ tags: null }} router={fakeRouter} facet={tagsFacet} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ tags });
   expect(wrapper).toMatchSnapshot();
@@ -46,4 +44,18 @@ it('should render the tags facet with the selected tags', () => {
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
+});
+
+it('should render maximum 10 tags in the searchbox results', () => {
+  const wrapper = shallow(
+    <TagsFilter
+      query={{ languages: ['java', 'ad'] }}
+      value={['java', 'ad']}
+      router={fakeRouter}
+      facet={{ ...tagsFacet, ad: 1 }}
+      isFavorite={true}
+    />
+  );
+  wrapper.setState({ tags: [...tags, 'aa', 'ab', 'ac', 'ad', 'ae', 'af', 'ag', 'ah', 'ai'] });
+  expect(wrapper).toMatchSnapshot();
 });
