@@ -22,6 +22,9 @@ package org.sonar.server.issue.ws;
 
 public interface AvatarFactory {
 
+  /**
+   * Creates an avatar hash to load a user's avatar (ex: Gravatar identified by an email hash)
+   */
   String create(String email);
 }
 
