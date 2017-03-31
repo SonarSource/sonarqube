@@ -27,8 +27,10 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Mutable implementation of {@link CeConfiguration} as {@link org.junit.Rule}.
  */
 public class CeConfigurationRule extends ExternalResource implements CeConfiguration {
-  private int workerCount = CeConfigurationImpl.DEFAULT_WORKER_COUNT;
-  private long queuePollingDelay = CeConfigurationImpl.DEFAULT_QUEUE_POLLING_DELAY;
+  private int workerCount = 1;
+  private long queuePollingDelay = 2 * 1000L;
+  private long cancelWornOutsInitialDelay = 1L;
+  private long cancelWornOutsDelay = 10L;
 
   @Override
   public int getWorkerCount() {
@@ -49,5 +51,25 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   public void setQueuePollingDelay(int queuePollingDelay) {
     checkArgument(queuePollingDelay > 0, "Queue polling delay must be >= 0");
     this.queuePollingDelay = queuePollingDelay;
+  }
+
+  @Override
+  public long getCancelWornOutsInitialDelay() {
+    return cancelWornOutsInitialDelay;
+  }
+
+  public void setCancelWornOutsInitialDelay(long cancelWornOutsInitialDelay) {
+    checkArgument(cancelWornOutsInitialDelay > 0, "cancel worn-outs polling initial delay must be >= 1");
+    this.cancelWornOutsInitialDelay = cancelWornOutsInitialDelay;
+  }
+
+  @Override
+  public long getCancelWornOutsDelay() {
+    return cancelWornOutsDelay;
+  }
+
+  public void setCancelWornOutsDelay(long cancelWornOutsDelay) {
+    checkArgument(cancelWornOutsDelay > 0, "cancel worn-outs polling delay must be >= 1");
+    this.cancelWornOutsDelay = cancelWornOutsDelay;
   }
 }

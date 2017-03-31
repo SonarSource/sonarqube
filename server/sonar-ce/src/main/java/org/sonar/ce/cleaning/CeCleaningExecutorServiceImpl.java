@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.configuration;
+package org.sonar.ce.cleaning;
 
-public interface CeConfiguration {
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
-  /**
-   * The number of workers to process CeTasks concurrently.
-   */
-  int getWorkerCount();
+public class CeCleaningExecutorServiceImpl
+  extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements CeCleaningExecutorService {
 
-  /**
-   * The delay in milliseconds before calling another {@link org.sonar.server.computation.taskprocessor.CeWorkerCallable}
-   * when previous one had nothing to do.
-   */
-  long getQueuePollingDelay();
-
-  /**
-   * Delay before running job that cancels worn out tasks for the first time (in minutes).
-   */
-  long getCancelWornOutsInitialDelay();
-
-  /**
-   * Delay between the end of a run and the start of the next one of the job that cancels worn out CE tasks (in minutes).
-   */
-  long getCancelWornOutsDelay();
+  public CeCleaningExecutorServiceImpl() {
+    super(Executors.newSingleThreadScheduledExecutor(
+      new ThreadFactoryBuilder()
+        .setDaemon(false)
+        .setNameFormat("CE_cleaning-%d")
+        .build()));
+  }
 }

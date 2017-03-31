@@ -95,6 +95,7 @@ public class ComputeEngineContainerImplTest {
           + 3 // content of CeTaskCommonsModule
           + 4 // content of ProjectAnalysisTaskModule
           + 4 // content of CeTaskProcessorModule
+          + 3 // CeCleaningModule + its content
     );
     assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
