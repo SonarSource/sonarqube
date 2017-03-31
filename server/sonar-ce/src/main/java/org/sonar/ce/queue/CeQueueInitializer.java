@@ -22,6 +22,7 @@ package org.sonar.ce.queue;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
+import org.sonar.ce.cleaning.CeCleaningScheduler;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 
 /**
@@ -32,11 +33,13 @@ import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 @ComputeEngineSide
 public class CeQueueInitializer implements ServerStartHandler {
 
-  private final CeProcessingScheduler scheduler;
+  private final CeProcessingScheduler processingScheduler;
+  private final CeCleaningScheduler cleaningScheduler;
   private boolean done = false;
 
-  public CeQueueInitializer(CeProcessingScheduler scheduler) {
-    this.scheduler = scheduler;
+  public CeQueueInitializer(CeProcessingScheduler processingScheduler, CeCleaningScheduler cleaningScheduler) {
+    this.processingScheduler = processingScheduler;
+    this.cleaningScheduler = cleaningScheduler;
   }
 
   @Override
@@ -48,6 +51,7 @@ public class CeQueueInitializer implements ServerStartHandler {
   }
 
   private void initCe() {
-    scheduler.startScheduling();
+    processingScheduler.startScheduling();
+    cleaningScheduler.startScheduling();
   }
 }

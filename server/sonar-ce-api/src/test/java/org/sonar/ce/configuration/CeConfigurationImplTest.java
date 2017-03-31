@@ -39,33 +39,33 @@ public class CeConfigurationImplTest {
   private Settings settings = new MapSettings();
 
   @Test
-  public void getWorkCount_returns_1_when_worker_property_is_not_defined() {
+  public void getWorkerCount_returns_1_when_worker_property_is_not_defined() {
     assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
-  public void getWorkCount_returns_1_when_worker_property_is_empty() {
+  public void getWorkerCount_returns_1_when_worker_property_is_empty() {
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, "");
 
     assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
-  public void getWorkCount_returns_1_when_worker_property_is_space_chars() {
+  public void getWorkerCount_returns_1_when_worker_property_is_space_chars() {
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, "  \n  ");
 
     assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
-  public void getWorkCount_returns_1_when_worker_property_is_1() {
+  public void getWorkerCount_returns_1_when_worker_property_is_1() {
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, 1);
 
     assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
-  public void getWorkCount_returns_value_when_worker_property_is_integer_greater_than_1() {
+  public void getWorkerCount_returns_value_when_worker_property_is_integer_greater_than_1() {
     int value = abs(new Random().nextInt()) + 2;
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, value);
 
@@ -107,6 +107,18 @@ public class CeConfigurationImplTest {
   private void expectMessageException(int value) {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("value '" + value + "' of property " + CE_WORKERS_COUNT_PROPERTY + " is invalid. " +
-        "It must an integer strictly greater than 0");
+      "It must an integer strictly greater than 0");
+  }
+
+  @Test
+  public void getCancelWornOutsInitialDelay_returns_1() {
+    assertThat(new CeConfigurationImpl(settings).getCancelWornOutsInitialDelay())
+      .isEqualTo(1L);
+  }
+
+  @Test
+  public void getCancelWornOutsDelay_returns_10() {
+    assertThat(new CeConfigurationImpl(settings).getCancelWornOutsDelay())
+      .isEqualTo(10L);
   }
 }
