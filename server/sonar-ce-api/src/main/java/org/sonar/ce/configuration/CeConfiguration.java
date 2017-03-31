@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.ce.configuration;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
-import org.sonar.ce.queue.CeQueueInitializer;
-import org.sonar.ce.queue.InternalCeQueueImpl;
+public interface CeConfiguration {
 
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
+  /**
+   * The number of workers to process CeTasks concurrently.
+   */
+  int getWorkerCount();
 
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      CeTasksMBeanImpl.class,
-      
-      // init queue state and queue processing
-      CeQueueInitializer.class);
-  }
+  /**
+   * The delay in milliseconds before calling another {@link org.sonar.server.computation.taskprocessor.CeWorkerCallable}
+   * when previous one had nothing to do.
+   */
+  long getQueuePollingDelay();
 }
