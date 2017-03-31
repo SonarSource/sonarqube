@@ -23,7 +23,7 @@ import org.sonar.ce.configuration.CeConfigurationImpl;
 import org.sonar.ce.log.CeLogging;
 import org.sonar.core.platform.Module;
 import org.sonar.process.systeminfo.ProcessStateSystemInfo;
-import org.sonar.server.computation.monitoring.CeDatabaseMBeanImpl;
+import org.sonar.ce.monitoring.CeDatabaseMBeanImpl;
 
 public class CeConfigurationModule extends Module {
   @Override
