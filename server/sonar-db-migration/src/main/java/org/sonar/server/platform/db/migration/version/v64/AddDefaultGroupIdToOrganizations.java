@@ -20,22 +20,26 @@
 
 package org.sonar.server.platform.db.migration.version.v64;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 
-public class DbVersion64Test {
-  private DbVersion64 underTest = new DbVersion64();
+public class AddDefaultGroupIdToOrganizations extends DdlChange {
 
-  @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1600);
+  public AddDefaultGroupIdToOrganizations(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 25);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "organizations")
+      .addColumn(newIntegerColumnDefBuilder()
+        .setColumnName("default_group_id")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
-
 }
