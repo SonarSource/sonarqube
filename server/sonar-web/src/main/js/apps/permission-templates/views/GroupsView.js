@@ -22,8 +22,8 @@ import Template from '../templates/permission-templates-groups.hbs';
 import '../../../components/SelectList';
 
 function getSearchUrl(permission, permissionTemplate) {
-  return window.baseUrl +
-    `/api/permissions/template_groups?ps=100&permission=${permission.key}&templateId=${permissionTemplate.id}`;
+  return `${window.baseUrl}/api/permissions/template_groups?` +
+    `ps=100&permission=${permission.key}&templateId=${permissionTemplate.id}`;
 }
 
 export default Modal.extend({

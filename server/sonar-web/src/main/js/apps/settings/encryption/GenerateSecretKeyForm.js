@@ -69,13 +69,18 @@ export default class GenerateSecretKeyForm extends React.Component {
                   has been set or changed.
                 </li>
                 <li className="spacer-bottom">
-                  Copy this file on all the machines that execute code inspection. Define the property
-                  {' '}<code>sonar.secretKeyPath</code> on those machines if the path is not
-                  {' '}<code>~/.sonar/sonar-secret.txt</code>.
+                  Copy this file on all the machines that execute code inspection. Define the
+                  {' '}
+                  property <code>sonar.secretKeyPath</code> on those machines if the path is not
+                  {' '}
+                  <code>~/.sonar/sonar-secret.txt</code>.
                 </li>
                 <li>
-                  For each property that you want to encrypt, generate the encrypted value and replace the original
-                  value wherever it is stored (configuration files, command lines).
+                  For each property that you want to encrypt, generate the encrypted value and
+                  {' '}
+                  replace the original value wherever it is stored
+                  {' '}
+                  (configuration files, command lines).
                 </li>
               </ul>
             </div>

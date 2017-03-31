@@ -110,8 +110,7 @@ class Key extends React.Component {
                     id="update-key-tab-bulk"
                     className={tab === 'bulk' ? 'selected' : ''}
                     href="#"
-                    onClick={this.handleChangeTab.bind(this, 'bulk')}
-                  >
+                    onClick={this.handleChangeTab.bind(this, 'bulk')}>
                     {translate('update_key.bulk_update')}
                   </a>
                 </li>
@@ -120,8 +119,7 @@ class Key extends React.Component {
                     id="update-key-tab-fine"
                     className={tab === 'fine' ? 'selected' : ''}
                     href="#"
-                    onClick={this.handleChangeTab.bind(this, 'fine')}
-                  >
+                    onClick={this.handleChangeTab.bind(this, 'fine')}>
                     {translate('update_key.fine_grained_key_update')}
                   </a>
                 </li>

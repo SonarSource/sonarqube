@@ -27,8 +27,7 @@ export default function IconTreemap() {
       fillRule="evenodd"
       clipRule="evenodd"
       strokeLinejoin="round"
-      strokeMiterlimit="1.414"
-    >
+      strokeMiterlimit="1.414">
       <path d="M0 0h224v448H0zM256 0h192v256H256zM256 288h192v160H256z" />
     </svg>
   );

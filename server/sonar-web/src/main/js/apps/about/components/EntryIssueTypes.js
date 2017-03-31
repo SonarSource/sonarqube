@@ -44,8 +44,7 @@ export default class EntryIssueTypes extends React.Component {
               <td className="about-page-issue-type-number">
                 <Link
                   to={getIssuesUrl({ resolved: false, types: 'BUG' })}
-                  className="about-page-issue-type-link"
-                >
+                  className="about-page-issue-type-link">
                   {formatMeasure(bugs, 'SHORT_INT')}
                 </Link>
               </td>
@@ -58,8 +57,7 @@ export default class EntryIssueTypes extends React.Component {
               <td className="about-page-issue-type-number">
                 <Link
                   to={getIssuesUrl({ resolved: false, types: 'VULNERABILITY' })}
-                  className="about-page-issue-type-link"
-                >
+                  className="about-page-issue-type-link">
                   {formatMeasure(vulnerabilities, 'SHORT_INT')}
                 </Link>
               </td>
@@ -72,8 +70,7 @@ export default class EntryIssueTypes extends React.Component {
               <td className="about-page-issue-type-number">
                 <Link
                   to={getIssuesUrl({ resolved: false, types: 'CODE_SMELL' })}
-                  className="about-page-issue-type-link"
-                >
+                  className="about-page-issue-type-link">
                   {formatMeasure(codeSmells, 'SHORT_INT')}
                 </Link>
               </td>

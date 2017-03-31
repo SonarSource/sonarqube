@@ -52,7 +52,12 @@ const fakeRouter = { push: () => {} };
 
 it('should render the languages without the ones in the facet', () => {
   const wrapper = shallow(
-    <LanguagesFilter query={{ languages: null }} languages={languages} router={fakeRouter} facet={languagesFacet} />
+    <LanguagesFilter
+      query={{ languages: null }}
+      languages={languages}
+      router={fakeRouter}
+      facet={languagesFacet}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });

@@ -21,7 +21,8 @@ import Handlebars from 'handlebars/runtime';
 import { translate } from '../../helpers/l10n';
 
 module.exports = function(status, resolution) {
-  let s = `<i class="icon-status-${status.toLowerCase()}"></i>&nbsp;${translate('issue.status', status)}`;
+  let s = `<i class="icon-status-${status.toLowerCase()}"></i>` +
+    `&nbsp;${translate('issue.status', status)}`;
   if (resolution != null) {
     s = s + '&nbsp;(' + translate('issue.resolution', resolution) + ')';
   }

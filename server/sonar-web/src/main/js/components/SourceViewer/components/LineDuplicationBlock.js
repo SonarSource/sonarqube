@@ -55,8 +55,7 @@ export default class LineDuplicationBlock extends React.PureComponent {
         data-toggle={duplicated ? 'tooltip' : undefined}
         role={duplicated ? 'button' : undefined}
         tabIndex={duplicated ? '0' : undefined}
-        onClick={duplicated ? this.handleClick : undefined}
-      >
+        onClick={duplicated ? this.handleClick : undefined}>
         <div className="source-line-bar" />
       </td>
     );

@@ -72,8 +72,7 @@ export default class ProjectCard extends React.Component {
                     href={link.href}
                     title={link.name}
                     target="_blank"
-                    rel="nofollow"
-                  >
+                    rel="nofollow">
                     <i className={`icon-color-link icon-${link.type}`} />
                   </a>
                 </li>

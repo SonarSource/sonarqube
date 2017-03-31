@@ -63,10 +63,10 @@ export default class QualityModel extends React.PureComponent {
     color2: number
   ) {
     const fullProjectName = this.props.displayOrganizations && project.organization
-      ? `<div class="little-spacer-bottom">${project.organization.name} / <strong>${project.name}</strong></div>`
-      : `<div class="little-spacer-bottom"><strong>${project.name}</strong></div>`;
+      ? `${project.organization.name} / <strong>${project.name}</strong>`
+      : `<strong>${project.name}</strong>`;
     const inner = [
-      fullProjectName,
+      `<div class="little-spacer-bottom">${fullProjectName}</div>`,
       this.getMetricTooltip({ key: COLOR_METRIC_1, type: COLOR_METRIC_TYPE }, color1),
       this.getMetricTooltip({ key: COLOR_METRIC_2, type: COLOR_METRIC_TYPE }, color2),
       this.getMetricTooltip({ key: Y_METRIC, type: Y_METRIC_TYPE }, y),

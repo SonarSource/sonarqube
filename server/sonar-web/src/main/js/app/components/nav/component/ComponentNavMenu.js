@@ -78,8 +78,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/code', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {this.isView() ? translate('view_projects.page') : translate('code.page')}
         </Link>
       </li>
@@ -95,8 +94,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/activity', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('project_activity.page')}
         </Link>
       </li>
@@ -108,8 +106,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/component_issues', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('issues.page')}
         </Link>
       </li>
@@ -121,8 +118,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/component_measures', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('layout.measures')}
         </Link>
       </li>
@@ -141,8 +137,7 @@ export default class ComponentNavMenu extends React.Component {
           className="dropdown-toggle navbar-admin-link"
           id="component-navigation-admin"
           data-toggle="dropdown"
-          href="#"
-        >
+          href="#">
           {translate('layout.settings')}&nbsp;
           <i className="icon-dropdown" />
         </a>
@@ -170,8 +165,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/settings', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('project_settings.page')}
         </Link>
       </li>
@@ -186,8 +180,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/quality_profiles', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('project_quality_profiles.page')}
         </Link>
       </li>
@@ -202,8 +195,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/quality_gate', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('project_quality_gate.page')}
         </Link>
       </li>
@@ -218,8 +210,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/custom_measures', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('custom_measures.page')}
         </Link>
       </li>
@@ -234,8 +225,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/links', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('project_links.page')}
         </Link>
       </li>
@@ -250,8 +240,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project_roles', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('permissions.page')}
         </Link>
       </li>
@@ -266,8 +255,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/background_tasks', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('background_tasks.page')}
         </Link>
       </li>
@@ -282,8 +270,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/key', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('update_key.page')}
         </Link>
       </li>
@@ -305,8 +292,7 @@ export default class ComponentNavMenu extends React.Component {
       <li>
         <Link
           to={{ pathname: '/project/deletion', query: { id: this.props.component.key } }}
-          activeClassName="active"
-        >
+          activeClassName="active">
           {translate('deletion.page')}
         </Link>
       </li>
@@ -342,8 +328,7 @@ export default class ComponentNavMenu extends React.Component {
           className="dropdown-toggle"
           id="component-navigation-more"
           data-toggle="dropdown"
-          href="#"
-        >
+          href="#">
           {translate('more')}&nbsp;
           <i className="icon-dropdown" />
         </a>

@@ -53,11 +53,11 @@ export default class SimpleBubbleChart extends React.PureComponent {
 
   getTooltip(project: Project, x: ?number, y: ?number, size: ?number, color?: number) {
     const fullProjectName = this.props.displayOrganizations && project.organization
-      ? `<div class="little-spacer-bottom">${project.organization.name} / <strong>${project.name}</strong></div>`
-      : `<div class="little-spacer-bottom"><strong>${project.name}</strong></div>`;
+      ? `${project.organization.name} / <strong>${project.name}</strong>`
+      : `<strong>${project.name}</strong>`;
 
     const inner = [
-      fullProjectName,
+      `<div class="little-spacer-bottom">${fullProjectName}</div>`,
       this.getMetricTooltip(this.props.xMetric, x),
       this.getMetricTooltip(this.props.yMetric, y),
       this.getMetricTooltip(this.props.sizeMetric, size)
@@ -118,12 +118,13 @@ export default class SimpleBubbleChart extends React.PureComponent {
           {translate('metric', yMetric.key, 'name')}
         </div>
         <div className="measure-details-bubble-chart-axis size">
-          {colorMetric != null && <span className="spacer-right">
-            {translateWithParameters(
-              'component_measures.legend.color_x',
-              translate('metric', colorMetric, 'name')
-            )}
-          </span>}
+          {colorMetric != null &&
+            <span className="spacer-right">
+              {translateWithParameters(
+                'component_measures.legend.color_x',
+                translate('metric', colorMetric, 'name')
+              )}
+            </span>}
           {translateWithParameters(
             'component_measures.legend.size_x',
             translate('metric', sizeMetric.key, 'name')

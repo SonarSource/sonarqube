@@ -36,7 +36,8 @@ export default class UsersSelectSearchValue extends React.PureComponent {
     const user = this.props.value;
     return (
       <div className="Select-value" title={user ? user.name : ''}>
-        {user && user.login &&
+        {user &&
+          user.login &&
           <div className="Select-value-label">
             <Avatar hash={user.avatar} email={user.email} size={AVATAR_SIZE} />
             <strong className="spacer-left">{user.login}</strong>

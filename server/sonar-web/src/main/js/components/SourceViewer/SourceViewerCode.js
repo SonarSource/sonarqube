@@ -204,8 +204,7 @@ export default class SourceViewerCode extends React.PureComponent {
                 </div>
               : <button
                   className="js-component-viewer-source-before"
-                  onClick={this.props.loadSourcesBefore}
-                >
+                  onClick={this.props.loadSourcesBefore}>
                   {translate('source_viewer.load_more_code')}
                 </button>}
           </div>}
@@ -244,8 +243,7 @@ export default class SourceViewerCode extends React.PureComponent {
                 </div>
               : <button
                   className="js-component-viewer-source-after"
-                  onClick={this.props.loadSourcesAfter}
-                >
+                  onClick={this.props.loadSourcesAfter}>
                   {translate('source_viewer.load_more_code')}
                 </button>}
           </div>}

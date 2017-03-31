@@ -112,8 +112,7 @@ export default class ProfileProjects extends React.Component {
           <li key={project.uuid} className="spacer-top js-profile-project" data-key={project.key}>
             <Link
               to={{ pathname: '/dashboard', query: { id: project.key } }}
-              className="link-with-icon"
-            >
+              className="link-with-icon">
               <QualifierIcon qualifier="TRK" />
               {' '}
               <span>{project.name}</span>

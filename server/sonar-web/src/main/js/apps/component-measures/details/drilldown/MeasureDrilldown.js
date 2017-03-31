@@ -43,8 +43,7 @@ export default class MeasureDrilldown extends React.Component {
                 to={{
                   pathname: `/component_measures/metric/${metric.key}/list`,
                   query: { id: component.key }
-                }}
-              >
+                }}>
                 <IconList />
                 {translate('component_measures.tab.list')}
               </Link>
@@ -56,8 +55,7 @@ export default class MeasureDrilldown extends React.Component {
               to={{
                 pathname: `/component_measures/metric/${metric.key}/tree`,
                 query: { id: component.key }
-              }}
-            >
+              }}>
               <IconTree />
               {translate('component_measures.tab.tree')}
             </Link>
@@ -70,8 +68,7 @@ export default class MeasureDrilldown extends React.Component {
                 to={{
                   pathname: `/component_measures/metric/${metric.key}/bubbles`,
                   query: { id: component.key }
-                }}
-              >
+                }}>
                 <IconBubbles />
                 {translate('component_measures.tab.bubbles')}
               </Link>
@@ -84,8 +81,7 @@ export default class MeasureDrilldown extends React.Component {
                 to={{
                   pathname: `/component_measures/metric/${metric.key}/treemap`,
                   query: { id: component.key }
-                }}
-              >
+                }}>
                 <IconTreemap />
                 {translate('component_measures.tab.treemap')}
               </Link>
@@ -98,8 +94,7 @@ export default class MeasureDrilldown extends React.Component {
                 to={{
                   pathname: `/component_measures/metric/${metric.key}/history`,
                   query: { id: component.key }
-                }}
-              >
+                }}>
                 <IconHistory />
                 {translate('component_measures.tab.history')}
               </Link>

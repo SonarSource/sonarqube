@@ -65,8 +65,7 @@ export default class EvolutionDeprecated extends React.Component {
                 {', '}
                 <Link
                   to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
-                  className="text-muted"
-                >
+                  className="text-muted">
                   {translateWithParameters(
                     'quality_profile.x_rules',
                     profile.activeDeprecatedRuleCount

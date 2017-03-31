@@ -168,10 +168,11 @@ const Timeline = React.createClass({
       .map(event => {
         const key = `${event.date.getTime()}-${event.snapshot.y}`;
         const className = `line-chart-point js-event-circle-${event.date.getTime()}`;
+        const value = event.snapshot.y ? this.props.formatValue(event.snapshot.y) : '—';
         const tooltip = [
           `<span class="nowrap">${event.version}</span>`,
           `<span class="nowrap">${moment(event.date).format('LL')}</span>`,
-          `<span class="nowrap">${event.snapshot.y ? this.props.formatValue(event.snapshot.y) : '—'}</span>`
+          `<span class="nowrap">${value}</span>`
         ].join('<br>');
         return (
           <circle

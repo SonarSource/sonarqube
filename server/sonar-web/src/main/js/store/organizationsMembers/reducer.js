@@ -36,7 +36,11 @@ const organizationMembers = (state = {}, action = {}) => {
     case actions.UPDATE_STATE:
       return { ...state, ...action.stateChanges };
     case actions.RECEIVE_MEMBERS:
-      return { ...state, ...action.stateChanges, members: action.members.map(member => member.login) };
+      return {
+        ...state,
+        ...action.stateChanges,
+        members: action.members.map(member => member.login)
+      };
     case actions.RECEIVE_MORE_MEMBERS:
       return {
         ...state,

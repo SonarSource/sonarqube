@@ -45,8 +45,7 @@ export default class OrganizationGroupCheckbox extends React.PureComponent {
         className="capitalize list-item-checkable-link"
         onClick={this.toggleCheck}
         tabIndex={0}
-        role="listitem"
-      >
+        role="listitem">
         <Checkbox checked={this.props.checked} onCheck={this.onCheck} />
         {' '}{this.props.group.name}
       </li>

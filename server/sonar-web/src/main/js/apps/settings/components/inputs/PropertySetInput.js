@@ -72,8 +72,7 @@ export default class PropertySetInput extends React.Component {
           {!isLast &&
             <button
               className="js-remove-value button-link"
-              onClick={e => this.handleDeleteValue(e, index)}
-            >
+              onClick={e => this.handleDeleteValue(e, index)}>
               <i className="icon-delete" />
             </button>}
         </td>
@@ -90,8 +89,7 @@ export default class PropertySetInput extends React.Component {
       <div>
         <table
           className="data zebra-hover no-outer-padding"
-          style={{ width: 'auto', minWidth: 480, marginTop: -12 }}
-        >
+          style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
           <thead>
             <tr>
               {setting.definition.fields.map(field => (

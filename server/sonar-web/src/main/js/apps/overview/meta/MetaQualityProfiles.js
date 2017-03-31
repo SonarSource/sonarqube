@@ -94,8 +94,7 @@ class MetaQualityProfiles extends React.Component {
           key={profile.key}
           className="overview-deprecated-rules"
           title={tooltip}
-          data-toggle="tooltip"
-        >
+          data-toggle="tooltip">
           {inner}
         </li>
       );

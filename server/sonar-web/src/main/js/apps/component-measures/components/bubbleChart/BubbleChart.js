@@ -106,11 +106,14 @@ export default class BubbleChart extends React.Component {
   }
 
   getTooltip(component) {
+    const x = formatMeasure(getMeasure(component, this.xMetric.key), this.xMetric.type);
+    const y = formatMeasure(getMeasure(component, this.yMetric.key), this.yMetric.type);
+    const size = formatMeasure(getMeasure(component, this.sizeMetric.key), this.sizeMetric.type);
     const inner = [
       component.name,
-      `${this.xMetric.name}: ${formatMeasure(getMeasure(component, this.xMetric.key), this.xMetric.type)}`,
-      `${this.yMetric.name}: ${formatMeasure(getMeasure(component, this.yMetric.key), this.yMetric.type)}`,
-      `${this.sizeMetric.name}: ${formatMeasure(getMeasure(component, this.sizeMetric.key), this.sizeMetric.type)}`
+      `${this.xMetric.name}: ${x}`,
+      `${this.yMetric.name}: ${y}`,
+      `${this.sizeMetric.name}: ${size}`
     ].join('<br>');
 
     return `<div class="text-left">${inner}</div>`;

@@ -22,15 +22,11 @@ import { shallow } from 'enzyme';
 import MembersListHeader from '../MembersListHeader';
 
 it('should render without the total', () => {
-  const wrapper = shallow(
-    <MembersListHeader handleSearch={jest.fn()} />
-  );
+  const wrapper = shallow(<MembersListHeader handleSearch={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render with the total', () => {
-  const wrapper = shallow(
-    <MembersListHeader handleSearch={jest.fn()} total={8} />
-  );
+  const wrapper = shallow(<MembersListHeader handleSearch={jest.fn()} total={8} />);
   expect(wrapper).toMatchSnapshot();
 });

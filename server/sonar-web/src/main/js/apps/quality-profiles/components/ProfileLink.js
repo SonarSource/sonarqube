@@ -32,8 +32,7 @@ export default class ProfileLink extends React.Component {
       <Link
         to={{ pathname: '/profiles/show', query }}
         activeClassName="link-no-underline"
-        {...other}
-      >
+        {...other}>
         {children}
       </Link>
     );

@@ -77,8 +77,7 @@ export default class UpdateForm extends React.Component {
           <button
             id="update-key-reset"
             disabled={!hasChanged}
-            onClick={this.handleReset.bind(this)}
-          >
+            onClick={this.handleReset.bind(this)}>
             {translate('reset_verb')}
           </button>
         </div>

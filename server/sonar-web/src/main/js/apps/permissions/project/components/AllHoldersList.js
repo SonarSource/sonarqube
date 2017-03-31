@@ -99,8 +99,7 @@ class AllHoldersList extends React.Component {
         groups={this.props.groups}
         onSelectPermission={this.handleSelectPermission.bind(this)}
         onToggleUser={this.handleToggleUser.bind(this)}
-        onToggleGroup={this.handleToggleGroup.bind(this)}
-      >
+        onToggleGroup={this.handleToggleGroup.bind(this)}>
 
         <SearchForm
           query={this.props.query}

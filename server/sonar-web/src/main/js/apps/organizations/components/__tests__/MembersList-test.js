@@ -28,11 +28,6 @@ const members = [
 ];
 
 it('should render a list of members of an organization', () => {
-  const wrapper = shallow(
-    <MembersList
-      organization={organization}
-      members={members}
-    />
-  );
+  const wrapper = shallow(<MembersList organization={organization} members={members} />);
   expect(wrapper).toMatchSnapshot();
 });

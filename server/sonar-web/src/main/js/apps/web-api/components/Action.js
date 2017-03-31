@@ -121,8 +121,7 @@ export default class Action extends React.PureComponent {
                 <a
                   className={classNames({ selected: showParams })}
                   href="#"
-                  onClick={this.handleShowParamsClick}
-                >
+                  onClick={this.handleShowParamsClick}>
                   Parameters
                 </a>
               </li>}
@@ -132,8 +131,7 @@ export default class Action extends React.PureComponent {
                 <a
                   className={classNames({ selected: showResponse })}
                   href="#"
-                  onClick={this.handleShowResponseClick}
-                >
+                  onClick={this.handleShowResponseClick}>
                   Response Example
                 </a>
               </li>}
@@ -143,8 +141,7 @@ export default class Action extends React.PureComponent {
                 <a
                   className={classNames({ selected: showChangelog })}
                   href="#"
-                  onClick={this.handleChangelogClick}
-                >
+                  onClick={this.handleChangelogClick}>
                   Changelog
                 </a>
               </li>}

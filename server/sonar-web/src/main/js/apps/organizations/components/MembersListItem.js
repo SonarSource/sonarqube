@@ -53,7 +53,10 @@ export default class MembersListItem extends React.PureComponent {
         </td>
         {organization.canAdmin &&
           <td className="text-right text-middle">
-            {translateWithParameters('organization.members.x_groups', formatMeasure(member.groupCount || 0, 'INT'))}
+            {translateWithParameters(
+              'organization.members.x_groups',
+              formatMeasure(member.groupCount || 0, 'INT')
+            )}
           </td>}
         {organization.canAdmin &&
           <td className="nowrap text-middle text-right">

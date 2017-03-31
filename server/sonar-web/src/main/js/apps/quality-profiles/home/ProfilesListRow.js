@@ -91,8 +91,7 @@ export default class ProfilesListRow extends React.Component {
               to={deprecatedRulesUrl}
               className="badge badge-normal-size badge-danger-light"
               title={translate('quality_profiles.deprecated_rules')}
-              data-toggle="tooltip"
-            >
+              data-toggle="tooltip">
               {profile.activeDeprecatedRuleCount}
             </Link>
           </span>}
@@ -128,8 +127,7 @@ export default class ProfilesListRow extends React.Component {
       <tr
         className="quality-profiles-table-row"
         data-key={this.props.profile.key}
-        data-name={this.props.profile.name}
-      >
+        data-name={this.props.profile.name}>
         <td className="quality-profiles-table-name">
           {this.renderName()}
         </td>

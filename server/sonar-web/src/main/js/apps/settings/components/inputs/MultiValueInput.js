@@ -70,8 +70,7 @@ export default class MultiValueInput extends React.Component {
           <div className="display-inline-block spacer-left">
             <button
               className="js-remove-value button-clean"
-              onClick={e => this.handleDeleteValue(e, index)}
-            >
+              onClick={e => this.handleDeleteValue(e, index)}>
               <i className="icon-delete" />
             </button>
           </div>}

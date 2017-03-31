@@ -52,8 +52,7 @@ export default class LineIssuesIndicator extends React.PureComponent {
         data-line-number={line.line}
         role={hasIssues ? 'button' : undefined}
         tabIndex={hasIssues ? '0' : undefined}
-        onClick={hasIssues ? this.handleClick : undefined}
-      >
+        onClick={hasIssues ? this.handleClick : undefined}>
         {mostImportantIssue != null && <SeverityIcon severity={mostImportantIssue.severity} />}
         {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
       </td>

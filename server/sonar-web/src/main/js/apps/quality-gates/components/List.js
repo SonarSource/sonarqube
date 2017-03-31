@@ -30,8 +30,7 @@ export default function List({ qualityGates }) {
           to={`/quality_gates/show/${qualityGate.id}`}
           activeClassName="active"
           className="list-group-item"
-          data-id={qualityGate.id}
-        >
+          data-id={qualityGate.id}>
           <table>
             <tbody>
               <tr>

@@ -109,7 +109,10 @@ export const receiveMyOrganizations = (
   organizations
 });
 
-export const receiveOrganizationGroups = (key: string, groups: Array<OrgGroup>): receiveOrganizationGroups => ({
+export const receiveOrganizationGroups = (
+  key: string,
+  groups: Array<OrgGroup>
+): receiveOrganizationGroups => ({
   type: 'RECEIVE_ORGANIZATION_GROUPS',
   key,
   groups
@@ -191,7 +194,8 @@ export default combineReducers({ byKey, my, groups });
 
 export const getOrganizationByKey = (state: State, key: string): Organization => state.byKey[key];
 
-export const getOrganizationGroupsByKey = (state: State, key: string): Array<OrgGroup> => state.groups[key] || [];
+export const getOrganizationGroupsByKey = (state: State, key: string): Array<OrgGroup> =>
+  state.groups[key] || [];
 
 export const getMyOrganizations = (state: State): Array<Organization> =>
   state.my.map(key => getOrganizationByKey(state, key));

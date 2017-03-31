@@ -33,7 +33,7 @@
     "block-scoped-var": 2,
     "block-spacing": 2,
     "brace-style": 2,
-    "comma-dangle": 2,
+    "comma-dangle": [2, "never"],
     "comma-spacing": 2,
     "comma-style": 2,
     "computed-property-spacing": 2,
@@ -49,7 +49,7 @@
     "jsx-quotes": 2,
     "key-spacing": 2,
     "keyword-spacing": 2,
-    "max-len": [2, 120],
+    "max-len": [2, 100],
     "new-parens": 2,
     "no-lonely-if": 2,
     "no-multi-spaces": 2,
@@ -135,6 +135,10 @@
     "jsx-a11y/tabindex-no-positive": 2,
 
     "react/jsx-boolean-value": [2, "always"],
+    "react/jsx-closing-bracket-location": [2, {
+      "nonEmpty": "after-props",
+      "selfClosing": "tag-aligned"
+    }],
     "react/jsx-curly-spacing": [2, "never"],
     "react/jsx-equals-spacing": [2, "never"],
     "react/jsx-key": 2,

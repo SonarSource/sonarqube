@@ -26,7 +26,9 @@ const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
 const fakeRouter = { push: () => {} };
 
 it('should render the tags without the ones in the facet', () => {
-  const wrapper = shallow(<TagsFilter query={{ tags: null }} router={fakeRouter} facet={tagsFacet} />);
+  const wrapper = shallow(
+    <TagsFilter query={{ tags: null }} router={fakeRouter} facet={tagsFacet} />
+  );
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ tags });
   expect(wrapper).toMatchSnapshot();

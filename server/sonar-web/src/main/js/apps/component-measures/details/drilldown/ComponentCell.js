@@ -64,22 +64,19 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis'
-        }}
-      >
+        }}>
         {component.refId == null || component.qualifier === 'DEV_PRJ'
           ? <a
               id={'component-measures-component-link-' + component.key}
               className={linkClassName}
               href={getComponentUrl(component.key)}
-              onClick={handleClick}
-            >
+              onClick={handleClick}>
               {inner}
             </a>
           : <a
               id={'component-measures-component-link-' + component.key}
               className={linkClassName}
-              href={getComponentUrl(component.refKey || component.key)}
-            >
+              href={getComponentUrl(component.refKey || component.key)}>
               <span className="big-spacer-right">
                 <i className="icon-detach" />
               </span>

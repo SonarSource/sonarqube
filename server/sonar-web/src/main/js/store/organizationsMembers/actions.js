@@ -41,14 +41,22 @@ export const actions = {
   REMOVE_MEMBER: 'organizations/REMOVE_MEMBER'
 };
 
-export const receiveMembers = (organizationKey: string, members: Array<Member>, stateChanges: MembersState) => ({
+export const receiveMembers = (
+  organizationKey: string,
+  members: Array<Member>,
+  stateChanges: MembersState
+) => ({
   type: actions.RECEIVE_MEMBERS,
   organization: organizationKey,
   members,
   stateChanges
 });
 
-export const receiveMoreMembers = (organizationKey: string, members: Array<Member>, stateChanges: MembersState) => ({
+export const receiveMoreMembers = (
+  organizationKey: string,
+  members: Array<Member>,
+  stateChanges: MembersState
+) => ({
   type: actions.RECEIVE_MORE_MEMBERS,
   organization: organizationKey,
   members,
@@ -67,10 +75,7 @@ export const removeMember = (organizationKey: string, member: Member) => ({
   member
 });
 
-export const updateState = (
-  organizationKey: string,
-  stateChanges: MembersState
-) => ({
+export const updateState = (organizationKey: string, stateChanges: MembersState) => ({
   type: actions.UPDATE_STATE,
   organization: organizationKey,
   stateChanges

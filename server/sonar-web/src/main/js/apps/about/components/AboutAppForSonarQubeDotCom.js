@@ -56,8 +56,7 @@ export default class AboutAppForSonarQubeDotCom extends React.Component {
               <a
                 className="button button-active"
                 href="https://about.sonarqube.com/get-started/"
-                target="_blank"
-              >
+                target="_blank">
                 Get Started
               </a>
               {!this.props.currentUser.isLoggedIn &&

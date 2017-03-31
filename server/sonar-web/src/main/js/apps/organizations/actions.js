@@ -175,7 +175,12 @@ export const updateOrganizationMemberGroups = (
       ...add.map(id => addUserToGroup(id, member.login)),
       ...remove.map(id => removeUserFromGroup(id, member.login))
     ];
-    return Promise.all(promises).then(() => {
-      dispatch(receiveUser({ ...member, groupCount: member.groupCount + add.length - remove.length }));
-    }, onFail(dispatch));
+    return Promise.all(promises).then(
+      () => {
+        dispatch(
+          receiveUser({ ...member, groupCount: member.groupCount + add.length - remove.length })
+        );
+      },
+      onFail(dispatch)
+    );
   };

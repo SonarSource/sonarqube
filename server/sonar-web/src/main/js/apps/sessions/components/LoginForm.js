@@ -51,8 +51,7 @@ export default class LoginForm extends React.Component {
                   <a
                     href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
                     style={{ backgroundColor: identityProvider.backgroundColor }}
-                    title={`Log in with ${identityProvider.name}`}
-                  >
+                    title={`Log in with ${identityProvider.name}`}>
                     <img
                       alt={identityProvider.name}
                       width="20"

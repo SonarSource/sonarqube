@@ -106,8 +106,7 @@ export default class PageHeader extends React.Component {
                 <a
                   href="#"
                   id="quality-profiles-restore"
-                  onClick={this.handleRestoreClick.bind(this)}
-                >
+                  onClick={this.handleRestoreClick.bind(this)}>
                   {translate('quality_profiles.restore_profile')}
                 </a>
               </li>
@@ -116,8 +115,7 @@ export default class PageHeader extends React.Component {
                 <a
                   href="#"
                   id="quality-profiles-restore-built-in"
-                  onClick={this.handleRestoreBuiltIn.bind(this)}
-                >
+                  onClick={this.handleRestoreBuiltIn.bind(this)}>
                   {translate('quality_profiles.restore_built_in_profiles')}
                 </a>
               </li>

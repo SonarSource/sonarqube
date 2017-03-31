@@ -98,8 +98,7 @@ export default class Stats extends React.Component {
             className="js-failures-count emphasised-measure"
             data-toggle="tooltip"
             title="Count of projects where processing of most recent analysis report failed"
-            href="#"
-          >
+            href="#">
             {this.props.failingCount}
           </a>
           &nbsp;
@@ -112,8 +111,7 @@ export default class Stats extends React.Component {
           <span
             className="js-failures-count emphasised-measure"
             data-toggle="tooltip"
-            title="Count of projects where processing of most recent analysis report failed"
-          >
+            title="Count of projects where processing of most recent analysis report failed">
             {this.props.failingCount}
           </span>
           &nbsp;

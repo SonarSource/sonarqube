@@ -32,8 +32,7 @@ const MeasuresList = ({ measures, component, className = 'domain-measures' }) =>
             to={{
               pathname: `/component_measures/metric/${measure.metric.key}`,
               query: { id: component.key }
-            }}
-          >
+            }}>
             <div className="domain-measures-name">
               <IssueTypeIcon query={measure.metric.key} className="little-spacer-right" />
               <span id={`measure-${measure.metric.key}-name`}>
