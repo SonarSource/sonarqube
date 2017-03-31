@@ -51,6 +51,7 @@ public class DbVersion64 implements DbVersion {
       .add(1621, "Create 'members' group in each organization", CreateMembersGroupsInEachOrganization.class)
       .add(1622, "Set organization members into 'members' group", SetOrganizationMembersIntoMembersGroup.class)
       .add(1623, "Add ORGANIZATIONS.DEFAULT_GROUP_ID", AddDefaultGroupIdToOrganizations.class)
+      .add(1624, "Populate column ORGANIZATIONS.DEFAULT_GROUP_ID", PopulateColumnDefaultGroupIdOfOrganizations.class)
     ;
   }
 }
