@@ -27,7 +27,7 @@ import javax.management.ObjectName;
 import org.junit.Test;
 import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.computation.configuration.CeConfiguration;
+import org.sonar.ce.configuration.CeConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

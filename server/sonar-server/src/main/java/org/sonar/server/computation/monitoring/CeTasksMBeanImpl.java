@@ -24,7 +24,7 @@ import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.computation.configuration.CeConfiguration;
+import org.sonar.ce.configuration.CeConfiguration;
 
 public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSection {
   private final CEQueueStatus queueStatus;
