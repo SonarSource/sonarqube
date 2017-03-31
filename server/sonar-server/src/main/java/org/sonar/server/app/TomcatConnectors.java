@@ -31,9 +31,8 @@ import static java.lang.String.format;
  */
 class TomcatConnectors {
 
-  private static final int UNDEFINED_PORT = 0;
-  protected static final String HTTP_PROTOCOL = "HTTP/1.1";
-  protected static final int MAX_HTTP_HEADER_SIZE_BYTES = 48 * 1024;
+  static final String HTTP_PROTOCOL = "HTTP/1.1";
+  static final int MAX_HTTP_HEADER_SIZE_BYTES = 48 * 1024;
   private static final int MAX_POST_SIZE = -1;
 
   private TomcatConnectors() {
@@ -48,11 +47,16 @@ class TomcatConnectors {
   private static Connector newHttpConnector(Props props) {
     // Not named "sonar.web.http.port" to keep backward-compatibility
     int port = props.valueAsInt("sonar.web.port", 9000);
-    if (port < UNDEFINED_PORT) {
+    if (port < 0) {
       throw new IllegalStateException(format("HTTP port '%s' is invalid", port));
     }
 
-    Connector connector = newConnector(props, HTTP_PROTOCOL, "http");
+    Connector connector = new Connector(HTTP_PROTOCOL);
+    connector.setURIEncoding("UTF-8");
+    connector.setProperty("address", props.value("sonar.web.host", "0.0.0.0"));
+    connector.setProperty("socket.soReuseAddress", "true");
+    configurePool(props, connector);
+    configureCompression(connector);
     configureMaxHttpHeaderSize(connector);
     connector.setPort(port);
     connector.setMaxPostSize(MAX_POST_SIZE);
@@ -67,21 +71,11 @@ class TomcatConnectors {
     setConnectorAttribute(connector, "maxHttpHeaderSize", MAX_HTTP_HEADER_SIZE_BYTES);
   }
 
-  private static Connector newConnector(Props props, String protocol, String scheme) {
-    Connector connector = new Connector(protocol);
-    connector.setURIEncoding("UTF-8");
-    connector.setProperty("address", props.value("sonar.web.host", "0.0.0.0"));
-    connector.setProperty("socket.soReuseAddress", "true");
-    configurePool(props, connector, scheme);
-    configureCompression(connector);
-    return connector;
-  }
-
-  private static void configurePool(Props props, Connector connector, String scheme) {
+  private static void configurePool(Props props, Connector connector) {
     connector.setProperty("acceptorThreadCount", String.valueOf(2));
-    connector.setProperty("minSpareThreads", String.valueOf(props.valueAsInt("sonar.web." + scheme + ".minThreads", 5)));
-    connector.setProperty("maxThreads", String.valueOf(props.valueAsInt("sonar.web." + scheme + ".maxThreads", 50)));
-    connector.setProperty("acceptCount", String.valueOf(props.valueAsInt("sonar.web." + scheme + ".acceptCount", 25)));
+    connector.setProperty("minSpareThreads", String.valueOf(props.valueAsInt("sonar.web.http.minThreads", 5)));
+    connector.setProperty("maxThreads", String.valueOf(props.valueAsInt("sonar.web.http.maxThreads", 50)));
+    connector.setProperty("acceptCount", String.valueOf(props.valueAsInt("sonar.web.http.acceptCount", 25)));
   }
 
   private static void configureCompression(Connector connector) {
