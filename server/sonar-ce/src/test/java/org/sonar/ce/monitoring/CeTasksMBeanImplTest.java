@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.monitoring;
+package org.sonar.ce.monitoring;
 
 import java.lang.management.ManagementFactory;
 import javax.annotation.CheckForNull;
@@ -25,9 +25,8 @@ import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import org.junit.Test;
-import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.ce.configuration.CeConfiguration;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

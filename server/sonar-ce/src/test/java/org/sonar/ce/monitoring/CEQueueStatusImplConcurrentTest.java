@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.db.DbClient;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
