@@ -43,7 +43,7 @@ type State = {
 
 export default class SourceViewerIssueLocations extends React.Component {
   fixedNode: HTMLElement;
-  locations: { [string]: HTMLElement } = {};
+  locations: { [string]: HTMLElement };
   node: HTMLElement;
   props: Props;
   rootNode: HTMLElement;
@@ -52,6 +52,7 @@ export default class SourceViewerIssueLocations extends React.Component {
   constructor(props: Props) {
     super(props);
     this.state = { fixed: true, locationBlink: false };
+    this.locations = {};
     this.handleScroll = throttle(this.handleScroll, 50);
   }
 

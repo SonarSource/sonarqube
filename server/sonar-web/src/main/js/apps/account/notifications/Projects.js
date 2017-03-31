@@ -62,14 +62,6 @@ class Projects extends React.Component {
     }
   }
 
-  renderOption = option => {
-    return (
-      <span>
-        <Organization organizationKey={option.organization} link={false} />
-        <strong>{option.label}</strong>
-      </span>
-    );
-  };
   loadOptions = (query, cb) => {
     if (query.length < 2) {
       cb(null, { options: [] });
@@ -101,6 +93,15 @@ class Projects extends React.Component {
     this.setState({
       addedProjects: [...this.state.addedProjects, project]
     });
+  };
+
+  renderOption = option => {
+    return (
+      <span>
+        <Organization organizationKey={option.organization} link={false} />
+        <strong>{option.label}</strong>
+      </span>
+    );
   };
 
   render() {

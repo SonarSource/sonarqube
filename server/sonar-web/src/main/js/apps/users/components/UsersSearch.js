@@ -34,12 +34,13 @@ type State = {
 
 export default class UsersSearch extends React.PureComponent {
   props: Props;
-  state: State = {
-    query: ''
-  };
+  state: State;
 
   constructor(props: Props) {
     super(props);
+    this.state = {
+      query: ''
+    };
     this.handleSearch = debounce(this.handleSearch, 250);
   }
 

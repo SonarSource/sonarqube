@@ -44,17 +44,22 @@ export default class MultiSelect extends React.PureComponent {
   container: HTMLElement;
   searchInput: HTMLInputElement;
   props: Props;
-  state: State = {
-    query: '',
-    selectedElements: [],
-    unselectedElements: [],
-    activeIdx: 0
-  };
+  state: State;
 
   static defaultProps = {
     listSize: 10,
     validateSearchInput: (value: string) => value
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      query: '',
+      selectedElements: [],
+      unselectedElements: [],
+      activeIdx: 0
+    };
+  }
 
   componentDidMount() {
     this.updateSelectedElements(this.props);

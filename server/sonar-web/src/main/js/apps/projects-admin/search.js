@@ -55,6 +55,20 @@ export default React.createClass({
     return sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
   },
 
+  onCheck(checked) {
+    if (checked) {
+      this.props.onAllSelected();
+    } else {
+      this.props.onAllDeselected();
+    }
+  },
+
+  deleteProjects() {
+    new DeleteView({
+      deleteProjects: this.props.deleteProjects
+    }).render();
+  },
+
   renderCheckbox() {
     const isAllChecked = this.props.projects.length > 0 &&
       this.props.selection.length === this.props.projects.length;
@@ -63,18 +77,6 @@ export default React.createClass({
       this.props.selection.length < this.props.projects.length;
     const checked = isAllChecked || thirdState;
     return <Checkbox checked={checked} thirdState={thirdState} onCheck={this.onCheck} />;
-  },
-
-  renderSpinner() {
-    return <i className="spinner" />;
-  },
-
-  onCheck(checked) {
-    if (checked) {
-      this.props.onAllSelected();
-    } else {
-      this.props.onAllDeselected();
-    }
   },
 
   renderGhostsDescription() {
@@ -86,12 +88,6 @@ export default React.createClass({
         {translate('bulk_deletion.ghosts.description')}
       </div>
     );
-  },
-
-  deleteProjects() {
-    new DeleteView({
-      deleteProjects: this.props.deleteProjects
-    }).render();
   },
 
   renderQualifierFilter() {
@@ -109,6 +105,10 @@ export default React.createClass({
         />
       </td>
     );
+  },
+
+  renderSpinner() {
+    return <i className="spinner" />;
   },
 
   render() {

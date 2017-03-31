@@ -28,12 +28,6 @@ export default class LocalizationContainer extends React.Component {
     loading: true
   };
 
-  finishLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
-
   componentDidMount() {
     this.mounted = true;
     requestMessages().then(this.finishLoading, this.finishLoading);
@@ -42,6 +36,12 @@ export default class LocalizationContainer extends React.Component {
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  finishLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
 
   render() {
     return this.state.loading ? null : this.props.children;

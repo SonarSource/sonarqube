@@ -41,12 +41,11 @@ const LIST_SIZE = 10;
 
 class ProjectTagsSelectorContainer extends React.PureComponent {
   props: Props;
-  state: State = {
-    searchResult: []
-  };
+  state: State;
 
   constructor(props: Props) {
     super(props);
+    this.state = { searchResult: [] };
     this.onSearch = debounce(this.onSearch, 250);
   }
 

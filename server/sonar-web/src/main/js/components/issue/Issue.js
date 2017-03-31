@@ -116,6 +116,10 @@ class Issue extends React.PureComponent {
     }
   };
 
+  destroyIssueView() {
+    this.issueView.destroy();
+  }
+
   renderIssueView() {
     const model = this.props.issue.toJSON ? this.props.issue : new IssueModel(this.props.issue);
     this.issueView = new IssueView({
@@ -130,10 +134,6 @@ class Issue extends React.PureComponent {
     if (this.props.selected) {
       this.issueView.select();
     }
-  }
-
-  destroyIssueView() {
-    this.issueView.destroy();
   }
 
   render() {

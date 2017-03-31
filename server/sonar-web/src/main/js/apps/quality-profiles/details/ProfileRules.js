@@ -101,6 +101,12 @@ export default class ProfileRules extends React.Component {
     );
   }
 
+  getTooltipForType(type) {
+    const { count } = this.state.activatedByType[type];
+    const total = this.state.allByType[type].count;
+    return this.getTooltip(count, total);
+  }
+
   renderActiveTitle() {
     return (
       <strong>
@@ -149,12 +155,6 @@ export default class ProfileRules extends React.Component {
         </strong>
       </Link>
     );
-  }
-
-  getTooltipForType(type) {
-    const { count } = this.state.activatedByType[type];
-    const total = this.state.allByType[type].count;
-    return this.getTooltip(count, total);
   }
 
   renderTitleForType(type) {
