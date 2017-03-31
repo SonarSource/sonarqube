@@ -33,6 +33,11 @@ export default class CoverageFilter extends React.PureComponent {
 
   property = 'coverage';
 
+  getFacetValueForOption(facet, option) {
+    const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
+    return facet[map[option - 1]];
+  }
+
   renderOption(option, selected) {
     return (
       <span>
@@ -46,11 +51,6 @@ export default class CoverageFilter extends React.PureComponent {
         </span>
       </span>
     );
-  }
-
-  getFacetValueForOption(facet, option) {
-    const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
-    return facet[map[option - 1]];
   }
 
   render() {

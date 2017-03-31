@@ -34,6 +34,17 @@ export default class SizeFilter extends React.PureComponent {
 
   property = 'size';
 
+  getFacetValueForOption(facet, option) {
+    const map = [
+      '*-1000.0',
+      '1000.0-10000.0',
+      '10000.0-100000.0',
+      '100000.0-500000.0',
+      '500000.0-*'
+    ];
+    return facet[map[option - 1]];
+  }
+
   renderOption(option, selected) {
     return (
       <span>
@@ -57,17 +68,6 @@ export default class SizeFilter extends React.PureComponent {
       />
     );
   };
-
-  getFacetValueForOption(facet, option) {
-    const map = [
-      '*-1000.0',
-      '1000.0-10000.0',
-      '10000.0-100000.0',
-      '100000.0-500000.0',
-      '500000.0-*'
-    ];
-    return facet[map[option - 1]];
-  }
 
   render() {
     return (

@@ -30,6 +30,12 @@ export default class Tokens extends Component {
     this.destroyView();
   }
 
+  destroyView() {
+    if (this.destroyView) {
+      this.tokensView.destroy();
+    }
+  }
+
   renderView() {
     const account = new Backbone.Model({
       id: this.props.user.login
@@ -39,12 +45,6 @@ export default class Tokens extends Component {
       el: this.refs.container,
       model: account
     }).render();
-  }
-
-  destroyView() {
-    if (this.destroyView) {
-      this.tokensView.destroy();
-    }
   }
 
   render() {

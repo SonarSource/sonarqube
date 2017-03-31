@@ -37,6 +37,12 @@ export default class Projects extends Component {
     this.destroyView();
   }
 
+  destroyView() {
+    if (this.projectsView) {
+      this.projectsView.destroy();
+    }
+  }
+
   renderView() {
     const { qualityGate, edit } = this.props;
 
@@ -46,12 +52,6 @@ export default class Projects extends Component {
       container: this.refs.container
     });
     this.projectsView.render();
-  }
-
-  destroyView() {
-    if (this.projectsView) {
-      this.projectsView.destroy();
-    }
   }
 
   render() {

@@ -38,24 +38,23 @@ type State = {
 
 class CreateOrganizationForm extends React.Component {
   mounted: boolean;
-
+  state: State;
   props: {
     createOrganization: () => Promise<*>,
     router: { push: (string) => void }
   };
 
-  state: State = {
-    loading: false,
-    avatar: '',
-    avatarImage: '',
-    description: '',
-    key: '',
-    name: '',
-    url: ''
-  };
-
   constructor(props) {
     super(props);
+    this.state = {
+      loading: false,
+      avatar: '',
+      avatarImage: '',
+      description: '',
+      key: '',
+      name: '',
+      url: ''
+    };
     this.changeAvatarImage = debounce(this.changeAvatarImage, 500);
   }
 

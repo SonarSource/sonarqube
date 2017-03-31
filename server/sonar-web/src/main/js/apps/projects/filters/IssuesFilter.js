@@ -32,6 +32,10 @@ export default class IssuesFilter extends React.PureComponent {
     organization: React.PropTypes.object
   };
 
+  getFacetValueForOption(facet, option) {
+    return facet[option];
+  }
+
   renderOption(option, selected) {
     return (
       <span>
@@ -39,10 +43,6 @@ export default class IssuesFilter extends React.PureComponent {
         {option > 1 && option < 5 && <span className="note spacer-left">and worse</span>}
       </span>
     );
-  }
-
-  getFacetValueForOption(facet, option) {
-    return facet[option];
   }
 
   render() {

@@ -47,19 +47,19 @@ const LIST_SIZE = 10;
 export default class TagsFilter extends React.PureComponent {
   getSearchOptions: () => [{ label: string, value: string }];
   props: Props;
-  state: State = {
-    isLoading: false,
-    search: '',
-    tags: []
-  };
-  property = 'tags';
+  state: State;
+  property: string;
 
   constructor(props: Props) {
     super(props);
+    this.state = {
+      isLoading: false,
+      search: '',
+      tags: []
+    };
+    this.property = 'tags';
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
-
-  renderOption = (option: string) => <SearchableFilterOption optionKey={option} />;
 
   getSearchOptions(facet: {}, tags: Array<string>) {
     let tagsCopy = [...tags];
@@ -87,6 +87,8 @@ export default class TagsFilter extends React.PureComponent {
   }
 
   getFacetValueForOption = (facet: {}, option: string) => facet[option];
+
+  renderOption = (option: string) => <SearchableFilterOption optionKey={option} />;
 
   render() {
     return (

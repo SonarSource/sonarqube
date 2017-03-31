@@ -44,13 +44,6 @@ export default class LanguagesFilter extends React.PureComponent {
   props: Props;
   property = 'languages';
 
-  renderOption = (option: string) => (
-    <SearchableFilterOption
-      optionKey={option}
-      option={getLanguageByKey(this.props.languages, option)}
-    />
-  );
-
   getSearchOptions(facet: {}, languages: {}) {
     let languageKeys = Object.keys(languages);
     if (facet) {
@@ -66,6 +59,13 @@ export default class LanguagesFilter extends React.PureComponent {
   }
 
   getFacetValueForOption = (facet: {} = {}, option: string) => facet[option];
+
+  renderOption = (option: string) => (
+    <SearchableFilterOption
+      optionKey={option}
+      option={getLanguageByKey(this.props.languages, option)}
+    />
+  );
 
   render() {
     return (
