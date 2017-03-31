@@ -51,6 +51,7 @@ public class DbVersion64 implements DbVersion {
       .add(1620, "Delete 'sonar.defaultGroup' setting", DeleteDefaultGroupSetting.class)
       .add(1621, "Set all users into 'sonar-users' group", SetAllUsersIntoSonarUsersGroup.class)
       .add(1622, "Create 'Members' group in each organization", CreateMembersGroupsInEachOrganization.class)
-      .add(1623, "Set organization members into 'Members' group", SetOrganizationMembersIntoMembersGroup.class);
+      .add(1623, "Set organization members into 'Members' group", SetOrganizationMembersIntoMembersGroup.class)
+      .add(1624, "Add ORGANIZATIONS.DEFAULT_GROUP_ID", AddDefaultGroupIdToOrganizations.class);
   }
 }
