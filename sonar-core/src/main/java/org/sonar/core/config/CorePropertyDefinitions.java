@@ -137,12 +137,6 @@ public class CorePropertyDefinitions {
         .defaultValue(String.valueOf(false))
         .hidden()
         .build(),
-      PropertyDefinition.builder("sonar.enableFileVariation")
-        .name("Enable file variation")
-        .hidden()
-        .type(PropertyType.BOOLEAN)
-        .defaultValue(String.valueOf(false))
-        .build(),
       PropertyDefinition.builder(CoreProperties.SCM_DISABLED_KEY)
         .name("Disable the SCM Sensor")
         .description("Disable the retrieval of blame information from Source Control Manager")
