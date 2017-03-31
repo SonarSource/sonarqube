@@ -178,7 +178,10 @@ export const updateOrganizationMemberGroups = (
     return Promise.all(promises).then(
       () => {
         dispatch(
-          receiveUser({ ...member, groupCount: member.groupCount + add.length - remove.length })
+          receiveUser({
+            ...member,
+            groupCount: (member.groupCount || 0) + add.length - remove.length
+          })
         );
       },
       onFail(dispatch)
