@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.monitoring;
+package org.sonar.ce.monitoring;
 
 import org.picocontainer.Startable;
-import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;

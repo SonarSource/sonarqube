@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.monitoring;
+package org.sonar.ce.monitoring;
 
 import java.util.Random;
 import org.junit.Rule;
@@ -41,7 +41,7 @@ public class CEQueueStatusImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   private CEQueueStatusImpl underTest = new CEQueueStatusImpl(dbClient);
 
   @Test

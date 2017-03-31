@@ -17,7 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.computation.monitoring;
+package org.sonar.ce.monitoring;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+public interface CeTasksMBean {
+
+  String OBJECT_NAME = "SonarQube:name=ComputeEngineTasks";
+
+  /**
+   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
+   */
+  long getPendingCount();
+
+  /**
+   * Count of batch reports under processing.
+   */
+  long getInProgressCount();
+
+  /**
+   * Count of batch reports which processing ended with an error since instance startup.
+   */
+  long getErrorCount();
+
+  /**
+   * Count of batch reports which processing ended successfully since instance startup.
+   */
+  long getSuccessCount();
+
+  /**
+   * Time spent processing reports since startup, in milliseconds.
+   */
+  long getProcessingTime();
+
+  /**
+   * Configured number of Workers.
+   */
+  int getWorkerCount();
+}
