@@ -50,6 +50,7 @@ public class DbVersion64 implements DbVersion {
       .add(1620, "Set all users into 'sonar-users' group", SetAllUsersIntoSonarUsersGroup.class)
       .add(1621, "Create 'members' group in each organization", CreateMembersGroupsInEachOrganization.class)
       .add(1622, "Set organization members into 'members' group", SetOrganizationMembersIntoMembersGroup.class)
+      .add(1623, "Add ORGANIZATIONS.DEFAULT_GROUP_ID", AddDefaultGroupIdToOrganizations.class)
     ;
   }
 }
