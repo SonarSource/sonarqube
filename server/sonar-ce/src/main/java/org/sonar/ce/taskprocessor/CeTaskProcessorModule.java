@@ -17,26 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.ce.taskprocessor;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
-import org.sonar.ce.queue.CeQueueInitializer;
-import org.sonar.ce.queue.InternalCeQueueImpl;
 
-public class CeQueueModule extends Module {
+public class CeTaskProcessorModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // queue state
-      InternalCeQueueImpl.class,
-
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      CeTasksMBeanImpl.class,
-      
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+      CeTaskProcessorRepositoryImpl.class,
+      CeWorkerCallableImpl.class,
+      CeProcessingSchedulerExecutorServiceImpl.class,
+      CeProcessingSchedulerImpl.class);
   }
 }

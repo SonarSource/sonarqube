@@ -19,12 +19,12 @@
  */
 package org.sonar.server.computation.taskprocessor;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.queue.CeTaskResult;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MutableTaskResultHolderImplTest {
@@ -47,7 +47,7 @@ public class MutableTaskResultHolderImplTest {
 
     underTest.setResult(taskResult);
 
-    assertThat(underTest.getResult()).isSameAs(taskResult);
+    Assertions.assertThat(underTest.getResult()).isSameAs(taskResult);
   }
 
   @Test

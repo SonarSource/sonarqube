@@ -17,26 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.ce.queue;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
-import org.sonar.ce.queue.CeQueueInitializer;
-import org.sonar.ce.queue.InternalCeQueueImpl;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
+import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 
-public class CeQueueModule extends Module {
+/**
+ * Cleans-up the queue, initializes JMX counters then schedule
+ * the execution of workers. That allows to not prevent workers
+ * from peeking the queue before it's ready.
+ */
+@ComputeEngineSide
+public class CeQueueInitializer implements ServerStartHandler {
+
+  private final CeProcessingScheduler scheduler;
+  private boolean done = false;
+
+  public CeQueueInitializer(CeProcessingScheduler scheduler) {
+    this.scheduler = scheduler;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
+  public void onServerStart(Server server) {
+    if (!done) {
+      initCe();
+      this.done = true;
+    }
+  }
 
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      CeTasksMBeanImpl.class,
-      
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+  private void initCe() {
+    scheduler.startScheduling();
   }
 }
