@@ -19,7 +19,7 @@
     org.default_perm_template_project as "projectUuid",
     org.default_perm_template_view as "viewUuid"
   </sql>
-  
+
   <select id="selectByUuid" resultType="Organization">
     select
       <include refid="selectColumns"/>
@@ -175,6 +175,13 @@
       )
   </sql>
 
+  <select id="selectDefaultGroupIdByUuid" resultType="Integer">
+    select org.default_group_id as "defaultGroupId"
+    from organizations org
+    where
+    org.uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
+
   <insert id="insert" parameterType="Organization" useGeneratedKeys="false">
     insert into organizations
     (
@@ -221,6 +228,15 @@
     set
       default_perm_template_project = #{defaultTemplates.projectUuid, jdbcType=VARCHAR},
       default_perm_template_view = #{defaultTemplates.viewUuid, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateDefaultGroupId">
+    update organizations
+    set
+      default_group_id = #{defaultGroupId, jdbcType=INTEGER},
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{organizationUuid, jdbcType=VARCHAR}

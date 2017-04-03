@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.user.GroupDto;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -94,6 +95,17 @@ public class OrganizationDao implements Dao {
     checkDefaultTemplates(defaultTemplates);
     long now = system2.now();
     getMapper(dbSession).updateDefaultTemplates(uuid, defaultTemplates, now);
+  }
+
+  public Optional<Integer> getDefaultGroupId(DbSession dbSession, String organizationUuid) {
+    checkUuid(organizationUuid);
+    return Optional.ofNullable(getMapper(dbSession).selectDefaultGroupIdByUuid(organizationUuid));
+  }
+
+  public void setDefaultGroupId(DbSession dbSession, String uuid, GroupDto defaultGroup) {
+    checkUuid(uuid);
+    Integer defaultGroupId = requireNonNull(defaultGroup, "Default group cannot be null").getId();
+    getMapper(dbSession).updateDefaultGroupId(uuid, requireNonNull(defaultGroupId, "Default group id cannot be null"), system2.now());
   }
 
   public int update(DbSession dbSession, OrganizationDto organization) {
