@@ -23,7 +23,6 @@ import fi.iki.elonen.NanoHTTPD;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -54,12 +53,11 @@ public class CeHttpServer {
   private final ActionRegistryImpl actionRegistry;
   private final CeNanoHttpd nanoHttpd;
 
-  public CeHttpServer(Properties processProps, List<HttpAction> actions) throws UnknownHostException {
+  public CeHttpServer(Properties processProps, List<HttpAction> actions) {
     this.processProps = processProps;
     this.actions = actions;
     this.actionRegistry = new ActionRegistryImpl();
-    InetAddress loopbackAddress = InetAddress.getByName(null);
-    this.nanoHttpd = new CeNanoHttpd(loopbackAddress.getHostAddress(), 0, actionRegistry);
+    this.nanoHttpd = new CeNanoHttpd(InetAddress.getLoopbackAddress().getHostAddress(), 0, actionRegistry);
   }
 
   // do not rename. This naming convention is required for picocontainer.
