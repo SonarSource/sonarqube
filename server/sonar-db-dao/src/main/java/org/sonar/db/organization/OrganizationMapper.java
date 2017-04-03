@@ -49,6 +49,8 @@ public interface OrganizationMapper {
 
   DefaultTemplates selectDefaultTemplatesByUuid(@Param("uuid") String uuid);
 
+  Integer selectDefaultGroupIdByUuid(@Param("uuid") String uuid);
+
   /**
    * Update the organization with UUID specified by {@link OrganizationDto#getUuid()}.
    * <p>
@@ -60,6 +62,9 @@ public interface OrganizationMapper {
 
   void updateDefaultTemplates(@Param("organizationUuid") String organizationUuid,
     @Param("defaultTemplates") DefaultTemplates defaultTemplates, @Param("now") long now);
+
+  void updateDefaultGroupId(@Param("organizationUuid") String organizationUuid,
+                              @Param("defaultGroupId") int defaultGroupId, @Param("now") long now);
 
   int deleteByUuid(@Param("uuid") String uuid);
 }
