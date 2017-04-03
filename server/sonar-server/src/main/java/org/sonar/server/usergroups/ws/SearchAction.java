@@ -77,7 +77,8 @@ public class SearchAction implements UserGroupsWsAction {
       .addFieldsParam(ALL_FIELDS)
       .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar-users", "names")
-      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"));
+      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"),
+        new Change("6.4", "'default' response field has been added"));
 
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization. If not set then groups are searched in default organization.")
@@ -99,13 +100,14 @@ public class SearchAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = groupWsSupport.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
       userSession.checkLoggedIn().checkPermission(ADMINISTER, organization);
+      int defaultGroupId = groupWsSupport.getDefaultGroupId(dbSession, organization);
 
       int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);
       List<Integer> groupIds = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupIds);
-      writeProtobuf(buildResponse(groups, userCountByGroup, fields, paging), request, response);
+      writeProtobuf(buildResponse(groups, userCountByGroup, fields, paging, defaultGroupId), request, response);
     }
   }
 
@@ -120,9 +122,9 @@ public class SearchAction implements UserGroupsWsAction {
     return fields;
   }
 
-  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields, Paging paging) {
+  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields, Paging paging, int defaultGroupId) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
-    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields)));
+    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields, group.getId() == defaultGroupId)));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
@@ -131,8 +133,10 @@ public class SearchAction implements UserGroupsWsAction {
     return responseBuilder.build();
   }
 
-  private static Group toWsGroup(GroupDto group, Integer memberCount, Set<String> fields) {
-    Group.Builder groupBuilder = Group.newBuilder().setId(group.getId());
+  private static Group toWsGroup(GroupDto group, Integer memberCount, Set<String> fields, boolean isDefault) {
+    Group.Builder groupBuilder = Group.newBuilder()
+      .setId(group.getId())
+      .setDefault(isDefault);
     if (fields.contains(FIELD_NAME)) {
       groupBuilder.setName(group.getName());
     }
