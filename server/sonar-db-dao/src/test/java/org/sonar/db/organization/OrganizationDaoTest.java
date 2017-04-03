@@ -45,6 +45,7 @@ import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.ImmutableSet.of;
@@ -565,6 +566,49 @@ public class OrganizationDaoTest {
   }
 
   @Test
+  public void getDefaultGroupId_returns_empty_when_default_group_id_is_null() {
+    insertOrganization(ORGANIZATION_DTO_1.setDefaultGroupId(null));
+
+    assertThat(underTest.getDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void getDefaultGroupId_returns_data_when_default_group_id_is_not_null() {
+    when(system2.now()).thenReturn(DATE_3);
+    insertOrganization(ORGANIZATION_DTO_1);
+    underTest.setDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid(), GroupTesting.newGroupDto().setId(10));
+
+    Optional<Integer> optional = underTest.getDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid());
+    assertThat(optional).isNotEmpty();
+    assertThat(optional.get()).isEqualTo(10);
+    verifyOrganizationUpdatedAt(ORGANIZATION_DTO_1.getUuid(), DATE_3);
+  }
+
+  @Test
+  public void setDefaultGroupId_throws_NPE_when_uuid_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("uuid can't be null");
+
+    underTest.setDefaultGroupId(dbSession, null, GroupTesting.newGroupDto().setId(10));
+  }
+
+  @Test
+  public void setDefaultGroupId_throws_NPE_when_default_group_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Default group cannot be null");
+
+    underTest.setDefaultGroupId(dbSession, "uuid", null);
+  }
+
+  @Test
+  public void setDefaultGroupId_throws_NPE_when_default_group_id_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Default group id cannot be null");
+
+    underTest.setDefaultGroupId(dbSession, "uuid", GroupTesting.newGroupDto().setId(null));
+  }
+
+  @Test
   public void update_fails_with_NPE_if_OrganizationDto_is_null() {
     expectDtoCanNotBeNull();
 
@@ -1010,5 +1054,10 @@ public class OrganizationDaoTest {
     DefaultTemplates defaultTemplates = optional.get();
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(expectedProject);
     assertThat(defaultTemplates.getViewUuid()).isEqualTo(expectedView);
+  }
+
+  private void verifyOrganizationUpdatedAt(String organization, Long updatedAt) {
+    Map<String, Object> row = dbTester.selectFirst(dbTester.getSession(), String.format("select updated_at as \"updatedAt\" from organizations where uuid='%s'", organization));
+    assertThat(row.get("updatedAt")).isEqualTo(updatedAt);
   }
 }
