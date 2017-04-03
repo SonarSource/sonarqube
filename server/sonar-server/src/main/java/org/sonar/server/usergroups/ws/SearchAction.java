@@ -39,8 +39,8 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 
 public class SearchAction implements UserGroupsWsAction {
@@ -67,7 +67,7 @@ public class SearchAction implements UserGroupsWsAction {
       .setDescription("Search for user groups.<br>" +
         "Requires the following permission: 'Administer System'.")
       .setHandler(this)
-      .setResponseExample(getClass().getResource("example-search.json"))
+      .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("5.2")
       .addFieldsParam(ALL_FIELDS)
       .addPagingParams(100, MAX_LIMIT)

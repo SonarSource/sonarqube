@@ -59,7 +59,7 @@ public class CreateAction implements UserGroupsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setPost(true)
-      .setResponseExample(getClass().getResource("example-create.json"))
+      .setResponseExample(getClass().getResource("create-example.json"))
       .setSince("5.2");
 
     action.createParam(PARAM_ORGANIZATION_KEY)
