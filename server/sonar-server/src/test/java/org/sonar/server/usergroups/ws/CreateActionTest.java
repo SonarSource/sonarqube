@@ -100,6 +100,25 @@ public class CreateActionTest {
   }
 
   @Test
+  public void return_default_field() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
+    newRequest()
+      .setParam("name", "some-product-bu")
+      .setParam("description", "Business Unit for Some Awesome Product")
+      .execute()
+      .assertJson("{" +
+        "  \"group\": {" +
+        "    \"organization\": \"" + getDefaultOrganization().getKey() + "\"," +
+        "    \"name\": \"some-product-bu\"," +
+        "    \"description\": \"Business Unit for Some Awesome Product\"," +
+        "    \"membersCount\": 0," +
+        "    \"default\": false" +
+        "  }" +
+        "}");
+  }
+
+  @Test
   public void fail_if_not_administrator() throws Exception {
     userSession.logIn("not-admin");
 
@@ -209,6 +228,7 @@ public class CreateActionTest {
       .setParam("description", StringUtils.repeat("a", 1_000))
       .execute();
   }
+
 
   private WsTester.TestRequest newRequest() {
     return ws.newPostRequest("api/user_groups", "create");

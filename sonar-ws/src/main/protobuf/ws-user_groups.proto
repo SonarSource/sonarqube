@@ -48,4 +48,5 @@ message Group {
   optional string name = 3;
   optional string description = 4;
   optional int32 membersCount = 5;
+  optional bool default = 6;
 }
