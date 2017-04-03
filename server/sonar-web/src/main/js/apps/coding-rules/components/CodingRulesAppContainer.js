@@ -49,7 +49,11 @@ class CodingRulesAppContainer extends React.PureComponent {
           window.location.hash
       );
     } else {
-      this.stop = init(this.refs.container, this.props.params.organizationKey);
+      this.stop = init(
+        this.refs.container,
+        this.props.params.organizationKey,
+        this.props.params.organizationKey === this.props.appState.defaultOrganization
+      );
     }
   }
 

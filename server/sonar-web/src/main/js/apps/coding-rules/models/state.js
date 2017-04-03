@@ -25,21 +25,6 @@ export default State.extend({
     maxResultsReached: false,
     query: {},
     facets: ['types', 'languages'],
-    allFacets: [
-      'q',
-      'rule_key',
-      'languages',
-      'types',
-      'tags',
-      'repositories',
-      'severities',
-      'statuses',
-      'available_since',
-      'is_template',
-      'qprofile',
-      'inheritance',
-      'active_severities'
-    ],
     facetsFromServer: [
       'languages',
       'repositories',

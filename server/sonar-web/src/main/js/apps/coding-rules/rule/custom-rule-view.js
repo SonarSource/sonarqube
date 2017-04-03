@@ -47,7 +47,7 @@ export default Marionette.ItemView.extend({
   serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      canDeleteCustomRule: this.options.app.canCreateCustomRule,
+      canDeleteCustomRule: this.options.app.customRules && this.options.app.canWrite,
       templateRule: this.options.templateRule,
       permalink: window.baseUrl + '/coding_rules/#rule_key=' + encodeURIComponent(this.model.id)
     };
