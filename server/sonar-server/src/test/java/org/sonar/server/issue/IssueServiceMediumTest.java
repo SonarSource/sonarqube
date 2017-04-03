@@ -47,7 +47,6 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
@@ -74,7 +73,6 @@ public class IssueServiceMediumTest {
   private DbSession session;
   private IssueService service;
   private RuleIndexer ruleIndexer;
-  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
@@ -83,9 +81,6 @@ public class IssueServiceMediumTest {
     session = db.openSession(false);
     service = tester.get(IssueService.class);
     ruleIndexer = tester.get(RuleIndexer.class);
-    String defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
-    defaultOrganization = db.organizationDao().selectByUuid(session, defaultOrganizationUuid)
-      .orElseThrow(() -> new IllegalStateException(String.format("Could not find defautl organization '%s'", defaultOrganizationUuid)));
   }
 
   @After
@@ -95,7 +90,7 @@ public class IssueServiceMediumTest {
 
   @Test
   public void set_tags() {
-    RuleDto rule = newRule(defaultOrganization);
+    RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
     userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
@@ -130,7 +125,7 @@ public class IssueServiceMediumTest {
 
   @Test
   public void list_component_tags() {
-    RuleDto rule = newRule(defaultOrganization);
+    RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")));
@@ -150,7 +145,7 @@ public class IssueServiceMediumTest {
 
   @Test
   public void test_listAuthors() {
-    RuleDto rule = newRule(defaultOrganization);
+    RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project).setAuthorLogin("luke.skywalker"));
@@ -167,7 +162,7 @@ public class IssueServiceMediumTest {
 
   @Test
   public void listAuthors_escapes_regexp_special_characters() {
-    saveIssue(IssueTesting.newDto(newRule(defaultOrganization), newFile(newProject()), newProject()).setAuthorLogin("name++"));
+    saveIssue(IssueTesting.newDto(newRule(), newFile(newProject()), newProject()).setAuthorLogin("name++"));
 
     assertThat(service.listAuthors("invalidRegexp[", 5)).isEmpty();
     assertThat(service.listAuthors("nam+", 5)).isEmpty();
@@ -175,18 +170,18 @@ public class IssueServiceMediumTest {
     assertThat(service.listAuthors(".*", 5)).isEmpty();
   }
 
-  private RuleDto newRule(OrganizationDto organization) {
-    return newRule(organization, RuleTesting.newXooX1());
+  private RuleDto newRule() {
+    return newRule(RuleTesting.newXooX1());
   }
 
-  private RuleDto newRule(OrganizationDto organization, RuleDto rule) {
+  private RuleDto newRule(RuleDto rule) {
     RuleDao ruleDao = tester.get(RuleDao.class);
     ruleDao.insert(session, rule.getDefinition());
     if (rule.getOrganizationUuid() != null) {
       ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
     }
     session.commit();
-    ruleIndexer.index(organization, rule.getKey());
+    ruleIndexer.indexRuleDefinition(rule.getDefinition().getKey());
     return rule;
   }
 

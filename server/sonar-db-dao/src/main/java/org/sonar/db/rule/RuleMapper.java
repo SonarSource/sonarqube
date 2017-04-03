@@ -45,6 +45,8 @@ public interface RuleMapper {
 
   RuleDefinitionDto selectDefinitionByKey(RuleKey ruleKey);
 
+  RuleMetadataDto selectMetadataByKey(@Param("ruleKey") RuleKey ruleKey, @Param("organizationUuid") String organizationUuid);
+
   List<RuleDto> selectByKeys(@Param("organizationUuid") String organizationUuid, @Param("ruleKeys") List<RuleKey> keys);
 
   List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);

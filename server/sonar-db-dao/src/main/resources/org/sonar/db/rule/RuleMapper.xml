@@ -139,6 +139,29 @@
       and r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectMetadataByKey" parameterType="map" resultType="org.sonar.db.rule.RuleMetadataDto">
+    select
+      rm.rule_id as "ruleId",
+      rm.organization_uuid as "organizationUuid",
+      rm.note_data as "noteData",
+      rm.note_user_login as "noteUserLogin",
+      rm.note_created_at as "noteCreatedAt",
+      rm.note_updated_at as "noteUpdatedAt",
+      rm.remediation_function as "remediationFunction",
+      rm.remediation_gap_mult as "remediationGapMultiplier",
+      rm.remediation_base_effort as "remediationBaseEffort",
+      rm.tags as "tagsField",
+      rm.created_at as "createdAt",
+      rm.updated_at as "updatedAt"
+    from
+      rules_metadata rm
+      inner join rules r on rm.rule_id = r.id
+    where
+      r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
+      and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
+      and rm.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectByKeys" parameterType="map" resultType="Rule">
     select
       <include refid="selectJoinedTablesColumns"/>

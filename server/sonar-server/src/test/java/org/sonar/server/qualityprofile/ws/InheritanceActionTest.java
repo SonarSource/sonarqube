@@ -37,7 +37,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
@@ -53,13 +52,10 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.rule.index.RuleIteratorFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
-
-import static java.util.Arrays.asList;
 
 public class InheritanceActionTest {
 
@@ -85,7 +81,7 @@ public class InheritanceActionTest {
     dbClient = dbTester.getDbClient();
     dbSession = dbTester.getSession();
     esClient = esTester.client();
-    ruleIndexer = new RuleIndexer(esClient, null, new RuleIteratorFactory(dbClient), null);
+    ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     underTest = new InheritanceAction(
@@ -119,7 +115,6 @@ public class InheritanceActionTest {
     createActiveRule(rule2, groupWide);
 
     dbSession.commit();
-    ruleIndexer.index(organization, asList(rule1.getKey(), rule2.getKey(), rule3.getKey()));
     activeRuleIndexer.index();
 
     QualityProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
@@ -181,14 +176,16 @@ public class InheritanceActionTest {
 
   private RuleDefinitionDto createRule(String lang, String id) {
     long now = new Date().getTime();
-    RuleDto rule = RuleTesting.newDto(RuleKey.of("blah", id))
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY)
       .setUpdatedAt(now)
       .setCreatedAt(now);
-    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
-    return rule.getDefinition();
+    dbClient.ruleDao().insert(dbSession, rule);
+    dbSession.commit();
+    ruleIndexer.indexRuleDefinition(rule.getKey());
+    return rule;
   }
 
   private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QualityProfileDto profile) {

@@ -20,7 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.Maps;
-import java.util.Arrays;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -44,7 +43,6 @@ public class RuleDocTesting {
       .setStatus(RuleStatus.READY.name())
       .setLanguage("xoo")
       .setIsTemplate(false)
-      .setAllTags(Arrays.asList("spring", "performance"))
       .setType(RuleType.CODE_SMELL)
       .setCreatedAt(1_500_000_000L)
       .setUpdatedAt(1_600_000_000L);

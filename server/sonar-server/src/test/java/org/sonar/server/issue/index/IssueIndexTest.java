@@ -20,7 +20,6 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import java.util.Date;
@@ -40,9 +39,11 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -52,8 +53,6 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.rule.index.RuleDoc;
-import org.sonar.server.rule.index.RuleDocTesting;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -61,6 +60,7 @@ import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 
+import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,8 +73,6 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
-import static org.sonar.db.rule.RuleTesting.XOO_X1;
-import static org.sonar.db.rule.RuleTesting.XOO_X2;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
@@ -89,16 +87,19 @@ public class IssueIndexTest {
     new ViewIndexDefinition(new MapSettings()),
     new RuleIndexDefinition(new MapSettings()));
   @Rule
+  public DbTester db = DbTester.create(system2);
+  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndexer issueIndexer = new IssueIndexer(tester.client(), new IssueIteratorFactory(null));
   private ViewIndexer viewIndexer = new ViewIndexer(null, tester.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(tester.client(), null, null, null);
+  private RuleIndexer ruleIndexer = new RuleIndexer(tester.client(), db.getDbClient());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
-  private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+  private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule)
+  );
 
   @Before
   public void setUp() {
@@ -1326,24 +1327,27 @@ public class IssueIndexTest {
 
   @Test
   public void list_tags() {
-    indexRules(
-      RuleDocTesting.newDoc(XOO_X1).setAllTags(asList("tag1", "systag1")),
-      RuleDocTesting.newDoc(XOO_X2).setAllTags(asList("tag2", "systag2")));
+    RuleDefinitionDto r1 = db.rules().insert();
+    ruleIndexer.indexRuleDefinition(r1.getKey());
+
+    RuleDefinitionDto r2 = db.rules().insert();
+    ruleIndexer.indexRuleDefinition(r2.getKey());
+
+    OrganizationDto org = db.organizations().insert();
     ComponentDto project = newProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
     indexIssues(
-      newDoc("ISSUE1", file).setRuleKey(XOO_X1.toString()).setTags(ImmutableSet.of("convention", "java8", "bug")),
-      newDoc("ISSUE2", file).setRuleKey(XOO_X1.toString()).setTags(ImmutableSet.of("convention", "bug")),
-      newDoc("ISSUE3", file).setRuleKey(XOO_X2.toString()),
-      newDoc("ISSUE4", file).setRuleKey(XOO_X1.toString()).setTags(ImmutableSet.of("convention")));
+      newDoc("ISSUE1", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention", "java8", "bug")),
+      newDoc("ISSUE2", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention", "bug")),
+      newDoc("ISSUE3", file).setOrganizationUuid(org.getUuid()).setRuleKey(r2.getKey().toString()),
+      newDoc("ISSUE4", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention")));
 
-    assertThat(underTest.listTags(null, 5)).containsOnly("convention", "java8", "bug", "systag1", "systag2");
-    assertThat(underTest.listTags(null, 2)).containsOnly("bug", "convention");
-    assertThat(underTest.listTags("vent", 5)).containsOnly("convention");
-    assertThat(underTest.listTags("sys", 5)).containsOnly("systag1", "systag2");
-    assertThat(underTest.listTags(null, 1)).containsOnly("bug");
-    assertThat(underTest.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug", "systag1", "systag2", "tag1", "tag2");
-    assertThat(underTest.listTags("invalidRegexp[", 5)).isEmpty();
+    assertThat(underTest.listTags(org.getUuid(), null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
+    assertThat(underTest.listTags(org.getUuid(), null, 2)).containsOnly("bug", "convention");
+    assertThat(underTest.listTags(org.getUuid(), "vent", Integer.MAX_VALUE)).containsOnly("convention");
+    assertThat(underTest.listTags(org.getUuid(), null, 1)).containsOnly("bug");
+    assertThat(underTest.listTags(org.getUuid(), null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
+    assertThat(underTest.listTags(org.getUuid(), "invalidRegexp[", Integer.MAX_VALUE)).isEmpty();
   }
 
   @Test
@@ -1404,9 +1408,5 @@ public class IssueIndexTest {
 
   private void indexView(String viewUuid, List<String> projects) {
     viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
-  }
-
-  private void indexRules(RuleDoc... rules) {
-    ruleIndexer.index(asList(rules).iterator());
   }
 }

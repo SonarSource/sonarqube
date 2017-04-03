@@ -21,6 +21,7 @@ package org.sonar.db.rule;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -31,6 +32,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto.Format;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -223,6 +225,10 @@ public class RuleTesting {
       .setIsTemplate(true);
   }
 
+  /**
+   * @deprecated use {@link #newCustomRule(RuleDefinitionDto)}
+   */
+  @Deprecated
   public static RuleDto newCustomRule(RuleDto templateRule) {
     checkNotNull(templateRule.getId(), "The template rule need to be persisted before creating this custom rule.");
     return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
@@ -231,7 +237,72 @@ public class RuleTesting {
       .setType(templateRule.getType());
   }
 
+  public static RuleDefinitionDto newCustomRule(RuleDefinitionDto templateRule) {
+    checkNotNull(templateRule.getId(), "The template rule need to be persisted before creating this custom rule.");
+    return newRule(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
+      .setLanguage(templateRule.getLanguage())
+      .setTemplateId(templateRule.getId())
+      .setType(templateRule.getType());
+  }
+
   public static RuleKey randomRuleKey() {
     return RuleKey.of("repo_" + randomAlphanumeric(3), "rule_" + randomAlphanumeric(3));
   }
+
+  public static Consumer<RuleDefinitionDto> setRepositoryKey(String repositoryKey) {
+    return rule -> rule.setRepositoryKey(repositoryKey);
+  }
+
+  public static Consumer<RuleDefinitionDto> setCreatedAt(long createdAt) {
+    return rule -> rule.setCreatedAt(createdAt);
+  }
+
+  public static Consumer<RuleDefinitionDto> setUpdatedAt(long updatedtAt) {
+    return rule -> rule.setUpdatedAt(updatedtAt);
+  }
+
+  public static Consumer<RuleDefinitionDto> setRuleKey(String ruleKey) {
+    return rule -> rule.setRuleKey(ruleKey);
+  }
+
+  public static Consumer<RuleDefinitionDto> setName(String name) {
+    return rule -> rule.setName(name);
+  }
+
+  public static Consumer<RuleDefinitionDto> setLanguage(String language) {
+    return rule -> rule.setLanguage(language);
+  }
+
+  public static Consumer<RuleDefinitionDto> setSeverity(String severity) {
+    return rule -> rule.setSeverity(severity);
+  }
+
+  public static Consumer<RuleDefinitionDto> setStatus(RuleStatus status) {
+    return rule -> rule.setStatus(status);
+  }
+
+  public static Consumer<RuleDefinitionDto> setType(RuleType type) {
+    return rule -> rule.setType(type);
+  }
+
+  public static Consumer<RuleDefinitionDto> setIsTemplate(boolean isTemplate) {
+    return rule -> rule.setIsTemplate(isTemplate);
+  }
+
+  public static Consumer<RuleDefinitionDto> setTemplateId(@Nullable Integer templateId) {
+    return rule -> rule.setTemplateId(templateId);
+  }
+
+  public static Consumer<RuleDefinitionDto> setSystemTags(String... tags) {
+    return rule -> rule.setSystemTags(copyOf(tags));
+  }
+
+  public static Consumer<RuleMetadataDto> setOrganizationUuid(String organizationUuid) {
+    return rule -> rule.setOrganizationUuid(organizationUuid);
+  }
+
+  public static Consumer<RuleMetadataDto> setTags(String... tags) {
+    return rule -> rule.setTags(copyOf(tags));
+  }
+
 }

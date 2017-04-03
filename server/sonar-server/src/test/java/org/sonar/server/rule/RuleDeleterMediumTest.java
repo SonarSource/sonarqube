@@ -88,7 +88,7 @@ public class RuleDeleterMediumTest {
       .setUpdatedAt(PAST);
     dao.insert(dbSession, templateRule.getDefinition());
     dbSession.commit();
-    ruleIndexer.index(organization, templateRule.getKey());
+    ruleIndexer.indexRuleDefinition(templateRule.getDefinition().getKey());
 
     // Verify in index
     assertThat(index.searchAll(new RuleQuery())).containsOnly(templateRule.getKey());
@@ -100,7 +100,7 @@ public class RuleDeleterMediumTest {
       .setUpdatedAt(PAST);
     dao.insert(dbSession, customRule.getDefinition());
     dbSession.commit();
-    ruleIndexer.index(organization, customRule.getKey());
+    ruleIndexer.indexRuleDefinition(customRule.getDefinition().getKey());
 
     // Verify in index
     assertThat(index.searchAll(new RuleQuery())).containsOnly(templateRule.getKey(), customRule.getKey());
@@ -134,7 +134,7 @@ public class RuleDeleterMediumTest {
   public void fail_to_delete_if_not_custom() {
     // Create rule
     RuleKey ruleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(ruleKey).getDefinition());
+    dao.insert(dbSession, RuleTesting.newRule(ruleKey));
     dbSession.commit();
 
     try {
