@@ -19,10 +19,11 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import com.google.common.base.Throwables;
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -33,12 +34,20 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common.Paging;
+import org.sonarqube.ws.MediaTypes;
 
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.WsUserGroups.Group;
+import static org.sonarqube.ws.WsUserGroups.SearchWsResponse;
 
 public class SearchActionTest {
 
@@ -57,14 +66,10 @@ public class SearchActionTest {
   public void search_empty() throws Exception {
     loginAsDefaultOrgAdmin();
 
-    String result = newRequest().execute().getInput();
+    SearchWsResponse response = call(ws.newRequest());
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"p\": 1,\n" +
-      "  \"ps\": 100,\n" +
-      "  \"total\": 0,\n" +
-      "  \"groups\": []\n" +
-      "}");
+    assertThat(response.getGroupsList()).isEmpty();
+    assertThat(response.getPaging().getTotal()).isZero();
   }
 
   @Test
@@ -76,17 +81,14 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
     loginAsDefaultOrgAdmin();
 
-    String result = newRequest().execute().getInput();
+    SearchWsResponse response = call(ws.newRequest());
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"groups\": [\n" +
-      "    {\"name\": \"admins\", \"description\": \"Admins\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer1\", \"description\": \"Customer1\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer2\", \"description\": \"Customer2\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer3\", \"description\": \"Customer3\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"users\", \"description\": \"Users\", \"membersCount\": 0}\n" +
-      "  ]\n" +
-      "}");
+    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getMembersCount).containsOnly(
+      tuple("admins", "Admins", 0),
+      tuple("customer1", "Customer1", 0),
+      tuple("customer2", "Customer2", 0),
+      tuple("customer3", "Customer3", 0),
+      tuple("users", "Users", 0));
   }
 
   @Test
@@ -98,17 +100,14 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
     loginAsDefaultOrgAdmin();
 
-    String result = newRequest().execute().getInput();
+    SearchWsResponse response = call(ws.newRequest());
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"groups\": [\n" +
-      "    {\"name\": \"admins\", \"description\": \"Admins\", \"membersCount\": 1},\n" +
-      "    {\"name\": \"customer1\", \"description\": \"Customer1\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer2\", \"description\": \"Customer2\", \"membersCount\": 4},\n" +
-      "    {\"name\": \"customer3\", \"description\": \"Customer3\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"users\", \"description\": \"Users\", \"membersCount\": 5}\n" +
-      "  ]\n" +
-      "}\n");
+    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getMembersCount).containsOnly(
+      tuple("admins", "Admins", 1),
+      tuple("customer1", "Customer1", 0),
+      tuple("customer2", "Customer2", 4),
+      tuple("customer3", "Customer3", 0),
+      tuple("users", "Users", 5));
   }
 
   @Test
@@ -120,15 +119,12 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer%_%/3", 0);
     loginAsDefaultOrgAdmin();
 
-    String result = newRequest().setParam(Param.TEXT_QUERY, "tomer%_%/").execute().getInput();
+    SearchWsResponse response = call(ws.newRequest().setParam(TEXT_QUERY, "tomer%_%/"));
 
-    assertJson(result).ignoreFields("id").isSimilarTo("{\n" +
-      "  \"groups\": [\n" +
-      "    {\"name\": \"customer%_%/1\", \"description\": \"Customer%_%/1\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer%_%/2\", \"description\": \"Customer%_%/2\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer%_%/3\", \"description\": \"Customer%_%/3\", \"membersCount\": 0}\n" +
-      "  ]\n" +
-      "}\n");
+    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getMembersCount).containsOnly(
+      tuple("customer%_%/1", "Customer%_%/1", 0),
+      tuple("customer%_%/2", "Customer%_%/2", 0),
+      tuple("customer%_%/3", "Customer%_%/3", 0));
   }
 
   @Test
@@ -140,31 +136,22 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
     loginAsDefaultOrgAdmin();
 
-    assertJson(newRequest().setParam(Param.PAGE_SIZE, "3").execute().getInput()).isSimilarTo("{\n" +
-      "  \"p\": 1,\n" +
-      "  \"ps\": 3,\n" +
-      "  \"total\": 5,\n" +
-      "  \"groups\": [\n" +
-      "    {\"name\": \"admins\", \"description\": \"Admins\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer1\", \"description\": \"Customer1\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"customer2\", \"description\": \"Customer2\", \"membersCount\": 0}\n" +
-      "  ]\n" +
-      "}\n");
-    assertJson(newRequest().setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "2").execute().getInput()).isSimilarTo("{\n" +
-      "  \"p\": 2,\n" +
-      "  \"ps\": 3,\n" +
-      "  \"total\": 5,\n" +
-      "  \"groups\": [\n" +
-      "    {\"name\": \"customer3\", \"description\": \"Customer3\", \"membersCount\": 0},\n" +
-      "    {\"name\": \"users\", \"description\": \"Users\", \"membersCount\": 0}\n" +
-      "  ]\n" +
-      "}\n");
-    assertJson(newRequest().setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "3").execute().getInput()).isSimilarTo("{\n" +
-      "  \"p\": 3,\n" +
-      "  \"ps\": 3,\n" +
-      "  \"total\": 5,\n" +
-      "  \"groups\": []\n" +
-      "}\n");
+    SearchWsResponse response = call(ws.newRequest().setParam(PAGE_SIZE, "3"));
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 3, 5);
+    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getMembersCount).containsOnly(
+      tuple("admins", "Admins", 0),
+      tuple("customer1", "Customer1", 0),
+      tuple("customer2", "Customer2", 0));
+
+    response = call(ws.newRequest().setParam(PAGE_SIZE, "3").setParam(PAGE, "2"));
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(2, 3, 5);
+    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getMembersCount).containsOnly(
+      tuple("customer3", "Customer3", 0),
+      tuple("users", "Users", 0));
+
+    response = call(ws.newRequest().setParam(PAGE_SIZE, "3").setParam(PAGE, "3"));
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(3, 3, 5);
+    assertThat(response.getGroupsList()).isEmpty();
   }
 
   @Test
@@ -172,35 +159,16 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "sonar-users", 0);
     loginAsDefaultOrgAdmin();
 
-    assertThat(newRequest().execute().getInput())
-      .contains("id")
-      .contains("name")
-      .contains("description")
-      .contains("membersCount");
-
-    assertThat(newRequest().setParam(Param.FIELDS, "").execute().getInput())
-      .contains("id")
-      .contains("name")
-      .contains("description")
-      .contains("membersCount");
-
-    assertThat(newRequest().setParam(Param.FIELDS, "name").execute().getInput())
-      .contains("id")
-      .contains("name")
-      .doesNotContain("description")
-      .doesNotContain("membersCount");
-
-    assertThat(newRequest().setParam(Param.FIELDS, "description").execute().getInput())
-      .contains("id")
-      .doesNotContain("name")
-      .contains("description")
-      .doesNotContain("membersCount");
-
-    assertThat(newRequest().setParam(Param.FIELDS, "membersCount").execute().getInput())
-      .contains("id")
-      .doesNotContain("name")
-      .doesNotContain("description")
-      .contains("membersCount");
+    assertThat(call(ws.newRequest()).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+      .containsOnly(tuple(true, true, true, true));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+      .containsOnly(tuple(true, true, true, true));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "name")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+      .containsOnly(tuple(true, true, false, false));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "description")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+      .containsOnly(tuple(true, false, true, false));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "membersCount")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+      .containsOnly(tuple(true, false, false, true));
   }
 
   @Test
@@ -212,9 +180,9 @@ public class SearchActionTest {
     loginAsDefaultOrgAdmin();
     userSession.addPermission(ADMINISTER, org);
 
-    String result = newRequest().setParam("organization", org.getKey()).execute().getInput();
+    SearchWsResponse response = call(ws.newRequest().setParam("organization", org.getKey()));
 
-    assertJson(result).isSimilarTo("{\"groups\":[{\"id\":\"" + group.getId() + "\",\"name\":\"users\"}]}\n");
+    assertThat(response.getGroupsList()).extracting(Group::getId, Group::getName).containsOnly(tuple(group.getId().longValue(), "users"));
   }
 
   @Test
@@ -222,11 +190,16 @@ public class SearchActionTest {
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
-    newRequest().execute();
+    call(ws.newRequest());
   }
 
-  private TestRequest newRequest() {
-    return ws.newRequest();
+  private SearchWsResponse call(TestRequest request) {
+    request.setMediaType(MediaTypes.PROTOBUF);
+    try {
+      return SearchWsResponse.parseFrom(request.execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   private void insertGroup(OrganizationDto org, String name, int numberOfMembers) {
