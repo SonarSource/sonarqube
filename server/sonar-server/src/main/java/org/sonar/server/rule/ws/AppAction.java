@@ -88,7 +88,6 @@ public class AppAction implements RulesWsAction {
     boolean isAdminister = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
     json.prop("canWrite", isAdminister);
     json.prop("canCustomizeRule", isAdminister && organization.getUuid().equals(defaultOrganizationProvider.get().getUuid()));
-    json.prop("canCreateCustomRule", isAdminister && organization.getUuid().equals(defaultOrganizationProvider.get().getUuid()));
   }
 
   private void addProfiles(DbSession dbSession, OrganizationDto organization, JsonWriter json) {

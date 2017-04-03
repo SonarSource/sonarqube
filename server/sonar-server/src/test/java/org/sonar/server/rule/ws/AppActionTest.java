@@ -254,51 +254,6 @@ public class AppActionTest {
     assertJson(json).isSimilarTo("{ \"canCustomizeRule\": false }");
   }
 
-  @Test
-  public void canCreateCustomRule_is_true_if_user_is_profile_administrator_of_default_organization_and_no_organization_is_specified() {
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
-
-    String json = tester.newRequest().execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": true }");
-  }
-
-  @Test
-  public void canCreateCustomRule_is_true_if_user_is_profile_administrator_of_specified_default_organization() {
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
-
-    String json = tester.newRequest()
-        .setParam("organization", db.getDefaultOrganization().getKey())
-        .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": true }");
-  }
-
-  @Test
-  public void canCreateCustomRule_is_false_if_user_is_profile_administrator_of_specified_non_default_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-
-    String json = tester.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": false }");
-  }
-
-  @Test
-  public void canCreateCustomRule_is_false_if_user_is_not_profile_administrator_of_specified_non_default_organization() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization1);
-
-    String json = tester.newRequest()
-      .setParam("organization", organization2.getKey())
-      .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCreateCustomRule\": false }");
-  }
-
   private void insertRules() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
