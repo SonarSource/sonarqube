@@ -101,11 +101,14 @@ export default class ComponentNavMenu extends React.Component {
     );
   }
 
-  renderComponentIssuesLink() {
+  renderIssuesLink() {
     return (
       <li>
         <Link
-          to={{ pathname: '/component_issues', query: { id: this.props.component.key } }}
+          to={{
+            pathname: '/project/issues',
+            query: { id: this.props.component.key, resolved: 'false' }
+          }}
           activeClassName="active">
           {translate('issues.page')}
         </Link>
@@ -343,7 +346,7 @@ export default class ComponentNavMenu extends React.Component {
     return (
       <ul className="nav navbar-nav nav-tabs">
         {this.renderDashboardLink()}
-        {this.renderComponentIssuesLink()}
+        {this.renderIssuesLink()}
         {this.renderComponentMeasuresLink()}
         {this.renderCodeLink()}
         {this.renderActivityLink()}

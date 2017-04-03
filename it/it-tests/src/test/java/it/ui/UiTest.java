@@ -87,14 +87,14 @@ public class UiTest {
     $(".overview-quality-gate")
       .shouldBe(visible)
       .shouldHave(text("Passed"));
-    $("a[href=\"/component_issues?id=sample#resolved=false|types=CODE_SMELL\"]")
+    $("a[href=\"/project/issues?id=sample&resolved=false&types=CODE_SMELL\"]")
       .shouldBe(visible)
       .shouldHave(text("0"))
       .click();
 
     // on project issues page
-    assertThat(url()).contains("/component_issues?id=sample#resolved=false|types=CODE_SMELL");
-    $(".facet.active[data-unresolved]").shouldBe(visible);
+    assertThat(url()).contains("/project/issues?id=sample&resolved=false&types=CODE_SMELL");
+    $("[data-property=\"resolutions\"] .facet.active").shouldBe(visible);
 
     $("#global-navigation").find("a[href=\"/profiles\"]").click();
 

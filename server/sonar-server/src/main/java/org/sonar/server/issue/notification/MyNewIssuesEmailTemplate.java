@@ -60,7 +60,7 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
     String assignee = notification.getFieldValue(FIELD_ASSIGNEE);
     if (projectUuid != null && dateString != null && assignee != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/issues/search#projectUuids=%s|assignees=%s|createdAt=%s",
+      String url = String.format("%s/issues?projectUuids=%s&assignees=%s&createdAt=%s",
         settings.getServerBaseURL(),
         encode(projectUuid),
         encode(assignee),

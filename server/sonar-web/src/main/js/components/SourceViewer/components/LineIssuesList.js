@@ -19,10 +19,12 @@
  */
 // @flow
 import React from 'react';
-import ConnectedIssue from '../../issue/ConnectedIssue';
+import Issue from '../../issue/Issue';
+import type { Issue as IssueType } from '../../issue/types';
 
 type Props = {
-  issueKeys: Array<string>,
+  issues: Array<IssueType>,
+  onIssueChange: (IssueType) => void,
   onIssueClick: (issueKey: string) => void,
   selectedIssue: string | null
 };
@@ -31,16 +33,17 @@ export default class LineIssuesList extends React.PureComponent {
   props: Props;
 
   render() {
-    const { issueKeys, onIssueClick, selectedIssue } = this.props;
+    const { issues, onIssueClick, selectedIssue } = this.props;
 
     return (
       <div className="issue-list">
-        {issueKeys.map(issueKey => (
-          <ConnectedIssue
-            issueKey={issueKey}
-            key={issueKey}
+        {issues.map(issue => (
+          <Issue
+            issue={issue}
+            key={issue.key}
+            onChange={this.props.onIssueChange}
             onClick={onIssueClick}
-            selected={selectedIssue === issueKey}
+            selected={selectedIssue === issue.key}
           />
         ))}
       </div>

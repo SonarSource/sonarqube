@@ -157,7 +157,7 @@ public class UpgradeTest {
     checkUrlIsRedirectedToMaintenancePage("/");
     checkUrlIsRedirectedToMaintenancePage("/issues/index");
     checkUrlIsRedirectedToMaintenancePage("/dashboard/index/org.apache.struts:struts-parent");
-    checkUrlIsRedirectedToMaintenancePage("/issues/search");
+    checkUrlIsRedirectedToMaintenancePage("/issues");
     checkUrlIsRedirectedToMaintenancePage(
       "/component/index?id=org.apache.struts%3Astruts-core%3Asrc%2Fmain%2Fjava%2Forg%2Fapache%2Fstruts%2Fchain%2Fcommands%2Fgeneric%2FWrappingLookupCommand.java");
     checkUrlIsRedirectedToMaintenancePage("/profiles");
@@ -183,7 +183,7 @@ public class UpgradeTest {
     testUrl("/api/qualityprofiles/search");
     testUrl("/issues/index");
     testUrl("/dashboard/index/org.apache.struts:struts-parent");
-    testUrl("/issues/search");
+    testUrl("/issues");
     testUrl("/component/index?id=org.apache.struts%3Astruts-core%3Asrc%2Fmain%2Fjava%2Forg%2Fapache%2Fstruts%2Fchain%2Fcommands%2Fgeneric%2FWrappingLookupCommand.java");
     testUrl("/profiles");
   }

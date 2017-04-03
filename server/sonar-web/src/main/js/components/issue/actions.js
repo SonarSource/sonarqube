@@ -18,35 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { Dispatch } from 'redux';
-import type { Issue } from './types';
 import { onFail } from '../../store/rootActions';
-import { receiveIssues } from '../../store/issues/duck';
 import { parseIssueFromResponse } from '../../helpers/issues';
+import type { Issue } from './types';
 
-export const updateIssue = (resultPromise: Promise<*>, oldIssue?: Issue, newIssue?: Issue) =>
-  (dispatch: Dispatch<*>) => {
-    if (oldIssue && newIssue) {
-      dispatch(receiveIssues([newIssue]));
-    }
-    resultPromise.then(
-      response => {
-        dispatch(
-          receiveIssues([
-            parseIssueFromResponse(
-              response.issue,
-              response.components,
-              response.users,
-              response.rules
-            )
-          ])
+export const updateIssue = (
+  onChange: (Issue) => void,
+  resultPromise: Promise<*>,
+  oldIssue?: Issue,
+  newIssue?: Issue
+) => {
+  const optimisticUpdate = oldIssue != null && newIssue != null;
+
+  if (optimisticUpdate) {
+    // $FlowFixMe `newIssue` is not null, because `optimisticUpdate` is true
+    onChange(newIssue);
+  }
+
+  resultPromise.then(
+    response => {
+      if (!optimisticUpdate) {
+        const issue = parseIssueFromResponse(
+          response.issue,
+          response.components,
+          response.users,
+          response.rules
         );
-      },
-      error => {
-        onFail(dispatch)(error);
-        if (oldIssue && newIssue) {
-          dispatch(receiveIssues([oldIssue]));
-        }
+        onChange(issue);
       }
-    );
-  };
+    },
+    error => {
+      onFail(error);
+      if (optimisticUpdate) {
+        // $FlowFixMe `oldIssue` is not null, because `optimisticUpdate` is true
+        onChange(oldIssue);
+      }
+    }
+  );
+};

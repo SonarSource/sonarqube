@@ -101,6 +101,21 @@
   white-space: nowrap;
 }
 
+.Select-value svg,
+.Select-value [class^="icon-"] {
+  padding-top: 4px;
+}
+
+.Select-value img {
+  padding-top: 3px;
+}
+
+.Select-option svg,
+.Select-option img,
+.Select-option [class^="icon-"] {
+  padding-top: 2px;
+}
+
 .has-value:not(.Select--multi) > .Select-control > .Select-value .Select-value-label,
 .has-value.is-pseudo-focused:not(.Select--multi) > .Select-control > .Select-value .Select-value-label {
   color: @baseFontColor;
@@ -311,26 +326,15 @@
   padding: 8px 10px;
 }
 
-.Select--multi .Select-input {
-  vertical-align: middle;
-  margin-left: 10px;
-  padding: 0;
-}
-
-.Select--multi.has-value .Select-input {
-  margin-left: 5px;
-}
-
 .Select--multi .Select-value {
   background-color: rgba(0, 126, 255, 0.08);
   border-radius: 2px;
   border: 1px solid rgba(0, 126, 255, 0.24);
-  color: #007eff;
+  color: @baseFontColor;
   display: inline-block;
-  font-size: 0.9em;
-  line-height: 1.4;
-  margin-left: 5px;
-  margin-top: 5px;
+  font-size: 12px;
+  line-height: 14px;
+  margin: 1px 4px 1px 1px;
   vertical-align: top;
 }
 
@@ -398,6 +402,10 @@
 .Select--multi.is-disabled .Select-value-icon:focus,
 .Select--multi.is-disabled .Select-value-icon:active {
   background-color: #fcfcfc;
+}
+
+.Select-aria-only {
+  display: none;
 }
 
 @keyframes Select-animation-spin {

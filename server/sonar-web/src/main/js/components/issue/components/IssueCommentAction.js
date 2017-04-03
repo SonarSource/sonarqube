@@ -19,25 +19,26 @@
  */
 // @flow
 import React from 'react';
+import { updateIssue } from '../actions';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import CommentPopup from '../popups/CommentPopup';
 import { addIssueComment } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import type { Issue } from '../types';
 
-type Props = {
-  issueKey: string,
+type Props = {|
   commentPlaceholder: string,
   currentPopup: string,
-  onIssueChange: (Promise<*>, oldIssue?: Issue, newIssue?: Issue) => void,
+  issueKey: string,
+  onChange: (Issue) => void,
   toggleComment: (open?: boolean, placeholder?: string) => void
-};
+|};
 
 export default class IssueCommentAction extends React.PureComponent {
   props: Props;
 
   addComment = (text: string) => {
-    this.props.onIssueChange(addIssueComment({ issue: this.props.issueKey, text }));
+    updateIssue(this.props.onChange, addIssueComment({ issue: this.props.issueKey, text }));
     this.props.toggleComment(false);
   };
 

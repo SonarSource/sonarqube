@@ -39,10 +39,29 @@
     position: absolute;
     visibility: hidden;
   }
+
+  .search-navigator-facet-header,
+  .search-navigator-facet-list {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .search-navigator-facet-header {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .search-navigator-facet-box:not(.hidden) + .search-navigator-facet-box {
+    border-top: none;
+  }
+
+  .search-navigator-facet-footer {
+    padding: 0 0 10px 0;
+  }
 }
 
 .issues-workspace-list-component {
-  padding: 0 10px;
+  padding: 10px 10px 6px;
 }
 
 .issues-workspace-list-item + .issues-workspace-list-item {
@@ -53,8 +72,12 @@
   margin-top: 10px;
 }
 
-.issues-workspace-list-item + .issues-workspace-list-component {
-  margin-top: 25px;
+.issues-workspace-list-item:first-child .issues-workspace-list-component {
+  padding-top: 0;
+}
+
+.issues-workspace-list-component + .issues-workspace-list-item {
+  margin-top: 0;
 }
 
 .issues-workspace-component-viewer {

@@ -19,6 +19,8 @@
  */
 // @flow
 import React from 'react';
+import key from 'keymaster';
+import { uniqueId } from 'lodash';
 import SelectListItem from './SelectListItem';
 
 type Props = {
@@ -33,7 +35,8 @@ type State = {
 };
 
 export default class SelectList extends React.PureComponent {
-  list: HTMLElement;
+  currentKeyScope: string;
+  previousKeyScope: string;
   props: Props;
   state: State;
 
@@ -45,7 +48,7 @@ export default class SelectList extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.list.focus();
+    this.attachShortcuts();
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -57,24 +60,36 @@ export default class SelectList extends React.PureComponent {
     }
   }
 
-  handleKeyboard = (evt: KeyboardEvent) => {
-    switch (evt.keyCode) {
-      case 40: // down
-        this.setState(this.selectNextElement);
-        break;
-      case 38: // up
-        this.setState(this.selectPreviousElement);
-        break;
-      case 13: // return
-        if (this.state.active) {
-          this.handleSelect(this.state.active);
-        }
-        break;
-      default:
-        return;
-    }
-    evt.preventDefault();
-    evt.stopPropagation();
+  componentWillUnmount() {
+    this.detachShortcuts();
+  }
+
+  attachShortcuts = () => {
+    this.previousKeyScope = key.getScope();
+    this.currentKeyScope = uniqueId('key-scope');
+    key.setScope(this.currentKeyScope);
+
+    key('down', this.currentKeyScope, () => {
+      this.setState(this.selectNextElement);
+      return false;
+    });
+
+    key('up', this.currentKeyScope, () => {
+      this.setState(this.selectPreviousElement);
+      return false;
+    });
+
+    key('return', this.currentKeyScope, () => {
+      if (this.state.active) {
+        this.handleSelect(this.state.active);
+      }
+      return false;
+    });
+  };
+
+  detachShortcuts = () => {
+    key.setScope(this.previousKeyScope);
+    key.deleteScope(this.currentKeyScope);
   };
 
   handleSelect = (item: string) => {
@@ -105,18 +120,18 @@ export default class SelectList extends React.PureComponent {
     const { children } = this.props;
     const hasChildren = React.Children.count(children) > 0;
     return (
-      <ul
-        className="menu"
-        onKeyDown={this.handleKeyboard}
-        ref={list => this.list = list}
-        tabIndex={0}>
+      <ul className="menu">
         {hasChildren &&
-          React.Children.map(children, child =>
-            React.cloneElement(child, {
-              active: this.state.active,
-              onHover: this.handleHover,
-              onSelect: this.handleSelect
-            }))}
+          React.Children.map(
+            children,
+            child =>
+              child != null &&
+              React.cloneElement(child, {
+                active: this.state.active,
+                onHover: this.handleHover,
+                onSelect: this.handleSelect
+              })
+          )}
         {!hasChildren &&
           this.props.items.map(item => (
             <SelectListItem

@@ -55,32 +55,17 @@ describe('#getComponentUrl', () => {
 
 describe('#getComponentIssuesUrl', () => {
   it('should work without parameters', () => {
-    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).toBe(
-      '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#'
-    );
-  });
-
-  it('should encode component key', () => {
-    expect(getComponentIssuesUrl(COMPLEX_COMPONENT_KEY, {})).toBe(
-      '/component_issues?id=' + COMPLEX_COMPONENT_KEY_ENCODED + '#'
-    );
+    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).toEqual({
+      pathname: '/project/issues',
+      query: { id: SIMPLE_COMPONENT_KEY }
+    });
   });
 
   it('should work with parameters', () => {
-    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).toBe(
-      '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#resolved=false'
-    );
-  });
-
-  it('should encode parameters', () => {
-    expect(
-      getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { componentUuids: COMPLEX_COMPONENT_KEY })
-    ).toBe(
-      '/component_issues?id=' +
-        SIMPLE_COMPONENT_KEY +
-        '#componentUuids=' +
-        COMPLEX_COMPONENT_KEY_ENCODED
-    );
+    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).toEqual({
+      pathname: '/project/issues',
+      query: { id: SIMPLE_COMPONENT_KEY, resolved: 'false' }
+    });
   });
 });
 

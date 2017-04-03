@@ -20,6 +20,7 @@
 // @flow
 import { sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
+import type { Issue } from '../components/issue/types';
 
 type TextRange = {
   startLine: number,
@@ -83,12 +84,13 @@ const injectCommentsRelational = (issue: RawIssue, users?: Array<User>) => {
   if (!issue.comments) {
     return {};
   }
-  const comments = issue.comments.map(comment => ({
-    ...comment,
-    author: comment.login,
-    login: undefined,
-    ...injectRelational(comment, users, 'author', 'login')
-  }));
+  const comments = issue.comments.map(comment => {
+    const commentWithAuthor = { ...comment, author: comment.login, login: undefined };
+    return {
+      ...commentWithAuthor,
+      ...injectRelational(commentWithAuthor, users, 'author', 'login')
+    };
+  });
   return { comments };
 };
 
@@ -110,11 +112,11 @@ const ensureTextRange = (issue: RawIssue) => {
 };
 
 export const parseIssueFromResponse = (
-  issue: RawIssue,
+  issue: Object,
   components?: Array<*>,
   users?: Array<*>,
   rules?: Array<*>
-) => {
+): Issue => {
   return {
     ...issue,
     ...injectRelational(issue, components, 'component', 'key'),

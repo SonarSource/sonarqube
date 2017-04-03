@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { onEnter } from './redirects';
+
 const routes = [
   {
-    indexRoute: {
-      getComponent(_, callback) {
-        require.ensure([], require =>
-          callback(null, require('./components/IssuesAppContainer').default));
-      }
+    getIndexRoute(_, callback) {
+      require.ensure([], require =>
+        callback(null, {
+          component: require('./components/AppContainer').default,
+          onEnter
+        }));
     }
   }
 ];

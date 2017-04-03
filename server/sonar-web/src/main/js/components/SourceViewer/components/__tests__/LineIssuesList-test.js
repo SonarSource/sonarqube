@@ -23,15 +23,10 @@ import LineIssuesList from '../LineIssuesList';
 
 it('render issues list', () => {
   const line = { line: 3 };
-  const issueKeys = ['foo', 'bar'];
+  const issues = [{ key: 'foo' }, { key: 'bar' }];
   const onIssueClick = jest.fn();
   const wrapper = shallow(
-    <LineIssuesList
-      issueKeys={issueKeys}
-      line={line}
-      onIssueClick={onIssueClick}
-      selectedIssue="foo"
-    />
+    <LineIssuesList issues={issues} line={line} onIssueClick={onIssueClick} selectedIssue="foo" />
   );
   expect(wrapper).toMatchSnapshot();
 });

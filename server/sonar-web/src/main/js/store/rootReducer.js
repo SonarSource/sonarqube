@@ -22,7 +22,6 @@ import appState from './appState/duck';
 import components, * as fromComponents from './components/reducer';
 import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/duck';
-import issues, * as fromIssues from './issues/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
 import notifications, * as fromNotifications from './notifications/duck';
@@ -42,7 +41,6 @@ export default combineReducers({
   components,
   globalMessages,
   favorites,
-  issues,
   languages,
   measures,
   notifications,
@@ -84,8 +82,6 @@ export const getUsers = state => fromUsers.getUsers(state.users);
 
 export const isFavorite = (state, componentKey) =>
   fromFavorites.isFavorite(state.favorites, componentKey);
-
-export const getIssueByKey = (state, key) => fromIssues.getIssueByKey(state.issues, key);
 
 export const getComponentMeasure = (state, componentKey, metricKey) =>
   fromMeasures.getComponentMeasure(state.measures, componentKey, metricKey);

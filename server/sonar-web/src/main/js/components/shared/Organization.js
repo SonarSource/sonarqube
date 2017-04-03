@@ -29,6 +29,7 @@ type OwnProps = {
 
 type Props = {
   link?: boolean,
+  linkClassName?: string,
   organizationKey: string,
   organization: { key: string, name: string } | null,
   shouldBeDisplayed: boolean
@@ -51,7 +52,9 @@ class Organization extends React.Component {
     return (
       <span>
         {this.props.link
-          ? <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+          ? <OrganizationLink className={this.props.linkClassName} organization={organization}>
+              {organization.name}
+            </OrganizationLink>
           : organization.name}
         <span className="slash-separator" />
       </span>

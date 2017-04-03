@@ -34,12 +34,14 @@ import type {
   IndexedIssueLocation,
   IndexedIssueLocationMessage
 } from '../helpers/indexing';
+import type { Issue } from '../../issue/types';
 
-type Props = {
+type Props = {|
   highlightedSymbols: Array<string>,
-  issueKeys: Array<string>,
+  issues: Array<Issue>,
   issueLocations: Array<LinearIssueLocation>,
   line: SourceLine,
+  onIssueChange: (Issue) => void,
   onIssueSelect: (issueKey: string) => void,
   onLocationSelect: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: (Array<string>) => void,
@@ -49,7 +51,7 @@ type Props = {
   selectedIssue: string | null,
   selectedIssueLocation: IndexedIssueLocation | null,
   showIssues: boolean
-};
+|};
 
 type State = {
   tokens: Tokens
@@ -166,7 +168,7 @@ export default class LineCode extends React.PureComponent {
   render() {
     const {
       highlightedSymbols,
-      issueKeys,
+      issues,
       issueLocations,
       line,
       onIssueSelect,
@@ -201,7 +203,7 @@ export default class LineCode extends React.PureComponent {
     const finalCode = generateHTML(tokens);
 
     const className = classNames('source-line-code', 'code', {
-      'has-issues': issueKeys.length > 0
+      'has-issues': issues.length > 0
     });
 
     return (
@@ -213,9 +215,10 @@ export default class LineCode extends React.PureComponent {
             this.renderSecondaryIssueLocationMessages(secondaryIssueLocationMessages)}
         </div>
         {showIssues &&
-          issueKeys.length > 0 &&
+          issues.length > 0 &&
           <LineIssuesList
-            issueKeys={issueKeys}
+            issues={issues}
+            onIssueChange={this.props.onIssueChange}
             onIssueClick={onIssueSelect}
             selectedIssue={selectedIssue}
           />}

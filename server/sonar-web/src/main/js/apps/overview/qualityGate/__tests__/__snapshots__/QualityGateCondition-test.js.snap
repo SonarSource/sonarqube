@@ -47,7 +47,18 @@ exports[`test new_reliability_rating 1`] = `
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
   style={Object {}}
-  to="/component_issues?id=abcd-key#resolved=false|types=BUG|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR|sinceLeakPeriod=true">
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
+        "sinceLeakPeriod": "true",
+        "types": "BUG",
+      },
+    }
+  }>
   <div
     className="overview-quality-gate-condition-container">
     <div
@@ -91,7 +102,18 @@ exports[`test new_security_rating 1`] = `
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
   style={Object {}}
-  to="/component_issues?id=abcd-key#resolved=false|types=VULNERABILITY|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR|sinceLeakPeriod=true">
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
+        "sinceLeakPeriod": "true",
+        "types": "VULNERABILITY",
+      },
+    }
+  }>
   <div
     className="overview-quality-gate-condition-container">
     <div
@@ -135,7 +157,17 @@ exports[`test new_sqale_rating 1`] = `
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
   style={Object {}}
-  to="/component_issues?id=abcd-key#resolved=false|types=CODE_SMELL|sinceLeakPeriod=true">
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "sinceLeakPeriod": "true",
+        "types": "CODE_SMELL",
+      },
+    }
+  }>
   <div
     className="overview-quality-gate-condition-container">
     <div
@@ -223,7 +255,17 @@ exports[`test reliability_rating 1`] = `
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
   style={Object {}}
-  to="/component_issues?id=abcd-key#resolved=false|types=BUG|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR">
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
+        "types": "BUG",
+      },
+    }
+  }>
   <div
     className="overview-quality-gate-condition-container">
     <div
@@ -267,7 +309,17 @@ exports[`test security_rating 1`] = `
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
   style={Object {}}
-  to="/component_issues?id=abcd-key#resolved=false|types=VULNERABILITY|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR">
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
+        "types": "VULNERABILITY",
+      },
+    }
+  }>
   <div
     className="overview-quality-gate-condition-container">
     <div
@@ -311,7 +363,16 @@ exports[`test sqale_rating 1`] = `
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
   style={Object {}}
-  to="/component_issues?id=abcd-key#resolved=false|types=CODE_SMELL">
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "types": "CODE_SMELL",
+      },
+    }
+  }>
   <div
     className="overview-quality-gate-condition-container">
     <div

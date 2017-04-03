@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import QualifierIcon from '../../../../components/shared/qualifier-icon';
+import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { isDiffMetric, formatLeak } from '../../utils';
 import { formatMeasure } from '../../../../helpers/measures';
 

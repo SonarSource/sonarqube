@@ -64,7 +64,7 @@ export const issuesByLine = (issues: Array<Issue>) => {
     if (!(line in index)) {
       index[line] = [];
     }
-    index[line].push(issue.key);
+    index[line].push(issue);
   });
   return index;
 };

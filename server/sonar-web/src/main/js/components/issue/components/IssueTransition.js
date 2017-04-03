@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { updateIssue } from '../actions';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetTransitionPopup from '../popups/SetTransitionPopup';
 import StatusHelper from '../../../components/shared/StatusHelper';
@@ -29,15 +30,20 @@ type Props = {
   hasTransitions: boolean,
   isOpen: boolean,
   issue: Issue,
-  setIssueProperty: (string, string, apiCall: (Object) => Promise<*>, string) => void,
+  onChange: (Issue) => void,
   togglePopup: (string) => void
 };
 
 export default class IssueTransition extends React.PureComponent {
   props: Props;
 
-  setTransition = (transition: string) =>
-    this.props.setIssueProperty('transition', 'transition', setIssueTransition, transition);
+  setTransition = (transition: string) => {
+    updateIssue(
+      this.props.onChange,
+      setIssueTransition({ issue: this.props.issue.key, transition })
+    );
+    this.toggleSetTransition();
+  };
 
   toggleSetTransition = (open?: boolean) => {
     this.props.togglePopup('transition', open);

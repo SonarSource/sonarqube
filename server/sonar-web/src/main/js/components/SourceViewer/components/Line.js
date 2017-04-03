@@ -26,7 +26,7 @@ import LineSCM from './LineSCM';
 import LineCoverage from './LineCoverage';
 import LineDuplications from './LineDuplications';
 import LineDuplicationBlock from './LineDuplicationBlock';
-import LineIssuesIndicatorContainer from './LineIssuesIndicatorContainer';
+import LineIssuesIndicator from './LineIssuesIndicator';
 import LineCode from './LineCode';
 import { TooltipsContainer } from '../../mixins/tooltips-mixin';
 import type { SourceLine } from '../types';
@@ -35,8 +35,9 @@ import type {
   IndexedIssueLocation,
   IndexedIssueLocationMessage
 } from '../helpers/indexing';
+import type { Issue } from '../../issue/types';
 
-type Props = {
+type Props = {|
   displayAllIssues: boolean,
   displayCoverage: boolean,
   displayDuplications: boolean,
@@ -48,12 +49,13 @@ type Props = {
   highlighted: boolean,
   highlightedSymbols: Array<string>,
   issueLocations: Array<LinearIssueLocation>,
-  issues: Array<string>,
+  issues: Array<Issue>,
   line: SourceLine,
   loadDuplications: (SourceLine, HTMLElement) => void,
   onClick: (SourceLine, HTMLElement) => void,
   onCoverageClick: (SourceLine, HTMLElement) => void,
   onDuplicationClick: (number, number) => void,
+  onIssueChange: (Issue) => void,
   onIssueSelect: (string) => void,
   onIssueUnselect: () => void,
   onIssuesOpen: (SourceLine) => void,
@@ -68,7 +70,7 @@ type Props = {
   // $FlowFixMe
   secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
   selectedIssueLocation: IndexedIssueLocation | null
-};
+|};
 
 export default class Line extends React.PureComponent {
   props: Props;
@@ -82,7 +84,7 @@ export default class Line extends React.PureComponent {
 
       const { issues } = this.props;
       if (issues.length > 0) {
-        this.props.onIssueSelect(issues[0]);
+        this.props.onIssueSelect(issues[0].key);
       }
     }
   };
@@ -124,8 +126,8 @@ export default class Line extends React.PureComponent {
 
           {this.props.displayIssues &&
             !this.props.displayAllIssues &&
-            <LineIssuesIndicatorContainer
-              issueKeys={this.props.issues}
+            <LineIssuesIndicator
+              issues={this.props.issues}
               line={line}
               onClick={this.handleIssuesIndicatorClick}
             />}
@@ -137,9 +139,10 @@ export default class Line extends React.PureComponent {
 
           <LineCode
             highlightedSymbols={this.props.highlightedSymbols}
-            issueKeys={this.props.issues}
+            issues={this.props.issues}
             issueLocations={this.props.issueLocations}
             line={line}
+            onIssueChange={this.props.onIssueChange}
             onIssueSelect={this.props.onIssueSelect}
             onLocationSelect={this.props.onLocationSelect}
             onSymbolClick={this.props.onSymbolClick}

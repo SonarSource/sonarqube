@@ -32,7 +32,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div id="projects-page" className="page page-limited">
+      <div id="projects-page">
         <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube" />
         {this.props.children}
       </div>

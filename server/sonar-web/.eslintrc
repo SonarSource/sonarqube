@@ -11,7 +11,6 @@
   },
 
   "globals": {
-    "key": true,
     "baseUrl": true,
     "SyntheticInputEvent": true
   },

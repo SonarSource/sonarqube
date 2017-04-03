@@ -1,0 +1,10 @@
+exports[`test should render 1`] = `
+<div
+  className="search-navigator-facet-footer">
+  <SearchSelect
+    minimumQueryLength={2}
+    onSearch={[Function]}
+    onSelect={[Function]}
+    resetOnBlur={true} />
+</div>
+`;

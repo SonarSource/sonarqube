@@ -20,6 +20,7 @@
 import Backbone from 'backbone';
 import React from 'react';
 import { connect } from 'react-redux';
+import key from 'keymaster';
 import SearchView from './SearchView';
 import { getCurrentUser } from '../../../../store/rootReducer';
 

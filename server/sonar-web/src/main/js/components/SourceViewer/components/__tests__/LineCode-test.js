@@ -34,7 +34,7 @@ it('render code', () => {
   const wrapper = shallow(
     <LineCode
       highlightedSymbols={['sym1']}
-      issueKeys={['issue-1', 'issue-2']}
+      issues={[{ key: 'issue-1' }, { key: 'issue-2' }]}
       issueLocations={issueLocations}
       line={line}
       onIssueSelect={jest.fn()}
@@ -62,7 +62,7 @@ it('should handle empty location message', () => {
   const wrapper = shallow(
     <LineCode
       highlightedSymbols={['sym1']}
-      issueKeys={['issue-1', 'issue-2']}
+      issues={[{ key: 'issue-1' }, { key: 'issue-2' }]}
       issueLocations={issueLocations}
       line={line}
       onIssueSelect={jest.fn()}

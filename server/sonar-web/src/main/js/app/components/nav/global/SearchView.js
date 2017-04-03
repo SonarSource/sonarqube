@@ -253,7 +253,7 @@ export default Marionette.LayoutView.extend({
 
   getNavigationFindings(q) {
     const DEFAULT_ITEMS = [
-      { name: translate('issues.page'), url: window.baseUrl + '/issues/search' },
+      { name: translate('issues.page'), url: window.baseUrl + '/issues' },
       {
         name: translate('layout.measures'),
         url: window.baseUrl + '/measures/search?qualifiers[]=TRK'

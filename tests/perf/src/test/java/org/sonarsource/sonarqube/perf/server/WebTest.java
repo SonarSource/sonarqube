@@ -68,7 +68,7 @@ public class WebTest extends PerfTestCase {
 
   @Test
   public void issues_search() throws Exception {
-    PageStats counters = request("/issues/search");
+    PageStats counters = request("/issues");
     assertDurationLessThan(counters.durationMs, 300);
   }
 
@@ -104,7 +104,7 @@ public class WebTest extends PerfTestCase {
 
   @Test
   public void struts_issues() throws Exception {
-    PageStats counters = request("/issues/search?componentRoots=org.apache.struts:struts-parent");
+    PageStats counters = request("/issues?componentKeys=org.apache.struts:struts-parent");
     assertDurationLessThan(counters.durationMs, 300);
   }
 

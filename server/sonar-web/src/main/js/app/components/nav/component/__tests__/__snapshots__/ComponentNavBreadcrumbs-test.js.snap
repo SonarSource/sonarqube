@@ -4,7 +4,7 @@ exports[`test should not render breadcrumbs with one element 1`] = `
   <span>
     <span
       className="navbar-context-title-qualifier little-spacer-right">
-      <qualifier-icon
+      <QualifierIcon
         qualifier="TRK" />
     </span>
     <Link
@@ -33,7 +33,7 @@ exports[`test should render organization 1`] = `
   <span>
     <span
       className="navbar-context-title-qualifier little-spacer-right">
-      <qualifier-icon
+      <QualifierIcon
         qualifier="TRK" />
     </span>
     <OrganizationLink

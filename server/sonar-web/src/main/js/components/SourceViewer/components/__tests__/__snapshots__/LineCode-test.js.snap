@@ -22,10 +22,14 @@ exports[`test render code 1`] = `
     </div>
   </div>
   <LineIssuesList
-    issueKeys={
+    issues={
       Array [
-        "issue-1",
-        "issue-2",
+        Object {
+          "key": "issue-1",
+        },
+        Object {
+          "key": "issue-2",
+        },
       ]
     }
     onIssueClick={[Function]}
