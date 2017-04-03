@@ -24,6 +24,12 @@
     where om.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectUserIds" resultType="Integer">
+    select om.user_id
+    from organization_members om
+    where om.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectOrganizationUuidsByUser" resultType="String">
     select om.organization_uuid as "organizationUuid"
     from organization_members om

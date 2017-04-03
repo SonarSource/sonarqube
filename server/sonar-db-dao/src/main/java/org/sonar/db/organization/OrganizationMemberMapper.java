@@ -32,6 +32,8 @@ public interface OrganizationMemberMapper {
 
   List<String> selectLogins(String organizationUuid);
 
+  List<Integer> selectUserIds(String organizationUuid);
+
   List<Map<String, String>> selectForIndexing(@Param("logins") List<String> logins);
 
   List<Map<String, String>> selectAllForIndexing();

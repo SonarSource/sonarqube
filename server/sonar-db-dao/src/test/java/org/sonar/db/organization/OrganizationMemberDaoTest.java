@@ -79,6 +79,22 @@ public class OrganizationMemberDaoTest {
   }
 
   @Test
+  public void select_user_ids() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
+    UserDto userInAnotherOrganization = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    db.organizations().addMember(organization, anotherUser);
+    db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
+
+    List<Integer> result = underTest.selectUserIdsByOrganizationUuid(dbSession, organization.getUuid());
+
+    assertThat(result).containsOnly(user.getId(), anotherUser.getId());
+  }
+
+  @Test
   public void select_organization_uuids_by_user_id() {
     OrganizationDto organizationDto1 = db.organizations().insert();
     OrganizationDto organizationDto2 = db.organizations().insert();
