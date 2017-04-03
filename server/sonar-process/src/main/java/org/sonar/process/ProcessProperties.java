@@ -19,7 +19,8 @@
  */
 package org.sonar.process;
 
-import java.util.HashMap;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -94,23 +95,25 @@ public class ProcessProperties {
       props.setDefault(entry.getKey().toString(), entry.getValue().toString());
     }
 
-    // init ports
-    for (Map.Entry<String, Integer> entry : defaultPorts().entrySet()) {
-      String key = entry.getKey();
-      int port = props.valueAsInt(key, -1);
-      if (port == -1) {
-        // default port
-        props.set(key, String.valueOf((int) entry.getValue()));
-      } else if (port == 0) {
-        // pick one available port
-        props.set(key, String.valueOf(NetworkUtils.freePort()));
+    fixPortIfZero(props, SEARCH_HOST, SEARCH_PORT);
+  }
+
+  private static void fixPortIfZero(Props props, String addressPropertyKey, String portPropertyKey) {
+    String port = props.value(portPropertyKey);
+    if ("0".equals(port)) {
+      String address = props.nonNullValue(addressPropertyKey);
+      try {
+        props.set(portPropertyKey, String.valueOf(NetworkUtils.getNextAvailablePort(InetAddress.getByName(address))));
+      } catch (UnknownHostException e) {
+        throw new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]", e);
       }
     }
   }
 
   public static Properties defaults() {
     Properties defaults = new Properties();
-    defaults.put(SEARCH_HOST, "127.0.0.1");
+    defaults.put(SEARCH_HOST, InetAddress.getLoopbackAddress().getHostAddress());
+    defaults.put(SEARCH_PORT, "9001");
     defaults.put(SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
       "-XX:+HeapDumpOnOutOfMemoryError");
@@ -142,12 +145,6 @@ public class ProcessProperties {
     defaults.put(CLUSTER_PORT, "9003");
     defaults.put(HAZELCAST_LOG_LEVEL, "WARN");
 
-    return defaults;
-  }
-
-  private static Map<String, Integer> defaultPorts() {
-    Map<String, Integer> defaults = new HashMap<>();
-    defaults.put(SEARCH_PORT, 9001);
     return defaults;
   }
 }

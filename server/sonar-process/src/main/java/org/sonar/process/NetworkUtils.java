@@ -22,14 +22,13 @@ package org.sonar.process;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
 
 import static java.lang.String.format;
 import static java.util.Collections.list;
@@ -37,14 +36,15 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 public final class NetworkUtils {
 
-  private static final RandomPortFinder RANDOM_PORT_FINDER = new RandomPortFinder();
+  private static final Set<Integer> ALREADY_ALLOCATED = new HashSet<>();
+  private static final int MAX_TRIES = 50;
 
   private NetworkUtils() {
-    // only statics
+    // prevent instantiation
   }
 
-  public static int freePort() {
-    return RANDOM_PORT_FINDER.getNextAvailablePort();
+  public static int getNextAvailablePort(InetAddress address) {
+    return getNextAvailablePort(address, PortAllocator.INSTANCE);
   }
 
   /**
@@ -64,18 +64,15 @@ public final class NetworkUtils {
 
     try {
       ips = list(NetworkInterface.getNetworkInterfaces()).stream()
-        .flatMap(netif ->
-          list(netif.getInetAddresses()).stream()
-            .filter(inetAddress ->
-              // Removing IPv6 for the time being
-              inetAddress instanceof Inet4Address &&
-                // Removing loopback addresses, useless for identifying a server
-                !inetAddress.isLoopbackAddress() &&
-                // Removing interfaces without IPs
-                !isBlank(inetAddress.getHostAddress())
-            )
-            .map(InetAddress::getHostAddress)
-        )
+        .flatMap(netif -> list(netif.getInetAddresses()).stream()
+          .filter(inetAddress ->
+          // Removing IPv6 for the time being
+          inetAddress instanceof Inet4Address &&
+          // Removing loopback addresses, useless for identifying a server
+            !inetAddress.isLoopbackAddress() &&
+            // Removing interfaces without IPs
+            !isBlank(inetAddress.getHostAddress()))
+          .map(InetAddress::getHostAddress))
         .filter(p -> !isBlank(p))
         .collect(Collectors.joining(","));
     } catch (SocketException e) {
@@ -85,41 +82,35 @@ public final class NetworkUtils {
     return format("%s (%s)", hostname, ips);
   }
 
-  static class RandomPortFinder {
-    private static final int MAX_TRY = 10;
-    // Firefox blocks some reserved ports : http://www-archive.mozilla.org/projects/netlib/PortBanning.html
-    private static final int[] BLOCKED_PORTS = {2049, 4045, 6000};
-
-    public int getNextAvailablePort() {
-      for (int i = 0; i < MAX_TRY; i++) {
-        try {
-          int port = getRandomUnusedPort();
-          if (isValidPort(port)) {
-            return port;
-          }
-        } catch (Exception e) {
-          throw new IllegalStateException("Can't find an open network port", e);
-        }
+  /**
+   * Warning - the allocated ports are kept in memory and are never clean-up. Besides the memory consumption,
+   * that means that ports already allocated are never freed. As a consequence
+   * no more than ~64512 calls to this method are allowed.
+   */
+  static int getNextAvailablePort(InetAddress address, PortAllocator portAllocator) {
+    for (int i = 0; i < MAX_TRIES; i++) {
+      int port = portAllocator.getAvailable(address);
+      if (isValidPort(port)) {
+        ALREADY_ALLOCATED.add(port);
+        return port;
       }
-
-      throw new IllegalStateException("Can't find an open network port");
     }
+    throw new IllegalStateException("Fail to find an available port on " + address);
+  }
 
-    public int getRandomUnusedPort() throws IOException {
-      ServerSocket socket = null;
-      try {
-        socket = new ServerSocket();
-        socket.bind(new InetSocketAddress("localhost", 0));
+  private static boolean isValidPort(int port) {
+    return port > 1023 && !ALREADY_ALLOCATED.contains(port);
+  }
+
+  static class PortAllocator {
+    private static final PortAllocator INSTANCE = new PortAllocator();
+
+    int getAvailable(InetAddress address) {
+      try (ServerSocket socket = new ServerSocket(0, 50, address)) {
         return socket.getLocalPort();
       } catch (IOException e) {
-        throw new IllegalStateException("Can not find a free network port", e);
-      } finally {
-        IOUtils.closeQuietly(socket);
+        throw new IllegalStateException("Fail to find an available port on " + address, e);
       }
-    }
-
-    public static boolean isValidPort(int port) {
-      return port > 1023 && !ArrayUtils.contains(BLOCKED_PORTS, port);
     }
   }
 }

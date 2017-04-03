@@ -21,7 +21,7 @@ package org.sonar.server.app;
 
 import java.io.File;
 import java.net.ConnectException;
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
@@ -54,17 +54,17 @@ public class EmbeddedTomcatTest {
     props.set("sonar.path.logs", temp.newFolder().getAbsolutePath());
 
     // start server on a random port
-    int httpPort = NetworkUtils.freePort();
-    int ajpPort = NetworkUtils.freePort();
+    InetAddress address = InetAddress.getLoopbackAddress();
+    int httpPort = NetworkUtils.getNextAvailablePort(address);
+    props.set("sonar.web.host", address.getHostAddress());
     props.set("sonar.web.port", String.valueOf(httpPort));
-    props.set("sonar.ajp.port", String.valueOf(ajpPort));
     EmbeddedTomcat tomcat = new EmbeddedTomcat(props);
     assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.DOWN);
     tomcat.start();
     assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.UP);
 
     // check that http connector accepts requests
-    URL url = new URL("http://" + Inet4Address.getLocalHost().getHostAddress() + ":" + httpPort);
+    URL url = new URL("http://" + address.getHostAddress() + ":" + httpPort);
     url.openConnection().connect();
 
     // stop server
