@@ -42,6 +42,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleDocTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -209,63 +210,6 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_by_tags_in_query_text() {
-    RuleKey key1 = RuleKey.of("java", "S001");
-    RuleKey key2 = RuleKey.of("java", "S002");
-    indexRules(
-      newDoc(key1).setAllTags(singleton("tag1")),
-      newDoc(key2).setAllTags(singleton("tag2")));
-
-    // find all
-    RuleQuery query = new RuleQuery();
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
-
-    // tag1 in query
-    query = new RuleQuery().setQueryText("tag1");
-    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(key1);
-
-    // tag1 OR tag2
-    // note: should it be AND instead of OR ?
-    query = new RuleQuery().setQueryText("tag1 tag2");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
-    // tag2 OR tag1
-    query = new RuleQuery().setQueryText("tag2 tag1");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
-  }
-
-  @Test
-  public void search_by_tag_words_in_query_text() {
-    indexRules(newDoc(RuleKey.of("java", "S001")).setAllTags(singleton("brain-overload")));
-
-    RuleQuery query = new RuleQuery();
-
-    // match
-
-    query = new RuleQuery().setQueryText("brain");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(1);
-
-    query = new RuleQuery().setQueryText("brain-overload");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(1);
-
-    query = new RuleQuery().setQueryText("overload");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(1);
-
-    // do not match
-
-    query = new RuleQuery().setQueryText("brai");
-    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
-
-    query = new RuleQuery().setQueryText("overl");
-    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
-
-    query = new RuleQuery().setQueryText("verload");
-    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
-
-    query = new RuleQuery().setQueryText("brainoverload");
-    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
-  }
-
-  @Test
   public void filter_by_tags() {
     indexRules(
       newDoc(RuleKey.of("java", "S001")).setAllTags(singleton("tag1")),
@@ -277,17 +221,9 @@ public class RuleIndexTest {
     query = new RuleQuery().setTags(ImmutableSet.of("tag2"));
     assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RuleKey.of("java", "S002"));
 
-    // tag2 in filter and tag1 tag2 in query
-    query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(0);
-
-    // tag2 in filter and tag1 in query
-    query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1 tag2");
-    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RuleKey.of("java", "S002"));
-
-    // null list => no filter
-    query = new RuleQuery().setTags(Collections.emptySet());
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
+    // empty list => no filter
+    query = new RuleQuery().setTags(emptySet());
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(rule1.getKey(), rule2.getKey());
 
     // null list => no filter
     query = new RuleQuery().setTags(null);
@@ -329,7 +265,7 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
 
     // null list => no filter
-    query = new RuleQuery().setTypes(Collections.emptySet());
+    query = new RuleQuery().setTypes(emptySet());
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(4);
 
     // null list => no filter
