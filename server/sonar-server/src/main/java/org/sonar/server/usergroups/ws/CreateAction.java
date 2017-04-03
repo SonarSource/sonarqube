@@ -104,7 +104,8 @@ public class CreateAction implements UserGroupsWsAction {
 
   private void writeResponse(Request request, Response response, OrganizationDto organization, GroupDto group) {
     WsUserGroups.CreateWsResponse.Builder respBuilder = WsUserGroups.CreateWsResponse.newBuilder();
-    respBuilder.setGroup(toProtobuf(organization, group, 0));
+    // 'default' is always false as it's not possible to create a default group
+    respBuilder.setGroup(toProtobuf(organization, group, 0, false));
     writeProtobuf(respBuilder.build(), request, response);
   }
 }
