@@ -1,19 +1,23 @@
 {
-  "p": 1,
-  "ps": 100,
-  "total": 2,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  },
   "groups": [
     {
-      "id": "1",
+      "id": 3,
       "name": "users",
       "description": "Users",
-      "membersCount": 17
+      "membersCount": 17,
+      "default": true
     },
     {
-      "id": "2",
+      "id": 4,
       "name": "administrators",
       "description": "Administrators",
-      "membersCount": 2
+      "membersCount": 2,
+      "default": false
     }
   ]
 }
