@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -32,11 +33,16 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 /**
  * List issue tags matching a given query.
@@ -46,11 +52,13 @@ public class TagsAction implements IssuesWsAction {
 
   private final IssueIndex issueIndex;
   private final RuleIndex ruleIndex;
+  private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public TagsAction(IssueIndex issueIndex, RuleIndex ruleIndex, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public TagsAction(IssueIndex issueIndex, RuleIndex ruleIndex, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.issueIndex = issueIndex;
     this.ruleIndex = ruleIndex;
+    this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
@@ -68,19 +76,26 @@ public class TagsAction implements IssuesWsAction {
       .setDescription("The size of the list to return")
       .setExampleValue("25")
       .setDefaultValue("10");
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
-    List<String> tags = listTags(query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
-    writeTags(response, tags);
+    OrganizationDto organization = getOrganization(request.param(PARAM_ORGANIZATION));
+    List<String> tags = listTags(organization, query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
+    writeResponse(response, tags);
   }
 
-  private List<String> listTags(@Nullable String textQuery, int pageSize) {
-    Collection<String> issueTags = issueIndex.listTags(defaultOrganizationProvider.get().getUuid(), textQuery, pageSize);
-    Collection<String> ruleTags = ruleIndex.listTags(defaultOrganizationProvider.get().getUuid(), textQuery, pageSize);
+  private List<String> listTags(OrganizationDto organization, @Nullable String textQuery, int pageSize) {
+    Collection<String> issueTags = issueIndex.listTags(organization, textQuery, pageSize);
+    Collection<String> ruleTags = ruleIndex.listTags(organization, textQuery, pageSize);
 
     SortedSet<String> result = Sets.newTreeSet();
     result.addAll(issueTags);
@@ -89,7 +104,17 @@ public class TagsAction implements IssuesWsAction {
     return resultAsList.size() > pageSize && pageSize > 0 ? resultAsList.subList(0, pageSize) : resultAsList;
   }
 
-  private static void writeTags(Response response, List<String> tags) {
+  private OrganizationDto getOrganization(@Nullable String organizationKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
+        .orElseGet(defaultOrganizationProvider.get()::getKey);
+      return WsUtils.checkFoundWithOptional(
+        dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
+        "No organization with key '%s'", organizationOrDefaultKey);
+    }
+  }
+
+  private static void writeResponse(Response response, List<String> tags) {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject().name("tags").beginArray();
       tags.forEach(json::value);

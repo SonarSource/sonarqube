@@ -582,7 +582,7 @@ public class RuleIndexTest {
       setOrganizationUuid(organization.getUuid()),
       setTags("tag2"));
 
-    assertThat(index.listTags(organization.getUuid(), null, 10)).containsOnly("tag1", "tag2", "sys1", "sys2");
+    assertThat(index.listTags(organization, null, 10)).containsOnly("tag1", "tag2", "sys1", "sys2");
   }
 
   @Test
@@ -599,8 +599,8 @@ public class RuleIndexTest {
       setOrganizationUuid(organization2.getUuid()),
       setTags("tag2"));
 
-    assertThat(index.listTags(organization1.getUuid(), null, 10)).containsOnly("tag1", "sys1", "sys2");
-    assertThat(index.listTags(organization2.getUuid(), null, 10)).containsOnly("tag2", "sys1", "sys2");
+    assertThat(index.listTags(organization1, null, 10)).containsOnly("tag1", "sys1", "sys2");
+    assertThat(index.listTags(organization2, null, 10)).containsOnly("tag2", "sys1", "sys2");
   }
 
   @Test

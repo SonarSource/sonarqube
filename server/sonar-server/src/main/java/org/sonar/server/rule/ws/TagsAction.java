@@ -66,14 +66,12 @@ public class TagsAction implements RulesWsAction {
       .setDescription("The size of the list to return, 0 for all tags")
       .setExampleValue("25")
       .setDefaultValue("0");
-    action
-      .createParam(PARAM_ORGANIZATION)
+    action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setRequired(false)
       .setInternal(true)
       .setExampleValue("my-org")
       .setSince("6.4");
-
   }
 
   @Override
@@ -82,7 +80,7 @@ public class TagsAction implements RulesWsAction {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
 
-    Set<String> tags = ruleIndex.listTags(organization.getUuid(), query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
+    Set<String> tags = ruleIndex.listTags(organization, query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
 
     writeResponse(response, tags);
   }
@@ -91,7 +89,7 @@ public class TagsAction implements RulesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
         .orElseGet(defaultOrganizationProvider.get()::getKey);
-      return  WsUtils.checkFoundWithOptional(
+      return WsUtils.checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
         "No organization with key '%s'", organizationOrDefaultKey);
     }
