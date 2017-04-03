@@ -130,6 +130,7 @@ public class UpdateAction implements UserGroupsWsAction {
     int membersCount = dbClient.groupMembershipDao().countMembers(dbSession, query);
 
     WsUserGroups.UpdateWsResponse.Builder respBuilder = WsUserGroups.UpdateWsResponse.newBuilder();
+    // 'default' is always false as it's not possible to update a default group
     respBuilder.setGroup(toProtobuf(organization, group, membersCount, false));
     writeProtobuf(respBuilder.build(), request, response);
   }
