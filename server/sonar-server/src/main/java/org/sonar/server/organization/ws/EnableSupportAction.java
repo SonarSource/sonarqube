@@ -19,16 +19,22 @@
  */
 package org.sonar.server.organization.ws;
 
+import java.util.List;
+import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class EnableSupportAction implements OrganizationsWsAction {
@@ -56,6 +62,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
       .setInternal(true)
       .setPost(true)
       .setSince("6.3")
+      .setChangelog(new Change("6.4", "Create default 'Members' group"))
       .setHandler(this);
   }
 
@@ -65,6 +72,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
       verifySystemAdministrator();
       if (isSupportDisabled(dbSession)) {
         flagCurrentUserAsRoot(dbSession);
+        createDefaultMembersGroup(dbSession);
         enableFeature(dbSession);
         dbSession.commit();
       }
@@ -82,6 +90,25 @@ public class EnableSupportAction implements OrganizationsWsAction {
 
   private void flagCurrentUserAsRoot(DbSession dbSession) {
     dbClient.userDao().setRoot(dbSession, requireNonNull(userSession.getLogin()), true);
+  }
+
+  private void createDefaultMembersGroup(DbSession dbSession) {
+    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+    String membersGroupName = "Members";
+    Optional<GroupDto> existingMembersGroup = dbClient.groupDao().selectByName(dbSession, defaultOrganizationUuid, membersGroupName);
+    checkArgument(!existingMembersGroup.isPresent(), "The group '%s' already exist", membersGroupName);
+    GroupDto members = new GroupDto()
+      .setName(membersGroupName)
+      .setDescription("All members of the organization")
+      .setOrganizationUuid(defaultOrganizationUuid);
+    dbClient.groupDao().insert(dbSession, members);
+    dbClient.organizationDao().setDefaultGroupId(dbSession, defaultOrganizationUuid, members);
+    associateMembersOfDefaultOrganizationToGroup(dbSession, members);
+  }
+
+  private void associateMembersOfDefaultOrganizationToGroup(DbSession dbSession, GroupDto membersGroup) {
+    List<Integer> organizationMembers = dbClient.organizationMemberDao().selectUserIdsByOrganizationUuid(dbSession, defaultOrganizationProvider.get().getUuid());
+    organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(membersGroup.getId()).setUserId(member)));
   }
 
   private void enableFeature(DbSession dbSession) {
