@@ -36,6 +36,7 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
+import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,9 +55,10 @@ public class AutoDbMigrationTest {
   private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   private ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   private MigrationEngine migrationEngine = mock(MigrationEngine.class);
-  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine);
+  private MigrationSteps migrationSteps = mock(MigrationSteps.class);
+  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps);
 
-  private AutoDbMigration noRealH2Creation = spy(new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine) {
+  private AutoDbMigration noRealH2Creation = spy(new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps) {
     @Override
     protected void createH2Schema(Connection connection, String dialectId) {
       // do nothing

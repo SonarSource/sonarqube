@@ -53,7 +53,7 @@ public class DdlUtilsTest {
       int tableCount = countTables(connection);
       assertThat(tableCount).isGreaterThan(30);
 
-      verifySchemaMigrations(connection);
+      verifySchemaMigrationsNotPopulated(connection);
     }
   }
 
@@ -66,7 +66,7 @@ public class DdlUtilsTest {
       }
       DdlUtils.createSchema(connection, "h2", false);
 
-      verifySchemaMigrations(connection);
+      verifySchemaMigrationsNotPopulated(connection);
     }
   }
 
@@ -80,11 +80,11 @@ public class DdlUtilsTest {
     return count;
   }
 
-  private void verifySchemaMigrations(Connection connection) throws SQLException {
+  private void verifySchemaMigrationsNotPopulated(Connection connection) throws SQLException {
     try (Statement statement = connection.createStatement();
       ResultSet resultSet = statement.executeQuery("select count(*) from schema_migrations")) {
       assertThat(resultSet.next()).isTrue();
-      assertThat(resultSet.getLong(1)).isGreaterThan(150);
+      assertThat(resultSet.getLong(1)).isEqualTo(0);
       assertThat(resultSet.next()).isFalse();
     }
   }
