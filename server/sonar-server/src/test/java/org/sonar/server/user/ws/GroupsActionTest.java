@@ -70,6 +70,7 @@ public class GroupsActionTest {
   @Test
   public void empty_groups() throws Exception {
     insertUser();
+    insertDefaultGroup("sonar-users", "Sonar Users");
 
     GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN));
 
@@ -79,7 +80,7 @@ public class GroupsActionTest {
   @Test
   public void return_selected_groups_selected_param_is_set_to_all() throws Exception {
     UserDto user = insertUser();
-    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
@@ -95,7 +96,7 @@ public class GroupsActionTest {
   @Test
   public void return_selected_groups_selected_param_is_set_to_selected() throws Exception {
     UserDto user = insertUser();
-    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
@@ -109,7 +110,7 @@ public class GroupsActionTest {
   @Test
   public void return_selected_groups_selected_param_is_not_set() throws Exception {
     UserDto user = insertUser();
-    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
@@ -123,7 +124,7 @@ public class GroupsActionTest {
   @Test
   public void return_not_selected_groups_selected_param_is_set_to_deselected() throws Exception {
     UserDto user = insertUser();
-    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
@@ -137,7 +138,7 @@ public class GroupsActionTest {
   @Test
   public void return_group_not_having_description() throws Exception {
     UserDto user = insertUser();
-    GroupDto group = insertGroup("sonar-users", null);
+    GroupDto group = insertDefaultGroup("sonar-users", null);
     addUserToGroup(user, group);
 
     GroupsWsResponse response = call(ws.newRequest().setParam("login", "john").setParam(Param.SELECTED, ALL.value()));
@@ -148,6 +149,7 @@ public class GroupsActionTest {
   @Test
   public void search_with_pagination() throws IOException {
     UserDto user = insertUser();
+    insertDefaultGroup("sonar-users", "Sonar Users");
     for (int i = 1; i <= 9; i++) {
       GroupDto groupDto = insertGroup("group-" + i, "group-" + i);
       addUserToGroup(user, groupDto);
@@ -161,13 +163,13 @@ public class GroupsActionTest {
     assertThat(response.getGroupsList()).extracting(GroupsWsResponse.Group::getName).containsOnly("group-4", "group-5", "group-6");
     assertThat(response.getPaging().getPageSize()).isEqualTo(3);
     assertThat(response.getPaging().getPageIndex()).isEqualTo(2);
-    assertThat(response.getPaging().getTotal()).isEqualTo(9);
+    assertThat(response.getPaging().getTotal()).isEqualTo(10);
   }
 
   @Test
   public void search_by_text_query() throws Exception {
     UserDto user = insertUser();
-    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
@@ -178,12 +180,43 @@ public class GroupsActionTest {
   }
 
   @Test
+  public void return_default_group_information() throws Exception {
+    UserDto user = insertUser();
+    GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
+    GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
+    addUserToGroup(user, usersGroup);
+
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN).setParam(Param.SELECTED, ALL.value()));
+
+    assertThat(response.getGroupsList())
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDefault)
+      .containsOnly(
+        tuple(usersGroup.getId().longValue(), usersGroup.getName(), true),
+        tuple(adminGroup.getId().longValue(), adminGroup.getName(), false));
+  }
+
+  @Test
+  public void return_default_to_false_when_organization_has_no_default_group() throws Exception {
+    UserDto user = insertUser();
+    OrganizationDto organizationDto = db.organizations().insert(organization -> organization.setKey("OrgKey"));
+    GroupDto group = db.users().insertGroup(organizationDto, "group1");
+    addUserToGroup(user, group);
+
+    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN).setParam("organization", organizationDto.getKey()));
+
+    assertThat(response.getGroupsList())
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDefault)
+      .containsOnly(
+        tuple(group.getId().longValue(), group.getName(), false));
+  }
+
+  @Test
   public void return_groups_from_given_organization() throws Exception {
     UserDto user = insertUser();
     OrganizationDto organizationDto = db.organizations().insert();
     OrganizationDto otherOrganizationDto = db.organizations().insert();
-    GroupDto group = db.users().insertGroup(organizationDto, "group1");
-    GroupDto otherGroup = db.users().insertGroup(otherOrganizationDto, "group2");
+    GroupDto group = db.users().insertDefaultGroup(newGroupDto().setName("group1").setOrganizationUuid(organizationDto.getUuid()));
+    GroupDto otherGroup = db.users().insertDefaultGroup(newGroupDto().setName("group2").setOrganizationUuid(otherOrganizationDto.getUuid()));
     addUserToGroup(user, group);
     addUserToGroup(user, otherGroup);
 
@@ -193,12 +226,14 @@ public class GroupsActionTest {
       .setParam(Param.SELECTED, ALL.value()));
 
     assertThat(response.getGroupsList())
-      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
-      .containsOnly(tuple(group.getId().longValue(), group.getName(), group.getDescription(), true));
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected, GroupsWsResponse.Group::getDefault)
+      .containsOnly(tuple(group.getId().longValue(), group.getName(), group.getDescription(), true, true));
   }
 
   @Test
   public void fail_on_unknown_user() throws Exception {
+    insertDefaultGroup("sonar-users", "Sonar Users");
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Unknown user: john");
 
@@ -208,6 +243,7 @@ public class GroupsActionTest {
   @Test
   public void fail_on_disabled_user() throws Exception {
     UserDto userDto = db.users().insertUser(user -> user.setLogin("disabled").setActive(false));
+    insertDefaultGroup("sonar-users", "Sonar Users");
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Unknown user: disabled");
@@ -228,14 +264,14 @@ public class GroupsActionTest {
   @Test
   public void fail_when_page_size_is_greater_than_500() throws Exception {
     UserDto user = insertUser();
+    insertDefaultGroup("sonar-users", "Sonar Users");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'ps' parameter must be less than 500");
 
     call(ws.newRequest()
       .setParam("login", user.getLogin())
-      .setParam(Param.PAGE_SIZE, "501")
-    );
+      .setParam(Param.PAGE_SIZE, "501"));
   }
 
   @Test
@@ -260,7 +296,7 @@ public class GroupsActionTest {
   @Test
   public void test_json_example() {
     UserDto user = insertUser();
-    GroupDto usersGroup = insertGroup("sonar-users", "Sonar Users");
+    GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     insertGroup("sonar-admins", "Sonar Admins");
     addUserToGroup(user, usersGroup);
 
@@ -298,6 +334,10 @@ public class GroupsActionTest {
 
   private GroupDto insertGroup(String name, String description) {
     return db.users().insertGroup(newGroupDto().setName(name).setDescription(description).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
+  }
+
+  private GroupDto insertDefaultGroup(String name, String description) {
+    return db.users().insertDefaultGroup(newGroupDto().setName(name).setDescription(description).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
   }
 
   private void addUserToGroup(UserDto user, GroupDto usersGroup) {
