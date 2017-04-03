@@ -21,6 +21,7 @@ import $ from 'jquery';
 import { union } from 'lodash';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
+import key from 'keymaster';
 import Rules from './models/rules';
 import MetaView from './rule/rule-meta-view';
 import DescView from './rule/rule-description-view';

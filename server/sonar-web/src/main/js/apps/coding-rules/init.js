@@ -22,6 +22,7 @@ import $ from 'jquery';
 import { sortBy } from 'lodash';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
+import key from 'keymaster';
 import State from './models/state';
 import Layout from './layout';
 import Rules from './models/rules';
@@ -105,7 +106,7 @@ App.on('start', function(options: {
       });
       this.layout.filtersRegion.show(this.filtersView);
 
-      window.key.setScope('list');
+      key.setScope('list');
       this.router = new Router({
         app: this
       });

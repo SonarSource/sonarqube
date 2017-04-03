@@ -137,6 +137,9 @@ export function searchProjects(data?: Object) {
   return getJSON(url, data);
 }
 
+export const searchComponents = (data?: { q?: string, qualifiers?: string, ps?: number }) =>
+  getJSON('/api/components/search', data);
+
 /**
  * Change component's key
  * @param {string} from

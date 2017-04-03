@@ -19,9 +19,9 @@
  */
 import React from 'react';
 import ProjectCardContainer from './ProjectCardContainer';
-import NoProjects from './NoProjects';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import EmptyInstance from './EmptyInstance';
+import EmptySearch from '../../../components/common/EmptySearch';
 
 export default class ProjectsList extends React.PureComponent {
   static propTypes = {
@@ -37,7 +37,7 @@ export default class ProjectsList extends React.PureComponent {
     } else if (!this.props.isFiltered) {
       return <EmptyInstance />;
     } else {
-      return <NoProjects />;
+      return <EmptySearch />;
     }
   }
 

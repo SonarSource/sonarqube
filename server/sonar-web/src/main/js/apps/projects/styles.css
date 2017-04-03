@@ -10,14 +10,6 @@
   margin-bottom: 0;
 }
 
-.projects-empty-list {
-  padding: 60px 0;
-  border: 1px solid #e6e6e6;
-  border-radius: 2px;
-  text-align: center;
-  color: #777;
-}
-
 .project-card {
   position: relative;
   min-height: 121px;

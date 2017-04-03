@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import moment from 'moment';
 import IssueCommentLine from '../IssueCommentLine';
 import { click } from '../../../../helpers/testUtils';
 
@@ -32,7 +31,7 @@ const comment = {
   updatable: true
 };
 
-moment.fn.fromNow = jest.fn(() => 'a month ago');
+jest.mock('moment', () => () => ({ fromNow: () => 'a month ago' }));
 
 it('should render correctly a comment that is not updatable', () => {
   const element = shallow(

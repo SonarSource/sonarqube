@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import QualifierIcon from '../shared/qualifier-icon';
+import QualifierIcon from '../shared/QualifierIcon';
 
 export const TreemapBreadcrumbs = React.createClass({
   propTypes: {

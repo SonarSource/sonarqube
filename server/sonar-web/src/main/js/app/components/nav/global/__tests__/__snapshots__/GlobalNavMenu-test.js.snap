@@ -12,10 +12,16 @@ exports[`test should work with extensions 1`] = `
   </li>
   <li>
     <Link
-      className={null}
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/issues#resolved=false">
+      to={
+        Object {
+          "pathname": "/issues",
+          "query": Object {
+            "resolved": "false",
+          },
+        }
+      }>
       issues.page
     </Link>
   </li>

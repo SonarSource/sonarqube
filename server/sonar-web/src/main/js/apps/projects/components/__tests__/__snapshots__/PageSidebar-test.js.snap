@@ -16,7 +16,7 @@ exports[`test should handle \`view\` and \`visualization\` 2`] = `
         },
       }
     }>
-    projects.clear_all_filters
+    clear_all_filters
   </Link>
 </div>
 `;

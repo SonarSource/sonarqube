@@ -24,7 +24,7 @@ export const mockEvent = {
   stopPropagation() {}
 };
 
-export const click = element => element.simulate('click', mockEvent);
+export const click = (element, event = {}) => element.simulate('click', { ...mockEvent, ...event });
 
 export const submit = element =>
   element.simulate('submit', {
@@ -37,4 +37,7 @@ export const change = (element, value) =>
     currentTarget: { value }
   });
 
-export const keydown = (element, keyCode) => element.simulate('keyDown', { ...mockEvent, keyCode });
+export const keydown = keyCode => {
+  const event = new KeyboardEvent('keydown', { keyCode });
+  document.dispatchEvent(event);
+};

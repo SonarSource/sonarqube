@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import moment from 'moment';
 import IssueChangelog from '../IssueChangelog';
 import { click } from '../../../../helpers/testUtils';
 
@@ -29,7 +28,11 @@ const issue = {
   creationDate: '2017-03-01T09:36:01+0100'
 };
 
-moment.fn.fromNow = jest.fn(() => 'a month ago');
+jest.mock('moment', () =>
+  () => ({
+    format: () => 'March 1, 2017 9:36 AM',
+    fromNow: () => 'a month ago'
+  }));
 
 it('should render correctly', () => {
   const element = shallow(

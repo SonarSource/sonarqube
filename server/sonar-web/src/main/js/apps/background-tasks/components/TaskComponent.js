@@ -21,7 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import TaskType from './TaskType';
-import QualifierIcon from '../../../components/shared/qualifier-icon';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
 import { Task } from '../types';
 

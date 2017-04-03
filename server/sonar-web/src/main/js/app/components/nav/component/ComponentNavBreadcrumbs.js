@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import QualifierIcon from '../../../../components/shared/qualifier-icon';
+import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 

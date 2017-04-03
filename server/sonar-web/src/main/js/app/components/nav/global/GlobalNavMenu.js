@@ -25,7 +25,10 @@ import { isUserAdmin } from '../../../../helpers/users';
 export default class GlobalNavMenu extends React.Component {
   static propTypes = {
     appState: React.PropTypes.object.isRequired,
-    currentUser: React.PropTypes.object.isRequired
+    currentUser: React.PropTypes.object.isRequired,
+    location: React.PropTypes.shape({
+      pathname: React.PropTypes.string.isRequired
+    }).isRequired
   };
 
   static defaultProps = {
@@ -59,12 +62,12 @@ export default class GlobalNavMenu extends React.Component {
 
   renderIssuesLink() {
     const query = this.props.currentUser.isLoggedIn
-      ? '#resolved=false|assigned_to_me=true'
-      : '#resolved=false';
-    const url = '/issues' + query;
+      ? { myIssues: 'true', resolved: 'false' }
+      : { resolved: 'false' };
+    const active = this.props.location.pathname === 'issues';
     return (
       <li>
-        <Link to={url} className={this.activeLink('/issues')}>
+        <Link to={{ pathname: '/issues', query }} className={active ? 'active' : undefined}>
           {translate('issues.page')}
         </Link>
       </li>

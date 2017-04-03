@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
+import key from 'keymaster';
 import Controller from '../../components/navigator/controller';
 import Rule from './models/rule';
 import RuleDetailsView from './rule-details-view';

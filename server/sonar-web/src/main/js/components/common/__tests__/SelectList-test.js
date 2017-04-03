@@ -64,11 +64,11 @@ it('should correclty handle user actions', () => {
       ))}
     </SelectList>
   );
-  keydown(list.find('ul'), 40);
+  keydown(40);
   expect(list.state()).toMatchSnapshot();
-  keydown(list.find('ul'), 40);
+  keydown(40);
   expect(list.state()).toMatchSnapshot();
-  keydown(list.find('ul'), 38);
+  keydown(38);
   expect(list.state()).toMatchSnapshot();
   click(list.childAt(2).find('a'));
   expect(onSelect.mock.calls).toMatchSnapshot(); // eslint-disable-linelist

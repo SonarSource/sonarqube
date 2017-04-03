@@ -19,23 +19,27 @@
  */
 // @flow
 import React from 'react';
+import { Link } from 'react-router';
 import IssueChangelog from './IssueChangelog';
 import IssueMessage from './IssueMessage';
+import SimilarIssuesFilter from './SimilarIssuesFilter';
 import { getSingleIssueUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import type { Issue } from '../types';
 
-type Props = {
+type Props = {|
   issue: Issue,
   currentPopup: string,
   onFail: (Error) => void,
-  onFilterClick?: () => void,
+  onFilter?: (property: string, issue: Issue) => void,
   togglePopup: (string) => void
-};
+|};
+
+const stopPropagation = (event: Event) => event.stopPropagation();
 
 export default function IssueTitleBar(props: Props) {
   const { issue } = props;
-  const hasSimilarIssuesFilter = props.onFilterClick != null;
+  const hasSimilarIssuesFilter = props.onFilter != null;
 
   return (
     <table className="issue-table">
@@ -66,21 +70,21 @@ export default function IssueTitleBar(props: Props) {
                   </span>
                 </li>}
               <li className="issue-meta">
-                <a
+                <Link
                   className="js-issue-permalink icon-link"
-                  href={getSingleIssueUrl(issue.key)}
-                  target="_blank"
+                  onClick={stopPropagation}
+                  to={getSingleIssueUrl(issue.key)}
                 />
               </li>
               {hasSimilarIssuesFilter &&
                 <li className="issue-meta">
-                  <button
-                    className="js-issue-filter button-link issue-action issue-action-with-options"
-                    aria-label={translate('issue.filter_similar_issues')}
-                    onClick={props.onFilterClick}>
-                    <i className="icon-filter icon-half-transparent" />{' '}
-                    <i className="icon-dropdown" />
-                  </button>
+                  <SimilarIssuesFilter
+                    isOpen={props.currentPopup === 'similarIssues'}
+                    issue={issue}
+                    togglePopup={props.togglePopup}
+                    onFail={props.onFail}
+                    onFilter={props.onFilter}
+                  />
                 </li>}
             </ul>
           </td>

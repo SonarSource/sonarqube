@@ -1,0 +1,167 @@
+exports[`test should not render without stats 1`] = `null`;
+
+exports[`test should render 1`] = `
+<FacetBox
+  property="assignees">
+  <FacetHeader
+    hasValue={false}
+    name="issues.facet.assignees"
+    onClick={[Function]}
+    open={true} />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name="unassigned"
+      onClick={[Function]}
+      stat={5}
+      value="" />
+    <FacetItem
+      active={false}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name={
+        <span>
+          <Connect(Avatar)
+            className="little-spacer-right"
+            hash="avatart-foo"
+            size={16} />
+          name-foo
+        </span>
+      }
+      onClick={[Function]}
+      stat={13}
+      value="foo" />
+    <FacetItem
+      active={false}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name="bar"
+      onClick={[Function]}
+      stat={7}
+      value="bar" />
+  </FacetItemsList>
+  <FacetFooter
+    onSearch={[Function]}
+    onSelect={[Function]}
+    renderOption={[Function]} />
+</FacetBox>
+`;
+
+exports[`test should render footer select option 1`] = `
+<span>
+  <Connect(Avatar)
+    className="little-spacer-right"
+    hash="avatar-foo"
+    size={16} />
+  name-foo
+</span>
+`;
+
+exports[`test should select unassigned 1`] = `
+<FacetBox
+  property="assignees">
+  <FacetHeader
+    hasValue={true}
+    name="issues.facet.assignees"
+    onClick={[Function]}
+    open={true} />
+  <FacetItemsList>
+    <FacetItem
+      active={true}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name="unassigned"
+      onClick={[Function]}
+      stat={5}
+      value="" />
+    <FacetItem
+      active={false}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name={
+        <span>
+          <Connect(Avatar)
+            className="little-spacer-right"
+            hash="avatart-foo"
+            size={16} />
+          name-foo
+        </span>
+      }
+      onClick={[Function]}
+      stat={13}
+      value="foo" />
+    <FacetItem
+      active={false}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name="bar"
+      onClick={[Function]}
+      stat={7}
+      value="bar" />
+  </FacetItemsList>
+  <FacetFooter
+    onSearch={[Function]}
+    onSelect={[Function]}
+    renderOption={[Function]} />
+</FacetBox>
+`;
+
+exports[`test should select user 1`] = `
+<FacetBox
+  property="assignees">
+  <FacetHeader
+    hasValue={true}
+    name="issues.facet.assignees"
+    onClick={[Function]}
+    open={true} />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name="unassigned"
+      onClick={[Function]}
+      stat={5}
+      value="" />
+    <FacetItem
+      active={true}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name={
+        <span>
+          <Connect(Avatar)
+            className="little-spacer-right"
+            hash="avatart-foo"
+            size={16} />
+          name-foo
+        </span>
+      }
+      onClick={[Function]}
+      stat={13}
+      value="foo" />
+    <FacetItem
+      active={false}
+      disabled={false}
+      facetMode="count"
+      halfWidth={false}
+      name="bar"
+      onClick={[Function]}
+      stat={7}
+      value="bar" />
+  </FacetItemsList>
+  <FacetFooter
+    onSearch={[Function]}
+    onSelect={[Function]}
+    renderOption={[Function]} />
+</FacetBox>
+`;

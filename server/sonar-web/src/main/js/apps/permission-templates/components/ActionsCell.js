@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import { difference } from 'lodash';
 import Backbone from 'backbone';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
-import QualifierIcon from '../../../components/shared/qualifier-icon';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
 import UpdateView from '../views/UpdateView';
 import DeleteView from '../views/DeleteView';
 import { translate } from '../../../helpers/l10n';

@@ -1,0 +1,16 @@
+exports[`test should not render icon 1`] = `null`;
+
+exports[`test should render icon 1`] = `
+<i
+  className="icon-qualifier-trk" />
+`;
+
+exports[`test should render icon 2`] = `
+<i
+  className="icon-qualifier-trk" />
+`;
+
+exports[`test should render with custom class 1`] = `
+<i
+  className="icon-qualifier-trk spacer-right" />
+`;

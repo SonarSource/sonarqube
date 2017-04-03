@@ -1,0 +1,112 @@
+exports[`test should render all facets 1`] = `
+Array [
+  "FacetMode",
+  "TypeFacet",
+  "ResolutionFacet",
+  "SeverityFacet",
+  "StatusFacet",
+  "CreationDateFacet",
+  "RuleFacet",
+  "TagFacet",
+  "ProjectFacet",
+  "ModuleFacet",
+  "DirectoryFacet",
+  "FileFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+  "LanguageFacet",
+]
+`;
+
+exports[`test should render facets for developer 1`] = `
+Array [
+  "FacetMode",
+  "TypeFacet",
+  "ResolutionFacet",
+  "SeverityFacet",
+  "StatusFacet",
+  "CreationDateFacet",
+  "RuleFacet",
+  "TagFacet",
+  "ProjectFacet",
+  "ModuleFacet",
+  "DirectoryFacet",
+  "FileFacet",
+  "AssigneeFacet",
+  "LanguageFacet",
+]
+`;
+
+exports[`test should render facets for directory 1`] = `
+Array [
+  "FacetMode",
+  "TypeFacet",
+  "ResolutionFacet",
+  "SeverityFacet",
+  "StatusFacet",
+  "CreationDateFacet",
+  "RuleFacet",
+  "TagFacet",
+  "FileFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+  "LanguageFacet",
+]
+`;
+
+exports[`test should render facets for module 1`] = `
+Array [
+  "FacetMode",
+  "TypeFacet",
+  "ResolutionFacet",
+  "SeverityFacet",
+  "StatusFacet",
+  "CreationDateFacet",
+  "RuleFacet",
+  "TagFacet",
+  "ModuleFacet",
+  "DirectoryFacet",
+  "FileFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+  "LanguageFacet",
+]
+`;
+
+exports[`test should render facets for project 1`] = `
+Array [
+  "FacetMode",
+  "TypeFacet",
+  "ResolutionFacet",
+  "SeverityFacet",
+  "StatusFacet",
+  "CreationDateFacet",
+  "RuleFacet",
+  "TagFacet",
+  "ModuleFacet",
+  "DirectoryFacet",
+  "FileFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+  "LanguageFacet",
+]
+`;
+
+exports[`test should render facets when my issues are selected 1`] = `
+Array [
+  "FacetMode",
+  "TypeFacet",
+  "ResolutionFacet",
+  "SeverityFacet",
+  "StatusFacet",
+  "CreationDateFacet",
+  "RuleFacet",
+  "TagFacet",
+  "ProjectFacet",
+  "ModuleFacet",
+  "DirectoryFacet",
+  "FileFacet",
+  "AuthorFacet",
+  "LanguageFacet",
+]
+`;

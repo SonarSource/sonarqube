@@ -26,9 +26,7 @@ Array [
 
 exports[`test should render correctly with children 1`] = `
 <ul
-  className="menu"
-  onKeyDown={[Function]}
-  tabIndex={0}>
+  className="menu">
   <SelectListItem
     active="seconditem"
     item="item"
@@ -61,9 +59,7 @@ exports[`test should render correctly with children 1`] = `
 
 exports[`test should render correctly without children 1`] = `
 <ul
-  className="menu"
-  onKeyDown={[Function]}
-  tabIndex={0}>
+  className="menu">
   <SelectListItem
     active="seconditem"
     item="item"

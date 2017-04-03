@@ -23,9 +23,10 @@ import classNames from 'classnames';
 import SeverityIcon from '../../shared/SeverityIcon';
 import { sortBySeverity } from '../../../helpers/issues';
 import type { SourceLine } from '../types';
+import type { Issue } from '../../issue/types';
 
 type Props = {
-  issues: Array<{ severity: string }>,
+  issues: Array<Issue>,
   line: SourceLine,
   onClick: () => void
 };

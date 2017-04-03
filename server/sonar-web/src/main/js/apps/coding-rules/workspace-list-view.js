@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import key from 'keymaster';
 import WorkspaceListView from '../../components/navigator/workspace-list-view';
 import WorkspaceListItemView from './workspace-list-item-view';
 import WorkspaceListEmptyView from './workspace-list-empty-view';

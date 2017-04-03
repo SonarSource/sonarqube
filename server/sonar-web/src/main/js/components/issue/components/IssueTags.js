@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { updateIssue } from '../actions';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';
 import TagsList from '../../../components/tags/TagsList';
@@ -26,14 +27,14 @@ import { setIssueTags } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import type { Issue } from '../types';
 
-type Props = {
+type Props = {|
   canSetTags: boolean,
   isOpen: boolean,
   issue: Issue,
+  onChange: (Issue) => void,
   onFail: (Error) => void,
-  onIssueChange: (Promise<*>, oldIssue?: Issue, newIssue?: Issue) => void,
   togglePopup: (string) => void
-};
+|};
 
 export default class IssueTags extends React.PureComponent {
   props: Props;
@@ -45,7 +46,8 @@ export default class IssueTags extends React.PureComponent {
   setTags = (tags: Array<string>) => {
     const { issue } = this.props;
     const newIssue = { ...issue, tags };
-    this.props.onIssueChange(
+    updateIssue(
+      this.props.onChange,
       setIssueTags({ issue: issue.key, tags: tags.join(',') }),
       issue,
       newIssue

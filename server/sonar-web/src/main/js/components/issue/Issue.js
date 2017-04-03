@@ -18,14 +18,145 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { connect } from 'react-redux';
-import BaseIssue from './BaseIssue';
-import { onFail } from '../../store/rootActions';
+import React from 'react';
+import IssueView from './IssueView';
 import { updateIssue } from './actions';
+import { setIssueAssignee } from '../../api/issues';
+import { onFail } from '../../store/rootActions';
+import type { Issue } from './types';
 
-const mapDispatchToProps = {
-  onIssueChange: updateIssue,
-  onFail: error => dispatch => onFail(dispatch)(error)
+type Props = {|
+  checked?: boolean,
+  issue: Issue,
+  onChange: (Issue) => void,
+  onCheck?: (string) => void,
+  onClick: (string) => void,
+  onFilter?: (property: string, issue: Issue) => void,
+  selected: boolean
+|};
+
+type State = {
+  currentPopup: string
 };
 
-export default connect(null, mapDispatchToProps)(BaseIssue);
+export default class BaseIssue extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
+  state: State;
+
+  static contextTypes = {
+    store: React.PropTypes.object
+  };
+
+  static defaultProps = {
+    selected: false
+  };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      currentPopup: ''
+    };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+    if (this.props.selected) {
+      this.bindShortcuts();
+    }
+  }
+
+  componentWillUpdate(nextProps: Props) {
+    if (!nextProps.selected && this.props.selected) {
+      this.unbindShortcuts();
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (!prevProps.selected && this.props.selected) {
+      this.bindShortcuts();
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    if (this.props.selected) {
+      this.unbindShortcuts();
+    }
+  }
+
+  bindShortcuts() {
+    document.addEventListener('keypress', this.handleKeyPress);
+  }
+
+  unbindShortcuts() {
+    document.removeEventListener('keypress', this.handleKeyPress);
+  }
+
+  togglePopup = (popupName: string, open?: boolean) => {
+    if (this.mounted) {
+      this.setState((prevState: State) => {
+        if (prevState.currentPopup !== popupName && open !== false) {
+          return { currentPopup: popupName };
+        } else if (prevState.currentPopup === popupName && open !== true) {
+          return { currentPopup: '' };
+        }
+        return prevState;
+      });
+    }
+  };
+
+  handleAssignement = (login: string) => {
+    const { issue } = this.props;
+    if (issue.assignee !== login) {
+      updateIssue(this.props.onChange, setIssueAssignee({ issue: issue.key, assignee: login }));
+    }
+    this.togglePopup('assign', false);
+  };
+
+  handleFail = (error: Error) => {
+    onFail(this.context.store.dispatch)(error);
+  };
+
+  handleKeyPress = (e: Object) => {
+    const tagName = e.target.tagName.toUpperCase();
+    const shouldHandle = tagName !== 'INPUT' && tagName !== 'TEXTAREA' && tagName !== 'BUTTON';
+
+    if (shouldHandle) {
+      switch (e.key) {
+        case 'f':
+          return this.togglePopup('transition');
+        case 'a':
+          return this.togglePopup('assign');
+        case 'm':
+          return this.props.issue.actions.includes('assign_to_me') && this.handleAssignement('_me');
+        case 'p':
+          return this.togglePopup('plan');
+        case 'i':
+          return this.togglePopup('set-severity');
+        case 'c':
+          return this.togglePopup('comment');
+        case 't':
+          return this.togglePopup('edit-tags');
+      }
+    }
+  };
+
+  render() {
+    return (
+      <IssueView
+        issue={this.props.issue}
+        checked={this.props.checked}
+        onAssign={this.handleAssignement}
+        onCheck={this.props.onCheck}
+        onClick={this.props.onClick}
+        onFail={this.handleFail}
+        onFilter={this.props.onFilter}
+        onChange={this.props.onChange}
+        togglePopup={this.togglePopup}
+        currentPopup={this.state.currentPopup}
+        selected={this.props.selected}
+      />
+    );
+  }
+}

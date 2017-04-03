@@ -21,7 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import ChangeProjectsView from '../views/ChangeProjectsView';
-import QualifierIcon from '../../../components/shared/qualifier-icon';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 import type { Profile } from '../propTypes';

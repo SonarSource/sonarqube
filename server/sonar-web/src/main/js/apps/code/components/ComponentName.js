@@ -20,7 +20,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import Truncated from './Truncated';
-import QualifierIcon from '../../../components/shared/qualifier-icon';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
 
 function getTooltip(component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';

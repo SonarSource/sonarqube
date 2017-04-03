@@ -21,7 +21,7 @@ import React from 'react';
 import { max } from 'd3-array';
 import { scaleLinear, scaleBand } from 'd3-scale';
 import { ResizeMixin } from './../mixins/resize-mixin';
-import { TooltipsMixin } from './../mixins/tooltips-mixin';
+import { TooltipsContainer } from './../mixins/tooltips-mixin';
 
 export const BarChart = React.createClass({
   propTypes: {
@@ -34,7 +34,7 @@ export const BarChart = React.createClass({
     onBarClick: React.PropTypes.func
   },
 
-  mixins: [ResizeMixin, TooltipsMixin],
+  mixins: [ResizeMixin],
 
   getDefaultProps() {
     return {
@@ -162,13 +162,15 @@ export const BarChart = React.createClass({
     const yScale = scaleLinear().domain([0, maxY]).range([availableHeight, 0]);
 
     return (
-      <svg className="bar-chart" width={this.state.width} height={this.state.height}>
-        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-          {this.renderXTicks(xScale, yScale)}
-          {this.renderXValues(xScale, yScale)}
-          {this.renderBars(xScale, yScale)}
-        </g>
-      </svg>
+      <TooltipsContainer>
+        <svg className="bar-chart" width={this.state.width} height={this.state.height}>
+          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+            {this.renderXTicks(xScale, yScale)}
+            {this.renderXValues(xScale, yScale)}
+            {this.renderBars(xScale, yScale)}
+          </g>
+        </svg>
+      </TooltipsContainer>
     );
   }
 });

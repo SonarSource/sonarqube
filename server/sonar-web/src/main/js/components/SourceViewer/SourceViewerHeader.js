@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import QualifierIcon from '../shared/qualifier-icon';
+import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
 import { getProjectUrl, getIssuesUrl } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
@@ -44,7 +44,8 @@ export default class SourceViewerHeader extends React.PureComponent {
       projectName: string,
       q: string,
       subProject?: string,
-      subProjectName?: string
+      subProjectName?: string,
+      uuid: string
     },
     openNewWindow: () => void,
     showMeasures: () => void
@@ -76,7 +77,8 @@ export default class SourceViewerHeader extends React.PureComponent {
       projectName,
       q,
       subProject,
-      subProjectName
+      subProjectName,
+      uuid
     } = this.props.component;
     const isUnitTest = q === 'UTS';
     // TODO check if source viewer is displayed inside workspace
@@ -169,7 +171,7 @@ export default class SourceViewerHeader extends React.PureComponent {
           <div className="source-viewer-header-measure">
             <span className="source-viewer-header-measure-value">
               <Link
-                to={getIssuesUrl({ resolved: 'false', componentKeys: key })}
+                to={getIssuesUrl({ resolved: 'false', fileUuids: uuid })}
                 className="source-viewer-header-external-link"
                 target="_blank">
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}

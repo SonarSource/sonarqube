@@ -25,6 +25,7 @@ import IssueSeverity from './IssueSeverity';
 import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
+import { updateIssue } from '../actions';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import type { Issue } from '../types';
 
@@ -32,8 +33,8 @@ type Props = {
   issue: Issue,
   currentPopup: string,
   onAssign: (string) => void,
+  onChange: (Issue) => void,
   onFail: (Error) => void,
-  onIssueChange: (Promise<*>, oldIssue?: Issue, newIssue?: Issue) => void,
   togglePopup: (string) => void
 };
 
@@ -63,15 +64,18 @@ export default class IssueActionsBar extends React.PureComponent {
     const { issue } = this.props;
     if (issue[property] !== value) {
       const newIssue = { ...issue, [property]: value };
-      this.props.onIssueChange(apiCall({ issue: issue.key, [property]: value }), issue, newIssue);
+      updateIssue(
+        this.props.onChange,
+        apiCall({ issue: issue.key, [property]: value }),
+        issue,
+        newIssue
+      );
     }
     this.props.togglePopup(popup, false);
   };
 
   toggleComment = (open?: boolean, placeholder?: string) => {
-    this.setState({
-      commentPlaceholder: placeholder || ''
-    });
+    this.setState({ commentPlaceholder: placeholder || '' });
     this.props.togglePopup('comment', open);
   };
 
@@ -112,8 +116,8 @@ export default class IssueActionsBar extends React.PureComponent {
                     isOpen={this.props.currentPopup === 'transition' && hasTransitions}
                     issue={issue}
                     hasTransitions={hasTransitions}
+                    onChange={this.props.onChange}
                     togglePopup={this.props.togglePopup}
-                    setIssueProperty={this.setIssueProperty}
                   />
                 </li>
                 <li className="issue-meta">
@@ -134,10 +138,10 @@ export default class IssueActionsBar extends React.PureComponent {
                   </li>}
                 {canComment &&
                   <IssueCommentAction
-                    issueKey={issue.key}
                     commentPlaceholder={this.state.commentPlaceholder}
                     currentPopup={this.props.currentPopup}
-                    onIssueChange={this.props.onIssueChange}
+                    issueKey={issue.key}
+                    onChange={this.props.onChange}
                     toggleComment={this.toggleComment}
                   />}
               </ul>
@@ -149,8 +153,8 @@ export default class IssueActionsBar extends React.PureComponent {
                     isOpen={this.props.currentPopup === 'edit-tags' && canSetTags}
                     canSetTags={canSetTags}
                     issue={issue}
+                    onChange={this.props.onChange}
                     onFail={this.props.onFail}
-                    onIssueChange={this.props.onIssueChange}
                     togglePopup={this.props.togglePopup}
                   />
                 </li>

@@ -156,14 +156,14 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     assertThat((String) message.getContent()).contains("Severity");
     assertThat((String) message.getContent()).contains("One Issue Per Line (xoo): 17");
     assertThat((String) message.getContent()).contains(
-      "See it in SonarQube: http://localhost:9000/component_issues?id=sample#createdAt=2015-12-15T00%3A00%3A00%2B");
+      "See it in SonarQube: http://localhost:9000/project/issues?id=sample&createdAt=2015-12-15T00%3A00%3A00%2B");
 
     assertThat(emails.hasNext()).isTrue();
     message = emails.next().getMimeMessage();
     assertThat(message.getHeader("To", null)).isEqualTo("<tester@example.org>");
     assertThat((String) message.getContent()).contains("sample/Sample.xoo");
     assertThat((String) message.getContent()).contains("Assignee changed to Tester");
-    assertThat((String) message.getContent()).contains("See it in SonarQube: http://localhost:9000/issues/search#issues=" + issue.key());
+    assertThat((String) message.getContent()).contains("See it in SonarQube: http://localhost:9000/issues?issues=" + issue.key());
 
     assertThat(emails.hasNext()).isFalse();
   }
@@ -218,7 +218,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     assertThat((String) message.getContent()).contains("sample/Sample.xoo");
     assertThat((String) message.getContent()).contains("Severity: BLOCKER (was MINOR)");
     assertThat((String) message.getContent()).contains(
-      "See it in SonarQube: http://localhost:9000/issues/search#issues=" + issue.key());
+      "See it in SonarQube: http://localhost:9000/issues?issues=" + issue.key());
 
     assertThat(emails.hasNext()).isFalse();
   }

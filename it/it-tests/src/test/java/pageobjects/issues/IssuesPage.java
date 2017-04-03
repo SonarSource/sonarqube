@@ -19,9 +19,7 @@
  */
 package pageobjects.issues;
 
-import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.SelenideElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,23 +53,14 @@ public class IssuesPage {
 
   public IssuesPage bulkChangeOpen() {
     $("#issues-bulk-change").shouldBe(visible).click();
-    $("a.js-bulk-change").click();
     $("#bulk-change-form").shouldBe(visible);
     return this;
   }
 
   public IssuesPage bulkChangeAssigneeSearchCount(String query, Integer count) {
-    if (!$(".select2-drop-active").isDisplayed()) {
-      $("#bulk-change-form #s2id_assignee").shouldBe(visible).click();
-    }
-    SelenideElement input = $(".select2-drop-active input").shouldBe(visible);
-    input.val("").sendKeys(query);
-    if (count > 0) {
-      $(".select2-drop-active .select2-results li.select2-result").shouldBe(visible);
-    } else {
-      $(".select2-drop-active .select2-results li.select2-no-results").shouldBe(visible);
-    }
-    $$(".select2-drop-active .select2-results li.select2-result").shouldHaveSize(count);
+    $("#issues-bulk-change-assignee .Select-input input").val(query);
+    $$("#issues-bulk-change-assignee .Select-option").shouldHaveSize(count);
+    $("#issues-bulk-change-assignee .Select-input input").pressEscape();
     return this;
   }
 }

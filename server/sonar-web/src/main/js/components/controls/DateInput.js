@@ -19,11 +19,13 @@
  */
 import $ from 'jquery';
 import React from 'react';
+import classNames from 'classnames';
 import { pick } from 'lodash';
 import './styles.css';
 
 export default class DateInput extends React.Component {
   static propTypes = {
+    className: React.PropTypes.string,
     value: React.PropTypes.string,
     format: React.PropTypes.string,
     name: React.PropTypes.string,
@@ -67,12 +69,12 @@ export default class DateInput extends React.Component {
 
     /* eslint max-len: 0 */
     return (
-      <span className="date-input-control">
+      <span className={classNames('date-input-control', this.props.className)}>
         <input
           className="date-input-control-input"
           ref="input"
           type="text"
-          initialValue={this.props.value}
+          defaultValue={this.props.value}
           readOnly={true}
           {...inputProps}
         />

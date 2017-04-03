@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
 import Checkbox from '../../components/controls/Checkbox';
-import QualifierIcon from '../../components/shared/qualifier-icon';
+import QualifierIcon from '../../components/shared/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 
 export default class Projects extends React.Component {

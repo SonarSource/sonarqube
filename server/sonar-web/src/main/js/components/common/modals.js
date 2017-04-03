@@ -19,6 +19,7 @@
  */
 import $ from 'jquery';
 import Marionette from 'backbone.marionette';
+import key from 'keymaster';
 
 const EVENT_SCOPE = 'modal';
 

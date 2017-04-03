@@ -175,7 +175,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
     if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/component_issues?id=%s#createdAt=%s",
+      String url = String.format("%s/project/issues?id=%s&createdAt=%s",
         settings.getServerBaseURL(), encode(projectKey), encode(DateUtils.formatDateTime(date)));
       message
         .append("See it in SonarQube: ")

@@ -26,7 +26,7 @@ export default class Checkbox extends React.Component {
     onCheck: React.PropTypes.func.isRequired,
     checked: React.PropTypes.bool.isRequired,
     thirdState: React.PropTypes.bool,
-    className: React.PropTypes.string
+    className: React.PropTypes.any
   };
 
   static defaultProps = {
@@ -44,7 +44,9 @@ export default class Checkbox extends React.Component {
   }
 
   render() {
-    const className = classNames(this.props.className, 'icon-checkbox', {
+    const className = classNames('icon-checkbox', {
+      // trick to work with glamor
+      [this.props.className]: true,
       'icon-checkbox-checked': this.props.checked,
       'icon-checkbox-single': this.props.thirdState
     });

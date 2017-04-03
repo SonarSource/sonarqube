@@ -21,7 +21,6 @@
 import { connect } from 'react-redux';
 import SourceViewerBase from './SourceViewerBase';
 import { receiveFavorites } from '../../store/favorites/duck';
-import { receiveIssues } from '../../store/issues/duck';
 
 const mapStateToProps = null;
 
@@ -39,11 +38,6 @@ const onReceiveComponent = (component: { key: string, canMarkAsFavorite: boolean
     }
   };
 
-const onReceiveIssues = (issues: Array<*>) =>
-  dispatch => {
-    dispatch(receiveIssues(issues));
-  };
-
-const mapDispatchToProps = { onReceiveComponent, onReceiveIssues };
+const mapDispatchToProps = { onReceiveComponent };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SourceViewerBase);

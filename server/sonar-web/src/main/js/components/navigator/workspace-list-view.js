@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import { throttle } from 'lodash';
 import Marionette from 'backbone.marionette';
+import key from 'keymaster';
 
 const BOTTOM_OFFSET = 60;
 

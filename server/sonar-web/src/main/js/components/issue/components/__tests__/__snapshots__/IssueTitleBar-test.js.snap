@@ -42,10 +42,19 @@ exports[`test should render the titlebar correctly 1`] = `
           </li>
           <li
             className="issue-meta">
-            <a
+            <Link
               className="js-issue-permalink icon-link"
-              href="/issues/search#issues=AVsae-CQS-9G3txfbFN2"
-              target="_blank" />
+              onClick={[Function]}
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/issues",
+                  "query": Object {
+                    "issues": "AVsae-CQS-9G3txfbFN2",
+                  },
+                }
+              } />
           </li>
         </ul>
       </td>
@@ -98,23 +107,37 @@ exports[`test should render the titlebar with the filter 1`] = `
           </li>
           <li
             className="issue-meta">
-            <a
+            <Link
               className="js-issue-permalink icon-link"
-              href="/issues/search#issues=AVsae-CQS-9G3txfbFN2"
-              target="_blank" />
+              onClick={[Function]}
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/issues",
+                  "query": Object {
+                    "issues": "AVsae-CQS-9G3txfbFN2",
+                  },
+                }
+              } />
           </li>
           <li
             className="issue-meta">
-            <button
-              aria-label="issue.filter_similar_issues"
-              className="js-issue-filter button-link issue-action issue-action-with-options"
-              onClick={[Function]}>
-              <i
-                className="icon-filter icon-half-transparent" />
-               
-              <i
-                className="icon-dropdown" />
-            </button>
+            <SimilarIssuesFilter
+              isOpen={false}
+              issue={
+                Object {
+                  "creationDate": "2017-03-01T09:36:01+0100",
+                  "key": "AVsae-CQS-9G3txfbFN2",
+                  "line": 26,
+                  "message": "Reduce the number of conditional operators (4) used in the expression",
+                  "organization": "myorg",
+                  "rule": "javascript:S1067",
+                }
+              }
+              onFail={[Function]}
+              onFilter={[Function]}
+              togglePopup={[Function]} />
           </li>
         </ul>
       </td>

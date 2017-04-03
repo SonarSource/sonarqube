@@ -43,7 +43,7 @@ it('should render the titlebar with the filter', () => {
       issue={issue}
       currentPopup=""
       onFail={jest.fn()}
-      onFilterClick={jest.fn()}
+      onFilter={jest.fn()}
       togglePopup={jest.fn()}
     />
   );

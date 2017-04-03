@@ -122,23 +122,30 @@
   white-space: normal;
   overflow: hidden;
   font-size: 0;
-  cursor: pointer;
   transition: none;
 
-  &:hover {
-    border: 1px solid @blue;
-    padding: 3px 5px;
+  a& {
+    cursor: pointer;
 
-    .facet-stat {
-      top: -1px;
-      right: -1px;
+    .facet-name {
+      color: @baseFontColor;
+    }
+
+    &:hover, &:focus {
+      border: 1px solid @blue;
+      padding: 3px 5px;
+
+      .facet-stat {
+        top: -1px;
+        right: -1px;
+      }
     }
   }
 
   .facet-name {
     line-height: 16px;
     background-color: @barBackgroundColor;
-    color: @baseFontColor;
+    color: @secondFontColor;
     font-size: @smallFontSize;
     white-space: nowrap;
   }
@@ -425,6 +432,7 @@
 .search-navigator-date-facet-selection {
   .clearfix;
   position: relative;
+  padding: 0 10px;
   font-size: @smallFontSize;
 }
 
