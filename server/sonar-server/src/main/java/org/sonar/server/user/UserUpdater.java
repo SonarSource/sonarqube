@@ -30,8 +30,6 @@ import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -59,6 +57,8 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 @ServerSide
 public class UserUpdater {
 
+  public static final String SONAR_USERS_GROUP_NAME = "sonar-users";
+
   private static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
@@ -72,17 +72,15 @@ public class UserUpdater {
   private static final int NAME_MAX_LENGTH = 200;
 
   private final NewUserNotifier newUserNotifier;
-  private final Settings settings;
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final System2 system2;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationCreation organizationCreation;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2,
+  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2,
     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation) {
     this.newUserNotifier = newUserNotifier;
-    this.settings = settings;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.system2 = system2;
@@ -383,20 +381,14 @@ public class UserUpdater {
   }
 
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {
-    String defaultGroupName = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
-    if (defaultGroupName == null) {
-      return;
-    }
     String defOrgUuid = defaultOrganizationProvider.get().getUuid();
     List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
-    if (isUserAlreadyMemberOfDefaultGroup(defaultGroupName, defOrgUuid, userGroups)) {
+    if (isUserAlreadyMemberOfDefaultGroup(SONAR_USERS_GROUP_NAME, defOrgUuid, userGroups)) {
       return;
     }
-    Optional<GroupDto> groupDto = dbClient.groupDao().selectByName(dbSession, defOrgUuid, defaultGroupName);
+    Optional<GroupDto> groupDto = dbClient.groupDao().selectByName(dbSession, defOrgUuid, SONAR_USERS_GROUP_NAME);
     if (!groupDto.isPresent()) {
-      throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
-        format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",
-          defaultGroupName));
+      throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR, format("The default group '%s' for new users does not exist.", SONAR_USERS_GROUP_NAME));
     }
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
   }
