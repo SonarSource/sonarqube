@@ -54,6 +54,7 @@ import static org.slf4j.Logger.ROOT_LOGGER_NAME;
  */
 public class LogbackHelper {
 
+  private static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
   private static final String ALL_LOGS_TO_CONSOLE_PROPERTY = "sonar.log.console";
   private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
   private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
@@ -99,8 +100,11 @@ public class LogbackHelper {
    */
   public LoggerContext apply(LogLevelConfig logLevelConfig, Props props) {
     LoggerContext rootContext = getRootContext();
-    logLevelConfig.getConfiguredByProperties().entrySet().forEach(entry -> applyLevelByProperty(props, rootContext.getLogger(entry.getKey()), entry.getValue()));
-    logLevelConfig.getConfiguredByHardcodedLevel().entrySet().forEach(entry -> applyHardcodedLevel(rootContext, entry.getKey(), entry.getValue()));
+    logLevelConfig.getConfiguredByProperties().forEach((key, value) -> applyLevelByProperty(props, rootContext.getLogger(key), value));
+    logLevelConfig.getConfiguredByHardcodedLevel().forEach((key, value) -> applyHardcodedLevel(rootContext, key, value));
+    Level propertyValueAsLevel = getPropertyValueAsLevel(props, SONAR_LOG_LEVEL_PROPERTY);
+    boolean traceGloballyEnabled = propertyValueAsLevel == Level.TRACE;
+    logLevelConfig.getOffUnlessTrace().forEach(logger -> applyHardUnlessTrace(rootContext, logger, traceGloballyEnabled));
     return rootContext;
   }
 
@@ -133,11 +137,17 @@ public class LogbackHelper {
     rootContext.getLogger(loggerName).setLevel(newLevel);
   }
 
+  private static void applyHardUnlessTrace(LoggerContext rootContext, String logger, boolean traceGloballyEnabled) {
+    if (!traceGloballyEnabled) {
+      rootContext.getLogger(logger).setLevel(Level.OFF);
+    }
+  }
+
   public void changeRoot(LogLevelConfig logLevelConfig, Level newLevel) {
     ensureSupportedLevel(newLevel);
     LoggerContext rootContext = getRootContext();
     rootContext.getLogger(ROOT_LOGGER_NAME).setLevel(newLevel);
-    logLevelConfig.getConfiguredByProperties().entrySet().forEach(entry -> rootContext.getLogger(entry.getKey()).setLevel(newLevel));
+    logLevelConfig.getConfiguredByProperties().forEach((key, value) -> rootContext.getLogger(key).setLevel(newLevel));
   }
 
   private static void ensureSupportedLevel(Level newLevel) {

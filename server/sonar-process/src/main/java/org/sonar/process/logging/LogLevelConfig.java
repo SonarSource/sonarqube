@@ -23,8 +23,10 @@ import ch.qos.logback.classic.Level;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.process.ProcessId;
@@ -39,10 +41,12 @@ public final class LogLevelConfig {
 
   private final Map<String, List<String>> configuredByProperties;
   private final Map<String, Level> configuredByHardcodedLevel;
+  private final Set<String> offUnlessTrace;
 
   private LogLevelConfig(Builder builder) {
     this.configuredByProperties = Collections.unmodifiableMap(builder.configuredByProperties);
     this.configuredByHardcodedLevel = Collections.unmodifiableMap(builder.configuredByHardcodedLevel);
+    this.offUnlessTrace = Collections.unmodifiableSet(builder.offUnlessTrace);
   }
 
   Map<String, List<String>> getConfiguredByProperties() {
@@ -53,6 +57,10 @@ public final class LogLevelConfig {
     return configuredByHardcodedLevel;
   }
 
+  public Set<String> getOffUnlessTrace() {
+    return offUnlessTrace;
+  }
+
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -60,6 +68,7 @@ public final class LogLevelConfig {
   public static final class Builder {
     private final Map<String, List<String>> configuredByProperties = new HashMap<>();
     private final Map<String, Level> configuredByHardcodedLevel = new HashMap<>();
+    private final Set<String> offUnlessTrace = new HashSet<>();
 
     private Builder() {
       // use static factory method
@@ -113,6 +122,9 @@ public final class LogLevelConfig {
       if (configuredByHardcodedLevel.containsKey(loggerName)) {
         throw new IllegalStateException("Configuration hardcoded level already registered for " + loggerName);
       }
+      if (offUnlessTrace.contains(loggerName)) {
+        throw new IllegalStateException("Configuration off unless TRACE already registered for " + loggerName);
+      }
     }
 
     private static void checkProcessId(ProcessId processId) {
@@ -124,6 +136,13 @@ public final class LogLevelConfig {
       if (loggerName.isEmpty()) {
         throw new IllegalArgumentException("loggerName can't be empty");
       }
+    }
+
+    public Builder offUnlessTrace(String loggerName) {
+      checkLoggerName(loggerName);
+      ensureUniqueConfiguration(loggerName);
+      offUnlessTrace.add(loggerName);
+      return this;
     }
 
     public LogLevelConfig build() {

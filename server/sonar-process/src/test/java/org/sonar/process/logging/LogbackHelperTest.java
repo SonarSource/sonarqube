@@ -35,7 +35,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.util.Properties;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -68,8 +68,8 @@ public class LogbackHelperTest {
     props.set(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
   }
 
-  @AfterClass
-  public static void resetLogback() throws Exception {
+  @After
+  public void resetLogback() throws Exception {
     new LogbackHelper().resetFromXml("/org/sonar/process/logging/LogbackHelperTest/logback-test.xml");
   }
 
@@ -317,6 +317,43 @@ public class LogbackHelperTest {
     assertThat(context.getLogger("bar").getLevel()).isEqualTo(Level.DEBUG);
     assertThat(context.getLogger("doh").getLevel()).isEqualTo(Level.ERROR);
     assertThat(context.getLogger("pif").getLevel()).isEqualTo(Level.TRACE);
+  }
+
+  @Test
+  public void apply_set_level_to_OFF_if_sonar_global_level_is_not_set() {
+    LoggerContext context = underTest.apply(LogLevelConfig.newBuilder().offUnlessTrace("fii").build(), new Props(new Properties()));
+
+    assertThat(context.getLogger("fii").getLevel()).isEqualTo(Level.OFF);
+  }
+
+  @Test
+  public void apply_set_level_to_OFF_if_sonar_global_level_is_INFO() {
+    setLevelToOff(Level.INFO);
+  }
+
+  @Test
+  public void apply_set_level_to_OFF_if_sonar_global_level_is_DEBUG() {
+    setLevelToOff(Level.DEBUG);
+  }
+
+  @Test
+  public void apply_does_not_set_level_if_sonar_global_level_is_TRACE() {
+    Properties properties = new Properties();
+    properties.setProperty("sonar.log.level", Level.TRACE.toString());
+    assertThat(underTest.getRootContext().getLogger("fii").getLevel()).isNull();
+
+    LoggerContext context = underTest.apply(LogLevelConfig.newBuilder().offUnlessTrace("fii").build(), new Props(properties));
+
+    assertThat(context.getLogger("fii").getLevel()).isNull();
+  }
+
+  private void setLevelToOff(Level globalLogLevel) {
+    Properties properties = new Properties();
+    properties.setProperty("sonar.log.level", globalLogLevel.toString());
+
+    LoggerContext context = underTest.apply(LogLevelConfig.newBuilder().offUnlessTrace("fii").build(), new Props(properties));
+
+    assertThat(context.getLogger("fii").getLevel()).isEqualTo(Level.OFF);
   }
 
   @DataProvider

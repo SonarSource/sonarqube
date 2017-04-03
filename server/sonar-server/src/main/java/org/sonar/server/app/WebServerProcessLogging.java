@@ -19,13 +19,12 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.classic.Level;
 import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.ProcessId;
-
 import org.sonar.process.logging.LogDomain;
+import org.sonar.process.logging.LogLevelConfig;
+
 import static org.sonar.server.platform.web.requestid.RequestIdMDCStorage.HTTP_REQUEST_ID_MDC_KEY;
 
 /**
@@ -44,8 +43,9 @@ public class WebServerProcessLogging extends ServerProcessLogging {
     logLevelConfigBuilder.levelByDomain("auth.event", ProcessId.WEB_SERVER, LogDomain.AUTH_EVENT);
     JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, ProcessId.WEB_SERVER, LogDomain.JMX));
 
-    logLevelConfigBuilder.immutableLevel("org.apache.catalina.core.ContainerBase", Level.OFF);
-    logLevelConfigBuilder.immutableLevel("org.apache.catalina.core.StandardContext", Level.OFF);
+    logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.ContainerBase");
+    logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.StandardContext");
+    logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.StandardService");
   }
 
   @Override
