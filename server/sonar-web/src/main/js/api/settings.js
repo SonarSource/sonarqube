@@ -23,27 +23,19 @@ import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 
 export function getDefinitions(componentKey) {
   const url = '/api/settings/list_definitions';
-  const data = {};
-  if (componentKey) {
-    data.component = componentKey;
-  }
+  const data = { component: componentKey };
   return getJSON(url, data).then(r => r.definitions);
 }
 
 export function getValues(keys, componentKey) {
   const url = '/api/settings/values';
-  const data = { keys };
-  if (componentKey) {
-    data.component = componentKey;
-  }
+  const data = { keys, component: componentKey };
   return getJSON(url, data).then(r => r.settings);
 }
 
 export function setSettingValue(definition, value, componentKey) {
   const url = '/api/settings/set';
-
-  const { key } = definition;
-  const data = { key };
+  const data = { key: definition.key, component: componentKey };
 
   if (definition.multiValues) {
     data.values = value;
@@ -54,20 +46,12 @@ export function setSettingValue(definition, value, componentKey) {
   } else {
     data.value = value;
   }
-
-  if (componentKey) {
-    data.component = componentKey;
-  }
-
   return post(url, data);
 }
 
 export function resetSettingValue(key, componentKey) {
   const url = '/api/settings/reset';
-  const data = { keys: key };
-  if (componentKey) {
-    data.component = componentKey;
-  }
+  const data = { keys: key, component: componentKey };
   return post(url, data);
 }
 

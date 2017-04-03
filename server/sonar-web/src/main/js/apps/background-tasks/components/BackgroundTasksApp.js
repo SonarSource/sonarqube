@@ -114,13 +114,10 @@ class BackgroundTasksApp extends React.PureComponent {
     const query = this.props.location.query.query || DEFAULT_FILTERS.query;
 
     const filters = { status, taskType, currents, minSubmittedAt, maxExecutedAt, query };
-    const parameters: Object = mapFiltersToParameters(filters);
+    const data: Object = mapFiltersToParameters(filters);
+    data.componentId = this.props.component && this.props.component.id;
 
-    if (this.props.component) {
-      parameters.componentId = this.props.component.id;
-    }
-
-    Promise.all([getActivity(parameters), getStatus(parameters.componentId)]).then(responses => {
+    Promise.all([getActivity(data), getStatus(data.componentId)]).then(responses => {
       if (this.mounted) {
         const [activity, status] = responses;
         const tasks = activity.tasks;

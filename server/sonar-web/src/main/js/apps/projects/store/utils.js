@@ -216,21 +216,12 @@ export const convertToSorting = ({ sort }) => {
 };
 
 export const convertToQueryData = (query, isFavorite, organization, defaultData = {}) => {
-  const data = { ...defaultData };
-  const filter = convertToFilter(query, isFavorite);
   const sort = convertToSorting(query);
-
-  if (filter) {
-    data.filter = filter;
-  }
-  if (sort.s) {
-    data.s = sort.s;
-  }
-  if (sort.hasOwnProperty('asc')) {
-    data.asc = sort.asc;
-  }
-  if (organization) {
-    data.organization = organization.key;
-  }
-  return data;
+  return {
+    ...defaultData,
+    filter: convertToFilter(query, isFavorite),
+    s: sort.s,
+    asc: sort.asc,
+    organization: organization && organization.key
+  };
 };

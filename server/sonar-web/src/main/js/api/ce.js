@@ -20,15 +20,23 @@
 // @flow
 import { getJSON, post } from '../helpers/request';
 
-export const getActivity = (data?: Object): Promise<*> => getJSON('/api/ce/activity', data);
-
-export const getStatus = (componentId?: string): Promise<*> => {
-  const data = {};
-  if (componentId) {
-    Object.assign(data, { componentId });
+export const getActivity = (
+  data?: {
+    componentId?: string,
+    maxExecutedAt?: string,
+    minSubmittedAt?: string,
+    onlyCurrents?: string,
+    ps?: number,
+    q?: string,
+    status?: string,
+    type?: string
   }
-  return getJSON('/api/ce/activity_status', data);
+): Promise<*> => {
+  return getJSON('/api/ce/activity', data);
 };
+
+export const getStatus = (componentId?: string): Promise<*> =>
+  getJSON('/api/ce/activity_status', { componentId });
 
 export const getTask = (id: string, additionalFields?: Array<string>): Promise<*> =>
   getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);

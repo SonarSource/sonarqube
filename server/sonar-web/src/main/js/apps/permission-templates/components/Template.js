@@ -114,11 +114,9 @@ class Template extends React.PureComponent {
     const data = {
       templateId: template.id,
       groupName: group.name,
+      organization: organization && organization.key,
       permission
     };
-    if (organization) {
-      Object.assign(data, { organization: organization.key });
-    }
     const request = hasPermission
       ? api.revokeTemplatePermissionFromGroup(data)
       : api.grantTemplatePermissionToGroup(data);

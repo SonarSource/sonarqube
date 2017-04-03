@@ -30,7 +30,7 @@ export default FormView.extend({
       projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
     };
     if (this.options.organization) {
-      Object.assign(data, { organization: this.options.organization.key });
+      data.organization = this.options.organization.key;
     }
     createPermissionTemplate(data).then(
       r => {

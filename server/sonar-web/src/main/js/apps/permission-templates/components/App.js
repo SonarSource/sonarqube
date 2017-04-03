@@ -52,10 +52,7 @@ export default class App extends React.PureComponent {
 
   requestPermissions() {
     const { organization } = this.props;
-    const request = organization
-      ? getPermissionTemplates(organization.key)
-      : getPermissionTemplates();
-    return request.then(r => {
+    return getPermissionTemplates(organization && organization.key).then(r => {
       if (this.mounted) {
         const permissions = sortPermissions(r.permissions);
         const permissionTemplates = mergeDefaultsToTemplates(

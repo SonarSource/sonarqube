@@ -105,14 +105,10 @@ const fetchMembers = (
   dispatch(membersActions.updateState(key, { loading: true }));
   const data: Object = {
     organization: key,
+    q: query,
+    p: page,
     ps: PAGE_SIZE
   };
-  if (page != null) {
-    data.p = page;
-  }
-  if (query) {
-    data.q = query;
-  }
   return api.searchMembers(data).then(response => {
     dispatch(
       receiveAction(key, response.users, {

@@ -22,10 +22,7 @@ import { getJSON, post, postJSON } from '../helpers/request';
 import type { Organization } from '../store/organizations/duck';
 
 export const getOrganizations = (organizations?: Array<string>) => {
-  const data = {};
-  if (organizations) {
-    Object.assign(data, { organizations: organizations.join() });
-  }
+  const data = { organizations: organizations && organizations.join() };
   return getJSON('/api/organizations/search', data);
 };
 
@@ -43,13 +40,11 @@ type GetOrganizationNavigation = {
   adminPages: Array<{ key: string, name: string }>
 };
 
-export const getOrganization = (key: string): Promise<GetOrganizationType> => {
-  return getOrganizations([key]).then(r => r.organizations.find(o => o.key === key));
-};
+export const getOrganization = (key: string): Promise<GetOrganizationType> =>
+  getOrganizations([key]).then(r => r.organizations.find(o => o.key === key));
 
-export const getOrganizationNavigation = (key: string): Promise<GetOrganizationNavigation> => {
-  return getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
-};
+export const getOrganizationNavigation = (key: string): Promise<GetOrganizationNavigation> =>
+  getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
 
 export const createOrganization = (fields: {}): Promise<Organization> =>
   postJSON('/api/organizations/create', fields).then(r => r.organization);
@@ -61,7 +56,10 @@ export const deleteOrganization = (key: string) => post('/api/organizations/dele
 
 export const searchMembers = (
   data: { organization?: string, p?: number, ps?: number, q?: string, selected?: string }
-) => getJSON('/api/organizations/search_members', data);
+) => {
+  data.q = data.q || undefined;
+  return getJSON('/api/organizations/search_members', data);
+};
 
 export const addMember = (data: { login: string, organization: string }) =>
   postJSON('/api/organizations/add_member', data).then(r => r.user);

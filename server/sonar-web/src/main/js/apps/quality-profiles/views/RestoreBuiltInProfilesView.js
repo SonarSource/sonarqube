@@ -48,9 +48,10 @@ export default ModalFormView.extend({
   sendRequest() {
     const language = this.$('#restore-built-in-profiles-language').val();
     this.selectedLanguage = this.options.languages.find(l => l.key === language).name;
-    const data = this.options.organization
-      ? { language, organization: this.options.organization }
-      : { language };
+    const data = {
+      language,
+      organization: this.options.organization
+    };
     restoreBuiltInProfiles(data)
       .then(() => {
         this.done = true;

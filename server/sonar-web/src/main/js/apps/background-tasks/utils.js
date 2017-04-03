@@ -55,17 +55,9 @@ export function mapFiltersToParameters(filters: Object = {}) {
     parameters.onlyCurrents = true;
   }
 
-  if (filters.minSubmittedAt) {
-    parameters.minSubmittedAt = filters.minSubmittedAt;
-  }
-
-  if (filters.maxExecutedAt) {
-    parameters.maxExecutedAt = filters.maxExecutedAt;
-  }
-
-  if (filters.query) {
-    parameters.componentQuery = filters.query;
-  }
+  parameters.minSubmittedAt = filters.minSubmittedAt;
+  parameters.maxExecutedAt = filters.maxExecutedAt;
+  parameters.q = filters.query;
 
   if (filters.lastPage !== 1) {
     parameters.p = filters.lastPage;

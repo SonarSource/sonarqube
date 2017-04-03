@@ -34,10 +34,8 @@ export default ModalForm.extend({
   },
 
   loadPermissionTemplates() {
-    const request = this.options.organization
-      ? getPermissionTemplates(this.options.organization.key)
-      : getPermissionTemplates();
-    return request.then(r => {
+    const key = this.options.organization && this.options.organization.key;
+    return getPermissionTemplates(key).then(r => {
       this.permissionTemplates = r.permissionTemplates;
       this.render();
     });
@@ -52,20 +50,12 @@ export default ModalForm.extend({
   },
 
   bulkApplyToAll(permissionTemplate) {
-    const data = { templateId: permissionTemplate };
-
-    if (this.options.query) {
-      data.q = this.options.query;
-    }
-
-    if (this.options.qualifier) {
-      data.qualifier = this.options.qualifier;
-    }
-
-    if (this.options.organization) {
-      data.organization = this.options.organization.key;
-    }
-
+    const data = {
+      templateId: permissionTemplate,
+      q: this.options.query,
+      qualifier: this.options.qualifier,
+      organization: this.options.organization && this.options.organization.key
+    };
     return bulkApplyTemplate(data);
   },
 
@@ -74,10 +64,11 @@ export default ModalForm.extend({
     let lastRequest = Promise.resolve();
 
     selection.forEach(projectId => {
-      const data = { templateId: permissionTemplate, projectId };
-      if (this.options.organization) {
-        data.organization = this.options.organization.key;
-      }
+      const data = {
+        templateId: permissionTemplate,
+        organization: this.options.organization && this.options.organization.key,
+        projectId
+      };
       lastRequest = lastRequest.then(() => applyTemplateToProject(data));
     });
 
