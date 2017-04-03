@@ -52,6 +52,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 // TODO replace ServerTester by EsTester / DbTester
 public class RuleCreatorMediumTest {
@@ -160,7 +161,7 @@ public class RuleCreatorMediumTest {
   @Test
   public void create_custom_rule_with_no_parameter_value() {
     // insert template rule
-    RuleDto templateRule = createTemplateRuleWithIntArrayParam();
+    RuleDefinitionDto templateRule = createTemplateRuleWithIntArrayParam();
 
     NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
@@ -184,7 +185,7 @@ public class RuleCreatorMediumTest {
   @Test
   public void create_custom_rule_with_multiple_parameter_values() {
     // insert template rule
-    RuleDto templateRule = createTemplateRuleWithIntArrayParam();
+    RuleDefinitionDto templateRule = createTemplateRuleWithIntArrayParam();
 
     NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
@@ -209,7 +210,7 @@ public class RuleCreatorMediumTest {
   @Test
   public void create_custom_rule_with_invalid_parameter() {
     // insert template rule
-    RuleDto templateRule = createTemplateRuleWithIntArrayParam();
+    RuleDefinitionDto templateRule = createTemplateRuleWithIntArrayParam();
 
     // Create custom rule
     NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
@@ -231,7 +232,7 @@ public class RuleCreatorMediumTest {
   @Test
   public void create_custom_rule_with_invalid_parameters() {
     // insert template rule
-    RuleDto templateRule = createTemplateRuleWithTwoIntParams();
+    RuleDefinitionDto templateRule = createTemplateRuleWithTwoIntParams();
 
     // Create custom rule
     NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
@@ -481,8 +482,8 @@ public class RuleCreatorMediumTest {
   @Test
   public void fail_to_create_custom_rule_when_wrong_rule_template() {
     // insert rule
-    RuleDto rule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false);
-    dao.insert(dbSession, rule.getDefinition());
+    RuleDefinitionDto rule = newRule(RuleKey.of("java", "S001")).setIsTemplate(false);
+    dao.insert(dbSession, rule);
     dbSession.commit();
 
     // Create custom rule with unknown template rule
@@ -519,12 +520,12 @@ public class RuleCreatorMediumTest {
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();
-    ruleIndexer.index(defaultOrganization, templateRule.getKey());
+    ruleIndexer.indexRuleDefinition(templateRule.getDefinition().getKey());
     return templateRule;
   }
 
-  private RuleDto createTemplateRuleWithIntArrayParam() {
-    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S002"))
+  private RuleDefinitionDto createTemplateRuleWithIntArrayParam() {
+    RuleDefinitionDto templateRule = newRule(RuleKey.of("java", "S002"))
       .setIsTemplate(true)
       .setLanguage("java")
       .setConfigKey("S002")
@@ -534,17 +535,17 @@ public class RuleCreatorMediumTest {
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule.getDefinition());
-    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition())
+    dao.insert(dbSession, templateRule);
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
-    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
+    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
     dbSession.commit();
-    ruleIndexer.index(defaultOrganization, templateRule.getKey());
+    ruleIndexer.indexRuleDefinition(templateRule.getKey());
     return templateRule;
   }
 
-  private RuleDto createTemplateRuleWithTwoIntParams() {
-    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S003"))
+  private RuleDefinitionDto createTemplateRuleWithTwoIntParams() {
+    RuleDefinitionDto templateRule = newRule(RuleKey.of("java", "S003"))
       .setIsTemplate(true)
       .setLanguage("java")
       .setConfigKey("S003")
@@ -554,13 +555,13 @@ public class RuleCreatorMediumTest {
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    dao.insert(dbSession, templateRule.getDefinition());
-    RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule.getDefinition())
+    dao.insert(dbSession, templateRule);
+    RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
       .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");
-    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParam1Dto);
-    RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule.getDefinition())
+    dao.insertRuleParam(dbSession, templateRule, ruleParam1Dto);
+    RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule)
       .setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0");
-    dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParam2Dto);
+    dao.insertRuleParam(dbSession, templateRule, ruleParam2Dto);
     dbSession.commit();
     return templateRule;
   }

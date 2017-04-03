@@ -50,8 +50,8 @@ public class ListActionTest {
 
   @Test
   public void return_rules_in_protobuf() throws Exception {
-    dbTester.rules().insertRule(RuleTesting.newDto(RuleKey.of("java", "S001")).setConfigKey(null).setName(null));
-    dbTester.rules().insertRule(RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002").setName("Rule Two"));
+    dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", "S001")).setConfigKey(null).setName(null));
+    dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", "S002")).setConfigKey("I002").setName("Rule Two"));
     dbTester.getSession().commit();
 
     TestResponse response = tester.newRequest()

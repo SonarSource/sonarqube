@@ -42,6 +42,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -51,14 +52,13 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
-import static org.sonar.db.rule.RuleTesting.newDto;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newXooX1;
 import static org.sonar.db.rule.RuleTesting.newXooX2;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
@@ -94,16 +94,19 @@ public class QProfileBackuperMediumTest {
 
     // create pre-defined rules
     RuleDto xooRule1 = newXooX1().setSeverity("MINOR").setLanguage("xoo");
-    RuleDto xooRule2 = newXooX2().setSeverity("MAJOR").setLanguage("xoo");
     db.ruleDao().insert(dbSession, xooRule1.getDefinition());
-    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
     db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
-    dbSession.clearCache();
+    ruleIndexer.indexRuleDefinition(xooRule1.getDefinition().getKey());
+
+    RuleDto xooRule2 = newXooX2().setSeverity("MAJOR").setLanguage("xoo");
+    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
+    dbSession.commit();
+    ruleIndexer.indexRuleDefinition(xooRule2.getDefinition().getKey());
+
     this.organization = OrganizationTesting.newOrganizationDto();
     db.organizationDao().insert(dbSession, organization);
-    ruleIndexer.index(organization, asList(xooRule1.getKey(), xooRule2.getKey()));
   }
 
   @After
@@ -114,11 +117,10 @@ public class QProfileBackuperMediumTest {
   @Test
   public void backup() throws Exception {
     RuleKey blahRuleKey = RuleKey.of("blah", "my-rule");
-    RuleDto blahRule = newDto(blahRuleKey).setSeverity("INFO").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, blahRule.getDefinition());
+    RuleDefinitionDto blahRule = newRule(blahRuleKey).setSeverity("INFO").setLanguage("xoo");
+    db.ruleDao().insert(dbSession, blahRule);
     dbSession.commit();
-    dbSession.clearCache();
-    ruleIndexer.index(organization, blahRuleKey);
+    ruleIndexer.indexRuleDefinition(blahRule.getKey());
 
     // create profile P1 with rules x2 and x1 activated
     QualityProfileDto profile = newXooP1(organization);

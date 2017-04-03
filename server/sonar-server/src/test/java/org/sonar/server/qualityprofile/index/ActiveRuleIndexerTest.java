@@ -142,7 +142,7 @@ public class ActiveRuleIndexerTest {
     long now = 2000000L;
 
     // Index one active rule
-    RuleDefinitionDto rule = RuleTesting.newDto(RULE_KEY_1).getDefinition();
+    RuleDefinitionDto rule = RuleTesting.newRule(RULE_KEY_1);
     dbTester.rules().insert(rule);
     QualityProfileDto profile = QualityProfileDto.createFor("qp")
       .setOrganizationUuid(organization.getUuid())
@@ -159,7 +159,7 @@ public class ActiveRuleIndexerTest {
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(activeRule.getKey().toString());
 
     // Index another active rule
-    RuleDefinitionDto rule2 = RuleTesting.newDto(RULE_KEY_2).getDefinition();
+    RuleDefinitionDto rule2 = RuleTesting.newRule(RULE_KEY_2);
     dbTester.rules().insert(rule2);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profile, rule2).setSeverity(Severity.CRITICAL)
       .setCreatedAt(now).setUpdatedAt(now);

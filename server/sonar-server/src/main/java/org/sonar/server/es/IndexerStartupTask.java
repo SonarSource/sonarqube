@@ -73,10 +73,14 @@ public class IndexerStartupTask {
   }
 
   private Set<IndexType> getUninitializedTypes(StartupIndexer indexer) {
-    return indexer.getIndexTypes().stream().filter(this::getUninitialized).collect(toSet());
+    return indexer.getIndexTypes().stream().filter(this::isUninitialized).collect(toSet());
   }
 
-  private boolean getUninitialized(IndexType indexType) {
+  private boolean isUninitialized(IndexType indexType) {
+    return isUninitialized(indexType, esClient);
+  }
+
+  public static boolean isUninitialized(IndexType indexType, EsClient esClient) {
     String setting = esClient.nativeClient().admin().indices().prepareGetSettings(indexType.getIndex()).get().getSetting(indexType.getIndex(),
       getInitializedSettingName(indexType));
     return !"true".equals(setting);
