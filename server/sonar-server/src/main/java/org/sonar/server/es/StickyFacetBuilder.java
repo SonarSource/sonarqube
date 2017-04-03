@@ -22,6 +22,7 @@ package org.sonar.server.es;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -62,12 +63,21 @@ public class StickyFacetBuilder {
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Object... selected) {
-    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, selected);
+    return buildStickyFacet(fieldName, facetName, t -> t, selected);
+  }
+
+  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Function<TermsBuilder, AggregationBuilder<?>> feature, Object... selected) {
+    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, feature, selected);
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Object... selected) {
+    return buildStickyFacet(fieldName, facetName, size, t -> t, selected);
+  }
+
+  private AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Function<TermsBuilder, AggregationBuilder<?>> addAdditionalLayerIfNeeded,
+    Object... selected) {
     BoolQueryBuilder facetFilter = getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size);
+    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size, addAdditionalLayerIfNeeded);
     facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
 
     return AggregationBuilders
@@ -86,6 +96,20 @@ public class StickyFacetBuilder {
   }
 
   public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolQueryBuilder facetFilter, int size) {
+    return buildTopFacetAggregation(fieldName, facetName, facetFilter, size, t -> t);
+  }
+
+  private FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolQueryBuilder facetFilter, int size,
+    Function<TermsBuilder, AggregationBuilder<?>> addAdditionalLayerIfNeeded) {
+    TermsBuilder termsAggregation = buildTermsFacetAggregation(fieldName, facetName, size);
+    AggregationBuilder<?> innerAggregation = addAdditionalLayerIfNeeded.apply(termsAggregation);
+    return AggregationBuilders
+      .filter(facetName + "_filter")
+      .filter(facetFilter)
+      .subAggregation(innerAggregation);
+  }
+
+  private TermsBuilder buildTermsFacetAggregation(String fieldName, String facetName, int size) {
     TermsBuilder termsAggregation = AggregationBuilders.terms(facetName)
       .field(fieldName)
       .order(order)
@@ -94,10 +118,7 @@ public class StickyFacetBuilder {
     if (subAggregation != null) {
       termsAggregation = termsAggregation.subAggregation(subAggregation);
     }
-    return AggregationBuilders
-      .filter(facetName + "_filter")
-      .filter(facetFilter)
-      .subAggregation(termsAggregation);
+    return termsAggregation;
   }
 
   public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
@@ -118,4 +139,5 @@ public class StickyFacetBuilder {
     facetTopAggregation.subAggregation(selectedTerms);
     return facetTopAggregation;
   }
+
 }

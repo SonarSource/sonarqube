@@ -61,7 +61,7 @@ public class RuleDeleter {
       dbClient.ruleDao().update(dbSession, rule);
 
       dbSession.commit();
-      ruleIndexer.delete(ruleKey);
+      ruleIndexer.indexRuleDefinition(ruleKey);
     }
   }
 }

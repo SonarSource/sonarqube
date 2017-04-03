@@ -26,20 +26,17 @@ import java.util.NoSuchElementException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
-import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Optional.ofNullable;
 
 public class RuleIteratorForMultipleChunks implements RuleIterator {
 
   private final DbClient dbClient;
-  private final OrganizationDto organization;
   private final Iterator<List<RuleKey>> iteratorOverChunks;
   private RuleIteratorForSingleChunk currentChunk;
 
-  public RuleIteratorForMultipleChunks(DbClient dbClient, OrganizationDto organization, Collection<RuleKey> keys) {
+  public RuleIteratorForMultipleChunks(DbClient dbClient, Collection<RuleKey> keys) {
     this.dbClient = dbClient;
-    this.organization = organization;
     iteratorOverChunks = DatabaseUtils.toUniqueAndSortedPartitions(keys).iterator();
   }
 
@@ -58,7 +55,7 @@ public class RuleIteratorForMultipleChunks implements RuleIterator {
   }
 
   @Override
-  public RuleDoc next() {
+  public RuleDocWithSystemScope next() {
     for (;;) {
       if (currentChunk != null && currentChunk.hasNext()) {
         return currentChunk.next();
@@ -73,7 +70,7 @@ public class RuleIteratorForMultipleChunks implements RuleIterator {
 
   private RuleIteratorForSingleChunk nextChunk() {
     List<RuleKey> nextInput = iteratorOverChunks.next();
-    return new RuleIteratorForSingleChunk(dbClient, organization, nextInput);
+    return new RuleIteratorForSingleChunk(dbClient, nextInput);
   }
 
   @Override

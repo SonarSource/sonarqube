@@ -39,7 +39,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -91,17 +90,14 @@ public class RuleUpdater {
       return false;
     }
 
-    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
-      .orElseThrow(() -> new IllegalStateException(String.format("Could not find default organization '%s'", defaultOrganizationUuid)));
-
     RuleDto rule = getRuleDto(update);
     // validate only the changes, not all the rule fields
     apply(update, rule, userSession);
     update(dbSession, rule);
     updateParameters(dbSession, update, rule);
     dbSession.commit();
-    ruleIndexer.index(organization, rule.getKey());
+
+    ruleIndexer.indexRuleDefinition(rule.getKey());
     return true;
   }
 

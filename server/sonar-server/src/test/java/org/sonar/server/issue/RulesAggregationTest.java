@@ -21,7 +21,7 @@ package org.sonar.server.issue;
 
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ public class RulesAggregationTest {
   public void count_rules() {
     RulesAggregation rulesAggregation = new RulesAggregation();
     RuleKey ruleKey = RuleKey.of("xoo", "S001");
-    RuleDto ruleDto = RuleTesting.newDto(ruleKey).setName("Rule name");
+    RuleDefinitionDto ruleDto = RuleTesting.newRule(ruleKey).setName("Rule name");
     rulesAggregation.add(ruleDto);
     rulesAggregation.add(ruleDto);
 
@@ -53,10 +53,10 @@ public class RulesAggregationTest {
   public void count_rules_with_different_rules() {
     RulesAggregation rulesAggregation = new RulesAggregation();
 
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("xoo", "S001")).setName("Rule name 1");
+    RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("xoo", "S001")).setName("Rule name 1");
     rulesAggregation.add(ruleDto);
     rulesAggregation.add(ruleDto);
-    rulesAggregation.add(RuleTesting.newDto(RuleKey.of("xoo", "S002")).setName("Rule name 2"));
+    rulesAggregation.add(RuleTesting.newRule(RuleKey.of("xoo", "S002")).setName("Rule name 2"));
 
     assertThat(rulesAggregation.rules()).hasSize(2);
   }

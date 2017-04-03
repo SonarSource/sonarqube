@@ -21,7 +21,7 @@ package org.sonar.server.rule.index;
 
 import java.util.Iterator;
 
-public interface RuleIterator extends Iterator<RuleDoc>, AutoCloseable {
+public interface RuleIterator extends Iterator<RuleDocWithSystemScope>, AutoCloseable {
 
   @Override
   void close();

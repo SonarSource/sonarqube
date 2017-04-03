@@ -42,13 +42,11 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.rule.index.RuleIteratorFactory;
 import org.sonar.server.rule.index.RuleQuery;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -86,7 +84,7 @@ public class RegisterRulesTest {
   @Before
   public void before() {
     when(system.now()).thenReturn(DATE1.getTime());
-    ruleIndexer = new RuleIndexer(esTester.client(), new RuleIteratorFactory(dbClient));
+    ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
     ruleIndex = new RuleIndex(esTester.client());
     activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
   }
@@ -124,6 +122,7 @@ public class RegisterRulesTest {
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
   }
+
   @Test
   public void insert_then_remove_rule() {
     String ruleKey = randomAlphanumeric(5);
@@ -457,7 +456,7 @@ public class RegisterRulesTest {
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system, TestDefaultOrganizationProvider.from(dbTester));
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();
