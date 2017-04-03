@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.usergroup;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "WsUserGroups";
 option optimize_for = SPEED;
@@ -36,7 +38,8 @@ message UpdateWsResponse {
 
 // WS api/user_groups/search
 message SearchWsResponse {
-  repeated Group groups = 1;
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Group groups = 2;
 }
 
 message Group {
