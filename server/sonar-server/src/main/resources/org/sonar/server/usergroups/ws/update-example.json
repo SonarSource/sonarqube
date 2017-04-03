@@ -1,0 +1,9 @@
+{
+  "group": {
+    "id": 42,
+    "organization": "my-org",
+    "name": "new-name",
+    "description": "New Description",
+    "membersCount": 1
+  }
+}

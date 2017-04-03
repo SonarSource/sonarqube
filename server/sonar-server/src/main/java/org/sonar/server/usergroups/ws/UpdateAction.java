@@ -65,7 +65,7 @@ public class UpdateAction implements UserGroupsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setPost(true)
-      .setResponseExample(getClass().getResource("example-update.json"))
+      .setResponseExample(getClass().getResource("update.example.json"))
       .setSince("5.2")
       .setChangelog(new Change("6.4", "The default group is no longer editable"));
 
