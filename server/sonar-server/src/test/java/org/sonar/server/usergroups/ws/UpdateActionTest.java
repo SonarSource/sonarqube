@@ -114,6 +114,26 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void return_default_field() throws Exception {
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
+
+    String result = newRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("name", "new-name")
+      .execute().getInput();
+
+    assertJson(result).isSimilarTo("{" +
+      "  \"group\": {" +
+      "    \"name\": \"new-name\"," +
+      "    \"description\": \"" + group.getDescription() + "\"," +
+      "    \"membersCount\": 0," +
+      "    \"default\": false" +
+      "  }" +
+      "}");
+  }
+
+  @Test
   public void require_admin_permission_on_organization() throws Exception {
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
