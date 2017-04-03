@@ -129,7 +129,7 @@ public class UpdateAction implements UserGroupsWsAction {
       .build();
     int membersCount = dbClient.groupMembershipDao().countMembers(dbSession, query);
 
-    WsUserGroups.UpdateResponse.Builder respBuilder = WsUserGroups.UpdateResponse.newBuilder();
+    WsUserGroups.UpdateWsResponse.Builder respBuilder = WsUserGroups.UpdateWsResponse.newBuilder();
     respBuilder.setGroup(toProtobuf(organization, group, membersCount));
     writeProtobuf(respBuilder.build(), request, response);
   }
