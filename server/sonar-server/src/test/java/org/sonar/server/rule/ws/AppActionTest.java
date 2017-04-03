@@ -58,7 +58,7 @@ public class AppActionTest {
   private Languages languages = new Languages(LANG1, LANG2);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private RuleWsSupport wsSupport = new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
-  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession, wsSupport, defaultOrganizationProvider);
+  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession, wsSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -207,51 +207,6 @@ public class AppActionTest {
     String json = tester.newRequest().execute().getInput();
 
     assertJson(json).isSimilarTo("{ \"canWrite\": false }");
-  }
-
-  @Test
-  public void canCustomizeRule_is_true_if_user_is_profile_administrator_of_default_organization_and_no_organization_is_specified() {
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
-
-    String json = tester.newRequest().execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": true }");
-  }
-
-  @Test
-  public void canCustomizeRule_is_true_if_user_is_profile_administrator_of_specified_default_organization() {
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
-
-    String json = tester.newRequest()
-        .setParam("organization", db.getDefaultOrganization().getKey())
-        .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": true }");
-  }
-
-  @Test
-  public void canCustomizeRule_is_false_if_user_is_profile_administrator_of_specified_non_default_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-
-    String json = tester.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": false }");
-  }
-
-  @Test
-  public void canCustomizeRule_is_false_if_user_is_not_profile_administrator_of_specified_non_default_organization() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization1);
-
-    String json = tester.newRequest()
-      .setParam("organization", organization2.getKey())
-      .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canCustomizeRule\": false }");
   }
 
   private void insertRules() {
