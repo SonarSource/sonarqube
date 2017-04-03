@@ -19,18 +19,15 @@
  */
 package org.sonar.server.rule.index;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
@@ -41,15 +38,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RuleIndexerTest {
 
-  private System2 system2 = System2.INSTANCE;
-
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create();
 
   private DbClient dbClient = dbTester.getDbClient();
+  private final RuleIndexer underTest = new RuleIndexer(esTester.client(), dbClient);
   private DbSession dbSession = dbTester.getSession();
   private RuleDefinitionDto rule = new RuleDefinitionDto()
     .setRuleKey("S001")
@@ -66,17 +62,10 @@ public class RuleIndexerTest {
     .setType(RuleType.BUG)
     .setCreatedAt(1500000000000L)
     .setUpdatedAt(1600000000000L);
-  private OrganizationDto organization;
-
-  @Before
-  public void before() {
-    organization = dbTester.getDefaultOrganization();
-  }
 
   @Test
   public void index_nothing() {
-    RuleIndexer indexer = createIndexer();
-//    indexer.index(Iterators.emptyIterator());
+    // underTest.index(Iterators.emptyIterator());
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0L);
   }
 
@@ -85,44 +74,24 @@ public class RuleIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule);
     dbSession.commit();
 
-    RuleIndexer indexer = createIndexer();
-    indexer.index(organization, rule.getKey());
+    underTest.indexRuleDefinition(rule.getKey());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
 
   @Test
   public void removed_rule_is_not_removed_from_index() {
-    RuleIndexer indexer = createIndexer();
-
     // Create and Index rule
     dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
     dbSession.commit();
-    indexer.index(organization, rule.getKey());
+    underTest.indexRuleDefinition(rule.getKey());
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
 
     // Remove rule
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
     dbTester.getSession().commit();
-    indexer.index(organization, rule.getKey());
+    underTest.indexRuleDefinition(rule.getKey());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
-
-  @Test
-  public void index_on_startup() {
-    RuleIndexer indexer = createIndexer();
-
-    // Create and Index rule
-    dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
-    dbSession.commit();
-
-    indexer.indexOnStartup(indexer.getIndexTypes());
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
-  }
-
-  private RuleIndexer createIndexer() {
-    return new RuleIndexer(esTester.client(), dbClient, new RuleIteratorFactory(dbTester.getDbClient()), TestDefaultOrganizationProvider.from(dbTester));
-  }
-
 }

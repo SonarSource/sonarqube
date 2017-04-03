@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -45,14 +46,12 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -75,10 +74,9 @@ public class RegisterRules implements Startable {
   private final ActiveRuleIndexer activeRuleIndexer;
   private final Languages languages;
   private final System2 system2;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
-    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, DefaultOrganizationProvider defaultOrganizationProvider) {
+    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
@@ -86,7 +84,6 @@ public class RegisterRules implements Startable {
     this.activeRuleIndexer = activeRuleIndexer;
     this.languages = languages;
     this.system2 = system2;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -111,19 +108,12 @@ public class RegisterRules implements Startable {
       List<RuleDefinitionDto> removedRules = processRemainingDbRules(allRules.values(), session);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(session, removedRules, context);
       session.commit();
+      keysToIndex.addAll(removedRules.stream().map(RuleDefinitionDto::getKey).collect(Collectors.toList()));
 
       persistRepositories(session, context.repositories());
-      ruleIndexer.delete(removedRules.stream().map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList(removedRules.size())));
-      ruleIndexer.index(getDefaultOrganization(), keysToIndex);
+      ruleIndexer.indexRuleDefinitions(keysToIndex);
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
-    }
-  }
-
-  private OrganizationDto getDefaultOrganization() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationProvider.get().getUuid())
-        .orElseThrow(() -> new IllegalStateException("Cannot load default organization"));
     }
   }
 

@@ -36,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -46,7 +47,6 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
@@ -80,17 +80,23 @@ public class QProfileCopierMediumTest {
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
-    db.ruleDao().insert(dbSession, xooRule1.getDefinition());
-    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
-    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
+    RuleDefinitionDto xooRule1Definition = xooRule1.getDefinition();
+    db.ruleDao().insert(dbSession, xooRule1Definition);
+    db.ruleDao().insertRuleParam(dbSession, xooRule1Definition, RuleParamDto.createFor(xooRule1Definition)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
+    dbSession.commit();
+    ruleIndexer.indexRuleDefinition(xooRule1Definition.getKey());
+
+    RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
+    RuleDefinitionDto xooRule2Definition = xooRule2.getDefinition();
+    db.ruleDao().insert(dbSession, xooRule2Definition);
+    dbSession.commit();
+    ruleIndexer.indexRuleDefinition(xooRule2Definition.getKey());
 
     // create pre-defined profile
     sourceProfile = QProfileTesting.newXooP1(organization);
     db.qualityProfileDao().insert(dbSession, sourceProfile);
     dbSession.commit();
-    ruleIndexer.index(organization, asList(xooRule1.getKey(), xooRule2.getKey()));
   }
 
   @After

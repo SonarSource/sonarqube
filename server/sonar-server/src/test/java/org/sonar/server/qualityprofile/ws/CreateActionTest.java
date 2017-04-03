@@ -55,7 +55,6 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.rule.index.RuleIteratorFactory;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -94,7 +93,7 @@ public class CreateActionTest {
   private DbSession dbSession = dbTester.getSession();
   private RuleIndex ruleIndex = new RuleIndex(esTester.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), null, new RuleIteratorFactory(dbClient), null);
+  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(system2, dbClient, esTester.client());
   private ProfileImporter[] profileImporters = createImporters();
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
@@ -243,7 +242,7 @@ public class CreateActionTest {
   private void insertRule(RuleDefinitionDto ruleDto) {
     dbClient.ruleDao().insert(dbSession, ruleDto);
     dbSession.commit();
-    ruleIndexer.index(organization, ruleDto.getKey());
+    ruleIndexer.indexRuleDefinition(ruleDto.getKey());
   }
 
   private CreateWsResponse executeRequest(String name, String language) {

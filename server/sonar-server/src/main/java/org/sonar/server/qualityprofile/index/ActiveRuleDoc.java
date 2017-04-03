@@ -27,7 +27,7 @@ import org.sonar.server.qualityprofile.ActiveRule;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_ORGANIZATION_UUID;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ORGANIZATION_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
@@ -71,11 +71,11 @@ public class ActiveRuleDoc extends BaseDoc {
   }
 
   String organizationUuid() {
-    return getField(FIELD_ACTIVE_ORGANIZATION_UUID);
+    return getField(FIELD_ACTIVE_RULE_ORGANIZATION_UUID);
   }
 
   public ActiveRuleDoc setOrganizationUuid(String s) {
-    setField(FIELD_ACTIVE_ORGANIZATION_UUID, s);
+    setField(FIELD_ACTIVE_RULE_ORGANIZATION_UUID, s);
     return this;
   }
 

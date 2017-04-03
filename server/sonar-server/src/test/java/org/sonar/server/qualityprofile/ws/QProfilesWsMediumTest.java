@@ -39,7 +39,6 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
@@ -103,7 +102,7 @@ public class QProfilesWsMediumTest {
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
     session.commit();
-    ruleIndexer.index(organization, rule.getKey());
+    ruleIndexer.indexRuleDefinition(rule.getKey());
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
@@ -203,7 +202,7 @@ public class QProfilesWsMediumTest {
     QualityProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
-    ruleIndexer.index(organization, rule.getKey());
+    ruleIndexer.indexRuleDefinition(rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -224,7 +223,7 @@ public class QProfilesWsMediumTest {
     QualityProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule("php", "toto");
     session.commit();
-    ruleIndexer.index(organization, rule.getKey());
+    ruleIndexer.indexRuleDefinition(rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -247,7 +246,7 @@ public class QProfilesWsMediumTest {
     QualityProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
-    ruleIndexer.index(organization, rule.getKey());
+    ruleIndexer.indexRuleDefinition(rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
@@ -439,14 +438,14 @@ public class QProfilesWsMediumTest {
   }
 
   private RuleDefinitionDto createRule(String lang, String id) {
-    RuleDto rule = RuleTesting.newDto(RuleKey.of("blah", id))
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.ruleDao().insert(session, rule.getDefinition());
+    db.ruleDao().insert(session, rule);
     session.commit();
-    ruleIndexer.index(organization, rule.getKey());
-    return rule.getDefinition();
+    ruleIndexer.indexRuleDefinition(rule.getKey());
+    return rule;
   }
 
   private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QualityProfileDto profile) {

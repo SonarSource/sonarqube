@@ -50,6 +50,7 @@ public class RuleQuery {
   private boolean ascendingSort = true;
   private String internalKey;
   private String ruleKey;
+  private String organizationUuid;
 
   @CheckForNull
   public String getQProfileKey() {
@@ -257,5 +258,15 @@ public class RuleQuery {
 
   public String getRuleKey() {
     return ruleKey;
+  }
+
+  @CheckForNull
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public RuleQuery setOrganizationUuid(@Nullable String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
   }
 }
