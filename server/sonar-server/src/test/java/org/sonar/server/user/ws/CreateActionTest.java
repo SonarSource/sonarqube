@@ -34,12 +34,10 @@ import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -68,7 +66,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 public class CreateActionTest {
 
   private static final String DEFAULT_GROUP_NAME = "sonar-users";
-  private Settings settings = new MapSettings().setProperty("sonar.defaultGroup", DEFAULT_GROUP_NAME);
+  private Settings settings = new MapSettings();
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
@@ -88,7 +86,7 @@ public class CreateActionTest {
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, defaultOrganizationProvider,
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, system2, defaultOrganizationProvider,
       organizationCreation),
     userSessionRule));
 
@@ -251,20 +249,6 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get().isActive()).isTrue();
-  }
-
-  @Test
-  public void request_fails_with_ServerException_when_default_group_belongs_to_another_organization() throws Exception {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto group = db.users().insertGroup(otherOrganization);
-    setDefaultGroupProperty(group);
-    logInAsSystemAdministrator();
-
-    expectedException.expect(ServerException.class);
-    expectedException.expectMessage("The default group '" + group.getName() + "' for new users does not exist. " +
-      "Please update the general security settings to fix this issue");
-
-    executeRequest("bar");
   }
 
   @Test

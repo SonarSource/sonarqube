@@ -99,7 +99,7 @@ public class SsoAuthenticationTest {
   public void authenticate_with_groups() {
     doCall(USER_LOGIN, null, null, GROUP_1);
 
-    USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_1);
+    USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_1, "sonar-users");
   }
 
   @Test
@@ -112,7 +112,7 @@ public class SsoAuthenticationTest {
 
     doCall(USER_LOGIN, null, null, GROUP_2 + "," + GROUP_3);
 
-    USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_2, GROUP_3);
+    USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_2, GROUP_3, "sonar-users");
   }
 
   @Test

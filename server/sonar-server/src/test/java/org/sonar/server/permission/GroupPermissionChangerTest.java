@@ -60,7 +60,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void add_permission_to_group() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupId));
 
@@ -69,7 +69,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void add_project_permission_to_group() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
@@ -80,7 +80,7 @@ public class GroupPermissionChangerTest {
   @Test
   public void add_permission_to_anyone() {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(defaultOrganization.getUuid(), null);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.forAnyone(defaultOrganization.getUuid());
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupId));
 
@@ -90,7 +90,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void add_project_permission_to_anyone() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(org.getUuid(), null);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.forAnyone(org.getUuid());
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
@@ -100,7 +100,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void do_nothing_when_adding_permission_that_already_exists() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER_QUALITY_GATES);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, ADMINISTER_QUALITY_GATES.getKey(), null, groupId));
@@ -110,7 +110,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void fail_to_add_global_permission_on_project() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Invalid project permission 'gateadmin'. Valid values are [admin, codeviewer, issueadmin, scan, user]");
@@ -120,7 +120,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void fail_to_add_project_permission_on_global_group() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Invalid global permission 'issueadmin'. Valid values are [admin, profileadmin, gateadmin, scan, provisioning]");
@@ -130,7 +130,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void remove_permission_from_group() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER_QUALITY_GATES);
     db.users().insertPermissionOnGroup(group, PROVISION_PROJECTS);
 
@@ -141,7 +141,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void remove_project_permission_from_group() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER_QUALITY_GATES);
     db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, project);
     db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, project);
@@ -154,7 +154,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void do_not_fail_if_removing_a_permission_that_does_not_exist() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
@@ -164,7 +164,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void fail_to_remove_admin_permission_if_no_more_admins() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER);
 
     expectedException.expect(BadRequestException.class);
@@ -175,7 +175,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void remove_admin_group_if_still_other_admins() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    GroupIdOrAnyone groupId = GroupIdOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER);
     UserDto admin = db.users().insertUser();
     db.users().insertPermissionOnUser(org, admin, ADMINISTER);

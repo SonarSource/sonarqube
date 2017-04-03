@@ -19,8 +19,8 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import java.util.Objects;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -31,14 +31,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsUserGroups;
 
-import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
@@ -53,16 +51,11 @@ public class UpdateAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
-  private final PersistentSettings persistentSettings;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, PersistentSettings persistentSettings,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public UpdateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
-    this.persistentSettings = persistentSettings;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -73,7 +66,8 @@ public class UpdateAction implements UserGroupsWsAction {
       .setHandler(this)
       .setPost(true)
       .setResponseExample(getClass().getResource("example-update.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(new Change("6.4", "The default group is no longer editable"));
 
     action.createParam(PARAM_GROUP_ID)
       .setDescription("Identifier of the group.")
@@ -82,8 +76,9 @@ public class UpdateAction implements UserGroupsWsAction {
 
     action.createParam(PARAM_GROUP_NAME)
       .setDescription(String.format("New optional name for the group. A group name cannot be larger than %d characters and must be unique. " +
-        "The value 'anyone' (whatever the case) is reserved and cannot be used. If value is empty or not defined, then name is not changed.", GROUP_NAME_MAX_LENGTH))
-      .setExampleValue("sonar-users");
+        "Value 'anyone' and '%s' (whatever the case) are reserved and cannot be used. If value is empty or not defined, then name is not changed.", GROUP_NAME_MAX_LENGTH,
+        SONAR_USERS_GROUP_NAME))
+      .setExampleValue("my-group");
 
     action.createParam(PARAM_GROUP_DESCRIPTION)
       .setDescription(String.format("New optional description for the group. A group description cannot be larger than %d characters. " +
@@ -100,6 +95,7 @@ public class UpdateAction implements UserGroupsWsAction {
       Optional<OrganizationDto> org = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
       checkFoundWithOptional(org, "Could not find organization with id '%s'.", group.getOrganizationUuid());
       userSession.checkPermission(ADMINISTER, org.get());
+      support.checkGroupIsNotDefault(group);
 
       boolean changed = false;
       String newName = request.param(PARAM_GROUP_NAME);
@@ -107,10 +103,7 @@ public class UpdateAction implements UserGroupsWsAction {
         changed = true;
         UserGroupValidation.validateGroupName(newName);
         support.checkNameDoesNotExist(dbSession, group.getOrganizationUuid(), newName);
-
-        String oldName = group.getName();
         group.setName(newName);
-        updateDefaultGroupIfNeeded(dbSession, org.get(), oldName, newName);
       }
 
       String description = request.param(PARAM_GROUP_DESCRIPTION);
@@ -128,17 +121,6 @@ public class UpdateAction implements UserGroupsWsAction {
     }
   }
 
-  private void updateDefaultGroupIfNeeded(DbSession dbSession, OrganizationDto org, String oldName, String newName) {
-    // The feature "default group" relies on a property. As organization properties are
-    // not implemented yet, default groups are not supported on non-default organizations
-    if (defaultOrganizationProvider.get().getUuid().equals(org.getUuid())) {
-      String defaultGroupName = persistentSettings.getString(CORE_DEFAULT_GROUP);
-      if (Objects.equals(defaultGroupName, oldName)) {
-        persistentSettings.saveProperty(dbSession, CORE_DEFAULT_GROUP, newName);
-      }
-    }
-  }
-
   private void writeResponse(DbSession dbSession, Request request, Response response, OrganizationDto organization, GroupDto group) {
     UserMembershipQuery query = UserMembershipQuery.builder()
       .groupId(group.getId())
@@ -151,4 +133,5 @@ public class UpdateAction implements UserGroupsWsAction {
     respBuilder.setGroup(toProtobuf(organization, group, membersCount));
     writeProtobuf(respBuilder.build(), request, response);
   }
+
 }

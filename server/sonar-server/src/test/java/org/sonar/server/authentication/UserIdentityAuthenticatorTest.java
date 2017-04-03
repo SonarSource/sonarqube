@@ -19,14 +19,11 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Arrays;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
@@ -43,6 +40,7 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -53,7 +51,6 @@ import static org.sonar.server.authentication.event.AuthenticationExceptionMatch
 public class UserIdentityAuthenticatorTest {
 
   private static String USER_LOGIN = "github-johndoo";
-  private static String DEFAULT_GROUP = "default";
 
   private static UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderLogin("johndoo")
@@ -74,24 +71,21 @@ public class UserIdentityAuthenticatorTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
-  private Settings settings = new MapSettings();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
-    settings,
     db.getDbClient(),
     mock(UserIndexer.class),
     System2.INSTANCE,
     defaultOrganizationProvider,
-      organizationCreation);
+    organizationCreation);
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider);
   private GroupDto defaultGroup;
 
   @Before
   public void setUp() throws Exception {
-    settings.setProperty("sonar.defaultGroup", DEFAULT_GROUP);
-    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP);
+    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test
@@ -107,7 +101,7 @@ public class UserIdentityAuthenticatorTest {
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isRoot()).isFalse();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(defaultGroup.getId());
+    checkGroupMembership(user, defaultGroup);
   }
 
   @Test
@@ -118,10 +112,7 @@ public class UserIdentityAuthenticatorTest {
     authenticate(USER_LOGIN, "group1", "group2", "group3");
 
     Optional<UserDto> user = db.users().selectUserByLogin(USER_LOGIN);
-    assertThat(user).isPresent();
-    assertThat(user.get().isRoot()).isFalse();
-
-    assertThat(db.users().selectGroupIdsOfUser(user.get())).containsOnly(group1.getId(), group2.getId());
+    checkGroupMembership(user.get(), group1, group2, defaultGroup);
   }
 
   @Test
@@ -174,10 +165,11 @@ public class UserIdentityAuthenticatorTest {
       .setName("John"));
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    db.users().insertMember(defaultGroup, user);
 
     authenticate(USER_LOGIN, "group1", "group2", "group3");
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group1.getId(), group2.getId());
+    checkGroupMembership(user, group1, group2, defaultGroup);
   }
 
   @Test
@@ -190,23 +182,25 @@ public class UserIdentityAuthenticatorTest {
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
+    db.users().insertMember(defaultGroup, user);
 
     authenticate(USER_LOGIN, "group1");
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group1.getId());
+    checkGroupMembership(user, group1, defaultGroup);
   }
 
   @Test
-  public void authenticate_existing_user_and_remove_all_groups() throws Exception {
+  public void authenticate_existing_user_and_remove_all_groups_expect_default() throws Exception {
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
+    db.users().insertMember(defaultGroup, user);
 
     authenticate(user.getLogin());
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
+    checkGroupMembership(user, defaultGroup);
   }
 
   @Test
@@ -216,6 +210,7 @@ public class UserIdentityAuthenticatorTest {
       .setLogin(USER_LOGIN)
       .setActive(true)
       .setName("John"));
+    db.users().insertMember(defaultGroup, user);
     String groupName = "a-group";
     GroupDto groupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), groupName);
     GroupDto groupInOrg = db.users().insertGroup(org, groupName);
@@ -228,7 +223,7 @@ public class UserIdentityAuthenticatorTest {
       .setGroups(newHashSet(groupName))
       .build(), IDENTITY_PROVIDER, Source.sso());
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(groupInDefaultOrg.getId());
+    checkGroupMembership(user, groupInDefaultOrg, defaultGroup);
   }
 
   @Test
@@ -267,8 +262,11 @@ public class UserIdentityAuthenticatorTest {
       .setLogin(login)
       .setName("John")
       // No group
-      .setGroups(Arrays.stream(groups).collect(Collectors.toSet()))
+      .setGroups(stream(groups).collect(Collectors.toSet()))
       .build(), IDENTITY_PROVIDER, Source.sso());
   }
 
+  private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
+    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Integer[] {}));
+  }
 }

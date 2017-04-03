@@ -1,8 +1,0 @@
-{
-  "p": 1,
-  "total": 2,
-  "users": [
-    {"login": "ada.login", "name": "Ada Lovelace", "selected": true},
-    {"login": "grace", "name": "Grace Hopper", "selected": false}
-  ]
-}
