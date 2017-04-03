@@ -19,6 +19,7 @@
  */
 package pageobjects.issues;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import java.util.List;
@@ -29,7 +30,6 @@ import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssuesPage {
 
@@ -55,7 +55,7 @@ public class IssuesPage {
 
   public IssuesPage bulkChangeOpen() {
     $("#issues-bulk-change").shouldBe(visible).click();
-    $("a.js-bulk-change").shouldBe(visible).click();
+    $("a.js-bulk-change").click();
     $("#bulk-change-form").shouldBe(visible);
     return this;
   }
@@ -68,10 +68,10 @@ public class IssuesPage {
     input.val("").sendKeys(query);
     if (count > 0) {
       $(".select2-drop-active .select2-results li.select2-result").shouldBe(visible);
-      assertThat($$(".select2-drop-active .select2-results li.select2-result").size()).isEqualTo(count);
     } else {
       $(".select2-drop-active .select2-results li.select2-no-results").shouldBe(visible);
     }
+    $$(".select2-drop-active .select2-results li.select2-result").shouldHaveSize(count);
     return this;
   }
 }

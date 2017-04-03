@@ -24,7 +24,6 @@ import com.codeborne.selenide.SelenideElement;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class Issue {
 
@@ -60,7 +59,7 @@ public class Issue {
     SelenideElement popupMenu = $(".bubble-popup ul.menu").shouldBe(visible);
     $(".bubble-popup input.search-box-input").shouldBe(visible).val("").sendKeys(query);
     popupMenu.$("li a[data-text='Not assigned']").shouldNot(exist);
-    assertThat(popupMenu.$$("li").size()).isEqualTo(count);
+    popupMenu.$$("li").shouldHaveSize(count);
     assignLink.click();
     return this;
   }

@@ -24,19 +24,15 @@ export const mockEvent = {
   stopPropagation() {}
 };
 
-export const click = element => {
-  return element.simulate('click', mockEvent);
-};
+export const click = element => element.simulate('click', mockEvent);
 
-export const submit = element => {
-  return element.simulate('submit', {
+export const submit = element =>
+  element.simulate('submit', {
     preventDefault() {}
   });
-};
 
-export const change = (element, value) => {
-  return element.simulate('change', {
+export const change = (element, value) =>
+  element.simulate('change', {
     target: { value },
     currentTarget: { value }
   });
-};

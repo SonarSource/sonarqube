@@ -194,7 +194,7 @@ public class IssueAssignTest {
   }
 
   @Test
-  public void bulk_assign_search_all_users_of_in_global_issues() {
+  public void bulk_assign_search_all_users_in_global_issues() {
     createOrganization(OTHER_ORGANIZATION_KEY);
     userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
