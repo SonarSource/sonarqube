@@ -42,7 +42,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -113,7 +113,7 @@ public class RegisterRules implements Startable {
       session.commit();
 
       persistRepositories(session, context.repositories());
-      ruleIndexer.delete(removedRules.stream().map(RuleDefinitionDto::getKey).collect(Collectors.toList(removedRules.size())));
+      ruleIndexer.delete(removedRules.stream().map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList(removedRules.size())));
       ruleIndexer.index(getDefaultOrganization(), keysToIndex);
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
@@ -132,7 +132,7 @@ public class RegisterRules implements Startable {
     List<RuleRepositoryDto> dtos = repositories
       .stream()
       .map(r -> new RuleRepositoryDto(r.key(), r.language(), r.name()))
-      .collect(Collectors.toList(repositories.size()));
+      .collect(MoreCollectors.toList(repositories.size()));
     dbClient.ruleRepositoryDao().insert(dbSession, dtos);
     dbSession.commit();
   }

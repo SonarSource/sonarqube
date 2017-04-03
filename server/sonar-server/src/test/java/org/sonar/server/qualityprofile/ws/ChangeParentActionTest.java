@@ -34,7 +34,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -190,7 +190,7 @@ public class ChangeParentActionTest {
     RuleDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.index(organization, Stream.of(rule1, rule2).map(RuleDto::getKey).collect(Collectors.toList()));
+    ruleIndexer.index(organization, Stream.of(rule1, rule2).map(RuleDto::getKey).collect(MoreCollectors.toList()));
     activeRuleIndexer.index();
 
     // Set parent 1

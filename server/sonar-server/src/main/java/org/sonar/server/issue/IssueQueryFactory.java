@@ -45,7 +45,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -283,7 +283,7 @@ public class IssueQueryFactory {
       return;
     }
 
-    Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(Collectors.toHashSet());
+    Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(MoreCollectors.toHashSet());
     if (qualifiers.size() > 1) {
       throw new IllegalArgumentException("All components must have the same qualifier, found " + Joiner.on(',').join(qualifiers));
     }
@@ -337,7 +337,7 @@ public class IssueQueryFactory {
   }
 
   private Collection<String> convertComponentKeysToUuids(DbSession dbSession, Collection<String> componentKeys) {
-    List<String> componentUuids = dbClient.componentDao().selectByKeys(dbSession, componentKeys).stream().map(ComponentDto::uuid).collect(Collectors.toList());
+    List<String> componentUuids = dbClient.componentDao().selectByKeys(dbSession, componentKeys).stream().map(ComponentDto::uuid).collect(MoreCollectors.toList());
     // If unknown components are given, but no components are found, then all issues will be returned,
     // so we add this hack in order to return no issue in this case.
     if (!componentKeys.isEmpty() && componentUuids.isEmpty()) {

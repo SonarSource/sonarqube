@@ -31,7 +31,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -62,7 +62,7 @@ public class TaskFormatter {
 
   public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
     ComponentDtoCache cache = ComponentDtoCache.forQueueDtos(dbClient, dbSession, dtos);
-    return dtos.stream().map(input -> formatQueue(input, cache)).collect(Collectors.toList(dtos.size()));
+    return dtos.stream().map(input -> formatQueue(input, cache)).collect(MoreCollectors.toList(dtos.size()));
   }
 
   public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto dto) {
@@ -107,7 +107,7 @@ public class TaskFormatter {
     ComponentDtoCache cache = ComponentDtoCache.forActivityDtos(dbClient, dbSession, dtos);
     return dtos.stream()
       .map(input -> formatActivity(input, cache, null))
-      .collect(Collectors.toList(dtos.size()));
+      .collect(MoreCollectors.toList(dtos.size()));
   }
 
   private static WsCe.Task formatActivity(CeActivityDto dto, ComponentDtoCache componentDtoCache, @Nullable String scannerContext) {
@@ -156,7 +156,7 @@ public class TaskFormatter {
     static ComponentDtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
       Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, uuidOfCeQueueDtos(ceQueueDtos))
         .stream()
-        .collect(Collectors.uniqueIndex(ComponentDto::uuid));
+        .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
     }
 
@@ -165,7 +165,7 @@ public class TaskFormatter {
         .filter(Objects::nonNull)
         .map(CeQueueDto::getComponentUuid)
         .filter(Objects::nonNull)
-        .collect(Collectors.toSet(ceQueueDtos.size()));
+        .collect(MoreCollectors.toSet(ceQueueDtos.size()));
     }
 
     static ComponentDtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
@@ -173,7 +173,7 @@ public class TaskFormatter {
         dbSession,
         uuidOfCeActivityDtos(ceActivityDtos))
         .stream()
-        .collect(Collectors.uniqueIndex(ComponentDto::uuid));
+        .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
     }
 
@@ -182,7 +182,7 @@ public class TaskFormatter {
         .filter(Objects::nonNull)
         .map(CeActivityDto::getComponentUuid)
         .filter(Objects::nonNull)
-        .collect(Collectors.toSet(ceActivityDtos.size()));
+        .collect(MoreCollectors.toSet(ceActivityDtos.size()));
     }
 
     static ComponentDtoCache forUuid(DbClient dbClient, DbSession dbSession, String uuid) {
@@ -200,9 +200,9 @@ public class TaskFormatter {
         dbSession,
         componentsByUuid.values().stream()
           .map(ComponentDto::getOrganizationUuid)
-          .collect(Collectors.toSet(componentsByUuid.size())))
+          .collect(MoreCollectors.toSet(componentsByUuid.size())))
         .stream()
-        .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
+        .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
     }
 
     @CheckForNull

@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -47,7 +47,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   }
 
   private static String getAllIps(HttpServletRequest request) {
-    return Collections.list(request.getHeaders("X-Forwarded-For")).stream().collect(Collectors.join(Joiner.on(",")));
+    return Collections.list(request.getHeaders("X-Forwarded-For")).stream().collect(MoreCollectors.join(Joiner.on(",")));
   }
 
   @Override

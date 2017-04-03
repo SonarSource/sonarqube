@@ -29,8 +29,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.stream.Collectors.toHashSet;
-import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 

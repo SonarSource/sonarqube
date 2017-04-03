@@ -32,7 +32,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -87,7 +87,7 @@ public class ChangelogAction implements IssuesWsAction {
       ChangelogWsResponse wsResponse = Stream.of(request)
         .map(searchChangelog(dbSession))
         .map(buildResponse())
-        .collect(Collectors.toOneElement());
+        .collect(MoreCollectors.toOneElement());
       writeProtobuf(wsResponse, request, response);
     }
   }
@@ -100,7 +100,7 @@ public class ChangelogAction implements IssuesWsAction {
     return result -> Stream.of(ChangelogWsResponse.newBuilder())
       .peek(addChanges(result))
       .map(ChangelogWsResponse.Builder::build)
-      .collect(Collectors.toOneElement());
+      .collect(MoreCollectors.toOneElement());
   }
 
   private Consumer<ChangelogWsResponse.Builder> addChanges(ChangeLogResults results) {
@@ -153,16 +153,16 @@ public class ChangelogAction implements IssuesWsAction {
     ChangeLogResults(DbSession dbSession, String issueKey) {
       IssueDto dbIssue = issueFinder.getByKey(dbSession, issueKey);
       this.changes = dbClient.issueChangeDao().selectChangelogByIssue(dbSession, dbIssue.getKey());
-      List<String> logins = changes.stream().filter(change -> change.userLogin() != null).map(FieldDiffs::userLogin).collect(Collectors.toList());
-      this.users = dbClient.userDao().selectByLogins(dbSession, logins).stream().collect(Collectors.uniqueIndex(UserDto::getLogin));
-      this.files = dbClient.componentDao().selectByUuids(dbSession, getFileUuids(changes)).stream().collect(Collectors.uniqueIndex(ComponentDto::uuid, Function.identity()));
+      List<String> logins = changes.stream().filter(change -> change.userLogin() != null).map(FieldDiffs::userLogin).collect(MoreCollectors.toList());
+      this.users = dbClient.userDao().selectByLogins(dbSession, logins).stream().collect(MoreCollectors.uniqueIndex(UserDto::getLogin));
+      this.files = dbClient.componentDao().selectByUuids(dbSession, getFileUuids(changes)).stream().collect(MoreCollectors.uniqueIndex(ComponentDto::uuid, Function.identity()));
     }
 
     private Set<String> getFileUuids(List<FieldDiffs> changes) {
       return changes.stream()
         .filter(diffs -> diffs.diffs().containsKey(FILE))
         .flatMap(diffs -> Stream.of(diffs.get(FILE).newValue().toString(), diffs.get(FILE).oldValue().toString()))
-        .collect(Collectors.toSet());
+        .collect(MoreCollectors.toSet());
     }
 
     @CheckForNull

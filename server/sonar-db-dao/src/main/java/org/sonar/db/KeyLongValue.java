@@ -22,7 +22,7 @@ package org.sonar.db;
 import java.util.List;
 import java.util.Map;
 
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class KeyLongValue {
 

@@ -44,7 +44,7 @@ import org.sonarqube.ws.client.notification.AddRequest;
 
 import static java.util.Optional.empty;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.WsUtils.checkRequest;

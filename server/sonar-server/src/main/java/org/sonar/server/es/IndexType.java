@@ -21,7 +21,7 @@ package org.sonar.server.es;
 
 import java.util.Arrays;
 import java.util.function.Function;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -52,7 +52,7 @@ public class IndexType {
   }
 
   private static String[] getDetails(Function<? super IndexType, ? extends String> function, IndexType... indexTypes) {
-    return Arrays.stream(indexTypes).map(function).collect(Collectors.toSet(indexTypes.length)).toArray(new String[0]);
+    return Arrays.stream(indexTypes).map(function).collect(MoreCollectors.toSet(indexTypes.length)).toArray(new String[0]);
   }
 
   @Override

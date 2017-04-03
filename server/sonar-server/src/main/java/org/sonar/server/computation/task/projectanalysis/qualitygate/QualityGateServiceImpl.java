@@ -21,7 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
 import com.google.common.base.Optional;
 import java.util.Collection;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -58,7 +58,7 @@ public class QualityGateServiceImpl implements QualityGateService {
         Metric metric = metricRepository.getById(input.getMetricId());
         return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod() != null);
       })
-      .collect(Collectors.toList(dtos.size()));
+      .collect(MoreCollectors.toList(dtos.size()));
 
     return new QualityGate(qualityGateDto.getId(), qualityGateDto.getName(), conditions);
   }

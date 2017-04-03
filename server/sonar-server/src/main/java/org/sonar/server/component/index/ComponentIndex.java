@@ -36,7 +36,7 @@ import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Bucket;
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
@@ -116,7 +116,7 @@ public class ComponentIndex {
     List<Bucket> buckets = filtersAgg.getBuckets();
     return buckets.stream()
       .map(ComponentIndex::bucketToQualifier)
-      .collect(Collectors.toList(buckets.size()));
+      .collect(MoreCollectors.toList(buckets.size()));
   }
 
   private static ComponentsPerQualifier bucketToQualifier(Bucket bucket) {
@@ -126,7 +126,7 @@ public class ComponentIndex {
     SearchHit[] hits = hitList.getHits();
 
     List<String> componentUuids = Arrays.stream(hits).map(SearchHit::getId)
-      .collect(Collectors.toList(hits.length));
+      .collect(MoreCollectors.toList(hits.length));
 
     return new ComponentsPerQualifier(bucket.getKey(), componentUuids, hitList.totalHits());
   }

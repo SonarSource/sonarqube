@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -126,7 +126,7 @@ public class ServerUserSession extends AbstractUserSession {
     }
     return permissionKeys.stream()
       .map(OrganizationPermission::fromKey)
-      .collect(Collectors.toSet(permissionKeys.size()));
+      .collect(MoreCollectors.toSet(permissionKeys.size()));
   }
 
   @Override

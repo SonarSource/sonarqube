@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.BaseDoc;
 
 import static org.sonar.api.measures.Metric.Level.ERROR;
@@ -124,7 +124,7 @@ public class ProjectMeasuresDoc extends BaseDoc {
         .map(entry -> ImmutableMap.<String, Object>of(
           FIELD_MEASURES_KEY, entry.getKey(),
           FIELD_MEASURES_VALUE, entry.getValue()))
-        .collect(Collectors.toList()));
+        .collect(MoreCollectors.toList()));
     return this;
   }
 

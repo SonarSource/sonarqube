@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.picocontainer.Startable;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -78,6 +78,6 @@ public class CachingRuleActivatorContextFactory extends RuleActivatorContextFact
 
   private Map<RuleKey, ActiveRuleDto> loadActiveRulesOfQualityProfile(DbSession session, String profileKey) {
     return dbClient.activeRuleDao().selectByProfileKey(session, profileKey).stream()
-      .collect(Collectors.uniqueIndex(dto -> dto.getKey().ruleKey()));
+      .collect(MoreCollectors.uniqueIndex(dto -> dto.getKey().ruleKey()));
   }
 }

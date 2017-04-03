@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -107,7 +107,7 @@ public class PersistComponentsStep implements ComputationStep {
     Set<String> uuids = dtos.stream()
       .filter(ComponentDto::isEnabled)
       .map(ComponentDto::uuid)
-      .collect(Collectors.toSet(dtos.size()));
+      .collect(MoreCollectors.toSet(dtos.size()));
     dbClient.componentDao().updateBEnabledToFalse(dbSession, uuids);
     disabledComponentsHolder.setUuids(uuids);
   }

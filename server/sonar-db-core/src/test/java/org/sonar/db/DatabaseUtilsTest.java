@@ -36,7 +36,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Oracle;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -261,7 +261,7 @@ public class DatabaseUtilsTest {
     List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, input -> {
       // Check that each partition is only done on 1000 elements max
       assertThat(input.size()).isLessThanOrEqualTo(1000);
-      return input.stream().map(String::valueOf).collect(Collectors.toList());
+      return input.stream().map(String::valueOf).collect(MoreCollectors.toList());
     });
 
     assertThat(outputs).isEqualTo(expectedOutputs);

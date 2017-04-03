@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -62,7 +62,7 @@ public class UserPermissionDao implements Dao {
     return dtos.stream()
       .map(UserPermissionDto::getUserId)
       .distinct()
-      .collect(Collectors.toList(dtos.size()));
+      .collect(MoreCollectors.toList(dtos.size()));
   }
 
   /**

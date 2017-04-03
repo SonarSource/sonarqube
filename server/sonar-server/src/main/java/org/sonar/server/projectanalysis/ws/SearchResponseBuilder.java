@@ -22,7 +22,7 @@ package org.sonar.server.projectanalysis.ws;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonarqube.ws.ProjectAnalyses.Analysis;
@@ -47,7 +47,7 @@ class SearchResponseBuilder {
       .peek(addAnalyses(searchResults))
       .peek(addPagination(searchResults))
       .map(SearchResponse.Builder::build)
-      .collect(Collectors.toOneElement());
+      .collect(MoreCollectors.toOneElement());
   }
 
   private Consumer<SearchResponse.Builder> addAnalyses(SearchResults searchResults) {

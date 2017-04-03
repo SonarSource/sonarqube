@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
@@ -94,7 +94,7 @@ public class EditCommentAction implements IssuesWsAction {
         .map(toWsRequest())
         .map(loadCommentData(dbSession))
         .peek(updateComment(dbSession))
-        .collect(Collectors.toOneElement())
+        .collect(MoreCollectors.toOneElement())
         .getIssueDto();
       responseWriter.write(issueDto.getKey(), request, response);
     }

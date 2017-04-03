@@ -33,7 +33,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.UtcDateUtils;
 
 import static java.util.function.Function.identity;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * Represents the array of JSON objects stored in the value of the

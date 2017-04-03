@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -167,12 +167,12 @@ public class SetCopyComponentUuidOnLocalViewsTest {
   }
 
   private void verifyComponentsHavingCopyComponentUuid(Component... expectedComponents) {
-    Map<String, Component> expectedComponentsByUuid = Arrays.stream(expectedComponents).collect(Collectors.uniqueIndex(Component::getUuid));
+    Map<String, Component> expectedComponentsByUuid = Arrays.stream(expectedComponents).collect(MoreCollectors.uniqueIndex(Component::getUuid));
 
     List<Map<String, Object>> rows = db.select("SELECT uuid, copy_component_uuid FROM " + TABLE_PROJECTS + " WHERE copy_component_uuid IS NOT NULL");
     Map<String, Component> components = rows.stream()
       .map(map -> new Component((String) map.get("UUID"), (String) map.get("COPY_COMPONENT_UUID")))
-      .collect(Collectors.uniqueIndex(Component::getUuid));
+      .collect(MoreCollectors.uniqueIndex(Component::getUuid));
     assertThat(components.keySet()).containsExactlyElementsOf(expectedComponentsByUuid.keySet());
     components.entrySet().forEach(entry -> {
       Component expectedComponent = expectedComponentsByUuid.get(entry.getKey());

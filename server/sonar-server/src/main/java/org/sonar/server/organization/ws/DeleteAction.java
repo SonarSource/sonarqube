@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -137,7 +137,7 @@ public class DeleteAction implements OrganizationsWsAction {
     List<QualityProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession, organization);
     List<String> profileKeys = profiles.stream()
       .map(QualityProfileDto::getKey)
-      .collect(Collectors.toArrayList(profiles.size()));
+      .collect(MoreCollectors.toArrayList(profiles.size()));
     qProfileFactory.deleteByKeys(dbSession, profileKeys);
     dbSession.commit();
   }

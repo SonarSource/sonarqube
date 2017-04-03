@@ -32,7 +32,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -48,7 +48,7 @@ import org.sonarqube.ws.client.component.SearchWsRequest;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
@@ -166,13 +166,13 @@ public class SearchAction implements ComponentsWsAction {
       // Meanwhile root is explicitly handled.
       return componentDtos;
     }
-    Set<String> projectUuids = componentDtos.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
+    Set<String> projectUuids = componentDtos.stream().map(ComponentDto::projectUuid).collect(MoreCollectors.toSet());
     List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
     Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
     Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIdsByUuids.values(), userSession.getUserId(), USER);
     return componentDtos.stream()
       .filter(component -> authorizedProjectIds.contains(projectIdsByUuids.get(component.projectUuid())))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Paging paging) {

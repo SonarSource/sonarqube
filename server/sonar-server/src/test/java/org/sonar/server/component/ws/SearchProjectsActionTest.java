@@ -78,7 +78,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;

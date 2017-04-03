@@ -26,7 +26,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -88,7 +88,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
     deleteKeys(changes.stream()
       .filter(c -> c.getType().equals(ActiveRuleChange.Type.DEACTIVATED))
       .map(ActiveRuleChange::getKey)
-      .collect(Collectors.toList(changes.size())));
+      .collect(MoreCollectors.toList(changes.size())));
 
     index();
   }

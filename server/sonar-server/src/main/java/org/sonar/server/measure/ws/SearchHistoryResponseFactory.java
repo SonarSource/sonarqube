@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -53,7 +53,7 @@ class SearchHistoryResponseFactory {
       .map(addPaging())
       .map(addMeasures())
       .map(SearchHistoryResponse.Builder::build)
-      .collect(Collectors.toOneElement());
+      .collect(MoreCollectors.toOneElement());
   }
 
   private UnaryOperator<SearchHistoryResponse.Builder> addPaging() {
@@ -61,8 +61,8 @@ class SearchHistoryResponseFactory {
   }
 
   private UnaryOperator<SearchHistoryResponse.Builder> addMeasures() {
-    Map<Integer, MetricDto> metricsById = result.getMetrics().stream().collect(Collectors.uniqueIndex(MetricDto::getId));
-    Map<String, SnapshotDto> analysesByUuid = result.getAnalyses().stream().collect(Collectors.uniqueIndex(SnapshotDto::getUuid));
+    Map<Integer, MetricDto> metricsById = result.getMetrics().stream().collect(MoreCollectors.uniqueIndex(MetricDto::getId));
+    Map<String, SnapshotDto> analysesByUuid = result.getAnalyses().stream().collect(MoreCollectors.uniqueIndex(SnapshotDto::getUuid));
     Table<MetricDto, SnapshotDto, MeasureDto> measuresByMetricByAnalysis = HashBasedTable.create(result.getMetrics().size(), result.getAnalyses().size());
     result.getMeasures().forEach(m -> measuresByMetricByAnalysis.put(metricsById.get(m.getMetricId()), analysesByUuid.get(m.getAnalysisUuid()), m));
 

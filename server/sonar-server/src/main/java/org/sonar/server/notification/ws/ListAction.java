@@ -36,7 +36,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -53,7 +53,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.core.util.stream.Collectors.toOneElement;
+import static org.sonar.core.util.stream.MoreCollectors.toOneElement;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -71,9 +71,9 @@ public class ListAction implements NotificationsWsAction {
   public ListAction(NotificationCenter notificationCenter, DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true").stream().sorted().collect(Collectors.toList());
-    this.perProjectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true").stream().sorted().collect(Collectors.toList());
-    this.channels = notificationCenter.getChannels().stream().map(NotificationChannel::getKey).sorted().collect(Collectors.toList());
+    this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true").stream().sorted().collect(MoreCollectors.toList());
+    this.perProjectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true").stream().sorted().collect(MoreCollectors.toList());
+    this.channels = notificationCenter.getChannels().stream().map(NotificationChannel::getKey).sorted().collect(MoreCollectors.toList());
   }
 
   @Override
@@ -154,20 +154,20 @@ public class ListAction implements NotificationsWsAction {
     Set<Long> componentIds = properties.stream()
       .map(PropertyDto::getResourceId)
       .filter(Objects::nonNull)
-      .collect(Collectors.toSet(properties.size()));
+      .collect(MoreCollectors.toSet(properties.size()));
     return dbClient.componentDao().selectByIds(dbSession, componentIds)
       .stream()
       .filter(c -> authorizedComponentUuids.contains(c.uuid()))
-      .collect(Collectors.uniqueIndex(ComponentDto::getId));
+      .collect(MoreCollectors.uniqueIndex(ComponentDto::getId));
   }
 
   private Map<String, OrganizationDto> getOrganizations(DbSession dbSession, Collection<ComponentDto> values) {
     Set<String> organizationUuids = values.stream()
       .map(ComponentDto::getOrganizationUuid)
-      .collect(Collectors.toSet());
+      .collect(MoreCollectors.toSet());
     return dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
       .stream()
-      .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
+      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
   }
 
   private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification,

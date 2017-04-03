@@ -34,7 +34,7 @@ import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.Page.Scope;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
@@ -78,7 +78,7 @@ public class PageRepository implements Startable {
       .peek(checkWellFormed())
       .peek(checkPluginExists())
       .sorted(comparing(Page::getKey))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   @Override
@@ -100,7 +100,7 @@ public class PageRepository implements Startable {
       .filter(p -> p.getScope().equals(scope))
       .filter(p -> p.isAdmin() == isAdmin)
       .filter(p -> GLOBAL.equals(p.getScope()) || p.getComponentQualifiers().contains(qualifier))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   @VisibleForTesting

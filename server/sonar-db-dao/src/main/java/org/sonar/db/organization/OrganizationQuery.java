@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class OrganizationQuery {
   private static final OrganizationQuery NO_QUERY = newOrganizationQueryBuilder().build();

@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -36,7 +36,7 @@ public class IssueChangeDao implements Dao {
     return selectByTypeAndIssueKeys(session, singletonList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)
       .stream()
       .map(IssueChangeDto::toFieldDiffs)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   public List<IssueChangeDto> selectChangelogOfNonClosedIssuesByComponent(DbSession session, String componentUuid) {

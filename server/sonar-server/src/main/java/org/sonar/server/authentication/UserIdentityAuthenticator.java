@@ -46,7 +46,7 @@ import org.sonar.server.user.UserUpdater;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class UserIdentityAuthenticator {
 

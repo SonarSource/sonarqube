@@ -63,7 +63,7 @@ import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
-import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * This class is used to know the list of metrics that can be sent in the analysis report.

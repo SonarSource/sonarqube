@@ -35,7 +35,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.Select;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.DatabaseUtils.repeatCondition;
 
 /**

@@ -32,7 +32,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.lang.String.format;
 
@@ -54,7 +54,7 @@ public class RedirectFilter implements Filter {
     Predicate<Redirect> match = redirect -> redirect.test(path);
     List<Redirect> redirects = REDIRECTS.stream()
       .filter(match)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
 
     switch (redirects.size()) {
       case 0:

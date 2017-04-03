@@ -65,7 +65,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -529,7 +529,7 @@ public class IssueIndex {
     if (values == null) {
       return Collections.emptyList();
     }
-    return values.stream().map(Pattern::quote).collect(Collectors.toArrayList(values.size()));
+    return values.stream().map(Pattern::quote).collect(MoreCollectors.toArrayList(values.size()));
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {

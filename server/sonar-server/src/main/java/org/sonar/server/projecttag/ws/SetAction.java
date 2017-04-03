@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -89,7 +89,7 @@ public class SetAction implements ProjectTagsWsAction {
       .map(t -> t.toLowerCase(Locale.ENGLISH))
       .map(SetAction::checkTag)
       .distinct()
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByKey(dbSession, projectKey);

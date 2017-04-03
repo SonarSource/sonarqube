@@ -40,15 +40,15 @@ import org.junit.rules.ExpectedException;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.sonar.core.util.stream.Collectors.index;
-import static org.sonar.core.util.stream.Collectors.join;
-import static org.sonar.core.util.stream.Collectors.toArrayList;
-import static org.sonar.core.util.stream.Collectors.toHashSet;
-import static org.sonar.core.util.stream.Collectors.toList;
-import static org.sonar.core.util.stream.Collectors.toSet;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.index;
+import static org.sonar.core.util.stream.MoreCollectors.join;
+import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
+import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
-public class CollectorsTest {
+public class MoreCollectorsTest {
 
   private static final List<String> HUGE_LIST = IntStream.range(0, 2_000).mapToObj(String::valueOf).collect(java.util.stream.Collectors.toList());
   private static final Set<String> HUGE_SET = new HashSet<>(HUGE_LIST);

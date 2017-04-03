@@ -28,7 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.WebhookProperties;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
@@ -72,7 +72,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
     return Arrays.stream(webhookIds)
       .map(webhookId -> format("%s.%s", propertyKey, webhookId))
       .limit(MAX_WEBHOOKS_PER_TYPE)
-      .collect(Collectors.toList(webhookIds.length));
+      .collect(MoreCollectors.toList(webhookIds.length));
   }
 
   private void process(Settings settings, ProjectAnalysis analysis, Iterable<String> webhookProperties) {

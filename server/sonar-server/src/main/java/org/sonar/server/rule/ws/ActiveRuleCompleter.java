@@ -36,7 +36,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -86,7 +86,7 @@ public class ActiveRuleCompleter {
     if (profileKey != null) {
       // Load details of active rules on the selected profile
       List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profileKey);
-      Map<RuleKey, ActiveRuleDto> activeRuleByRuleKey = activeRuleDtos.stream().collect(Collectors.uniqueIndex(d -> d.getKey().ruleKey()));
+      Map<RuleKey, ActiveRuleDto> activeRuleByRuleKey = activeRuleDtos.stream().collect(MoreCollectors.uniqueIndex(d -> d.getKey().ruleKey()));
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
 
       for (RuleDto rule : rules) {

@@ -40,7 +40,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -186,13 +186,13 @@ public class TreeAction implements ComponentsWsAction {
     List<String> referenceComponentIds = components.stream()
       .map(ComponentDto::getCopyResourceUuid)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
     }
 
     return dbClient.componentDao().selectByUuids(dbSession, referenceComponentIds).stream()
-      .collect(Collectors.uniqueIndex(ComponentDto::uuid));
+      .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
   }
 
   private void checkPermissions(ComponentDto baseComponent) {

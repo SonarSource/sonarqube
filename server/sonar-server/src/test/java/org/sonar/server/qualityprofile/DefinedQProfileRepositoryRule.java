@@ -29,10 +29,10 @@ import java.util.stream.Stream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.resources.Language;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class DefinedQProfileRepositoryRule extends ExternalResource implements DefinedQProfileRepository {
   private boolean initializeCalled = false;
@@ -79,7 +79,7 @@ public class DefinedQProfileRepositoryRule extends ExternalResource implements D
         if (existing == null) {
           return ImmutableList.of(definedQProfile);
         }
-        return Stream.concat(existing.stream(), Stream.of(definedQProfile)).collect(Collectors.toList(existing.size() + 1));
+        return Stream.concat(existing.stream(), Stream.of(definedQProfile)).collect(MoreCollectors.toList(existing.size() + 1));
       });
     return definedQProfile;
   }

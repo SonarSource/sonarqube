@@ -37,7 +37,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -308,7 +308,7 @@ public class SearchAction implements IssuesWsAction {
 
     // execute request
     SearchResult<IssueDoc> result = issueIndex.search(query, options);
-    List<String> issueKeys = result.getDocs().stream().map(IssueDoc::key).collect(Collectors.toList(result.getDocs().size()));
+    List<String> issueKeys = result.getDocs().stream().map(IssueDoc::key).collect(MoreCollectors.toList(result.getDocs().size()));
 
     // load the additional information to be returned in response
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(additionalFields, issueKeys);

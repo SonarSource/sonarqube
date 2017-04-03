@@ -43,7 +43,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -348,11 +348,11 @@ public class SearchAction implements RulesWsAction {
         rules.add(rule);
       }
     }
-    List<Integer> ruleIds = rules.stream().map(RuleDto::getId).collect(Collectors.toList());
+    List<Integer> ruleIds = rules.stream().map(RuleDto::getId).collect(MoreCollectors.toList());
     List<Integer> templateRuleIds = rules.stream()
       .map(RuleDto::getTemplateId)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     List<RuleDefinitionDto> templateRules = dbClient.ruleDao().selectDefinitionByIds(dbSession, templateRuleIds);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds);
     return new SearchResult()

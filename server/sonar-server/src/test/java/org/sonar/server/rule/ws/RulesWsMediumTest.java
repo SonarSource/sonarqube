@@ -28,7 +28,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -155,7 +155,7 @@ public class RulesWsMediumTest {
     ruleDao.insertOrUpdate(session, rule2.getMetadata().setRuleId(rule2.getId()));
 
     session.commit();
-    ruleIndexer.index(defaultOrganization, Stream.of(rule, rule2).map(RuleDto::getKey).collect(Collectors.toList()));
+    ruleIndexer.index(defaultOrganization, Stream.of(rule, rule2).map(RuleDto::getKey).collect(MoreCollectors.toList()));
 
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD).execute().assertJson(this.getClass(), "get_tags.json");
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)

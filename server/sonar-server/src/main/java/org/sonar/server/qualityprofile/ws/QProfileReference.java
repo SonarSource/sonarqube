@@ -27,7 +27,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -183,6 +183,6 @@ public class QProfileReference {
       .setExampleValue("Sonar way");
     action.createParam(PARAM_LANGUAGE)
       .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and profileName must be set to disambiguate.")
-      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet()));
+      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet()));
   }
 }

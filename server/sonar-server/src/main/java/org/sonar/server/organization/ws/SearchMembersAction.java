@@ -33,7 +33,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -103,11 +103,11 @@ public class SearchMembersAction implements OrganizationsWsAction {
       SearchOptions searchOptions = buildSearchOptions(request);
 
       SearchResult<UserDoc> searchResults = userIndex.search(userQuery.build(), searchOptions);
-      List<String> orderedLogins = searchResults.getDocs().stream().map(UserDoc::login).collect(Collectors.toList());
+      List<String> orderedLogins = searchResults.getDocs().stream().map(UserDoc::login).collect(MoreCollectors.toList());
 
       List<UserDto> users = dbClient.userDao().selectByLogins(dbSession, orderedLogins).stream()
         .sorted(Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin))
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
 
       Multiset<String> groupCountByLogin = null;
       if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organization)) {

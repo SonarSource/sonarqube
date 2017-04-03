@@ -45,7 +45,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -70,8 +70,8 @@ import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.core.util.stream.Collectors.toList;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
 import static org.sonar.server.issue.AssignAction.ASSIGNEE_PARAMETER;
@@ -184,7 +184,7 @@ public class BulkChangeAction implements IssuesWsAction {
         .map(loadData(dbSession))
         .map(executeBulkChange())
         .map(toWsResponse())
-        .collect(Collectors.toOneElement());
+        .collect(MoreCollectors.toOneElement());
       writeProtobuf(wsResponse, request, response);
     }
   }
@@ -200,7 +200,7 @@ public class BulkChangeAction implements IssuesWsAction {
 
       List<DefaultIssue> items = bulkChangeData.issues.stream()
         .filter(bulkChange(issueChangeContext, bulkChangeData, result))
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
       issueStorage.save(items);
       items.forEach(sendNotification(issueChangeContext, bulkChangeData));
       return result;
@@ -301,20 +301,20 @@ public class BulkChangeAction implements IssuesWsAction {
       checkArgument(issueKeys.size() <= MAX_LIMIT, "Number of issues is limited to %s", MAX_LIMIT);
       List<IssueDto> allIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeys);
 
-      List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(Collectors.toSet()));
+      List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
       this.projectsByUuid = getAuthorizedProjects(dbSession, allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
-        issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
+        issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
           .collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession,
-        issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
+        issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
         .collect(uniqueIndex(RuleDefinitionDto::getKey, identity()));
 
       this.availableActions = actions.stream()
         .filter(action -> propertiesByActions.containsKey(action.key()))
         .filter(action -> action.verify(getProperties(action.key()), issues, userSession))
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
     }
 
     private List<ComponentDto> getComponents(DbSession dbSession, Collection<String> componentUuids) {
@@ -328,15 +328,15 @@ public class BulkChangeAction implements IssuesWsAction {
         userSession.getUserId(), UserRole.USER);
       return projectDtos.stream()
         .filter(project -> authorizedProjectIds.contains(projectIdsByUuids.get(project.projectUuid())))
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
     }
 
     private List<DefaultIssue> getAuthorizedIssues(List<IssueDto> allIssues) {
-      Set<String> projectUuids = projectsByUuid.values().stream().map(ComponentDto::uuid).collect(Collectors.toSet());
+      Set<String> projectUuids = projectsByUuid.values().stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet());
       return allIssues.stream()
         .filter(issue -> projectUuids.contains(issue.getProjectUuid()))
         .map(IssueDto::toDefaultIssue)
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
     }
 
     Map<String, Object> getProperties(String actionKey) {
@@ -344,7 +344,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     List<Action> getActionsWithoutComment() {
-      return availableActions.stream().filter(action -> !action.key().equals(COMMENT_KEY)).collect(Collectors.toList());
+      return availableActions.stream().filter(action -> !action.key().equals(COMMENT_KEY)).collect(MoreCollectors.toList());
     }
 
     Optional<Action> getCommentAction() {

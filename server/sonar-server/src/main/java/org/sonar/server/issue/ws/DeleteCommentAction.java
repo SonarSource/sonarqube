@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
@@ -83,7 +83,7 @@ public class DeleteCommentAction implements IssuesWsAction {
       IssueDto issueDto = Stream.of(request)
         .map(loadCommentData(dbSession))
         .peek(deleteComment(dbSession))
-        .collect(Collectors.toOneElement())
+        .collect(MoreCollectors.toOneElement())
         .getIssueDto();
       responseWriter.write(issueDto.getKey(), request, response);
     }

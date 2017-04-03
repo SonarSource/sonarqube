@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -45,7 +45,7 @@ import org.sonarqube.ws.client.projectanalysis.EventCategory;
 import org.sonarqube.ws.client.projectanalysis.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.stream.Collectors.toOneElement;
+import static org.sonar.core.util.stream.MoreCollectors.toOneElement;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -133,7 +133,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private Consumer<SearchResults.Builder> addEvents() {
     return data -> {
-      List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).collect(Collectors.toList());
+      List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).collect(MoreCollectors.toList());
       data.setEvents(dbClient.eventDao().selectByAnalysisUuids(data.getDbSession(), analyses));
     };
   }

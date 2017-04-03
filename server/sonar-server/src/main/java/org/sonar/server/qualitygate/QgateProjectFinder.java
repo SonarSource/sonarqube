@@ -24,7 +24,7 @@ import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
@@ -70,11 +70,11 @@ public class QgateProjectFinder {
   }
 
   private static List<ProjectQgateAssociationDto> getPaginatedProjects(List<ProjectQgateAssociationDto> projects, Paging paging) {
-    return projects.stream().skip(paging.offset()).limit(paging.pageSize()).collect(Collectors.toList());
+    return projects.stream().skip(paging.offset()).limit(paging.pageSize()).collect(MoreCollectors.toList());
   }
 
   private static List<ProjectQgateAssociation> toProjectAssociations(List<ProjectQgateAssociationDto> dtos) {
-    return dtos.stream().map(ProjectQgateAssociationDto::toQgateAssociation).collect(Collectors.toList());
+    return dtos.stream().map(ProjectQgateAssociationDto::toQgateAssociation).collect(MoreCollectors.toList());
   }
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
@@ -84,9 +84,9 @@ public class QgateProjectFinder {
       // Meanwhile root is explicitly handled.
       return projects;
     }
-    List<Long> projectIds = projects.stream().map(ProjectQgateAssociationDto::getId).collect(Collectors.toList());
+    List<Long> projectIds = projects.stream().map(ProjectQgateAssociationDto::getId).collect(MoreCollectors.toList());
     Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
-    return projects.stream().filter(project -> authorizedProjectIds.contains(project.getId())).collect(Collectors.toList());
+    return projects.stream().filter(project -> authorizedProjectIds.contains(project.getId())).collect(MoreCollectors.toList());
   }
 
   public static class Association {

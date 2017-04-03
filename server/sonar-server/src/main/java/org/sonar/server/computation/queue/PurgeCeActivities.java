@@ -27,7 +27,7 @@ import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -56,7 +56,7 @@ public class PurgeCeActivities implements ServerStartHandler {
       Set<String> ceActivityUuids = dbClient.ceActivityDao().selectOlderThan(dbSession, sixMonthsAgo.getTimeInMillis())
         .stream()
         .map(CeActivityDto::getUuid)
-        .collect(Collectors.toSet());
+        .collect(MoreCollectors.toSet());
       dbClient.ceActivityDao().deleteByUuids(dbSession, ceActivityUuids);
       dbClient.ceScannerContextDao().deleteByUuids(dbSession, ceActivityUuids);
       dbSession.commit();

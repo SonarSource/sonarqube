@@ -40,7 +40,7 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -273,7 +273,7 @@ public class DefinedQProfileCreationImplTest {
     rule.setParams(Arrays.stream(parameters)
       .filter(new EvenElementPredicate())
       .map(s -> new RuleParam(rule, s, "desc of s", "type of s"))
-      .collect(Collectors.toList(parameters.length / 2)));
+      .collect(MoreCollectors.toList(parameters.length / 2)));
     ActiveRule res = new ActiveRule(
       new RulesProfile("rule_profile_name_" + id, "language_" + id),
       rule.setSeverity(rulePriority),

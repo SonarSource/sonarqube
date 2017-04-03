@@ -30,7 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -96,7 +96,7 @@ public class SearchAction implements UserGroupsWsAction {
 
       int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);
-      List<Integer> groupIds = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
+      List<Integer> groupIds = groups.stream().map(GroupDto::getId).collect(MoreCollectors.toList(groups.size()));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupIds);
 
       JsonWriter json = response.newJsonWriter().beginObject();

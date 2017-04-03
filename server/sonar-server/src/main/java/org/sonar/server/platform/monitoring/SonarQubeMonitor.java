@@ -32,7 +32,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.platform.ServerId;
@@ -90,7 +90,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
       .stream()
       .filter(IdentityProvider::isEnabled)
       .map(IdentityProvider::getName)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   private List<String> getAllowsToSignUpEnabledIdentityProviders() {
@@ -99,7 +99,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
       .filter(IdentityProvider::isEnabled)
       .filter(IdentityProvider::allowsUsersToSignUp)
       .map(IdentityProvider::getName)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   private boolean getForceAuthentication() {

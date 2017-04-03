@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 
 import static org.sonar.server.permission.index.FooIndexDefinition.FOO_INDEX;
@@ -49,7 +49,7 @@ public class FooIndex {
       .getHits();
     List<String> names = Arrays.stream(hits.hits())
       .map(h -> h.getSource().get(FooIndexDefinition.FIELD_NAME).toString())
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     return names.size() == 2 && names.contains("bar") && names.contains("baz");
   }
 }

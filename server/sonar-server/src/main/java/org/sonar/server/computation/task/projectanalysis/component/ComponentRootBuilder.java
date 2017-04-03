@@ -36,7 +36,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.core.component.ComponentKeys.createEffectiveKey;
 import static org.sonar.core.component.ComponentKeys.createKey;
-import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class ComponentRootBuilder {
   private static final String DEFAULT_PROJECT_VERSION = "not provided";

@@ -41,7 +41,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.joda.time.format.ISODateTimeFormat;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.lang.String.format;
 
@@ -78,7 +78,7 @@ public class EsUtils {
   public static List<String> termsKeys(Terms terms) {
     return terms.getBuckets().stream()
       .map(Terms.Bucket::getKeyAsString)
-      .collect(Collectors.toList(terms.getBuckets().size()));
+      .collect(MoreCollectors.toList(terms.getBuckets().size()));
   }
 
 

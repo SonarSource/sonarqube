@@ -31,7 +31,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -719,7 +719,7 @@ public class SearchActionMediumTest {
     tester.get(PermissionUpdater.class).apply(session, Arrays.stream(permissions)
       // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone" for each organization
       .map(permission -> new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid())))
-      .collect(Collectors.toList()));
+      .collect(MoreCollectors.toList()));
   }
 
   private ComponentDto insertComponent(ComponentDto component) {

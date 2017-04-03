@@ -38,11 +38,11 @@ import java.util.stream.Collector;
 
 import static java.util.Objects.requireNonNull;
 
-public final class Collectors {
+public final class MoreCollectors {
 
   private static final int DEFAULT_HASHMAP_CAPACITY = 0;
 
-  private Collectors() {
+  private MoreCollectors() {
     // prevents instantiation
   }
 
@@ -118,7 +118,7 @@ public final class Collectors {
   }
 
   /**
-   * Does {@code java.util.stream.Collectors.toCollection(() -> new ArrayList<>(size));} which is equivalent to
+   * Does {@code java.util.stream.MoreCollectors.toCollection(() -> new ArrayList<>(size));} which is equivalent to
    * {@link #toArrayList()} but avoiding array copies when the size of the resulting list is already known.
    *
    * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all
@@ -139,7 +139,7 @@ public final class Collectors {
   }
 
   /**
-   * Does {@code java.util.stream.Collectors.toCollection(() -> new HashSet<>(size));} which is equivalent to
+   * Does {@code java.util.stream.MoreCollectors.toCollection(() -> new HashSet<>(size));} which is equivalent to
    * {@link #toHashSet()} but avoiding array copies when the size of the resulting set is already known.
    *
    * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all

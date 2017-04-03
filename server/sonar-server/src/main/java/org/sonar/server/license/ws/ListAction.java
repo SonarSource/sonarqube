@@ -34,7 +34,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.setting.ws.Setting;
@@ -47,7 +47,7 @@ import org.sonarqube.ws.Licenses.ListWsResponse;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.PropertyType.LICENSE;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.license.LicensesWsParameters.ACTION_LIST;
 
@@ -90,7 +90,7 @@ public class ListAction implements WsAction {
   private ListWsResponse doHandle(DbSession dbSession) {
     Map<String, PropertyDefinition> licenseDefinitionsByKeys = definitions.getAll().stream()
       .filter(definition -> LICENSE.equals(definition.type()))
-      .collect(Collectors.uniqueIndex(PropertyDefinition::key, Function.identity()));
+      .collect(MoreCollectors.uniqueIndex(PropertyDefinition::key, Function.identity()));
     Set<String> settingsKeys = new HashSet<>(licenseDefinitionsByKeys.keySet());
     settingsKeys.add(PERMANENT_SERVER_ID);
     List<Setting> settings = settingsFinder.loadGlobalSettings(dbSession, settingsKeys);

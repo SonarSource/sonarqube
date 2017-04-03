@@ -41,7 +41,7 @@ import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
@@ -332,7 +332,7 @@ public class ProjectMeasuresIndex {
 
     return aggregation.getBuckets().stream()
       .map(Bucket::getKeyAsString)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   @FunctionalInterface

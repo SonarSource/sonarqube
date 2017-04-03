@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.stream.Stream.concat;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
@@ -58,7 +58,7 @@ public class WebServiceFilter extends ServletFilter {
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())
         .map(toPath()))
-          .collect(Collectors.toSet());
+          .collect(MoreCollectors.toSet());
     this.excludeUrls = concat(concat(
       Stream.of("/" + CONTROLLER_PROPERTIES + "*"),
       MOVED_WEB_SERVICES.stream()),
@@ -66,7 +66,7 @@ public class WebServiceFilter extends ServletFilter {
         .flatMap(controller -> controller.actions().stream())
         .filter(action -> action.handler() instanceof ServletFilterHandler)
         .map(toPath()))
-          .collect(Collectors.toSet());
+          .collect(MoreCollectors.toSet());
   }
 
   @Override
