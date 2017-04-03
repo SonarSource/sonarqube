@@ -20,11 +20,14 @@
 package org.sonar.server.organization.ws;
 
 import java.net.HttpURLConnection;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -67,6 +70,42 @@ public class EnableSupportActionTest {
     verifyFeatureEnabled(true);
     verifyRoot(user, true);
     verifyRoot(otherUser, false);
+  }
+
+  @Test
+  public void enabling_support_creates_default_members_group_and_associate_org_members() throws Exception {
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto userInAnotherOrganization = db.users().insertUser();
+    db.organizations().addMember(defaultOrganization, user1);
+    db.organizations().addMember(defaultOrganization, user2);
+    db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
+    logInAsSystemAdministrator(user1.getLogin());
+
+    call();
+
+    Optional<Integer> defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), defaultOrganization.getUuid());
+    assertThat(defaultGroupId).isPresent();
+    GroupDto membersGroup = db.getDbClient().groupDao().selectById(db.getSession(), defaultGroupId.get());
+    assertThat(membersGroup).isNotNull();
+    assertThat(membersGroup.getName()).isEqualTo("Members");
+    assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), user1.getId())).containsOnly(defaultGroupId.get());
+    assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), user2.getId())).containsOnly(defaultGroupId.get());
+    assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), userInAnotherOrganization.getId())).isEmpty();
+  }
+
+  @Test
+  public void throw_IAE_when_members_group_already_exists() throws Exception {
+    UserDto user = db.users().insertUser();
+    db.users().insertGroup(db.getDefaultOrganization(), "Members");
+    logInAsSystemAdministrator(user.getLogin());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The group 'Members' already exist");
+
+    call();
   }
 
   @Test
