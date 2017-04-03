@@ -35,6 +35,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -121,6 +122,18 @@ public class UserDbTester {
 
   public GroupDto insertGroup(GroupDto dto) {
     db.getDbClient().groupDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
+  public GroupDto insertDefaultGroup(GroupDto dto) {
+    String organizationUuid = dto.getOrganizationUuid();
+    db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), organizationUuid)
+      .ifPresent(groupId -> {
+        throw new IllegalArgumentException(format("Organization '%s' has already a default group", organizationUuid));
+      });
+    db.getDbClient().groupDao().insert(db.getSession(), dto);
+    db.getDbClient().organizationDao().setDefaultGroupId(db.getSession(), organizationUuid, dto);
     db.commit();
     return dto;
   }

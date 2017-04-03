@@ -61,6 +61,7 @@ message GroupsWsResponse {
     optional string name = 2;
     optional string description = 3;
     optional bool selected = 4;
+    optional bool default = 5;
   }
 }
 
