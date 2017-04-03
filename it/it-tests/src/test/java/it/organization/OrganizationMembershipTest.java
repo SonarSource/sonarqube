@@ -190,11 +190,11 @@ public class OrganizationMembershipTest {
   @Test
   public void admin_can_remove_members() {
     String orgKey = createOrganization();
-    String user1 = createUser();
-    String user2 = createUser();
+    userRule.createUser("foo", "pwd");
+    userRule.createUser("bar", "pwd");
 
-    adminClient.organizations().addMember(orgKey, user1);
-    adminClient.organizations().addMember(orgKey, user2);
+    adminClient.organizations().addMember(orgKey, "foo");
+    adminClient.organizations().addMember(orgKey, "bar");
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page.shouldHaveTotal(3)
@@ -205,9 +205,9 @@ public class OrganizationMembershipTest {
   @Test
   public void admin_can_manage_groups() {
     String orgKey = createOrganization();
-    String user1 = createUser();
+    userRule.createUser("foo", "pwd");
 
-    adminClient.organizations().addMember(orgKey, user1);
+    adminClient.organizations().addMember(orgKey, "foo");
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page.getMembersByIdx(1)
@@ -225,11 +225,11 @@ public class OrganizationMembershipTest {
   @Test
   public void groups_count_should_be_updated_when_a_member_was_just_added() {
     String orgKey = createOrganization();
-    String user1 = createUser();
+    userRule.createUser("foo", "pwd");
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page
-      .addMember(user1)
+      .addMember("foo")
       .getMembersByIdx(1)
       .shouldHaveGroups(0)
       .manageGroupsOpen()
