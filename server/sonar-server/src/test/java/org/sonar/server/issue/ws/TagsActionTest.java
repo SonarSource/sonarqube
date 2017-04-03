@@ -67,12 +67,12 @@ public class TagsActionTest {
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
   private RuleIndex ruleIndex = new RuleIndex(es.client());
 
-  private WsActionTester tester = new WsActionTester(new TagsAction(issueIndex, ruleIndex, TestDefaultOrganizationProvider.from(db)));
+  private WsActionTester tester = new WsActionTester(new TagsAction(issueIndex, ruleIndex, db.getDbClient(), TestDefaultOrganizationProvider.from(db)));
   private OrganizationDto organization;
 
   @Before
   public void before() {
-    organization = db.getDefaultOrganization();
+    organization = db.organizations().insert();
   }
 
   @Test
@@ -81,7 +81,9 @@ public class TagsActionTest {
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
     issueIndexer.indexOnStartup(null);
 
-    String result = tester.newRequest().execute().getInput();
+    String result = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"]}");
   }
 
@@ -97,7 +99,9 @@ public class TagsActionTest {
     db.rules().insertOrUpdateMetadata(r2, organization, setTags("tag4", "tag5"));
     ruleIndexer.indexRuleExtension(organization, r2.getKey());
 
-    String result = tester.newRequest().execute().getInput();
+    String result = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"]}");
   }
 
@@ -112,7 +116,9 @@ public class TagsActionTest {
     db.rules().insertOrUpdateMetadata(r, organization, setTags("tag7"));
     ruleIndexer.indexRuleExtension(organization, r.getKey());
 
-    String result = tester.newRequest().execute().getInput();
+    String result = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\", \"tag6\", \"tag7\"]}");
   }
 
@@ -122,7 +128,10 @@ public class TagsActionTest {
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
     issueIndexer.indexOnStartup(null);
 
-    String result = tester.newRequest().setParam("ps", "2").execute().getInput();
+    String result = tester.newRequest()
+      .setParam("ps", "2")
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\"]}");
   }
 
@@ -132,7 +141,10 @@ public class TagsActionTest {
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag12", "tag4", "tag5");
     issueIndexer.indexOnStartup(null);
 
-    String result = tester.newRequest().setParam("q", "ag1").execute().getInput();
+    String result = tester.newRequest()
+      .setParam("q", "ag1")
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag12\"]}");
   }
 
@@ -152,7 +164,9 @@ public class TagsActionTest {
     db.rules().insertOrUpdateMetadata(r, organization, setTags("security"));
     ruleIndexer.indexRuleExtension(organization, r.getKey());
 
-    String result = tester.newRequest().execute().getInput();
+    String result = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute().getInput();
     assertJson(result).isSimilarTo(tester.getDef().responseExampleAsString());
   }
 
@@ -163,7 +177,7 @@ public class TagsActionTest {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("q", "ps", "organization");
 
     Param query = action.param("q");
     assertThat(query).isNotNull();
@@ -177,6 +191,14 @@ public class TagsActionTest {
     assertThat(pageSize.defaultValue()).isEqualTo("10");
     assertThat(pageSize.description()).isNotEmpty();
     assertThat(pageSize.exampleValue()).isNotEmpty();
+
+    Param organization = action.param("organization");
+    assertThat(organization).isNotNull();
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.description()).isNotEmpty();
+    assertThat(organization.exampleValue()).isNotEmpty();
+    assertThat(organization.isInternal()).isTrue();
+    assertThat(organization.since()).isEqualTo("6.4");
   }
 
   private RuleDefinitionDto insertRuleWithoutTags() {

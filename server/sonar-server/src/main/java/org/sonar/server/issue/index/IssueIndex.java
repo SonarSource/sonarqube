@@ -62,6 +62,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
@@ -590,11 +591,11 @@ public class IssueIndex {
     return value == null ? null : termQuery(field, value);
   }
 
-  public List<String> listTags(String organizationUuid, @Nullable String textQuery, int maxNumberOfTags) {
+  public List<String> listTags(OrganizationDto organization, @Nullable String textQuery, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = client
       .prepareSearch(INDEX_TYPE_ISSUE)
       .setQuery(boolQuery()
-        .filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organizationUuid)))
+        .filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid())))
       .setSize(0);
 
     TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
