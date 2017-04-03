@@ -1342,12 +1342,12 @@ public class IssueIndexTest {
       newDoc("ISSUE3", file).setOrganizationUuid(org.getUuid()).setRuleKey(r2.getKey().toString()),
       newDoc("ISSUE4", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention")));
 
-    assertThat(underTest.listTags(org.getUuid(), null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
-    assertThat(underTest.listTags(org.getUuid(), null, 2)).containsOnly("bug", "convention");
-    assertThat(underTest.listTags(org.getUuid(), "vent", Integer.MAX_VALUE)).containsOnly("convention");
-    assertThat(underTest.listTags(org.getUuid(), null, 1)).containsOnly("bug");
-    assertThat(underTest.listTags(org.getUuid(), null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
-    assertThat(underTest.listTags(org.getUuid(), "invalidRegexp[", Integer.MAX_VALUE)).isEmpty();
+    assertThat(underTest.listTags(org, null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
+    assertThat(underTest.listTags(org, null, 2)).containsOnly("bug", "convention");
+    assertThat(underTest.listTags(org, "vent", Integer.MAX_VALUE)).containsOnly("convention");
+    assertThat(underTest.listTags(org, null, 1)).containsOnly("bug");
+    assertThat(underTest.listTags(org, null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
+    assertThat(underTest.listTags(org, "invalidRegexp[", Integer.MAX_VALUE)).isEmpty();
   }
 
   @Test

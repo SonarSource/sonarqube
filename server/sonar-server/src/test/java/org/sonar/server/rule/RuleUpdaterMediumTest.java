@@ -208,7 +208,7 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    Set<String> tags = ruleIndex.listTags(defaultOrganization.getUuid(), null, 10);
+    Set<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
     assertThat(tags).containsOnly("bug", "java8", "javadoc");
   }
 
@@ -230,7 +230,7 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    Set<String> tags = ruleIndex.listTags(defaultOrganization.getUuid(), null, 10);
+    Set<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
     assertThat(tags).containsOnly("java8", "javadoc");
   }
 
