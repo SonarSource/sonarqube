@@ -4,6 +4,7 @@
     "organization": "my-org",
     "name": "some-product-bu",
     "description": "Business Unit for Some Awesome Product",
-    "membersCount": 0
+    "membersCount": 0,
+    "default": false
   }
 }
