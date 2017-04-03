@@ -42,6 +42,10 @@ public class OrganizationMemberDao implements Dao {
     return mapper(dbSession).selectLogins(organizationUuid);
   }
 
+  public List<Integer> selectUserIdsByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectUserIds(organizationUuid);
+  }
+
   public void insert(DbSession dbSession, OrganizationMemberDto organizationMemberDto) {
     mapper(dbSession).insert(organizationMemberDto);
   }
