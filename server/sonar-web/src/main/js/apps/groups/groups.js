@@ -32,9 +32,9 @@ export default Backbone.Collection.extend({
   },
 
   parse(r) {
-    this.total = +r.total;
-    this.p = +r.p;
-    this.ps = +r.ps;
+    this.total = +r.paging.total;
+    this.p = +r.paging.pageIndex;
+    this.ps = +r.paging.pageSize;
     return r.groups;
   },
 

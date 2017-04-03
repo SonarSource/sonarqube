@@ -24,12 +24,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.Paging;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,13 +40,17 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.WsUserGroups.Group;
+import static org.sonarqube.ws.WsUserGroups.SearchWsResponse;
 
 public class SearchAction implements UserGroupsWsAction {
 
-  private static final String FIELD_ID = "id";
   private static final String FIELD_NAME = "name";
   private static final String FIELD_DESCRIPTION = "description";
   private static final String FIELD_MEMBERS_COUNT = "membersCount";
@@ -71,7 +76,8 @@ public class SearchAction implements UserGroupsWsAction {
       .setSince("5.2")
       .addFieldsParam(ALL_FIELDS)
       .addPagingParams(100, MAX_LIMIT)
-      .addSearchQuery("sonar-users", "names");
+      .addSearchQuery("sonar-users", "names")
+      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"));
 
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization. If not set then groups are searched in default organization.")
@@ -95,32 +101,12 @@ public class SearchAction implements UserGroupsWsAction {
       userSession.checkLoggedIn().checkPermission(ADMINISTER, organization);
 
       int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
+      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);
       List<Integer> groupIds = groups.stream().map(GroupDto::getId).collect(MoreCollectors.toList(groups.size()));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupIds);
-
-      JsonWriter json = response.newJsonWriter().beginObject();
-      options.writeJson(json, limit);
-      writeGroups(json, groups, userCountByGroup, fields);
-      json.endObject().close();
+      writeProtobuf(buildResponse(groups, userCountByGroup, fields, paging), request, response);
     }
-  }
-
-  private static void writeGroups(JsonWriter json, List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields) {
-    json.name("groups").beginArray();
-    for (GroupDto group : groups) {
-      writeGroup(json, group, userCountByGroup.get(group.getName()), fields);
-    }
-    json.endArray();
-  }
-
-  private static void writeGroup(JsonWriter json, GroupDto group, Integer memberCount, Set<String> fields) {
-    json.beginObject()
-      .prop(FIELD_ID, group.getId().toString())
-      .prop(FIELD_NAME, fields.contains(FIELD_NAME) ? group.getName() : null)
-      .prop(FIELD_DESCRIPTION, fields.contains(FIELD_DESCRIPTION) ? group.getDescription() : null)
-      .prop(FIELD_MEMBERS_COUNT, fields.contains(FIELD_MEMBERS_COUNT) ? memberCount : null)
-      .endObject();
   }
 
   private static Set<String> neededFields(Request request) {
@@ -133,4 +119,30 @@ public class SearchAction implements UserGroupsWsAction {
     }
     return fields;
   }
+
+  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields, Paging paging) {
+    SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
+    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields)));
+    responseBuilder.getPagingBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total())
+      .build();
+    return responseBuilder.build();
+  }
+
+  private static Group toWsGroup(GroupDto group, Integer memberCount, Set<String> fields) {
+    Group.Builder groupBuilder = Group.newBuilder().setId(group.getId());
+    if (fields.contains(FIELD_NAME)) {
+      groupBuilder.setName(group.getName());
+    }
+    if (fields.contains(FIELD_DESCRIPTION)) {
+      setNullable(group.getDescription(), groupBuilder::setDescription);
+    }
+    if (fields.contains(FIELD_MEMBERS_COUNT)) {
+      groupBuilder.setMembersCount(memberCount);
+    }
+    return groupBuilder.build();
+  }
+
 }
