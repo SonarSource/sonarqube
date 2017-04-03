@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.ce.taskprocessor;
 
-import java.util.concurrent.Callable;
-import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
+import java.util.Set;
 
 /**
- * Marker interface of the runnable in charge of polling the {@link CeQueue} and executing {@link CeTask}.
- * {@link Callable#call()} returns a Boolean which is {@code true} when some a {@link CeTask} was processed,
- * {@code false} otherwise.
+ * A factory that will create the CeWorkerFactory with an UUID
  */
-public interface CeWorkerCallable extends Callable<Boolean> {
+public interface CeWorkerFactory {
+  /**
+   * Create a new CeWorker object.
+   * Each {@link CeWorker} returned by this method will have a different UUID from the others and all of these UUIDS will be returned by {@link #getWorkerUUIDs()}.
+   *
+   * @return the CeWorker
+   */
+  CeWorker create();
+  /**
+   *
+   * @return  the UUIDs of each {@link CeWorker} object returned by {@link #create}.
+   */
+  Set<String> getWorkerUUIDs();
 }

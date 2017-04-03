@@ -44,6 +44,10 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   private static final long CANCEL_WORN_OUTS_INITIAL_DELAY = 1;
   // 10 minutes
   private static final long CANCEL_WORN_OUTS_DELAY = 10;
+  // 1 minute
+  private static final long RESET_TASKS_WITH_UNKNOWN_WORKER_UUID_INITIAL_DELAY = 10;
+  // 60 minutes
+  private static final long RESET_TASKS_WITH_UNKNOWN_WORKER_UUID_DELAY = 60;
 
   private final int workerCount;
 
@@ -106,5 +110,15 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   @Override
   public long getCancelWornOutsDelay() {
     return CANCEL_WORN_OUTS_DELAY;
+  }
+
+  @Override
+  public long getTasksWithUnknownWorkerUUIDsInitialDelay() {
+    return RESET_TASKS_WITH_UNKNOWN_WORKER_UUID_INITIAL_DELAY;
+  }
+
+  @Override
+  public long getTasksWithUnknownWorkerUUIDsDelay() {
+    return RESET_TASKS_WITH_UNKNOWN_WORKER_UUID_DELAY;
   }
 }

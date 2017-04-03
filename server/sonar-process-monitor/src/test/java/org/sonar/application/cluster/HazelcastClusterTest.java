@@ -20,10 +20,14 @@
 package org.sonar.application.cluster;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ItemEvent;
+import com.hazelcast.core.ItemListener;
 import com.hazelcast.core.ReplicatedMap;
 import java.net.InetAddress;
 import java.util.AbstractMap;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -35,18 +39,19 @@ import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.cluster.ClusterObjectKeys;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.sonar.application.cluster.HazelcastCluster.LEADER;
-import static org.sonar.application.cluster.HazelcastCluster.OPERATIONAL_PROCESSES;
-import static org.sonar.application.cluster.HazelcastCluster.SONARQUBE_VERSION;
 import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
 import static org.sonar.application.cluster.HazelcastTestHelper.newClusterSettings;
 import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
+import static org.sonar.process.cluster.ClusterObjectKeys.LEADER;
+import static org.sonar.process.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
+import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class HazelcastClusterTest {
   @Rule
@@ -114,7 +119,7 @@ public class HazelcastClusterTest {
       HazelcastInstance hzInstance = createHazelcastClient(hzCluster);
       ReplicatedMap<ClusterProcess, Boolean> operationalProcesses = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
       assertThat(operationalProcesses)
-        .containsExactly(new AbstractMap.SimpleEntry<>(new ClusterProcess(hzCluster.getLocalUuid(), ProcessId.ELASTICSEARCH), Boolean.TRUE));
+        .containsExactly(new AbstractMap.SimpleEntry<>(new ClusterProcess(hzCluster.getLocalUUID(), ProcessId.ELASTICSEARCH), Boolean.TRUE));
     }
   }
 
@@ -129,10 +134,39 @@ public class HazelcastClusterTest {
   }
 
   @Test
+  public void cluster_must_keep_a_list_of_clients() throws InterruptedException {
+    TestAppSettings testAppSettings = newClusterSettings();
+    testAppSettings.set(CLUSTER_NAME, "a_cluster_");
+    ClusterProperties clusterProperties = new ClusterProperties(testAppSettings);
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
+      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS)).isEmpty();
+      HazelcastInstance hzClient = HazelcastTestHelper.createHazelcastClient(hzCluster);
+      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS)).containsExactly(hzClient.getLocalEndpoint().getUuid());
+
+      CountDownLatch latch = new CountDownLatch(1);
+      hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS).addItemListener(new ItemListener<Object>() {
+        @Override
+        public void itemAdded(ItemEvent<Object> item) {
+        }
+
+        @Override
+        public void itemRemoved(ItemEvent<Object> item) {
+          latch.countDown();
+        }
+      }, false);
+
+      hzClient.shutdown();
+      latch.await(1, TimeUnit.SECONDS);
+
+      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS)).isEmpty();
+    }
+  }
+
+  @Test
   public void localUUID_must_not_be_empty() {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
-      assertThat(hzCluster.getLocalUuid()).isNotEmpty();
+      assertThat(hzCluster.getLocalUUID()).isNotEmpty();
     }
   }
 

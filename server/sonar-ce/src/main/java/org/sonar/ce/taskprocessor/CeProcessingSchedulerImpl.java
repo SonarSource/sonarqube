@@ -39,16 +39,14 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
 
   private final CeProcessingSchedulerExecutorService executorService;
-  private final CeWorkerCallable workerRunnable;
 
   private final long delayBetweenTasks;
   private final TimeUnit timeUnit;
   private final ChainingCallback[] chainingCallbacks;
 
   public CeProcessingSchedulerImpl(CeConfiguration ceConfiguration,
-    CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerCallable workerRunnable) {
+    CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory) {
     this.executorService = processingExecutorService;
-    this.workerRunnable = workerRunnable;
 
     this.delayBetweenTasks = ceConfiguration.getQueuePollingDelay();
     this.timeUnit = MILLISECONDS;
@@ -56,7 +54,8 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
     int workerCount = ceConfiguration.getWorkerCount();
     this.chainingCallbacks = new ChainingCallback[workerCount];
     for (int i = 0; i < workerCount; i++) {
-      chainingCallbacks[i] = new ChainingCallback();
+      CeWorker worker = ceCeWorkerFactory.create();
+      chainingCallbacks[i] = new ChainingCallback(worker);
     }
   }
 
@@ -68,7 +67,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
   @Override
   public void startScheduling() {
     for (ChainingCallback chainingCallback : chainingCallbacks) {
-      ListenableScheduledFuture<Boolean> future = executorService.schedule(workerRunnable, delayBetweenTasks, timeUnit);
+      ListenableScheduledFuture<Boolean> future = executorService.schedule(chainingCallback.worker, delayBetweenTasks, timeUnit);
       addCallback(future, chainingCallback, executorService);
     }
   }
@@ -82,8 +81,14 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
 
   private class ChainingCallback implements FutureCallback<Boolean> {
     private final AtomicBoolean keepRunning = new AtomicBoolean(true);
+    private final CeWorker worker;
+
     @CheckForNull
     private ListenableFuture<Boolean> workerFuture;
+
+    public ChainingCallback(CeWorker worker) {
+      this.worker = worker;
+    }
 
     @Override
     public void onSuccess(@Nullable Boolean result) {
@@ -105,14 +110,14 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
 
     private void chainWithoutDelay() {
       if (keepRunning()) {
-        workerFuture = executorService.submit(workerRunnable);
+        workerFuture = executorService.submit(worker);
       }
       addCallback();
     }
 
     private void chainWithDelay() {
       if (keepRunning()) {
-        workerFuture = executorService.schedule(workerRunnable, delayBetweenTasks, timeUnit);
+        workerFuture = executorService.schedule(worker, delayBetweenTasks, timeUnit);
       }
       addCallback();
     }

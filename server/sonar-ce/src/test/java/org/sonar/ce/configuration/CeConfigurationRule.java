@@ -31,6 +31,8 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   private long queuePollingDelay = 2 * 1000L;
   private long cancelWornOutsInitialDelay = 1L;
   private long cancelWornOutsDelay = 10L;
+  private long tasksWithUnknownWorkerUUIDsInitialDelay = 1L;
+  private long tasksWithUnknownWorkerUUIDsDelay = 10L;
 
   @Override
   public int getWorkerCount() {
@@ -66,6 +68,16 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   @Override
   public long getCancelWornOutsDelay() {
     return cancelWornOutsDelay;
+  }
+
+  @Override
+  public long getTasksWithUnknownWorkerUUIDsInitialDelay() {
+    return tasksWithUnknownWorkerUUIDsInitialDelay;
+  }
+
+  @Override
+  public long getTasksWithUnknownWorkerUUIDsDelay() {
+    return tasksWithUnknownWorkerUUIDsDelay;
   }
 
   public void setCancelWornOutsDelay(long cancelWornOutsDelay) {

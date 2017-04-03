@@ -17,13 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import org.sonar.server.util.StoppableExecutorService;
+package org.sonar.ce;
+
+import java.util.Set;
 
 /**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerImpl}.
+ * CeDistributedInformation is the interface to be implemented in order
+ * to implement information shared by all CE nodes
  */
-public interface CeProcessingSchedulerExecutorService extends StoppableExecutorService, ListeningScheduledExecutorService {
+public interface CeDistributedInformation {
+  Set<String> getWorkerUUIDs();
+
+  /**
+   * This method must be called once the workers of the current Compute Engine node
+   * are up so that they are shared with other Compute Engine nodes
+   */
+  void broadcastWorkerUUIDs();
 }

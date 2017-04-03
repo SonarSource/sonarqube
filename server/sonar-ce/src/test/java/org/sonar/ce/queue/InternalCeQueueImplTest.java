@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.queue;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
@@ -530,17 +531,113 @@ public class InternalCeQueueImplTest {
 
     underTest.cancelWornOuts();
 
-    verifyUnmodifiedByCancelWornOuts(u1);
-    verifyUnmodifiedByCancelWornOuts(u2);
+    verifyUnmodified(u1);
+    verifyUnmodified(u2);
     verifyCanceled(u3);
     verifyCanceled(u4);
-    verifyUnmodifiedByCancelWornOuts(u5);
-    verifyUnmodifiedByCancelWornOuts(u6);
-    verifyUnmodifiedByCancelWornOuts(u7);
-    verifyUnmodifiedByCancelWornOuts(u8);
+    verifyUnmodified(u5);
+    verifyUnmodified(u6);
+    verifyUnmodified(u7);
+    verifyUnmodified(u8);
   }
 
-  private void verifyUnmodifiedByCancelWornOuts(CeQueueDto original) {
+  @Test
+  public void resetTasksWithUnknownWorkerUUIDs_reset_only_in_progress_tasks() {
+    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, null);
+    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
+    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, null);
+    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, 3, "worker2");
+    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, 0, null);
+    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, 1, "worker1");
+    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, 2, "worker2");
+    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, 3, "worker3");
+
+    underTest.resetTasksWithUnknownWorkerUUIDs(ImmutableSet.of("worker2", "worker3"));
+
+    // Pending tasks must not be modified even if a workerUUID is not present
+    verifyUnmodified(u1);
+    verifyUnmodified(u2);
+    verifyUnmodified(u3);
+    verifyUnmodified(u4);
+
+    // Unknown worker : null, "worker1"
+    verifyReset(u5);
+    verifyReset(u6);
+
+    // Known workers : "worker2", "worker3"
+    verifyUnmodified(u7);
+    verifyUnmodified(u8);
+  }
+
+  @Test
+  public void resetTasksWithUnknownWorkerUUIDs_with_empty_set_will_reset_all_in_progress_tasks() {
+    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, null);
+    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
+    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, null);
+    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, 3, "worker2");
+    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, 0, null);
+    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, 1, "worker1");
+    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, 2, "worker2");
+    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, 3, "worker3");
+
+    underTest.resetTasksWithUnknownWorkerUUIDs(ImmutableSet.of());
+
+    // Pending tasks must not be modified even if a workerUUID is not present
+    verifyUnmodified(u1);
+    verifyUnmodified(u2);
+    verifyUnmodified(u3);
+    verifyUnmodified(u4);
+
+    // Unknown worker : null, "worker1"
+    verifyReset(u5);
+    verifyReset(u6);
+    verifyReset(u7);
+    verifyReset(u8);
+  }
+
+  @Test
+  public void resetTasksWithUnknownWorkerUUIDs_with_worker_without_tasks_will_reset_all_in_progress_tasks() {
+    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, null);
+    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
+    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, null);
+    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, 3, "worker2");
+    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, 0, null);
+    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, 1, "worker1");
+    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, 2, "worker2");
+    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, 3, "worker3");
+
+    underTest.resetTasksWithUnknownWorkerUUIDs(ImmutableSet.of("worker1000", "worker1001"));
+
+    // Pending tasks must not be modified even if a workerUUID is not present
+    verifyUnmodified(u1);
+    verifyUnmodified(u2);
+    verifyUnmodified(u3);
+    verifyUnmodified(u4);
+
+    // Unknown worker : null, "worker1"
+    verifyReset(u5);
+    verifyReset(u6);
+    verifyReset(u7);
+    verifyReset(u8);
+  }
+
+  private void verifyReset(CeQueueDto original) {
+    CeQueueDto dto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), original.getUuid()).get();
+    // We do not touch ExecutionCount nor CreatedAt
+    assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
+    assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
+
+    // Status must have changed to PENDING and must not be equal to previous status
+    assertThat(dto.getStatus()).isEqualTo(CeQueueDto.Status.PENDING).isNotEqualTo(original.getStatus());
+    // UpdatedAt must have been updated
+    assertThat(dto.getUpdatedAt()).isNotEqualTo(original.getUpdatedAt());
+    // StartedAt must be null
+    assertThat(dto.getStartedAt()).isNull();
+    // WorkerUuid must be null
+    assertThat(dto.getWorkerUuid()).isNull();
+  }
+
+  private void verifyUnmodified(CeQueueDto original) {
     CeQueueDto dto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), original.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(original.getStatus());
     assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());

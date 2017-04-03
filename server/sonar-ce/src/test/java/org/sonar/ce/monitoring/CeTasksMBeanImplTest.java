@@ -143,6 +143,16 @@ public class CeTasksMBeanImplTest {
     public long getCancelWornOutsDelay() {
       throw new UnsupportedOperationException("getCancelWornOutsDelay is not implemented");
     }
+
+    @Override
+    public long getTasksWithUnknownWorkerUUIDsInitialDelay() {
+      throw new UnsupportedOperationException("getTasksWithUnknownWorkerUUIDsInitialDelay is not implemented");
+    }
+
+    @Override
+    public long getTasksWithUnknownWorkerUUIDsDelay() {
+      throw new UnsupportedOperationException("getTasksWithUnknownWorkerUUIDsDelay is not implemented");
+    }
   }
 
   @CheckForNull

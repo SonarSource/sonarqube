@@ -21,6 +21,7 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class CeWorkerCallableImplTest {
+public class CeWorkerImplTest {
 
   @Rule
   public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
@@ -56,8 +57,15 @@ public class CeWorkerCallableImplTest {
   private ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   private CeLogging ceLogging = spy(CeLogging.class);
   private ArgumentCaptor<String> workerUuid = ArgumentCaptor.forClass(String.class);
-  private CeWorkerCallable underTest = new CeWorkerCallableImpl(queue, ceLogging, taskProcessorRepository);
+  private CeWorker underTest = new CeWorkerImpl(queue, ceLogging, taskProcessorRepository, UUID.randomUUID().toString());
   private InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
+
+  @Test
+  public void getUUID_must_return_the_uuid_of_constructor() {
+    String uuid = UUID.randomUUID().toString();
+    CeWorker underTest = new CeWorkerImpl(queue, ceLogging, taskProcessorRepository, uuid);
+    assertThat(underTest.getUUID()).isEqualTo(uuid);
+  }
 
   @Test
   public void no_pending_tasks_in_queue() throws Exception {
@@ -226,7 +234,7 @@ public class CeWorkerCallableImplTest {
 
   private void verifyWorkerUuid() {
     verify(queue).peek(workerUuid.capture());
-    assertThat(workerUuid.getValue()).startsWith("uuid");
+    assertThat(workerUuid.getValue()).startsWith(workerUuid.getValue());
   }
 
   private static CeTask createCeTask(@Nullable String submitterLogin) {

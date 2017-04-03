@@ -252,4 +252,30 @@
       uuid=#{uuid,jdbcType=VARCHAR}
   </delete>
 
+  <update id="resetTasksWithUnknownWorkerUUIDs">
+    update ce_queue set
+      status='PENDING',
+      worker_uuid=NULL,
+      started_at=NULL,
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      status = 'IN_PROGRESS'
+    and (
+      worker_uuid is NULL
+      or worker_uuid not in
+      <foreach collection="knownWorkerUUIDs" open="(" close=")" item="workerUUID" separator=",">
+        #{workerUUID,jdbcType=VARCHAR}
+      </foreach>
+    )
+  </update>
+
+  <update id="resetAllInProgressTasks">
+    update ce_queue set
+      status='PENDING',
+      worker_uuid=NULL,
+      started_at=NULL,
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      status = 'IN_PROGRESS'
+  </update>
 </mapper>

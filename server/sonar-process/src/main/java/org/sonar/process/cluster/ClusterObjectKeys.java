@@ -17,13 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import org.sonar.server.util.StoppableExecutorService;
+package org.sonar.process.cluster;
 
 /**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerImpl}.
+ * This interface holds all object keys accessible via Hazelcast
  */
-public interface CeProcessingSchedulerExecutorService extends StoppableExecutorService, ListeningScheduledExecutorService {
+public interface ClusterObjectKeys {
+
+  /**
+   * The key of replicated map that hold all operational processes
+   */
+  String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
+  /**
+   * The key of atomic reference holding the leader UUID
+   */
+  String LEADER = "LEADER";
+  /**
+   * The key of the hostname attribute of a member
+   */
+  String HOSTNAME = "HOSTNAME";
+  /**
+   * The key of atomic reference holding the SonarQube version of the cluster
+   */
+  String SONARQUBE_VERSION = "SONARQUBE_VERSION";
+  /**
+   * The key of the Set holding the UUIDs of clients
+   */
+  String CLIENT_UUIDS = "CLIENT_UUIDS";
+  /**
+   * The key of replicated map holding the CeWorker UUIDs
+   */
+  String WORKER_UUIDS = "WORKER_UUIDS";
 }

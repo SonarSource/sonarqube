@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -86,7 +87,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         queueStatus.addInProgress();
       }
       return Optional.ofNullable(task);
-
     }
   }
 
@@ -169,6 +169,14 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         updateQueueStatus(CeActivityDto.Status.CANCELED, activityDto);
         remove(dbSession, queueDto, activityDto);
       });
+    }
+  }
+
+  @Override
+  public void resetTasksWithUnknownWorkerUUIDs(Set<String> knownWorkerUUIDs) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.ceQueueDao().resetTasksWithUnknownWorkerUUIDs(dbSession, knownWorkerUUIDs);
+      dbSession.commit();
     }
   }
 

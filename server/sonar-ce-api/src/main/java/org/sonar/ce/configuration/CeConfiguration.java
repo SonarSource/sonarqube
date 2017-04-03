@@ -27,8 +27,8 @@ public interface CeConfiguration {
   int getWorkerCount();
 
   /**
-   * The delay in milliseconds before calling another {@link org.sonar.server.computation.taskprocessor.CeWorkerCallable}
-   * when previous one had nothing to do.
+   * The delay in millisecond before a {@link CeWorker} shall try and find a task
+   * to process when it's previous execution had nothing to do.
    */
   long getQueuePollingDelay();
 
@@ -41,4 +41,15 @@ public interface CeConfiguration {
    * Delay between the end of a run and the start of the next one of the job that cancels worn out CE tasks (in minutes).
    */
   long getCancelWornOutsDelay();
+
+  /**
+   * Delay before running job that reset tasks that does not have an existing worker UUID (in minutes).
+   */
+  long getTasksWithUnknownWorkerUUIDsInitialDelay();
+
+  /**
+   * Delay between the end of a run and the start of the next one of the job that reset tasks that does not have
+   * an existing worker UUID (in minutes).
+   */
+  long getTasksWithUnknownWorkerUUIDsDelay();
 }
