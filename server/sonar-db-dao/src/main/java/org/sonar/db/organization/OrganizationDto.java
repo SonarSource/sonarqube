@@ -41,6 +41,7 @@ public class OrganizationDto {
   private boolean guarded = false;
   /** If of the user for whom the organization was created, can be null. */
   private Integer userId;
+  private Integer defaultGroupId;
   private long createdAt;
   private long updatedAt;
 
@@ -114,6 +115,16 @@ public class OrganizationDto {
 
   public OrganizationDto setUserId(@Nullable Integer userId) {
     this.userId = userId;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getDefaultGroupId() {
+    return defaultGroupId;
+  }
+
+  public OrganizationDto setDefaultGroupId(@Nullable Integer defaultGroupId) {
+    this.defaultGroupId = defaultGroupId;
     return this;
   }
 
