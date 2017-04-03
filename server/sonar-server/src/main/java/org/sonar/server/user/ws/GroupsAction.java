@@ -72,13 +72,15 @@ public class GroupsAction implements UsersWsAction {
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("groups")
-      .setDescription("Lists the groups a user belongs to. Requires Administer System permission.")
+      .setDescription("Lists the groups a user belongs to. <br/>" +
+        "Requires Administer System permission.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("groups-example.json"))
       .addSelectionModeParam()
       .addSearchQuery("users", "group names")
       .addPagingParams(25)
-      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"))
+      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"),
+        new Change("6.4", "'default' response field has been added"))
       .setSince("5.2");
 
     action.createParam(PARAM_LOGIN)
@@ -104,6 +106,7 @@ public class GroupsAction implements UsersWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = findOrganizationByKey(dbSession, request.getOrganization());
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+      Optional<Integer> defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organization.getUuid());
 
       String login = request.getLogin();
       GroupMembershipQuery query = GroupMembershipQuery.builder()
@@ -117,7 +120,7 @@ public class GroupsAction implements UsersWsAction {
       int total = dbClient.groupMembershipDao().countGroups(dbSession, query, user.getId());
       Paging paging = forPageIndex(query.pageIndex()).withPageSize(query.pageSize()).andTotal(total);
       List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getId(), paging.offset(), query.pageSize());
-      return buildResponse(groups, paging);
+      return buildResponse(groups, defaultGroupId, paging);
     }
   }
 
@@ -152,9 +155,9 @@ public class GroupsAction implements UsersWsAction {
     return membership;
   }
 
-  private static GroupsWsResponse buildResponse(List<GroupMembershipDto> groups, Paging paging) {
+  private static GroupsWsResponse buildResponse(List<GroupMembershipDto> groups, Optional<Integer> defaultGroupId, Paging paging) {
     GroupsWsResponse.Builder responseBuilder = GroupsWsResponse.newBuilder();
-    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group)));
+    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group, defaultGroupId)));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
@@ -163,11 +166,12 @@ public class GroupsAction implements UsersWsAction {
     return responseBuilder.build();
   }
 
-  private static Group toWsGroup(GroupMembershipDto group) {
+  private static Group toWsGroup(GroupMembershipDto group, Optional<Integer> defaultGroupId) {
     Group.Builder groupBuilder = Group.newBuilder()
       .setId(group.getId())
       .setName(group.getName())
       .setSelected(group.getUserId() != null);
+    defaultGroupId.ifPresent(defaultGroup -> groupBuilder.setDefault(defaultGroup.longValue() == group.getId()));
     Protobuf.setNullable(group.getDescription(), groupBuilder::setDescription);
     return groupBuilder.build();
   }
