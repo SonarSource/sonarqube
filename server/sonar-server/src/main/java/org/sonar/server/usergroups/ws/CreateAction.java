@@ -103,7 +103,7 @@ public class CreateAction implements UserGroupsWsAction {
   }
 
   private void writeResponse(Request request, Response response, OrganizationDto organization, GroupDto group) {
-    WsUserGroups.CreateResponse.Builder respBuilder = WsUserGroups.CreateResponse.newBuilder();
+    WsUserGroups.CreateWsResponse.Builder respBuilder = WsUserGroups.CreateWsResponse.newBuilder();
     respBuilder.setGroup(toProtobuf(organization, group, 0));
     writeProtobuf(respBuilder.build(), request, response);
   }

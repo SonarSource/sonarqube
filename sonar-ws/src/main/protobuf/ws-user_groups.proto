@@ -25,13 +25,18 @@ option java_outer_classname = "WsUserGroups";
 option optimize_for = SPEED;
 
 // WS api/user_groups/create
-message CreateResponse {
+message CreateWsResponse {
   optional Group group = 1;
 }
 
 // WS api/user_groups/update
-message UpdateResponse {
+message UpdateWsResponse {
   optional Group group = 1;
+}
+
+// WS api/user_groups/search
+message SearchWsResponse {
+  repeated Group groups = 1;
 }
 
 message Group {
