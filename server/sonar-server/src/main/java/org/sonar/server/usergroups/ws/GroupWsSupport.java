@@ -34,6 +34,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.WsUserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -152,15 +153,14 @@ public class GroupWsSupport {
     checkArgument(!SONAR_USERS_GROUP_NAME.equals(groupDto.getName()), "Default group '%s' cannot be used to perform this action", SONAR_USERS_GROUP_NAME);
   }
 
-  static WsUserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount) {
+  static WsUserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {
     WsUserGroups.Group.Builder wsGroup = WsUserGroups.Group.newBuilder()
       .setId(group.getId())
       .setOrganization(organization.getKey())
       .setName(group.getName())
-      .setMembersCount(membersCount);
-    if (group.getDescription() != null) {
-      wsGroup.setDescription(group.getDescription());
-    }
+      .setMembersCount(membersCount)
+      .setDefault(isDefault);
+    setNullable(group.getDescription(), wsGroup::setDescription);
     return wsGroup;
   }
 
