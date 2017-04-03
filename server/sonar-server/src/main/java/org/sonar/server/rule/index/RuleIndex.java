@@ -186,9 +186,6 @@ public class RuleIndex {
     qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_KEY), queryString).operator(MatchQueryBuilder.Operator.AND).boost(30f));
     qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_RULE_KEY), queryString).operator(MatchQueryBuilder.Operator.AND).boost(15f));
     qb.should(termQuery(FIELD_RULE_LANGUAGE, queryString, 3f));
-    qb.should(termQuery(FIELD_RULE_ALL_TAGS, queryString, 10f));
-    qb.should(termAnyQuery(FIELD_RULE_ALL_TAGS, queryString, 1f));
-
     return qb;
   }
 
