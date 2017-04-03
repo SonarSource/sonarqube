@@ -9,13 +9,15 @@
       "id": 1,
       "name": "sonar-admins",
       "description": "Sonar Admins",
-      "selected": false
+      "selected": false,
+      "default": false
     },
     {
       "id": 2,
       "name": "sonar-users",
       "description": "Sonar Users",
-      "selected": true
+      "selected": true,
+      "default": true
     }
   ]
 }
