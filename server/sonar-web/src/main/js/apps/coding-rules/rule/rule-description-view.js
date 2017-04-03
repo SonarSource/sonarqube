@@ -97,7 +97,7 @@ export default Marionette.ItemView.extend({
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       isCustom: this.model.get('isCustom'),
-      canCustomizeRule: this.options.app.canCustomizeRule
+      canCustomizeRule: this.options.app.canWrite && this.options.app.customRules
     };
   }
 });

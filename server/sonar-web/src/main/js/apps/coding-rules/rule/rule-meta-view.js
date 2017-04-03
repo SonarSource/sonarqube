@@ -112,7 +112,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
 
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      canCustomizeRule: this.options.app.canCustomizeRule,
+      canCustomizeRule: this.options.app.canWrite && this.options.app.customRules,
       allTags: union(this.model.get('sysTags'), this.model.get('tags')),
       permalink: window.baseUrl + permalinkPath + '#rule_key=' + encodeURIComponent(this.model.id)
     };

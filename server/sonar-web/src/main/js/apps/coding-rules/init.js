@@ -35,12 +35,15 @@ import FiltersView from './filters-view';
 
 const App = new Marionette.Application();
 
-App.on('start', function(options: { el: HTMLElement, organization: ?string }) {
+App.on('start', function(options: {
+  el: HTMLElement,
+  organization: ?string,
+  isDefaultOrganization: boolean
+}) {
   const data = options.organization ? { organization: options.organization } : {};
   $.get(window.baseUrl + '/api/rules/app', data)
     .done(r => {
-      App.canCreateCustomRule = r.canCreateCustomRule;
-      App.canCustomizeRule = r.canCustomizeRule;
+      App.customRules = options.organization == null || options.isDefaultOrganization;
       App.canWrite = r.canWrite;
       App.organization = options.organization;
       App.qualityProfiles = sortBy(r.qualityprofiles, ['name', 'lang']);
@@ -56,7 +59,23 @@ App.on('start', function(options: { el: HTMLElement, organization: ?string }) {
       this.layout.render();
       $('#footer').addClass('search-navigator-footer');
 
-      this.state = new State();
+      const allFacets = [
+        'q',
+        'rule_key',
+        'languages',
+        'types',
+        'tags',
+        'repositories',
+        'severities',
+        'statuses',
+        'available_since',
+        App.customRules ? 'is_template' : null,
+        'qprofile',
+        'inheritance',
+        'active_severities'
+      ].filter(f => f != null);
+
+      this.state = new State({ allFacets });
       this.list = new Rules();
       this.facets = new Facets();
 
@@ -94,8 +113,8 @@ App.on('start', function(options: { el: HTMLElement, organization: ?string }) {
     });
 });
 
-export default function(el: HTMLElement, organization: ?string) {
-  App.start({ el, organization });
+export default function(el: HTMLElement, organization: ?string, isDefaultOrganization: boolean) {
+  App.start({ el, organization, isDefaultOrganization });
 
   return () => {
     // $FlowFixMe

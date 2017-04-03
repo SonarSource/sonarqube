@@ -56,7 +56,7 @@ export default Marionette.CompositeView.extend({
   serializeData() {
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      canCreateCustomRule: this.options.app.canCreateCustomRule
+      canCreateCustomRule: this.options.app.customRules && this.options.app.canWrite
     };
   }
 });
