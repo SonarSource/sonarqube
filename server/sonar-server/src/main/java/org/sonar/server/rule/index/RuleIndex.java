@@ -253,7 +253,6 @@ public class RuleIndex {
     if (isNotEmpty(query.getTags())) {
       BoolQueryBuilder q = boolQuery();
       String organizationUuid = query.getOrganizationUuid();
-      checkArgument(organizationUuid != null, "Cannot filter on tags '%s', if no organization is specified.", query.getTags());
       query.getTags().stream()
         .map(tag -> boolQuery()
           .filter(QueryBuilders.termQuery(FIELD_RULE_EXTENSION_TAGS, tag))

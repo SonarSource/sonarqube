@@ -24,7 +24,6 @@ import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -57,7 +56,6 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
@@ -309,7 +307,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_all_active_rules() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
@@ -326,6 +324,7 @@ public class SearchActionMediumTest {
     request.setParam(WebService.Param.TEXT_QUERY, "x1");
     request.setParam(PARAM_ACTIVATION, "true");
     request.setParam(WebService.Param.FIELDS, "");
+    request.setParam("organization", defaultOrganizationDto.getKey());
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "search_active_rules.json");
@@ -333,10 +332,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_profile_active_rules() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123");
+    QualityProfileDto profile2 = QProfileTesting.newXooP2(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile2);
 
     dbSession.commit();
@@ -405,10 +404,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_profile_active_rules_with_inheritance() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    QualityProfileDto profile2 = QProfileTesting.newXooP2("org-123").setParentKee(profile.getKee());
+    QualityProfileDto profile2 = QProfileTesting.newXooP2(defaultOrganizationDto).setParentKee(profile.getKee());
     tester.get(QualityProfileDao.class).insert(dbSession, profile2);
 
     dbSession.commit();
@@ -436,7 +435,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_all_active_rules_params() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
+    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
     insertRule(rule);
@@ -498,10 +497,10 @@ public class SearchActionMediumTest {
     result.assertJson(this.getClass(), "get_note_as_markdown_and_html.json");
   }
 
-  @Ignore
   @Test
   public void filter_by_tags() throws Exception {
     insertRule(RuleTesting.newRule()
+      .setRepositoryKey("xoo").setRuleKey("x1")
       .setSystemTags(ImmutableSet.of("tag1")));
     insertRule(RuleTesting.newRule()
       .setSystemTags(ImmutableSet.of("tag2")));

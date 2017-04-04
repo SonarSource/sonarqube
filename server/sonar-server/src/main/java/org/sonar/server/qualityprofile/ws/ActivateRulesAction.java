@@ -79,10 +79,11 @@ public class ActivateRulesAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     String qualityProfileKey = request.mandatoryParam(PROFILE_KEY);
     userSession.checkLoggedIn();
+    BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
       wsSupport.checkPermission(dbSession, qualityProfileKey);
+      result = ruleActivator.bulkActivate(ruleQueryFactory.createRuleQuery(dbSession, request), qualityProfileKey, request.param(SEVERITY));
     }
-    BulkChangeResult result = ruleActivator.bulkActivate(ruleQueryFactory.createRuleQuery(request), qualityProfileKey, request.param(SEVERITY));
     BulkChangeWsResponse.writeResponse(result, response);
   }
 }

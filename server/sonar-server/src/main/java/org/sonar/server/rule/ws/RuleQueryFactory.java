@@ -22,6 +22,7 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -29,9 +30,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleQuery;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.util.EnumUtils.toEnums;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
@@ -39,6 +44,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SIN
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
@@ -52,21 +58,23 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TYPES;
 public class RuleQueryFactory {
 
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleQueryFactory(DbClient dbClient) {
+  public RuleQueryFactory(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
    * Create a {@link RuleQuery} from a {@link Request}.
    * When a profile key is set, the language of the profile is automatically set in the query
    */
-  public RuleQuery createRuleQuery(Request request) {
-    RuleQuery ruleQuery = createRuleQuery(new RuleQuery(), request);
+  public RuleQuery createRuleQuery(DbSession dbSession, Request request) {
+    RuleQuery ruleQuery = createRuleQuery(dbSession, new RuleQuery(), request);
 
     String qProfileKey = ruleQuery.getQProfileKey();
     if (qProfileKey != null) {
-      QualityProfileDto qProfile = getProfileByKey(qProfileKey);
+      QualityProfileDto qProfile = getProfileByKey(dbSession, qProfileKey);
       if (qProfile != null) {
         ruleQuery.setLanguages(ImmutableList.of(qProfile.getLanguage()));
       }
@@ -74,7 +82,7 @@ public class RuleQueryFactory {
     return ruleQuery;
   }
 
-  private static RuleQuery createRuleQuery(RuleQuery query, Request request) {
+  private RuleQuery createRuleQuery(DbSession dbSession, RuleQuery query, Request request) {
     query.setQueryText(request.param(WebService.Param.TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
@@ -91,6 +99,7 @@ public class RuleQueryFactory {
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setTypes(toEnums(request.paramAsStrings(PARAM_TYPES), RuleType.class));
     query.setKey(request.param(PARAM_RULE_KEY));
+    query.setOrganizationUuid(getOrganization(dbSession, request.param(PARAM_ORGANIZATION)).getUuid());
 
     String sortParam = request.param(WebService.Param.SORT);
     if (sortParam != null) {
@@ -100,14 +109,16 @@ public class RuleQueryFactory {
     return query;
   }
 
+  private OrganizationDto getOrganization(DbSession dbSession, @Nullable String organizationKey) {
+    return dbClient.organizationDao()
+      .selectByKey(dbSession, ofNullable(organizationKey).orElseGet(() -> defaultOrganizationProvider.get().getKey()))
+      .orElseThrow(() -> new NotFoundException(
+        String.format("Could not find organization with key '%s'", ofNullable(organizationKey).orElseGet(() -> defaultOrganizationProvider.get().getKey()))));
+  }
+
   @CheckForNull
-  private QualityProfileDto getProfileByKey(String key) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return dbClient.qualityProfileDao().selectByKey(dbSession, key);
-    } finally {
-      dbSession.close();
-    }
+  private QualityProfileDto getProfileByKey(DbSession dbSession, String key) {
+    return dbClient.qualityProfileDao().selectByKey(dbSession, key);
   }
 
 }
