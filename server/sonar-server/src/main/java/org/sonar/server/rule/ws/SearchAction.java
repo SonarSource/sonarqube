@@ -53,7 +53,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -88,6 +87,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SIN
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
@@ -116,16 +116,13 @@ public class SearchAction implements RulesWsAction {
   private final RuleIndex ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapper mapper;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper) {
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
     this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
     this.mapper = mapper;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -160,7 +157,7 @@ public class SearchAction implements RulesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchWsRequest searchWsRequest = toSearchWsRequest(request);
       SearchOptions context = buildSearchOptions(searchWsRequest);
-      RuleQuery query = ruleQueryFactory.createRuleQuery(request);
+      RuleQuery query = ruleQueryFactory.createRuleQuery(dbSession, request);
       SearchResult searchResult = doSearch(dbSession, query, context);
       SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult, query);
       writeProtobuf(responseBuilder, request, response);
@@ -301,6 +298,13 @@ public class SearchAction implements RulesWsAction {
       .setDescription("Ascending sort")
       .setBooleanPossibleValues()
       .setDefaultValue(true);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
   }
 
   private void writeRules(SearchResponse.Builder response, SearchResult result, SearchOptions context) {
@@ -341,7 +345,7 @@ public class SearchAction implements RulesWsAction {
     List<RuleKey> ruleKeys = result.getIds();
     // rule order is managed by ES
     Map<RuleKey, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
-      dbClient.ruleDao().selectByKeys(dbSession, defaultOrganizationProvider.get().getUuid(), ruleKeys), RuleDto::getKey);
+      dbClient.ruleDao().selectByKeys(dbSession, query.getOrganizationUuid(), ruleKeys), RuleDto::getKey);
     List<RuleDto> rules = new ArrayList<>();
     for (RuleKey ruleKey : ruleKeys) {
       RuleDto rule = rulesByRuleKey.get(ruleKey);

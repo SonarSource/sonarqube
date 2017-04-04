@@ -90,7 +90,8 @@ public class DeactivateRulesActionTest {
       "rule_key",
       "available_since",
       "activation",
-      "severities"
+      "severities",
+      "organization"
     );
   }
 
