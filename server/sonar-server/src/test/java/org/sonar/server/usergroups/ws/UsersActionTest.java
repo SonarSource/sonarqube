@@ -113,7 +113,9 @@ public class UsersActionTest {
   public void return_members_by_group_id() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
+    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
@@ -161,7 +163,9 @@ public class UsersActionTest {
   public void references_group_in_default_organization_by_its_name() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
+    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
@@ -183,7 +187,9 @@ public class UsersActionTest {
   public void filter_members_by_name() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a group");
     UserDto adaLovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    db.organizations().addMember(db.getDefaultOrganization(), adaLovelace);
     UserDto graceHopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.organizations().addMember(db.getDefaultOrganization(), graceHopper);
     db.users().insertMember(group, adaLovelace);
     db.users().insertMember(group, graceHopper);
     loginAsAdminOnDefaultOrganization();
@@ -197,7 +203,9 @@ public class UsersActionTest {
   public void selected_users() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a group");
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
@@ -225,7 +233,9 @@ public class UsersActionTest {
   public void deselected_users() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
@@ -246,7 +256,9 @@ public class UsersActionTest {
   public void paging() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 
@@ -284,7 +296,9 @@ public class UsersActionTest {
   public void filtering_by_name_email_and_login() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace").setEmail("ada@email.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), lovelace);
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper").setEmail("grace@hopper.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
     loginAsAdminOnDefaultOrganization();
 

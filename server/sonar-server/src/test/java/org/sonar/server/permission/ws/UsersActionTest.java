@@ -54,7 +54,9 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_for_users_with_response_example() throws Exception {
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), user1);
     UserDto user2 = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
+    db.organizations().addMember(db.getDefaultOrganization(), user2);
     db.users().insertPermissionOnUser(user1, ADMINISTER);
     db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
     db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
@@ -81,15 +83,18 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User has permission on project
     ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
     UserDto user = db.users().insertUser(newUserDto());
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User has permission on another project
     ComponentDto anotherProject = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
     UserDto userHavePermissionOnAnotherProject = db.users().insertUser(newUserDto());
+    db.organizations().addMember(db.getDefaultOrganization(), userHavePermissionOnAnotherProject);
     db.users().insertProjectPermissionOnUser(userHavePermissionOnAnotherProject, ISSUE_ADMIN, anotherProject);
 
     // User has no permission
     UserDto withoutPermission = db.users().insertUser(newUserDto());
+    db.organizations().addMember(db.getDefaultOrganization(), withoutPermission);
 
     userSession.logIn().addProjectUuidPermissions(SYSTEM_ADMIN, project.uuid());
     String result = newRequest()
@@ -108,10 +113,12 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User have permission on project
     ComponentDto project = db.components().insertProject();
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User has no permission
     UserDto withoutPermission = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), withoutPermission);
 
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
@@ -129,11 +136,14 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User with permission on project
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
+    db.organizations().addMember(db.getDefaultOrganization(), withoutPermission);
     UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", "another-user"));
+    db.organizations().addMember(db.getDefaultOrganization(), anotherUser);
 
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
@@ -150,11 +160,14 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User with permission on project
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
+    db.organizations().addMember(db.getDefaultOrganization(), withoutPermission);
     UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", "another-user"));
+    db.organizations().addMember(db.getDefaultOrganization(), anotherUser);
 
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).setParam(TEXT_QUERY, "email").execute().getInput();
@@ -167,11 +180,14 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User with permission on project
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
+    db.organizations().addMember(db.getDefaultOrganization(), withoutPermission);
     UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", "another-user"));
+    db.organizations().addMember(db.getDefaultOrganization(), anotherUser);
 
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).setParam(TEXT_QUERY, "login").execute().getInput();
@@ -268,8 +284,11 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   private void insertUsersHavingGlobalPermissions() {
     UserDto user1 = db.users().insertUser(newUserDto("login-1", "name-1", "email-1"));
+    db.organizations().addMember(db.getDefaultOrganization(), user1);
     UserDto user2 = db.users().insertUser(newUserDto("login-2", "name-2", "email-2"));
+    db.organizations().addMember(db.getDefaultOrganization(), user2);
     UserDto user3 = db.users().insertUser(newUserDto("login-3", "name-3", "email-3"));
+    db.organizations().addMember(db.getDefaultOrganization(), user3);
     db.users().insertPermissionOnUser(user1, SCAN);
     db.users().insertPermissionOnUser(user2, SCAN);
     db.users().insertPermissionOnUser(user3, ADMINISTER);
