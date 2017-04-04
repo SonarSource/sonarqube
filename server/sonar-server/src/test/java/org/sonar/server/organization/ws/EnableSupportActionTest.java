@@ -20,13 +20,17 @@
 package org.sonar.server.organization.ws;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -40,6 +44,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class EnableSupportActionTest {
@@ -60,6 +65,7 @@ public class EnableSupportActionTest {
   public void enabling_support_saves_internal_property_and_flags_caller_as_root() {
     UserDto user = db.users().insertUser();
     UserDto otherUser = db.users().insertUser();
+    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
     verifyFeatureEnabled(false);
     verifyRoot(user, false);
     verifyRoot(otherUser, false);
@@ -82,6 +88,7 @@ public class EnableSupportActionTest {
     db.organizations().addMember(defaultOrganization, user1);
     db.organizations().addMember(defaultOrganization, user2);
     db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
+    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
     logInAsSystemAdministrator(user1.getLogin());
 
     call();
@@ -94,6 +101,29 @@ public class EnableSupportActionTest {
     assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), user1.getId())).containsOnly(defaultGroupId.get());
     assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), user2.getId())).containsOnly(defaultGroupId.get());
     assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), userInAnotherOrganization.getId())).isEmpty();
+  }
+
+  @Test
+  public void enabling_support_copy_sonar_users_permission_to_members_group() throws Exception {
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+    UserDto user = db.users().insertUser();
+    GroupDto sonarUsersGroup = db.users().insertDefaultGroup(defaultOrganization, "sonar-users");
+    ComponentDto project = db.components().insertProject(defaultOrganization);
+    db.users().insertPermissionOnGroup(sonarUsersGroup, "user");
+    db.users().insertProjectPermissionOnGroup(sonarUsersGroup, "codeviewer", project);
+    // Should be ignored
+    GroupDto anotherGroup = db.users().insertGroup();
+    db.users().insertPermissionOnGroup(anotherGroup, "admin");
+    logInAsSystemAdministrator(user.getLogin());
+
+    call();
+
+    int defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), defaultOrganization.getUuid()).get();
+    assertThat(defaultGroupId).isNotEqualTo(sonarUsersGroup.getId());
+    List<GroupPermissionDto> result = new ArrayList<>();
+    db.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(db.getSession(), defaultOrganization.getUuid(), defaultGroupId, context -> result.add((GroupPermissionDto) context.getResultObject()));
+    assertThat(result).extracting(GroupPermissionDto::getResourceId, GroupPermissionDto::getRole).containsOnly(
+      tuple(null, "user"), tuple(project.getId(), "codeviewer"));
   }
 
   @Test
@@ -129,7 +159,19 @@ public class EnableSupportActionTest {
   }
 
   @Test
+  public void throw_ISE_when_default_organization_has_not_default_group() {
+    UserDto user = db.users().insertUser();
+    logInAsSystemAdministrator(user.getLogin());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(String.format("Default group doesn't exist on default organization '%s'", defaultOrganizationProvider.get().getKey()));
+
+    call();
+  }
+
+  @Test
   public void do_nothing_if_support_is_already_enabled() {
+    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
     logInAsSystemAdministrator("foo");
 
     call();
