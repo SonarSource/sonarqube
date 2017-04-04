@@ -399,4 +399,20 @@
     where
       organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </select>
+
+  <select id="selectAllGroupPermissionTemplatesByGroupId" parameterType="Long" resultType="PermissionTemplateGroup">
+    SELECT
+      ptg.id,
+      ptg.template_id as templateId,
+      ptg.permission_reference AS permission,
+      ptg.group_id AS groupId,
+      g.name AS groupName,
+      ptg.created_at as createdAt,
+      ptg.updated_at as updatedAt
+    FROM perm_templates_groups ptg
+    INNER JOIN groups g ON g.id=ptg.group_id
+    <where>
+      ptg.group_id=#{groupId,jdbcType=INTEGER}
+    </where>
+  </select>
 </mapper>
