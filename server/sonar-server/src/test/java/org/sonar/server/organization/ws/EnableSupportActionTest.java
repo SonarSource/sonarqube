@@ -42,6 +42,7 @@ import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -60,7 +61,8 @@ public class EnableSupportActionTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(db.getDbClient());
-  private EnableSupportAction underTest = new EnableSupportAction(userSession, db.getDbClient(), defaultOrganizationProvider, organizationFlags);
+  private EnableSupportAction underTest = new EnableSupportAction(userSession, db.getDbClient(), defaultOrganizationProvider, organizationFlags,
+    new DefaultGroupCreatorImpl(db.getDbClient()));
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -123,7 +125,8 @@ public class EnableSupportActionTest {
     int defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), defaultOrganization.getUuid()).get();
     assertThat(defaultGroupId).isNotEqualTo(sonarUsersGroup.getId());
     List<GroupPermissionDto> result = new ArrayList<>();
-    db.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(db.getSession(), defaultOrganization.getUuid(), defaultGroupId, context -> result.add((GroupPermissionDto) context.getResultObject()));
+    db.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(db.getSession(), defaultOrganization.getUuid(), defaultGroupId,
+      context -> result.add((GroupPermissionDto) context.getResultObject()));
     assertThat(result).extracting(GroupPermissionDto::getResourceId, GroupPermissionDto::getRole).containsOnly(
       tuple(null, "user"), tuple(project.getId(), "codeviewer"));
   }
@@ -152,6 +155,7 @@ public class EnableSupportActionTest {
   @Test
   public void throw_IAE_when_members_group_already_exists() throws Exception {
     UserDto user = db.users().insertUser();
+    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
     db.users().insertGroup(db.getDefaultOrganization(), "Members");
     logInAsSystemAdministrator(user.getLogin());
 
@@ -160,7 +164,6 @@ public class EnableSupportActionTest {
 
     call();
   }
-
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
