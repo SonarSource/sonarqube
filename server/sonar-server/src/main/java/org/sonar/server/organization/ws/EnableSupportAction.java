@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserGroupDto;
@@ -102,13 +103,28 @@ public class EnableSupportAction implements OrganizationsWsAction {
       .setDescription("All members of the organization")
       .setOrganizationUuid(defaultOrganizationUuid);
     dbClient.groupDao().insert(dbSession, members);
-    dbClient.organizationDao().setDefaultGroupId(dbSession, defaultOrganizationUuid, members);
+    copyUserGroupsPermissionsToMembersGroup(dbSession, members);
     associateMembersOfDefaultOrganizationToGroup(dbSession, members);
+    dbClient.organizationDao().setDefaultGroupId(dbSession, defaultOrganizationUuid, members);
   }
 
   private void associateMembersOfDefaultOrganizationToGroup(DbSession dbSession, GroupDto membersGroup) {
     List<Integer> organizationMembers = dbClient.organizationMemberDao().selectUserIdsByOrganizationUuid(dbSession, defaultOrganizationProvider.get().getUuid());
     organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(membersGroup.getId()).setUserId(member)));
+  }
+
+  private void copyUserGroupsPermissionsToMembersGroup(DbSession dbSession, GroupDto membersGroup) {
+    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+    int sonarUsersGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, defaultOrganizationUuid)
+      .orElseThrow(() -> new IllegalStateException(String.format("Default group doesn't exist on default organization '%s'", defaultOrganizationProvider.get().getKey())));
+    dbClient.groupPermissionDao().selectAllPermissionsByGroupId(dbSession, defaultOrganizationUuid, sonarUsersGroupId,
+      context -> {
+        GroupPermissionDto groupPermissionDto = (GroupPermissionDto) context.getResultObject();
+        dbClient.groupPermissionDao().insert(dbSession,
+          new GroupPermissionDto().setOrganizationUuid(defaultOrganizationUuid).setGroupId(membersGroup.getId())
+            .setRole(groupPermissionDto.getRole())
+            .setResourceId(groupPermissionDto.getResourceId()));
+      });
   }
 
   private void enableFeature(DbSession dbSession) {
