@@ -1,0 +1,59 @@
+exports[`test should render correctly with a tooltip 1`] = `
+<Tooltip
+  overlay="my custom tooltip"
+  placement="right">
+  <li>
+    <a
+      className=""
+      href="#"
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseOver={[Function]}>
+      myitem
+    </a>
+  </li>
+</Tooltip>
+`;
+
+exports[`test should render correctly with children 1`] = `
+<li>
+  <a
+    className=""
+    href="#"
+    onClick={[Function]}
+    onFocus={[Function]}
+    onMouseOver={[Function]}>
+    <i
+      className="custom-icon" />
+    <p>
+      seconditem
+    </p>
+  </a>
+</li>
+`;
+
+exports[`test should render correctly without children 1`] = `
+<li>
+  <a
+    className=""
+    href="#"
+    onClick={[Function]}
+    onFocus={[Function]}
+    onMouseOver={[Function]}>
+    myitem
+  </a>
+</li>
+`;
+
+exports[`test should render with the active class 1`] = `
+<li>
+  <a
+    className="active"
+    href="#"
+    onClick={[Function]}
+    onFocus={[Function]}
+    onMouseOver={[Function]}>
+    myitem
+  </a>
+</li>
+`;

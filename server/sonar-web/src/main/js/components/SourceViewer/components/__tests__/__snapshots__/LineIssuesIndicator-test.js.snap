@@ -11,7 +11,7 @@ exports[`test render highest severity 1`] = `
   onClick={[Function]}
   role="button"
   tabIndex="0">
-  <severity-icon
+  <SeverityIcon
     severity="CRITICAL" />
   <span
     className="source-line-issues-counter">
@@ -27,7 +27,7 @@ exports[`test render highest severity 2`] = `
   onClick={[Function]}
   role="button"
   tabIndex="0">
-  <severity-icon
+  <SeverityIcon
     severity="MINOR" />
   <span
     className="source-line-issues-counter">

@@ -65,6 +65,15 @@ export function getComponentIssuesUrl(componentKey, query) {
 }
 
 /**
+ * Generate URL for a single issue
+ * @param {string} issueKey
+ * @returns {string}
+ */
+export function getSingleIssueUrl(issueKey) {
+  return window.baseUrl + '/issues/search#issues=' + issueKey;
+}
+
+/**
  * Generate URL for a component's drilldown page
  * @param {string} componentKey
  * @param {string} metric
@@ -139,4 +148,8 @@ export function getDeprecatedActiveRulesUrl(query = {}, organization?: string) {
 
 export const getProjectsUrl = () => {
   return window.baseUrl + '/projects';
+};
+
+export const getMarkdownHelpUrl = () => {
+  return window.baseUrl + '/markdown/help';
 };

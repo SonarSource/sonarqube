@@ -26,7 +26,6 @@ import { searchProjectTags } from '../../../api/components';
 import { setProjectTags } from '../store/actions';
 
 type Props = {
-  open: boolean,
   position: {},
   project: string,
   selectedTags: Array<string>,
@@ -75,7 +74,6 @@ class ProjectTagsSelectorContainer extends React.PureComponent {
   render() {
     return (
       <TagsSelector
-        open={this.props.open}
         position={this.props.position}
         tags={this.state.searchResult}
         selectedTags={this.props.selectedTags}

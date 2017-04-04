@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import SeverityIcon from '../../shared/severity-icon';
+import SeverityIcon from '../../shared/SeverityIcon';
 import { sortBySeverity } from '../../../helpers/issues';
 import type { SourceLine } from '../types';
 

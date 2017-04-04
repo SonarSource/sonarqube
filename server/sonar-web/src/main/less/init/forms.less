@@ -198,9 +198,14 @@ input[type="submit"].button-grey {
   line-height: inherit;
   transition: all 0.2s ease;
 
-  &:hover, &:active, &:focus {
+  &:hover, &:focus {
     background: transparent;
     color: @blue;
+  }
+
+  &:active {
+    box-shadow: none;
+    outline: thin dotted #CCC;
   }
 
   &:disabled,

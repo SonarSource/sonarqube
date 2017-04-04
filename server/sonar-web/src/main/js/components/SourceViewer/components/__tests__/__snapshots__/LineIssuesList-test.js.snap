@@ -1,11 +1,11 @@
 exports[`test render issues list 1`] = `
 <div
   className="issue-list">
-  <Connect(Connect(Issue))
+  <Connect(BaseIssue)
     issueKey="foo"
     onClick={[Function]}
     selected={true} />
-  <Connect(Connect(Issue))
+  <Connect(BaseIssue)
     issueKey="bar"
     onClick={[Function]}
     selected={false} />

@@ -25,7 +25,6 @@ import './TagsList.css';
 type Props = {
   tags: Array<string>,
   allowUpdate: boolean,
-  allowMultiLine: boolean,
   customClass?: string
 };
 
@@ -33,23 +32,19 @@ export default class TagsList extends React.PureComponent {
   props: Props;
 
   static defaultProps = {
-    allowUpdate: false,
-    allowMultiLine: false
+    allowUpdate: false
   };
 
   render() {
     const { tags, allowUpdate } = this.props;
-    const spanClass = classNames({
-      note: !allowUpdate,
-      'text-ellipsis': !this.props.allowMultiLine
-    });
+    const spanClass = classNames('text-ellipsis', { note: !allowUpdate });
     const tagListClass = classNames('tags-list', this.props.customClass);
 
     return (
       <span className={tagListClass} title={tags.join(', ')}>
         <i className="icon-tags icon-half-transparent" />
         <span className={spanClass}>{tags.join(', ')}</span>
-        {allowUpdate && <i className="icon-dropdown icon-half-transparent" />}
+        {allowUpdate && <i className="icon-dropdown" />}
       </span>
     );
   }

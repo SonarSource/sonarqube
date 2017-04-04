@@ -17,14 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import React from 'react';
+import SelectListItem from '../SelectListItem';
 
-export default React.createClass({
-  render() {
-    if (!this.props.severity) {
-      return null;
-    }
-    const className = 'icon-severity-' + this.props.severity.toLowerCase();
-    return <i className={className} />;
-  }
+it('should render correctly without children', () => {
+  expect(shallow(<SelectListItem item="myitem" />)).toMatchSnapshot();
+});
+
+it('should render correctly with children', () => {
+  expect(
+    shallow(
+      <SelectListItem active="myitem" item="seconditem">
+        <i className="custom-icon" /><p>seconditem</p>
+      </SelectListItem>
+    )
+  ).toMatchSnapshot();
+});
+
+it('should render correctly with a tooltip', () => {
+  expect(shallow(<SelectListItem item="myitem" title="my custom tooltip" />)).toMatchSnapshot();
+});
+
+it('should render with the active class', () => {
+  expect(shallow(<SelectListItem active="myitem" item="myitem" />)).toMatchSnapshot();
 });

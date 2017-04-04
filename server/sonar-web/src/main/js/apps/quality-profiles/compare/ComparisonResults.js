@@ -21,7 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import ComparisonEmpty from './ComparisonEmpty';
-import SeverityIcon from '../../../components/shared/severity-icon';
+import SeverityIcon from '../../../components/shared/SeverityIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 

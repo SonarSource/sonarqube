@@ -18,7 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { getJSON, post } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
+
+export type IssueResponse = {
+  components?: Array<*>,
+  issue: {},
+  rules?: Array<*>,
+  users?: Array<*>
+};
 
 type IssuesResponse = {
   components?: Array<*>,
@@ -33,6 +40,15 @@ type IssuesResponse = {
   rules?: Array<*>,
   users?: Array<*>
 };
+
+export type Transition =
+  | 'confirm'
+  | 'unconfirm'
+  | 'reopen'
+  | 'resolve'
+  | 'falsepositive'
+  | 'wontfix'
+  | 'close';
 
 export const searchIssues = (query: {}): Promise<IssuesResponse> =>
   getJSON('/api/issues/search', query);
@@ -83,9 +99,58 @@ export function getIssuesCount(query: {}): Promise<*> {
 
 export const searchIssueTags = (ps: number = 500) => getJSON('/api/issues/tags', { ps });
 
+export function getIssueChangelog(issue: string): Promise<*> {
+  const url = '/api/issues/changelog';
+  return getJSON(url, { issue }).then(r => r.changelog);
+}
+
 export function getIssueFilters() {
   const url = '/api/issue_filters/search';
   return getJSON(url).then(r => r.issueFilters);
+}
+
+export function addIssueComment(data: { issue: string, text: string }): Promise<IssueResponse> {
+  const url = '/api/issues/add_comment';
+  return postJSON(url, data);
+}
+
+export function deleteIssueComment(data: { comment: string }): Promise<IssueResponse> {
+  const url = '/api/issues/delete_comment';
+  return postJSON(url, data);
+}
+
+export function editIssueComment(data: { comment: string, text: string }): Promise<IssueResponse> {
+  const url = '/api/issues/edit_comment';
+  return postJSON(url, data);
+}
+
+export function setIssueAssignee(
+  data: { issue: string, assignee?: string }
+): Promise<IssueResponse> {
+  const url = '/api/issues/assign';
+  return postJSON(url, data);
+}
+
+export function setIssueSeverity(data: { issue: string, severity: string }): Promise<*> {
+  const url = '/api/issues/set_severity';
+  return postJSON(url, data);
+}
+
+export function setIssueTags(data: { issue: string, tags: string }): Promise<IssueResponse> {
+  const url = '/api/issues/set_tags';
+  return postJSON(url, data);
+}
+
+export function setIssueTransition(
+  data: { issue: string, transition: Transition }
+): Promise<IssueResponse> {
+  const url = '/api/issues/do_transition';
+  return postJSON(url, data);
+}
+
+export function setIssueType(data: { issue: string, type: string }): Promise<IssueResponse> {
+  const url = '/api/issues/set_type';
+  return postJSON(url, data);
 }
 
 export const bulkChangeIssues = (issueKeys: Array<string>, query: {}) =>

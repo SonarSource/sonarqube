@@ -32,6 +32,10 @@
   background-color: #fff;
   background-clip: padding-box;
 
+  &:focus {
+    outline: none;
+  }
+
   > li > a,
   > li > span {
     display: block;
@@ -78,7 +82,7 @@
   padding: 4px 16px 0;
 
   .search-box-input { font-size: @smallFontSize; }
-  
+
   .search-box-submit { vertical-align: baseline; }
 }
 

@@ -19,11 +19,18 @@
  */
 // @flow
 import { connect } from 'react-redux';
-import Issue from './Issue';
+import BaseIssue from './BaseIssue';
 import { getIssueByKey } from '../../store/rootReducer';
+import { onFail } from '../../store/rootActions';
+import { updateIssue } from './actions';
 
 const mapStateToProps = (state, ownProps) => ({
   issue: getIssueByKey(state, ownProps.issueKey)
 });
 
-export default connect(mapStateToProps)(Issue);
+const mapDispatchToProps = {
+  onIssueChange: updateIssue,
+  onFail: error => dispatch => onFail(dispatch)(error)
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseIssue);

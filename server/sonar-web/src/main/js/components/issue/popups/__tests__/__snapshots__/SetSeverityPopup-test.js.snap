@@ -1,0 +1,53 @@
+exports[`test should render tags popup correctly 1`] = `
+<BubblePopup
+  customClass="bubble-popup-menu bubble-popup-bottom">
+  <SelectList
+    currentItem="MAJOR"
+    items={
+      Array [
+        "BLOCKER",
+        "CRITICAL",
+        "MAJOR",
+        "MINOR",
+        "INFO",
+      ]
+    }
+    onSelect={[Function]}>
+    <SelectListItem
+      item="BLOCKER">
+      <SeverityIcon
+        className="little-spacer-right"
+        severity="BLOCKER" />
+      severity.BLOCKER
+    </SelectListItem>
+    <SelectListItem
+      item="CRITICAL">
+      <SeverityIcon
+        className="little-spacer-right"
+        severity="CRITICAL" />
+      severity.CRITICAL
+    </SelectListItem>
+    <SelectListItem
+      item="MAJOR">
+      <SeverityIcon
+        className="little-spacer-right"
+        severity="MAJOR" />
+      severity.MAJOR
+    </SelectListItem>
+    <SelectListItem
+      item="MINOR">
+      <SeverityIcon
+        className="little-spacer-right"
+        severity="MINOR" />
+      severity.MINOR
+    </SelectListItem>
+    <SelectListItem
+      item="INFO">
+      <SeverityIcon
+        className="little-spacer-right"
+        severity="INFO" />
+      severity.INFO
+    </SelectListItem>
+  </SelectList>
+</BubblePopup>
+`;
