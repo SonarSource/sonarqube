@@ -22,6 +22,7 @@ package org.sonar.application.cluster;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
@@ -91,7 +92,7 @@ public class AppStateClusterImpl implements AppState {
   }
 
   @Override
-  public String getLeaderHostName() {
+  public Optional<String> getLeaderHostName() {
     return hazelcastCluster.getLeaderHostName();
   }
 
