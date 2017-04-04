@@ -334,6 +334,26 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
+  public void selectAllPermissionsByGroupId() throws Exception {
+    OrganizationDto org1 = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(org1, "group1");
+    ComponentDto project1 = db.components().insertProject(org1);
+    ComponentDto project2 = db.components().insertProject(org1);
+    db.users().insertPermissionOnAnyone(org1, "perm1");
+    db.users().insertPermissionOnGroup(group1, "perm2");
+    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
+    db.users().insertProjectPermissionOnGroup(group1, "perm4", project1);
+    db.users().insertProjectPermissionOnGroup(group1, "perm5", project2);
+    db.users().insertProjectPermissionOnAnyone("perm6", project1);
+
+    List<GroupPermissionDto> result = new ArrayList<>();
+    underTest.selectAllPermissionsByGroupId(dbSession, org1.getUuid(), group1.getId(), context -> result.add((GroupPermissionDto) context.getResultObject()));
+    assertThat(result).extracting(GroupPermissionDto::getResourceId, GroupPermissionDto::getRole).containsOnly(
+      tuple(null, "perm2"),
+      tuple(project1.getId(), "perm3"), tuple(project1.getId(), "perm4"), tuple(project2.getId(), "perm5"));
+  }
+
+  @Test
   public void deleteByRootComponentId() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org);

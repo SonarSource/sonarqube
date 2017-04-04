@@ -65,6 +65,14 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
+   * Select global and project permissions of a given group (Anyone group is NOT supported)
+   * Each row returns a {@link GroupPermissionDto}
+   */
+  public void selectAllPermissionsByGroupId(DbSession dbSession, String organizationUuid, Integer groupId, ResultHandler resultHandler) {
+    mapper(dbSession).selectAllPermissionsByGroupId(organizationUuid, groupId, resultHandler);
+  }
+
+  /**
    * Each row returns a {@link CountPerProjectPermission}
    */
   public void groupsCountByComponentIdAndPermission(DbSession dbSession, List<Long> componentIds, ResultHandler resultHandler) {
