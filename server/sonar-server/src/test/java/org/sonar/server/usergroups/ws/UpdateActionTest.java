@@ -57,6 +57,7 @@ public class UpdateActionTest {
   public void update_both_name_and_description() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertMember(group, user);
     loginAsAdminOnDefaultOrganization();
 

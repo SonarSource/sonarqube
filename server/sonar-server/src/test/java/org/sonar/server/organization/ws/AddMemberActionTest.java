@@ -78,6 +78,7 @@ public class AddMemberActionTest {
   public void setUp() {
     organization = db.organizations().insert();
     user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
   }
 
   @Test

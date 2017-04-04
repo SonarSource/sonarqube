@@ -89,7 +89,9 @@ public class SearchMembersActionTest {
   @Test
   public void search_members_of_default_organization() {
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     UserDto anotherUser = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), anotherUser);
     indexAllUsers();
 
     SearchMembersWsResponse result = call();
@@ -126,6 +128,7 @@ public class SearchMembersActionTest {
   @Test
   public void return_avatar() {
     UserDto user = db.users().insertUser(u -> u.setEmail("email@domain.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     indexer.index(user.getLogin());
 
     SearchMembersWsResponse result = call();
@@ -136,6 +139,7 @@ public class SearchMembersActionTest {
   @Test
   public void do_not_return_group_count_if_no_admin_permission() {
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
     indexAllUsers();
@@ -149,14 +153,15 @@ public class SearchMembersActionTest {
   public void return_group_counts_if_org_admin() {
     userSession.addPermission(OrganizationPermission.ADMINISTER, db.getDefaultOrganization());
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     UserDto anotherUser = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), anotherUser);
     IntStream.range(0, 10)
       .mapToObj(i -> db.users().insertGroup())
       .forEach(g -> db.users().insertMembers(g, user));
     OrganizationDto anotherOrganization = db.organizations().insert();
     GroupDto anotherGroup = db.users().insertGroup(anotherOrganization);
     db.users().insertMember(anotherGroup, user);
-    db.organizations().addMember(anotherOrganization, user);
     indexAllUsers();
 
     SearchMembersWsResponse result = call();
@@ -191,6 +196,7 @@ public class SearchMembersActionTest {
   public void search_members_pagination() {
     IntStream.range(0, 10).forEach(i -> {
       UserDto userDto = db.users().insertUser(user -> user.setName("USER_" + i));
+      db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
     indexAllUsers();
@@ -209,6 +215,7 @@ public class SearchMembersActionTest {
   public void search_members_by_name() {
     IntStream.range(0, 10).forEach(i -> {
       UserDto userDto = db.users().insertUser(user -> user.setName("USER_" + i));
+      db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
     indexAllUsers();
@@ -223,6 +230,7 @@ public class SearchMembersActionTest {
   public void search_members_by_login() {
     IntStream.range(0, 10).forEach(i -> {
       UserDto userDto = db.users().insertUser(user -> user.setLogin("USER_" + i));
+      db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
     indexAllUsers();
@@ -239,6 +247,7 @@ public class SearchMembersActionTest {
       UserDto userDto = db.users().insertUser(user -> user
         .setLogin("L" + i)
         .setEmail("USER_" + i + "@email.com"));
+      db.organizations().addMember(db.getDefaultOrganization(), userDto);
       indexer.index(userDto.getLogin());
     });
     indexAllUsers();
@@ -251,8 +260,10 @@ public class SearchMembersActionTest {
 
   @Test
   public void json_example() {
-    db.users().insertUser(u -> u.setLogin("ada.lovelace").setName("Ada Lovelace").setEmail("ada@lovelace.com"));
-    db.users().insertUser(u -> u.setLogin("grace.hopper").setName("Grace Hopper").setEmail("grace@hopper.com"));
+    UserDto user1 = db.users().insertUser(u -> u.setLogin("ada.lovelace").setName("Ada Lovelace").setEmail("ada@lovelace.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), user1);
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("grace.hopper").setName("Grace Hopper").setEmail("grace@hopper.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), user2);
     indexAllUsers();
 
     String result = ws.newRequest().execute().getInput();

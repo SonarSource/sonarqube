@@ -60,6 +60,7 @@ public class AddUserActionTest {
   public void add_user_to_group_referenced_by_its_id() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
@@ -74,6 +75,7 @@ public class AddUserActionTest {
   public void add_user_to_group_referenced_by_its_name() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
@@ -89,7 +91,7 @@ public class AddUserActionTest {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "a-group");
     UserDto user = db.users().insertUser("user_login");
-    addUserAsMemberOfOrganization(org, user);
+    db.organizations().addMember(org, user);
     loginAsAdmin(org);
 
     newRequest()
@@ -107,6 +109,7 @@ public class AddUserActionTest {
     GroupDto admins = db.users().insertGroup(defaultOrg, "admins");
     GroupDto users = db.users().insertGroup(defaultOrg, "users");
     UserDto user = db.users().insertUser("my-admin");
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertMember(users, user);
     loginAsAdminOnDefaultOrganization();
 
@@ -122,6 +125,7 @@ public class AddUserActionTest {
   public void do_not_fail_if_user_is_already_member_of_group() throws Exception {
     GroupDto users = db.users().insertGroup();
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertMember(users, user);
     loginAsAdminOnDefaultOrganization();
 
@@ -138,7 +142,9 @@ public class AddUserActionTest {
   public void group_has_multiple_members() throws Exception {
     GroupDto users = db.users().insertGroup();
     UserDto user1 = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user1);
     UserDto user2 = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user2);
     db.users().insertMember(users, user1);
     loginAsAdminOnDefaultOrganization();
 
@@ -155,6 +161,7 @@ public class AddUserActionTest {
   public void response_status_is_no_content() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     loginAsAdminOnDefaultOrganization();
 
     TestResponse response = newRequest()
@@ -168,6 +175,7 @@ public class AddUserActionTest {
   @Test
   public void fail_if_group_does_not_exist() throws Exception {
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(NotFoundException.class);
@@ -197,6 +205,7 @@ public class AddUserActionTest {
   public void fail_if_not_administrator() throws Exception {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -208,6 +217,7 @@ public class AddUserActionTest {
     OrganizationDto org1 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, "a-group");
     UserDto user = db.users().insertUser("user_login");
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     OrganizationDto org2 = db.organizations().insert();
     loginAsAdmin(org2);
 
@@ -226,7 +236,7 @@ public class AddUserActionTest {
     GroupDto group = db.users().insertGroup(org, "a-group");
     UserDto user = db.users().insertUser("user_login");
     OrganizationDto otherOrganization = db.organizations().insert();
-    addUserAsMemberOfOrganization(otherOrganization, user);
+    db.organizations().addMember(otherOrganization, user);
     loginAsAdmin(org);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -243,7 +253,7 @@ public class AddUserActionTest {
   public void fail_to_add_user_to_anyone() throws Exception {
     OrganizationDto organization = db.organizations().insert(org -> org.setKey("org"));
     UserDto user = db.users().insertUser();
-    addUserAsMemberOfOrganization(organization, user);
+    db.organizations().addMember(organization, user);
     loginAsAdmin(organization);
 
     expectedException.expect(NotFoundException.class);
@@ -258,11 +268,10 @@ public class AddUserActionTest {
 
   @Test
   public void fail_to_add_user_to_default_group() throws Exception {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
-    addUserAsMemberOfOrganization(organization, user);
-    GroupDto group = db.users().insertGroup(organization, "sonar-users");
-    loginAsAdmin(organization);
+    db.organizations().addMember(db.getDefaultOrganization(), user);
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
@@ -294,10 +303,6 @@ public class AddUserActionTest {
 
   private GroupWsSupport newGroupWsSupport() {
     return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
-  }
-
-  private void addUserAsMemberOfOrganization(OrganizationDto organization, UserDto user) {
-    db.organizations().addMember(organization, user);
   }
 
 }
