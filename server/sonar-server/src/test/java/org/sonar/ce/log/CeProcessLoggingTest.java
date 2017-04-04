@@ -31,6 +31,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.stream.Stream;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -424,6 +425,17 @@ public class CeProcessLoggingTest {
     LoggerContext context = underTest.configure(props);
 
     verifyImmutableLogLevels(context);
+  }
+
+  @Test
+  public void configure_turns_off_some_MsSQL_driver_logger() {
+    LoggerContext context = underTest.configure(props);
+
+    Stream.of("com.microsoft.sqlserver.jdbc.internals",
+      "com.microsoft.sqlserver.jdbc.ResultSet",
+      "com.microsoft.sqlserver.jdbc.Statement",
+      "com.microsoft.sqlserver.jdbc.Connection")
+      .forEach(loggerName -> assertThat(context.getLogger(loggerName).getLevel()).isEqualTo(Level.OFF));
   }
 
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
