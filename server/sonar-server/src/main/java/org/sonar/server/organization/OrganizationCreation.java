@@ -45,7 +45,8 @@ public interface OrganizationCreation {
    * <ol>
    *   <li>create an ungarded organization with the specified details</li>
    *   <li>create a group called {@link #OWNERS_GROUP_NAME Owners} with all organization wide permissions</li>
-   *   <li>make the specified user a member of this group</li>
+   *   <li>create a group called {@link DefaultGroupCreator#DEFAULT_GROUP_NAME members} with browse permissions</li>
+   *   <li>make the specified user a member of these groups</li>
    *   <li>create a default template for the organization
    *       <ul>
    *         <li>name is {@link #PERM_TEMPLATE_NAME Default template}</li>
@@ -57,8 +58,8 @@ public interface OrganizationCreation {
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link UserRole#ADMIN ADMIN}</li>
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link UserRole#ISSUE_ADMIN ISSUE_ADMIN}</li>
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link GlobalPermissions#SCAN_EXECUTION SCAN_EXECUTION}</li>
-   *       <li>anyone : {@link UserRole#USER USER}</li>
-   *       <li>anyone : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
+   *       <li>group {@link DefaultGroupCreator#DEFAULT_GROUP_NAME members} : {@link UserRole#USER USER}</li>
+   *       <li>group {@link DefaultGroupCreator#DEFAULT_GROUP_NAME members} : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
    *     </ul>
    *   </li>
    * </ol>
@@ -86,6 +87,8 @@ public interface OrganizationCreation {
    *       <li>url and avatar: null</li>
    *     </ul>
    *   </li>
+   *   <li>create a group called {@link DefaultGroupCreator#DEFAULT_GROUP_NAME members} with browse permissions</li>
+   *   <li>make the specified user a member of this group</li>
    *   <li>give all organization wide permissions to the user</li>
    *   <li>create a default template for the organization
    *       <ul>
@@ -99,8 +102,8 @@ public interface OrganizationCreation {
    *       <li>project creator : {@link UserRole#ADMIN ADMIN}</li>
    *       <li>project creator : {@link UserRole#ISSUE_ADMIN ISSUE_ADMIN}</li>
    *       <li>project creator : {@link GlobalPermissions#SCAN_EXECUTION SCAN_EXECUTION}</li>
-   *       <li>anyone : {@link UserRole#USER USER}</li>
-   *       <li>anyone : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
+   *       <li>group {@link DefaultGroupCreator#DEFAULT_GROUP_NAME members} : {@link UserRole#USER USER}</li>
+   *       <li>group {@link DefaultGroupCreator#DEFAULT_GROUP_NAME members} : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
    *     </ul>
    *   </li>
    * </ol>

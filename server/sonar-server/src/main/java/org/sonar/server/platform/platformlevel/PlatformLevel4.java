@@ -84,6 +84,7 @@ import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.notification.NotificationModule;
+import org.sonar.server.organization.DefaultGroupCreatorImpl;
 import org.sonar.server.organization.OrganizationCreationImpl;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.ws.OrganizationsWsModule;
@@ -352,6 +353,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // groups
       UserGroupsModule.class,
+      DefaultGroupCreatorImpl.class,
 
       // permissions
       DefaultTemplatesResolverImpl.class,
