@@ -70,7 +70,9 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   @Before
   public void setUp() {
     user1 = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user1);
     user2 = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user2);
     group1 = db.users().insertGroup();
     group2 = db.users().insertGroup();
 

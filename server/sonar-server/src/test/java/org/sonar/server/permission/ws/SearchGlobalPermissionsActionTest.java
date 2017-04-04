@@ -96,6 +96,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
     UserDto user = db.users().insertUser();
     db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SCAN);
+    db.organizations().addMember(db.getDefaultOrganization(), user);
 
     // to be ignored, by default organization is used when searching for permissions
     db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_GATES);
