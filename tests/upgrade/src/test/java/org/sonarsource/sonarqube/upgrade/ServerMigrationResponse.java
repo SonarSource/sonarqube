@@ -20,13 +20,11 @@
 package org.sonarsource.sonarqube.upgrade;
 
 import java.util.Date;
-
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 class ServerMigrationResponse {
   private final Status status;
   private final String message;
-  @Nullable
   private final Date date;
 
   ServerMigrationResponse(Status status, String message, Date date) {
@@ -43,7 +41,7 @@ class ServerMigrationResponse {
     return message;
   }
 
-  @Nullable
+  @CheckForNull
   public Date getDate() {
     return date;
   }
