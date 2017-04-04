@@ -140,6 +140,13 @@
     </choose>
   </select>
 
+  <select id="selectAllPermissionsByGroupId" parameterType="map" resultType="GroupPermission">
+    select gr.group_id as groupId, gr.resource_id as resourceId, gr.role as role, gr.organization_uuid as organizationUuid
+    from group_roles gr
+    where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    and gr.group_id = #{groupId,jdbcType=INTEGER}
+  </select>
+
   <insert id="insert" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into group_roles (
     organization_uuid,
