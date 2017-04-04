@@ -22,7 +22,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import ComparisonResults from '../ComparisonResults';
 import ComparisonEmpty from '../ComparisonEmpty';
-import SeverityIcon from '../../../../components/shared/severity-icon';
+import SeverityIcon from '../../../../components/shared/SeverityIcon';
 
 it('should render ComparisonEmpty', () => {
   const output = shallow(

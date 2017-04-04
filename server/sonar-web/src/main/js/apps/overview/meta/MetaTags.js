@@ -123,11 +123,7 @@ export default class MetaTags extends React.PureComponent {
     } else {
       return (
         <div className="overview-meta-card overview-meta-tags">
-          <TagsList
-            tags={tags.length ? tags : [translate('no_tags')]}
-            allowUpdate={false}
-            allowMultiLine={true}
-          />
+          <TagsList tags={tags.length ? tags : [translate('no_tags')]} allowUpdate={false} />
         </div>
       );
     }

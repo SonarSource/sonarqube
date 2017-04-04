@@ -1,0 +1,37 @@
+exports[`test should render tags popup correctly 1`] = `
+<BubblePopup
+  customClass="bubble-popup-menu bubble-popup-bottom">
+  <SelectList
+    currentItem="BUG"
+    items={
+      Array [
+        "BUG",
+        "VULNERABILITY",
+        "CODE_SMELL",
+      ]
+    }
+    onSelect={[Function]}>
+    <SelectListItem
+      item="BUG">
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="BUG" />
+      issue.type.BUG
+    </SelectListItem>
+    <SelectListItem
+      item="VULNERABILITY">
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="VULNERABILITY" />
+      issue.type.VULNERABILITY
+    </SelectListItem>
+    <SelectListItem
+      item="CODE_SMELL">
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="CODE_SMELL" />
+      issue.type.CODE_SMELL
+    </SelectListItem>
+  </SelectList>
+</BubblePopup>
+`;

@@ -23,7 +23,7 @@ import BugIcon from './BugIcon';
 import VulnerabilityIcon from './VulnerabilityIcon';
 import CodeSmellIcon from './CodeSmellIcon';
 
-export default class IssueTypeIcon extends React.Component {
+export default class IssueTypeIcon extends React.PureComponent {
   props: {
     className?: string,
     query: string

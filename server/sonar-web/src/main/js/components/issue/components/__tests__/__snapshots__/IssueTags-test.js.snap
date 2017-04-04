@@ -1,0 +1,89 @@
+exports[`test should open the popup when the button is clicked 1`] = `
+Array [
+  Array [
+    "edit-tags",
+    Object {
+      "currentTarget": Object {
+        "blur": [Function],
+      },
+      "preventDefault": [Function],
+      "stopPropagation": [Function],
+      "target": Object {
+        "blur": [Function],
+      },
+    },
+  ],
+]
+`;
+
+exports[`test should open the popup when the button is clicked 2`] = `
+<BubblePopupHelper
+  isOpen={true}
+  popup={
+    <SetIssueTagsPopup
+      onFail={[Function]}
+      selectedTags={
+        Array [
+          "mytag",
+          "test",
+        ]
+      }
+      setTags={[Function]} />
+  }
+  position="bottomright"
+  togglePopup={[Function]}>
+  <button
+    className="js-issue-edit-tags button-link issue-action issue-action-with-options"
+    onClick={[Function]}>
+    <TagsList
+      allowUpdate={true}
+      tags={
+        Array [
+          "mytag",
+          "test",
+        ]
+      } />
+  </button>
+</BubblePopupHelper>
+`;
+
+exports[`test should render with the action 1`] = `
+<BubblePopupHelper
+  isOpen={false}
+  popup={
+    <SetIssueTagsPopup
+      onFail={[Function]}
+      selectedTags={
+        Array [
+          "mytag",
+          "test",
+        ]
+      }
+      setTags={[Function]} />
+  }
+  position="bottomright"
+  togglePopup={[Function]}>
+  <button
+    className="js-issue-edit-tags button-link issue-action issue-action-with-options"
+    onClick={[Function]}>
+    <TagsList
+      allowUpdate={true}
+      tags={
+        Array [
+          "mytag",
+          "test",
+        ]
+      } />
+  </button>
+</BubblePopupHelper>
+`;
+
+exports[`test should render without the action when the correct rights are missing 1`] = `
+<TagsList
+  allowUpdate={false}
+  tags={
+    Array [
+      "issue.no_tag",
+    ]
+  } />
+`;

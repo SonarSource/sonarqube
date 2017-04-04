@@ -60,7 +60,6 @@ exports[`test should display tags 1`] = `
       </Link>
     </h2>
     <TagsList
-      allowMultiLine={false}
       allowUpdate={false}
       customClass="spacer-left"
       tags={

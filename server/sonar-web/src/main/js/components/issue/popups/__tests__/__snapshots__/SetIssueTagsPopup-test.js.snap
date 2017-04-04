@@ -1,0 +1,15 @@
+exports[`test should render tags popup correctly 1`] = `
+<TagsSelector
+  listSize={10}
+  onSearch={[Function]}
+  onSelect={[Function]}
+  onUnselect={[Function]}
+  selectedTags="mytag"
+  tags={
+    Array [
+      "mytag",
+      "test",
+      "second",
+    ]
+  } />
+`;

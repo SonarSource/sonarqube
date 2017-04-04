@@ -57,3 +57,10 @@ it('should call onCheck with id as second parameter', () => {
   click(checkbox);
   expect(onCheck).toBeCalledWith(true, 'foo');
 });
+
+it('should apply custom class', () => {
+  const checkbox = shallow(
+    <Checkbox className="customclass" checked={true} onCheck={() => true} />
+  );
+  expect(checkbox.is('.customclass')).toBe(true);
+});

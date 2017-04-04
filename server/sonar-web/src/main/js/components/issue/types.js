@@ -30,13 +30,44 @@ export type FlowLocation = {
   textRange?: TextRange
 };
 
+export type IssueComment = {
+  author?: string,
+  authorActive?: boolean,
+  authorAvatar?: string,
+  authorLogin?: string,
+  authorName?: string,
+  createdAt: string,
+  htmlText: string,
+  key: string,
+  markdown: string,
+  updatable: boolean
+};
+
 export type Issue = {
+  actions: Array<string>,
+  assignee?: string,
+  assigneeActive?: string,
+  assigneeAvatar?: string,
+  assigneeLogin?: string,
+  assigneeName?: string,
+  author?: string,
+  comments?: Array<IssueComment>,
+  creationDate: string,
+  effort?: string,
   key: string,
   flows: Array<{
     locations?: Array<FlowLocation>
   }>,
   line?: number,
   message: string,
+  organization: string,
+  projectOrganization: string,
+  resolution?: string,
+  rule: string,
   severity: string,
-  textRange: TextRange
+  status: string,
+  tags?: Array<string>,
+  textRange: TextRange,
+  transitions?: Array<string>,
+  type: string
 };

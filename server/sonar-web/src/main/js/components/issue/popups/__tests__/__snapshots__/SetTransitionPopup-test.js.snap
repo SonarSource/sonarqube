@@ -1,0 +1,37 @@
+exports[`test should render tags popup correctly 1`] = `
+<BubblePopup
+  customClass="bubble-popup-menu bubble-popup-bottom">
+  <SelectList
+    currentItem="confirm"
+    items={
+      Array [
+        "confirm",
+        "resolve",
+        "falsepositive",
+        "wontfix",
+      ]
+    }
+    onSelect={[Function]}>
+    <SelectListItem
+      item="confirm"
+      title="issue.transition.confirm.description">
+      issue.transition.confirm
+    </SelectListItem>
+    <SelectListItem
+      item="resolve"
+      title="issue.transition.resolve.description">
+      issue.transition.resolve
+    </SelectListItem>
+    <SelectListItem
+      item="falsepositive"
+      title="issue.transition.falsepositive.description">
+      issue.transition.falsepositive
+    </SelectListItem>
+    <SelectListItem
+      item="wontfix"
+      title="issue.transition.wontfix.description">
+      issue.transition.wontfix
+    </SelectListItem>
+  </SelectList>
+</BubblePopup>
+`;

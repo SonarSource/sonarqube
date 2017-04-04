@@ -112,11 +112,17 @@ export default class MultiSelect extends React.PureComponent {
     switch (evt.keyCode) {
       case 40: // down
         this.setState(this.selectNextElement);
+        evt.stopPropagation();
         evt.preventDefault();
         break;
       case 38: // up
         this.setState(this.selectPreviousElement);
+        evt.stopPropagation();
         evt.preventDefault();
+        break;
+      case 37: // left
+      case 39: // right
+        evt.stopPropagation();
         break;
       case 13: // return
         if (this.state.activeIdx >= 0) {

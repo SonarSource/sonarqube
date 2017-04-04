@@ -36,3 +36,5 @@ export const change = (element, value) =>
     target: { value },
     currentTarget: { value }
   });
+
+export const keydown = (element, keyCode) => element.simulate('keyDown', { ...mockEvent, keyCode });

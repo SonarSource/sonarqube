@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import SeverityHelper from '../../../components/shared/severity-helper';
+import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import SeverityChange from '../SeverityChange';
-import SeverityHelper from '../../../../components/shared/severity-helper';
+import SeverityHelper from '../../../../components/shared/SeverityHelper';
 
 it('should render SeverityHelper', () => {
   const output = shallow(<SeverityChange severity="BLOCKER" />).find(SeverityHelper);

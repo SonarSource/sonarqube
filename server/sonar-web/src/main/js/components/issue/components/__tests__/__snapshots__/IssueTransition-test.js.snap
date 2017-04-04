@@ -1,0 +1,108 @@
+exports[`test should open the popup when the button is clicked 1`] = `
+Array [
+  Array [
+    "transition",
+    Object {
+      "currentTarget": Object {
+        "blur": [Function],
+      },
+      "preventDefault": [Function],
+      "stopPropagation": [Function],
+      "target": Object {
+        "blur": [Function],
+      },
+    },
+  ],
+]
+`;
+
+exports[`test should open the popup when the button is clicked 2`] = `
+<BubblePopupHelper
+  isOpen={true}
+  popup={
+    <SetTransitionPopup
+      onSelect={[Function]}
+      transitions={
+        Array [
+          "confirm",
+          "resolve",
+          "falsepositive",
+          "wontfix",
+        ]
+      } />
+  }
+  position="bottomleft"
+  togglePopup={[Function]}>
+  <button
+    className="button-link issue-action issue-action-with-options js-issue-transition"
+    onClick={[Function]}>
+    <StatusHelper
+      className="issue-meta-label little-spacer-right"
+      status="OPEN" />
+    <i
+      className="little-spacer-left icon-dropdown" />
+  </button>
+</BubblePopupHelper>
+`;
+
+exports[`test should render with a resolution 1`] = `
+<BubblePopupHelper
+  isOpen={false}
+  popup={
+    <SetTransitionPopup
+      onSelect={[Function]}
+      transitions={
+        Array [
+          "reopen",
+        ]
+      } />
+  }
+  position="bottomleft"
+  togglePopup={[Function]}>
+  <button
+    className="button-link issue-action issue-action-with-options js-issue-transition"
+    onClick={[Function]}>
+    <StatusHelper
+      className="issue-meta-label little-spacer-right"
+      resolution="FIXED"
+      status="RESOLVED" />
+    <i
+      className="little-spacer-left icon-dropdown" />
+  </button>
+</BubblePopupHelper>
+`;
+
+exports[`test should render with the action 1`] = `
+<BubblePopupHelper
+  isOpen={false}
+  popup={
+    <SetTransitionPopup
+      onSelect={[Function]}
+      transitions={
+        Array [
+          "confirm",
+          "resolve",
+          "falsepositive",
+          "wontfix",
+        ]
+      } />
+  }
+  position="bottomleft"
+  togglePopup={[Function]}>
+  <button
+    className="button-link issue-action issue-action-with-options js-issue-transition"
+    onClick={[Function]}>
+    <StatusHelper
+      className="issue-meta-label little-spacer-right"
+      status="OPEN" />
+    <i
+      className="little-spacer-left icon-dropdown" />
+  </button>
+</BubblePopupHelper>
+`;
+
+exports[`test should render without the action when there is no transitions 1`] = `
+<StatusHelper
+  className="issue-meta-label"
+  status="CLOSED" />
+`;

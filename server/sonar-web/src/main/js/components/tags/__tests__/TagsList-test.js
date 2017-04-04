@@ -39,9 +39,9 @@ it('should correctly handle a lot of tags', () => {
   for (let i = 0; i < 20; i++) {
     lotOfTags.push(tags);
   }
-  const taglist = shallow(<TagsList tags={lotOfTags} allowMultiLine={true} />);
+  const taglist = shallow(<TagsList tags={lotOfTags} />);
   expect(taglist.text()).toBe(lotOfTags.join(', '));
-  expect(taglist.find('span.note').hasClass('text-ellipsis')).toBe(false);
+  expect(taglist.find('span.note').hasClass('text-ellipsis')).toBe(true);
 });
 
 it('should render with a caret on the right if update is allowed', () => {

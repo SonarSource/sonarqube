@@ -1,0 +1,49 @@
+exports[`test should open the popup when the button is clicked 1`] = `
+<li
+  className="issue-meta">
+  <BubblePopupHelper
+    isOpen={true}
+    popup={
+      <CommentPopup
+        customClass="issue-comment-bubble-popup"
+        onComment={[Function]}
+        toggleComment={[Function]} />
+    }
+    position="bottomleft"
+    togglePopup={[Function]}>
+    <button
+      className="button-link issue-action js-issue-comment"
+      onClick={[Function]}>
+      <span
+        className="issue-meta-label">
+        issue.comment.formlink
+      </span>
+    </button>
+  </BubblePopupHelper>
+</li>
+`;
+
+exports[`test should render correctly 1`] = `
+<li
+  className="issue-meta">
+  <BubblePopupHelper
+    isOpen={false}
+    popup={
+      <CommentPopup
+        customClass="issue-comment-bubble-popup"
+        onComment={[Function]}
+        toggleComment={[Function]} />
+    }
+    position="bottomleft"
+    togglePopup={[Function]}>
+    <button
+      className="button-link issue-action js-issue-comment"
+      onClick={[Function]}>
+      <span
+        className="issue-meta-label">
+        issue.comment.formlink
+      </span>
+    </button>
+  </BubblePopupHelper>
+</li>
+`;

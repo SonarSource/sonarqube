@@ -1,0 +1,17 @@
+exports[`test should render the comment delete popup correctly 1`] = `
+<BubblePopup
+  customClass="bubble-popup-bottom-right">
+  <div
+    className="text-right">
+    <div
+      className="spacer-bottom">
+      issue.comment.delete_confirm_message
+    </div>
+    <button
+      className="button-red"
+      onClick={[Function]}>
+      delete
+    </button>
+  </div>
+</BubblePopup>
+`;
