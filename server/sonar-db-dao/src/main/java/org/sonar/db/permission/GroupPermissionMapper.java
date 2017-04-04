@@ -50,6 +50,9 @@ public interface GroupPermissionMapper {
   List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
     @Nullable @Param("groupId") Integer groupId, @Param("projectId") long projectId);
 
+  void selectAllPermissionsByGroupId(@Param("organizationUuid") String organizationUuid,
+    @Param("groupId") Integer groupId, ResultHandler resultHandler);
+
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
 }
