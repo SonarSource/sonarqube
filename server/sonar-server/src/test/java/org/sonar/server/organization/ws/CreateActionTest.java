@@ -62,6 +62,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -101,7 +102,7 @@ public class CreateActionTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client());
   private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings, userIndexer,
-      mock(DefinedQProfileRepository.class), mock(DefinedQProfileCreation.class), mock(ActiveRuleIndexer.class));
+    mock(DefinedQProfileRepository.class), mock(DefinedQProfileCreation.class), new DefaultGroupCreatorImpl(dbClient), mock(ActiveRuleIndexer.class));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
 
   private UserDto user;
@@ -488,7 +489,35 @@ public class CreateActionTest {
       UserMembershipQuery.builder()
         .organizationUuid(organization.getUuid())
         .groupId(groupDto.getId())
-        .membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
+        .membership(UserMembershipQuery.IN).build(),
+      0, Integer.MAX_VALUE);
+    assertThat(members)
+      .extracting(UserMembershipDto::getLogin)
+      .containsOnly(user.getLogin());
+  }
+
+  @Test
+  public void request_creates_members_group_and_add_current_user_to_it() {
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    UserDto user = dbTester.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+
+    executeRequest("orgFoo");
+
+    DbSession dbSession = dbTester.getSession();
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
+    Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Members");
+    assertThat(groupDtoOptional).isNotEmpty();
+    GroupDto groupDto = groupDtoOptional.get();
+    assertThat(groupDto.getDescription()).isEqualTo("All members of the organization");
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId())).isEmpty();
+    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
+      dbSession,
+      UserMembershipQuery.builder()
+        .organizationUuid(organization.getUuid())
+        .groupId(groupDto.getId())
+        .membership(UserMembershipQuery.IN).build(),
+      0, Integer.MAX_VALUE);
     assertThat(members)
       .extracting(UserMembershipDto::getLogin)
       .containsOnly(user.getLogin());
@@ -504,6 +533,7 @@ public class CreateActionTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
     GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
+    GroupDto defaultGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Members").get();
     PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
     assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization orgFoo");
@@ -514,7 +544,7 @@ public class CreateActionTest {
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
-        tuple(0, UserRole.USER), tuple(0, UserRole.CODEVIEWER));
+        tuple(defaultGroup.getId(), UserRole.USER), tuple(defaultGroup.getId(), UserRole.CODEVIEWER));
   }
 
   @Test

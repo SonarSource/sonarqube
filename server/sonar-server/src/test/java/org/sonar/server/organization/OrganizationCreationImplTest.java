@@ -22,6 +22,7 @@ package org.sonar.server.organization;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,6 +59,8 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.index.UserQuery;
+import org.sonar.server.usergroups.DefaultGroupCreator;
+import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -75,8 +78,6 @@ public class OrganizationCreationImplTest {
   private static final String SLUG_OF_A_LOGIN = "slug-of-a-login";
   private static final String STRING_64_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   private static final String A_NAME = "a name";
-  private static final int ANYONE_GROUP_ID = 0;
-
 
   private OrganizationCreation.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
     .setName("a-name")
@@ -109,9 +110,10 @@ public class OrganizationCreationImplTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client());
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient);
 
   private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings, userIndexer,
-    definedQProfileRepositoryRule, definedQProfileCreationRule, activeRuleIndexer);
+    definedQProfileRepositoryRule, definedQProfileCreationRule, defaultGroupCreator, activeRuleIndexer);
 
   private UserDto someUser;
 
@@ -219,6 +221,17 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
+  public void create_creates_members_group_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
+    UserDto user = dbTester.users().insertUser();
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    definedQProfileRepositoryRule.initialize();
+
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+
+    verifyMembersGroup(user, FULL_POPULATED_NEW_ORGANIZATION.getKey());
+  }
+
+  @Test
   public void create_does_not_require_description_url_and_avatar_to_be_non_null() throws OrganizationCreation.KeyConflictException {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     definedQProfileRepositoryRule.initialize();
@@ -247,6 +260,7 @@ public class OrganizationCreationImplTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
+    int defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organization.getUuid()).get();
     PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
     assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + FULL_POPULATED_NEW_ORGANIZATION.getName());
@@ -257,7 +271,7 @@ public class OrganizationCreationImplTest {
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
-        tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
+        tuple(defaultGroupId, UserRole.USER), tuple(defaultGroupId, UserRole.CODEVIEWER));
   }
 
   @Test
@@ -388,7 +402,7 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
-  public void createForUser_does_not_create_any_group() throws OrganizationCreation.KeyConflictException {
+  public void createForUser_creates_members_group_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
     UserDto user = dbTester.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
@@ -397,29 +411,7 @@ public class OrganizationCreationImplTest {
 
     underTest.createForUser(dbSession, user);
 
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(dbClient.groupDao().selectByOrganizationUuid(dbSession, organization.getUuid())).isEmpty();
-  }
-
-  private void verifyGroupOwners(UserDto user, String organizationKey, String organizationName) {
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
-    List<GroupDto> groups = dbClient.groupDao().selectByOrganizationUuid(dbSession, organization.getUuid());
-    assertThat(groups)
-      .extracting(GroupDto::getName)
-      .containsOnly("Owners");
-    GroupDto groupDto = groups.iterator().next();
-    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization " + organizationName);
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
-      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
-    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
-      dbSession,
-      UserMembershipQuery.builder()
-        .organizationUuid(organization.getUuid())
-        .groupId(groupDto.getId())
-        .membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
-    assertThat(members)
-      .extracting(UserMembershipDto::getLogin)
-      .containsOnly(user.getLogin());
+    verifyMembersGroup(user, SLUG_OF_A_LOGIN);
   }
 
   @Test
@@ -433,6 +425,7 @@ public class OrganizationCreationImplTest {
     underTest.createForUser(dbSession, user);
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    int defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organization.getUuid()).get();
     PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
     assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + A_NAME);
@@ -441,7 +434,7 @@ public class OrganizationCreationImplTest {
     assertThat(defaultTemplates.getViewUuid()).isNull();
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-      .containsOnly(tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER));
+      .containsOnly(tuple(defaultGroupId, UserRole.USER), tuple(defaultGroupId, UserRole.CODEVIEWER));
     assertThat(dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, Collections.singletonList(defaultTemplate.getId())))
       .extracting(PermissionTemplateCharacteristicDto::getWithProjectCreator, PermissionTemplateCharacteristicDto::getPermission)
       .containsOnly(
@@ -531,14 +524,14 @@ public class OrganizationCreationImplTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(definedQProfileCreationRule.getCallLogs())
-        .hasSize(4)
-        .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
-        .extracting(OrganizationDto::getUuid)
-        .containsOnly(organization.getUuid());
+      .hasSize(4)
+      .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(organization.getUuid());
     assertThat(definedQProfileCreationRule.getCallLogs())
-        .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
-        .extracting(DefinedQProfile::getName)
-        .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
+      .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
+      .extracting(DefinedQProfile::getName)
+      .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
     verify(activeRuleIndexer).index(Arrays.asList(changes[2], changes[1], changes[4], changes[3], changes[0]));
     verifyNoMoreInteractions(activeRuleIndexer);
   }
@@ -555,4 +548,46 @@ public class OrganizationCreationImplTest {
     when(uuidFactory.create()).thenReturn(orgUuid);
     when(system2.now()).thenReturn(orgDate);
   }
+
+  private void verifyGroupOwners(UserDto user, String organizationKey, String organizationName) {
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
+    Optional<GroupDto> groupOpt = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
+    assertThat(groupOpt).isPresent();
+    GroupDto groupDto = groupOpt.get();
+    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization " + organizationName);
+
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
+      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
+    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
+      dbSession,
+      UserMembershipQuery.builder()
+        .organizationUuid(organization.getUuid())
+        .groupId(groupDto.getId())
+        .membership(UserMembershipQuery.IN).build(),
+      0, Integer.MAX_VALUE);
+    assertThat(members)
+      .extracting(UserMembershipDto::getLogin)
+      .containsOnly(user.getLogin());
+  }
+
+  private void verifyMembersGroup(UserDto user, String organizationKey) {
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
+    Optional<GroupDto> groupOpt = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Members");
+    assertThat(groupOpt).isPresent();
+    GroupDto groupDto = groupOpt.get();
+    assertThat(groupDto.getDescription()).isEqualTo("All members of the organization");
+
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId())).isEmpty();
+    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
+      dbSession,
+      UserMembershipQuery.builder()
+        .organizationUuid(organization.getUuid())
+        .groupId(groupDto.getId())
+        .membership(UserMembershipQuery.IN).build(),
+      0, Integer.MAX_VALUE);
+    assertThat(members)
+      .extracting(UserMembershipDto::getLogin)
+      .containsOnly(user.getLogin());
+  }
+
 }
