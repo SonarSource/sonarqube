@@ -20,7 +20,6 @@
 package org.sonar.server.organization.ws;
 
 import java.util.List;
-import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -35,8 +34,8 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.usergroups.DefaultGroupCreator;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class EnableSupportAction implements OrganizationsWsAction {
@@ -46,13 +45,15 @@ public class EnableSupportAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
+  private final DefaultGroupCreator defaultGroupCreator;
 
   public EnableSupportAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    OrganizationFlags organizationFlags) {
+    OrganizationFlags organizationFlags, DefaultGroupCreator defaultGroupCreator) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
+    this.defaultGroupCreator = defaultGroupCreator;
   }
 
   @Override
@@ -96,20 +97,12 @@ public class EnableSupportAction implements OrganizationsWsAction {
 
   private void createDefaultMembersGroup(DbSession dbSession) {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    String membersGroupName = "Members";
-    Optional<GroupDto> existingMembersGroup = dbClient.groupDao().selectByName(dbSession, defaultOrganizationUuid, membersGroupName);
-    checkArgument(!existingMembersGroup.isPresent(), "The group '%s' already exist", membersGroupName);
-    GroupDto members = new GroupDto()
-      .setName(membersGroupName)
-      .setDescription("All members of the organization")
-      .setOrganizationUuid(defaultOrganizationUuid);
-    dbClient.groupDao().insert(dbSession, members);
     int sonarUsersGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, defaultOrganizationUuid)
       .orElseThrow(() -> new IllegalStateException(String.format("Default group doesn't exist on default organization '%s'", defaultOrganizationProvider.get().getKey())));
+    GroupDto members = defaultGroupCreator.create(dbSession, defaultOrganizationUuid);
     copySonarUsersGroupPermissionsToMembersGroup(dbSession, sonarUsersGroupId, members);
     copySonarUsersGroupPermissionTemplatesToMembersGroup(dbSession, sonarUsersGroupId, members);
     associateMembersOfDefaultOrganizationToGroup(dbSession, members);
-    dbClient.organizationDao().setDefaultGroupId(dbSession, defaultOrganizationUuid, members);
   }
 
   private void associateMembersOfDefaultOrganizationToGroup(DbSession dbSession, GroupDto membersGroup) {

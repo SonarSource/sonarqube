@@ -29,9 +29,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -52,10 +50,16 @@ import org.sonar.server.qualityprofile.DefinedQProfileCreation;
 import org.sonar.server.qualityprofile.DefinedQProfileRepository;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupCreator;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
 
 public class OrganizationCreationImpl implements OrganizationCreation {
@@ -68,12 +72,14 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   private final Settings settings;
   private final DefinedQProfileRepository definedQProfileRepository;
   private final DefinedQProfileCreation definedQProfileCreation;
+  private final DefaultGroupCreator defaultGroupCreator;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final UserIndexer userIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Settings settings, UserIndexer userIndexer,
-    DefinedQProfileRepository definedQProfileRepository, DefinedQProfileCreation definedQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
+    DefinedQProfileRepository definedQProfileRepository, DefinedQProfileCreation definedQProfileCreation, DefaultGroupCreator defaultGroupCreator,
+    ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
@@ -82,6 +88,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     this.userIndexer = userIndexer;
     this.definedQProfileRepository = definedQProfileRepository;
     this.definedQProfileCreation = definedQProfileCreation;
+    this.defaultGroupCreator = defaultGroupCreator;
     this.activeRuleIndexer = activeRuleIndexer;
   }
 
@@ -96,10 +103,12 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, dto -> {
     });
     insertOrganizationMember(dbSession, organization, userCreator.getId());
-    GroupDto group = insertOwnersGroup(dbSession, organization);
-    insertDefaultTemplate(dbSession, organization, group);
+    GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
+    GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
+    insertDefaultTemplateOnGroups(dbSession, organization, ownerGroup, defaultGroup);
     List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
-    addCurrentUserToGroup(dbSession, group, userCreator.getId());
+    addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getId());
+    addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getId());
 
     dbSession.commit();
 
@@ -129,11 +138,13 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
     OrganizationDto organization = insertOrganization(dbSession, newOrganization,
       dto -> dto.setGuarded(true).setUserId(newUser.getId()));
+    insertOrganizationMember(dbSession, organization, newUser.getId());
+    GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
     OrganizationPermission.all()
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
-    insertPersonalOrgDefaultTemplate(dbSession, organization);
-    insertOrganizationMember(dbSession, organization, newUser.getId());
+    insertPersonalOrgDefaultTemplate(dbSession, organization, defaultGroup);
     List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
+    addCurrentUserToGroup(dbSession, defaultGroup, newUser.getId());
 
     dbSession.commit();
 
@@ -189,7 +200,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     return dbClient.organizationDao().selectByKey(dbSession, key).isPresent();
   }
 
-  private void insertDefaultTemplate(DbSession dbSession, OrganizationDto organizationDto, GroupDto group) {
+  private void insertDefaultTemplateOnGroups(DbSession dbSession, OrganizationDto organizationDto, GroupDto ownerGroup, GroupDto defaultGroup) {
     Date now = new Date(system2.now());
     PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(
       dbSession,
@@ -201,11 +212,11 @@ public class OrganizationCreationImpl implements OrganizationCreation {
         .setCreatedAt(now)
         .setUpdatedAt(now));
 
-    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ADMIN, group);
-    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ISSUE_ADMIN, group);
-    insertGroupPermission(dbSession, permissionTemplateDto, GlobalPermissions.SCAN_EXECUTION, group);
-    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.USER, null);
-    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.CODEVIEWER, null);
+    insertGroupPermission(dbSession, permissionTemplateDto, ADMIN, ownerGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, ownerGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, SCAN.getKey(), ownerGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
 
     dbClient.organizationDao().setDefaultTemplates(
       dbSession,
@@ -213,7 +224,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       new DefaultTemplates().setProjectUuid(permissionTemplateDto.getUuid()));
   }
 
-  private void insertPersonalOrgDefaultTemplate(DbSession dbSession, OrganizationDto organizationDto) {
+  private void insertPersonalOrgDefaultTemplate(DbSession dbSession, OrganizationDto organizationDto, GroupDto defaultGroup) {
     long now = system2.now();
     Date dateNow = new Date(now);
     PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(
@@ -226,11 +237,11 @@ public class OrganizationCreationImpl implements OrganizationCreation {
         .setCreatedAt(dateNow)
         .setUpdatedAt(dateNow));
 
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, UserRole.ADMIN, now);
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, UserRole.ISSUE_ADMIN, now);
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, OrganizationPermission.SCAN.getKey(), now);
-    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.USER, null);
-    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.CODEVIEWER, null);
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, ADMIN, now);
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, now);
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, SCAN.getKey(), now);
+    insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
 
     dbClient.organizationDao().setDefaultTemplates(
       dbSession,
