@@ -29,6 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -103,7 +104,10 @@ public class EnableSupportAction implements OrganizationsWsAction {
       .setDescription("All members of the organization")
       .setOrganizationUuid(defaultOrganizationUuid);
     dbClient.groupDao().insert(dbSession, members);
-    copyUserGroupsPermissionsToMembersGroup(dbSession, members);
+    int sonarUsersGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, defaultOrganizationUuid)
+      .orElseThrow(() -> new IllegalStateException(String.format("Default group doesn't exist on default organization '%s'", defaultOrganizationProvider.get().getKey())));
+    copySonarUsersGroupPermissionsToMembersGroup(dbSession, sonarUsersGroupId, members);
+    copySonarUsersGroupPermissionTemplatesToMembersGroup(dbSession, sonarUsersGroupId, members);
     associateMembersOfDefaultOrganizationToGroup(dbSession, members);
     dbClient.organizationDao().setDefaultGroupId(dbSession, defaultOrganizationUuid, members);
   }
@@ -113,10 +117,8 @@ public class EnableSupportAction implements OrganizationsWsAction {
     organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(membersGroup.getId()).setUserId(member)));
   }
 
-  private void copyUserGroupsPermissionsToMembersGroup(DbSession dbSession, GroupDto membersGroup) {
+  private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, int sonarUsersGroupId, GroupDto membersGroup) {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    int sonarUsersGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, defaultOrganizationUuid)
-      .orElseThrow(() -> new IllegalStateException(String.format("Default group doesn't exist on default organization '%s'", defaultOrganizationProvider.get().getKey())));
     dbClient.groupPermissionDao().selectAllPermissionsByGroupId(dbSession, defaultOrganizationUuid, sonarUsersGroupId,
       context -> {
         GroupPermissionDto groupPermissionDto = (GroupPermissionDto) context.getResultObject();
@@ -125,6 +127,12 @@ public class EnableSupportAction implements OrganizationsWsAction {
             .setRole(groupPermissionDto.getRole())
             .setResourceId(groupPermissionDto.getResourceId()));
       });
+  }
+
+  private void copySonarUsersGroupPermissionTemplatesToMembersGroup(DbSession dbSession, int sonarUsersGroupId, GroupDto membersGroup) {
+    List<PermissionTemplateGroupDto> sonarUsersPermissionTemplates = dbClient.permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbSession, sonarUsersGroupId);
+    sonarUsersPermissionTemplates.forEach(permissionTemplateGroup -> dbClient.permissionTemplateDao().insertGroupPermission(dbSession,
+      permissionTemplateGroup.getTemplateId(), membersGroup.getId(), permissionTemplateGroup.getPermission()));
   }
 
   private void enableFeature(DbSession dbSession) {

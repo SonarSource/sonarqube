@@ -368,6 +368,20 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
+  public void selectAllGroupPermissionTemplatesByGroupId() {
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    templateDb.addGroupToTemplate(permissionTemplate, group1, "user");
+    templateDb.addGroupToTemplate(permissionTemplate, group1, "admin");
+    templateDb.addGroupToTemplate(permissionTemplate, group2, "user");
+
+    assertThat(db.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(db.getSession(), group1.getId()))
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(group1.getId(), "user"), tuple(group1.getId(), "admin"));
+  }
+
+  @Test
   public void deleteByOrganization_does_not_fail_on_empty_db() {
     underTest.deleteByOrganization(dbSession, "some uuid");
     dbSession.commit();

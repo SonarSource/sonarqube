@@ -31,6 +31,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -104,7 +106,7 @@ public class EnableSupportActionTest {
   }
 
   @Test
-  public void enabling_support_copy_sonar_users_permission_to_members_group() throws Exception {
+  public void enabling_support_copy_sonar_users_permissions_to_members_group() throws Exception {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     UserDto user = db.users().insertUser();
     GroupDto sonarUsersGroup = db.users().insertDefaultGroup(defaultOrganization, "sonar-users");
@@ -127,6 +129,27 @@ public class EnableSupportActionTest {
   }
 
   @Test
+  public void enabling_support_copy_sonar_users_permission_templates_to_members_group() throws Exception {
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+    UserDto user = db.users().insertUser();
+    GroupDto sonarUsersGroup = db.users().insertDefaultGroup(defaultOrganization, "sonar-users");
+    PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
+    db.permissionTemplates().addGroupToTemplate(permissionTemplate, sonarUsersGroup, "user");
+    db.permissionTemplates().addGroupToTemplate(permissionTemplate, sonarUsersGroup, "admin");
+    // Should be ignored
+    GroupDto otherGroup = db.users().insertGroup();
+    db.permissionTemplates().addGroupToTemplate(permissionTemplate, otherGroup, "user");
+    logInAsSystemAdministrator(user.getLogin());
+
+    call();
+
+    int defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), defaultOrganization.getUuid()).get();
+    assertThat(db.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(db.getSession(), defaultGroupId))
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(defaultGroupId, "user"), tuple(defaultGroupId, "admin"));
+  }
+
+  @Test
   public void throw_IAE_when_members_group_already_exists() throws Exception {
     UserDto user = db.users().insertUser();
     db.users().insertGroup(db.getDefaultOrganization(), "Members");
@@ -137,6 +160,7 @@ public class EnableSupportActionTest {
 
     call();
   }
+
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {

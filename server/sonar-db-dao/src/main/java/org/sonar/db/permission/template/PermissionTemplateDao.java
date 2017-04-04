@@ -142,6 +142,10 @@ public class PermissionTemplateDao implements Dao {
       });
   }
 
+  public List<PermissionTemplateGroupDto> selectAllGroupPermissionTemplatesByGroupId(DbSession dbSession, long groupId) {
+    return mapper(dbSession).selectAllGroupPermissionTemplatesByGroupId(groupId);
+  }
+
   public void deleteById(DbSession session, long templateId) {
     PermissionTemplateMapper mapper = mapper(session);
     mapper.deleteUserPermissionsByTemplateId(templateId);

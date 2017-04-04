@@ -88,4 +88,6 @@ public interface PermissionTemplateMapper {
 
   List<Long> selectTemplateIdsByOrganization(@Param("organizationUuid") String organizationUuid);
 
+  List<PermissionTemplateGroupDto> selectAllGroupPermissionTemplatesByGroupId(@Param("groupId") Long groupId);
+
 }
