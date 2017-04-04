@@ -74,10 +74,11 @@ public class DeactivateRulesAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     String qualityProfileKey = request.mandatoryParam(PROFILE_KEY);
     userSession.checkLoggedIn();
+    BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
       wsSupport.checkPermission(dbSession, qualityProfileKey);
+      result = ruleActivator.bulkDeactivate(ruleQueryFactory.createRuleQuery(dbSession, request), qualityProfileKey);
     }
-    BulkChangeResult result = ruleActivator.bulkDeactivate(ruleQueryFactory.createRuleQuery(request), qualityProfileKey);
     BulkChangeWsResponse.writeResponse(result, response);
   }
 }

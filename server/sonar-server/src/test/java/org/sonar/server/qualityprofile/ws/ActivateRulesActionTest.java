@@ -91,7 +91,8 @@ public class ActivateRulesActionTest {
       "rule_key",
       "available_since",
       "activation",
-      "severities"
+      "severities",
+      "organization"
     );
   }
 

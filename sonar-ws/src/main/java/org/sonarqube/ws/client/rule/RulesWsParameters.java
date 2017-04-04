@@ -37,6 +37,7 @@ public class RulesWsParameters {
   public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
   public static final String PARAM_IS_TEMPLATE = "is_template";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   public static final String FIELD_REPO = "repo";
   public static final String FIELD_NAME = "name";

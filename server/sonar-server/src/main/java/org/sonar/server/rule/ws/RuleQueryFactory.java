@@ -39,6 +39,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SIN
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
@@ -52,21 +53,23 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TYPES;
 public class RuleQueryFactory {
 
   private final DbClient dbClient;
+  private final RuleWsSupport wsSupport;
 
-  public RuleQueryFactory(DbClient dbClient) {
+  public RuleQueryFactory(DbClient dbClient, RuleWsSupport wsSupport) {
     this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
   }
 
   /**
    * Create a {@link RuleQuery} from a {@link Request}.
    * When a profile key is set, the language of the profile is automatically set in the query
    */
-  public RuleQuery createRuleQuery(Request request) {
-    RuleQuery ruleQuery = createRuleQuery(new RuleQuery(), request);
+  public RuleQuery createRuleQuery(DbSession dbSession, Request request) {
+    RuleQuery ruleQuery = createRuleQuery(dbSession, new RuleQuery(), request);
 
     String qProfileKey = ruleQuery.getQProfileKey();
     if (qProfileKey != null) {
-      QualityProfileDto qProfile = getProfileByKey(qProfileKey);
+      QualityProfileDto qProfile = getProfileByKey(dbSession, qProfileKey);
       if (qProfile != null) {
         ruleQuery.setLanguages(ImmutableList.of(qProfile.getLanguage()));
       }
@@ -74,7 +77,7 @@ public class RuleQueryFactory {
     return ruleQuery;
   }
 
-  private static RuleQuery createRuleQuery(RuleQuery query, Request request) {
+  private RuleQuery createRuleQuery(DbSession dbSession, RuleQuery query, Request request) {
     query.setQueryText(request.param(WebService.Param.TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
@@ -91,6 +94,7 @@ public class RuleQueryFactory {
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setTypes(toEnums(request.paramAsStrings(PARAM_TYPES), RuleType.class));
     query.setKey(request.param(PARAM_RULE_KEY));
+    query.setOrganizationUuid(wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION)).getUuid());
 
     String sortParam = request.param(WebService.Param.SORT);
     if (sortParam != null) {
@@ -101,13 +105,8 @@ public class RuleQueryFactory {
   }
 
   @CheckForNull
-  private QualityProfileDto getProfileByKey(String key) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return dbClient.qualityProfileDao().selectByKey(dbSession, key);
-    } finally {
-      dbSession.close();
-    }
+  private QualityProfileDto getProfileByKey(DbSession dbSession, String key) {
+    return dbClient.qualityProfileDao().selectByKey(dbSession, key);
   }
 
 }

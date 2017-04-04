@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsAction;
@@ -74,7 +75,7 @@ public class RuleQueryFactoryTest {
 
   DbSession dbSession = dbTester.getSession();
 
-  RuleQueryFactory underTest = new RuleQueryFactory(dbClient);
+  RuleQueryFactory underTest = new RuleQueryFactory(dbClient, new RuleWsSupport(dbClient, null, TestDefaultOrganizationProvider.from(dbTester)));
 
   FakeAction fakeAction = new FakeAction(underTest);
   OrganizationDto organization = OrganizationTesting.newOrganizationDto();
@@ -177,7 +178,7 @@ public class RuleQueryFactoryTest {
     return fakeAction.getRuleQuery();
   }
 
-  private static class FakeAction implements WsAction {
+  private class FakeAction implements WsAction {
 
     private final RuleQueryFactory ruleQueryFactory;
     private RuleQuery ruleQuery;
@@ -195,7 +196,7 @@ public class RuleQueryFactoryTest {
 
     @Override
     public void handle(Request request, Response response) throws Exception {
-      ruleQuery = ruleQueryFactory.createRuleQuery(request);
+      ruleQuery = ruleQueryFactory.createRuleQuery(dbTester.getSession(), request);
     }
 
     RuleQuery getRuleQuery() {
