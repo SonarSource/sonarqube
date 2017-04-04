@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.io.File;
-import java.io.IOException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.core.issue.DefaultIssue;
@@ -33,7 +32,7 @@ import org.sonar.server.util.cache.DiskCache;
 public class IssueCache extends DiskCache<DefaultIssue> {
 
   // this constructor is used by picocontainer
-  public IssueCache(TempFolder tempFolder, System2 system2) throws IOException {
+  public IssueCache(TempFolder tempFolder, System2 system2) {
     super(tempFolder.newFile("issues", ".dat"), system2);
   }
 
