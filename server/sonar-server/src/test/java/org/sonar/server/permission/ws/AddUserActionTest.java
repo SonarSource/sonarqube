@@ -50,6 +50,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Before
   public void setUp() {
     user = db.users().insertUser("ray.bradbury");
+    db.organizations().addMember(db.getDefaultOrganization(), user);
   }
 
   @Override

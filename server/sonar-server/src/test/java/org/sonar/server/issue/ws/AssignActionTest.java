@@ -85,15 +85,14 @@ public class AssignActionTest {
   private AssignAction underTest = new AssignAction(system2, userSession, db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new IssueFieldsSetter(),
     new IssueUpdater(db.getDbClient(),
       new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), db.getDbClient(), issueIndexer),
-      mock(NotificationManager.class)
-    ),
+      mock(NotificationManager.class)),
     responseWriter);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void assign_to_someone() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
-    UserDto userDto = db.users().insertUser("arthur");
+    insertUser("arthur");
 
     ws.newRequest()
       .setParam("issue", issue.getKey())
@@ -158,7 +157,7 @@ public class AssignActionTest {
   @Test
   public void nothing_to_do_when_new_assignee_is_same_as_old_one() throws Exception {
     IssueDto issue = newIssueWithBrowsePermission();
-    UserDto userDto = db.users().insertUser(PREVIOUS_ASSIGNEE);
+    insertUser(PREVIOUS_ASSIGNEE);
 
     ws.newRequest()
       .setParam("issue", issue.getKey())
@@ -240,6 +239,12 @@ public class AssignActionTest {
       .execute();
   }
 
+  private UserDto insertUser(String login) {
+    UserDto user = db.users().insertUser(login);
+    db.organizations().addMember(db.getDefaultOrganization(), user);
+    return user;
+  }
+
   private IssueDto newIssue() {
     return db.issues().insertIssue(
       issueDto -> issueDto
@@ -255,7 +260,7 @@ public class AssignActionTest {
   }
 
   private void setUserWithBrowsePermission(IssueDto issue) {
-    UserDto currentUser = db.users().insertUser(CURRENT_USER_LOGIN);
+    insertUser(CURRENT_USER_LOGIN);
     userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(USER, issue.getProjectUuid());
   }
 
