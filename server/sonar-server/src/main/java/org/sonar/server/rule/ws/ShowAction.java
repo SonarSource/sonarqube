@@ -20,24 +20,25 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.io.Resources;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.Rules.ShowResponse;
 
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -47,6 +48,7 @@ public class ShowAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_ACTIVES = "actives";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
   private final RuleMapper mapper;
@@ -89,23 +91,27 @@ public class ShowAction implements RulesWsAction {
       .setDescription("Show rule's activations for all profiles (\"active rules\")")
       .setBooleanPossibleValues()
       .setDefaultValue(false);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-      Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, defaultOrganizationUuid, key);
-      checkFoundWithOptional(optionalRule, "Rule not found: " + key);
-      RuleDto rule = optionalRule.get();
-      List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
-      if (rule.getTemplateId() != null) {
-        Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
-        if (templateRule.isPresent()) {
-          templateRules.add(templateRule.get());
-        }
-      }
+      OrganizationDto organization = getOrganization(request, dbSession);
+      RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
+        .orElseThrow(() -> new NotFoundException(String.format("Rule not found: %s", key)));
+
+      List<RuleDefinitionDto> templateRules = ofNullable(rule.getTemplateId())
+        .flatMap(templateId -> dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession))
+        .map(Collections::singletonList).orElseGet(Collections::emptyList);
+
       List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
       ShowResponse showResponse = buildResponse(dbSession, request,
         new SearchAction.SearchResult()
@@ -115,6 +121,13 @@ public class ShowAction implements RulesWsAction {
           .setTotal(1L));
       writeProtobuf(showResponse, request, response);
     }
+  }
+
+  private OrganizationDto getOrganization(Request request, DbSession dbSession) {
+    String organizationKey = ofNullable(request.param(PARAM_ORGANIZATION))
+      .orElseGet(() -> defaultOrganizationProvider.get().getKey());
+    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+      .orElseThrow(() -> new IllegalStateException(format("Cannot load organization '%s'", organizationKey)));
   }
 
   private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {
