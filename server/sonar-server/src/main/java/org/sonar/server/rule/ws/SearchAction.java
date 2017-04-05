@@ -308,7 +308,7 @@ public class SearchAction implements RulesWsAction {
 
   private void writeRules(SearchResponse.Builder response, SearchResult result, SearchOptions context) {
     for (RuleDto rule : result.rules) {
-      response.addRules(mapper.toWsRule(rule, result, context.getFields()));
+      response.addRules(mapper.toWsRule(rule.getDefinition(), result, context.getFields(), rule.getMetadata()));
     }
   }
 

@@ -36,6 +36,14 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
 
+  public Optional<RuleDto> selectByKey(DbSession session, OrganizationDto organization, RuleKey key) {
+    return selectByKey(session, organization.getUuid(), key);
+  }
+
+  /**
+   * @deprecated use {@link #selectByKey(DbSession, OrganizationDto, RuleKey)}
+   */
+  @Deprecated
   public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
     RuleDto res = mapper(session).selectByKey(organizationUuid, key);
     ensureOrganizationIsSet(organizationUuid, res);
@@ -50,12 +58,12 @@ public class RuleDao implements Dao {
     return java.util.Optional.ofNullable(mapper(session).selectMetadataByKey(key, organization.getUuid()));
   }
 
-  public RuleDto selectOrFailByKey(DbSession session, String organizationUuid, RuleKey key) {
-    RuleDto rule = mapper(session).selectByKey(organizationUuid, key);
+  public RuleDto selectOrFailByKey(DbSession session, OrganizationDto organization, RuleKey key) {
+    RuleDto rule = mapper(session).selectByKey(organization.getUuid(), key);
     if (rule == null) {
       throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
     }
-    ensureOrganizationIsSet(organizationUuid, rule);
+    ensureOrganizationIsSet(organization.getUuid(), rule);
     return rule;
   }
 
