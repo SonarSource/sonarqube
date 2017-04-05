@@ -31,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueInclusionPatternInitializerTest {
 
   private IssueInclusionPatternInitializer patternsInitializer;
-
   private Settings settings;
 
   @Before
@@ -58,14 +57,6 @@ public class IssueInclusionPatternInitializerTest {
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
     assertThat(patternsInitializer.hasMulticriteriaPatterns()).isTrue();
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(2);
-
-    patternsInitializer.initializePatternsForPath("org/foo/Bar.java", "org.foo.Bar");
-    patternsInitializer.initializePatternsForPath("org/foo/Baz.java", "org.foo.Baz");
-    patternsInitializer.initializePatternsForPath("org/foo/Hello.java", "org.foo.Hello");
-
-    assertThat(patternsInitializer.getPathForComponent("org.foo.Bar")).isEqualTo("org/foo/Bar.java");
-    assertThat(patternsInitializer.getPathForComponent("org.foo.Baz")).isEqualTo("org/foo/Baz.java");
-    assertThat(patternsInitializer.getPathForComponent("org.foo.Hello")).isEqualTo("org/foo/Hello.java");
   }
 
 }

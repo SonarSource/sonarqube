@@ -349,8 +349,8 @@ public class FileSystemMediumTest {
       .start();
 
     assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' indexed with language 'null'");
-    assertThat(logs.getAllAsString()).doesNotContain("Scanning com.foo.project:src/myfile.binary");
-    assertThat(logs.getAllAsString()).containsOnlyOnce("Scanning com.foo.project:src/sample.xoo");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/myfile.binary' generating issue exclusions");
+    assertThat(logs.getAllAsString()).containsOnlyOnce("'src/sample.xoo' generating issue exclusions");
 
     tester2.stop();
 
@@ -366,7 +366,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\npattern");
 
     File unknownFile = new File(srcDir, "myfile.binary");
     FileUtils.write(unknownFile, "some text");
@@ -376,8 +376,9 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "src")
         .build())
       .start();
-
-    assertThat(logs.getAllAsString()).containsOnlyOnce("Scanning com.foo.project:src/myfile.binary");
+    
+    assertThat(logs.getAllAsString()).containsOnlyOnce("- Exclusion pattern 'pattern'");
+    assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' generating issue exclusions");
   }
 
   @Test

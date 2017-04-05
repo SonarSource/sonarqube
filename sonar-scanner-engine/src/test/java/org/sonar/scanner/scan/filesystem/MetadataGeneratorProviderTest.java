@@ -23,6 +23,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,8 +34,9 @@ public class MetadataGeneratorProviderTest {
   @Test
   public void create_builder() {
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
+    IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionPatternInitializer.class), mock(PatternMatcher.class));
 
     MetadataGeneratorProvider factory = new MetadataGeneratorProvider();
-    assertThat(factory.provide(new DefaultInputModule("module"), statusDetectionFactory, new FileMetadata())).isNotNull();
+    assertThat(factory.provide(new DefaultInputModule("module"), statusDetectionFactory, new FileMetadata(), issueExclusionsLoader)).isNotNull();
   }
 }

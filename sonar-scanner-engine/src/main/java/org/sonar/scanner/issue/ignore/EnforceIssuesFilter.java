@@ -19,22 +19,29 @@
  */
 package org.sonar.scanner.issue.ignore;
 
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
+
+import javax.annotation.CheckForNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class EnforceIssuesFilter implements IssueFilter {
-
-  private IssueInclusionPatternInitializer patternInitializer;
-
   private static final Logger LOG = LoggerFactory.getLogger(EnforceIssuesFilter.class);
 
-  public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer) {
+  private IssueInclusionPatternInitializer patternInitializer;
+  private InputComponentStore componentStore;
+
+  public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer, InputComponentStore componentStore) {
     this.patternInitializer = patternInitializer;
+    this.componentStore = componentStore;
   }
 
   @Override
@@ -46,8 +53,8 @@ public class EnforceIssuesFilter implements IssueFilter {
     for (IssuePattern pattern : patternInitializer.getMulticriteriaPatterns()) {
       if (pattern.getRulePattern().match(issue.ruleKey().toString())) {
         atLeastOneRuleMatched = true;
-        String pathForComponent = patternInitializer.getPathForComponent(issue.componentKey());
-        if (pathForComponent != null && pattern.getResourcePattern().match(pathForComponent)) {
+        String relativePath = getRelativePath(issue.componentKey());
+        if (relativePath != null && pattern.getResourcePattern().match(relativePath)) {
           atLeastOnePatternFullyMatched = true;
           matchingPattern = pattern;
         }
@@ -62,5 +69,15 @@ public class EnforceIssuesFilter implements IssueFilter {
     } else {
       return chain.accept(issue);
     }
+  }
+
+  @CheckForNull
+  private String getRelativePath(String componentKey) {
+    InputComponent component = componentStore.getByKey(componentKey);
+    if (component == null || !component.isFile()) {
+      return null;
+    }
+    InputFile inputPath = (InputFile) component;
+    return inputPath.relativePath();
   }
 }

@@ -20,36 +20,39 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import com.google.common.collect.Sets;
+
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.utils.WildcardPattern;
 
 public class IssuePattern {
 
-  private WildcardPattern resourcePattern;
-  private WildcardPattern rulePattern;
-  private Set<Integer> lines = Sets.newLinkedHashSet();
-  private Set<LineRange> lineRanges = Sets.newLinkedHashSet();
-  private String beginBlockRegexp;
-  private String endBlockRegexp;
-  private String allFileRegexp;
-  private boolean checkLines = true;
-
-  public IssuePattern() {
-  }
+  private final WildcardPattern resourcePattern;
+  private final WildcardPattern rulePattern;
+  private final Set<Integer> lines = new LinkedHashSet<>();
+  private final Set<LineRange> lineRanges = new LinkedHashSet<>();
+  private final boolean checkLines;
 
   public IssuePattern(String resourcePattern, String rulePattern) {
-    this.resourcePattern = WildcardPattern.create(resourcePattern);
-    this.rulePattern = WildcardPattern.create(rulePattern);
+    this(resourcePattern, rulePattern, Collections.emptySet());
   }
 
   public IssuePattern(String resourcePattern, String rulePattern, Set<LineRange> lineRanges) {
-    this(resourcePattern, rulePattern);
-    this.lineRanges = lineRanges;
+    this.resourcePattern = WildcardPattern.create(resourcePattern);
+    this.rulePattern = WildcardPattern.create(rulePattern);
+    this.checkLines = !lineRanges.isEmpty();
+    for (LineRange range : lineRanges) {
+      if (range.from() == range.to()) {
+        this.lines.add(range.from());
+      } else {
+        this.lineRanges.add(range);
+      }
+    }
   }
 
   public WildcardPattern getResourcePattern() {
@@ -60,50 +63,8 @@ public class IssuePattern {
     return rulePattern;
   }
 
-  public String getBeginBlockRegexp() {
-    return beginBlockRegexp;
-  }
-
-  public String getEndBlockRegexp() {
-    return endBlockRegexp;
-  }
-
-  public String getAllFileRegexp() {
-    return allFileRegexp;
-  }
-
-  IssuePattern addLineRange(int fromLineId, int toLineId) {
-    lineRanges.add(new LineRange(fromLineId, toLineId));
-    return this;
-  }
-
-  IssuePattern addLine(int lineId) {
-    lines.add(lineId);
-    return this;
-  }
-
   boolean isCheckLines() {
     return checkLines;
-  }
-
-  IssuePattern setCheckLines(boolean b) {
-    this.checkLines = b;
-    return this;
-  }
-
-  IssuePattern setBeginBlockRegexp(String beginBlockRegexp) {
-    this.beginBlockRegexp = beginBlockRegexp;
-    return this;
-  }
-
-  IssuePattern setEndBlockRegexp(String endBlockRegexp) {
-    this.endBlockRegexp = endBlockRegexp;
-    return this;
-  }
-
-  IssuePattern setAllFileRegexp(String allFileRegexp) {
-    this.allFileRegexp = allFileRegexp;
-    return this;
   }
 
   Set<Integer> getAllLines() {
@@ -114,18 +75,15 @@ public class IssuePattern {
     return allLines;
   }
 
-  public boolean match(FilterableIssue issue) {
-    boolean match = matchResource(issue.componentKey())
-      && matchRule(issue.ruleKey());
+  public boolean match(@Nullable String componentKey, RuleKey ruleKey, @Nullable Integer line) {
     if (checkLines) {
-      Integer line = issue.line();
       if (line == null) {
-        match = false;
+        return false;
       } else {
-        match = match && matchLine(line);
+        return matchResource(componentKey) && matchRule(ruleKey) && matchLine(line);
       }
     }
-    return match;
+    return matchResource(componentKey) && matchRule(ruleKey);
   }
 
   boolean matchLine(int lineId) {
@@ -147,12 +105,12 @@ public class IssuePattern {
     return rulePattern.match(key);
   }
 
-  boolean matchResource(@Nullable String resource) {
+  public boolean matchResource(@Nullable String resource) {
     return resource != null && resourcePattern.match(resource);
   }
 
   public IssuePattern forResource(String resource) {
-    return new IssuePattern(resource, rulePattern.toString(), lineRanges).setCheckLines(isCheckLines());
+    return new IssuePattern(resource, rulePattern.toString(), lineRanges);
   }
 
   @Override

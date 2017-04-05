@@ -19,25 +19,23 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.IssueExclusionProperties;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
 public class IssueExclusionPatternInitializer extends AbstractPatternInitializer {
 
-  private List<IssuePattern> blockPatterns;
-  private List<IssuePattern> allFilePatterns;
-  private PatternMatcher patternMatcher;
+  private List<BlockIssuePattern> blockPatterns;
+  private List<String> allFilePatterns;
 
   public IssueExclusionPatternInitializer(Settings settings) {
     super(settings);
-    patternMatcher = new PatternMatcher();
     loadFileContentPatterns();
   }
 
@@ -46,26 +44,12 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
     return "sonar.issue.ignore" + ".multicriteria";
   }
 
-  public PatternMatcher getPatternMatcher() {
-    return patternMatcher;
-  }
-
-  @Override
-  public void initializePatternsForPath(String relativePath, String componentKey) {
-    for (IssuePattern pattern : getMulticriteriaPatterns()) {
-      if (pattern.matchResource(relativePath)) {
-        getPatternMatcher().addPatternForComponent(componentKey, pattern);
-      }
-    }
-  }
-
   @Override
   public boolean hasConfiguredPatterns() {
     return hasFileContentPattern() || hasMulticriteriaPatterns();
   }
 
-  @VisibleForTesting
-  protected final void loadFileContentPatterns() {
+  private final void loadFileContentPatterns() {
     // Patterns Block
     blockPatterns = new ArrayList<>();
     String patternConf = StringUtils.defaultIfBlank(getSettings().getString(IssueExclusionProperties.PATTERNS_BLOCK_KEY), "");
@@ -73,11 +57,12 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
       String propPrefix = IssueExclusionProperties.PATTERNS_BLOCK_KEY + "." + id + ".";
       String beginBlockRegexp = getSettings().getString(propPrefix + IssueExclusionProperties.BEGIN_BLOCK_REGEXP);
       String endBlockRegexp = getSettings().getString(propPrefix + IssueExclusionProperties.END_BLOCK_REGEXP);
-      String[] fields = new String[]{beginBlockRegexp, endBlockRegexp};
+      String[] fields = new String[] {beginBlockRegexp, endBlockRegexp};
       PatternDecoder.checkDoubleRegexpLineConstraints(StringUtils.join(fields, ","), fields);
-      IssuePattern pattern = new IssuePattern().setBeginBlockRegexp(nullToEmpty(beginBlockRegexp)).setEndBlockRegexp(nullToEmpty(endBlockRegexp));
+      BlockIssuePattern pattern = new BlockIssuePattern(nullToEmpty(beginBlockRegexp), nullToEmpty(endBlockRegexp));
       blockPatterns.add(pattern);
     }
+    blockPatterns = Collections.unmodifiableList(blockPatterns);
 
     // Patterns All File
     allFilePatterns = new ArrayList<>();
@@ -86,16 +71,16 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
       String propPrefix = IssueExclusionProperties.PATTERNS_ALLFILE_KEY + "." + id + ".";
       String allFileRegexp = getSettings().getString(propPrefix + IssueExclusionProperties.FILE_REGEXP);
       PatternDecoder.checkWholeFileRegexp(allFileRegexp);
-      IssuePattern pattern = new IssuePattern().setAllFileRegexp(nullToEmpty(allFileRegexp));
-      allFilePatterns.add(pattern);
+      allFilePatterns.add(nullToEmpty(allFileRegexp));
     }
+    allFilePatterns = Collections.unmodifiableList(allFilePatterns);
   }
 
-  public List<IssuePattern> getBlockPatterns() {
+  public List<BlockIssuePattern> getBlockPatterns() {
     return blockPatterns;
   }
 
-  public List<IssuePattern> getAllFilePatterns() {
+  public List<String> getAllFilePatterns() {
     return allFilePatterns;
   }
 

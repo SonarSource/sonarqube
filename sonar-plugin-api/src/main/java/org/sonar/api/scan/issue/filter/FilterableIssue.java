@@ -20,6 +20,9 @@
 package org.sonar.api.scan.issue.filter;
 
 import java.util.Date;
+
+import javax.annotation.CheckForNull;
+
 import org.sonar.api.rule.RuleKey;
 
 /**
@@ -35,6 +38,7 @@ public interface FilterableIssue {
 
   String message();
 
+  @CheckForNull
   Integer line();
 
   /**
@@ -46,6 +50,7 @@ public interface FilterableIssue {
   /**
    * @since 5.5
    */
+  @CheckForNull
   Double gap();
 
   Date creationDate();

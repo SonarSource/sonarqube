@@ -19,45 +19,47 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
+import org.sonar.api.rule.RuleKey;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class PatternMatcher {
 
-  private Multimap<String, IssuePattern> patternByComponent = LinkedHashMultimap.create();
+  private Multimap<String, IssuePattern> excludePatternByComponent = LinkedHashMultimap.create();
 
-  public IssuePattern getMatchingPattern(FilterableIssue issue) {
-    IssuePattern matchingPattern = null;
-    Iterator<IssuePattern> patternIterator = getPatternsForComponent(issue.componentKey()).iterator();
-    while(matchingPattern == null && patternIterator.hasNext()) {
-      IssuePattern nextPattern = patternIterator.next();
-      if (nextPattern.match(issue)) {
-        matchingPattern = nextPattern;
+  @CheckForNull
+  public IssuePattern getMatchingPattern(String componentKey, RuleKey ruleKey, @Nullable Integer line) {
+    for (IssuePattern pattern : getPatternsForComponent(componentKey)) {
+      if (pattern.match(componentKey, ruleKey, line)) {
+        return pattern;
       }
     }
-    return matchingPattern;
+    return null;
   }
 
+  @VisibleForTesting
   public Collection<IssuePattern> getPatternsForComponent(String componentKey) {
-    return patternByComponent.get(componentKey);
+    return excludePatternByComponent.get(componentKey);
   }
 
-  public void addPatternForComponent(String component, IssuePattern pattern) {
-    patternByComponent.put(component, pattern.forResource(component));
+  public void addPatternForComponent(String componentKey, IssuePattern pattern) {
+    excludePatternByComponent.put(componentKey, pattern.forResource(componentKey));
   }
 
-  public void addPatternToExcludeResource(String resource) {
-    addPatternForComponent(resource, new IssuePattern(resource, "*").setCheckLines(false));
+  public void addPatternToExcludeResource(String componentKey) {
+    addPatternForComponent(componentKey, new IssuePattern(componentKey, "*"));
   }
 
-  public void addPatternToExcludeLines(String resource, Set<LineRange> lineRanges) {
-    addPatternForComponent(resource, new IssuePattern(resource, "*", lineRanges).setCheckLines(true));
+  public void addPatternToExcludeLines(String componentKey, Set<LineRange> lineRanges) {
+    addPatternForComponent(componentKey, new IssuePattern(componentKey, "*", lineRanges));
   }
 
 }

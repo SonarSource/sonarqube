@@ -20,31 +20,23 @@
 package org.sonar.scanner.issue.ignore.scanner;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class IssueExclusionsLoaderTest {
@@ -52,31 +44,18 @@ public class IssueExclusionsLoaderTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Mock
-  private IssueExclusionsRegexpScanner regexpScanner;
-
-  @Mock
-  private IssueInclusionPatternInitializer inclusionPatternInitializer;
-
   @Mock
   private IssueExclusionPatternInitializer exclusionPatternInitializer;
 
-  @Mock
   private PatternMatcher patternMatcher;
 
-  private DefaultFileSystem fs;
   private IssueExclusionsLoader scanner;
-  private Path baseDir;
 
   @Before
   public void before() throws Exception {
-    baseDir = temp.newFolder().toPath();
-    fs = new DefaultFileSystem(baseDir).setEncoding(UTF_8);
+    patternMatcher = new PatternMatcher();
     MockitoAnnotations.initMocks(this);
-    scanner = new IssueExclusionsLoader(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
+    scanner = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
   }
 
   @Test
@@ -85,108 +64,55 @@ public class IssueExclusionsLoaderTest {
   }
 
   @Test
-  public void shouldExecute() {
-    when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
-    when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
-    assertThat(scanner.shouldExecute()).isTrue();
+  public void createComputer() {
+    assertThat(scanner.createCharHandlerFor("src/main/java/Foo.java")).isNull();
 
-    when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
-    when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
-    assertThat(scanner.shouldExecute()).isTrue();
+    when(exclusionPatternInitializer.getAllFilePatterns()).thenReturn(Collections.singletonList("pattern"));
+    scanner = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
+    assertThat(scanner.createCharHandlerFor("src/main/java/Foo.java")).isNotNull();
 
-    when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
-    when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
-    assertThat(scanner.shouldExecute()).isTrue();
 
-    when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
-    when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
-    assertThat(scanner.shouldExecute()).isFalse();
+  }
+
+  @Test
+  public void shouldHavePatternsBasedOnMulticriteriaPattern() {
+    IssuePattern pattern1 = new IssuePattern("org/foo/Bar.java", "*");
+    IssuePattern pattern2 = new IssuePattern("org/foo/Hello.java", "checkstyle:MagicNumber");
+    when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(Arrays.asList(new IssuePattern[] {pattern1, pattern2}));
+
+    IssueExclusionsLoader loader = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
+    loader.addMulticriteriaPatterns("org/foo/Bar.java", "org.foo.Bar");
+    loader.addMulticriteriaPatterns("org/foo/Baz.java", "org.foo.Baz");
+    loader.addMulticriteriaPatterns("org/foo/Hello.java", "org.foo.Hello");
+
+    assertThat(patternMatcher.getPatternsForComponent("org.foo.Bar")).hasSize(1);
+    assertThat(patternMatcher.getPatternsForComponent("org.foo.Baz")).hasSize(0);
+    assertThat(patternMatcher.getPatternsForComponent("org.foo.Hello")).hasSize(1);
   }
 
   @Test
   public void shouldAnalyzeProject() throws IOException {
-    Path javaFile1 = baseDir.resolve("src/main/java/Foo.java");
-    fs.add(new TestInputFileBuilder("polop", "src/main/java/Foo.java")
-      .setModuleBaseDir(baseDir)
-      .setCharset(StandardCharsets.UTF_8)
-      .setType(InputFile.Type.MAIN)
-      .build());
-    Path javaTestFile1 = baseDir.resolve("src/test/java/FooTest.java");
-    fs.add(new TestInputFileBuilder("polop", "src/test/java/FooTest.java")
-      .setModuleBaseDir(baseDir)
-      .setCharset(StandardCharsets.UTF_8)
-      .setType(InputFile.Type.TEST)
-      .build());
+    IssuePattern pattern = new IssuePattern("**", "*");
+    when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(Collections.singletonList(pattern));
+    when(exclusionPatternInitializer.hasMulticriteriaPatterns()).thenReturn(true);
 
-    when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
+    PatternMatcher patternMatcher = mock(PatternMatcher.class);
+    IssueExclusionsLoader loader = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
+    assertThat(loader.shouldExecute()).isTrue();
+    loader.addMulticriteriaPatterns("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
+    loader.addMulticriteriaPatterns("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
 
-    scanner.preLoadAllFiles();
-
-    verify(inclusionPatternInitializer).initializePatternsForPath("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
-    verify(inclusionPatternInitializer).initializePatternsForPath("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
-    verify(exclusionPatternInitializer).initializePatternsForPath("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
-    verify(exclusionPatternInitializer).initializePatternsForPath("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
-    verify(regexpScanner).scan("polop:src/main/java/Foo.java", javaFile1, UTF_8);
-    verify(regexpScanner).scan("polop:src/test/java/FooTest.java", javaTestFile1, UTF_8);
+    verify(patternMatcher).addPatternForComponent("polop:src/main/java/Foo.java", pattern);
+    verify(patternMatcher).addPatternForComponent("polop:src/test/java/FooTest.java", pattern);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
-  public void isLoaded() {
-    DefaultInputFile inputFile1 = new TestInputFileBuilder("polop", "src/test/java/FooTest1.java")
-      .setModuleBaseDir(baseDir)
-      .setCharset(StandardCharsets.UTF_8)
-      .setType(InputFile.Type.TEST)
-      .build();
-    DefaultInputFile inputFile2 = new TestInputFileBuilder("polop", "src/test/java/FooTest2.java")
-      .setModuleBaseDir(baseDir)
-      .setCharset(StandardCharsets.UTF_8)
-      .setType(InputFile.Type.TEST)
-      .build();
+  public void shouldExecute() {
+    when(exclusionPatternInitializer.hasMulticriteriaPatterns()).thenReturn(true);
+    assertThat(scanner.shouldExecute()).isTrue();
 
-    when(inclusionPatternInitializer.getPathForComponent(inputFile1.key())).thenReturn(null);
-    when(inclusionPatternInitializer.getPathForComponent(inputFile2.key())).thenReturn("path1");
-
-    assertFalse(scanner.isLoaded(inputFile1));
-    assertTrue(scanner.isLoaded(inputFile2));
-
-  }
-
-  @Test
-  public void shouldAnalyseFilesOnlyWhenRegexConfigured() {
-    fs.add(new TestInputFileBuilder("polop", "src/main/java/Foo.java")
-      .setType(InputFile.Type.MAIN)
-      .setCharset(StandardCharsets.UTF_8)
-      .build());
-    fs.add(new TestInputFileBuilder("polop", "src/test/java/FooTest.java")
-      .setType(InputFile.Type.TEST)
-      .setCharset(StandardCharsets.UTF_8)
-      .build());
-    when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
-
-    scanner.preLoadAllFiles();
-
-    verify(inclusionPatternInitializer).initializePatternsForPath("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
-    verify(inclusionPatternInitializer).initializePatternsForPath("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
-    verify(exclusionPatternInitializer).initializePatternsForPath("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
-    verify(exclusionPatternInitializer).initializePatternsForPath("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
-    verifyZeroInteractions(regexpScanner);
-  }
-
-  @Test
-  public void shouldReportFailure() throws IOException {
-    Path phpFile1 = baseDir.resolve("src/Foo.php");
-    fs.add(new TestInputFileBuilder("polop", "src/Foo.php")
-      .setModuleBaseDir(baseDir)
-      .setType(InputFile.Type.MAIN)
-      .setCharset(StandardCharsets.UTF_8)
-      .build());
-
-    when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
-    doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:src/Foo.php", phpFile1, UTF_8);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unable to read the source file");
-
-    scanner.preLoadAllFiles();
+    when(exclusionPatternInitializer.hasMulticriteriaPatterns()).thenReturn(false);
+    assertThat(scanner.shouldExecute()).isFalse();
   }
 }

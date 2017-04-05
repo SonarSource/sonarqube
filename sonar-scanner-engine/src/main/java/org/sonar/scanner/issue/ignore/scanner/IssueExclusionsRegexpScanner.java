@@ -19,92 +19,59 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
-import org.sonar.scanner.issue.ignore.pattern.LineRange;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
-@ScannerSide
-public class IssueExclusionsRegexpScanner {
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.internal.FileMetadata.CharHandler;
+import org.sonar.scanner.issue.ignore.pattern.LineRange;
+import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 
-  private static final Logger LOG = LoggerFactory.getLogger(IssueExclusionsRegexpScanner.class);
+public class IssueExclusionsRegexpScanner extends CharHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(IssueExclusionsLoader.class);
 
-  private IssueExclusionPatternInitializer exclusionPatternInitializer;
-  private List<java.util.regex.Pattern> allFilePatterns;
-  private List<DoubleRegexpMatcher> blockMatchers;
+  private final StringBuilder sb = new StringBuilder();
+  private final List<Pattern> allFilePatterns;
+  private final List<DoubleRegexpMatcher> blockMatchers;
+  private final String componentKey;
+  private final PatternMatcher patternMatcher;
 
-  // fields to be reset at every new scan
+  private int lineIndex = 1;
+  private List<LineExclusion> lineExclusions = new ArrayList<>();
+  private LineExclusion currentLineExclusion = null;
+  private int fileLength = 0;
   private DoubleRegexpMatcher currentMatcher;
-  private int fileLength;
-  private List<LineExclusion> lineExclusions;
-  private LineExclusion currentLineExclusion;
 
-  public IssueExclusionsRegexpScanner(IssueExclusionPatternInitializer patternsInitializer) {
-    this.exclusionPatternInitializer = patternsInitializer;
-
-    lineExclusions = new ArrayList<>();
-    allFilePatterns = new ArrayList<>();
-    blockMatchers = new ArrayList<>();
-
-    for (IssuePattern pattern : patternsInitializer.getAllFilePatterns()) {
-      allFilePatterns.add(java.util.regex.Pattern.compile(pattern.getAllFileRegexp()));
-    }
-    for (IssuePattern pattern : patternsInitializer.getBlockPatterns()) {
-      blockMatchers.add(new DoubleRegexpMatcher(
-        java.util.regex.Pattern.compile(pattern.getBeginBlockRegexp()),
-        java.util.regex.Pattern.compile(pattern.getEndBlockRegexp())));
-    }
-
-    init();
+  IssueExclusionsRegexpScanner(String componentKey, List<Pattern> allFilePatterns, List<DoubleRegexpMatcher> blockMatchers, PatternMatcher patternMatcher) {
+    this.allFilePatterns = allFilePatterns;
+    this.blockMatchers = blockMatchers;
+    this.patternMatcher = patternMatcher;
+    this.componentKey = componentKey;
+    String relativePath = StringUtils.substringAfterLast(componentKey, ":");
+    LOG.info("'{}' generating issue exclusions", relativePath);
   }
 
-  private void init() {
-    currentMatcher = null;
-    fileLength = 0;
-    lineExclusions.clear();
-    currentLineExclusion = null;
+  @Override
+  protected void handleIgnoreEoL(char c) {
+    sb.append(c);
   }
 
-  public void scan(String resource, Path filePath, Charset encoding) throws IOException {
-    LOG.debug("Scanning {}", resource);
-    init();
+  @Override
+  protected void newLine() {
+    processLine(sb.toString());
+    sb.setLength(0);
+    lineIndex++;
+  }
 
-    int lineIndex = 0;
-    try (BufferedReader br = Files.newBufferedReader(filePath, encoding)) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        lineIndex++;
-        if (line.trim().length() == 0) {
-          continue;
-        }
-
-        // first check the single regexp patterns that can be used to totally exclude a file
-        for (java.util.regex.Pattern pattern : allFilePatterns) {
-          if (pattern.matcher(line).find()) {
-            exclusionPatternInitializer.getPatternMatcher().addPatternToExcludeResource(resource);
-            // nothing more to do on this file
-            LOG.debug("- Exclusion pattern '{}': every issue in this file will be ignored.", pattern);
-            return;
-          }
-        }
-
-        // then check the double regexps if we're still here
-        checkDoubleRegexps(line, lineIndex);
-      }
-    }
+  @Override
+  protected void eof() {
+    processLine(sb.toString());
 
     if (currentMatcher != null && !currentMatcher.hasSecondPattern()) {
       // this will happen when there is a start block regexp but no end block regexp
@@ -116,14 +83,33 @@ public class IssueExclusionsRegexpScanner {
     if (!lineExclusions.isEmpty()) {
       Set<LineRange> lineRanges = convertLineExclusionsToLineRanges();
       LOG.debug("- Line exclusions found: {}", lineRanges);
-      exclusionPatternInitializer.getPatternMatcher().addPatternToExcludeLines(resource, lineRanges);
+      patternMatcher.addPatternToExcludeLines(componentKey, lineRanges);
     }
+  }
+
+  private void processLine(String line) {
+    if (line.trim().length() == 0) {
+      return;
+    }
+
+    // first check the single regexp patterns that can be used to totally exclude a file
+    for (Pattern pattern : allFilePatterns) {
+      if (pattern.matcher(line).find()) {
+        patternMatcher.addPatternToExcludeResource(componentKey);
+        // nothing more to do on this file
+        LOG.debug("- Exclusion pattern '{}': every issue in this file will be ignored.", pattern);
+        return;
+      }
+    }
+
+    // then check the double regexps if we're still here
+    checkDoubleRegexps(line, lineIndex);
   }
 
   private Set<LineRange> convertLineExclusionsToLineRanges() {
     Set<LineRange> lineRanges = new HashSet<>(lineExclusions.size());
     for (LineExclusion lineExclusion : lineExclusions) {
-      lineRanges.add(lineExclusion.toLineRange());
+      lineRanges.add(lineExclusion.toLineRange(fileLength));
     }
     return lineRanges;
   }
@@ -155,8 +141,7 @@ public class IssueExclusionsRegexpScanner {
     currentLineExclusion = null;
   }
 
-  private class LineExclusion {
-
+  private static class LineExclusion {
     private int start;
     private int end;
 
@@ -169,33 +154,8 @@ public class IssueExclusionsRegexpScanner {
       this.end = end;
     }
 
-    public LineRange toLineRange() {
+    public LineRange toLineRange(int fileLength) {
       return new LineRange(start, end == -1 ? fileLength : end);
     }
-
   }
-
-  private static class DoubleRegexpMatcher {
-
-    private java.util.regex.Pattern firstPattern;
-    private java.util.regex.Pattern secondPattern;
-
-    DoubleRegexpMatcher(java.util.regex.Pattern firstPattern, java.util.regex.Pattern secondPattern) {
-      this.firstPattern = firstPattern;
-      this.secondPattern = secondPattern;
-    }
-
-    boolean matchesFirstPattern(String line) {
-      return firstPattern.matcher(line).find();
-    }
-
-    boolean matchesSecondPattern(String line) {
-      return hasSecondPattern() && secondPattern.matcher(line).find();
-    }
-
-    boolean hasSecondPattern() {
-      return StringUtils.isNotEmpty(secondPattern.toString());
-    }
-  }
-
 }
