@@ -19,12 +19,12 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +46,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class RuleDaoTest {
 
@@ -94,7 +93,7 @@ public class RuleDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String organizationUuid = "org-1";
 
-    assertThat(underTest.selectById(55l, organizationUuid, dbTester.getSession())).isAbsent();
+    assertThat(underTest.selectById(55l, organizationUuid, dbTester.getSession())).isEmpty();
     Optional<RuleDto> ruleDtoOptional = underTest.selectById(1l, organizationUuid, dbTester.getSession());
     assertThat(ruleDtoOptional).isPresent();
     assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
@@ -113,7 +112,7 @@ public class RuleDaoTest {
   public void selectDefinitionById() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectDefinitionById(55l, dbTester.getSession())).isAbsent();
+    assertThat(underTest.selectDefinitionById(55l, dbTester.getSession())).isEmpty();
     Optional<RuleDefinitionDto> ruleDtoOptional = underTest.selectDefinitionById(1l, dbTester.getSession());
     assertThat(ruleDtoOptional).isPresent();
     assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
@@ -296,8 +295,8 @@ public class RuleDaoTest {
     String organizationUuid = "org-1";
 
     assertThat(underTest.selectByQuery(dbTester.getSession(), organizationUuid, RuleQuery.create()))
-        .extracting(RuleDto::getOrganizationUuid)
-        .containsExactly(organizationUuid, organizationUuid);
+      .extracting(RuleDto::getOrganizationUuid)
+      .containsExactly(organizationUuid, organizationUuid);
   }
 
   @Test
@@ -457,23 +456,23 @@ public class RuleDaoTest {
     String organizationUuid = "org-1";
     OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid(organizationUuid);
     RuleMetadataDto metadataV1 = new RuleMetadataDto()
-        .setRuleId(1)
-        .setOrganizationUuid(organizationUuid)
-        .setCreatedAt(3_500_000_000_000L)
-        .setUpdatedAt(4_000_000_000_000L);
+      .setRuleId(1)
+      .setOrganizationUuid(organizationUuid)
+      .setCreatedAt(3_500_000_000_000L)
+      .setUpdatedAt(4_000_000_000_000L);
     RuleMetadataDto metadataV2 = new RuleMetadataDto()
-        .setRuleId(1)
-        .setOrganizationUuid(organizationUuid)
-        .setNoteData("My note")
-        .setNoteUserLogin("admin")
-        .setNoteCreatedAt(DateUtils.parseDate("2013-12-19").getTime())
-        .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20").getTime())
-        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-        .setRemediationGapMultiplier("1h")
-        .setRemediationBaseEffort("5min")
-        .setTags(newHashSet("tag1", "tag2"))
-        .setCreatedAt(6_500_000_000_000L)
-        .setUpdatedAt(7_000_000_000_000L);
+      .setRuleId(1)
+      .setOrganizationUuid(organizationUuid)
+      .setNoteData("My note")
+      .setNoteUserLogin("admin")
+      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19").getTime())
+      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20").getTime())
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setRemediationGapMultiplier("1h")
+      .setRemediationBaseEffort("5min")
+      .setTags(newHashSet("tag1", "tag2"))
+      .setCreatedAt(6_500_000_000_000L)
+      .setUpdatedAt(7_000_000_000_000L);
 
     underTest.insertOrUpdate(dbTester.getSession(), metadataV1);
     dbTester.commit();

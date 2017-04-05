@@ -151,7 +151,7 @@ public class RuleCreator {
   }
 
   private Optional<RuleDefinitionDto> loadRule(RuleKey ruleKey, DbSession dbSession) {
-    return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey).transform(Optional::of).or(Optional::empty);
+    return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
   }
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {

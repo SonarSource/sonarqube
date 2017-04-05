@@ -58,7 +58,7 @@ public class IssueUpdater {
   }
 
   private Optional<RuleDefinitionDto> getRuleByKey(DbSession session, RuleKey ruleKey) {
-    Optional<RuleDefinitionDto> rule = Optional.ofNullable(dbClient.ruleDao().selectDefinitionByKey(session, ruleKey).orNull());
+    Optional<RuleDefinitionDto> rule = Optional.ofNullable(dbClient.ruleDao().selectDefinitionByKey(session, ruleKey).orElse(null));
     return (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) ? rule : Optional.empty();
   }
 }

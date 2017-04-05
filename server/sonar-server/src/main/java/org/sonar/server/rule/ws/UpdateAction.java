@@ -24,7 +24,6 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -226,7 +225,6 @@ public class UpdateAction implements RulesWsAction {
 
   private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, OrganizationDto organization) {
     RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
-      .transform(Optional::of).or(Optional::empty)
       .orElseThrow(() -> new NotFoundException(format("This rule does not exist: %s", key)));
     RuleUpdate ruleUpdate = ofNullable(rule.getTemplateId())
       .map(x -> RuleUpdate.createForCustomRule(key))
@@ -272,12 +270,10 @@ public class UpdateAction implements RulesWsAction {
 
   private UpdateResponse buildResponse(DbSession dbSession, RuleKey key, OrganizationDto organization) {
     RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
-      .transform(Optional::of).or(Optional::empty)
       .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
     if (rule.getTemplateId() != null) {
       dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession)
-        .transform(Optional::of).or(Optional::empty)
         .ifPresent(templateRules::add);
     }
     List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
