@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.issue.ignore.pattern;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
+public class BlockIssuePattern {
+  private String beginBlockRegexp;
+  private String endBlockRegexp;
 
-@ScannerSide
-public class MetadataGeneratorProvider extends ProviderAdapter {
-  public MetadataGenerator provide(DefaultInputModule inputModule, StatusDetectionFactory statusDetectionFactory, FileMetadata fileMetadata,
-    IssueExclusionsLoader exclusionsScanner) {
-    return new MetadataGenerator(inputModule, statusDetectionFactory.create(), fileMetadata, exclusionsScanner);
+  public BlockIssuePattern(String beginBlockRegexp, String endBlockRegexp) {
+    this.beginBlockRegexp = beginBlockRegexp;
+    this.endBlockRegexp = endBlockRegexp;
+  }
+
+  public String getBeginBlockRegexp() {
+    return beginBlockRegexp;
+  }
+
+  public String getEndBlockRegexp() {
+    return endBlockRegexp;
   }
 }

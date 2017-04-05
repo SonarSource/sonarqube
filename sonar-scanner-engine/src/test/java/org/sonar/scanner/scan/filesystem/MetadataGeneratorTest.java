@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
@@ -40,6 +41,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.PathUtils;
+import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 public class MetadataGeneratorTest {
   @Rule
@@ -57,7 +61,8 @@ public class MetadataGeneratorTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     metadata = new FileMetadata();
-    generator = new MetadataGenerator(new DefaultInputModule("module"), statusDetection, metadata);
+    IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionPatternInitializer.class), mock(PatternMatcher.class));
+    generator = new MetadataGenerator(new DefaultInputModule("module"), statusDetection, metadata, issueExclusionsLoader);
   }
 
   @Test

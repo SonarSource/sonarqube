@@ -19,31 +19,16 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import com.google.common.collect.Maps;
 import org.sonar.api.config.Settings;
-
-import java.util.Map;
 
 public class IssueInclusionPatternInitializer extends AbstractPatternInitializer {
 
-  private Map<String, String> pathForComponent;
-
   public IssueInclusionPatternInitializer(Settings settings) {
     super(settings);
-    pathForComponent = Maps.newHashMap();
   }
 
   @Override
   protected String getMulticriteriaConfigurationKey() {
     return "sonar.issue.enforce" + ".multicriteria";
-  }
-
-  @Override
-  public void initializePatternsForPath(String relativePath, String componentKey) {
-    pathForComponent.put(componentKey, relativePath);
-  }
-
-  public String getPathForComponent(String componentKey) {
-    return pathForComponent.get(componentKey);
   }
 }

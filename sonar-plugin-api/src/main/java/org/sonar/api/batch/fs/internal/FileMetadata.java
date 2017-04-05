@@ -33,8 +33,10 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.ByteOrderMark;
@@ -270,13 +272,24 @@ public class FileMetadata {
    * Compute hash of a file ignoring line ends differences.
    * Maximum performance is needed.
    */
-  public Metadata readMetadata(File file, Charset encoding) {
+  public Metadata readMetadata(File file, Charset encoding, @Nullable CharHandler otherHandler) {
     LineCounter lineCounter = new LineCounter(file, encoding);
     FileHashComputer fileHashComputer = new FileHashComputer(file);
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
-    readFile(file, encoding, lineCounter, fileHashComputer, lineOffsetCounter);
+
+    if (otherHandler != null) {
+      CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter, otherHandler};
+      readFile(file, encoding, handlers);
+    } else {
+      CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter};
+      readFile(file, encoding, handlers);
+    }
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
       lineOffsetCounter.getLastValidOffset());
+  }
+
+  public Metadata readMetadata(File file, Charset encoding) {
+    return readMetadata(file, encoding, null);
   }
 
   /**
@@ -286,16 +299,18 @@ public class FileMetadata {
     LineCounter lineCounter = new LineCounter(new File("fromString"), StandardCharsets.UTF_16);
     FileHashComputer fileHashComputer = new FileHashComputer(new File("fromString"));
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
+    CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter};
+
     try {
-      read(reader, lineCounter, fileHashComputer, lineOffsetCounter);
+      read(reader, handlers);
     } catch (IOException e) {
-      throw new IllegalStateException("Should never occurs", e);
+      throw new IllegalStateException("Should never occur", e);
     }
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
       lineOffsetCounter.getLastValidOffset());
   }
 
-  public static void readFile(File file, Charset encoding, CharHandler... handlers) {
+  public static void readFile(File file, Charset encoding, CharHandler[] handlers) {
     try (BOMInputStream bomIn = new BOMInputStream(new FileInputStream(file),
       ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
       Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {
@@ -305,7 +320,7 @@ public class FileMetadata {
     }
   }
 
-  private static void read(Reader reader, CharHandler... handlers) throws IOException {
+  private static void read(Reader reader, CharHandler[] handlers) throws IOException {
     char c;
     int i = reader.read();
     boolean afterCR = false;
@@ -354,15 +369,13 @@ public class FileMetadata {
 
   @FunctionalInterface
   public interface LineHashConsumer {
-
     void consume(int lineIdx, @Nullable byte[] hash);
-
   }
 
   /**
    * Compute a MD5 hash of each line of the file after removing of all blank chars
    */
   public static void computeLineHashesForIssueTracking(InputFile f, LineHashConsumer consumer) {
-    readFile(f.file(), f.charset(), new LineHashComputer(consumer, f.file()));
+    readFile(f.file(), f.charset(), new CharHandler[] {new LineHashComputer(consumer, f.file())});
   }
 }

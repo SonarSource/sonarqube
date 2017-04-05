@@ -19,150 +19,146 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
-import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsRegexpScanner;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
+
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class IssueExclusionsRegexpScannerTest {
-
-  private IssueExclusionsRegexpScanner regexpScanner;
-
   private String javaFile;
+
   @Mock
   private IssueExclusionPatternInitializer patternsInitializer;
   @Mock
   private PatternMatcher patternMatcher;
-  @Mock
-  private IssuePattern allFilePattern;
-  @Mock
-  private IssuePattern blockPattern1;
-  @Mock
-  private IssuePattern blockPattern2;
+
+  private List<Pattern> allFilePatterns;
+  private List<DoubleRegexpMatcher> blockPatterns;
+  private IssueExclusionsRegexpScanner regexpScanner;
+  private FileMetadata fileMetadata = new FileMetadata();
 
   @Before
   public void init() {
     MockitoAnnotations.initMocks(this);
 
-    when(allFilePattern.getAllFileRegexp()).thenReturn("@SONAR-IGNORE-ALL");
-    when(blockPattern1.getBeginBlockRegexp()).thenReturn("// SONAR-OFF");
-    when(blockPattern1.getEndBlockRegexp()).thenReturn("// SONAR-ON");
-    when(blockPattern2.getBeginBlockRegexp()).thenReturn("// FOO-OFF");
-    when(blockPattern2.getEndBlockRegexp()).thenReturn("// FOO-ON");
-    when(patternsInitializer.getAllFilePatterns()).thenReturn(Arrays.asList(allFilePattern));
-    when(patternsInitializer.getBlockPatterns()).thenReturn(Arrays.asList(blockPattern1, blockPattern2));
-    when(patternsInitializer.getPatternMatcher()).thenReturn(patternMatcher);
-
-    regexpScanner = new IssueExclusionsRegexpScanner(patternsInitializer);
-    verify(patternsInitializer, times(1)).getAllFilePatterns();
-    verify(patternsInitializer, times(1)).getBlockPatterns();
+    blockPatterns = Arrays.asList(new DoubleRegexpMatcher[] {
+      new DoubleRegexpMatcher(Pattern.compile("// SONAR-OFF"), Pattern.compile("// SONAR-ON")),
+      new DoubleRegexpMatcher(Pattern.compile("// FOO-OFF"), Pattern.compile("// FOO-ON"))
+    });
+    allFilePatterns = Collections.singletonList(Pattern.compile("@SONAR-IGNORE-ALL"));
 
     javaFile = "org.sonar.test.MyFile";
+    regexpScanner = new IssueExclusionsRegexpScanner(javaFile, allFilePatterns, blockPatterns, patternMatcher);
+  }
+  
+  @Test
+  public void shouldDetectPatternLastLine() throws URISyntaxException {
+    fileMetadata.readMetadata(getResource("file-with-single-regexp-last-line.txt").toFile(), UTF_8, regexpScanner);
+
+    verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldDoNothing() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-no-regexp.txt").toURI()), UTF_8);
-
-    verifyNoMoreInteractions(patternsInitializer);
+    fileMetadata.readMetadata(getResource("file-with-no-regexp.txt").toFile(), UTF_8, regexpScanner);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldAddPatternToExcludeFile() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-single-regexp.txt").toURI()), UTF_8);
+    fileMetadata.readMetadata(getResource("file-with-single-regexp.txt").toFile(), UTF_8, regexpScanner);
 
-    verify(patternsInitializer).getPatternMatcher();
     verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
-    verifyNoMoreInteractions(patternsInitializer);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldAddPatternToExcludeFileEvenIfAlsoDoubleRegexps() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-single-regexp-and-double-regexp.txt").toURI()), UTF_8);
+    fileMetadata.readMetadata(getResource("file-with-single-regexp-and-double-regexp.txt").toFile(), UTF_8, regexpScanner);
 
-    verify(patternsInitializer).getPatternMatcher();
+    Set<LineRange> lineRanges = new HashSet<>();
+    lineRanges.add(new LineRange(5, 26));
     verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
-    verifyNoMoreInteractions(patternsInitializer);
+    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldAddPatternToExcludeLines() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp.txt").toURI()), UTF_8);
+    fileMetadata.readMetadata(getResource("file-with-double-regexp.txt").toFile(), UTF_8, regexpScanner);
 
-    Set<LineRange> lineRanges = Sets.newHashSet();
+    Set<LineRange> lineRanges = new HashSet<>();
     lineRanges.add(new LineRange(21, 25));
-    verify(patternsInitializer).getPatternMatcher();
     verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternsInitializer);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldAddPatternToExcludeLinesTillTheEnd() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-unfinished.txt").toURI()), UTF_8);
+    fileMetadata.readMetadata(getResource("file-with-double-regexp-unfinished.txt").toFile(), UTF_8, regexpScanner);
 
-    Set<LineRange> lineRanges = Sets.newHashSet();
+    Set<LineRange> lineRanges = new HashSet<>();
     lineRanges.add(new LineRange(21, 34));
-    verify(patternsInitializer).getPatternMatcher();
     verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternsInitializer);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldAddPatternToExcludeSeveralLineRanges() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-twice.txt").toURI()), UTF_8);
+    fileMetadata.readMetadata(getResource("file-with-double-regexp-twice.txt").toFile(), UTF_8, regexpScanner);
 
-    Set<LineRange> lineRanges = Sets.newHashSet();
+    Set<LineRange> lineRanges = new HashSet<>();
     lineRanges.add(new LineRange(21, 25));
     lineRanges.add(new LineRange(29, 33));
-    verify(patternsInitializer).getPatternMatcher();
     verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternsInitializer);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldAddPatternToExcludeLinesWithWrongOrder() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-wrong-order.txt").toURI()), UTF_8);
+    fileMetadata.readMetadata(getResource("file-with-double-regexp-wrong-order.txt").toFile(), UTF_8, regexpScanner);
 
-    Set<LineRange> lineRanges = Sets.newHashSet();
+    Set<LineRange> lineRanges = new HashSet<>();
     lineRanges.add(new LineRange(25, 35));
-    verify(patternsInitializer).getPatternMatcher();
     verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternsInitializer);
+    verifyNoMoreInteractions(patternMatcher);
   }
 
   @Test
   public void shouldAddPatternToExcludeLinesWithMess() throws Exception {
-    regexpScanner.scan(javaFile, Paths.get(Resources.getResource(
-      "org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/file-with-double-regexp-mess.txt").toURI()), UTF_8);
+    fileMetadata.readMetadata(getResource("file-with-double-regexp-mess.txt").toFile(), UTF_8, regexpScanner);
 
-    Set<LineRange> lineRanges = Sets.newHashSet();
+    Set<LineRange> lineRanges = new HashSet<>();
     lineRanges.add(new LineRange(21, 29));
-    verify(patternsInitializer).getPatternMatcher();
     verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternsInitializer);
+    verifyNoMoreInteractions(patternMatcher);
+  }
+
+  private Path getResource(String fileName) throws URISyntaxException {
+    return Paths.get(Resources.getResource("org/sonar/scanner/issue/ignore/scanner/IssueExclusionsRegexpScannerTest/" + fileName).toURI());
   }
 
 }

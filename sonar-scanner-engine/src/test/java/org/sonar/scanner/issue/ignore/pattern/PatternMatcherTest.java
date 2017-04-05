@@ -19,22 +19,20 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
-import org.sonar.scanner.issue.ignore.pattern.PatternDecoder;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 
+import java.util.Collections;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PatternMatcherTest {
 
@@ -72,51 +70,47 @@ public class PatternMatcherTest {
 
   @Test
   public void shouldHaveNoMatcherIfNoneDefined() {
-    assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, null))).isNull();
+    assertThat(patternMatcher.getMatchingPattern(JAVA_FILE, CHECKSTYLE_RULE.ruleKey(), null)).isNull();
   }
 
   @Test
   public void shouldMatchWithStandardPatterns() {
-    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
+    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello", "checkstyle:MagicNumber", createRanges(15, 200)));
 
-    assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isNotNull();
+    assertThat(patternMatcher.getMatchingPattern(JAVA_FILE, CHECKSTYLE_RULE.ruleKey(), 150)).isNotNull();
   }
 
   @Test
   public void shouldNotMatchWithStandardPatterns() {
-    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
+    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello", "checkstyle:MagicNumber", createRanges(15, 200)));
 
-    assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isNull();
+    assertThat(patternMatcher.getMatchingPattern(JAVA_FILE, CHECKSTYLE_RULE.ruleKey(), 5)).isNull();
   }
 
   @Test
   public void shouldMatchWithExtraPattern() {
-    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;*;[15-200]"));
+    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello", "*", createRanges(15, 200)));
 
-    assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isNotNull();
+    assertThat(patternMatcher.getMatchingPattern(JAVA_FILE, CHECKSTYLE_RULE.ruleKey(), 150)).isNotNull();
   }
 
   @Test
   public void shouldNotMatchWithExtraPattern() {
-    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;*;[15-200]"));
+    patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello", "*", createRanges(15, 200)));
 
-    assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isNull();
+    assertThat(patternMatcher.getMatchingPattern(JAVA_FILE, CHECKSTYLE_RULE.ruleKey(), 5)).isNull();
   }
 
-  private FilterableIssue create(Rule rule, String component, Integer line) {
-    FilterableIssue mockIssue = mock(FilterableIssue.class);
-    RuleKey ruleKey = null;
-    if (rule != null) {
-      ruleKey = rule.ruleKey();
+  private IssuePattern createPattern(String resourcePattern, String rulePattern, @Nullable Set<LineRange> lineRanges) {
+    if (lineRanges != null) {
+      return new IssuePattern(resourcePattern, rulePattern, lineRanges);
+    } else {
+      return new IssuePattern(resourcePattern, rulePattern);
     }
-    when(mockIssue.ruleKey()).thenReturn(ruleKey);
-    when(mockIssue.componentKey()).thenReturn(component);
-    when(mockIssue.line()).thenReturn(line);
-    return mockIssue;
   }
 
-  private IssuePattern createPattern(String line) {
-    return new PatternDecoder().decode(line).get(0);
+  private Set<LineRange> createRanges(int from, int to) {
+    return Collections.singleton(new LineRange(from, to));
   }
 
 }

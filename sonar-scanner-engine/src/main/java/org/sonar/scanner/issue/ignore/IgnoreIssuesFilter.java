@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 
@@ -34,8 +33,8 @@ public class IgnoreIssuesFilter implements IssueFilter {
 
   private static final Logger LOG = LoggerFactory.getLogger(IgnoreIssuesFilter.class);
 
-  public IgnoreIssuesFilter(IssueExclusionPatternInitializer patternInitializer) {
-    this.patternMatcher = patternInitializer.getPatternMatcher();
+  public IgnoreIssuesFilter(PatternMatcher patternMatcher) {
+    this.patternMatcher = patternMatcher;
   }
 
   @Override
@@ -48,7 +47,7 @@ public class IgnoreIssuesFilter implements IssueFilter {
   }
 
   private boolean hasMatchFor(FilterableIssue issue) {
-    IssuePattern pattern = patternMatcher.getMatchingPattern(issue);
+    IssuePattern pattern = patternMatcher.getMatchingPattern(issue.componentKey(), issue.ruleKey(), issue.line());
     if (pattern != null) {
       logExclusion(issue, pattern);
       return true;

@@ -35,6 +35,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 class MetadataGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(MetadataGenerator.class);
@@ -47,11 +48,13 @@ class MetadataGenerator {
   private final StatusDetection statusDetection;
   private final FileMetadata fileMetadata;
   private final DefaultInputModule inputModule;
+  private final IssueExclusionsLoader exclusionsScanner;
 
-  MetadataGenerator(DefaultInputModule inputModule, StatusDetection statusDetection, FileMetadata fileMetadata) {
+  MetadataGenerator(DefaultInputModule inputModule, StatusDetection statusDetection, FileMetadata fileMetadata, IssueExclusionsLoader exclusionsScanner) {
     this.inputModule = inputModule;
     this.statusDetection = statusDetection;
     this.fileMetadata = fileMetadata;
+    this.exclusionsScanner = exclusionsScanner;
   }
 
   /**
@@ -62,11 +65,10 @@ class MetadataGenerator {
     try {
       Charset charset = detectCharset(inputFile.path(), defaultEncoding);
       inputFile.setCharset(charset);
-      Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset);
+      Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset, exclusionsScanner.createCharHandlerFor(inputFile.key()));
       inputFile.setMetadata(metadata);
       inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile.relativePath(), metadata.hash()));
-      LOG.debug("'{}' generated metadata {} with charset '{}'",
-        inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
+      LOG.debug("'{}' generated metadata {} with charset '{}'", inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }

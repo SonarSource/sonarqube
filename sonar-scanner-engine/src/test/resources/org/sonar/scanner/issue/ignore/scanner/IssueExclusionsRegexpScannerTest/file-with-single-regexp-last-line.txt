@@ -4,6 +4,9 @@ import com.google.common.collect.Sets;
 
 import java.util.Set;
 
+/**
+ * @SONAR-IGNORE-ALL
+ */
 public class LineRange {
   int from, to;
 
@@ -28,4 +31,3 @@ public class LineRange {
   }
 
 }
-// @SONAR-IGNORE-ALL

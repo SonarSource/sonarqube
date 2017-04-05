@@ -28,8 +28,12 @@ public class LineRange {
   private int from;
   private int to;
 
+  public LineRange(int line) {
+    this(line, line);
+  }
+
   public LineRange(int from, int to) {
-    Preconditions.checkArgument(from <= to, "Line range is not valid: %s must be greater than %s", from, to);
+    Preconditions.checkArgument(from <= to, "Line range is not valid: %s must be greater or equal than %s", to, from);
 
     this.from = from;
     this.to = to;
@@ -40,11 +44,19 @@ public class LineRange {
   }
 
   public Set<Integer> toLines() {
-    Set<Integer> lines = new LinkedHashSet<>(to-from+1);
+    Set<Integer> lines = new LinkedHashSet<>(to - from + 1);
     for (int index = from; index <= to; index++) {
       lines.add(index);
     }
     return lines;
+  }
+
+  public int from() {
+    return from;
+  }
+
+  public int to() {
+    return to;
   }
 
   @Override
@@ -79,12 +91,6 @@ public class LineRange {
   }
 
   private boolean fieldsDiffer(LineRange other) {
-    if (from != other.from) {
-      return true;
-    }
-    if (to != other.to) {
-      return true;
-    }
-    return false;
+    return from != other.from || to != other.to;
   }
 }

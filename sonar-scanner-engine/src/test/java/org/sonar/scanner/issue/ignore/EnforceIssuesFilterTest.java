@@ -25,11 +25,14 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,18 +43,20 @@ import static org.mockito.Mockito.when;
 public class EnforceIssuesFilterTest {
 
   private IssueInclusionPatternInitializer exclusionPatternInitializer;
+  private InputComponentStore inputComponentStore;
   private EnforceIssuesFilter ignoreFilter;
   private FilterableIssue issue;
   private IssueFilterChain chain;
 
   @Before
   public void init() {
+    inputComponentStore = mock(InputComponentStore.class);
     exclusionPatternInitializer = mock(IssueInclusionPatternInitializer.class);
     issue = mock(FilterableIssue.class);
     chain = mock(IssueFilterChain.class);
     when(chain.accept(issue)).thenReturn(true);
 
-    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer);
+    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, inputComponentStore);
   }
 
   @Test
@@ -95,10 +100,14 @@ public class EnforceIssuesFilterTest {
     when(matching.getResourcePattern()).thenReturn(pathPattern);
     when(pathPattern.match(path)).thenReturn(true);
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(ImmutableList.of(matching));
-    when(exclusionPatternInitializer.getPathForComponent(componentKey)).thenReturn(path);
+    when(inputComponentStore.getByKey(componentKey)).thenReturn(createComponentWithPath(path));
 
     assertThat(ignoreFilter.accept(issue, chain)).isTrue();
     verifyZeroInteractions(chain);
+  }
+
+  private InputComponent createComponentWithPath(String path) {
+    return new TestInputFileBuilder("", path).build();
   }
 
   @Test
@@ -119,7 +128,7 @@ public class EnforceIssuesFilterTest {
     when(matching.getResourcePattern()).thenReturn(pathPattern);
     when(pathPattern.match(path)).thenReturn(false);
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(ImmutableList.of(matching));
-    when(exclusionPatternInitializer.getPathForComponent(componentKey)).thenReturn(path);
+    when(inputComponentStore.getByKey(componentKey)).thenReturn(createComponentWithPath(path));
 
     assertThat(ignoreFilter.accept(issue, chain)).isFalse();
     verifyZeroInteractions(chain);
@@ -143,7 +152,7 @@ public class EnforceIssuesFilterTest {
     when(matching.getResourcePattern()).thenReturn(pathPattern);
     when(pathPattern.match(path)).thenReturn(false);
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(ImmutableList.of(matching));
-    when(exclusionPatternInitializer.getPathForComponent(componentKey)).thenReturn(null);
+    when(inputComponentStore.getByKey(componentKey)).thenReturn(null);
 
     assertThat(ignoreFilter.accept(issue, chain)).isFalse();
     verifyZeroInteractions(chain);
