@@ -82,9 +82,10 @@ public class RuleDbTester {
     return insertRuleParam(rule, p -> {});
   }
 
-  public RuleParamDto insertRuleParam(RuleDefinitionDto rule, Consumer<RuleParamDto> populater) {
+  @SafeVarargs
+  public final RuleParamDto insertRuleParam(RuleDefinitionDto rule, Consumer<RuleParamDto>... populaters) {
     RuleParamDto param = RuleTesting.newRuleParam(rule);
-    populater.accept(param);
+    Arrays.asList(populaters).forEach(populater -> populater.accept(param));
     db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule, param);
     db.commit();
     return param;
