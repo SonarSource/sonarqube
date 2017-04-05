@@ -20,13 +20,20 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Preconditions;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
@@ -42,19 +49,35 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Charset charset;
   private Metadata metadata;
   private boolean publish;
+  private String contents;
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
+    this(indexedFile, metadataGenerator, null);
+  }
+
+  public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator, @Nullable String contents) {
     super(indexedFile.batchId());
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
     this.metadata = null;
     this.publish = false;
+    this.contents = contents;
   }
 
   public void checkMetadata() {
     if (metadata == null) {
       metadataGenerator.accept(this);
     }
+  }
+
+  @Override
+  public InputStream inputStream() throws IOException {
+    return contents != null ? new ByteArrayInputStream(contents.getBytes(charset())) : Files.newInputStream(path());
+  }
+
+  @Override
+  public String contents() throws IOException {
+    return contents != null ? contents : new String(Files.readAllBytes(path()), charset());
   }
 
   /**

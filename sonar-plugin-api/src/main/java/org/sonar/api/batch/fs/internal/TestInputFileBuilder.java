@@ -52,6 +52,7 @@ public class TestInputFileBuilder {
   private int nonBlankLines;
   private int[] originalLineOffsets;
   private boolean publish = true;
+  private String contents;
 
   public TestInputFileBuilder(String moduleKey, String relativePath) {
     this(moduleKey, relativePath, batchId++);
@@ -62,6 +63,10 @@ public class TestInputFileBuilder {
     this.moduleBaseDir = Paths.get(moduleKey);
     this.relativePath = PathUtils.sanitize(relativePath);
     this.id = id;
+  }
+
+  public static TestInputFileBuilder create(String moduleKey, String relativePath) {
+    return new TestInputFileBuilder(moduleKey, relativePath);
   }
 
   public static int nextBatchId() {
@@ -108,6 +113,11 @@ public class TestInputFileBuilder {
     return this;
   }
 
+  public TestInputFileBuilder setContents(String content) {
+    this.contents = content;
+    return this;
+  }
+
   public TestInputFileBuilder setNonBlankLines(int nonBlankLines) {
     this.nonBlankLines = nonBlankLines;
     return this;
@@ -139,7 +149,9 @@ public class TestInputFileBuilder {
   public DefaultInputFile build() {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, id);
     indexedFile.setLanguage(language);
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)));
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
+      f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)),
+      contents);
     inputFile.setStatus(status);
     inputFile.setCharset(charset);
     inputFile.setPublish(publish);
