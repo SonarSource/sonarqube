@@ -99,9 +99,11 @@ public class RuleUpdaterMediumTest {
     ruleDao.insert(dbSession, RuleTesting.newRule(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("java9"));
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
+      .setTags(Sets.newHashSet("java9"))
+      .setOrganization(defaultOrganization);
     try {
-      underTest.update(update, userSessionRule);
+      underTest.update(dbSession, update, defaultOrganization, userSessionRule);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
@@ -124,10 +126,10 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
     assertThat(update.isEmpty()).isTrue();
-    underTest.update(update, userSessionRule);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getTags()).containsOnly("tag1");
@@ -153,12 +155,13 @@ public class RuleUpdaterMediumTest {
     ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
-    update.setMarkdownNote("my *note*");
-    underTest.update(update, userSessionRule);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
+      .setMarkdownNote("my *note*")
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getNoteCreatedAt()).isNotNull();
@@ -179,11 +182,13 @@ public class RuleUpdaterMediumTest {
     ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setMarkdownNote(null);
-    underTest.update(update, userSessionRule);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
+      .setMarkdownNote(null)
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getNoteData()).isNull();
     assertThat(rule.getNoteUserLogin()).isNull();
     assertThat(rule.getNoteCreatedAt()).isNull();
@@ -201,9 +206,9 @@ public class RuleUpdaterMediumTest {
 
     // java8 is a system tag -> ignore
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("bug", "java8"));
-    underTest.update(update, userSessionRule);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getTags()).containsOnly("bug");
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -221,11 +226,13 @@ public class RuleUpdaterMediumTest {
     ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata());
     dbSession.commit();
 
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(null);
-    underTest.update(update, userSessionRule);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
+      .setTags(null)
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -244,12 +251,13 @@ public class RuleUpdaterMediumTest {
 
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
-      .setDebtRemediationFunction(fn);
-    underTest.update(update, userSessionRule);
+      .setDebtRemediationFunction(fn)
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationGapMultiplier()).isNull();
     assertThat(rule.getRemediationBaseEffort()).isEqualTo("1min");
@@ -268,12 +276,13 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
-      .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "2d", null));
-    underTest.update(update, userSessionRule);
+      .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "2d", null))
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(rule.getRemediationGapMultiplier()).isEqualTo("2d");
     assertThat(rule.getRemediationBaseEffort()).isNull();
@@ -292,12 +301,13 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
-      .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10min"));
-    underTest.update(update, userSessionRule);
+      .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10min"))
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationGapMultiplier()).isNull();
     assertThat(rule.getRemediationBaseEffort()).isEqualTo("10min");
@@ -320,12 +330,14 @@ public class RuleUpdaterMediumTest {
     ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setDebtRemediationFunction(null);
-    underTest.update(update, userSessionRule);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
+      .setDebtRemediationFunction(null)
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is coming from default values
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
     assertThat(rule.getDefRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(rule.getDefRemediationGapMultiplier()).isEqualTo("1d");
     assertThat(rule.getDefRemediationBaseEffort()).isEqualTo("5min");
@@ -364,13 +376,14 @@ public class RuleUpdaterMediumTest {
       .setMarkdownDescription("New description")
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY)
-      .setParameters(ImmutableMap.of("regex", "b.*"));
-    underTest.update(update, userSessionRule);
+      .setParameters(ImmutableMap.of("regex", "b.*"))
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     dbSession.clearCache();
 
     // Verify custom rule is updated
-    RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, defaultOrganization.getUuid(), customRule.getKey());
+    RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getName()).isEqualTo("New name");
     assertThat(customRuleReloaded.getDescription()).isEqualTo("New description");
@@ -415,8 +428,9 @@ public class RuleUpdaterMediumTest {
       .setName("New name")
       .setMarkdownDescription("New description")
       .setSeverity("MAJOR")
-      .setStatus(RuleStatus.READY);
-    underTest.update(update, userSessionRule);
+      .setStatus(RuleStatus.READY)
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     dbSession.clearCache();
 
@@ -461,8 +475,9 @@ public class RuleUpdaterMediumTest {
 
     // Update custom rule parameter 'regex', add 'message' and remove 'format'
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
-      .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"));
-    underTest.update(update, userSessionRule);
+      .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"))
+      .setOrganization(defaultOrganization);
+    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     dbSession.clearCache();
 
@@ -495,21 +510,22 @@ public class RuleUpdaterMediumTest {
   @Test
   public void fail_to_update_custom_rule_when_empty_name() {
     // Create template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule.getDefinition());
+    RuleDefinitionDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).getDefinition();
+    ruleDao.insert(dbSession, templateRule);
 
     // Create custom rule
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    ruleDao.insert(dbSession, customRule.getDefinition());
+    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule);
+    ruleDao.insert(dbSession, customRule);
 
     dbSession.commit();
 
     // Update custom rule
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setName("")
-      .setMarkdownDescription("New desc");
+      .setMarkdownDescription("New desc")
+      .setOrganization(defaultOrganization);
     try {
-      underTest.update(update, userSessionRule);
+      underTest.update(dbSession, update, defaultOrganization, userSessionRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The name is missing");
@@ -531,9 +547,10 @@ public class RuleUpdaterMediumTest {
     // Update custom rule
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setName("New name")
-      .setMarkdownDescription("");
+      .setMarkdownDescription("")
+      .setOrganization(defaultOrganization);
     try {
-      underTest.update(update, userSessionRule);
+      underTest.update(dbSession, update, defaultOrganization, userSessionRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");

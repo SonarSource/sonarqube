@@ -28,6 +28,10 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.db.organization.OrganizationDto;
+
+import static org.sonar.server.rule.RuleUpdate.RuleUpdateUseCase.CUSTOM_RULE;
+import static org.sonar.server.rule.RuleUpdate.RuleUpdateUseCase.PLUGIN_RULE;
 
 public class RuleUpdate {
 
@@ -41,7 +45,7 @@ public class RuleUpdate {
   private boolean changeSeverity = false;
   private boolean changeStatus = false;
   private boolean changeParameters = false;
-  private boolean isCustomRule;
+  private final RuleUpdateUseCase useCase;
   private Set<String> tags;
   private String markdownNote;
   private DebtRemediationFunction debtRemediationFunction;
@@ -51,9 +55,11 @@ public class RuleUpdate {
   private String severity;
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
+  private OrganizationDto organization;
 
-  private RuleUpdate(RuleKey ruleKey) {
+  private RuleUpdate(RuleKey ruleKey, RuleUpdateUseCase useCase) {
     this.ruleKey = ruleKey;
+    this.useCase = useCase;
   }
 
   public RuleKey getRuleKey() {
@@ -158,6 +164,11 @@ public class RuleUpdate {
     return this;
   }
 
+  public RuleUpdate setOrganization(OrganizationDto organization) {
+    this.organization = organization;
+    return this;
+  }
+
   public Map<String, String> getParameters() {
     return parameters;
   }
@@ -168,7 +179,7 @@ public class RuleUpdate {
   }
 
   boolean isCustomRule() {
-    return isCustomRule;
+    return useCase.isCustomRule;
   }
 
   public boolean isChangeTags() {
@@ -212,27 +223,37 @@ public class RuleUpdate {
   }
 
   private void checkCustomRule() {
-    if (!isCustomRule) {
+    if (useCase != CUSTOM_RULE) {
       throw new IllegalStateException("Not a custom rule");
     }
+  }
+
+  public OrganizationDto getOrganization() {
+    return organization;
   }
 
   /**
    * Use to update a rule provided by a plugin (name, description, severity, status and parameters cannot by changed)
    */
   public static RuleUpdate createForPluginRule(RuleKey ruleKey) {
-    RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
-    ruleUpdate.isCustomRule = false;
-    return ruleUpdate;
+    return new RuleUpdate(ruleKey, PLUGIN_RULE);
   }
 
   /**
    * Use to update a custom rule
    */
   public static RuleUpdate createForCustomRule(RuleKey ruleKey) {
-    RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
-    ruleUpdate.isCustomRule = true;
-    return ruleUpdate;
+    return new RuleUpdate(ruleKey, CUSTOM_RULE);
   }
 
+  public enum RuleUpdateUseCase {
+    PLUGIN_RULE(false),
+    CUSTOM_RULE(true);
+
+    public final boolean isCustomRule;
+
+    RuleUpdateUseCase(boolean isCustomRule) {
+      this.isCustomRule = isCustomRule;
+    }
+  }
 }

@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
@@ -39,6 +40,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -72,20 +74,7 @@ public class RuleUpdater {
   /**
    * Update manual rules and custom rules (rules instantiated from templates)
    */
-  public boolean update(RuleUpdate update, UserSession userSession) {
-    if (update.isEmpty()) {
-      return false;
-    }
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return update(dbSession, update, userSession);
-    }
-  }
-
-  /**
-   * Update manual rules and custom rules (rules instantiated from templates)
-   */
-  public boolean update(DbSession dbSession, RuleUpdate update, UserSession userSession) {
+  public boolean update(DbSession dbSession, RuleUpdate update, OrganizationDto organization, UserSession userSession) {
     if (update.isEmpty()) {
       return false;
     }
@@ -97,7 +86,9 @@ public class RuleUpdater {
     updateParameters(dbSession, update, rule);
     dbSession.commit();
 
-    ruleIndexer.indexRuleDefinition(rule.getKey());
+    RuleKey ruleKey = rule.getKey();
+    ruleIndexer.indexRuleDefinition(ruleKey);
+    ruleIndexer.indexRuleExtension(organization, ruleKey);
     return true;
   }
 
@@ -106,7 +97,7 @@ public class RuleUpdater {
    */
   private RuleDto getRuleDto(RuleUpdate change) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganizationProvider.get().getUuid(), change.getRuleKey());
+      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getOrganization(), change.getRuleKey());
       if (RuleStatus.REMOVED == rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }

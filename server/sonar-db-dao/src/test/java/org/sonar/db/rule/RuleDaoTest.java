@@ -39,6 +39,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
@@ -154,7 +156,8 @@ public class RuleDaoTest {
   public void selectOrFailByKey() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    RuleDto rule = underTest.selectOrFailByKey(dbTester.getSession(), "org-1", RuleKey.of("java", "S001"));
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid("org-1");
+    RuleDto rule = underTest.selectOrFailByKey(dbTester.getSession(), organization, RuleKey.of("java", "S001"));
     assertThat(rule.getId()).isEqualTo(1);
   }
 
@@ -165,7 +168,8 @@ public class RuleDaoTest {
     thrown.expect(RowNotFoundException.class);
     thrown.expectMessage("Rule with key 'NOT:FOUND' does not exist");
 
-    underTest.selectOrFailByKey(dbTester.getSession(), "org-1", RuleKey.of("NOT", "FOUND"));
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid("org-1");
+    underTest.selectOrFailByKey(dbTester.getSession(), organization, RuleKey.of("NOT", "FOUND"));
   }
 
   @Test
@@ -173,7 +177,8 @@ public class RuleDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String organizationUuid = "org-1";
 
-    assertThat(underTest.selectOrFailByKey(dbTester.getSession(), organizationUuid, RuleKey.of("java", "S001")).getOrganizationUuid())
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid(organizationUuid);
+    assertThat(underTest.selectOrFailByKey(dbTester.getSession(), organization, RuleKey.of("java", "S001")).getOrganizationUuid())
       .isEqualTo(organizationUuid);
   }
 
@@ -415,7 +420,8 @@ public class RuleDaoTest {
     underTest.insertOrUpdate(dbTester.getSession(), metadataToUpdate);
     dbTester.getSession().commit();
 
-    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organizationUuid, RuleKey.of("checkstyle", "AvoidNull"));
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid(organizationUuid);
+    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organization, RuleKey.of("checkstyle", "AvoidNull"));
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getDescriptionFormat()).isNull();
@@ -449,6 +455,7 @@ public class RuleDaoTest {
   public void update_RuleMetadataDto_updates_row_in_RULE_METADATA_if_already_exists() {
     dbTester.prepareDbUnit(getClass(), "update.xml");
     String organizationUuid = "org-1";
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid(organizationUuid);
     RuleMetadataDto metadataV1 = new RuleMetadataDto()
         .setRuleId(1)
         .setOrganizationUuid(organizationUuid)
@@ -472,7 +479,7 @@ public class RuleDaoTest {
     dbTester.commit();
 
     assertThat(dbTester.countRowsOfTable("RULES_METADATA")).isEqualTo(1);
-    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organizationUuid, RuleKey.of("checkstyle", "AvoidNull"));
+    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organization, RuleKey.of("checkstyle", "AvoidNull"));
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getDescriptionFormat()).isNull();
@@ -504,7 +511,7 @@ public class RuleDaoTest {
     underTest.insertOrUpdate(dbTester.getSession(), metadataV2);
     dbTester.commit();
 
-    ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organizationUuid, RuleKey.of("checkstyle", "AvoidNull"));
+    ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), organization, RuleKey.of("checkstyle", "AvoidNull"));
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getDescriptionFormat()).isNull();

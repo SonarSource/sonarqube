@@ -31,7 +31,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.rule.ws.SearchAction.SearchResult;
@@ -79,48 +79,58 @@ public class RuleMapper {
     this.macroInterpreter = macroInterpreter;
   }
 
-  /**
-   * Convert a RuleDto to WsRule. If fieldsToReturn is empty all the fields are returned
-   */
-  public Rules.Rule toWsRule(RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
+  public Rules.Rule toWsRule(RuleDefinitionDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
-
-    // Mandatory fields
-    ruleResponse.setKey(ruleDto.getKey().toString());
-    Common.RuleType type = Common.RuleType.valueOf(ruleDto.getType());
-    ruleResponse.setType(type);
-
-    // Optional fields
-    setRepository(ruleResponse, ruleDto, fieldsToReturn);
-    setName(ruleResponse, ruleDto, fieldsToReturn);
-    setStatus(ruleResponse, ruleDto, fieldsToReturn);
-    setTags(ruleResponse, ruleDto, fieldsToReturn);
-    setSysTags(ruleResponse, ruleDto, fieldsToReturn);
-    setParams(ruleResponse, ruleDto, result, fieldsToReturn);
-    setCreatedAt(ruleResponse, ruleDto, fieldsToReturn);
-    setDescriptionFields(ruleResponse, ruleDto, fieldsToReturn);
-    setNotesFields(ruleResponse, ruleDto, fieldsToReturn);
-    setSeverity(ruleResponse, ruleDto, fieldsToReturn);
-    setInternalKey(ruleResponse, ruleDto, fieldsToReturn);
-    setLanguage(ruleResponse, ruleDto, fieldsToReturn);
-    setLanguageName(ruleResponse, ruleDto, fieldsToReturn);
-    setIsTemplate(ruleResponse, ruleDto, fieldsToReturn);
-    setTemplateKey(ruleResponse, ruleDto, result, fieldsToReturn);
-    setDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
-    setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
-    setIsRemediationFunctionOverloaded(ruleResponse, ruleDto, fieldsToReturn);
-    setEffortToFixDescription(ruleResponse, ruleDto, fieldsToReturn);
-
+    applyRuleDefinition(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
     return ruleResponse.build();
   }
 
-  private static void setRepository(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  public Rules.Rule toWsRule(RuleDefinitionDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn, RuleMetadataDto metadata) {
+    Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
+    applyRuleDefinition(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
+    applyRuleMetadata(ruleResponse, metadata, fieldsToReturn);
+    setDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, metadata, fieldsToReturn);
+    return ruleResponse.build();
+  }
+
+  public Rules.Rule.Builder applyRuleDefinition(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn) {
+
+    // Mandatory fields
+    ruleResponse.setKey(ruleDefinitionDto.getKey().toString());
+    ruleResponse.setType(Common.RuleType.valueOf(ruleDefinitionDto.getType()));
+
+    // Optional fields
+    setRepository(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setName(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setStatus(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setSysTags(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setParams(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
+    setCreatedAt(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setDescriptionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setSeverity(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setInternalKey(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setLanguage(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setLanguageName(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setIsTemplate(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setTemplateKey(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
+    setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setEffortToFixDescription(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    return ruleResponse;
+  }
+
+  private void applyRuleMetadata(Rules.Rule.Builder ruleResponse, RuleMetadataDto metadata, Set<String> fieldsToReturn) {
+    setTags(ruleResponse, metadata, fieldsToReturn);
+    setNotesFields(ruleResponse, metadata, fieldsToReturn);
+    setIsRemediationFunctionOverloaded(ruleResponse, metadata, fieldsToReturn);
+  }
+
+  private static void setRepository(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_REPO)) {
       ruleResponse.setRepo(ruleDto.getKey().repository());
     }
   }
 
-  private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if ((shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) || shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION))
       && ruleDto.getGapDescription() != null) {
       ruleResponse.setEffortToFixDescription(ruleDto.getGapDescription());
@@ -128,14 +138,14 @@ public class RuleMapper {
     }
   }
 
-  private static void setIsRemediationFunctionOverloaded(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setIsRemediationFunctionOverloaded(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_DEBT_OVERLOADED) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION_OVERLOADED)) {
       ruleResponse.setDebtOverloaded(isRemediationFunctionOverloaded(ruleDto));
       ruleResponse.setRemFnOverloaded(isRemediationFunctionOverloaded(ruleDto));
     }
   }
 
-  private static void setDefaultDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setDefaultDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_DEFAULT_DEBT_REM_FUNCTION) || shouldReturnField(fieldsToReturn, FIELD_DEFAULT_REM_FUNCTION)) {
       DebtRemediationFunction defaultDebtRemediationFunction = defaultDebtRemediationFunction(ruleDto);
       if (defaultDebtRemediationFunction != null) {
@@ -160,9 +170,10 @@ public class RuleMapper {
     }
   }
 
-  private static void setDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDefinitionDto, RuleMetadataDto ruleMetadataDto,
+    Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_DEBT_REM_FUNCTION) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION)) {
-      DebtRemediationFunction debtRemediationFunction = debtRemediationFunction(ruleDto);
+      DebtRemediationFunction debtRemediationFunction = debtRemediationFunction(ruleDefinitionDto, ruleMetadataDto);
       if (debtRemediationFunction != null) {
         if (debtRemediationFunction.type() != null) {
           ruleResponse.setRemFnType(debtRemediationFunction.type().name());
@@ -185,31 +196,31 @@ public class RuleMapper {
     }
   }
 
-  private static void setName(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setName(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_NAME) && ruleDto.getName() != null) {
       ruleResponse.setName(ruleDto.getName());
     }
   }
 
-  private static void setStatus(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setStatus(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_STATUS) && ruleDto.getStatus() != null) {
       ruleResponse.setStatus(Common.RuleStatus.valueOf(ruleDto.getStatus().toString()));
     }
   }
 
-  private static void setTags(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setTags(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_TAGS)) {
       ruleResponse.getTagsBuilder().addAllTags(ruleDto.getTags());
     }
   }
 
-  private static void setSysTags(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setSysTags(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_SYSTEM_TAGS)) {
       ruleResponse.getSysTagsBuilder().addAllSysTags(ruleDto.getSystemTags());
     }
   }
 
-  private static void setParams(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult searchResult, Set<String> fieldsToReturn) {
+  private static void setParams(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, SearchResult searchResult, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_PARAMS)) {
       List<RuleParamDto> ruleParameters = searchResult.getRuleParamsByRuleId().get(ruleDto.getId());
       ruleResponse.getParamsBuilder().addAllParams(FluentIterable.from(ruleParameters)
@@ -218,13 +229,13 @@ public class RuleMapper {
     }
   }
 
-  private static void setCreatedAt(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setCreatedAt(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_CREATED_AT)) {
       ruleResponse.setCreatedAt(formatDateTime(ruleDto.getCreatedAt()));
     }
   }
 
-  private void setDescriptionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private void setDescriptionFields(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_HTML_DESCRIPTION)) {
       String description = ruleDto.getDescription();
       if (description != null) {
@@ -246,7 +257,7 @@ public class RuleMapper {
     }
   }
 
-  private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, "htmlNote") && ruleDto.getNoteData() != null) {
       ruleResponse.setHtmlNote(macroInterpreter.interpret(Markdown.convertToHtml(ruleDto.getNoteData())));
     }
@@ -258,25 +269,25 @@ public class RuleMapper {
     }
   }
 
-  private static void setSeverity(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setSeverity(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_SEVERITY) && ruleDto.getSeverityString() != null) {
       ruleResponse.setSeverity(ruleDto.getSeverityString());
     }
   }
 
-  private static void setInternalKey(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setInternalKey(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_INTERNAL_KEY) && ruleDto.getConfigKey() != null) {
       ruleResponse.setInternalKey(ruleDto.getConfigKey());
     }
   }
 
-  private static void setLanguage(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setLanguage(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_LANGUAGE) && ruleDto.getLanguage() != null) {
       ruleResponse.setLang(ruleDto.getLanguage());
     }
   }
 
-  private void setLanguageName(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private void setLanguageName(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_LANGUAGE_NAME) && ruleDto.getLanguage() != null) {
       String languageKey = ruleDto.getLanguage();
       Language language = languages.get(languageKey);
@@ -284,13 +295,13 @@ public class RuleMapper {
     }
   }
 
-  private static void setIsTemplate(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setIsTemplate(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_IS_TEMPLATE)) {
       ruleResponse.setIsTemplate(ruleDto.isTemplate());
     }
   }
 
-  private static void setTemplateKey(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
+  private static void setTemplateKey(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_TEMPLATE_KEY) && ruleDto.getTemplateId() != null) {
       RuleDefinitionDto templateRule = result.getTemplateRulesByRuleId().get(ruleDto.getTemplateId());
       if (templateRule != null) {
@@ -303,12 +314,12 @@ public class RuleMapper {
     return fieldsToReturn.isEmpty() || fieldsToReturn.contains(fieldName);
   }
 
-  private static boolean isRemediationFunctionOverloaded(RuleDto rule) {
+  private static boolean isRemediationFunctionOverloaded(RuleMetadataDto rule) {
     return rule.getRemediationFunction() != null;
   }
 
   @CheckForNull
-  private static DebtRemediationFunction defaultDebtRemediationFunction(final RuleDto ruleDto) {
+  private static DebtRemediationFunction defaultDebtRemediationFunction(final RuleDefinitionDto ruleDto) {
     final String function = ruleDto.getDefRemediationFunction();
     if (function == null || function.isEmpty()) {
       return null;
@@ -321,15 +332,15 @@ public class RuleMapper {
   }
 
   @CheckForNull
-  private static DebtRemediationFunction debtRemediationFunction(final RuleDto ruleDto) {
-    final String function = ruleDto.getRemediationFunction();
+  private static DebtRemediationFunction debtRemediationFunction(RuleDefinitionDto ruleDefinitionDto, RuleMetadataDto ruleMetadataDto) {
+    final String function = ruleMetadataDto.getRemediationFunction();
     if (function == null || function.isEmpty()) {
-      return defaultDebtRemediationFunction(ruleDto);
+      return defaultDebtRemediationFunction(ruleDefinitionDto);
     } else {
       return new DefaultDebtRemediationFunction(
         DebtRemediationFunction.Type.valueOf(function.toUpperCase(Locale.ENGLISH)),
-        ruleDto.getRemediationGapMultiplier(),
-        ruleDto.getRemediationBaseEffort());
+        ruleMetadataDto.getRemediationGapMultiplier(),
+        ruleMetadataDto.getRemediationBaseEffort());
     }
   }
 
