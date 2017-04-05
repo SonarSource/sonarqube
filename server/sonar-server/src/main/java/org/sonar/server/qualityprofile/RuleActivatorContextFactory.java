@@ -90,7 +90,7 @@ public class RuleActivatorContextFactory {
   }
 
   Optional<RuleDefinitionDto> getRule(DbSession dbSession, RuleKey ruleKey) {
-    return Optional.ofNullable(db.ruleDao().selectDefinitionByKey(dbSession, ruleKey).orNull());
+    return Optional.ofNullable(db.ruleDao().selectDefinitionByKey(dbSession, ruleKey).orElse(null));
   }
 
   Optional<ActiveRuleDto> getActiveRule(DbSession session, ActiveRuleKey key) {

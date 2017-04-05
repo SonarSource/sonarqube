@@ -19,9 +19,9 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
@@ -47,11 +47,11 @@ public class RuleDao implements Dao {
   public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
     RuleDto res = mapper(session).selectByKey(organizationUuid, key);
     ensureOrganizationIsSet(organizationUuid, res);
-    return Optional.fromNullable(res);
+    return Optional.ofNullable(res);
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {
-    return Optional.fromNullable(mapper(session).selectDefinitionByKey(key));
+    return Optional.ofNullable(mapper(session).selectDefinitionByKey(key));
   }
 
   public java.util.Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key, OrganizationDto organization) {
@@ -78,11 +78,11 @@ public class RuleDao implements Dao {
   public Optional<RuleDto> selectById(long id, String organizationUuid, DbSession session) {
     RuleDto res = mapper(session).selectById(organizationUuid, id);
     ensureOrganizationIsSet(organizationUuid, res);
-    return Optional.fromNullable(res);
+    return Optional.ofNullable(res);
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionById(long id, DbSession session) {
-    return Optional.fromNullable(mapper(session).selectDefinitionById(id));
+    return Optional.ofNullable(mapper(session).selectDefinitionById(id));
   }
 
   public List<RuleDto> selectByIds(DbSession session, String organizationUuid, List<Integer> ids) {

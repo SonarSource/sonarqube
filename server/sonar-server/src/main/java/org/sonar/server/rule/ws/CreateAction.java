@@ -19,10 +19,10 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -158,7 +158,6 @@ public class CreateAction implements RulesWsAction {
 
   private Rules.CreateResponse createResponse(DbSession dbSession, RuleKey ruleKey) {
     RuleDefinitionDto rule = dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey)
-      .transform(java.util.Optional::of).or(java.util.Optional::empty)
       .orElseThrow(() -> new IllegalStateException(String.format("Cannot load rule, that has just been created '%s'", ruleKey)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>();
     if (rule.getTemplateId() != null) {

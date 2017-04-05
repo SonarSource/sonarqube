@@ -19,11 +19,11 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
