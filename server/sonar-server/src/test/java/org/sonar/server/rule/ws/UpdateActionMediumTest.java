@@ -46,12 +46,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR;
-import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR_OFFSET;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_BASE_EFFORT;
-import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_GAP_MULTIPLIER;
-import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_TYPE;
 
 public class UpdateActionMediumTest {
 
@@ -81,45 +76,6 @@ public class UpdateActionMediumTest {
   @After
   public void after() {
     session.close();
-  }
-
-  @Test
-  public void update_rule_remediation_function() throws Exception {
-    RuleDto rule = RuleTesting.newXooX1()
-      .setDefRemediationFunction(LINEAR.toString())
-      .setDefRemediationGapMultiplier("10d")
-      .setDefRemediationBaseEffort(null);
-    ruleDao.insert(session, rule.getDefinition());
-    session.commit();
-
-    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
-      .setParam("key", rule.getKey().toString())
-      .setParam(PARAM_REMEDIATION_FN_TYPE, LINEAR_OFFSET.toString())
-      .setParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER, "15d")
-      .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, "5min");
-    request.execute().assertJson(getClass(), "update_rule_remediation_function.json");
-  }
-
-  @Test
-  public void update_custom_rule_with_deprecated_remediation_function_parameters() throws Exception {
-    RuleDto rule = RuleTesting.newXooX1()
-      .setOrganizationUuid(defaultOrganization.getUuid())
-      .setDefRemediationFunction(LINEAR_OFFSET.toString())
-      .setDefRemediationGapMultiplier("10d")
-      .setDefRemediationBaseEffort("5min")
-      .setRemediationFunction(LINEAR_OFFSET.toString())
-      .setRemediationGapMultiplier("15min")
-      .setRemediationBaseEffort("3h");
-    ruleDao.insert(session, rule.getDefinition());
-    ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
-    session.commit();
-
-    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
-      .setParam("key", rule.getKey().toString())
-      .setParam("debt_remediation_fn_type", LINEAR_OFFSET.toString())
-      .setParam("debt_remediation_fy_coeff", "11d")
-      .setParam("debt_remediation_fn_offset", "6min");
-    request.execute().assertJson(getClass(), "deprecated_remediation_function.json");
   }
 
   @Test
