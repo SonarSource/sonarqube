@@ -27,22 +27,8 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.ActiveRuleDao;
-import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDao;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.organization.DefaultOrganization;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,25 +44,14 @@ public class RulesWsMediumTest {
   private static final String API_SHOW_METHOD = "show";
   private static final String API_TAGS_METHOD = "tags";
 
-  private DbClient db;
   private RulesWs ws;
-  private RuleDao ruleDao;
   private DbSession session;
-  private RuleIndexer ruleIndexer;
-  private ActiveRuleIndexer activeRuleIndexer;
-  private OrganizationDto defaultOrganization;
 
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    ruleDao = tester.get(RuleDao.class);
     ws = tester.get(RulesWs.class);
     session = tester.get(DbClient.class).openSession(false);
-    ruleIndexer = tester.get(RuleIndexer.class);
-    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
-    this.defaultOrganization = db.organizationDao().selectByUuid(session, defaultOrganization.getUuid()).get();
   }
 
   @After
@@ -101,35 +76,5 @@ public class RulesWsMediumTest {
     assertThat(controller.action("delete")).isNotNull();
     assertThat(controller.action("repositories")).isNotNull();
     assertThat(controller.action("app")).isNotNull();
-  }
-
-  @Test
-  public void show_rule() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
-    tester.get(QualityProfileDao.class).insert(session, profile);
-
-    RuleDto rule = RuleTesting.newXooX1(defaultOrganization);
-    ruleDao.insert(session, rule.getDefinition());
-    ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
-
-    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule.getDefinition()).setSeverity("BLOCKER");
-    tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
-
-    session.commit();
-    ruleIndexer.indexRuleDefinition(rule.getDefinition().getKey());
-    activeRuleIndexer.index();
-
-    // 1. With Activation
-    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
-    request.setParam(ShowAction.PARAM_KEY, rule.getKey().toString());
-    request.setParam(ShowAction.PARAM_ACTIVES, "true");
-    WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "show_rule_active.json");
-
-    // 1. Default Activation (defaults to false)
-    request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
-    request.setParam(ShowAction.PARAM_KEY, rule.getKey().toString());
-    result = request.execute();
-    result.assertJson(this.getClass(), "show_rule_no_active.json");
   }
 }
