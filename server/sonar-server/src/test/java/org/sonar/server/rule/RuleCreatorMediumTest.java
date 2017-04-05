@@ -102,7 +102,7 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, defaultOrganization.getUuid(), customRuleKey);
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, defaultOrganization, customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());

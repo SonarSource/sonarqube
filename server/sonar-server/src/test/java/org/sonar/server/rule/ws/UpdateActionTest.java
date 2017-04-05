@@ -30,13 +30,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.RuleUpdater;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -54,13 +54,17 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR_OFFSET;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.rule.RuleTesting.setSystemTags;
+import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_COEFF;
 import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_OFFSET;
 import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_TYPE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_KEY;
+import static org.sonar.server.rule.ws.UpdateAction.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_BASE_EFFORT;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_GAP_MULTIPLIER;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_TYPE;
+import static org.sonar.server.rule.ws.UpdateAction.PARAM_TAGS;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class UpdateActionTest {
@@ -87,8 +91,6 @@ public class UpdateActionTest {
   private WsActionTester actionTester = new WsActionTester(underTest);
   private OrganizationDto defaultOrganization;
 
-  private RuleIndex ruleIndex = new RuleIndex(esClient);
-
   @Before
   public void setUp() {
     defaultOrganization = dbTester.getDefaultOrganization();
@@ -96,8 +98,63 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void update_tags_for_default_organization() throws IOException {
+    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+
+    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("stag1", "stag2"));
+    dbTester.rules().insertOrUpdateMetadata(rule, defaultOrganization, setTags("tag1", "tag2"));
+
+    TestRequest request = actionTester.newRequest().setMethod("POST")
+      .setMediaType(PROTOBUF)
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_TAGS, "tag2,tag3");
+    TestResponse response = request.execute();
+    Rules.UpdateResponse result = Rules.UpdateResponse.parseFrom(response.getInputStream());
+
+    Rules.Rule updatedRule = result.getRule();
+    assertThat(updatedRule).isNotNull();
+
+    assertThat(updatedRule.getKey()).isEqualTo(rule.getKey().toString());
+    assertThat(updatedRule.getSysTags().getSysTagsList()).containsExactly(rule.getSystemTags().toArray(new String[0]));
+    assertThat(updatedRule.getTags().getTagsList()).containsExactly("tag2", "tag3");
+  }
+
+  @Test
+  public void update_tags_for_specific_organization() throws IOException {
+    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+
+    OrganizationDto organization = dbTester.organizations().insert();
+
+    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("stag1", "stag2"));
+    dbTester.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"));
+
+    TestRequest request = actionTester.newRequest().setMethod("POST")
+      .setMediaType(PROTOBUF)
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_TAGS, "tag2,tag3")
+      .setParam(PARAM_ORGANIZATION, organization.getKey());
+    TestResponse response = request.execute();
+    Rules.UpdateResponse result = Rules.UpdateResponse.parseFrom(response.getInputStream());
+
+    Rules.Rule updatedRule = result.getRule();
+    assertThat(updatedRule).isNotNull();
+
+    // check response
+    assertThat(updatedRule.getKey()).isEqualTo(rule.getKey().toString());
+    assertThat(updatedRule.getSysTags().getSysTagsList()).containsExactly(rule.getSystemTags().toArray(new String[0]));
+    assertThat(updatedRule.getTags().getTagsList()).containsExactly("tag2", "tag3");
+
+    // check database
+    RuleMetadataDto metadataOfSpecificOrg = dbTester.getDbClient().ruleDao().selectMetadataByKey(dbTester.getSession(), rule.getKey(), organization)
+      .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
+    assertThat(metadataOfSpecificOrg.getTags()).containsExactly("tag2", "tag3");
+  }
+
+  @Test
   public void update_rule_remediation_function() throws IOException {
     doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+
+    OrganizationDto organization = dbTester.organizations().insert();
 
     RuleDefinitionDto rule = dbTester.rules().insert(
       r -> r.setDefRemediationFunction(LINEAR.toString()),
@@ -111,6 +168,7 @@ public class UpdateActionTest {
     TestRequest request = actionTester.newRequest().setMethod("POST")
       .setMediaType(PROTOBUF)
       .setParam("key", rule.getKey().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_REMEDIATION_FN_TYPE, newOffset)
       .setParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER, newMultiplier)
       .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, newEffort);
@@ -129,6 +187,13 @@ public class UpdateActionTest {
     assertThat(updatedRule.getRemFnType()).isEqualTo(newOffset);
     assertThat(updatedRule.getRemFnGapMultiplier()).isEqualTo(newMultiplier);
     assertThat(updatedRule.getRemFnBaseEffort()).isEqualTo(newEffort);
+
+    // check database
+    RuleMetadataDto metadataOfSpecificOrg = dbTester.getDbClient().ruleDao().selectMetadataByKey(dbTester.getSession(), rule.getKey(), organization)
+      .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
+    assertThat(metadataOfSpecificOrg.getRemediationFunction()).isEqualTo(newOffset);
+    assertThat(metadataOfSpecificOrg.getRemediationGapMultiplier()).isEqualTo(newMultiplier);
+    assertThat(metadataOfSpecificOrg.getRemediationBaseEffort()).isEqualTo(newEffort);
   }
 
   @Test

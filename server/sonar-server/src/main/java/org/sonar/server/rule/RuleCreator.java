@@ -75,7 +75,7 @@ public class RuleCreator {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
       .orElseThrow(() -> new IllegalStateException(String.format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
-    RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganization.getUuid(), templateKey);
+    RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganization, templateKey);
     if (!templateRule.isTemplate()) {
       throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
     }

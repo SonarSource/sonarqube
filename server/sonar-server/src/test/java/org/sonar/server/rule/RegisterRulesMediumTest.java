@@ -38,6 +38,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -81,13 +82,15 @@ public class RegisterRulesMediumTest {
   private RuleIndex ruleIndex = TESTER.get(RuleIndex.class);
   private RuleDao ruleDao = db.ruleDao();
 
-  private String defaultOrganizationUuid;
+  private OrganizationDto defaultOrganization;
 
   @Before
   public void before() {
     TESTER.clearDbAndIndexes();
     dbSession.clearCache();
-    defaultOrganizationUuid = TESTER.get(DefaultOrganizationProvider.class).get().getUuid();
+    String defaultOrganizationUuid = TESTER.get(DefaultOrganizationProvider.class).get().getUuid();
+    defaultOrganization = db.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
+      .orElseThrow(() -> new IllegalStateException(String.format("Cannot load default organization '%s'", defaultOrganizationUuid)));
   }
 
   @After
@@ -227,15 +230,18 @@ public class RegisterRulesMediumTest {
         repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1");
       }
     });
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RuleTesting.XOO_X1);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RuleTesting.XOO_X1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
     assertThat(rule.getTags()).isEmpty();
 
     // User adds tag
-    TESTER.get(RuleUpdater.class).update(dbSession, RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), userSessionRule);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RuleTesting.XOO_X1)
+      .setTags(newHashSet("tag2"))
+      .setOrganization(defaultOrganization);
+    TESTER.get(RuleUpdater.class).update(dbSession, update, defaultOrganization, userSessionRule);
     dbSession.commit();
 
-    rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganizationUuid, RuleTesting.XOO_X1);
+    rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RuleTesting.XOO_X1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
     assertThat(rule.getTags()).containsOnly("tag2");
 

@@ -19,12 +19,12 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -37,18 +37,21 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.RuleUpdate;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Rules.UpdateResponse;
 
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements RulesWsAction {
@@ -66,6 +69,7 @@ public class UpdateAction implements RulesWsAction {
   public static final String PARAM_DESCRIPTION = "markdown_description";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAMS = "params";
 
   private final DbClient dbClient;
@@ -76,7 +80,7 @@ public class UpdateAction implements RulesWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public UpdateAction(DbClient dbClient, RuleUpdater ruleUpdater, RuleMapper mapper, UserSession userSession,
-                      RuleWsSupport ruleWsSupport, DefaultOrganizationProvider defaultOrganizationProvider) {
+    RuleWsSupport ruleWsSupport, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.ruleUpdater = ruleUpdater;
     this.mapper = mapper;
@@ -158,6 +162,13 @@ public class UpdateAction implements RulesWsAction {
       .setDescription("Rule status (Only when updating a custom rule)")
       .setPossibleValues(RuleStatus.values());
 
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
+
     action.createParam(PARAMS)
       .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2' (Only when updating a custom rule)");
   }
@@ -167,18 +178,25 @@ public class UpdateAction implements RulesWsAction {
     ruleWsSupport.checkQProfileAdminPermission();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-      RuleUpdate update = readRequest(dbSession, request, defaultOrganizationUuid);
-      ruleUpdater.update(dbSession, update, userSession);
-      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey(), defaultOrganizationUuid);
+      OrganizationDto organization = getOrganization(request, dbSession);
+      RuleUpdate update = readRequest(dbSession, request, organization);
+      ruleUpdater.update(dbSession, update, organization, userSession);
+      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey(), organization);
 
       writeProtobuf(updateResponse, request, response);
     }
   }
 
-  private RuleUpdate readRequest(DbSession dbSession, Request request, String organizationUuid) {
+  private OrganizationDto getOrganization(Request request, DbSession dbSession) {
+    String organizationKey = ofNullable(request.param(PARAM_ORGANIZATION))
+      .orElseGet(() -> defaultOrganizationProvider.get().getKey());
+    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+      .orElseThrow(() -> new IllegalStateException(format("Cannot load organization '%s'", organizationKey)));
+  }
+
+  private RuleUpdate readRequest(DbSession dbSession, Request request, OrganizationDto organization) {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    RuleUpdate update = createRuleUpdate(dbSession, key, organizationUuid);
+    RuleUpdate update = createRuleUpdate(dbSession, key, organization);
     readTags(request, update);
     readMarkdownNote(request, update);
     readDebt(request, update);
@@ -206,18 +224,18 @@ public class UpdateAction implements RulesWsAction {
     return update;
   }
 
-  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, String organizationUuid) {
-    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, organizationUuid, key);
-    checkFoundWithOptional(optionalRule, "This rule does not exists : " + key);
-    RuleDto rule = optionalRule.get();
-    if (rule.getTemplateId() != null) {
-      return RuleUpdate.createForCustomRule(key);
-    } else {
-      return RuleUpdate.createForPluginRule(key);
-    }
+  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, OrganizationDto organization) {
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
+      .transform(Optional::of).or(Optional::empty)
+      .orElseThrow(() -> new NotFoundException(format("This rule does not exist: %s", key)));
+    RuleUpdate ruleUpdate = ofNullable(rule.getTemplateId())
+      .map(x -> RuleUpdate.createForCustomRule(key))
+      .orElseGet(() -> RuleUpdate.createForPluginRule(key));
+    ruleUpdate.setOrganization(organization);
+    return ruleUpdate;
   }
 
-  private void readTags(Request request, RuleUpdate update) {
+  private static void readTags(Request request, RuleUpdate update) {
     String value = request.param(PARAM_TAGS);
     if (value != null) {
       if (StringUtils.isBlank(value)) {
@@ -229,7 +247,7 @@ public class UpdateAction implements RulesWsAction {
     // else do not touch this field
   }
 
-  private void readMarkdownNote(Request request, RuleUpdate update) {
+  private static void readMarkdownNote(Request request, RuleUpdate update) {
     String value = request.param(PARAM_MARKDOWN_NOTE);
     if (value != null) {
       update.setMarkdownNote(value);
@@ -237,7 +255,7 @@ public class UpdateAction implements RulesWsAction {
     // else do not touch this field
   }
 
-  private void readDebt(Request request, RuleUpdate update) {
+  private static void readDebt(Request request, RuleUpdate update) {
     String value = defaultIfEmpty(request.param(PARAM_REMEDIATION_FN_TYPE), request.param(DEPRECATED_PARAM_REMEDIATION_FN_TYPE));
     if (value != null) {
       if (StringUtils.isBlank(value)) {
@@ -252,16 +270,15 @@ public class UpdateAction implements RulesWsAction {
     }
   }
 
-  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key, String organizationUuid) {
-    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, organizationUuid, key);
-    checkFoundWithOptional(optionalRule, "Rule not found: " + key);
-    RuleDto rule = optionalRule.get();
+  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key, OrganizationDto organization) {
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
+      .transform(Optional::of).or(Optional::empty)
+      .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
     if (rule.getTemplateId() != null) {
-      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
-      if (templateRule.isPresent()) {
-        templateRules.add(templateRule.get());
-      }
+      dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession)
+        .transform(Optional::of).or(Optional::empty)
+        .ifPresent(templateRules::add);
     }
     List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
     UpdateResponse.Builder responseBuilder = UpdateResponse.newBuilder();
@@ -270,7 +287,7 @@ public class UpdateAction implements RulesWsAction {
       .setTemplateRules(templateRules)
       .setRuleParameters(ruleParameters)
       .setTotal(1L);
-    responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.<String>emptySet()));
+    responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.<String>emptySet(), rule.getMetadata()));
 
     return responseBuilder.build();
   }
