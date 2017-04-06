@@ -379,7 +379,7 @@ public class RuleIndex {
             RuleExtensionScope.organization(organizationUuid).getScope()))
           .subAggregation(termsAggregation);
 
-        return AggregationBuilders.children("children_for_" + FACET_TAGS)
+        return AggregationBuilders.children("children_for_" + termsAggregation.getName())
           .childType(INDEX_TYPE_RULE_EXTENSION.getType())
           .subAggregation(scopeAggregation);
       };

@@ -92,7 +92,7 @@ public class StickyFacetBuilder {
     Object... selected) {
     BoolQueryBuilder facetFilter = getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size, additionalAggregationFilter);
-    facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
+    facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, additionalAggregationFilter, selected);
 
     return AggregationBuilders
       .global(facetName)
@@ -116,11 +116,11 @@ public class StickyFacetBuilder {
   private FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolQueryBuilder facetFilter, int size,
     Function<TermsBuilder, AggregationBuilder<?>> additionalAggregationFilter) {
     TermsBuilder termsAggregation = buildTermsFacetAggregation(fieldName, facetName, size);
-    AggregationBuilder<?> innerAggregation = additionalAggregationFilter.apply(termsAggregation);
+    AggregationBuilder<?> improvedAggregation = additionalAggregationFilter.apply(termsAggregation);
     return AggregationBuilders
       .filter(facetName + "_filter")
       .filter(facetFilter)
-      .subAggregation(innerAggregation);
+      .subAggregation(improvedAggregation);
   }
 
   private TermsBuilder buildTermsFacetAggregation(String fieldName, String facetName, int size) {
@@ -135,7 +135,8 @@ public class StickyFacetBuilder {
     return termsAggregation;
   }
 
-  public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
+  public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation,
+    Function<TermsBuilder, AggregationBuilder<?>> additionalAggregationFilter, Object... selected) {
     if (selected.length <= 0) {
       return facetTopAggregation;
     }
@@ -150,7 +151,9 @@ public class StickyFacetBuilder {
     if (subAggregation != null) {
       selectedTerms = selectedTerms.subAggregation(subAggregation);
     }
-    facetTopAggregation.subAggregation(selectedTerms);
+
+    AggregationBuilder<?> improvedAggregation = additionalAggregationFilter.apply(selectedTerms);
+    facetTopAggregation.subAggregation(improvedAggregation);
     return facetTopAggregation;
   }
 
