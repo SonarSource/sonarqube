@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,12 +36,15 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.component.ws.SuggestionsAction.URL_PARAM_QUERY;
+import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class SuggestionsActionTest {
 
@@ -52,25 +56,28 @@ public class SuggestionsActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
-  private SuggestionsAction action;
+  ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
+  private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index);
   private OrganizationDto organization;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);
+  private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
-    action = new SuggestionsAction(db.getDbClient(), index);
     organization = db.organizations().insert();
   }
 
   @Test
-  public void exact_match_in_one_qualifier() {
+  public void exact_match_in_one_qualifier() throws Exception {
     ComponentDto project = db.components().insertComponent(newProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    SuggestionsWsResponse response = action.doHandle(project.getKey());
+    SuggestionsWsResponse response = actionTester.newRequest()
+      .setMethod("POST")
+      .setParam(URL_PARAM_QUERY, project.getKey())
+      .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
     assertThat(response.getResultsList())

@@ -48,7 +48,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SU
 
 public class SuggestionsAction implements ComponentsWsAction {
 
-  private static final String URL_PARAM_QUERY = "s";
+  static final String URL_PARAM_QUERY = "s";
 
   private static final String[] QUALIFIERS = {
     Qualifiers.VIEW,
