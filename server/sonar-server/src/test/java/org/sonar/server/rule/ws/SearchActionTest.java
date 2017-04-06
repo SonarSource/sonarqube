@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.assertj.core.api.iterable.Extractor;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Languages;
@@ -48,9 +49,11 @@ import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.entry;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
@@ -77,9 +80,14 @@ public class SearchActionTest {
 
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
 
+  @Before
+  public void before() {
+    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+  }
+
   @Test
   public void should_find_rule() throws IOException {
-    RuleDefinitionDto rule = insertRule();
+    RuleDefinitionDto rule = insertRuleDefinition();
 
     doReturn("interpreted").when(macroInterpreter).interpret(anyString());
 
@@ -94,9 +102,9 @@ public class SearchActionTest {
   @Test
   public void should_filter_on_organization_specific_tags() throws IOException {
     OrganizationDto organization = dbTester.organizations().insert();
-    RuleDefinitionDto rule1 = insertRule();
+    RuleDefinitionDto rule1 = insertRuleDefinition();
     RuleMetadataDto metadata1 = insertMetadata(organization, rule1, setTags("tag1", "tag2"));
-    RuleDefinitionDto rule2 = insertRule();
+    RuleDefinitionDto rule2 = insertRuleDefinition();
     RuleMetadataDto metadata2 = insertMetadata(organization, rule2);
 
     InputStream inputStream = actionTester.newRequest()
@@ -106,19 +114,60 @@ public class SearchActionTest {
       .setParam("organization", organization.getKey())
       .execute()
       .getInputStream();
-    SearchResponse result;
-    try {
-      result = SearchResponse.parseFrom(inputStream);
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot parse search response", e);
-    }
+    SearchResponse result = SearchResponse.parseFrom(inputStream);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule1.getKey().toString());
+  }
+
+  @Test
+  public void should_list_tags_in_tags_facet() throws IOException {
+    OrganizationDto organization = dbTester.organizations().insert();
+    RuleDefinitionDto rule = insertRuleDefinition(setSystemTags("tag1", "tag3", "tag5", "tag7", "tag9", "x"));
+    RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
+
+    InputStream inputStream = actionTester.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("facets", "tags")
+      .setParam("organization", organization.getKey())
+      .execute()
+      .getInputStream();
+    SearchResponse result = SearchResponse.parseFrom(inputStream);
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
+      .containsExactly(entry("tag1", 1L), entry("tag2", 1L), entry("tag3", 1L), entry("tag4", 1L), entry("tag5", 1L), entry("tag6", 1L), entry("tag7", 1L), entry("tag8", 1L),
+        entry("tag9", 1L), entry("tagA", 1L));
+  }
+
+  @Test
+  public void should_include_selected_matching_tag_in_facet() throws IOException {
+    insertRuleDefinition(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA", "x"));
+
+    InputStream inputStream = actionTester.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("facets", "tags")
+      .setParam("tags", "x")
+      .execute()
+      .getInputStream();
+    SearchResponse result = SearchResponse.parseFrom(inputStream);
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount())).contains(entry("x", 1L));
+  }
+
+  @Test
+  public void should_included_selected_non_matching_tag_in_facet() throws IOException {
+    insertRuleDefinition(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA"));
+
+    InputStream inputStream = actionTester.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("facets", "tags")
+      .setParam("tags", "x")
+      .execute()
+      .getInputStream();
+    SearchResponse result = SearchResponse.parseFrom(inputStream);
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount())).contains(entry("x", 0L));
   }
 
   @Test
   public void should_return_organization_specific_tags() throws IOException {
     OrganizationDto organization = dbTester.organizations().insert();
-    RuleDefinitionDto rule = insertRule();
+    RuleDefinitionDto rule = insertRuleDefinition();
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
 
     InputStream inputStream = actionTester.newRequest()
@@ -127,12 +176,7 @@ public class SearchActionTest {
       .setParam("organization", organization.getKey())
       .execute()
       .getInputStream();
-    SearchResponse result;
-    try {
-      result = SearchResponse.parseFrom(inputStream);
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot parse search response", e);
-    }
+    SearchResponse result = SearchResponse.parseFrom(inputStream);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList())
       .extracting(Rule::getTags).flatExtracting(Rules.Tags::getTagsList)
@@ -141,7 +185,7 @@ public class SearchActionTest {
 
   @Test
   public void should_return_specified_fields() throws IOException {
-    RuleDefinitionDto rule = insertRule();
+    RuleDefinitionDto rule = insertRuleDefinition();
 
     checkField(rule, "repo", Rule::getRepo, rule.getRepositoryKey());
     checkField(rule, "name", Rule::getName, rule.getName());
@@ -159,26 +203,22 @@ public class SearchActionTest {
   }
 
   @SafeVarargs
-  private final <T> void checkField(RuleDefinitionDto rule, String fieldName, Extractor<Rule, T> responseExtractor, T... expected) {
+  private final <T> void checkField(RuleDefinitionDto rule, String fieldName, Extractor<Rule, T> responseExtractor, T... expected) throws IOException {
     InputStream inputStream = actionTester.newRequest()
       .setMediaType(PROTOBUF)
       .setParam("f", fieldName)
       .execute()
       .getInputStream();
-    SearchResponse result;
-    try {
-      result = SearchResponse.parseFrom(inputStream);
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot parse search response", e);
-    }
+    SearchResponse result = SearchResponse.parseFrom(inputStream);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList()).extracting(responseExtractor).containsExactly(expected);
   }
 
-  private RuleDefinitionDto insertRule() {
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    ruleIndexer.indexRuleDefinition(rule.getKey());
-    return rule;
+  @SafeVarargs
+  private final RuleDefinitionDto insertRuleDefinition(Consumer<RuleDefinitionDto>... populaters) {
+    RuleDefinitionDto ruleDefinitionDto = dbTester.rules().insert(populaters);
+    ruleIndexer.indexRuleDefinition(ruleDefinitionDto.getKey());
+    return ruleDefinitionDto;
   }
 
   @SafeVarargs

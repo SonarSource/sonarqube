@@ -510,7 +510,7 @@ public class IssueIndex {
 
     Collection<String> assigneesEscaped = escapeValuesForFacetInclusion(query.assignees());
     if (!assigneesEscaped.isEmpty()) {
-      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, assigneesEscaped.toArray());
+      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t, assigneesEscaped.toArray());
     }
 
     // Add missing facet for unassigned issues
@@ -568,7 +568,7 @@ public class IssueIndex {
     StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, resolutionFilters, esQuery);
     BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
-    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation);
+    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t);
 
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(
