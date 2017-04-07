@@ -81,7 +81,7 @@ public enum ComponentTextSearchFeature {
 
   public abstract QueryBuilder getQuery(ComponentTextSearchQuery query);
 
-  protected Stream<String> split(String queryText) {
+  public static Stream<String> split(String queryText) {
     return Arrays.stream(
       queryText.split(DefaultIndexSettings.SEARCH_TERM_TOKENIZER_PATTERN))
       .filter(StringUtils::isNotEmpty);

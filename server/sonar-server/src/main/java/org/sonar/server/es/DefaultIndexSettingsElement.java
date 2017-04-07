@@ -37,6 +37,7 @@ import static org.sonar.server.es.DefaultIndexSettings.KEYWORD;
 import static org.sonar.server.es.DefaultIndexSettings.LOWERCASE;
 import static org.sonar.server.es.DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH;
 import static org.sonar.server.es.DefaultIndexSettings.MAX_GRAM;
+import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.es.DefaultIndexSettings.MIN_GRAM;
 import static org.sonar.server.es.DefaultIndexSettings.PATTERN;
 import static org.sonar.server.es.DefaultIndexSettings.PORTER_STEM;
@@ -69,22 +70,13 @@ public enum DefaultIndexSettingsElement {
       set("stem_english_possessive", true);
     }
   },
-  EDGE_NGRAM_FILTER(FILTER) {
-
-    @Override
-    protected void setup() {
-      set(TYPE, "edge_ngram");
-      set(MIN_GRAM, 1);
-      set(MAX_GRAM, 15);
-    }
-  },
   NGRAM_FILTER(FILTER) {
 
     @Override
     protected void setup() {
       set(TYPE, "nGram");
-      set(MIN_GRAM, 2);
-      set(MAX_GRAM, 15);
+      set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
+      set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
       setArray("token_chars", "letter", "digit", "punctuation", "symbol");
     }
   },
@@ -96,7 +88,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TYPE, "nGram");
-      set(MIN_GRAM, 2);
+      set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
       set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
       setArray("token_chars", "letter", "digit", "punctuation", "symbol");
     }

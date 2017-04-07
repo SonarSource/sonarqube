@@ -25,6 +25,8 @@ import org.elasticsearch.common.settings.Settings;
 
 public class DefaultIndexSettings {
 
+  /** Minimum length of ngrams. */
+  public static final int MINIMUM_NGRAM_LENGTH = 2;
   /** Maximum length of ngrams. */
   public static final int MAXIMUM_NGRAM_LENGTH = 15;
 
