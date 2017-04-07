@@ -19,11 +19,11 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -48,8 +48,11 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
+import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.newBuilder;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 
 public class SuggestionsAction implements ComponentsWsAction {
@@ -131,53 +134,50 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private SuggestionsWsResponse toResponse(List<ComponentsPerQualifier> componentsPerQualifiers, @Nullable String warning) {
-    SuggestionsWsResponse.Builder builder = SuggestionsWsResponse.newBuilder()
-      .addAllSuggestions(getResultsOfAllQualifiers(componentsPerQualifiers));
+    SuggestionsWsResponse.Builder builder = newBuilder();
+    if (!componentsPerQualifiers.isEmpty()) {
+      Map<String, OrganizationDto> organizationsByUuids;
+      Map<String, ComponentDto> componentsByUuids;
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        Set<String> componentUuids = componentsPerQualifiers.stream()
+          .map(ComponentsPerQualifier::getComponentUuids)
+          .flatMap(Collection::stream)
+          .collect(toSet());
+        componentsByUuids = dbClient.componentDao().selectByUuids(dbSession, componentUuids).stream()
+          .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
+        Set<String> organizationUuids = componentsByUuids.values().stream()
+          .map(ComponentDto::getOrganizationUuid)
+          .collect(toSet());
+        organizationsByUuids = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids).stream()
+          .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
+      }
+      builder
+        .addAllSuggestions(toCategoryResponses(componentsPerQualifiers, componentsByUuids, organizationsByUuids))
+        .addAllOrganizations(toOrganizationResponses(organizationsByUuids));
+    }
     ofNullable(warning).ifPresent(builder::setWarning);
     return builder.build();
   }
 
-  private List<Category> getResultsOfAllQualifiers(List<ComponentsPerQualifier> componentsPerQualifiers) {
-    if (componentsPerQualifiers.isEmpty()) {
-      return Collections.emptyList();
-    }
+  private static List<Category> toCategoryResponses(List<ComponentsPerQualifier> componentsPerQualifiers, Map<String, ComponentDto> componentsByUuids,
+    Map<String, OrganizationDto> organizationByUuids) {
+    return componentsPerQualifiers.stream().map(qualifier -> {
 
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return componentsPerQualifiers.stream().map(qualifier -> {
+      List<Component> results = qualifier.getComponentUuids().stream()
+        .map(componentsByUuids::get)
+        .map(dto -> dtoToComponent(dto, organizationByUuids))
+        .collect(toList());
 
-        List<String> uuids = qualifier.getComponentUuids();
-        List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, uuids);
-        List<ComponentDto> sortedComponentDtos = Ordering.explicit(uuids)
-          .onResultOf(ComponentDto::uuid)
-          .immutableSortedCopy(componentDtos);
-
-        Map<String, String> organizationKeyByUuids = getOrganizationKeys(dbSession, componentDtos);
-
-        List<Component> results = sortedComponentDtos
-          .stream()
-          .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
-          .collect(toList());
-
-        return Category.newBuilder()
-          .setCategory(qualifier.getQualifier())
-          .setMore(qualifier.getNumberOfFurtherResults())
-          .addAllItems(results)
-          .build();
-      }).collect(toList());
-    }
-
+      return Category.newBuilder()
+        .setCategory(qualifier.getQualifier())
+        .setMore(qualifier.getNumberOfFurtherResults())
+        .addAllItems(results)
+        .build();
+    }).collect(toList());
   }
 
-  private Map<String, String> getOrganizationKeys(DbSession dbSession, List<ComponentDto> componentDtos) {
-    return dbClient.organizationDao().selectByUuids(
-      dbSession,
-      componentDtos.stream().map(ComponentDto::getOrganizationUuid).collect(MoreCollectors.toSet()))
-      .stream()
-      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid, OrganizationDto::getKey));
-  }
-
-  private static Component dtoToComponent(ComponentDto result, Map<String, String> organizationKeysByUuid) {
-    String organizationKey = organizationKeysByUuid.get(result.getOrganizationUuid());
+  private static Component dtoToComponent(ComponentDto result, Map<String, OrganizationDto> organizationByUuid) {
+    String organizationKey = organizationByUuid.get(result.getOrganizationUuid()).getKey();
     checkState(organizationKey != null, "Organization with uuid '%s' not found", result.getOrganizationUuid());
     return Component.newBuilder()
       .setOrganization(organizationKey)
@@ -186,4 +186,12 @@ public class SuggestionsAction implements ComponentsWsAction {
       .build();
   }
 
+  private static List<Organization> toOrganizationResponses(Map<String, OrganizationDto> organizationByUuids) {
+    return organizationByUuids.values().stream()
+      .map(o -> Organization.newBuilder()
+        .setKey(o.getKey())
+        .setName(o.getName())
+        .build())
+      .collect(Collectors.toList());
+  }
 }
