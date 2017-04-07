@@ -21,8 +21,8 @@ package org.sonar.api.batch.fs.internal;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.ByteBuffer;
@@ -39,8 +39,6 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
@@ -79,18 +77,18 @@ public class FileMetadata {
     private int nonBlankLines = 0;
     private boolean blankLine = true;
     boolean alreadyLoggedInvalidCharacter = false;
-    private final File file;
+    private final String filePath;
     private final Charset encoding;
 
-    LineCounter(File file, Charset encoding) {
-      this.file = file;
+    LineCounter(String filePath, Charset encoding) {
+      this.filePath = filePath;
       this.encoding = encoding;
     }
 
     @Override
     protected void handleAll(char c) {
       if (!alreadyLoggedInvalidCharacter && c == '\ufffd') {
-        LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '{}'.", file,
+        LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '{}'.", filePath,
           lines, encoding, CoreProperties.ENCODING_PROPERTY);
         alreadyLoggedInvalidCharacter = true;
       }
@@ -133,13 +131,13 @@ public class FileMetadata {
     private MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
     private StringBuilder sb = new StringBuilder();
     private final CharsetEncoder encoder;
-    private final File file;
+    private final String filePath;
 
-    public FileHashComputer(File f) {
+    public FileHashComputer(String filePath) {
       encoder = StandardCharsets.UTF_8.newEncoder()
         .onMalformedInput(CodingErrorAction.REPLACE)
         .onUnmappableCharacter(CodingErrorAction.REPLACE);
-      file = f;
+      this.filePath = filePath;
     }
 
     @Override
@@ -168,7 +166,7 @@ public class FileMetadata {
           globalMd5Digest.update(encoded.array(), 0, encoded.limit());
         }
       } catch (CharacterCodingException e) {
-        throw new IllegalStateException("Error encoding line hash in file: " + file.getAbsolutePath(), e);
+        throw new IllegalStateException("Error encoding line hash in file: " + filePath, e);
       }
     }
 
@@ -272,32 +270,32 @@ public class FileMetadata {
    * Compute hash of a file ignoring line ends differences.
    * Maximum performance is needed.
    */
-  public Metadata readMetadata(File file, Charset encoding, @Nullable CharHandler otherHandler) {
-    LineCounter lineCounter = new LineCounter(file, encoding);
-    FileHashComputer fileHashComputer = new FileHashComputer(file);
+  public Metadata readMetadata(InputStream stream, Charset encoding, String filePath, @Nullable CharHandler otherHandler) {
+    LineCounter lineCounter = new LineCounter(filePath, encoding);
+    FileHashComputer fileHashComputer = new FileHashComputer(filePath);
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
 
     if (otherHandler != null) {
       CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter, otherHandler};
-      readFile(file, encoding, handlers);
+      readFile(stream, encoding, filePath, handlers);
     } else {
       CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter};
-      readFile(file, encoding, handlers);
+      readFile(stream, encoding, filePath, handlers);
     }
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
       lineOffsetCounter.getLastValidOffset());
   }
 
-  public Metadata readMetadata(File file, Charset encoding) {
-    return readMetadata(file, encoding, null);
+  public Metadata readMetadata(InputStream stream, Charset encoding, String filePath) {
+    return readMetadata(stream, encoding, filePath, null);
   }
 
   /**
    * For testing purpose
    */
   public Metadata readMetadata(Reader reader) {
-    LineCounter lineCounter = new LineCounter(new File("fromString"), StandardCharsets.UTF_16);
-    FileHashComputer fileHashComputer = new FileHashComputer(new File("fromString"));
+    LineCounter lineCounter = new LineCounter("fromString", StandardCharsets.UTF_16);
+    FileHashComputer fileHashComputer = new FileHashComputer("fromString");
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
     CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter};
 
@@ -310,13 +308,11 @@ public class FileMetadata {
       lineOffsetCounter.getLastValidOffset());
   }
 
-  public static void readFile(File file, Charset encoding, CharHandler[] handlers) {
-    try (BOMInputStream bomIn = new BOMInputStream(new FileInputStream(file),
-      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
-      Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {
+  public static void readFile(InputStream stream, Charset encoding, String filePath, CharHandler[] handlers) {
+    try (Reader reader = new BufferedReader(new InputStreamReader(stream, encoding))) {
       read(reader, handlers);
     } catch (IOException e) {
-      throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
+      throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", filePath, encoding), e);
     }
   }
 
@@ -376,6 +372,10 @@ public class FileMetadata {
    * Compute a MD5 hash of each line of the file after removing of all blank chars
    */
   public static void computeLineHashesForIssueTracking(InputFile f, LineHashConsumer consumer) {
-    readFile(f.file(), f.charset(), new CharHandler[] {new LineHashComputer(consumer, f.file())});
+    try {
+      readFile(f.inputStream(), f.charset(), f.absolutePath(), new CharHandler[] {new LineHashComputer(consumer, f.file())});
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to compute line hashes for " + f.absolutePath(), e);
+    }
   }
 }

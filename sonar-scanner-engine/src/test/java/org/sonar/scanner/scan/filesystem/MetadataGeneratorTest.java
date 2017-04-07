@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,34 +70,53 @@ public class MetadataGeneratorTest {
   public void should_detect_charset_from_BOM() {
     Path basedir = Paths.get("src/test/resources/org/sonar/scanner/scan/filesystem/");
 
-    assertThat(createInputFileWithMetadata(generator, basedir, "without_BOM.txt").charset())
+    assertThat(createInputFileWithMetadata(basedir.resolve("without_BOM.txt")).charset())
       .isEqualTo(StandardCharsets.US_ASCII);
-    assertThat(createInputFileWithMetadata(generator, basedir, "UTF-8.txt").charset())
+    assertThat(createInputFileWithMetadata(basedir.resolve("UTF-8.txt")).charset())
       .isEqualTo(StandardCharsets.UTF_8);
-    assertThat(createInputFileWithMetadata(generator, basedir, "UTF-16BE.txt").charset())
+    assertThat(createInputFileWithMetadata(basedir.resolve("UTF-16BE.txt")).charset())
       .isEqualTo(StandardCharsets.UTF_16BE);
-    assertThat(createInputFileWithMetadata(generator, basedir, "UTF-16LE.txt").charset())
+    assertThat(createInputFileWithMetadata(basedir.resolve("UTF-16LE.txt")).charset())
       .isEqualTo(StandardCharsets.UTF_16LE);
-    assertThat(createInputFileWithMetadata(generator, basedir, "UTF-32BE.txt").charset())
+    assertThat(createInputFileWithMetadata(basedir.resolve("UTF-32BE.txt")).charset())
       .isEqualTo(MetadataGenerator.UTF_32BE);
-    assertThat(createInputFileWithMetadata(generator, basedir, "UTF-32LE.txt").charset())
+    assertThat(createInputFileWithMetadata(basedir.resolve("UTF-32LE.txt")).charset())
       .isEqualTo(MetadataGenerator.UTF_32LE);
-
-    try {
-      createInputFileWithMetadata(generator, basedir, "non_existing");
-      Assert.fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).endsWith("Unable to read file " + basedir.resolve("non_existing").toAbsolutePath());
-      assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-    }
   }
 
-  private DefaultInputFile createInputFileWithMetadata(MetadataGenerator generator, Path baseDir, String relativePath) {
+  private DefaultInputFile createInputFileWithMetadata(Path filePath) {
+    return createInputFileWithMetadata(filePath.getParent(), filePath.getFileName().toString());
+  }
+
+  private DefaultInputFile createInputFileWithMetadata(Path baseDir, String relativePath) {
     DefaultInputFile inputFile = new TestInputFileBuilder("struts", relativePath)
       .setModuleBaseDir(baseDir)
       .build();
     generator.setMetadata(inputFile, StandardCharsets.US_ASCII);
     return inputFile;
+  }
+
+  @Test
+  public void start_with_bom() throws Exception {
+    Path tempFile = temp.newFile().toPath();
+    FileUtils.write(tempFile.toFile(), "\uFEFFfoo\nbar\r\nbaz", StandardCharsets.UTF_8, true);
+
+    DefaultInputFile inputFile = createInputFileWithMetadata(tempFile);
+    assertThat(inputFile.lines()).isEqualTo(3);
+    assertThat(inputFile.nonBlankLines()).isEqualTo(3);
+    assertThat(inputFile.hash()).isEqualTo(md5Hex("foo\nbar\nbaz"));
+    assertThat(inputFile.originalLineOffsets()).containsOnly(0, 4, 9);
+  }
+
+  @Test
+  public void non_existing_file_should_throw_exception() {
+    try {
+      createInputFileWithMetadata(Paths.get(""), "non_existing");
+      Assert.fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).endsWith("Unable to read file " + Paths.get("").resolve("non_existing").toAbsolutePath());
+      assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
+    }
   }
 
   @Test
@@ -111,7 +131,7 @@ public class MetadataGeneratorTest {
     when(statusDetection.status("foo", "src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
       .thenReturn(InputFile.Status.ADDED);
 
-    InputFile inputFile = createInputFileWithMetadata(generator, baseDir, "src/main/java/foo/Bar.java");
+    InputFile inputFile = createInputFileWithMetadata(baseDir, "src/main/java/foo/Bar.java");
 
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(inputFile.file()).isEqualTo(srcFile.toFile());

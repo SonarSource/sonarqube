@@ -21,6 +21,8 @@ package org.sonar.scanner.issue.tracking;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -59,6 +61,7 @@ public class SourceHashHolderTest {
     ioFile = temp.newFile();
     when(file.file()).thenReturn(ioFile);
     when(file.path()).thenReturn(ioFile.toPath());
+    when(file.inputStream()).thenAnswer(i -> Files.newInputStream(ioFile.toPath()));
     when(file.lines()).thenReturn(1);
     when(file.charset()).thenReturn(StandardCharsets.UTF_8);
 
