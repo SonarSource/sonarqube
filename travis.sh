@@ -126,6 +126,11 @@ BUILD)
   # That can occur when uploading sonarqube.zip to Artifactory.
   ./clock.sh &
 
+  echo "Memory"
+  free -m
+  echo "CPUs info"
+  cat /proc/cpuinfo
+
   installJdk8
   installMaven
   fixBuildVersion
