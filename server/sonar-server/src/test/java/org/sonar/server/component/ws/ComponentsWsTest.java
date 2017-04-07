@@ -66,17 +66,6 @@ public class ComponentsWsTest {
   }
 
   @Test
-  public void define_suggestions_action() {
-    WebService.Action action = controller.action("suggestions");
-    assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isNotNull();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
-  }
-
-  @Test
   public void define_app_action() {
     WebService.Action action = controller.action("app");
     assertThat(action).isNotNull();
