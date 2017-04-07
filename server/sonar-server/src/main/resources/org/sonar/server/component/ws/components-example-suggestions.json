@@ -4,58 +4,20 @@
       "q": "TRK",
       "items": [
         {
-          "id": 2865,
-          "name": "SonarQube"
+          "organization": "default-organization",
+          "key": "org.sonarsource:sonarqube",
+          "name": "SonarSource :: SonarQube"
         },
         {
-          "id": 13265,
-          "name": "SonarQube Java"
-        },
-        {
-          "id": 17226,
-          "name": "SonarQube Runner"
-        },
-        {
-          "id": 12916,
-          "name": "SonarQube C# Plugin"
-        },
-        {
-          "id": 15021,
-          "name": "SonarQube PMD Plugin"
-        },
-        {
-          "id": 5537,
-          "name": "SonarQube Web Plugin"
+          "organization": "default-organization",
+          "key": "org.sonarsource:sonarlint",
+          "name": "SonarSource :: SonarLint"
         }
       ]
     },
     {
-      "q": "BRC",
+      "q": "FIL",
       "items": [
-        {
-          "id": 17221,
-          "name": "SonarQube :: Home"
-        },
-        {
-          "id": 258,
-          "name": "SonarQube :: Core"
-        },
-        {
-          "id": 1624,
-          "name": "SonarQube :: Batch"
-        },
-        {
-          "id": 21,
-          "name": "SonarQube :: Graph"
-        },
-        {
-          "id": 2872,
-          "name": "SonarQube :: Server"
-        },
-        {
-          "id": 2869,
-          "name": "SonarQube :: Markdown"
-        }
       ]
     }
   ]
