@@ -1,7 +1,7 @@
 {
-  "results": [
+  "suggestions": [
     {
-      "q": "TRK",
+      "category": "projects",
       "items": [
         {
           "organization": "default-organization",
@@ -17,7 +17,7 @@
       "more": 74
     },
     {
-      "q": "FIL",
+      "category": "files",
       "items": [
       ]
     }

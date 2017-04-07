@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -42,10 +41,11 @@ import org.sonar.server.component.index.ComponentsPerQualifier;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
-import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Qualifier;
+import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
@@ -57,15 +57,6 @@ public class SuggestionsAction implements ComponentsWsAction {
   static final String PARAM_QUERY = "s";
   static final String PARAM_MORE = "more";
   static final String SHORT_INPUT_WARNING = "short_input";
-
-  private static final String[] QUALIFIERS = {
-    Qualifiers.VIEW,
-    Qualifiers.SUBVIEW,
-    Qualifiers.PROJECT,
-    Qualifiers.MODULE,
-    Qualifiers.FILE,
-    Qualifiers.UNIT_TEST_FILE
-  };
 
   static final int DEFAULT_LIMIT = 6;
   static final int EXTENDED_LIMIT = 20;
@@ -95,8 +86,8 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setExampleValue("sonar");
 
     action.createParam(PARAM_MORE)
-      .setDescription("Qualifier, for which to display " + EXTENDED_LIMIT + " instead of " + DEFAULT_LIMIT + " results")
-      .setPossibleValues(QUALIFIERS)
+      .setDescription("Category, for which to display " + EXTENDED_LIMIT + " instead of " + DEFAULT_LIMIT + " results")
+      .setPossibleValues(stream(SuggestionCategory.values()).map(SuggestionCategory::getName).toArray(String[]::new))
       .setSince("6.4");
   }
 
@@ -125,10 +116,10 @@ public class SuggestionsAction implements ComponentsWsAction {
   private List<ComponentsPerQualifier> getComponentsPerQualifiers(String more, ComponentIndexQuery.Builder queryBuilder) {
     List<ComponentsPerQualifier> componentsPerQualifiers;
     if (more == null) {
-      queryBuilder.setQualifiers(asList(QUALIFIERS))
+      queryBuilder.setQualifiers(stream(SuggestionCategory.values()).map(SuggestionCategory::getQualifier).collect(Collectors.toList()))
         .setLimit(DEFAULT_LIMIT);
     } else {
-      queryBuilder.setQualifiers(Collections.singletonList(more))
+      queryBuilder.setQualifiers(singletonList(SuggestionCategory.getByName(more).getQualifier()))
         .setLimit(EXTENDED_LIMIT);
     }
     componentsPerQualifiers = searchInIndex(queryBuilder.build());
@@ -141,12 +132,12 @@ public class SuggestionsAction implements ComponentsWsAction {
 
   private SuggestionsWsResponse toResponse(List<ComponentsPerQualifier> componentsPerQualifiers, @Nullable String warning) {
     SuggestionsWsResponse.Builder builder = SuggestionsWsResponse.newBuilder()
-      .addAllResults(getResultsOfAllQualifiers(componentsPerQualifiers));
+      .addAllSuggestions(getResultsOfAllQualifiers(componentsPerQualifiers));
     ofNullable(warning).ifPresent(builder::setWarning);
     return builder.build();
   }
 
-  private List<Qualifier> getResultsOfAllQualifiers(List<ComponentsPerQualifier> componentsPerQualifiers) {
+  private List<Category> getResultsOfAllQualifiers(List<ComponentsPerQualifier> componentsPerQualifiers) {
     if (componentsPerQualifiers.isEmpty()) {
       return Collections.emptyList();
     }
@@ -167,8 +158,8 @@ public class SuggestionsAction implements ComponentsWsAction {
           .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
           .collect(toList());
 
-        return Qualifier.newBuilder()
-          .setQ(qualifier.getQualifier())
+        return Category.newBuilder()
+          .setCategory(qualifier.getQualifier())
           .setMore(qualifier.getNumberOfFurtherResults())
           .addAllItems(results)
           .build();

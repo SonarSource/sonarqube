@@ -102,14 +102,14 @@ public class SuggestionsActionTest {
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
-    assertThat(response.getResultsList())
+    assertThat(response.getSuggestionsList())
       .filteredOn(q -> q.getItemsCount() > 0)
-      .extracting(SuggestionsWsResponse.Qualifier::getQ)
+      .extracting(SuggestionsWsResponse.Category::getCategory)
       .containsExactly(Qualifiers.PROJECT);
 
     // assert correct id to be found
-    assertThat(response.getResultsList())
-      .flatExtracting(SuggestionsWsResponse.Qualifier::getItemsList)
+    assertThat(response.getSuggestionsList())
+      .flatExtracting(SuggestionsWsResponse.Category::getItemsList)
       .extracting(WsComponents.Component::getKey, WsComponents.Component::getOrganization)
       .containsExactly(tuple(project.getKey(), organization.getKey()));
   }
@@ -126,7 +126,7 @@ public class SuggestionsActionTest {
       .setParam(PARAM_QUERY, "S o")
       .executeProtobuf(SuggestionsWsResponse.class);
 
-    assertThat(response.getResultsList()).filteredOn(q -> q.getItemsCount() > 0).isEmpty();
+    assertThat(response.getSuggestionsList()).filteredOn(q -> q.getItemsCount() > 0).isEmpty();
     assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
   }
 
@@ -157,10 +157,10 @@ public class SuggestionsActionTest {
 
   @Test
   public void show_show_more_results_if_requested() throws Exception {
-    check_proposal_to_show_more_results(21, EXTENDED_LIMIT, 1L, Qualifiers.PROJECT);
+    check_proposal_to_show_more_results(21, EXTENDED_LIMIT, 1L, SuggestionCategory.PROJECT);
   }
 
-  private void check_proposal_to_show_more_results(int numberOfProjects, int results, long numberOfMoreResults, @Nullable String moreQualifier) throws Exception {
+  private void check_proposal_to_show_more_results(int numberOfProjects, int results, long numberOfMoreResults, @Nullable SuggestionCategory more) throws Exception {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)
@@ -173,25 +173,25 @@ public class SuggestionsActionTest {
     TestRequest request = actionTester.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, namePrefix);
-    ofNullable(moreQualifier).ifPresent(q -> request.setParam(PARAM_MORE, q));
+    ofNullable(more).ifPresent(c -> request.setParam(PARAM_MORE, c.getName()));
     SuggestionsWsResponse response = request
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
-    assertThat(response.getResultsList())
+    assertThat(response.getSuggestionsList())
       .filteredOn(q -> q.getItemsCount() > 0)
-      .extracting(SuggestionsWsResponse.Qualifier::getQ)
+      .extracting(SuggestionsWsResponse.Category::getCategory)
       .containsExactly(Qualifiers.PROJECT);
 
     // include limited number of results in the response
-    assertThat(response.getResultsList())
-      .flatExtracting(SuggestionsWsResponse.Qualifier::getItemsList)
+    assertThat(response.getSuggestionsList())
+      .flatExtracting(SuggestionsWsResponse.Category::getItemsList)
       .hasSize(Math.min(results, numberOfProjects));
 
     // indicate, that there are more results
-    assertThat(response.getResultsList())
+    assertThat(response.getSuggestionsList())
       .filteredOn(q -> q.getItemsCount() > 0)
-      .extracting(SuggestionsWsResponse.Qualifier::getMore)
+      .extracting(SuggestionsWsResponse.Category::getMore)
       .containsExactly(numberOfMoreResults);
   }
 }
