@@ -13,7 +13,8 @@
           "key": "org.sonarsource:sonarlint",
           "name": "SonarSource :: SonarLint"
         }
-      ]
+      ],
+      "more": 74
     },
     {
       "q": "FIL",

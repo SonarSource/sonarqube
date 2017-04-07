@@ -52,7 +52,8 @@ message SuggestionsWsResponse {
   
   message Qualifier {
   	optional string q = 1;
-  	repeated Component items = 4;
+  	repeated Component items = 2;
+    optional int64 more = 3;
   }
 }
 
