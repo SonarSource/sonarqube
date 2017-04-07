@@ -134,8 +134,8 @@ BUILD)
   export MAVEN_OPTS="-Xmx1G -Xms128m"
   MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
 
-  if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    echo 'Build and analyze master'
+  if [ "$TRAVIS_BRANCH" == "test/dr/travis-premium-vms" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    echo 'Build and analyze test/dr/travis-premium-vms'
 
     # Fetch all commit history so that SonarQube has exact blame information
     # for issue auto-assignment
@@ -144,12 +144,9 @@ BUILD)
     # For this reason errors are ignored with "|| true"
     git fetch --unshallow || true
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
-          -Pdeploy-sonarsource,release \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.projectVersion=$INITIAL_VERSION
+          -Pdeploy-sonarsource,release
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
@@ -157,18 +154,12 @@ BUILD)
     mvn deploy $MAVEN_ARGS -Pdeploy-sonarsource,release
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
-    echo 'Build and analyze internal pull request'
+    echo 'Build internal pull request'
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
         $MAVEN_ARGS \
         -Dsource.skip=true \
-        -Pdeploy-sonarsource \
-        -Dsonar.analysis.mode=preview \
-        -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
-        -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
-        -Dsonar.github.oauth=$GITHUB_TOKEN \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN
+        -Pdeploy-sonarsource
 
   else
     echo 'Build feature branch or external pull request'
