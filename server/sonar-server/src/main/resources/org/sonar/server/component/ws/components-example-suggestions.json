@@ -22,5 +22,11 @@
       ]
     }
   ],
+  "organizations": [
+    {
+      "key": "default-organization",
+      "name": "Default Organization"
+    }
+  ],
   "warning": "short_input"
 }
