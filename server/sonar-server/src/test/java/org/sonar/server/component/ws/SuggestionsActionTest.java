@@ -51,6 +51,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.component.ws.SuggestionsAction.DEFAULT_LIMIT;
 import static org.sonar.server.component.ws.SuggestionsAction.EXTENDED_LIMIT;
+import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 
@@ -111,6 +112,32 @@ public class SuggestionsActionTest {
       .flatExtracting(SuggestionsWsResponse.Qualifier::getItemsList)
       .extracting(WsComponents.Component::getKey, WsComponents.Component::getOrganization)
       .containsExactly(tuple(project.getKey(), organization.getKey()));
+  }
+
+  @Test
+  public void must_not_search_if_no_valid_tokens_are_provided() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto(organization).setName("SonarQube"));
+
+    componentIndexer.indexOnStartup(null);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+
+    SuggestionsWsResponse response = actionTester.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, "S o")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList()).filteredOn(q -> q.getItemsCount() > 0).isEmpty();
+    assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
+  }
+
+  @Test
+  public void should_warn_about_short_inputs() throws Exception {
+    SuggestionsWsResponse response = actionTester.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, "validLongToken x")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
   }
 
   @Test

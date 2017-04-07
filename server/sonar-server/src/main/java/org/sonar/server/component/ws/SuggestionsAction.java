@@ -24,6 +24,8 @@ import com.google.common.io.Resources;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -37,13 +39,16 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonar.server.component.index.ComponentsPerQualifier;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Qualifier;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 
@@ -51,6 +56,7 @@ public class SuggestionsAction implements ComponentsWsAction {
 
   static final String PARAM_QUERY = "s";
   static final String PARAM_MORE = "more";
+  static final String SHORT_INPUT_WARNING = "short_input";
 
   private static final String[] QUALIFIERS = {
     Qualifiers.VIEW,
@@ -84,7 +90,8 @@ public class SuggestionsAction implements ComponentsWsAction {
 
     action.createParam(PARAM_QUERY)
       .setRequired(true)
-      .setDescription("Substring of project key (minimum 2 characters)")
+      .setDescription("Search query with a minimum of two characters. Can contain several search tokens, separated by spaces. " +
+        "Search tokens with only one character will be ignored.")
       .setExampleValue("sonar");
 
     action.createParam(PARAM_MORE)
@@ -99,6 +106,24 @@ public class SuggestionsAction implements ComponentsWsAction {
     String more = wsRequest.param(PARAM_MORE);
 
     ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder().setQuery(query);
+
+    List<ComponentsPerQualifier> componentsPerQualifiers = getComponentsPerQualifiers(more, queryBuilder);
+    String warning = getWarning(query);
+
+    SuggestionsWsResponse searchWsResponse = toResponse(componentsPerQualifiers, warning);
+    writeProtobuf(searchWsResponse, wsRequest, wsResponse);
+  }
+
+  private static String getWarning(String query) {
+    List<String> tokens = ComponentTextSearchFeature.split(query).collect(Collectors.toList());
+    if (tokens.stream().anyMatch(token -> token.length() < MINIMUM_NGRAM_LENGTH)) {
+      return SHORT_INPUT_WARNING;
+    }
+    return null;
+  }
+
+  private List<ComponentsPerQualifier> getComponentsPerQualifiers(String more, ComponentIndexQuery.Builder queryBuilder) {
+    List<ComponentsPerQualifier> componentsPerQualifiers;
     if (more == null) {
       queryBuilder.setQualifiers(asList(QUALIFIERS))
         .setLimit(DEFAULT_LIMIT);
@@ -106,19 +131,19 @@ public class SuggestionsAction implements ComponentsWsAction {
       queryBuilder.setQualifiers(Collections.singletonList(more))
         .setLimit(EXTENDED_LIMIT);
     }
-    List<ComponentsPerQualifier> componentsPerQualifiers = searchInIndex(queryBuilder.build());
-    SuggestionsWsResponse searchWsResponse = toResponse(componentsPerQualifiers);
-    writeProtobuf(searchWsResponse, wsRequest, wsResponse);
+    componentsPerQualifiers = searchInIndex(queryBuilder.build());
+    return componentsPerQualifiers;
   }
 
   private List<ComponentsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {
     return index.search(componentIndexQuery);
   }
 
-  private SuggestionsWsResponse toResponse(List<ComponentsPerQualifier> componentsPerQualifiers) {
-    return SuggestionsWsResponse.newBuilder()
-      .addAllResults(getResultsOfAllQualifiers(componentsPerQualifiers))
-      .build();
+  private SuggestionsWsResponse toResponse(List<ComponentsPerQualifier> componentsPerQualifiers, @Nullable String warning) {
+    SuggestionsWsResponse.Builder builder = SuggestionsWsResponse.newBuilder()
+      .addAllResults(getResultsOfAllQualifiers(componentsPerQualifiers));
+    ofNullable(warning).ifPresent(builder::setWarning);
+    return builder.build();
   }
 
   private List<Qualifier> getResultsOfAllQualifiers(List<ComponentsPerQualifier> componentsPerQualifiers) {

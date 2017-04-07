@@ -48,7 +48,8 @@ message ShowWsResponse {
 
 // WS api/components/suggestions
 message SuggestionsWsResponse {
-  repeated Qualifier results = 2;
+  repeated Qualifier results = 1;
+  optional string warning = 2;
   
   message Qualifier {
   	optional string q = 1;
