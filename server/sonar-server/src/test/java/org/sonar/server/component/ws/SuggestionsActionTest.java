@@ -19,14 +19,15 @@
  */
 package org.sonar.server.component.ws;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -38,20 +39,23 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.component.ws.SuggestionsAction.URL_PARAM_QUERY;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
+import static org.sonar.server.component.ws.SuggestionsAction.DEFAULT_LIMIT;
+import static org.sonar.server.component.ws.SuggestionsAction.EXTENDED_LIMIT;
+import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
+import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 
 public class SuggestionsActionTest {
 
-  public static final int NUMBER_OF_RESULTS_PER_QUALIFIER = 6;
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -60,7 +64,7 @@ public class SuggestionsActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
-  ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
+  private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
   private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index);
   private OrganizationDto organization;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);
@@ -72,6 +76,19 @@ public class SuggestionsActionTest {
   }
 
   @Test
+  public void define_suggestions_action() {
+    WebService.Action action = actionTester.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
+      PARAM_MORE,
+      PARAM_QUERY);
+  }
+
+  @Test
   public void exact_match_in_one_qualifier() throws Exception {
     ComponentDto project = db.components().insertComponent(newProjectDto(organization));
 
@@ -80,7 +97,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = actionTester.newRequest()
       .setMethod("POST")
-      .setParam(URL_PARAM_QUERY, project.getKey())
+      .setParam(PARAM_QUERY, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -98,19 +115,25 @@ public class SuggestionsActionTest {
 
   @Test
   public void should_propose_to_show_more_results_if_7_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(7, 1L);
+    check_proposal_to_show_more_results(7, DEFAULT_LIMIT, 1L, null);
   }
 
   @Test
   public void should_not_propose_to_show_more_results_if_6_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(6, 0L);
-  }
-  @Test
-  public void should_not_propose_to_show_more_results_if_5_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(5, 0L);
+    check_proposal_to_show_more_results(6, DEFAULT_LIMIT, 0L, null);
   }
 
-  private void check_proposal_to_show_more_results(int numberOfProjects, long numberOfMoreResults) throws Exception {
+  @Test
+  public void should_not_propose_to_show_more_results_if_5_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(5, DEFAULT_LIMIT, 0L, null);
+  }
+
+  @Test
+  public void show_show_more_results_if_requested() throws Exception {
+    check_proposal_to_show_more_results(21, EXTENDED_LIMIT, 1L, Qualifiers.PROJECT);
+  }
+
+  private void check_proposal_to_show_more_results(int numberOfProjects, int results, long numberOfMoreResults, @Nullable String moreQualifier) throws Exception {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)
@@ -120,9 +143,11 @@ public class SuggestionsActionTest {
     componentIndexer.indexOnStartup(null);
     projects.forEach(authorizationIndexerTester::allowOnlyAnyone);
 
-    SuggestionsWsResponse response = actionTester.newRequest()
+    TestRequest request = actionTester.newRequest()
       .setMethod("POST")
-      .setParam(URL_PARAM_QUERY, namePrefix)
+      .setParam(PARAM_QUERY, namePrefix);
+    ofNullable(moreQualifier).ifPresent(q -> request.setParam(PARAM_MORE, q));
+    SuggestionsWsResponse response = request
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -134,7 +159,7 @@ public class SuggestionsActionTest {
     // include limited number of results in the response
     assertThat(response.getResultsList())
       .flatExtracting(SuggestionsWsResponse.Qualifier::getItemsList)
-      .hasSize(Math.min(NUMBER_OF_RESULTS_PER_QUALIFIER, numberOfProjects));
+      .hasSize(Math.min(results, numberOfProjects));
 
     // indicate, that there are more results
     assertThat(response.getResultsList())

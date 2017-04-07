@@ -21,7 +21,6 @@ package org.sonar.server.component.ws;
 
 import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,12 +42,15 @@ import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Qualifier;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Arrays.asList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 
 public class SuggestionsAction implements ComponentsWsAction {
 
-  static final String URL_PARAM_QUERY = "s";
+  static final String PARAM_QUERY = "s";
+  static final String PARAM_MORE = "more";
 
   private static final String[] QUALIFIERS = {
     Qualifiers.VIEW,
@@ -59,7 +61,8 @@ public class SuggestionsAction implements ComponentsWsAction {
     Qualifiers.UNIT_TEST_FILE
   };
 
-  private static final int NUMBER_OF_RESULTS_PER_QUALIFIER = 6;
+  static final int DEFAULT_LIMIT = 6;
+  static final int EXTENDED_LIMIT = 20;
 
   private final ComponentIndex index;
 
@@ -79,33 +82,46 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "components-example-suggestions.json"));
 
-    action.createParam(URL_PARAM_QUERY)
+    action.createParam(PARAM_QUERY)
       .setRequired(true)
       .setDescription("Substring of project key (minimum 2 characters)")
       .setExampleValue("sonar");
+
+    action.createParam(PARAM_MORE)
+      .setDescription("Qualifier, for which to display " + EXTENDED_LIMIT + " instead of " + DEFAULT_LIMIT + " results")
+      .setPossibleValues(QUALIFIERS)
+      .setSince("6.4");
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    SuggestionsWsResponse searchWsResponse = doHandle(wsRequest.param(URL_PARAM_QUERY));
+    String query = wsRequest.param(PARAM_QUERY);
+    String more = wsRequest.param(PARAM_MORE);
+
+    ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder().setQuery(query);
+    if (more == null) {
+      queryBuilder.setQualifiers(asList(QUALIFIERS))
+        .setLimit(DEFAULT_LIMIT);
+    } else {
+      queryBuilder.setQualifiers(Collections.singletonList(more))
+        .setLimit(EXTENDED_LIMIT);
+    }
+    List<ComponentsPerQualifier> componentsPerQualifiers = searchInIndex(queryBuilder.build());
+    SuggestionsWsResponse searchWsResponse = toResponse(componentsPerQualifiers);
     writeProtobuf(searchWsResponse, wsRequest, wsResponse);
   }
 
-  SuggestionsWsResponse doHandle(String query) {
-    List<Qualifier> resultsPerQualifier = getResultsOfAllQualifiers(query);
+  private List<ComponentsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {
+    return index.search(componentIndexQuery);
+  }
 
+  private SuggestionsWsResponse toResponse(List<ComponentsPerQualifier> componentsPerQualifiers) {
     return SuggestionsWsResponse.newBuilder()
-      .addAllResults(resultsPerQualifier)
+      .addAllResults(getResultsOfAllQualifiers(componentsPerQualifiers))
       .build();
   }
 
-  private List<Qualifier> getResultsOfAllQualifiers(String query) {
-    ComponentIndexQuery componentIndexQuery = new ComponentIndexQuery(query)
-      .setQualifiers(Arrays.asList(QUALIFIERS))
-      .setLimit(NUMBER_OF_RESULTS_PER_QUALIFIER);
-
-    List<ComponentsPerQualifier> componentsPerQualifiers = searchInIndex(componentIndexQuery);
-
+  private List<Qualifier> getResultsOfAllQualifiers(List<ComponentsPerQualifier> componentsPerQualifiers) {
     if (componentsPerQualifiers.isEmpty()) {
       return Collections.emptyList();
     }
@@ -124,14 +140,14 @@ public class SuggestionsAction implements ComponentsWsAction {
         List<Component> results = sortedComponentDtos
           .stream()
           .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
-          .collect(MoreCollectors.toList());
+          .collect(toList());
 
         return Qualifier.newBuilder()
           .setQ(qualifier.getQualifier())
           .setMore(qualifier.getNumberOfFurtherResults())
           .addAllItems(results)
           .build();
-      }).collect(MoreCollectors.toList());
+      }).collect(toList());
     }
 
   }
@@ -142,10 +158,6 @@ public class SuggestionsAction implements ComponentsWsAction {
       componentDtos.stream().map(ComponentDto::getOrganizationUuid).collect(MoreCollectors.toSet()))
       .stream()
       .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid, OrganizationDto::getKey));
-  }
-
-  private List<ComponentsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {
-    return index.search(componentIndexQuery);
   }
 
   private static Component dtoToComponent(ComponentDto result, Map<String, String> organizationKeysByUuid) {

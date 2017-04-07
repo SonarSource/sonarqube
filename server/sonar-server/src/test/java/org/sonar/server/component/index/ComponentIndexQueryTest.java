@@ -36,7 +36,7 @@ public class ComponentIndexQueryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Query must be at least two characters long");
 
-    new ComponentIndexQuery("");
+    ComponentIndexQuery.builder().setQuery("");
   }
 
   @Test
@@ -44,19 +44,19 @@ public class ComponentIndexQueryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Query must be at least two characters long");
 
-    new ComponentIndexQuery("a");
+    ComponentIndexQuery.builder().setQuery("a");
   }
 
   @Test
   public void should_support_query_with_two_characters_long() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab");
+    ComponentIndexQuery query = ComponentIndexQuery.builder().setQuery("ab").build();
 
     assertThat(query.getQuery()).isEqualTo("ab");
   }
 
   @Test
   public void should_fail_with_IAE_if_limit_is_negative() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab");
+    ComponentIndexQuery.Builder query = ComponentIndexQuery.builder().setQuery("ab");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Limit has to be strictly positive");
@@ -66,7 +66,7 @@ public class ComponentIndexQueryTest {
 
   @Test
   public void should_fail_with_IAE_if_limit_is_zero() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab");
+    ComponentIndexQuery.Builder query = ComponentIndexQuery.builder().setQuery("ab");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Limit has to be strictly positive");
@@ -76,8 +76,8 @@ public class ComponentIndexQueryTest {
 
   @Test
   public void should_support_positive_limit() {
-    ComponentIndexQuery query = new ComponentIndexQuery("ab")
-      .setLimit(1);
+    ComponentIndexQuery query = ComponentIndexQuery.builder().setQuery("ab")
+      .setLimit(1).build();
 
     assertThat(query.getLimit()).isEqualTo(Optional.of(1));
   }

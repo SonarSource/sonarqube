@@ -22,6 +22,8 @@ package org.sonar.server.component.index;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -29,18 +31,14 @@ import static java.util.Objects.requireNonNull;
 public class ComponentIndexQuery {
 
   private final String query;
-  private Collection<String> qualifiers = Collections.emptyList();
-  private Optional<Integer> limit = Optional.empty();
+  private final Collection<String> qualifiers;
+  @CheckForNull
+  private final Integer limit;
 
-  public ComponentIndexQuery(String query) {
-    requireNonNull(query);
-    checkArgument(query.length() >= 2, "Query must be at least two characters long: %s", query);
-    this.query = query;
-  }
-
-  public ComponentIndexQuery setQualifiers(Collection<String> qualifiers) {
-    this.qualifiers = Collections.unmodifiableCollection(qualifiers);
-    return this;
+  private ComponentIndexQuery(Builder builder) {
+    this.query = requireNonNull(builder.query);
+    this.qualifiers = requireNonNull(builder.qualifiers);
+    this.limit = builder.limit;
   }
 
   public Collection<String> getQualifiers() {
@@ -51,16 +49,41 @@ public class ComponentIndexQuery {
     return query;
   }
 
-  /**
-   * The number of search hits to return per Qualifier. Defaults to <tt>10</tt>.
-   */
-  public ComponentIndexQuery setLimit(int limit) {
-    checkArgument(limit >= 1, "Limit has to be strictly positive: %s", limit);
-    this.limit = Optional.of(limit);
-    return this;
+  public Optional<Integer> getLimit() {
+    return Optional.ofNullable(limit);
   }
 
-  public Optional<Integer> getLimit() {
-    return limit;
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private String query;
+    private Collection<String> qualifiers = Collections.emptyList();
+    private Integer limit;
+
+    private Builder() {
+    }
+
+    public Builder setQuery(String query) {
+      checkArgument(query.length() >= 2, "Query must be at least two characters long: %s", query);
+      this.query = query;
+      return this;
+    }
+
+    public Builder setQualifiers(Collection<String> qualifiers) {
+      this.qualifiers = Collections.unmodifiableCollection(qualifiers);
+      return this;
+    }
+
+    public Builder setLimit(@Nullable Integer limit) {
+      checkArgument(limit == null || limit > 0, "Limit has to be strictly positive: %s", limit);
+      this.limit = limit;
+      return this;
+    }
+
+    public ComponentIndexQuery build() {
+      return new ComponentIndexQuery(this);
+    }
   }
 }

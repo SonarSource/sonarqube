@@ -99,7 +99,7 @@ public abstract class ComponentIndexTest {
   }
 
   protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
-    return assertSearch(new ComponentIndexQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)));
+    return assertSearch(ComponentIndexQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build());
   }
 
   protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
@@ -108,7 +108,7 @@ public abstract class ComponentIndexTest {
   }
 
   protected void assertSearchResults(String query, ComponentDto... expectedComponents) {
-    assertSearchResults(new ComponentIndexQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)), expectedComponents);
+    assertSearchResults(ComponentIndexQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build(), expectedComponents);
   }
 
   protected void assertSearchResults(ComponentIndexQuery query, ComponentDto... expectedComponents) {

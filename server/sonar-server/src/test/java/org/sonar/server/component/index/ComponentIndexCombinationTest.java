@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentIndexCombinationTest extends ComponentIndexTest {
@@ -33,7 +33,7 @@ public class ComponentIndexCombinationTest extends ComponentIndexTest {
   public void return_empty_list_if_no_fields_match_query() {
     indexProject("struts", "Apache Struts");
 
-    assertThat(index.search(new ComponentIndexQuery("missing"))).isEmpty();
+    assertThat(index.search(ComponentIndexQuery.builder().setQuery("missing").build())).isEmpty();
   }
 
   @Test
@@ -48,14 +48,14 @@ public class ComponentIndexCombinationTest extends ComponentIndexTest {
     ComponentDto project = indexProject("struts", "Apache Struts");
     indexFile(project, "src/main/java/StrutsManager.java", "StrutsManager.java");
 
-    assertSearchResults(new ComponentIndexQuery("struts").setQualifiers(asList(Qualifiers.PROJECT)), project);
+    assertSearchResults(ComponentIndexQuery.builder().setQuery("struts").setQualifiers(singletonList(Qualifiers.PROJECT)).build(), project);
   }
 
   @Test
   public void should_limit_the_number_of_results() {
     IntStream.rangeClosed(0, 10).forEach(i -> indexProject("sonarqube" + i, "SonarQube" + i));
 
-    assertSearch(new ComponentIndexQuery("sonarqube").setLimit(5).setQualifiers(asList(Qualifiers.PROJECT))).hasSize(5);
+    assertSearch(ComponentIndexQuery.builder().setQuery("sonarqube").setLimit(5).setQualifiers(singletonList(Qualifiers.PROJECT)).build()).hasSize(5);
   }
 
   @Test
