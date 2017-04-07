@@ -20,6 +20,8 @@
 package org.sonar.server.component.ws;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +42,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 
+import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -48,6 +51,7 @@ import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class SuggestionsActionTest {
 
+  public static final int NUMBER_OF_RESULTS_PER_QUALIFIER = 6;
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -92,4 +96,50 @@ public class SuggestionsActionTest {
       .containsExactly(tuple(project.getKey(), organization.getKey()));
   }
 
+  @Test
+  public void should_propose_to_show_more_results_if_7_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(7, 1L);
+  }
+
+  @Test
+  public void should_not_propose_to_show_more_results_if_6_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(6, 0L);
+  }
+  @Test
+  public void should_not_propose_to_show_more_results_if_5_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(5, 0L);
+  }
+
+  private void check_proposal_to_show_more_results(int numberOfProjects, long numberOfMoreResults) throws Exception {
+    String namePrefix = "MyProject";
+
+    List<ComponentDto> projects = range(0, numberOfProjects)
+      .mapToObj(i -> db.components().insertComponent(newProjectDto(organization).setName(namePrefix + i)))
+      .collect(Collectors.toList());
+
+    componentIndexer.indexOnStartup(null);
+    projects.forEach(authorizationIndexerTester::allowOnlyAnyone);
+
+    SuggestionsWsResponse response = actionTester.newRequest()
+      .setMethod("POST")
+      .setParam(URL_PARAM_QUERY, namePrefix)
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert match in qualifier "TRK"
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(SuggestionsWsResponse.Qualifier::getQ)
+      .containsExactly(Qualifiers.PROJECT);
+
+    // include limited number of results in the response
+    assertThat(response.getResultsList())
+      .flatExtracting(SuggestionsWsResponse.Qualifier::getItemsList)
+      .hasSize(Math.min(NUMBER_OF_RESULTS_PER_QUALIFIER, numberOfProjects));
+
+    // indicate, that there are more results
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(SuggestionsWsResponse.Qualifier::getMore)
+      .containsExactly(numberOfMoreResults);
+  }
 }

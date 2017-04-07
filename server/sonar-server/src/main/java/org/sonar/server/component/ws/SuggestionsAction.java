@@ -128,6 +128,7 @@ public class SuggestionsAction implements ComponentsWsAction {
 
         return Qualifier.newBuilder()
           .setQ(qualifier.getQualifier())
+          .setMore(qualifier.getNumberOfFurtherResults())
           .addAllItems(results)
           .build();
       }).collect(MoreCollectors.toList());

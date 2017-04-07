@@ -44,4 +44,8 @@ public class ComponentsPerQualifier {
   public long getTotalHits() {
     return totalHits;
   }
+
+  public long getNumberOfFurtherResults() {
+    return Math.max(getTotalHits() - componentUuids.size(), 0L);
+  }
 }
