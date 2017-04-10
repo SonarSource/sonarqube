@@ -35,9 +35,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
-import org.sonar.server.component.index.ComponentsPerQualifier;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
@@ -102,7 +102,7 @@ public class SuggestionsAction implements ComponentsWsAction {
 
     ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder().setQuery(query);
 
-    List<ComponentsPerQualifier> componentsPerQualifiers = getComponentsPerQualifiers(more, queryBuilder);
+    List<ComponentHitsPerQualifier> componentsPerQualifiers = getComponentsPerQualifiers(more, queryBuilder);
     String warning = getWarning(query);
 
     SuggestionsWsResponse searchWsResponse = toResponse(componentsPerQualifiers, warning);
@@ -117,8 +117,8 @@ public class SuggestionsAction implements ComponentsWsAction {
     return null;
   }
 
-  private List<ComponentsPerQualifier> getComponentsPerQualifiers(String more, ComponentIndexQuery.Builder queryBuilder) {
-    List<ComponentsPerQualifier> componentsPerQualifiers;
+  private List<ComponentHitsPerQualifier> getComponentsPerQualifiers(String more, ComponentIndexQuery.Builder queryBuilder) {
+    List<ComponentHitsPerQualifier> componentsPerQualifiers;
     if (more == null) {
       queryBuilder.setQualifiers(stream(SuggestionCategory.values()).map(SuggestionCategory::getQualifier).collect(Collectors.toList()))
         .setLimit(DEFAULT_LIMIT);
@@ -130,11 +130,11 @@ public class SuggestionsAction implements ComponentsWsAction {
     return componentsPerQualifiers;
   }
 
-  private List<ComponentsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {
+  private List<ComponentHitsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {
     return index.search(componentIndexQuery);
   }
 
-  private SuggestionsWsResponse toResponse(List<ComponentsPerQualifier> componentsPerQualifiers, @Nullable String warning) {
+  private SuggestionsWsResponse toResponse(List<ComponentHitsPerQualifier> componentsPerQualifiers, @Nullable String warning) {
     SuggestionsWsResponse.Builder builder = newBuilder();
     if (!componentsPerQualifiers.isEmpty()) {
       Map<String, OrganizationDto> organizationsByUuids;
@@ -142,7 +142,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       Map<String, ComponentDto> projectsByUuids;
       try (DbSession dbSession = dbClient.openSession(false)) {
         Set<String> componentUuids = componentsPerQualifiers.stream()
-          .map(ComponentsPerQualifier::getComponentUuids)
+          .map(ComponentHitsPerQualifier::getComponentUuids)
           .flatMap(Collection::stream)
           .collect(toSet());
         componentsByUuids = dbClient.componentDao().selectByUuids(dbSession, componentUuids).stream()
@@ -168,7 +168,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     return builder.build();
   }
 
-  private static List<Category> toCategoryResponses(List<ComponentsPerQualifier> componentsPerQualifiers, Map<String, ComponentDto> componentsByUuids,
+  private static List<Category> toCategoryResponses(List<ComponentHitsPerQualifier> componentsPerQualifiers, Map<String, ComponentDto> componentsByUuids,
     Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
     return componentsPerQualifiers.stream().map(qualifier -> {
 
