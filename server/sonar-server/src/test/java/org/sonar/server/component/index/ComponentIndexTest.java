@@ -104,7 +104,7 @@ public abstract class ComponentIndexTest {
 
   protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
     return assertThat(index.search(query, features.get()))
-      .flatExtracting(ComponentsPerQualifier::getComponentUuids);
+      .flatExtracting(ComponentHitsPerQualifier::getComponentUuids);
   }
 
   protected void assertSearchResults(String query, ComponentDto... expectedComponents) {
