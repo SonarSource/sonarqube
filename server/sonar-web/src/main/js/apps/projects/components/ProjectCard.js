@@ -50,11 +50,13 @@ export default class ProjectCard extends React.PureComponent {
       return null;
     }
 
+    const isProjectAnalyzed = project.analysisDate != null;
     // check reliability_rating because only some measures can be loaded
     // if coming from visualizations tab
-    const areProjectMeasuresLoaded = this.props.measures != null &&
-      this.props.measures['reliability_rating'] != null;
-    const isProjectAnalyzed = project.analysisDate != null;
+    const areProjectMeasuresLoaded = !isProjectAnalyzed ||
+      (this.props.measures != null &&
+        this.props.measures['reliability_rating'] != null &&
+        this.props.measures['sqale_rating'] != null);
     const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
 
     const className = classNames('boxed-group', 'project-card', {
