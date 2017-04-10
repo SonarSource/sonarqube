@@ -125,7 +125,8 @@ public class ViewIndexerTest {
 
   @Test
   public void clear_views_lookup_cache_on_index_view_uuid() {
-    IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+    IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule)
+    );
     IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
 
     String viewUuid = "ABCD";

@@ -22,9 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -34,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
@@ -51,8 +48,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.global.Global;
-import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
@@ -75,7 +70,6 @@ import org.sonar.server.es.Sorting;
 import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
@@ -86,6 +80,8 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID;
+import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_ASSIGNED_TO_ME;
@@ -157,6 +153,7 @@ public class IssueIndex {
       return new IssueDoc(input);
     }
   };
+  public static final String AGGREGATION_NAME_FOR_TAGS = "tags__issues";
 
   private final Sorting sorting;
   private final EsClient client;
@@ -169,6 +166,7 @@ public class IssueIndex {
     this.system = system;
     this.userSession = userSession;
     this.authorizationTypeSupport = authorizationTypeSupport;
+
     this.sorting = new Sorting();
     this.sorting.add(IssueQuery.SORT_BY_ASSIGNEE, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
     this.sorting.add(IssueQuery.SORT_BY_STATUS, IssueIndexDefinition.FIELD_ISSUE_STATUS);
@@ -192,7 +190,7 @@ public class IssueIndex {
 
   public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
     SearchRequestBuilder requestBuilder = client
-      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE);
+      .prepareSearch(INDEX_TYPE_ISSUE);
 
     configureSorting(query, requestBuilder);
     configurePagination(options, requestBuilder);
@@ -478,7 +476,7 @@ public class IssueIndex {
   private Optional<Long> getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String facetNameAndField = IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
     SearchRequestBuilder esRequest = client
-      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
+      .prepareSearch(INDEX_TYPE_ISSUE)
       .setSize(0);
     BoolQueryBuilder esFilter = boolQuery();
     filters.values().stream().filter(Objects::nonNull).forEach(esFilter::must);
@@ -592,42 +590,27 @@ public class IssueIndex {
     return value == null ? null : termQuery(field, value);
   }
 
-  public List<String> listTags(@Nullable String textQuery, int maxNumberOfTags) {
+  public List<String> listTags(String organizationUuid, @Nullable String textQuery, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = client
-      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE, RuleIndexDefinition.INDEX_TYPE_RULE);
+      .prepareSearch(INDEX_TYPE_ISSUE)
+      .setQuery(boolQuery()
+        .filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organizationUuid)))
+      .setSize(0);
 
-    requestBuilder.setQuery(boolQuery().must(matchAllQuery()).filter(createBoolFilter(
-      IssueQuery.builder().checkAuthorization(false).build())));
-
-    GlobalBuilder topAggreg = AggregationBuilders.global("tags");
-    String tagsOnIssuesSubAggregation = "tags__issues";
-    String tagsOnRulesSubAggregation = "tags__rules";
-
-    TermsBuilder issueTags = AggregationBuilders.terms(tagsOnIssuesSubAggregation)
+    TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
       .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
-      .size(maxNumberOfTags)
-      .order(Terms.Order.term(true))
-      .minDocCount(1L);
-    TermsBuilder ruleTags = AggregationBuilders.terms(tagsOnRulesSubAggregation)
-      .field(RuleIndexDefinition.FIELD_RULE_ALL_TAGS)
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
     if (textQuery != null) {
       String escapedTextQuery = escapeSpecialRegexChars(textQuery);
-      issueTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
-      ruleTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
+      termsAggregation.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
     }
+    requestBuilder.addAggregation(termsAggregation);
 
-    SearchResponse searchResponse = requestBuilder.addAggregation(topAggreg.subAggregation(issueTags).subAggregation(ruleTags)).get();
-    Global allTags = searchResponse.getAggregations().get("tags");
-    SortedSet<String> result = Sets.newTreeSet();
-    Terms issuesResult = allTags.getAggregations().get(tagsOnIssuesSubAggregation);
-    Terms rulesResult = allTags.getAggregations().get(tagsOnRulesSubAggregation);
-    result.addAll(EsUtils.termsKeys(issuesResult));
-    result.addAll(EsUtils.termsKeys(rulesResult));
-    List<String> resultAsList = Lists.newArrayList(result);
-    return resultAsList.size() > maxNumberOfTags && maxNumberOfTags > 0 ? resultAsList.subList(0, maxNumberOfTags) : resultAsList;
+    SearchResponse searchResponse = requestBuilder.get();
+    Terms issuesResult = searchResponse.getAggregations().get(AGGREGATION_NAME_FOR_TAGS);
+    return EsUtils.termsKeys(issuesResult);
   }
 
   public Map<String, Long> countTags(IssueQuery query, int maxNumberOfTags) {
@@ -642,7 +625,7 @@ public class IssueIndex {
 
   private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = client
-      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
+      .prepareSearch(INDEX_TYPE_ISSUE)
       // Avoids returning search hits
       .setSize(0);
 
@@ -692,7 +675,7 @@ public class IssueIndex {
     }
 
     SearchRequestBuilder requestBuilder = client
-      .prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
+      .prepareSearch(INDEX_TYPE_ISSUE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
       .setSize(10_000)

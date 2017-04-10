@@ -17,28 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.rule.index;
 
-import java.util.List;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.db.DbClient;
-import org.sonar.db.organization.OrganizationDto;
+public class RuleDocWithSystemScope {
 
-import static java.util.Arrays.asList;
+  private final RuleDoc ruleDoc;
+  private final RuleExtensionDoc ruleExtensionDoc;
 
-public class RuleIteratorFactory {
-
-  private final DbClient dbClient;
-
-  public RuleIteratorFactory(DbClient dbClient) {
-    this.dbClient = dbClient;
+  public RuleDocWithSystemScope(RuleDoc ruleDoc, RuleExtensionDoc ruleExtensionDoc) {
+    this.ruleDoc = ruleDoc;
+    this.ruleExtensionDoc = ruleExtensionDoc;
   }
 
-  public RuleIterator createForKey(OrganizationDto organization, RuleKey ruleKey) {
-    return new RuleIteratorForSingleChunk(dbClient, organization, asList(ruleKey));
+  public RuleDoc getRuleDoc() {
+    return ruleDoc;
   }
 
-  public RuleIterator createForKeys(OrganizationDto organization, List<RuleKey> ruleKeys) {
-    return new RuleIteratorForMultipleChunks(dbClient, organization, ruleKeys);
+  public RuleExtensionDoc getRuleExtensionDoc() {
+    return ruleExtensionDoc;
   }
 }

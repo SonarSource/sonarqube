@@ -192,7 +192,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_no_default_and_no_overridden_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("java", "S001"))
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setDescriptionFormat(Format.HTML)
@@ -203,7 +203,7 @@ public class ShowActionMediumTest {
       .setDefRemediationFunction(null)
       .setDefRemediationGapMultiplier(null)
       .setDefRemediationBaseEffort(null);
-    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.insert(session, ruleDto);
     session.commit();
     session.clearCache();
 
@@ -259,7 +259,7 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_when_activated() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("java", "S001"))
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setDescriptionFormat(Format.HTML)
@@ -269,12 +269,11 @@ public class ShowActionMediumTest {
       .setType(RuleType.BUG)
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    RuleDefinitionDto definition = ruleDto.getDefinition();
-    ruleDao.insert(session, definition);
+    ruleDao.insert(session, ruleDto);
     session.commit();
-    ruleIndexer.index(defaultOrganization, definition.getKey());
-    RuleParamDto regexParam = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
-    ruleDao.insertRuleParam(session, definition, regexParam);
+    ruleIndexer.indexRuleDefinition(ruleDto.getKey());
+    RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, ruleDto, regexParam);
 
     QualityProfileDto profile = QualityProfileDto.createFor("profile")
       .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())

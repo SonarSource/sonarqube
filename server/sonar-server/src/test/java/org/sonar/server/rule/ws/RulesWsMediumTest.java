@@ -19,16 +19,12 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -120,7 +116,7 @@ public class RulesWsMediumTest {
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
 
     session.commit();
-    ruleIndexer.index(defaultOrganization, rule.getKey());
+    ruleIndexer.indexRuleDefinition(rule.getDefinition().getKey());
     activeRuleIndexer.index();
 
     // 1. With Activation
@@ -136,32 +132,4 @@ public class RulesWsMediumTest {
     result = request.execute();
     result.assertJson(this.getClass(), "show_rule_no_active.json");
   }
-
-  @Test
-  public void get_tags() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganization);
-    tester.get(QualityProfileDao.class).insert(session, profile);
-
-    RuleDto rule = RuleTesting.newXooX1(defaultOrganization)
-      .setTags(ImmutableSet.of("hello", "world"))
-      .setSystemTags(Collections.<String>emptySet());
-    ruleDao.insert(session, rule.getDefinition());
-    ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
-
-    RuleDto rule2 = RuleTesting.newXooX2(defaultOrganization)
-      .setTags(ImmutableSet.of("hello", "java"))
-      .setSystemTags(ImmutableSet.of("sys1"));
-    ruleDao.insert(session, rule2.getDefinition());
-    ruleDao.insertOrUpdate(session, rule2.getMetadata().setRuleId(rule2.getId()));
-
-    session.commit();
-    ruleIndexer.index(defaultOrganization, Stream.of(rule, rule2).map(RuleDto::getKey).collect(MoreCollectors.toList()));
-
-    tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD).execute().assertJson(this.getClass(), "get_tags.json");
-    tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)
-      .setParam("ps", "1").execute().assertJson(this.getClass(), "get_tags_limited.json");
-    tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)
-      .setParam("q", "ll").execute().assertJson(this.getClass(), "get_tags_filtered.json");
-  }
-
 }
