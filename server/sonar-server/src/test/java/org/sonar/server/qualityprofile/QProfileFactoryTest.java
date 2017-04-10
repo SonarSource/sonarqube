@@ -21,7 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.assertj.core.api.AbstractObjectAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,9 +35,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.util.Arrays.asList;
@@ -54,12 +53,12 @@ public class QProfileFactoryTest {
 
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private QProfileFactory underTest = new QProfileFactory(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE, activeRuleIndexer);
-  private RuleDto rule;
+  private RuleDefinitionDto rule;
   private RuleParamDto ruleParam;
 
   @Before
   public void setUp() throws Exception {
-    rule = db.rules().insertRule(RuleTesting.newRuleDto());
+    rule = db.rules().insert();
     ruleParam = db.rules().insertRuleParam(rule);
   }
 
@@ -73,8 +72,10 @@ public class QProfileFactoryTest {
     List<String> profileKeys = asList(profile1.getKey(), profile2.getKey(), "does_not_exist");
     underTest.deleteByKeys(db.getSession(), profileKeys);
 
-    assertOnlyExists(org, profile3);
     verify(activeRuleIndexer).deleteByProfileKeys(profileKeys);
+    assertQualityProfileFromDb(profile1).isNull();
+    assertQualityProfileFromDb(profile2).isNull();
+    assertQualityProfileFromDb(profile3).isNotNull();
   }
 
   @Test
@@ -84,20 +85,8 @@ public class QProfileFactoryTest {
 
     underTest.deleteByKeys(db.getSession(), Collections.emptyList());
 
-    assertOnlyExists(org, profile1);
     verifyZeroInteractions(activeRuleIndexer);
-  }
-
-  private void assertOnlyExists(OrganizationDto org, QualityProfileDto profile) {
-    List<QualityProfileDto> profiles = db.getDbClient().qualityProfileDao().selectAll(db.getSession(), org);
-    assertThat(profiles).extracting(QualityProfileDto::getKey).containsOnly(profile.getKey());
-
-    List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectAll(db.getSession());
-    assertThat(activeRules).extracting(ActiveRuleDto::getProfileId).containsOnly(profile.getId());
-
-    List<ActiveRuleParamDto> activeParams = db.getDbClient().activeRuleDao().selectAllParams(db.getSession());
-    List<Integer> activeRuleIds = activeRules.stream().map(ActiveRuleDto::getId).collect(Collectors.toList());
-    assertThat(activeParams).extracting(ActiveRuleParamDto::getActiveRuleId).containsOnlyElementsOf(activeRuleIds);
+    assertQualityProfileFromDb(profile1).isNotNull();
   }
 
   private QualityProfileDto createRandomProfile(OrganizationDto org) {
@@ -109,10 +98,16 @@ public class QProfileFactoryTest {
       .setRuleId(rule.getId())
       .setSeverity(Severity.BLOCKER);
     db.getDbClient().activeRuleDao().insert(db.getSession(), activeRuleDto);
-    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setRulesParameterId(ruleParam.getId()).setKey("foo").setValue("bar");
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
+      .setRulesParameterId(ruleParam.getId())
+      .setKey("foo")
+      .setValue("bar");
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRuleDto, activeRuleParam);
     db.getSession().commit();
     return profile;
   }
 
+  private AbstractObjectAssert<?, QualityProfileDto> assertQualityProfileFromDb(QualityProfileDto profile) {
+    return assertThat(db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), profile.getKey()));
+  }
 }
