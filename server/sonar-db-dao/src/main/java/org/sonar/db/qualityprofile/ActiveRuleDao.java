@@ -67,11 +67,6 @@ public class ActiveRuleDao implements Dao {
     return executeLargeInputs(ids, mapper(dbSession)::selectByRuleIds);
   }
 
-  // TODO As it's only used by MediumTest, it should be replaced by DbTester.countRowsOfTable()
-  public List<ActiveRuleDto> selectAll(DbSession dbSession) {
-    return mapper(dbSession).selectAll();
-  }
-
   /**
    * Active rule on removed rule are NOT returned
    */
