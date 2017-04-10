@@ -11,6 +11,7 @@ yarn_run {
   inputs.dir('scripts')
   inputs.dir('src/main/js')
   inputs.dir('src/main/less')
+  inputs.file('build.gradle')
   outputs.dir('src/main/webapp')
 
   args = ['build-fast']
