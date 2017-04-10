@@ -21,7 +21,7 @@ package org.sonar.db.notification;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,7 +51,7 @@ public class NotificationDbTester {
       .setUserId((int) userId)
       .build(), dbSession).stream()
       .filter(prop -> component == null ? prop.getResourceId() == null : prop.getResourceId() != null)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getValue()).isEqualTo("true");
   }

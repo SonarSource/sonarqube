@@ -49,7 +49,8 @@ class Projects extends React.Component {
   };
 
   componentWillReceiveProps(nextProps: Props) {
-    // remove all projects from `this.state.addedProjects` that already exist in `nextProps.projects`
+    // remove all projects from `this.state.addedProjects`
+    // that already exist in `nextProps.projects`
     const nextAddedProjects = differenceBy(
       this.state.addedProjects,
       nextProps.projects,
@@ -61,14 +62,6 @@ class Projects extends React.Component {
     }
   }
 
-  renderOption = option => {
-    return (
-      <span>
-        <Organization organizationKey={option.organization} link={false} />
-        <strong>{option.label}</strong>
-      </span>
-    );
-  };
   loadOptions = (query, cb) => {
     if (query.length < 2) {
       cb(null, { options: [] });
@@ -100,6 +93,15 @@ class Projects extends React.Component {
     this.setState({
       addedProjects: [...this.state.addedProjects, project]
     });
+  };
+
+  renderOption = option => {
+    return (
+      <span>
+        <Organization organizationKey={option.organization} link={false} />
+        <strong>{option.label}</strong>
+      </span>
+    );
   };
 
   render() {

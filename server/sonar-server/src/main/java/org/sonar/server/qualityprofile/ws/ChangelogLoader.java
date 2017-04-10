@@ -29,7 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
@@ -55,7 +55,7 @@ public class ChangelogLoader {
     List<QProfileChangeDto> dtos = dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
     List<Change> changes = dtos.stream()
       .map(Change::from)
-      .collect(Collectors.toList(dtos.size()));
+      .collect(MoreCollectors.toList(dtos.size()));
     completeUserAndRuleNames(dbSession, changes);
 
     int total = dbClient.qProfileChangeDao().countForProfileKey(dbSession, query.getProfileKey());
@@ -63,13 +63,13 @@ public class ChangelogLoader {
   }
 
   private void completeUserAndRuleNames(DbSession dbSession, List<Change> changes) {
-    Set<String> logins = changes.stream().filter(c -> c.userLogin != null).map(c -> c.userLogin).collect(Collectors.toSet());
+    Set<String> logins = changes.stream().filter(c -> c.userLogin != null).map(c -> c.userLogin).collect(MoreCollectors.toSet());
     Map<String, String> userNamesByLogins = dbClient.userDao()
       .selectByLogins(dbSession, logins)
       .stream()
       .collect(java.util.stream.Collectors.toMap(UserDto::getLogin, UserDto::getName));
 
-    Set<RuleKey> ruleKeys = changes.stream().filter(c -> c.ruleKey != null).map(c -> c.ruleKey).collect(Collectors.toSet());
+    Set<RuleKey> ruleKeys = changes.stream().filter(c -> c.ruleKey != null).map(c -> c.ruleKey).collect(MoreCollectors.toSet());
     Map<RuleKey, String> ruleNamesByKeys = dbClient.ruleDao()
       .selectDefinitionByKeys(dbSession, Lists.newArrayList(ruleKeys))
       .stream()

@@ -37,7 +37,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleDocTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -86,7 +85,7 @@ public class RuleIndexTest {
 
   @Before
   public void setUp() {
-    ruleIndexer = new RuleIndexer(system2, null, tester.client(), TestDefaultOrganizationProvider.fromUuid("org-1"));
+    ruleIndexer = new RuleIndexer(tester.client(), null);
     activeRuleIndexer = new ActiveRuleIndexer(system2, null, tester.client());
     index = new RuleIndex(tester.client());
   }

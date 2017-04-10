@@ -46,7 +46,6 @@ public class IssueQueryTest {
       .tags(newArrayList("tag1", "tag2"))
       .types(newArrayList("RELIABILITY", "SECURITY"))
       .assigned(true)
-      .hideRules(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
       .createdAt(new Date())
@@ -65,7 +64,6 @@ public class IssueQueryTest {
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
     assertThat(query.assigned()).isTrue();
-    assertThat(query.hideRules()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();

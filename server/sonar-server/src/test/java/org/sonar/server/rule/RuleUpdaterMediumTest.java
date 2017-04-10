@@ -118,7 +118,7 @@ public class RuleUpdaterMediumTest {
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
     ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
@@ -149,7 +149,7 @@ public class RuleUpdaterMediumTest {
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
     ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
@@ -175,7 +175,7 @@ public class RuleUpdaterMediumTest {
       .setNoteData("my *note*")
       .setNoteUserLogin("me");
     ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setMarkdownNote(null);
@@ -217,7 +217,7 @@ public class RuleUpdaterMediumTest {
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc"));
     ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata());
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata());
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(null);
@@ -319,7 +319,7 @@ public class RuleUpdaterMediumTest {
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("1min");
     ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.update(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setDebtRemediationFunction(null);

@@ -28,6 +28,7 @@ class Avatar extends React.Component {
     enableGravatar: React.PropTypes.bool.isRequired,
     gravatarServerUrl: React.PropTypes.string.isRequired,
     email: React.PropTypes.string,
+    hash: React.PropTypes.string,
     size: React.PropTypes.number.isRequired,
     className: React.PropTypes.string
   };
@@ -37,7 +38,7 @@ class Avatar extends React.Component {
       return null;
     }
 
-    const emailHash = md5.md5((this.props.email || '').toLowerCase()).trim();
+    const emailHash = this.props.hash || md5.md5((this.props.email || '').toLowerCase()).trim();
     const url = this.props.gravatarServerUrl
       .replace('{EMAIL_MD5}', emailHash)
       .replace('{SIZE}', this.props.size * 2);

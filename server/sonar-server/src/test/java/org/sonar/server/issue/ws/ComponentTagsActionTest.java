@@ -21,51 +21,40 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.IssueQueryService;
+import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.JsonAssert.assertJson;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ComponentTagsActionTest {
 
-  @Mock
-  private IssueService service;
-
-  @Mock
-  private IssueQueryService queryService;
-
-  private ComponentTagsAction componentTagsAction;
-
-  private WsTester tester;
-
-  @Before
-  public void setUp() {
-    componentTagsAction = new ComponentTagsAction(service, queryService);
-    tester = new WsTester(new IssuesWs(componentTagsAction));
-  }
+  private IssueService service = mock(IssueService.class);
+  private IssueQueryFactory issueQueryFactory = mock(IssueQueryFactory.class, Mockito.RETURNS_DEEP_STUBS);
+  private ComponentTagsAction underTest = new ComponentTagsAction(service, issueQueryFactory);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void should_define() {
-    Action action = tester.controller("api/issues").action("component_tags");
+    Action action = tester.getDef();
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
-    assertThat(action.handler()).isEqualTo(componentTagsAction);
+    assertThat(action.handler()).isEqualTo(underTest);
     assertThat(action.params()).hasSize(3);
 
     Param query = action.param("componentUuid");
@@ -85,7 +74,10 @@ public class ComponentTagsActionTest {
 
   @Test
   public void should_return_empty_list() throws Exception {
-    tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").execute().assertJson("{\"tags\":[]}");
+    TestResponse response = tester.newRequest()
+      .setParam("componentUuid", "polop")
+      .execute();
+    assertJson(response.getInput()).isSimilarTo("{\"tags\":[]}");
   }
 
   @Test
@@ -97,17 +89,19 @@ public class ComponentTagsActionTest {
       .put("bug", 32L)
       .put("cert", 2L)
       .build();
-    IssueQuery query = mock(IssueQuery.class);
-    ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-    when(queryService.createFromMap(captor.capture())).thenReturn(query);
-    when(service.listTagsForComponent(query, 5)).thenReturn(tags);
+    ArgumentCaptor<SearchWsRequest> captor = ArgumentCaptor.forClass(SearchWsRequest.class);
+    when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
+    when(service.listTagsForComponent(any(IssueQuery.class), eq(5))).thenReturn(tags);
 
-    tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").setParam("ps", "5").execute()
-      .assertJson(getClass(), "component-tags.json");
-    assertThat(captor.getValue())
-      .containsEntry("componentUuids", "polop")
-      .containsEntry("resolved", false);
-    verify(service).listTagsForComponent(query, 5);
+    TestResponse response = tester.newRequest()
+      .setParam("componentUuid", "polop")
+      .setParam("ps", "5")
+      .execute();
+    assertJson(response.getInput()).isSimilarTo(getClass().getResource("ComponentTagsActionTest/component-tags.json"));
+
+    assertThat(captor.getValue().getComponentUuids()).containsOnly("polop");
+    assertThat(captor.getValue().getResolved()).isFalse();
+    assertThat(captor.getValue().getCreatedAfter()).isNull();
   }
 
   @Test
@@ -119,23 +113,20 @@ public class ComponentTagsActionTest {
       .put("bug", 32L)
       .put("cert", 2L)
       .build();
-    IssueQuery query = mock(IssueQuery.class);
-    ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-    when(queryService.createFromMap(captor.capture())).thenReturn(query);
-    when(service.listTagsForComponent(query, 5)).thenReturn(tags);
+    ArgumentCaptor<SearchWsRequest> captor = ArgumentCaptor.forClass(SearchWsRequest.class);
+    when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
+    when(service.listTagsForComponent(any(IssueQuery.class), eq(5))).thenReturn(tags);
 
     String componentUuid = "polop";
     String createdAfter = "2011-04-25";
-    tester.newGetRequest("api/issues", "component_tags")
+    TestResponse response = tester.newRequest()
       .setParam("componentUuid", componentUuid)
       .setParam("createdAfter", createdAfter)
       .setParam("ps", "5")
-      .execute()
-      .assertJson(getClass(), "component-tags.json");
-    assertThat(captor.getValue())
-      .containsEntry("componentUuids", componentUuid)
-      .containsEntry("resolved", false)
-      .containsEntry("createdAfter", createdAfter);
-    verify(service).listTagsForComponent(query, 5);
+      .execute();
+    assertJson(response.getInput()).isSimilarTo(getClass().getResource("ComponentTagsActionTest/component-tags.json"));
+    assertThat(captor.getValue().getComponentUuids()).containsOnly(componentUuid);
+    assertThat(captor.getValue().getResolved()).isFalse();
+    assertThat(captor.getValue().getCreatedAfter()).isEqualTo(createdAfter);
   }
 }

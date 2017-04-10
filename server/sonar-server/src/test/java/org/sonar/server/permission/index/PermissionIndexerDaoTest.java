@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -121,7 +121,7 @@ public class PermissionIndexerDaoTest {
 
     Map<String, PermissionIndexerDao.Dto> dtos = underTest.selectByUuids(dbClient, dbSession, asList(project1.uuid(), project2.uuid(), view1.uuid(), view2.uuid()))
       .stream()
-      .collect(Collectors.uniqueIndex(PermissionIndexerDao.Dto::getProjectUuid, Function.identity()));
+      .collect(MoreCollectors.uniqueIndex(PermissionIndexerDao.Dto::getProjectUuid, Function.identity()));
     assertThat(dtos).hasSize(4);
 
     PermissionIndexerDao.Dto project1Authorization = dtos.get(project1.uuid());
@@ -171,7 +171,7 @@ public class PermissionIndexerDaoTest {
 
     Map<String, PermissionIndexerDao.Dto> dtos = underTest.selectByUuids(dbClient, dbSession, projects)
       .stream()
-      .collect(Collectors.uniqueIndex(PermissionIndexerDao.Dto::getProjectUuid, Function.identity()));
+      .collect(MoreCollectors.uniqueIndex(PermissionIndexerDao.Dto::getProjectUuid, Function.identity()));
     assertThat(dtos).hasSize(350);
   }
 

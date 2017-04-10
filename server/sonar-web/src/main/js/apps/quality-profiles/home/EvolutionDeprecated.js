@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
 import ProfileLink from '../components/ProfileLink';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
-import { ProfilesListType } from '../propTypes';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
+import type { Profile } from '../propTypes';
 
-export default class EvolutionDeprecated extends React.Component {
-  static propTypes = {
-    profiles: ProfilesListType.isRequired
-  };
+type Props = {
+  organization: ?string,
+  profiles: Array<Profile>
+};
+
+export default class EvolutionDeprecated extends React.PureComponent {
+  props: Props;
 
   render() {
     const profilesWithDeprecations = this.props.profiles.filter(
@@ -56,7 +60,11 @@ export default class EvolutionDeprecated extends React.Component {
           {sortedProfiles.map(profile => (
             <li key={profile.key} className="spacer-top">
               <div className="text-ellipsis">
-                <ProfileLink profileKey={profile.key} className="link-no-underline">
+                <ProfileLink
+                  className="link-no-underline"
+                  language={profile.language}
+                  name={profile.name}
+                  organization={this.props.organization}>
                   {profile.name}
                 </ProfileLink>
               </div>
@@ -64,9 +72,11 @@ export default class EvolutionDeprecated extends React.Component {
                 {profile.languageName}
                 {', '}
                 <Link
-                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
-                  className="text-muted"
-                >
+                  to={getDeprecatedActiveRulesUrl(
+                    { qprofile: profile.key },
+                    this.props.organization
+                  )}
+                  className="text-muted">
                   {translateWithParameters(
                     'quality_profile.x_rules',
                     profile.activeDeprecatedRuleCount

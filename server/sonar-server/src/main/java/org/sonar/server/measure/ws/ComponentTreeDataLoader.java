@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -137,7 +137,7 @@ public class ComponentTreeDataLoader {
     List<String> referenceComponentUUids = components.stream()
       .map(ComponentDto::getCopyResourceUuid)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList(components.size()));
+      .collect(MoreCollectors.toList(components.size()));
     if (referenceComponentUUids.isEmpty()) {
       return emptyMap();
     }
@@ -207,7 +207,7 @@ public class ComponentTreeDataLoader {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(new MetricDtoToMetricDtoWithBestValue())
-      .collect(Collectors.toList(metrics.size()));
+      .collect(MoreCollectors.toList(metrics.size()));
     if (metricDtosWithBestValueMeasure.isEmpty()) {
       return;
     }
@@ -235,7 +235,7 @@ public class ComponentTreeDataLoader {
     return components
       .stream()
       .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get(), wsRequest))
-      .collect(Collectors.toList(components.size()));
+      .collect(MoreCollectors.toList(components.size()));
   }
 
   private static boolean componentWithMeasuresOnly(ComponentTreeWsRequest wsRequest) {
@@ -251,7 +251,7 @@ public class ComponentTreeDataLoader {
     return components.stream()
       .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize())
-      .collect(Collectors.toList(wsRequest.getPageSize()));
+      .collect(MoreCollectors.toList(wsRequest.getPageSize()));
   }
 
   @CheckForNull

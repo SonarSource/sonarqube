@@ -41,6 +41,7 @@ export default class MultiSelectOption extends React.PureComponent {
 
   handleSelect = (evt: SyntheticInputEvent) => {
     evt.stopPropagation();
+    evt.preventDefault();
     evt.target.blur();
     this.props.onSelectChange(this.props.element, !this.props.selected);
   };
@@ -62,8 +63,7 @@ export default class MultiSelectOption extends React.PureComponent {
           className={activeClass}
           onClick={this.handleSelect}
           onMouseOver={this.handleHover}
-          onFocus={this.handleHover}
-        >
+          onFocus={this.handleHover}>
           <i className={className} />{' '}{this.props.custom && '+ '}{this.props.element}
         </a>
       </li>

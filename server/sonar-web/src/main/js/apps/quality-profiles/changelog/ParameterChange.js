@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 
-export default class ParameterChange extends React.Component {
-  static propTypes = {
-    name: React.PropTypes.string.isRequired,
-    value: React.PropTypes.any
-  };
+type Props = {
+  name: string,
+  value: ?string
+};
+
+export default class ParameterChange extends React.PureComponent {
+  props: Props;
 
   render() {
     const { name, value } = this.props;

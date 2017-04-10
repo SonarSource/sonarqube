@@ -69,8 +69,7 @@ export default class SearchForm extends React.Component {
 
         <form
           className="search-box display-inline-block text-middle big-spacer-left"
-          onSubmit={this.handleSubmit}
-        >
+          onSubmit={this.handleSubmit}>
           <button className="search-box-submit button-clean">
             <i className="icon-search" />
           </button>

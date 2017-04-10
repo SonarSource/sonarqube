@@ -35,7 +35,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationMemberDto;
@@ -340,7 +340,7 @@ public class UserUpdater {
 
   private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
-      return scmAccounts.stream().filter(s -> !Strings.isNullOrEmpty(s)).collect(Collectors.toList());
+      return scmAccounts.stream().filter(s -> !Strings.isNullOrEmpty(s)).collect(MoreCollectors.toList());
     }
     return Collections.emptyList();
   }

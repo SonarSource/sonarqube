@@ -31,6 +31,15 @@
   width: 250px;
   border: none !important;
   font-size: @baseFontSize;
+
+  & ~ .note {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &.touched ~ .note {
+    opacity: 1;
+  }
 }
 
 .search-box-submit {

@@ -34,7 +34,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -90,7 +90,7 @@ public class ExportAction implements QProfileWsAction {
       .map(language -> exporters.exportersForLanguage(language.getKey()))
       .flatMap(Collection::stream)
       .map(ProfileExporter::getKey)
-      .collect(Collectors.toSet());
+      .collect(MoreCollectors.toSet());
     if (!exporterKeys.isEmpty()) {
       action.createParam(PARAM_FORMAT)
         .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used. " +

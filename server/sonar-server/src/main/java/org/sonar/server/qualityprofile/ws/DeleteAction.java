@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -100,6 +100,6 @@ public class DeleteAction implements QProfileWsAction {
   private static List<String> toKeys(QualityProfileDto profile, List<QualityProfileDto> descendants) {
     return Stream.concat(Stream.of(profile), descendants.stream())
       .map(QualityProfileDto::getKee)
-      .collect(Collectors.toList(descendants.size() + 1));
+      .collect(MoreCollectors.toList(descendants.size() + 1));
   }
 }

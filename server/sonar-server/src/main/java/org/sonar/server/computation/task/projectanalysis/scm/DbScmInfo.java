@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
@@ -52,7 +52,7 @@ class DbScmInfo implements ScmInfo {
     List<Changeset> lineChangesets = StreamSupport.stream(lines.spliterator(), false)
       .map(lineToChangeset)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     if (lineChangesets.isEmpty()) {
       return Optional.absent();
     }

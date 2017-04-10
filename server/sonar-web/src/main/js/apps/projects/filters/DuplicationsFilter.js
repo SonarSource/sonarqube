@@ -36,6 +36,11 @@ export default class DuplicationsFilter extends React.PureComponent {
 
   property = 'duplications';
 
+  getFacetValueForOption(facet, option) {
+    const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*'];
+    return facet[map[option - 1]];
+  }
+
   renderOption(option, selected) {
     return (
       <span>
@@ -49,11 +54,6 @@ export default class DuplicationsFilter extends React.PureComponent {
         </span>
       </span>
     );
-  }
-
-  getFacetValueForOption(facet, option) {
-    const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*'];
-    return facet[map[option - 1]];
   }
 
   render() {

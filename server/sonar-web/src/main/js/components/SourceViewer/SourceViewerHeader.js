@@ -81,7 +81,8 @@ export default class SourceViewerHeader extends React.PureComponent {
     const isUnitTest = q === 'UTS';
     // TODO check if source viewer is displayed inside workspace
     const workspace = false;
-    const rawSourcesLink = `${window.baseUrl}/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
+    const rawSourcesLink = window.baseUrl +
+      `/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
 
     // TODO favorite
     return (
@@ -170,8 +171,7 @@ export default class SourceViewerHeader extends React.PureComponent {
               <Link
                 to={getIssuesUrl({ resolved: 'false', componentKeys: key })}
                 className="source-viewer-header-external-link"
-                target="_blank"
-              >
+                target="_blank">
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
                 {' '}
                 <i className="icon-detach" />

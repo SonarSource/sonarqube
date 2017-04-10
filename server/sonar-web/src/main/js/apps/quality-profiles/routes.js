@@ -17,11 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withRouter } from 'react-router';
+
 const routes = [
   {
-    getComponent(_, callback) {
+    getComponent(state, callback) {
       require.ensure([], require => {
-        callback(null, require('./components/AppContainer').default);
+        const AppContainer = require('./components/AppContainer').default;
+        if (state.params.organizationKey) {
+          callback(null, AppContainer);
+        } else {
+          const forSingleOrganization = require('../organizations/forSingleOrganization').default;
+          callback(null, forSingleOrganization(AppContainer));
+        }
       });
     },
     getIndexRoute(_, callback) {
@@ -33,7 +41,7 @@ const routes = [
       {
         getComponent(_, callback) {
           require.ensure([], require => {
-            callback(null, require('./components/ProfileContainer').default);
+            callback(null, withRouter(require('./components/ProfileContainer').default));
           });
         },
         childRoutes: [

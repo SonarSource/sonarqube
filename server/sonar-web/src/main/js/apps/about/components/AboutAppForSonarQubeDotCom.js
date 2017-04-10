@@ -34,6 +34,10 @@ import '../sonarqube-dot-com-styles.css';
 
 export default class AboutAppForSonarQubeDotCom extends React.Component {
   props: {
+    appState: {
+      defaultOrganization: string,
+      organizationsEnabled: boolean
+    },
     bugs: number,
     codeSmells: number,
     currentUser: { isLoggedIn: boolean },
@@ -56,8 +60,7 @@ export default class AboutAppForSonarQubeDotCom extends React.Component {
               <a
                 className="button button-active"
                 href="https://about.sonarqube.com/get-started/"
-                target="_blank"
-              >
+                target="_blank">
                 Get Started
               </a>
               {!this.props.currentUser.isLoggedIn &&
@@ -77,7 +80,7 @@ export default class AboutAppForSonarQubeDotCom extends React.Component {
           </div>
         </div>
 
-        <AboutRulesForSonarQubeDotCom />
+        <AboutRulesForSonarQubeDotCom appState={this.props.appState} />
 
         <div className="about-page-container">
           {customText != null &&
@@ -103,7 +106,7 @@ export default class AboutAppForSonarQubeDotCom extends React.Component {
               <AboutQualityGates />
             </div>
             <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutStandards />
+              <AboutStandards appState={this.props.appState} />
             </div>
           </div>
 

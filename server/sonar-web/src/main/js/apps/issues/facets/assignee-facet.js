@@ -25,16 +25,28 @@ import Template from '../templates/facets/issues-assignee-facet.hbs';
 export default CustomValuesFacet.extend({
   template: Template,
 
+  initialize() {
+    this.context = {
+      isContext: this.options.app.state.get('isContext'),
+      organization: this.options.app.state.get('contextOrganization')
+    };
+  },
+
   getUrl() {
-    return window.baseUrl + '/api/users/search';
+    return window.baseUrl +
+      (this.context.isContext ? '/api/organizations/search_members' : '/api/users/search');
   },
 
   prepareAjaxSearch() {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data(term, page) {
-        return { q: term, p: page };
+      data: (term, page) => {
+        if (this.context.isContext && this.context.organization) {
+          return { q: term, p: page, organization: this.context.organization };
+        } else {
+          return { q: term, p: page };
+        }
       },
       results: window.usersToSelect2
     };

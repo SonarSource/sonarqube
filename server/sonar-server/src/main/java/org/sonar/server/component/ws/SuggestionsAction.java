@@ -30,7 +30,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -124,13 +124,13 @@ public class SuggestionsAction implements ComponentsWsAction {
         List<Component> results = sortedComponentDtos
           .stream()
           .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
-          .collect(Collectors.toList());
+          .collect(MoreCollectors.toList());
 
         return Qualifier.newBuilder()
           .setQ(qualifier.getQualifier())
           .addAllItems(results)
           .build();
-      }).collect(Collectors.toList());
+      }).collect(MoreCollectors.toList());
     }
 
   }
@@ -138,9 +138,9 @@ public class SuggestionsAction implements ComponentsWsAction {
   private Map<String, String> getOrganizationKeys(DbSession dbSession, List<ComponentDto> componentDtos) {
     return dbClient.organizationDao().selectByUuids(
       dbSession,
-      componentDtos.stream().map(ComponentDto::getOrganizationUuid).collect(Collectors.toSet()))
+      componentDtos.stream().map(ComponentDto::getOrganizationUuid).collect(MoreCollectors.toSet()))
       .stream()
-      .collect(Collectors.uniqueIndex(OrganizationDto::getUuid, OrganizationDto::getKey));
+      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid, OrganizationDto::getKey));
   }
 
   private List<ComponentsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {

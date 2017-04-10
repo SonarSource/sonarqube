@@ -47,3 +47,17 @@ it('should render the tags facet with the selected tags', () => {
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
 });
+
+it('should render maximum 10 tags in the searchbox results', () => {
+  const wrapper = shallow(
+    <TagsFilter
+      query={{ languages: ['java', 'ad'] }}
+      value={['java', 'ad']}
+      router={fakeRouter}
+      facet={{ ...tagsFacet, ad: 1 }}
+      isFavorite={true}
+    />
+  );
+  wrapper.setState({ tags: [...tags, 'aa', 'ab', 'ac', 'ad', 'ae', 'af', 'ag', 'ah', 'ai'] });
+  expect(wrapper).toMatchSnapshot();
+});

@@ -5,6 +5,9 @@
 
   <div class="modal-body">
     <div class="js-modal-messages"></div>
+    {{#if organization}}
+      <input type="hidden" name="organization" value="{{organization}}">
+    {{/if}}
     {{#if profile}}
       {{#if ruleFailures}}
         <div class="alert alert-warning">

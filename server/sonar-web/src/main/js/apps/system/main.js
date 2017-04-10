@@ -111,8 +111,7 @@ export default React.createClass({
             <button
               id="restart-server-button"
               className="big-spacer-left"
-              onClick={this.handleServerRestart}
-            >
+              onClick={this.handleServerRestart}>
               Restart Server
             </button>
           </div>

@@ -34,7 +34,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class MigrationHistoryImpl implements MigrationHistory {
   private static final String SCHEMA_MIGRATIONS_TABLE = "schema_migrations";

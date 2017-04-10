@@ -31,6 +31,7 @@ import org.junit.rules.ExternalResource;
 import org.openqa.selenium.By;
 import pageobjects.issues.IssuesPage;
 import pageobjects.licenses.LicensesPage;
+import pageobjects.organization.MembersPage;
 import pageobjects.projects.ProjectsPage;
 import pageobjects.settings.SettingsPage;
 
@@ -66,6 +67,10 @@ public class Navigation extends ExternalResource {
     return open("/issues", IssuesPage.class);
   }
 
+  public IssuesPage openComponentIssues(String component) {
+    return open("/component_issues?id=" + component, IssuesPage.class);
+  }
+
   public ProjectDashboardPage openProjectDashboard(String projectKey) {
     // TODO encode projectKey
     String url = "/dashboard?id=" + projectKey;
@@ -94,6 +99,11 @@ public class Navigation extends ExternalResource {
     // TODO encode projectKey
     String url = "/project/activity?id=" + projectKey;
     return open(url, ProjectActivityPage.class);
+  }
+
+  public MembersPage openOrganizationMembers(String orgKey) {
+    String url = "/organizations/" + orgKey + "/members";
+    return open(url, MembersPage.class);
   }
 
   public BackgroundTasksPage openBackgroundTasksPage() {

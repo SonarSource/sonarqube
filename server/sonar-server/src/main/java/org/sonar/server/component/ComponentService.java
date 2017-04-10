@@ -19,30 +19,19 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Nullable;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
-@ComputeEngineSide
 public class ComponentService {
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -75,50 +64,6 @@ public class ComponentService {
     for (ProjectIndexer projectIndexer : projectIndexers) {
       projectIndexer.indexProject(projectUuid, ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     }
-  }
-
-  public Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys, boolean ignoreMissingComponents) {
-    Collection<String> componentUuids = newArrayList();
-    if (componentKeys != null && !componentKeys.isEmpty()) {
-      List<ComponentDto> components = dbClient.componentDao().selectByKeys(session, componentKeys);
-
-      if (!ignoreMissingComponents && components.size() < componentKeys.size()) {
-        Collection<String> foundKeys = Collections2.transform(components, ComponentDto::getKey);
-        Set<String> missingKeys = Sets.newHashSet(componentKeys);
-        missingKeys.removeAll(foundKeys);
-        throw new NotFoundException("The following component keys do not match any component:\n" +
-          Joiner.on('\n').join(missingKeys));
-      }
-
-      for (ComponentDto component : components) {
-        componentUuids.add(component.uuid());
-      }
-    }
-    return componentUuids;
-  }
-
-  public Set<String> getDistinctQualifiers(DbSession session, @Nullable Collection<String> componentUuids) {
-    Set<String> componentQualifiers = Sets.newHashSet();
-    if (componentUuids != null && !componentUuids.isEmpty()) {
-      List<ComponentDto> components = dbClient.componentDao().selectByUuids(session, componentUuids);
-
-      for (ComponentDto component : components) {
-        componentQualifiers.add(component.qualifier());
-      }
-    }
-    return componentQualifiers;
-  }
-
-  public Collection<ComponentDto> getByUuids(DbSession session, @Nullable Collection<String> componentUuids) {
-    Set<ComponentDto> directoryPaths = Sets.newHashSet();
-    if (componentUuids != null && !componentUuids.isEmpty()) {
-      List<ComponentDto> components = dbClient.componentDao().selectByUuids(session, componentUuids);
-
-      for (ComponentDto component : components) {
-        directoryPaths.add(component);
-      }
-    }
-    return directoryPaths;
   }
 
   private static void checkProjectOrModuleKeyFormat(String key) {

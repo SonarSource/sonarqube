@@ -30,7 +30,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -121,7 +121,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .map(SearchHistoryAction::toWsRequest)
       .map(search())
       .map(result -> new SearchHistoryResponseFactory(result).apply())
-      .collect(Collectors.toOneElement());
+      .collect(MoreCollectors.toOneElement());
 
     writeProtobuf(searchHistoryResponse, request, response);
   }
@@ -151,7 +151,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
     Date to = parseEndingDateOrDateTime(request.getTo());
     PastMeasureQuery dbQuery = new PastMeasureQuery(
       result.getComponent().uuid(),
-      result.getMetrics().stream().map(MetricDto::getId).collect(Collectors.toList()),
+      result.getMetrics().stream().map(MetricDto::getId).collect(MoreCollectors.toList()),
       from == null ? null : from.getTime(),
       to == null ? null : (to.getTime() + 1_000L));
     return dbClient.measureDao().selectPastMeasures(dbSession, dbQuery);
@@ -171,8 +171,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
   private List<MetricDto> searchMetrics(DbSession dbSession, SearchHistoryRequest request) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetrics());
     if (request.getMetrics().size() > metrics.size()) {
-      Set<String> requestedMetrics = request.getMetrics().stream().collect(Collectors.toSet());
-      Set<String> foundMetrics = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
+      Set<String> requestedMetrics = request.getMetrics().stream().collect(MoreCollectors.toSet());
+      Set<String> foundMetrics = metrics.stream().map(MetricDto::getKey).collect(MoreCollectors.toSet());
 
       Set<String> unfoundMetrics = Sets.difference(requestedMetrics, foundMetrics).immutableCopy();
       throw new IllegalArgumentException(format("Metrics %s are not found", String.join(", ", unfoundMetrics)));

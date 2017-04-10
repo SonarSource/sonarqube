@@ -30,7 +30,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidImpl;
 
@@ -305,7 +305,7 @@ public class PopulateOrganizationMembersTableTest {
     List<Map<String, Object>> rows = db.select(format("SELECT ORGANIZATION_UUID FROM " + TABLE + " WHERE USER_ID = %s", userId));
     List<String> userOrganizationUuids = rows.stream()
       .map(values -> (String) values.get("ORGANIZATION_UUID"))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     assertThat(userOrganizationUuids).containsOnly(organizationUuids);
   }
 

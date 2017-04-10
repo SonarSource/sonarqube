@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleRepositoryDto;
@@ -88,7 +88,7 @@ public class RepositoriesAction implements RulesWsAction {
 
     return selectFromDb(languageKey).stream()
       .filter(r -> pattern.matcher(r.getKey()).matches() || pattern.matcher(r.getName()).matches())
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   private Collection<RuleRepositoryDto> selectFromDb(@Nullable String language) {

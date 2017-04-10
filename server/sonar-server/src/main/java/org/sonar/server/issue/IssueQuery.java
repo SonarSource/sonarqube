@@ -72,14 +72,13 @@ public class IssueQuery {
   private final Boolean onComponentOnly;
   private final Boolean assigned;
   private final Boolean resolved;
-  private final Boolean hideRules;
-  private final Boolean hideComments;
   private final Date createdAt;
   private final Date createdAfter;
   private final Date createdBefore;
   private final String sort;
   private final Boolean asc;
   private final String facetMode;
+  private final String organizationUuid;
   private final boolean checkAuthorization;
 
   private IssueQuery(Builder builder) {
@@ -103,8 +102,6 @@ public class IssueQuery {
     this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
     this.resolved = builder.resolved;
-    this.hideRules = builder.hideRules;
-    this.hideComments = builder.hideComments;
     this.createdAt = builder.createdAt;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
@@ -112,6 +109,7 @@ public class IssueQuery {
     this.asc = builder.asc;
     this.checkAuthorization = builder.checkAuthorization;
     this.facetMode = builder.facetMode;
+    this.organizationUuid = builder.organizationUuid;
   }
 
   public Collection<String> issueKeys() {
@@ -197,22 +195,6 @@ public class IssueQuery {
     return resolved;
   }
 
-  /**
-   * @since 4.2
-   */
-  @CheckForNull
-  public Boolean hideRules() {
-    return hideRules;
-  }
-
-  /**
-   * @since 5.1
-   */
-  @CheckForNull
-  public Boolean hideComments() {
-    return hideComments;
-  }
-
   @CheckForNull
   public Date createdAfter() {
     return createdAfter == null ? null : new Date(createdAfter.getTime());
@@ -240,6 +222,11 @@ public class IssueQuery {
 
   public boolean checkAuthorization() {
     return checkAuthorization;
+  }
+
+  @CheckForNull
+  public String organizationUuid() {
+    return organizationUuid;
   }
 
   public String facetMode() {
@@ -276,8 +263,6 @@ public class IssueQuery {
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
     private Boolean resolved = null;
-    private Boolean hideRules = false;
-    private Boolean hideComments = false;
     private Date createdAt;
     private Date createdAfter;
     private Date createdBefore;
@@ -285,6 +270,7 @@ public class IssueQuery {
     private Boolean asc = false;
     private boolean checkAuthorization = true;
     private String facetMode;
+    private String organizationUuid;
 
     private Builder() {
 
@@ -402,30 +388,6 @@ public class IssueQuery {
       return this;
     }
 
-    /**
-     * If true, rules will not be loaded
-     * If false, rules will be loaded
-     *
-     * @since 4.2
-     *
-     */
-    public Builder hideRules(@Nullable Boolean b) {
-      this.hideRules = b;
-      return this;
-    }
-
-    /**
-     * If true, comments will not be loaded
-     * If false, comments will be loaded
-     *
-     * @since 5.1
-     *
-     */
-    public Builder hideComments(@Nullable Boolean b) {
-      this.hideComments = b;
-      return this;
-    }
-
     public Builder createdAt(@Nullable Date d) {
       this.createdAt = d == null ? null : new Date(d.getTime());
       return this;
@@ -468,6 +430,11 @@ public class IssueQuery {
 
     public Builder facetMode(String facetMode) {
       this.facetMode = facetMode;
+      return this;
+    }
+
+    public Builder organizationUuid(String s) {
+      this.organizationUuid = s;
       return this;
     }
   }

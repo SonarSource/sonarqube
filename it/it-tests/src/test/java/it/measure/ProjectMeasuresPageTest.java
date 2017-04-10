@@ -25,7 +25,11 @@ import it.Category1Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import pageobjects.Navigation;
 
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
@@ -65,6 +69,14 @@ public class ProjectMeasuresPageTest {
   @Test
   public void should_drilldown_on_tree_view() {
     runSelenese(orchestrator, "/measure/ProjectMeasuresPageTest/should_drilldown_on_tree_view.html");
+  }
+
+  @Test
+  public void should_show_history() {
+    Navigation nav = Navigation.get(orchestrator);
+    nav.open("/component_measures/metric/reliability_rating/history?id=project-measures-page-test-project");
+    $(".line-chart").shouldBe(visible);
+    $$(".line-chart-tick-x").shouldHaveSize(5);
   }
 
 }

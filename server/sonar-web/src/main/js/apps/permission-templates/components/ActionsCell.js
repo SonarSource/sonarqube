@@ -111,8 +111,7 @@ export default class ActionsCell extends React.Component {
           href="#"
           className="js-set-default"
           data-qualifier={qualifier}
-          onClick={this.setDefault.bind(this, qualifier)}
-        >
+          onClick={this.setDefault.bind(this, qualifier)}>
           {this.renderDropdownIcon(<i className="icon-check" />)}
           {child}
         </a>

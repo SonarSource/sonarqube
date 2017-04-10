@@ -17,23 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
+import { getProfilePath } from '../utils';
 
-export default class ProfileLink extends React.Component {
-  static propTypes = {
-    profileKey: React.PropTypes.string.isRequired
-  };
+type Props = {
+  children?: React.Element<*>,
+  language: string,
+  name: string,
+  organization: ?string
+};
+
+export default class ProfileLink extends React.PureComponent {
+  props: Props;
 
   render() {
-    const { profileKey, children, ...other } = this.props;
-    const query = { key: profileKey };
+    const { name, language, organization, children, ...other } = this.props;
     return (
       <Link
-        to={{ pathname: '/profiles/show', query }}
+        to={getProfilePath(name, language, organization)}
         activeClassName="link-no-underline"
-        {...other}
-      >
+        {...other}>
         {children}
       </Link>
     );

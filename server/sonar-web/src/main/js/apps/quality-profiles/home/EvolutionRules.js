@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
@@ -38,7 +39,13 @@ function parseRules(r) {
   });
 }
 
-export default class EvolutionRules extends React.Component {
+type Props = {
+  organization: ?string
+};
+
+export default class EvolutionRules extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
   state = {};
 
   componentDidMount() {
@@ -74,9 +81,12 @@ export default class EvolutionRules extends React.Component {
       return null;
     }
 
-    const newRulesUrl = getRulesUrl({
-      available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD')
-    });
+    const newRulesUrl = getRulesUrl(
+      {
+        available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD')
+      },
+      this.props.organization
+    );
 
     return (
       <div className="quality-profile-box quality-profiles-evolution-rules">
@@ -89,7 +99,9 @@ export default class EvolutionRules extends React.Component {
           {this.state.latestRules.map(rule => (
             <li key={rule.key} className="spacer-top">
               <div className="text-ellipsis">
-                <Link to={getRulesUrl({ rule_key: rule.key })} className="link-no-underline">
+                <Link
+                  to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}
+                  className="link-no-underline">
                   {' '}
                   {rule.name}
                 </Link>

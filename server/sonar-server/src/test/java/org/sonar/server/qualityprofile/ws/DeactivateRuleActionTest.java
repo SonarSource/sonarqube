@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.net.HttpURLConnection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -114,8 +116,9 @@ public class DeactivateRuleActionTest {
       .setParam("rule_key", ruleKey.toString())
       .setParam("profile_key", qualityProfile.getKey());
 
-    request.execute();
+    TestResponse response = request.execute();
 
+    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<ActiveRuleKey> captor = ArgumentCaptor.forClass(ActiveRuleKey.class);
     Mockito.verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), captor.capture());
     assertThat(captor.getValue().ruleKey()).isEqualTo(ruleKey);
@@ -133,8 +136,9 @@ public class DeactivateRuleActionTest {
       .setParam("rule_key", ruleKey.toString())
       .setParam("profile_key", qualityProfile.getKey());
 
-    request.execute();
+    TestResponse response = request.execute();
 
+    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<ActiveRuleKey> captor = ArgumentCaptor.forClass(ActiveRuleKey.class);
     Mockito.verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), captor.capture());
     assertThat(captor.getValue().ruleKey()).isEqualTo(ruleKey);

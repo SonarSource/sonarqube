@@ -30,7 +30,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -267,7 +267,7 @@ public class UserIdentityAuthenticatorTest {
       .setLogin(login)
       .setName("John")
       // No group
-      .setGroups(Arrays.stream(groups).collect(Collectors.toSet()))
+      .setGroups(Arrays.stream(groups).collect(MoreCollectors.toSet()))
       .build(), IDENTITY_PROVIDER, Source.sso());
   }
 

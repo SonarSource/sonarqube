@@ -62,8 +62,7 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
     inner = (
       <Link
         to={{ pathname: '/dashboard', query: { id: component.refKey } }}
-        className="link-with-icon"
-      >
+        className="link-with-icon">
         <QualifierIcon qualifier={component.qualifier} />
         {' '}
         <span>{name}</span>

@@ -27,14 +27,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
-import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class DefaultPeriodCleaner {
 
@@ -67,11 +67,11 @@ public class DefaultPeriodCleaner {
         Joiner.on(", ").join(
           snapshots.stream()
             .map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
-            .collect(Collectors.toArrayList(snapshots.size()))));
+            .collect(MoreCollectors.toArrayList(snapshots.size()))));
     }
     purgeDao.deleteAnalyses(
       session, profiler,
-      snapshots.stream().map(DefaultPeriodCleaner::toIdUuidPair).collect(Collectors.toList(snapshots.size())));
+      snapshots.stream().map(DefaultPeriodCleaner::toIdUuidPair).collect(MoreCollectors.toList(snapshots.size())));
     return snapshots;
   }
 

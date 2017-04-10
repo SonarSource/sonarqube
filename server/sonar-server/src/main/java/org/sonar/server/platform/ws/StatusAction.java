@@ -135,7 +135,7 @@ public class StatusAction implements SystemWsAction {
         return Status.DOWN;
       case SUCCEEDED:
         // DB migration can be finished while we haven't yet finished SQ's initialization
-        return Status.DB_MIGRATION_RUNNING;
+        return Status.STARTING;
       default:
         throw new IllegalArgumentException("Unsupported DatabaseMigration.Status " + databaseMigrationStatus);
     }
@@ -151,10 +151,7 @@ public class StatusAction implements SystemWsAction {
       case FAILED:
         return Status.DOWN;
       case SUCCEEDED:
-        // status of Platform will change to STARTING _before_ DatabaseMigration status becomes SUCCEEDED
-        // (see DatabaseMigrationImpl#doDatabaseMigration, platform's restart is requested _before_ DatabaseMigration status is updated)
-        // so, in theory, this case can not happen
-        return Status.DB_MIGRATION_RUNNING;
+        return Status.STARTING;
       default:
         throw new IllegalArgumentException("Unsupported DatabaseMigration.Status " + databaseMigrationStatus);
     }

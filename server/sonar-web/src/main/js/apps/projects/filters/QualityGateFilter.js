@@ -29,12 +29,12 @@ export default class QualityGateFilter extends React.PureComponent {
     organization: React.PropTypes.object
   };
 
-  renderOption(option, selected) {
-    return <Level level={option} small={true} muted={!selected} />;
-  }
-
   getFacetValueForOption(facet, option) {
     return facet[option];
+  }
+
+  renderOption(option, selected) {
+    return <Level level={option} small={true} muted={!selected} />;
   }
 
   render() {

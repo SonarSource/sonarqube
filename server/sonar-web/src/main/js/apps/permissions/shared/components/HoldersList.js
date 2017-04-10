@@ -48,15 +48,13 @@ export default class HoldersList extends React.Component {
         className="permission-column text-center"
         style={{
           backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent'
-        }}
-      >
+        }}>
         <div className="permission-column-inner">
           <a
             href="#"
             title={`Filter by "${p.name}" permission`}
             data-toggle="tooltip"
-            onClick={this.handlePermissionClick.bind(this, p.key)}
-          >
+            onClick={this.handlePermissionClick.bind(this, p.key)}>
             {p.name}
           </a>
           <i className="icon-help little-spacer-left" title={p.description} data-toggle="tooltip" />

@@ -25,7 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessId;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
@@ -58,7 +58,7 @@ public class LogsAction implements SystemWsAction {
       .setPossibleValues(stream(ProcessId.values())
         .map(ProcessId::getKey)
         .sorted()
-        .collect(Collectors.toList(ProcessId.values().length)))
+        .collect(MoreCollectors.toList(ProcessId.values().length)))
       .setDefaultValue(ProcessId.APP.getKey())
       .setSince("6.2")
       .setDescription("Process to get logs from");

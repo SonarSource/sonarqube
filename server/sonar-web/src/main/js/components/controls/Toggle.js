@@ -46,8 +46,7 @@ export default class Toggle extends React.Component {
       <button
         className={className}
         name={this.props.name}
-        onClick={e => this.handleClick(e, booleanValue)}
-      >
+        onClick={e => this.handleClick(e, booleanValue)}>
         <div className="boolean-toggle-handle" />
       </button>
     );

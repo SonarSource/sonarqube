@@ -30,7 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -381,7 +381,7 @@ public class CeActivityDaoTest {
   private List<String> selectPageOfUuids(Pagination pagination) {
     return underTest.selectByQuery(db.getSession(), new CeTaskQuery(), pagination).stream()
         .map(CeActivityToUuid.INSTANCE::apply)
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
   }
 
   private enum CeActivityToUuid implements Function<CeActivityDto, String> {

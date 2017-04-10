@@ -42,15 +42,17 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -73,9 +75,10 @@ public class RegisterRules implements Startable {
   private final ActiveRuleIndexer activeRuleIndexer;
   private final Languages languages;
   private final System2 system2;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
-    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2) {
+    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
@@ -83,34 +86,44 @@ public class RegisterRules implements Startable {
     this.activeRuleIndexer = activeRuleIndexer;
     this.languages = languages;
     this.system2 = system2;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
   public void start() {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       Map<RuleKey, RuleDefinitionDto> allRules = loadRules(session);
+      List<RuleKey> keysToIndex = new ArrayList<>();
 
       RulesDefinition.Context context = defLoader.load();
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
-            registerRule(ruleDef, allRules, session);
+            boolean relevantForIndex = registerRule(ruleDef, allRules, session);
+            if (relevantForIndex) {
+              keysToIndex.add(RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
+            }
           }
           session.commit();
         }
       }
-      List<RuleDefinitionDto> activeRules = processRemainingDbRules(allRules.values(), session);
-      List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
+      List<RuleDefinitionDto> removedRules = processRemainingDbRules(allRules.values(), session);
+      List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(session, removedRules, context);
       session.commit();
 
       persistRepositories(session, context.repositories());
-      ruleIndexer.index();
+      ruleIndexer.delete(removedRules.stream().map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList(removedRules.size())));
+      ruleIndexer.index(getDefaultOrganization(), keysToIndex);
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
-    } finally {
-      session.close();
+    }
+  }
+
+  private OrganizationDto getDefaultOrganization() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationProvider.get().getUuid())
+        .orElseThrow(() -> new IllegalStateException("Cannot load default organization"));
     }
   }
 
@@ -119,7 +132,7 @@ public class RegisterRules implements Startable {
     List<RuleRepositoryDto> dtos = repositories
       .stream()
       .map(r -> new RuleRepositoryDto(r.key(), r.language(), r.name()))
-      .collect(Collectors.toList(repositories.size()));
+      .collect(MoreCollectors.toList(repositories.size()));
     dbClient.ruleRepositoryDao().insert(dbSession, dtos);
     dbSession.commit();
   }
@@ -129,11 +142,19 @@ public class RegisterRules implements Startable {
     // nothing
   }
 
-  private void registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, DbSession session) {
+  private boolean registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, DbSession session) {
     RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
     RuleDefinitionDto existingRule = allRules.remove(ruleKey);
-    RuleDefinitionDto rule = existingRule == null ? createRuleDto(ruleDef, session) : existingRule;
+    boolean newRule;
+    RuleDefinitionDto rule;
+    if (existingRule == null) {
+      rule = createRuleDto(ruleDef, session);
+      newRule = true;
+    } else {
+      rule = existingRule;
+      newRule = false;
+    }
 
     boolean executeUpdate = false;
     if (mergeRule(ruleDef, rule)) {
@@ -153,6 +174,7 @@ public class RegisterRules implements Startable {
     }
 
     mergeParams(ruleDef, rule, session);
+    return newRule || executeUpdate;
   }
 
   private Map<RuleKey, RuleDefinitionDto> loadRules(DbSession session) {
@@ -403,8 +425,8 @@ public class RegisterRules implements Startable {
     rule.setSystemTags(Collections.emptySet());
     update(session, rule);
     // FIXME resetting the tags for all organizations must be handled a different way
-//    rule.setTags(Collections.emptySet());
-//    update(session, rule.getMetadata());
+    // rule.setTags(Collections.emptySet());
+    // update(session, rule.getMetadata());
     removedRules.add(rule);
     if (removedRules.size() % 100 == 0) {
       session.commit();

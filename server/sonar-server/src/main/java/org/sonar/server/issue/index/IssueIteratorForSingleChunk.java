@@ -65,7 +65,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "i.resolution",
     "i.severity",
 
-    // column 11RegisterRulesMediumTest
+    // column 11
     "i.manual_severity",
     "i.checksum",
     "i.status",
@@ -83,6 +83,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "p.module_uuid_path",
     "p.path",
     "p.scope",
+    "p.organization_uuid",
     "i.tags",
     "i.issue_type"
   };
@@ -226,9 +227,10 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       String filePath = extractFilePath(rs.getString(24), scope);
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-      String tags = rs.getString(26);
+      doc.setOrganizationUuid(rs.getString(26));
+      String tags = rs.getString(27);
       doc.setTags(ImmutableList.copyOf(IssueIteratorForSingleChunk.TAGS_SPLITTER.split(tags == null ? "" : tags)));
-      doc.setType(RuleType.valueOf(rs.getInt(27)));
+      doc.setType(RuleType.valueOf(rs.getInt(28)));
       return doc;
     }
 

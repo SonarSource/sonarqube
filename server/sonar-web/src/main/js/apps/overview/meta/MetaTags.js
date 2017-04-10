@@ -107,12 +107,8 @@ export default class MetaTags extends React.PureComponent {
           <button
             className="button-link"
             onClick={this.handleClick}
-            ref={tagsList => this.tagsList = tagsList}
-          >
-            <TagsList
-              tags={tags.length ? tags : [translate('no_tags')]}
-              allowUpdate={true}
-            />
+            ref={tagsList => this.tagsList = tagsList}>
+            <TagsList tags={tags.length ? tags : [translate('no_tags')]} allowUpdate={true} />
           </button>
           {popupOpen &&
             <div ref={tagsSelector => this.tagsSelector = tagsSelector}>

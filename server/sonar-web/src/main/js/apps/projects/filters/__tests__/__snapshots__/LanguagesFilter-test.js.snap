@@ -1,3 +1,109 @@
+exports[`test should render maximum 10 languages in the searchbox results 1`] = `
+<Filter
+  facet={
+    Object {
+      "cs": 4,
+      "g": 1,
+      "java": 39,
+      "js": 1,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      isFavorite={true}
+      options={
+        Array [
+          Object {
+            "label": "Flex",
+            "value": "flex",
+          },
+          Object {
+            "label": "PHP",
+            "value": "php",
+          },
+          Object {
+            "label": "Python",
+            "value": "py",
+          },
+          Object {
+            "label": "c",
+            "value": "c",
+          },
+          Object {
+            "label": "d",
+            "value": "d",
+          },
+          Object {
+            "label": "e",
+            "value": "e",
+          },
+          Object {
+            "label": "f",
+            "value": "f",
+          },
+          Object {
+            "label": "h",
+            "value": "h",
+          },
+          Object {
+            "label": "i",
+            "value": "i",
+          },
+          Object {
+            "label": "k",
+            "value": "k",
+          },
+        ]
+      }
+      property="languages"
+      query={
+        Object {
+          "languages": Array [
+            "java",
+            "g",
+          ],
+        }
+      }
+      router={
+        Object {
+          "push": [Function],
+        }
+      } />
+  }
+  getFacetValueForOption={[Function]}
+  halfWidth={false}
+  header={
+    <FilterHeader
+      name="Languages" />
+  }
+  highlightUnder={1}
+  isFavorite={true}
+  options={
+    Array [
+      "java",
+      "cs",
+      "g",
+      "js",
+    ]
+  }
+  property="languages"
+  query={
+    Object {
+      "languages": Array [
+        "java",
+        "g",
+      ],
+    }
+  }
+  renderOption={[Function]}
+  value={
+    Array [
+      "java",
+      "g",
+    ]
+  } />
+`;
+
 exports[`test should render the languages facet with the selected languages 1`] = `
 <Filter
   facet={

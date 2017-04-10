@@ -50,8 +50,7 @@ class ComponentNavBreadcrumbs extends React.Component {
             </span>}
           <Link
             to={{ pathname: '/dashboard', query: { id: item.key } }}
-            className="link-base-color"
-          >
+            className="link-base-color">
             {index === breadcrumbs.length - 1
               ? <strong>{item.name}</strong>
               : <span>{item.name}</span>}

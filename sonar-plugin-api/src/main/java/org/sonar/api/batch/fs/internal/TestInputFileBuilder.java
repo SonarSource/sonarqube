@@ -20,18 +20,34 @@
 package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.annotation.Nullable;
+
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 /**
  * Intended to be used in unit tests that need to create {@link InputFile}s.
+ * An InputFile is unambiguously identified by a <b>module key</b> and a <b>relative path</b>, so these parameters are mandatory.
+ * 
+ * A module base directory is only needed to construct absolute paths.
+ * 
+ * Examples of usage of the constructors:
+ * 
+ * <pre>
+ * InputFile file1 = TestInputFileBuilder.create("module1", "myfile.java").build();
+ * InputFile file2 = TestInputFileBuilder.create("", fs.baseDir(), myfile).build();
+ * </pre>
+ * 
+ * file1 will have the "module1" as both module key and module base directory.
+ * file2 has an empty string as module key, and a relative path which is the path from the filesystem base directory to myfile.
  * 
  * @since 6.3
  */
@@ -52,16 +68,42 @@ public class TestInputFileBuilder {
   private int nonBlankLines;
   private int[] originalLineOffsets;
   private boolean publish = true;
+  private String contents;
 
+  /**
+   * Create a InputFile identified by the given module key and relative path.
+   * The module key will also be used as the module's base directory. 
+   */
   public TestInputFileBuilder(String moduleKey, String relativePath) {
     this(moduleKey, relativePath, batchId++);
   }
 
+  /**
+   * Create a InputFile with a given module key and module base directory. 
+   * The relative path is generated comparing the file path to the module base directory. 
+   * filePath must point to a file that is within the module base directory.
+   */
+  public TestInputFileBuilder(String moduleKey, File moduleBaseDir, File filePath) {
+    String relativePath = moduleBaseDir.toPath().relativize(filePath.toPath()).toString();
+    this.moduleKey = moduleKey;
+    setModuleBaseDir(moduleBaseDir.toPath());
+    this.relativePath = PathUtils.sanitize(relativePath);
+    this.id = batchId++;
+  }
+
   public TestInputFileBuilder(String moduleKey, String relativePath, int id) {
     this.moduleKey = moduleKey;
-    this.moduleBaseDir = Paths.get(moduleKey);
+    setModuleBaseDir(Paths.get(moduleKey));
     this.relativePath = PathUtils.sanitize(relativePath);
     this.id = id;
+  }
+
+  public static TestInputFileBuilder create(String moduleKey, File moduleBaseDir, File filePath) {
+    return new TestInputFileBuilder(moduleKey, moduleBaseDir, filePath);
+  }
+
+  public static TestInputFileBuilder create(String moduleKey, String relativePath) {
+    return new TestInputFileBuilder(moduleKey, relativePath);
   }
 
   public static int nextBatchId() {
@@ -69,7 +111,11 @@ public class TestInputFileBuilder {
   }
 
   public TestInputFileBuilder setModuleBaseDir(Path moduleBaseDir) {
-    this.moduleBaseDir = moduleBaseDir.normalize();
+    try {
+      this.moduleBaseDir = moduleBaseDir.normalize().toRealPath(new LinkOption[] {LinkOption.NOFOLLOW_LINKS});
+    } catch (IOException e) {
+      this.moduleBaseDir = moduleBaseDir.normalize();
+    }
     return this;
   }
 
@@ -108,6 +154,17 @@ public class TestInputFileBuilder {
     return this;
   }
 
+  /**
+   * Set contents of the file and calculates metadata from it.
+   * The contents will be returned by {@link InputFile#contents()} and {@link InputFile#inputStream()} and can be
+   * inconsistent with the actual physical file pointed by {@link InputFile#path()}, {@link InputFile#absolutePath()}, etc.
+   */
+  public TestInputFileBuilder setContents(String content) {
+    this.contents = content;
+    initMetadata(content);
+    return this;
+  }
+
   public TestInputFileBuilder setNonBlankLines(int nonBlankLines) {
     this.nonBlankLines = nonBlankLines;
     return this;
@@ -139,7 +196,9 @@ public class TestInputFileBuilder {
   public DefaultInputFile build() {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, id);
     indexedFile.setLanguage(language);
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)));
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
+      f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)),
+      contents);
     inputFile.setStatus(status);
     inputFile.setCharset(charset);
     inputFile.setPublish(publish);

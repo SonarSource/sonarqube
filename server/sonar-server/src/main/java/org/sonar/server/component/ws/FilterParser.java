@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
@@ -51,7 +51,7 @@ public class FilterParser {
   public static List<Criterion> parse(String filter) {
     return StreamSupport.stream(CRITERIA_SPLITTER.split(filter).spliterator(), false)
       .map(FilterParser::parseCriterion)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   private static Criterion parseCriterion(String rawCriterion) {

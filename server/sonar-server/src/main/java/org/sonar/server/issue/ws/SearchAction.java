@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.Collection;
@@ -38,18 +37,18 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.IssueQueryService;
+import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
@@ -84,6 +83,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLANNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
@@ -103,15 +103,15 @@ public class SearchAction implements IssuesWsAction {
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
-  private final IssueQueryService issueQueryService;
+  private final IssueQueryFactory issueQueryFactory;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
 
-  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryService issueQueryService,
+  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
     SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
-    this.issueQueryService = issueQueryService;
+    this.issueQueryFactory = issueQueryFactory;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
   }
@@ -234,7 +234,7 @@ public class SearchAction implements IssuesWsAction {
 
     action.createParam(PARAM_COMPONENT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
-        "A component can be a view, developer, project, module, directory or file.")
+        "A component can be a view, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_COMPONENTS)
       .setDeprecatedSince("5.1")
@@ -285,6 +285,13 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER)
       .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
   }
 
   @Override
@@ -297,11 +304,11 @@ public class SearchAction implements IssuesWsAction {
     // prepare the Elasticsearch request
     SearchOptions options = createSearchOptionsFromRequest(request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
-    IssueQuery query = issueQueryService.createFromRequest(request);
+    IssueQuery query = issueQueryFactory.create(request);
 
     // execute request
     SearchResult<IssueDoc> result = issueIndex.search(query, options);
-    List<String> issueKeys = from(result.getDocs()).transform(IssueDocToKey.INSTANCE).toList();
+    List<String> issueKeys = result.getDocs().stream().map(IssueDoc::key).collect(MoreCollectors.toList(result.getDocs().size()));
 
     // load the additional information to be returned in response
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(additionalFields, issueKeys);
@@ -363,7 +370,7 @@ public class SearchAction implements IssuesWsAction {
     List<String> assigneesFromRequest = request.getAssignees();
     if (assigneesFromRequest != null) {
       assignees.addAll(assigneesFromRequest);
-      assignees.remove(IssueQueryService.LOGIN_MYSELF);
+      assignees.remove(IssueQueryFactory.LOGIN_MYSELF);
     }
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getLogin()));
@@ -386,7 +393,7 @@ public class SearchAction implements IssuesWsAction {
           return;
         }
         requestParams.stream()
-          .filter(param -> !buckets.containsKey(param) && !IssueQueryService.LOGIN_MYSELF.equals(param))
+          .filter(param -> !buckets.containsKey(param) && !IssueQueryFactory.LOGIN_MYSELF.equals(param))
           // Prevent appearance of a glitch value due to dedicated parameter for this facet
           .forEach(param -> buckets.put(param, 0L));
       });
@@ -453,6 +460,7 @@ public class SearchAction implements IssuesWsAction {
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
       .setModuleUuids(request.paramAsStrings(PARAM_MODULE_UUIDS))
       .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setProjectKeys(request.paramAsStrings(PARAM_PROJECT_KEYS))
@@ -467,14 +475,5 @@ public class SearchAction implements IssuesWsAction {
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
       .setTypes(request.paramAsStrings(PARAM_TYPES));
-  }
-
-  private enum IssueDocToKey implements Function<IssueDoc, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(IssueDoc input) {
-      return input.key();
-    }
   }
 }

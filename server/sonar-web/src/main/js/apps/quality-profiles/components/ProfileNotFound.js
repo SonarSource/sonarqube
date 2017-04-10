@@ -17,16 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { IndexLink } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { getProfilesPath } from '../utils';
 
-export default class ProfileNotFound extends React.Component {
+type Props = {
+  organization: ?string
+};
+
+export default class ProfileNotFound extends React.PureComponent {
+  props: Props;
+
   render() {
     return (
       <div className="quality-profile-not-found">
         <div className="note spacer-bottom">
-          <IndexLink to="/profiles/" className="text-muted">
+          <IndexLink to={getProfilesPath(this.props.organization)} className="text-muted">
             {translate('quality_profiles.page')}
           </IndexLink>
         </div>

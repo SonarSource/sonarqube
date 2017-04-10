@@ -67,8 +67,7 @@ class OrganizationDelete extends React.Component {
         contentLabel="modal form"
         className="modal"
         overlayClassName="modal-overlay"
-        onRequestClose={this.handleCloseModal}
-      >
+        onRequestClose={this.handleCloseModal}>
 
         <header className="modal-head">
           <h2>{translate('organization.delete')}</h2>
@@ -112,8 +111,7 @@ class OrganizationDelete extends React.Component {
           <button
             className="button-red"
             disabled={this.state.loading || this.state.deleting}
-            onClick={this.handleOpenModal}
-          >
+            onClick={this.handleOpenModal}>
             {translate('delete')}
           </button>
           {this.state.deleting && this.renderModal()}

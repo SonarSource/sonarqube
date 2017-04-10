@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getProfilePath } from '../apps/quality-profiles/utils';
+
 /**
  * Generate URL for a component's home page
  * @param {string} componentKey
@@ -89,14 +91,9 @@ export function getComponentPermissionsUrl(componentKey) {
 
 /**
  * Generate URL for a quality profile
- * @param {string} key
- * @returns {Object}
  */
-export function getQualityProfileUrl(key) {
-  return {
-    pathname: '/profiles/show',
-    query: { key }
-  };
+export function getQualityProfileUrl(name, language, organization) {
+  return getProfilePath(name, language, organization);
 }
 
 /**
@@ -115,17 +112,19 @@ export function getQualityGateUrl(key) {
  * @param {object} query
  * @returns {string}
  */
-export function getRulesUrl(query) {
+export function getRulesUrl(query, organization?: string) {
+  const path = organization ? `/organizations/${organization}/rules` : '/coding_rules';
+
   if (query) {
     const serializedQuery = Object.keys(query)
       .map(criterion => `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`)
       .join('|');
 
     // return a string (not { pathname }) to help react-router's Link handle this properly
-    return '/coding_rules#' + serializedQuery;
+    return path + '#' + serializedQuery;
   }
 
-  return '/coding_rules';
+  return path;
 }
 
 /**
@@ -133,9 +132,9 @@ export function getRulesUrl(query) {
  * @param {object} query
  * @returns {string}
  */
-export function getDeprecatedActiveRulesUrl(query = {}) {
+export function getDeprecatedActiveRulesUrl(query = {}, organization?: string) {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
-  return getRulesUrl({ ...query, ...baseQuery });
+  return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
 
 export const getProjectsUrl = () => {

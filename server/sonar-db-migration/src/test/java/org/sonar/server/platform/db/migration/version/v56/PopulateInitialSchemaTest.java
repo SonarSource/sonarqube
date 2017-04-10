@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +76,7 @@ public class PopulateInitialSchemaTest {
       "from group_roles gr where gr.group_id is null");
     List<String> roles = rows.stream()
       .map(row -> (String) row.get("role"))
-      .collect(Collectors.toArrayList());
+      .collect(MoreCollectors.toArrayList());
     assertThat(roles).containsOnly("provisioning", "scan");
   }
 
@@ -87,7 +87,7 @@ public class PopulateInitialSchemaTest {
       "where g.name='" + groupName + "'");
     return rows.stream()
       .map(row -> (String) row.get("role"))
-      .collect(Collectors.toArrayList());
+      .collect(MoreCollectors.toArrayList());
   }
 
   private void verifyGroup(String expectedName, String expectedDescription) {
@@ -106,7 +106,7 @@ public class PopulateInitialSchemaTest {
       "where u.login='admin'");
     List<String> groupNames = rows.stream()
       .map(row -> (String) row.get("groupName"))
-      .collect(Collectors.toArrayList());
+      .collect(MoreCollectors.toArrayList());
     assertThat(groupNames).containsOnly("sonar-administrators", "sonar-users");
   }
 

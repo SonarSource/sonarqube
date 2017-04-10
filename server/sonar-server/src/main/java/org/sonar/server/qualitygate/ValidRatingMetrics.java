@@ -23,7 +23,7 @@ import java.util.Set;
 import org.sonar.api.measures.CoreMetrics;
 
 import static org.sonar.api.measures.Metric.ValueType.RATING;
-import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class ValidRatingMetrics {
 

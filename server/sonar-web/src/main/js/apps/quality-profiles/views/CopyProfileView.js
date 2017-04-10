@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-copy-profile.hbs';
 import { copyProfile } from '../../../api/quality-profiles';

@@ -32,6 +32,11 @@ it('should not render "show more"', () => {
   expect(listFooter.find('a').length).toBe(0);
 });
 
+it('should not render "show more"', () => {
+  const listFooter = shallow(<ListFooter count={5} total={5} loadMore={jest.fn()} />);
+  expect(listFooter.find('a').length).toBe(0);
+});
+
 it('should "show more"', () => {
   const loadMore = jest.fn();
   const listFooter = shallow(<ListFooter count={3} total={5} loadMore={loadMore} />);

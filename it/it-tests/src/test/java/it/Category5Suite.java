@@ -20,6 +20,7 @@
 package it;
 
 import it.organization.OrganizationMembershipTest;
+import it.organization.OrganizationQualityProfilesPageTest;
 import it.serverSystem.ClusterTest;
 import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
@@ -47,7 +48,8 @@ import org.junit.runners.Suite;
   UpdateCenterTest.class,
   RealmAuthenticationTest.class,
   SsoAuthenticationTest.class,
-  OrganizationMembershipTest.class
+  OrganizationMembershipTest.class,
+  OrganizationQualityProfilesPageTest.class
 })
 public class Category5Suite {
 

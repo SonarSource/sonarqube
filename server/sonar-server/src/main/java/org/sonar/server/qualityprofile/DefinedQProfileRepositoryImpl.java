@@ -40,7 +40,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -123,12 +123,12 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
     Map<String, List<DefinedQProfile.Builder>> buildersByLanguage = Multimaps.asMap(rulesProfilesByLanguage)
       .entrySet()
       .stream()
-      .collect(Collectors.uniqueIndex(Map.Entry::getKey, DefinedQProfileRepositoryImpl::toQualityProfileBuilders));
+      .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, DefinedQProfileRepositoryImpl::toQualityProfileBuilders));
     return buildersByLanguage
       .entrySet()
       .stream()
       .filter(DefinedQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
-      .collect(Collectors.uniqueIndex(Map.Entry::getKey, entry -> toQualityProfiles(entry.getValue()), buildersByLanguage.size()));
+      .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, entry -> toQualityProfiles(entry.getValue()), buildersByLanguage.size()));
   }
 
   /**
@@ -162,7 +162,7 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
     Set<String> declaredDefaultProfileNames = entry.getValue().stream()
       .filter(DefinedQProfile.Builder::isDeclaredDefault)
       .map(DefinedQProfile.Builder::getName)
-      .collect(Collectors.toSet());
+      .collect(MoreCollectors.toSet());
     checkState(declaredDefaultProfileNames.size() <= 1, "Several Quality profiles are flagged as default for the language %s: %s", entry.getKey(), declaredDefaultProfileNames);
     return true;
   }
@@ -195,6 +195,6 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
     MessageDigest md5Digest = DigestUtils.getMd5Digest();
     return builders.stream()
       .map(builder -> builder.build(md5Digest))
-      .collect(Collectors.toList(builders.size()));
+      .collect(MoreCollectors.toList(builders.size()));
   }
 }

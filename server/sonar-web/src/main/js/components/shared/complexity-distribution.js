@@ -64,8 +64,7 @@ export const ComplexityDistribution = React.createClass({
     return (
       <div
         className="overview-bar-chart"
-        style={{ height: HEIGHT, paddingTop: 10, paddingBottom: 15 }}
-      >
+        style={{ height: HEIGHT, paddingTop: 10, paddingBottom: 15 }}>
         {this.renderBarChart()}
       </div>
     );

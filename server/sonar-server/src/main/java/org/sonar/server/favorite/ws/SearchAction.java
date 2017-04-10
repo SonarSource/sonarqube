@@ -30,7 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -90,12 +90,12 @@ public class SearchAction implements FavoritesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<ComponentDto> authorizedFavorites = favoriteFinder.list().stream()
         .filter(isAuthorized(dbSession))
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
       Paging paging = Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(authorizedFavorites.size());
       List<ComponentDto> displayedFavorites = authorizedFavorites.stream()
         .skip(paging.offset())
         .limit(paging.pageSize())
-        .collect(Collectors.toList());
+        .collect(MoreCollectors.toList());
       Map<String, OrganizationDto> organizationsByUuid = getOrganizationsOfComponents(dbSession, displayedFavorites);
       return new SearchResults(paging, displayedFavorites, organizationsByUuid);
     }
@@ -105,17 +105,17 @@ public class SearchAction implements FavoritesWsAction {
     Collection<String> rootProjectsUuids = dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(dbSession, userSession.getUserId(), UserRole.USER);
     Set<String> authorizedProjectUuids = rootProjectsUuids
       .stream()
-      .collect(Collectors.toSet(rootProjectsUuids.size()));
+      .collect(MoreCollectors.toSet(rootProjectsUuids.size()));
     return dto -> authorizedProjectUuids.contains(dto.projectUuid());
   }
 
   private Map<String, OrganizationDto> getOrganizationsOfComponents(DbSession dbSession, List<ComponentDto> displayedFavorites) {
     Set<String> organizationUuids = displayedFavorites.stream()
         .map(ComponentDto::getOrganizationUuid)
-        .collect(Collectors.toSet());
+        .collect(MoreCollectors.toSet());
     return dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
         .stream()
-        .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
+        .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
   }
 
   private static class SearchResults {

@@ -33,7 +33,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -181,7 +181,7 @@ public class SearchHistoryActionTest {
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(i * 1_000_000_000)))
       .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(101d)))
       .map(a -> formatDateTime(a.getCreatedAt()))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     db.commit();
     wsRequest.setComponent(project.getKey()).setPage(2).setPageSize(3);
 
@@ -200,7 +200,7 @@ public class SearchHistoryActionTest {
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
       .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(Double.valueOf(a.getCreatedAt()))))
       .map(a -> formatDateTime(a.getCreatedAt()))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
     db.commit();
     wsRequest.setComponent(project.getKey()).setFrom(analysisDates.get(1)).setTo(analysisDates.get(3));
 

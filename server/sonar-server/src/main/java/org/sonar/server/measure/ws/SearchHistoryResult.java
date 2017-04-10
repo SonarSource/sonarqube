@@ -25,7 +25,7 @@ import com.google.common.collect.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
@@ -67,7 +67,7 @@ class SearchHistoryResult {
 
   SearchHistoryResult setAnalyses(List<SnapshotDto> analyses) {
     this.paging = Common.Paging.newBuilder().setPageIndex(request.getPage()).setPageSize(request.getPageSize()).setTotal(analyses.size()).build();
-    this.analyses = analyses.stream().skip(offset(request.getPage(), request.getPageSize())).limit(request.getPageSize()).collect(Collectors.toList());
+    this.analyses = analyses.stream().skip(offset(request.getPage(), request.getPageSize())).limit(request.getPageSize()).collect(MoreCollectors.toList());
 
     return this;
   }
@@ -86,11 +86,11 @@ class SearchHistoryResult {
   }
 
   SearchHistoryResult setMeasures(List<MeasureDto> measures) {
-    Set<String> analysisUuids = analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toHashSet());
+    Set<String> analysisUuids = analyses.stream().map(SnapshotDto::getUuid).collect(MoreCollectors.toHashSet());
     ImmutableList.Builder<MeasureDto> measuresBuilder = ImmutableList.builder();
     List<MeasureDto> filteredMeasures = measures.stream()
       .filter(measure -> analysisUuids.contains(measure.getAnalysisUuid()))
-      .collect(Collectors.toArrayList());
+      .collect(MoreCollectors.toArrayList());
     measuresBuilder.addAll(filteredMeasures);
     measuresBuilder.addAll(computeBestValues(filteredMeasures));
 

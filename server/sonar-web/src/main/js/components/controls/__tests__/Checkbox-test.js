@@ -48,5 +48,12 @@ it('should call onCheck', () => {
   const onCheck = jest.fn();
   const checkbox = shallow(<Checkbox checked={false} onCheck={onCheck} />);
   click(checkbox);
-  expect(onCheck).toBeCalledWith(true);
+  expect(onCheck).toBeCalledWith(true, undefined);
+});
+
+it('should call onCheck with id as second parameter', () => {
+  const onCheck = jest.fn();
+  const checkbox = shallow(<Checkbox id="foo" checked={false} onCheck={onCheck} />);
+  click(checkbox);
+  expect(onCheck).toBeCalledWith(true, 'foo');
 });

@@ -39,7 +39,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -67,7 +67,7 @@ import static java.util.Collections.emptyMap;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
-import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
@@ -157,7 +157,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter on a single language you can use 'language = java'</li>" +
         " <li>to filter on several languages you must use 'language IN (java, js)'</li>" +
         "</ul>" +
-        "Use the WS api/languages/list to find the key of a language." +
+        "Use the WS api/languages/list to find the key of a language.<br> " +
         "To filter on tags use the 'tag' keyword:" +
         "<ul> " +
         " <li>to filter on one tag you can use <code>tag = finance</code></li>" +
@@ -201,7 +201,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Set<String> organizationUuids = searchResults.projects.stream().map(ComponentDto::getOrganizationUuid).collect(toSet());
     Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
       .stream()
-      .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
+      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
     return buildResponse(request, searchResults, organizationsByUuid);
   }
 
@@ -253,20 +253,20 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     List<Long> favoriteDbIds = props.stream()
       .map(PropertyDto::getResourceId)
-      .collect(Collectors.toList(props.size()));
+      .collect(MoreCollectors.toList(props.size()));
 
     return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds).stream()
       .filter(ComponentDto::isEnabled)
       .filter(f -> f.qualifier().equals(Qualifiers.PROJECT))
       .map(ComponentDto::uuid)
-      .collect(Collectors.toSet());
+      .collect(MoreCollectors.toSet());
   }
 
   private Map<String, SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, List<String> projectUuids) {
     if (request.getAdditionalFields().contains(ANALYSIS_DATE)) {
       return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
         .stream()
-        .collect(Collectors.uniqueIndex(SnapshotDto::getComponentUuid));
+        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid));
     }
     return emptyMap();
   }

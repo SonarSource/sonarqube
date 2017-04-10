@@ -144,8 +144,8 @@ public class StatusActionTest {
   }
 
   @Test
-  public void status_is_MIGRATION_RUNNING_if_platform_is_SAFEMODE_and_databaseMigration_is_SUCCEEDED() throws Exception {
-    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.SUCCEEDED, STATUS_MIGRATION_RUNNING);
+  public void status_is_STATUS_STARTING_if_platform_is_SAFEMODE_and_databaseMigration_is_SUCCEEDED() throws Exception {
+    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.SUCCEEDED, STATUS_STARTING);
   }
 
   @Test
@@ -164,8 +164,8 @@ public class StatusActionTest {
   }
 
   @Test
-  public void status_is_MIGRATION_RUNNING_if_platform_is_STARTING_and_databaseMigration_is_SUCCEEDED() throws Exception {
-    verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.SUCCEEDED, STATUS_MIGRATION_RUNNING);
+  public void status_is_STARTING_if_platform_is_STARTING_and_databaseMigration_is_SUCCEEDED() throws Exception {
+    verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.SUCCEEDED, STATUS_STARTING);
   }
 
   @Test

@@ -63,7 +63,7 @@ import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.asList;
@@ -478,7 +478,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
         columnNames.stream()
           .sorted(PkColumn.ORDERING_BY_INDEX)
           .map(PkColumn::getName)
-          .collect(Collectors.toList()));
+          .collect(MoreCollectors.toList()));
     }
   }
 

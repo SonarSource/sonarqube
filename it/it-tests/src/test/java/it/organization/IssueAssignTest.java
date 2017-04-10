@@ -40,6 +40,8 @@ import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
+import pageobjects.Navigation;
+import pageobjects.issues.IssuesPage;
 import util.ItUtils;
 import util.issue.IssueRule;
 import util.user.UserRule;
@@ -74,6 +76,9 @@ public class IssueAssignTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
 
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
@@ -158,6 +163,48 @@ public class IssueAssignTest {
     assertThat(response.getIgnored()).isGreaterThan(0);
     assertThat(issueRule.search(new SearchWsRequest().setProjectKeys(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee).containsOnly(ASSIGNEE_LOGIN);
     assertThat(issueRule.search(new SearchWsRequest().setProjectKeys(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee).containsOnly(false);
+  }
+
+  @Test
+  public void single_assign_search_show_only_members_in_global_issues() {
+    createOrganization(OTHER_ORGANIZATION_KEY);
+    userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
+    adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
+    userRule.createUser("neo", "pwd");
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
+    IssuesPage page = nav.logIn().asAdmin().openIssues();
+    page.getFirstIssue()
+      .shouldAllowAssign()
+      .assigneeSearchResultCount("neo", 0)
+      .assigneeSearchResultCount(ASSIGNEE_LOGIN, 1);
+  }
+
+  @Test
+  public void bulk_assign_search_only_members_of_organization_in_project_issues() {
+    createOrganization(OTHER_ORGANIZATION_KEY);
+    userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
+    adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
+    userRule.createUser("neo", "pwd");
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
+    IssuesPage page = nav.logIn().asAdmin().openComponentIssues(SAMPLE_PROJECT_KEY);
+    page
+      .bulkChangeOpen()
+      .bulkChangeAssigneeSearchCount(ASSIGNEE_LOGIN, 1)
+      .bulkChangeAssigneeSearchCount("neo", 0);
+  }
+
+  @Test
+  public void bulk_assign_search_all_users_in_global_issues() {
+    createOrganization(OTHER_ORGANIZATION_KEY);
+    userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
+    adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
+    userRule.createUser("neo", "pwd");
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
+    IssuesPage page = nav.logIn().asAdmin().openIssues();
+    page
+      .bulkChangeOpen()
+      .bulkChangeAssigneeSearchCount(ASSIGNEE_LOGIN, 1)
+      .bulkChangeAssigneeSearchCount("neo", 1);
   }
 
   private void createOrganization(String organizationKey) {

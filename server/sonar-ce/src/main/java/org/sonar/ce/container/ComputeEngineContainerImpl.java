@@ -67,7 +67,6 @@ import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
@@ -128,7 +127,6 @@ import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
@@ -300,7 +298,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       Rules.QProfiles.class,
 
       // rule
-      RuleIndexer.class,
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
@@ -331,7 +328,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // components
       ComponentFinder.class, // used in ComponentService
-      ComponentService.class, // used in ReportSubmitter
       NewAlerts.class,
       NewAlerts.newMetadata(),
       ComponentCleanerService.class,

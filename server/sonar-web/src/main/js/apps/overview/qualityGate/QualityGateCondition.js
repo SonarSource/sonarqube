@@ -125,8 +125,7 @@ export default class QualityGateCondition extends React.Component {
           component={component.key}
           metric={condition.measure.metric.key}
           period={condition.period}
-          periodDate={periodDate}
-        >
+          periodDate={periodDate}>
           {children}
         </DrilldownLink>;
   }

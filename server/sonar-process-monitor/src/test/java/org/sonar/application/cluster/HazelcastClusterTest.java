@@ -78,7 +78,7 @@ public class HazelcastClusterTest {
   public void when_no_leader_getLeaderHostName_must_return_NO_LEADER() {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
-      assertThat(hzCluster.getLeaderHostName()).isEqualTo("No leader");
+      assertThat(hzCluster.getLeaderHostName()).isEmpty();
     }
   }
 
@@ -87,7 +87,7 @@ public class HazelcastClusterTest {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.tryToLockWebLeader()).isTrue();
-      assertThat(hzCluster.getLeaderHostName()).isEqualTo(NetworkUtils.getHostName());
+      assertThat(hzCluster.getLeaderHostName().get()).isEqualTo(NetworkUtils.getHostName());
     }
   }
 

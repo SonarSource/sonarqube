@@ -426,6 +426,42 @@ public class WebServerProcessLoggingTest {
     verifyImmutableLogLevels(context);
   }
 
+  @Test
+  public void configure_turns_off_some_Tomcat_loggers_if_global_log_level_is_not_set() {
+    LoggerContext context = underTest.configure(props);
+
+    verifyTomcatLoggersLogLevelsOff(context);
+  }
+
+  @Test
+  public void configure_turns_off_some_Tomcat_loggers_if_global_log_level_is_INFO() {
+    props.set("sonar.log.level", "INFO");
+
+    LoggerContext context = underTest.configure(props);
+
+    verifyTomcatLoggersLogLevelsOff(context);
+  }
+
+  @Test
+  public void configure_turns_off_some_Tomcat_loggers_if_global_log_level_is_DEBUG() {
+    props.set("sonar.log.level", "DEBUG");
+
+    LoggerContext context = underTest.configure(props);
+
+    verifyTomcatLoggersLogLevelsOff(context);
+  }
+
+  @Test
+  public void configure_turns_off_some_Tomcat_loggers_if_global_log_level_is_TRACE() {
+    props.set("sonar.log.level", "TRACE");
+
+    LoggerContext context = underTest.configure(props);
+
+    assertThat(context.getLogger("org.apache.catalina.core.ContainerBase").getLevel()).isNull();
+    assertThat(context.getLogger("org.apache.catalina.core.StandardContext").getLevel()).isNull();
+    assertThat(context.getLogger("org.apache.catalina.core.StandardService").getLevel()).isNull();
+  }
+
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     assertThat(rootLogger.getLevel()).isEqualTo(expected);
@@ -464,6 +500,12 @@ public class WebServerProcessLoggingTest {
     assertThat(ctx.getLogger("org.apache.coyote").getLevel()).isEqualTo(Level.INFO);
     assertThat(ctx.getLogger("org.apache.jasper").getLevel()).isEqualTo(Level.INFO);
     assertThat(ctx.getLogger("org.apache.tomcat").getLevel()).isEqualTo(Level.INFO);
+  }
+
+  private void verifyTomcatLoggersLogLevelsOff(LoggerContext context) {
+    assertThat(context.getLogger("org.apache.catalina.core.ContainerBase").getLevel()).isEqualTo(Level.OFF);
+    assertThat(context.getLogger("org.apache.catalina.core.StandardContext").getLevel()).isEqualTo(Level.OFF);
+    assertThat(context.getLogger("org.apache.catalina.core.StandardService").getLevel()).isEqualTo(Level.OFF);
   }
 
 }

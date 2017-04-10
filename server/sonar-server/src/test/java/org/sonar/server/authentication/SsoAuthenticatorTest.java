@@ -35,7 +35,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -424,7 +424,7 @@ public class SsoAuthenticatorTest {
     if (expectedGroups.length == 0) {
       assertThat(db.users().selectGroupIdsOfUser(userDto)).isEmpty();
     } else {
-      assertThat(db.users().selectGroupIdsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Integer[] {}));
+      assertThat(db.users().selectGroupIdsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(MoreCollectors.toList()).toArray(new Integer[] {}));
     }
   }
 

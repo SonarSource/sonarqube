@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
 import $ from 'jquery';
 import { sortBy } from 'lodash';
 import Backbone from 'backbone';
@@ -123,6 +124,9 @@ export default Marionette.ItemView.extend({
     const myProfile = this.options.app.qualityProfiles.find(
       p => p.key === this.model.get('qProfile')
     );
+    if (!myProfile) {
+      return null;
+    }
     const parentKey = myProfile.parentKey;
     const parent = { ...this.options.app.qualityProfiles.find(p => p.key === parentKey) };
     const parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) ||
@@ -147,14 +151,26 @@ export default Marionette.ItemView.extend({
     });
   },
 
+  getProfilePath(language, name) {
+    const { organization } = this.options.app;
+    const query = stringify({ language, name });
+    return organization
+      ? `${window.baseUrl}/organizations/${organization}/quality_profiles/show?${query}`
+      : `${window.baseUrl}/profiles/show?${query}`;
+  },
+
   serializeData() {
+    const parent = this.getParent();
+
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
+      parent,
       canWrite: this.options.app.canWrite,
-      parent: this.getParent(),
       parameters: this.enhanceParameters(),
       templateKey: this.options.rule.get('templateKey'),
-      isTemplate: this.options.rule.get('isTemplate')
+      isTemplate: this.options.rule.get('isTemplate'),
+      profilePath: this.getProfilePath(this.model.get('lang'), this.model.get('name')),
+      parentProfilePath: parent && this.getProfilePath(parent.key)
     };
   }
 });

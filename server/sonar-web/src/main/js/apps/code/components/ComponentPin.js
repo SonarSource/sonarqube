@@ -33,8 +33,7 @@ const ComponentPin = ({ component }) => {
       className="link-no-underline"
       onClick={handleClick}
       title={translate('component_viewer.open_in_workspace')}
-      href="#"
-    >
+      href="#">
       <PinIcon />
     </a>
   );

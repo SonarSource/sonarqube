@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BulkIndexer;
@@ -41,7 +41,7 @@ import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.PermissionIndexerDao.Dto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Manages the synchronization of indexes with authorization settings defined in database:
@@ -62,7 +62,7 @@ public class PermissionIndexer implements ProjectIndexer, StartupIndexer {
   public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer... needAuthorizationIndexers) {
     this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
       .map(NeedAuthorizationIndexer::getAuthorizationScope)
-      .collect(Collectors.toList(needAuthorizationIndexers.length)));
+      .collect(MoreCollectors.toList(needAuthorizationIndexers.length)));
   }
 
   @VisibleForTesting

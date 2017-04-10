@@ -27,11 +27,11 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class IssueDbTester {
 
@@ -39,6 +39,17 @@ public class IssueDbTester {
 
   public IssueDbTester(DbTester db) {
     this.db = db;
+  }
+
+  public IssueDto insert(RuleDefinitionDto rule, ComponentDto project, ComponentDto file) {
+    IssueDto issue = IssueTesting.newIssue(rule, project, file);
+    return insertIssue(issue);
+  }
+
+  public IssueDto insert(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto> populator) {
+    IssueDto issue = IssueTesting.newIssue(rule, project, file);
+    populator.accept(issue);
+    return insertIssue(issue);
   }
 
   public IssueDto insertIssue(IssueDto issueDto) {
@@ -62,7 +73,7 @@ public class IssueDbTester {
   }
 
   public IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto> populateIssueDto) {
-    RuleDto rule = db.rules().insertRule(newRuleDto());
+    RuleDto rule = db.rules().insertRule(organizationDto);
     ComponentDto project = db.components().insertProject(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = newDto(rule, file, project);

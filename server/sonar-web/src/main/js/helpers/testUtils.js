@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const click = element => {
-  return element.simulate('click', {
-    target: { blur() {} },
-    currentTarget: { blur() {} },
-    preventDefault() {},
-    stopPropagation() {}
-  });
+export const mockEvent = {
+  target: { blur() {} },
+  currentTarget: { blur() {} },
+  preventDefault() {},
+  stopPropagation() {}
 };
 
-export const submit = element => {
-  return element.simulate('submit', {
+export const click = element => element.simulate('click', mockEvent);
+
+export const submit = element =>
+  element.simulate('submit', {
     preventDefault() {}
   });
-};
 
-export const change = (element, value) => {
-  return element.simulate('change', {
+export const change = (element, value) =>
+  element.simulate('change', {
     target: { value },
     currentTarget: { value }
   });
-};

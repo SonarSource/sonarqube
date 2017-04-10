@@ -31,7 +31,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.favorite.FavoriteUpdater.PROP_FAVORITE_KEY;
 
 public class FavoriteFinder {

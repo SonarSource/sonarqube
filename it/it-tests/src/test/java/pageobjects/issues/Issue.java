@@ -21,7 +21,9 @@ package pageobjects.issues;
 
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
 
 public class Issue {
 
@@ -48,6 +50,17 @@ public class Issue {
 
   public Issue shouldNotAllowChangeType() {
     elt.find(".js-issue-set-type").shouldNotBe(visible);
+    return this;
+  }
+
+  public Issue assigneeSearchResultCount(String query, Integer count) {
+    SelenideElement assignLink = elt.find(".js-issue-assign");
+    assignLink.click();
+    SelenideElement popupMenu = $(".bubble-popup ul.menu").shouldBe(visible);
+    $(".bubble-popup input.search-box-input").shouldBe(visible).val("").sendKeys(query);
+    popupMenu.$("li a[data-text='Not assigned']").shouldNot(exist);
+    popupMenu.$$("li").shouldHaveSize(count);
+    assignLink.click();
     return this;
   }
 }

@@ -515,11 +515,11 @@ public class RuleCreatorMediumTest {
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
     dao.insert(dbSession, templateRule.getDefinition());
-    dao.update(dbSession, templateRule.getMetadata().setRuleId(templateRule.getId()));
+    dao.insertOrUpdate(dbSession, templateRule.getMetadata().setRuleId(templateRule.getId()));
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();
-    ruleIndexer.index();
+    ruleIndexer.index(defaultOrganization, templateRule.getKey());
     return templateRule;
   }
 
@@ -539,7 +539,7 @@ public class RuleCreatorMediumTest {
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
     dao.insertRuleParam(dbSession, templateRule.getDefinition(), ruleParamDto);
     dbSession.commit();
-    ruleIndexer.index();
+    ruleIndexer.index(defaultOrganization, templateRule.getKey());
     return templateRule;
   }
 

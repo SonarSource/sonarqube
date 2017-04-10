@@ -77,15 +77,13 @@ export default class SortingFilter extends React.PureComponent {
           <Link
             onClick={this.blurLink}
             className={this.getLinkClass('left')}
-            to={this.getLinkPath('left')}
-          >
+            to={this.getLinkPath('left')}>
             {leftText}
           </Link>
           <Link
             onClick={this.blurLink}
             className={this.getLinkClass('right')}
-            to={this.getLinkPath('right')}
-          >
+            to={this.getLinkPath('right')}>
             {rightText}
           </Link>
         </div>

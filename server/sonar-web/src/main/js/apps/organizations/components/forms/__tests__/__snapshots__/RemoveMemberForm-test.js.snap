@@ -1,0 +1,86 @@
+exports[`test should correctly handle user interactions 1`] = `
+Array [
+  Array [
+    Object {
+      "avatar": "",
+      "groupCount": 3,
+      "login": "admin",
+      "name": "Admin Istrator",
+    },
+  ],
+]
+`;
+
+exports[`test should render and open the modal 1`] = `
+<a
+  href="#"
+  onClick={[Function]}>
+  organization.members.remove
+</a>
+`;
+
+exports[`test should render and open the modal 2`] = `
+<a
+  href="#"
+  onClick={[Function]}>
+  organization.members.remove
+  <Modal
+    ariaHideApp={true}
+    className="modal"
+    closeTimeoutMS={0}
+    contentLabel="modal form"
+    isOpen={true}
+    onRequestClose={[Function]}
+    overlayClassName="modal-overlay"
+    parentSelector={[Function]}
+    portalClassName="ReactModalPortal"
+    shouldCloseOnOverlayClick={true}>
+    <header
+      className="modal-head">
+      <h2>
+        users.remove
+      </h2>
+    </header>
+    <form
+      onSubmit={[Function]}>
+      <div
+        className="modal-body markdown">
+        <p>
+          organization.members.remove_x.Admin Istrator.MyOrg
+        </p>
+        <p>
+          organization.members.remove_warning_x.Admin Istrator
+        </p>
+        <ul>
+          <li>
+            organization.members.browse_projects
+          </li>
+          <li>
+            projects_role.codeviewer
+          </li>
+          <li>
+            projects_role.issueadmin
+          </li>
+        </ul>
+      </div>
+      <footer
+        className="modal-foot">
+        <div>
+          <button
+            autoFocus={true}
+            className="button-red"
+            type="submit">
+            remove
+          </button>
+          <button
+            className="button-link"
+            onClick={[Function]}
+            type="reset">
+            cancel
+          </button>
+        </div>
+      </footer>
+    </form>
+  </Modal>
+</a>
+`;

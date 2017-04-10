@@ -120,7 +120,7 @@ public class ShowAction implements RulesWsAction {
   private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
-    responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.<String>emptySet()));
+    responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.emptySet()));
 
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
       activeRuleCompleter.completeShow(dbSession, rule, responseBuilder);

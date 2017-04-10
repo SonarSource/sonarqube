@@ -28,8 +28,7 @@ const MeasureListValue = ({ measure }) => {
     return (
       <div
         id={`measure-${measure.metric.key}-leak`}
-        className="domain-measures-value domain-measures-leak"
-      >
+        className="domain-measures-value domain-measures-leak">
         <Measure measure={measure} />
       </div>
     );

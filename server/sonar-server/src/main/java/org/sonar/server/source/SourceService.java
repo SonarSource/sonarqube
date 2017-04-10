@@ -21,7 +21,7 @@ package org.sonar.server.source;
 
 import java.util.Optional;
 import java.util.function.Function;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
@@ -71,7 +71,7 @@ public class SourceService {
       .filter(line -> line.hasLine() && line.getLine() >= from)
       .limit((toInclusive - from) + 1L)
       .map(function)
-      .collect(Collectors.toList()));
+      .collect(MoreCollectors.toList()));
   }
 
   private static void verifyLine(int line) {

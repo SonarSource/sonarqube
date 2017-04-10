@@ -46,8 +46,7 @@ const CurrentsFilter = ({ value, onChange }: { value: ?string, onChange: (string
         role="checkbox"
         tabIndex="0"
         aria-checked={checked ? 'true' : 'false'}
-        onClick={handleLabelClick}
-      >
+        onClick={handleLabelClick}>
         Yes
       </label>
     </div>

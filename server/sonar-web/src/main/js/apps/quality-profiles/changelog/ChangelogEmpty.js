@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class ChangelogEmpty extends React.Component {
+export default class ChangelogEmpty extends React.PureComponent {
   render() {
     return (
       <div className="big-spacer-top">

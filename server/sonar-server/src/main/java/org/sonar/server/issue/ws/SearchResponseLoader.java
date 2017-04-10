@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -135,7 +135,7 @@ public class SearchResponseLoader {
     }
     dbClient.organizationDao().selectByUuids(
       dbSession,
-      components.stream().map(ComponentDto::getOrganizationUuid).collect(Collectors.toSet()))
+      components.stream().map(ComponentDto::getOrganizationUuid).collect(MoreCollectors.toSet()))
       .forEach(result::addOrganization);
   }
 

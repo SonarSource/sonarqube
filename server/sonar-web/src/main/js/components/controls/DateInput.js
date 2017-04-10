@@ -78,7 +78,9 @@ export default class DateInput extends React.Component {
         />
         <span className="date-input-control-icon">
           <svg width="14" height="14" viewBox="0 0 16 16">
-            <path d="M5.5 6h2v2h-2V6zm3 0h2v2h-2V6zm3 0h2v2h-2V6zm-9 6h2v2h-2v-2zm3 0h2v2h-2v-2zm3 0h2v2h-2v-2zm-3-3h2v2h-2V9zm3 0h2v2h-2V9zm3 0h2v2h-2V9zm-9 0h2v2h-2V9zm11-9v1h-2V0h-7v1h-2V0h-2v16h15V0h-2zm1 15h-13V4h13v11z" />
+            <path
+              d="M5.5 6h2v2h-2V6zm3 0h2v2h-2V6zm3 0h2v2h-2V6zm-9 6h2v2h-2v-2zm3 0h2v2h-2v-2zm3 0h2v2h-2v-2zm-3-3h2v2h-2V9zm3 0h2v2h-2V9zm3 0h2v2h-2V9zm-9 0h2v2h-2V9zm11-9v1h-2V0h-7v1h-2V0h-2v16h15V0h-2zm1 15h-13V4h13v11z"
+            />
           </svg>
         </span>
       </span>

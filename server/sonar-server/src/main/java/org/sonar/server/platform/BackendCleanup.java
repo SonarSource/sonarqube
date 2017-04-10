@@ -211,7 +211,7 @@ public class BackendCleanup {
   /**
    * Data in SCHEMA_MIGRATIONS table is inserted when DB is created and should not be altered afterwards.
    */
-  private static void truncateSchemaMigrations(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
+  private static void truncateSchemaMigrations(String tableName, Statement ddlStatement, Connection connection) {
     // do nothing
   }
 

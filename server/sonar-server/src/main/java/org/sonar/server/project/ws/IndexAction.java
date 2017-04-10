@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -39,7 +39,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_INDEX;
 
@@ -139,13 +139,13 @@ public class IndexAction implements ProjectsWsAction {
       // Meanwhile root is explicitly handled.
       return components;
     }
-    Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
+    Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(MoreCollectors.toSet());
     List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
     Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
     Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIdsByUuids.values(), userSession.getUserId(), USER);
     return components.stream()
       .filter(component -> authorizedProjectIds.contains(projectIdsByUuids.get(component.projectUuid())))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   private static void addProject(JsonWriter json, ComponentDto project) {

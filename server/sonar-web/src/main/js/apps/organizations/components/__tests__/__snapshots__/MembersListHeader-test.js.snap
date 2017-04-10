@@ -1,0 +1,25 @@
+exports[`test should render with the total 1`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom">
+  <UsersSearch
+    className="display-inline-block"
+    onSearch={[Function]} />
+  <span
+    className="pull-right little-spacer-top">
+    <strong>
+      8
+    </strong>
+     
+    organization.members.members
+  </span>
+</div>
+`;
+
+exports[`test should render without the total 1`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom">
+  <UsersSearch
+    className="display-inline-block"
+    onSearch={[Function]} />
+</div>
+`;

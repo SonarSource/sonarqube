@@ -37,7 +37,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -316,7 +316,7 @@ public class IssueFieldsSetter {
       .filter(Objects::nonNull)
       .filter(tag -> !tag.isEmpty())
       .map(tag -> RuleTagFormat.validate(tag.toLowerCase(Locale.ENGLISH)))
-      .collect(Collectors.toSet());
+      .collect(MoreCollectors.toSet());
 
     Set<String> oldTags = Sets.newHashSet(issue.tags());
     if (!oldTags.equals(newTags)) {

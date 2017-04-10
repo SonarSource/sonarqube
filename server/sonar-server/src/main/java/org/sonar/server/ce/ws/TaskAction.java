@@ -32,7 +32,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -173,13 +173,13 @@ public class TaskAction implements CeWsAction {
           return null;
         })
         .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
+        .collect(MoreCollectors.toSet());
     }
 
     public static Collection<String> possibleValues() {
       return Arrays.stream(values())
         .map(AdditionalField::getLabel)
-        .collect(Collectors.toList(values().length));
+        .collect(MoreCollectors.toList(values().length));
     }
   }
 }

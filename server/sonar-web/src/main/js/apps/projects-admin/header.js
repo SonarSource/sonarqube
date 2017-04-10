@@ -78,8 +78,10 @@ export default class Header extends React.Component {
         </div>
         <p className="page-description">
           Use this page to delete multiple projects at once, or to provision projects
-          if you would like to configure them before the first analysis. Note that once a project is provisioned, you
-          have access to perform all project configurations on it.
+          {' '}
+          if you would like to configure them before the first analysis. Note that once
+          {' '}
+          a project is provisioned, you have access to perform all project configurations on it.
         </p>
       </header>
     );

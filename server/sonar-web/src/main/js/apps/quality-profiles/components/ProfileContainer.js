@@ -17,31 +17,73 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import Helmet from 'react-helmet';
 import ProfileNotFound from './ProfileNotFound';
 import ProfileHeader from '../details/ProfileHeader';
 import { translate } from '../../../helpers/l10n';
-import { ProfilesListType } from '../propTypes';
+import type { Profile } from '../propTypes';
 
-export default class ProfileContainer extends React.Component {
-  static propTypes = {
-    location: React.PropTypes.object,
-    profiles: ProfilesListType,
-    canAdmin: React.PropTypes.bool,
-    updateProfiles: React.PropTypes.func
-  };
+type Props = {
+  canAdmin: boolean,
+  children: React.Element<*>,
+  location: {
+    pathname: string,
+    query: { key?: string, language: string, name: string }
+  },
+  organization: ?string,
+  profiles: Array<Profile>,
+  router: { replace: () => void },
+  updateProfiles: () => Promise<*>
+};
+
+export default class ProfileContainer extends React.PureComponent {
+  props: Props;
+
+  componentDidMount() {
+    const { location, profiles, router } = this.props;
+    if (location.query.key) {
+      // try to find a quality profile with the given key
+      // if managed to find one, redirect to a new version
+      // otherwise do nothing, `render` will show not found page
+      const profile = profiles.find(profile => profile.key === location.query.key);
+      if (profile) {
+        router.replace({
+          pathname: location.pathname,
+          query: { language: profile.language, name: profile.name }
+        });
+      }
+    }
+  }
 
   render() {
-    const { profiles, location, ...other } = this.props;
-    const { key } = location.query;
-    const profile = profiles.find(profile => profile.key === key);
+    const { organization, profiles, location, ...other } = this.props;
+    const { key, language, name } = location.query;
 
-    if (!profile) {
-      return <ProfileNotFound />;
+    if (key) {
+      // if there is a `key` parameter,
+      // then if we managed to find a quality profile with this key
+      // then we will be redirected in `componentDidMount`
+      // otherwise show `ProfileNotFound`
+      const profile = profiles.find(profile => profile.key === location.query.key);
+      return profile ? null : <ProfileNotFound organization={organization} />;
     }
 
-    const child = React.cloneElement(this.props.children, { profile, profiles, ...other });
+    const profile = profiles.find(
+      profile => profile.language === language && profile.name === name
+    );
+
+    if (!profile) {
+      return <ProfileNotFound organization={organization} />;
+    }
+
+    const child = React.cloneElement(this.props.children, {
+      organization,
+      profile,
+      profiles,
+      ...other
+    });
 
     const title = translate('quality_profiles.page') + ' - ' + profile.name;
 
@@ -50,8 +92,9 @@ export default class ProfileContainer extends React.Component {
         <Helmet title={title} titleTemplate="SonarQube - %s" />
 
         <ProfileHeader
-          profile={profile}
           canAdmin={this.props.canAdmin}
+          organization={organization}
+          profile={profile}
           updateProfiles={this.props.updateProfiles}
         />
         {child}

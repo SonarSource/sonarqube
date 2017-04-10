@@ -33,7 +33,7 @@ import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
-import { getCurrentUser, getSettingValue } from '../../../store/rootReducer';
+import { getAppState, getCurrentUser, getSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
 import AboutAppForSonarQubeDotCom from './AboutAppForSonarQubeDotCom';
@@ -53,6 +53,10 @@ class AboutApp extends React.Component {
   mounted: boolean;
 
   props: {
+    appState: {
+      defaultOrganization: string,
+      organizationsEnabled: boolean
+    },
     currentUser: { isLoggedIn: boolean },
     customText?: string,
     fetchAboutPageSettings: () => Promise<*>,
@@ -115,6 +119,7 @@ class AboutApp extends React.Component {
     if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
       return (
         <AboutAppForSonarQubeDotCom
+          appState={this.props.appState}
           bugs={bugs}
           codeSmells={codeSmells}
           currentUser={this.props.currentUser}
@@ -180,7 +185,7 @@ class AboutApp extends React.Component {
               <AboutQualityGates />
             </div>
             <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutStandards />
+              <AboutStandards appState={this.props.appState} />
             </div>
           </div>
 
@@ -192,6 +197,7 @@ class AboutApp extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  appState: getAppState(state),
   currentUser: getCurrentUser(state),
   customText: getSettingValue(state, 'sonar.lf.aboutText'),
   sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')

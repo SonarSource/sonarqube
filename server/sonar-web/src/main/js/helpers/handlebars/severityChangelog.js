@@ -21,7 +21,8 @@ import Handlebars from 'handlebars/runtime';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 module.exports = function(severity) {
-  const label = `<i class="icon-severity-${severity.toLowerCase()}"></i>&nbsp;${translate('severity', severity)}`;
+  const label = `<i class="icon-severity-${severity.toLowerCase()}"></i>` +
+    `&nbsp;${translate('severity', severity)}`;
   const message = translateWithParameters('quality_profiles.severity_set_to_x', label);
   return new Handlebars.default.SafeString(message);
 };

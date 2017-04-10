@@ -76,7 +76,7 @@ public abstract class DataChange implements MigrationStep {
       return UpsertImpl.create(writeConnection, sql);
     }
 
-    public MassUpdate prepareMassUpdate() throws SQLException {
+    public MassUpdate prepareMassUpdate() {
       return new MassUpdate(db, readConnection, writeConnection);
     }
   }

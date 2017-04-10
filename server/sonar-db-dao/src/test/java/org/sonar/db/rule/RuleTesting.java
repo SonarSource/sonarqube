@@ -26,12 +26,16 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto.Format;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
 /**
  * Utility class for tests involving rules
@@ -46,60 +50,123 @@ public class RuleTesting {
     // only static helpers
   }
 
+  public static RuleDefinitionDto newRule() {
+    return newRule(randomRuleKey());
+  }
+
+  public static RuleDefinitionDto newRule(RuleKey key) {
+    return new RuleDefinitionDto()
+      .setRepositoryKey(key.repository())
+      .setRuleKey(key.rule())
+      .setName("name_" + randomAlphanumeric(5))
+      .setDescription("description_" + randomAlphanumeric(5))
+      .setDescriptionFormat(Format.HTML)
+      .setType(RuleType.values()[nextInt(RuleType.values().length)])
+      .setStatus(RuleStatus.READY)
+      .setConfigKey("configKey_" + randomAlphanumeric(5))
+      .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
+      .setIsTemplate(false)
+      .setSystemTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
+      .setLanguage("lang_" + randomAlphanumeric(3))
+      .setGapDescription("gapDescription_" + randomAlphanumeric(5))
+      .setDefRemediationBaseEffort(nextInt(10) + "h")
+      .setDefRemediationGapMultiplier(nextInt(10) + "h")
+      .setDefRemediationFunction("LINEAR_OFFSET")
+      .setCreatedAt(System.currentTimeMillis())
+      .setUpdatedAt(System.currentTimeMillis());
+  }
+
+  public static RuleMetadataDto newRuleMetadata() {
+    return new RuleMetadataDto()
+      .setRuleId(nextInt(100_000))
+      .setOrganizationUuid("org_" + randomAlphanumeric(5))
+      .setRemediationBaseEffort(nextInt(10) + "h")
+      .setRemediationGapMultiplier(nextInt(10) + "h")
+      .setRemediationFunction("LINEAR_OFFSET")
+      .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
+      .setNoteData("noteData_" + randomAlphanumeric(5))
+      .setNoteUserLogin("noteLogin_" + randomAlphanumeric(5))
+      .setNoteCreatedAt(System.currentTimeMillis() - 200)
+      .setNoteUpdatedAt(System.currentTimeMillis() - 150)
+      .setCreatedAt(System.currentTimeMillis() - 100)
+      .setUpdatedAt(System.currentTimeMillis() - 50);
+  }
+
+  public static RuleMetadataDto newRuleMetadata(RuleDefinitionDto rule, OrganizationDto organization) {
+    return newRuleMetadata()
+      .setRuleId(rule.getId())
+      .setOrganizationUuid(organization.getUuid());
+  }
+
+  public static RuleParamDto newRuleParam(RuleDefinitionDto rule) {
+    return new RuleParamDto()
+      .setRuleId(rule.getId())
+      .setName("name_" + randomAlphabetic(5))
+      .setDefaultValue("default_" + randomAlphabetic(5))
+      .setDescription("description_" + randomAlphabetic(5))
+      .setType(RuleParamType.STRING.type());
+  }
+
   /**
-   * Create a RuleDto representing the definition of the rule Xoo1 of language Xoo.
+   * @deprecated use newRule(...)
    */
+  @Deprecated
   public static RuleDto newXooX1() {
     return newDto(XOO_X1).setLanguage("xoo");
   }
 
   /**
-   * Create a RuleDto representing the definition of the rule Xoo1 of language Xoo with some user defined fields.
+   * @deprecated use newRule(...)
    */
+  @Deprecated
   public static RuleDto newXooX1(OrganizationDto organization) {
     return newDto(XOO_X1, requireNonNull(organization, "organization can't be null")).setLanguage("xoo");
   }
 
   /**
-   * Create a RuleDto representing the definition of the rule Xoo2 of language Xoo.
+   * @deprecated use newRule(...)
    */
+  @Deprecated
   public static RuleDto newXooX2() {
     return newDto(XOO_X2).setLanguage("xoo");
   }
 
   /**
-   * Create a RuleDto representing the definition of the rule Xoo2 of language Xoo with some user defined fields.
+   * @deprecated use newRule(...)
    */
+  @Deprecated
   public static RuleDto newXooX2(OrganizationDto organization) {
     return newDto(XOO_X2, requireNonNull(organization, "organization can't be null")).setLanguage("xoo");
   }
 
   /**
-   * Create a RuleDto representing the definition of the rule Xoo3 of language Xoo.
+   * @deprecated use newRule(...)
    */
+  @Deprecated
   public static RuleDto newXooX3() {
     return newDto(XOO_X3).setLanguage("xoo");
   }
 
   /**
-   * Create a RuleDto representing the definition of the rule Xoo3 of language Xoo with some user defined fields.
+   * @deprecated use newRule(...)
    */
+  @Deprecated
   public static RuleDto newXooX3(OrganizationDto organization) {
     return newDto(XOO_X3, requireNonNull(organization, "organization can't be null")).setLanguage("xoo");
   }
 
   /**
-   * Full RuleDto used to feed database with fake data. Tests must not rely on the
-   * field contents declared here. They should override the fields they need to test,
-   * for example:
-   * <pre>
-   *   ruleDao.insert(dbSession, RuleTesting.newDto(key).setStatus(RuleStatus.BETA));
-   * </pre>
+   * @deprecated use newRule(...)
    */
+  @Deprecated
   public static RuleDto newDto(RuleKey ruleKey) {
     return newDto(ruleKey, null);
   }
 
+  /**
+   * @deprecated use newRule(...)
+   */
+  @Deprecated
   public static RuleDto newDto(RuleKey ruleKey, @Nullable OrganizationDto organization) {
     RuleDto res = new RuleDto()
       .setRuleKey(ruleKey.rule())
@@ -130,26 +197,27 @@ public class RuleTesting {
     return res;
   }
 
+  /**
+   * @deprecated use newRule(...)
+   */
+  @Deprecated
   public static RuleDto newRuleDto() {
     return newDto(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
   }
 
-
+  /**
+   * @deprecated use newRule(...)
+   */
+  @Deprecated
   public static RuleDto newRuleDto(OrganizationDto organization) {
     return newDto(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)), organization);
   }
 
-  /**
-   * Creates a new rule to be used as a template for a custom rule.
-   */
   public static RuleDto newTemplateRule(RuleKey ruleKey) {
     return newDto(ruleKey)
       .setIsTemplate(true);
   }
 
-  /**
-   * Creates a new rule to be used as a template for a custom rule with some user defined fields.
-   */
   public static RuleDto newTemplateRule(RuleKey ruleKey, OrganizationDto organization) {
     return newDto(ruleKey, organization)
       .setIsTemplate(true);
@@ -164,6 +232,6 @@ public class RuleTesting {
   }
 
   public static RuleKey randomRuleKey() {
-    return RuleKey.of(randomAlphanumeric(5), randomAlphanumeric(5));
+    return RuleKey.of("repo_" + randomAlphanumeric(3), "rule_" + randomAlphanumeric(3));
   }
 }

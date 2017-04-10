@@ -17,26 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link } from 'react-router';
 import { keyBy } from 'lodash';
 import ProfileRulesRow from './ProfileRulesRow';
-import { ProfileType } from '../propTypes';
 import { searchRules, takeFacet } from '../../../api/rules';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl, getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
+import type { Profile } from '../propTypes';
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
-export default class ProfileRules extends React.Component {
-  static propTypes = {
-    profile: ProfileType.isRequired,
-    canAdmin: React.PropTypes.bool.isRequired
-  };
+type Props = {
+  canAdmin: boolean,
+  organization: ?string,
+  profile: Profile
+};
 
-  state = {
+type State = {
+  total: ?number,
+  activatedTotal: ?number,
+  allByType?: { [string]: ?{ val: string, count: ?number } },
+  activatedByType?: { [string]: ?{ val: string, count: ?number } }
+};
+
+export default class ProfileRules extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
+  state: State = {
     total: null,
     activatedTotal: null,
     allByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val'),
@@ -48,7 +59,7 @@ export default class ProfileRules extends React.Component {
     this.loadRules();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.profile !== this.props.profile) {
       this.loadRules();
     }
@@ -89,7 +100,7 @@ export default class ProfileRules extends React.Component {
     });
   }
 
-  getTooltip(count, total) {
+  getTooltip(count: ?number, total: ?number) {
     if (count == null || total == null) {
       return '';
     }
@@ -101,6 +112,19 @@ export default class ProfileRules extends React.Component {
     );
   }
 
+  getTooltipForType(type: string) {
+    if (
+      this.state.activatedByType &&
+      this.state.activatedByType[type] &&
+      this.state.allByType &&
+      this.state.allByType[type]
+    ) {
+      const { count } = this.state.activatedByType[type];
+      const total = this.state.allByType[type].count;
+      return this.getTooltip(count, total);
+    }
+  }
+
   renderActiveTitle() {
     return (
       <strong>
@@ -110,10 +134,13 @@ export default class ProfileRules extends React.Component {
   }
 
   renderActiveCount() {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'true'
-    });
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'true'
+      },
+      this.props.organization
+    );
 
     if (this.state.activatedTotal == null) {
       return null;
@@ -129,12 +156,15 @@ export default class ProfileRules extends React.Component {
   }
 
   renderActiveTotal() {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'false'
-    });
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'false'
+      },
+      this.props.organization
+    );
 
-    if (this.state.total == null) {
+    if (this.state.total == null || this.state.activatedTotal == null) {
       return null;
     }
 
@@ -151,13 +181,7 @@ export default class ProfileRules extends React.Component {
     );
   }
 
-  getTooltipForType(type) {
-    const { count } = this.state.activatedByType[type];
-    const total = this.state.allByType[type].count;
-    return this.getTooltip(count, total);
-  }
-
-  renderTitleForType(type) {
+  renderTitleForType(type: string) {
     return (
       <span>
         <IssueTypeIcon query={type} className="little-spacer-right" />
@@ -166,14 +190,19 @@ export default class ProfileRules extends React.Component {
     );
   }
 
-  renderCountForType(type) {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'true',
-      types: type
-    });
+  renderCountForType(type: string) {
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'true',
+        types: type
+      },
+      this.props.organization
+    );
 
-    const { count } = this.state.activatedByType[type];
+    const count = this.state.activatedByType && this.state.activatedByType[type]
+      ? this.state.activatedByType[type].count
+      : null;
 
     if (count == null) {
       return null;
@@ -186,17 +215,25 @@ export default class ProfileRules extends React.Component {
     );
   }
 
-  renderTotalForType(type) {
-    const rulesUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'false',
-      types: type
-    });
+  renderTotalForType(type: string) {
+    const rulesUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'false',
+        types: type
+      },
+      this.props.organization
+    );
 
-    const { count } = this.state.activatedByType[type];
-    const { count: total } = this.state.allByType[type];
+    const count = this.state.activatedByType && this.state.activatedByType[type]
+      ? this.state.activatedByType[type].count
+      : null;
 
-    if (count == null) {
+    const total = this.state.allByType && this.state.allByType[type]
+      ? this.state.allByType[type].count
+      : null;
+
+    if (count == null || total == null) {
       return null;
     }
 
@@ -218,7 +255,7 @@ export default class ProfileRules extends React.Component {
       return null;
     }
 
-    const url = getDeprecatedActiveRulesUrl({ qprofile: profile.key });
+    const url = getDeprecatedActiveRulesUrl({ qprofile: profile.key }, this.props.organization);
 
     return (
       <div className="quality-profile-rules-deprecated clearfix">
@@ -235,10 +272,13 @@ export default class ProfileRules extends React.Component {
   }
 
   render() {
-    const activateMoreUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'false'
-    });
+    const activateMoreUrl = getRulesUrl(
+      {
+        qprofile: this.props.profile.key,
+        activation: 'false'
+      },
+      this.props.organization
+    );
 
     return (
       <div className="quality-profile-rules">

@@ -49,7 +49,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -89,7 +88,6 @@ public class IssueIndexTest {
     new IssueIndexDefinition(new MapSettings()),
     new ViewIndexDefinition(new MapSettings()),
     new RuleIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
@@ -97,7 +95,7 @@ public class IssueIndexTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(tester.client(), new IssueIteratorFactory(null));
   private ViewIndexer viewIndexer = new ViewIndexer(null, tester.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(system2, null, tester.client(), TestDefaultOrganizationProvider.fromUuid("org-1"));
+  private RuleIndexer ruleIndexer = new RuleIndexer(tester.client(), null);
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
   private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
@@ -1346,6 +1344,49 @@ public class IssueIndexTest {
     assertThat(underTest.listTags(null, 1)).containsOnly("bug");
     assertThat(underTest.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug", "systag1", "systag2", "tag1", "tag2");
     assertThat(underTest.listTags("invalidRegexp[", 5)).isEmpty();
+  }
+
+  @Test
+  public void filter_by_organization() {
+    OrganizationDto org1 = newOrganizationDto();
+    ComponentDto projectInOrg1 = newProjectDto(org1);
+    OrganizationDto org2 = newOrganizationDto();
+    ComponentDto projectInOrg2 = newProjectDto(org2);
+
+    indexIssues(newDoc("issueInOrg1", projectInOrg1), newDoc("issue1InOrg2", projectInOrg2), newDoc("issue2InOrg2", projectInOrg2));
+
+    verifyOrganizationFilter(org1.getUuid(), "issueInOrg1");
+    verifyOrganizationFilter(org2.getUuid(), "issue1InOrg2", "issue2InOrg2");
+    verifyOrganizationFilter("does_not_exist");
+  }
+
+  @Test
+  public void filter_by_organization_and_project() {
+    OrganizationDto org1 = newOrganizationDto();
+    ComponentDto projectInOrg1 = newProjectDto(org1);
+    OrganizationDto org2 = newOrganizationDto();
+    ComponentDto projectInOrg2 = newProjectDto(org2);
+
+    indexIssues(newDoc("issueInOrg1", projectInOrg1), newDoc("issue1InOrg2", projectInOrg2), newDoc("issue2InOrg2", projectInOrg2));
+
+    // no conflict
+    IssueQuery query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(asList(projectInOrg1.uuid())).build();
+    verifySearch(query, "issueInOrg1");
+
+    // conflict
+    query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(asList(projectInOrg2.uuid())).build();
+    verifySearch(query);
+  }
+
+  private void verifyOrganizationFilter(String organizationUuid, String... expectedIssueKeys) {
+    IssueQuery query = IssueQuery.builder().organizationUuid(organizationUuid).build();
+    verifySearch(query, expectedIssueKeys);
+  }
+
+  private void verifySearch(IssueQuery query, String... expectedIssueKeys) {
+    assertThat(underTest.search(query, new SearchOptions()).getDocs())
+      .extracting(IssueDoc::key)
+      .containsOnly(expectedIssueKeys);
   }
 
   private void indexIssues(IssueDoc... issues) {

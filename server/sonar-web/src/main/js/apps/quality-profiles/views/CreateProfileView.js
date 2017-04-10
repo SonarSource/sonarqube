@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import $ from 'jquery';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-create-profile.hbs';
@@ -87,7 +88,8 @@ export default ModalFormView.extend({
     return {
       ...ModalFormView.prototype.serializeData.apply(this, arguments),
       languages: this.options.languages,
-      importers: this.options.importers
+      importers: this.options.importers,
+      organization: this.options.organization
     };
   }
 });

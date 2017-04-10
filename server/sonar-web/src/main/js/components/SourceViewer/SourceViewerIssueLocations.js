@@ -43,7 +43,7 @@ type State = {
 
 export default class SourceViewerIssueLocations extends React.Component {
   fixedNode: HTMLElement;
-  locations: { [string]: HTMLElement } = {};
+  locations: { [string]: HTMLElement };
   node: HTMLElement;
   props: Props;
   rootNode: HTMLElement;
@@ -52,6 +52,7 @@ export default class SourceViewerIssueLocations extends React.Component {
   constructor(props: Props) {
     super(props);
     this.state = { fixed: true, locationBlink: false };
+    this.locations = {};
     this.handleScroll = throttle(this.handleScroll, 50);
   }
 
@@ -251,8 +252,7 @@ export default class SourceViewerIssueLocations extends React.Component {
             this,
             flowIndex,
             locations.length - locationIndex - 1
-          )}
-        >
+          )}>
           {displayIndex && <strong>{locationIndex + 1}: </strong>}
           {location.msg}
         </a>
@@ -272,28 +272,25 @@ export default class SourceViewerIssueLocations extends React.Component {
           <div
             ref={node => this.rootNode = node}
             className="source-issue-locations"
-            style={{ width, height }}
-          >
+            style={{ width, height }}>
             <div
               ref={node => this.fixedNode = node}
               className={className}
-              style={{ width, height }}
-            >
+              style={{ width, height }}>
               <header className="source-issue-locations-header" />
               <div className="source-issue-locations-shortcuts">
                 <span className="shortcut-button">Alt</span>
                 {' + '}
-                <span className="shortcut-button">&uarr;</span>
+                <span className="shortcut-button">↑</span>
                 {' '}
-                <span className="shortcut-button">&darr;</span>
+                <span className="shortcut-button">↓</span>
                 {' '}
                 {translate('source_viewer.to_navigate_issue_locations')}
               </div>
               <ul
                 ref={node => this.node = node}
                 className="source-issue-locations-list"
-                style={{ height: height - 15 }}
-              >
+                style={{ height: height - 15 }}>
                 {flows.map(
                   (flow, flowIndex) =>
                     flow.locations != null &&

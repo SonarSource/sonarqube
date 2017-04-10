@@ -20,13 +20,16 @@
 import OrganizationPage from './components/OrganizationPage';
 import OrganizationProjects from './components/OrganizationProjects';
 import OrganizationFavoriteProjects from './components/OrganizationFavoriteProjects';
+import OrganizationRules from './components/OrganizationRules';
 import OrganizationAdmin from './components/OrganizationAdmin';
 import OrganizationEdit from './components/OrganizationEdit';
 import OrganizationGroups from './components/OrganizationGroups';
+import OrganizationMembersContainer from './components/OrganizationMembersContainer';
 import OrganizationPermissions from './components/OrganizationPermissions';
 import OrganizationPermissionTemplates from './components/OrganizationPermissionTemplates';
 import OrganizationProjectsManagement from './components/OrganizationProjectsManagement';
 import OrganizationDelete from './components/OrganizationDelete';
+import qualityProfilesRoutes from '../quality-profiles/routes';
 
 const routes = [
   {
@@ -48,6 +51,18 @@ const routes = [
       {
         path: 'projects/favorite',
         component: OrganizationFavoriteProjects
+      },
+      {
+        path: 'members',
+        component: OrganizationMembersContainer
+      },
+      {
+        path: 'rules',
+        component: OrganizationRules
+      },
+      {
+        path: 'quality_profiles',
+        childRoutes: qualityProfilesRoutes
       },
       {
         component: OrganizationAdmin,

@@ -87,7 +87,11 @@ public class CpdExecutor {
   @VisibleForTesting
   void execute(long timeout) {
     total = index.noResources();
-    progressReport.start(String.format("Calculating CPD for %d files", total));
+    int filesWithoutBlocks = index.noIndexedFiles() - total;
+    if (filesWithoutBlocks > 0) {
+      LOG.info("{} {} had no CPD blocks", filesWithoutBlocks, pluralize(filesWithoutBlocks));
+    }
+    progressReport.start(String.format("Calculating CPD for %d %s", total, pluralize(total)));
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       Iterator<ResourceBlocks> it = index.iterator();
@@ -104,6 +108,10 @@ public class CpdExecutor {
     } finally {
       executorService.shutdown();
     }
+  }
+
+  private static String pluralize(int files) {
+    return files == 1 ? "file" : "files";
   }
 
   @VisibleForTesting

@@ -27,8 +27,7 @@ export default function DeprecatedBadge({ since }) {
     <span
       className="badge badge-warning"
       title={translate('api_documentation.deprecation_tooltip')}
-      data-toggle="tooltip"
-    >
+      data-toggle="tooltip">
       {label}
     </span>
   );

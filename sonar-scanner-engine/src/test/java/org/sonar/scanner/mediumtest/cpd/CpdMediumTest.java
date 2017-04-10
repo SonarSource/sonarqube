@@ -37,6 +37,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.scanner.mediumtest.LogOutputRecorder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -62,12 +63,15 @@ public class CpdMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private LogOutputRecorder logRecorder = new LogOutputRecorder();
+
   public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
     // active a rule just to be sure that xoo files are published
     .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
+    .setLogOutput(logRecorder)
     .build();
 
   private File baseDir;
@@ -82,6 +86,7 @@ public class CpdMediumTest {
 
   @Before
   public void prepare() throws IOException {
+    logRecorder.getAll().clear();
     tester.start();
 
     baseDir = temp.getRoot();
@@ -217,6 +222,40 @@ public class CpdMediumTest {
     assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(((DefaultInputFile) inputFile1).key()).getRef());
 
     assertThat(result.duplicationBlocksFor(inputFile1)).isEmpty();
+  }
+
+  @Test
+  public void testFilesWithoutBlocks() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    String file1 = "Sample xoo\ncontent\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "bar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti";
+
+    String file2 = "string\n";
+
+    File xooFile1 = new File(srcDir, "sample1.xoo");
+    FileUtils.write(xooFile1, file1);
+
+    File xooFile2 = new File(srcDir, "sample2.xoo");
+    FileUtils.write(xooFile2, file2);
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .put("sonar.cpd.xoo.minimumTokens", "10")
+        .put("sonar.verbose", "true")
+        .build())
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(2);
+
+    assertThat(logRecorder.getAllAsString()).contains("Not enough content in 'src/sample2.xoo' to have CPD blocks");
+    assertThat(logRecorder.getAllAsString()).contains("1 file had no CPD blocks");
+
   }
 
   @Test

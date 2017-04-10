@@ -30,6 +30,8 @@ import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import pageobjects.Navigation;
+import pageobjects.organization.MembersPage;
 import util.user.UserRule;
 
 import static java.lang.String.format;
@@ -54,6 +56,9 @@ public class OrganizationMembershipTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient adminClient;
 
@@ -125,6 +130,114 @@ public class OrganizationMembershipTest {
     verifyMembership(login, keyAndName, true);
   }
 
+  @Test
+  public void should_display_members_page() {
+    String orgKey = createOrganization();
+    userRule.createUser("foo", "pwd");
+    userRule.createUser("bar", "pwd");
+    createUser();
+
+    adminClient.organizations().addMember(orgKey, "foo");
+    adminClient.organizations().addMember(orgKey, "bar");
+
+    MembersPage page = nav.openOrganizationMembers(orgKey);
+    page
+      .canNotAddMember()
+      .shouldHaveTotal(3);
+    page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator");
+    page.getMembersByIdx(1).shouldBeNamed("bar", "bar");
+    page.getMembersByIdx(2)
+      .shouldBeNamed("foo", "foo")
+      .shouldNotHaveActions();
+  }
+
+  @Test
+  public void search_for_members() {
+    String orgKey = createOrganization();
+    String user1 = createUser();
+    String user2 = createUser();
+    createUser();
+
+    adminClient.organizations().addMember(orgKey, user1);
+    adminClient.organizations().addMember(orgKey, user2);
+
+    MembersPage page = nav.openOrganizationMembers(orgKey);
+    page
+      .searchForMember("adm")
+      .shouldHaveTotal(1);
+    page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator");
+    page
+      .searchForMember(user2)
+      .shouldHaveTotal(1);
+    page.getMembersByIdx(0).shouldBeNamed(user2, user2);
+  }
+
+  @Test
+  public void admin_can_add_members() {
+    String orgKey = createOrganization();
+    userRule.createUser("foo", "pwd");
+    createUser();
+
+    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    page
+      .shouldHaveTotal(1)
+      .addMember("foo")
+      .shouldHaveTotal(2);
+    page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator").shouldHaveGroups(1);
+    page.getMembersByIdx(1).shouldBeNamed("foo", "foo").shouldHaveGroups(0);
+  }
+
+  @Test
+  public void admin_can_remove_members() {
+    String orgKey = createOrganization();
+    userRule.createUser("foo", "pwd");
+    userRule.createUser("bar", "pwd");
+
+    adminClient.organizations().addMember(orgKey, "foo");
+    adminClient.organizations().addMember(orgKey, "bar");
+
+    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    page.shouldHaveTotal(3)
+      .getMembersByIdx(1).removeMembership();
+    page.shouldHaveTotal(2);
+  }
+
+  @Test
+  public void admin_can_manage_groups() {
+    String orgKey = createOrganization();
+    userRule.createUser("foo", "pwd");
+
+    adminClient.organizations().addMember(orgKey, "foo");
+
+    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    page.getMembersByIdx(1)
+      .manageGroupsOpen()
+      .manageGroupsSelect("owners")
+      .manageGroupsSave()
+      .shouldHaveGroups(1);
+    page.getMembersByIdx(0)
+      .manageGroupsOpen()
+      .manageGroupsSelect("owners")
+      .manageGroupsSave()
+      .shouldHaveGroups(0);
+  }
+
+  @Test
+  public void groups_count_should_be_updated_when_a_member_was_just_added() {
+    String orgKey = createOrganization();
+    userRule.createUser("foo", "pwd");
+
+    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    page
+      .addMember("foo")
+      .getMembersByIdx(1)
+      .shouldHaveGroups(0)
+      .manageGroupsOpen()
+      .manageGroupsSelect("owners")
+      .manageGroupsSave()
+      .shouldHaveGroups(1);
+  }
+
   private void verifyMembership(String login, String organizationKey, boolean isMember) {
     // TODO replace with search member WS
     int count = orchestrator.getDatabase().countSql(format("SELECT COUNT(1) FROM organization_members om " +
@@ -140,7 +253,7 @@ public class OrganizationMembershipTest {
   }
 
   private static String createUser() {
-    String login = randomAlphabetic(10);
+    String login = randomAlphabetic(10).toLowerCase();
     userRule.createUser(login, login);
     return login;
   }

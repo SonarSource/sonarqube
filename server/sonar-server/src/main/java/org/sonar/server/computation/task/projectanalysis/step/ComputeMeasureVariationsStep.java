@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.PastMeasureDto;
@@ -50,7 +50,7 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
-import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -81,7 +81,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
   @Override
   public void execute() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<Metric> metrics = StreamSupport.stream(metricRepository.getAll().spliterator(), false).filter(isNumeric()).collect(Collectors.toList());
+      List<Metric> metrics = StreamSupport.stream(metricRepository.getAll().spliterator(), false).filter(isNumeric()).collect(MoreCollectors.toList());
       new DepthTraversalTypeAwareCrawler(new VariationMeasuresVisitor(dbSession, metrics))
         .visit(treeRootHolder.getRoot());
     }
@@ -97,7 +97,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       // measures on files are currently purged, so past measures are not available on files
       super(CrawlerDepthLimit.reportMaxDepth(DIRECTORY).withViewsMaxDepth(SUBVIEW), PRE_ORDER);
       this.session = session;
-      this.metricIds = metrics.stream().map(Metric::getId).collect(Collectors.toSet());
+      this.metricIds = metrics.stream().map(Metric::getId).collect(MoreCollectors.toSet());
       this.metrics = metrics;
     }
 

@@ -29,6 +29,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;
@@ -40,7 +42,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
 
 public class SonarCpdBlockIndex extends AbstractCloneIndex {
-
+  private static final Logger LOG = Loggers.get(SonarCpdBlockIndex.class);
   private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final ReportPublisher publisher;
   private final Settings settings;
@@ -72,7 +74,14 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
     for (Block block : blocks) {
       mem.insert(block);
     }
+    if (blocks.isEmpty()) {
+      LOG.debug("Not enough content in '{}' to have CPD blocks, it will not be part of the duplication detection", inputFile.relativePath());
+    }
     indexedFiles.add(inputFile);
+  }
+
+  public int noIndexedFiles() {
+    return indexedFiles.size();
   }
 
   public boolean isIndexed(InputFile inputFile) {

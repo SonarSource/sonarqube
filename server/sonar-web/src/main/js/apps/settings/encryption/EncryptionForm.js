@@ -48,8 +48,7 @@ export default class EncryptionForm extends React.Component {
         <form
           id="encryption-form"
           className="big-spacer-bottom"
-          onSubmit={e => this.handleEncrypt(e)}
-        >
+          onSubmit={e => this.handleEncrypt(e)}>
           <input
             id="encryption-form-value"
             className="input-large"
@@ -76,7 +75,9 @@ export default class EncryptionForm extends React.Component {
 
         <div className="huge-spacer-top bordered-top">
           <div className="big-spacer-top spacer-bottom">
-            Note that the secret key can be changed, but all the encrypted properties will have to be updated.
+            Note that the secret key can be changed, but all the encrypted properties
+            {' '}
+            will have to be updated.
             {' '}
             <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">
               More information

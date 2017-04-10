@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -296,6 +296,6 @@ public class UserDbTester {
     return keys
       .stream()
       .map(OrganizationPermission::fromKey)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 }

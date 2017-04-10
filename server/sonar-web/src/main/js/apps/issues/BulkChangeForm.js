@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { sortBy } from 'lodash';
+import { debounce, sortBy } from 'lodash';
 import ModalForm from '../../components/common/modal-form';
 import Template from './templates/BulkChangeForm.hbs';
 import getCurrentUserFromStore from '../../app/utils/getCurrentUserFromStore';
 import { searchIssues, searchIssueTags, bulkChangeIssues } from '../../api/issues';
 import { searchUsers } from '../../api/users';
+import { searchMembers } from '../../api/organizations';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 const LIMIT = 500;
@@ -71,6 +72,32 @@ export default ModalForm.extend({
     });
   },
 
+  assigneeSearch(defaultOptions) {
+    const { context } = this.options;
+    return debounce(
+      query => {
+        if (query.term.length === 0) {
+          query.callback({ results: defaultOptions });
+        } else if (query.term.length >= MINIMUM_QUERY_LENGTH) {
+          const onSuccess = r => {
+            query.callback({
+              results: r.users.map(user => ({
+                id: user.login,
+                text: `${user.name} (${user.login})`
+              }))
+            });
+          };
+          if (context.isContext) {
+            searchMembers({ organization: context.organization, q: query.term }).then(onSuccess);
+          } else {
+            searchUsers(query.term).then(onSuccess);
+          }
+        }
+      },
+      250
+    );
+  },
+
   prepareAssigneeSelect() {
     const input = this.$('#assignee');
     if (input.length) {
@@ -96,20 +123,7 @@ export default ModalForm.extend({
         formatSearching: () => translate('select2.searching'),
         formatInputTooShort: () =>
           translateWithParameters('select2.tooShort', MINIMUM_QUERY_LENGTH),
-        query: query => {
-          if (query.term.length === 0) {
-            query.callback({ results: defaultOptions });
-          } else if (query.term.length >= MINIMUM_QUERY_LENGTH) {
-            searchUsers(query.term).then(r => {
-              query.callback({
-                results: r.users.map(user => ({
-                  id: user.login,
-                  text: `${user.name} (${user.login})`
-                }))
-              });
-            });
-          }
-        }
+        query: this.assigneeSearch(defaultOptions)
       });
 
       input.on('change', () => this.$('#assign-action').prop('checked', true));

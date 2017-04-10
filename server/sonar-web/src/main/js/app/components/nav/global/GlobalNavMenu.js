@@ -143,14 +143,15 @@ export default class GlobalNavMenu extends React.Component {
 
   render() {
     const governanceInstalled = this.props.appState.qualifiers.includes('VW');
+    const { organizationsEnabled } = this.props.appState;
 
     return (
       <ul className="nav navbar-nav">
         {this.renderProjects()}
         {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}
-        {this.renderRulesLink()}
-        {this.renderProfilesLink()}
+        {!organizationsEnabled && this.renderRulesLink()}
+        {!organizationsEnabled && this.renderProfilesLink()}
         {this.renderQualityGatesLink()}
         {this.renderAdministrationLink()}
         {this.renderMore()}

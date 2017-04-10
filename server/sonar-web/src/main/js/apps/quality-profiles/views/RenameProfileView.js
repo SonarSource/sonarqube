@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-rename-profile.hbs';
 import { renameProfile } from '../../../api/quality-profiles';
@@ -32,9 +33,9 @@ export default ModalFormView.extend({
   sendRequest() {
     const name = this.$('#rename-profile-name').val();
     renameProfile(this.options.profile.key, name)
-      .then(profile => {
+      .then(() => {
         this.destroy();
-        this.trigger('done', profile);
+        this.trigger('done', name);
       })
       .catch(e => {
         if (e.response.status === 400) {

@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -92,7 +92,7 @@ public class ComponentFinder {
     Set<String> rootQualifiers = rootTypes
       .stream()
       .map(ResourceType::getQualifier)
-      .collect(Collectors.toSet(rootTypes.size()));
+      .collect(MoreCollectors.toSet(rootTypes.size()));
     String qualifier = component.qualifier();
 
     checkRequest(rootQualifiers.contains(qualifier) || Qualifiers.MODULE.equals(qualifier),

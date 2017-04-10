@@ -37,7 +37,7 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
@@ -104,9 +104,9 @@ public final class ZeroCoverageSensor implements Sensor {
 
   private boolean isCoverageMeasuresAlreadyDefined(InputFile f) {
     Set<String> metricKeys = StreamSupport.stream(measureCache.byComponentKey(f.key()).spliterator(), false)
-      .map(new MeasureToMetricKey()).collect(Collectors.toSet());
+      .map(new MeasureToMetricKey()).collect(MoreCollectors.toSet());
     Function<Metric, String> metricToKey = new MetricToKey();
-    Set<String> allCoverageMetricKeys = CoverageType.UNIT.allMetrics().stream().map(metricToKey).collect(Collectors.toSet());
+    Set<String> allCoverageMetricKeys = CoverageType.UNIT.allMetrics().stream().map(metricToKey).collect(MoreCollectors.toSet());
     return !Sets.intersection(metricKeys, allCoverageMetricKeys).isEmpty();
   }
 

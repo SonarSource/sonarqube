@@ -17,17 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { getQualityProfiles, getExporters } from '../../../api/quality-profiles';
 import { sortProfiles } from '../utils';
+import type { Exporter } from '../propTypes';
 import '../styles.css';
 
-export default class App extends React.Component {
-  state = { loading: true };
+type Props = {
+  children: React.Element<*>,
+  currentUser: { permissions: { global: Array<string> } },
+  languages: Array<*>,
+  organization: { canAdmin?: boolean, key: string } | null
+};
+
+type State = {
+  loading: boolean,
+  exporters?: Array<Exporter>,
+  profiles?: Array<*>
+};
+
+export default class App extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
+  state: State = { loading: true };
 
   componentWillMount() {
-    document.querySelector('html').classList.add('dashboard-page');
-    this.updateProfiles = this.updateProfiles.bind(this);
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
   }
 
   componentDidMount() {
@@ -37,12 +56,21 @@ export default class App extends React.Component {
 
   componentWillUnmount() {
     this.mounted = false;
-    document.querySelector('html').classList.remove('dashboard-page');
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
+  }
+
+  fetchProfiles() {
+    const { organization } = this.props;
+    const data = organization ? { organization: organization.key } : {};
+    return getQualityProfiles(data);
   }
 
   loadData() {
     this.setState({ loading: true });
-    Promise.all([getExporters(), getQualityProfiles()]).then(responses => {
+    Promise.all([getExporters(), this.fetchProfiles()]).then(responses => {
       if (this.mounted) {
         const [exporters, profiles] = responses;
         this.setState({
@@ -54,13 +82,13 @@ export default class App extends React.Component {
     });
   }
 
-  updateProfiles() {
-    return getQualityProfiles().then(profiles => {
+  updateProfiles = () => {
+    return this.fetchProfiles().then(profiles => {
       if (this.mounted) {
         this.setState({ profiles: sortProfiles(profiles) });
       }
     });
-  }
+  };
 
   renderChild() {
     if (this.state.loading) {
@@ -69,13 +97,16 @@ export default class App extends React.Component {
 
     const finalLanguages = Object.values(this.props.languages);
 
-    const canAdmin = this.props.currentUser.permissions.global.includes('profileadmin');
+    const canAdmin = this.props.organization
+      ? this.props.organization.canAdmin
+      : this.props.currentUser.permissions.global.includes('profileadmin');
 
     return React.cloneElement(this.props.children, {
       profiles: this.state.profiles,
       languages: finalLanguages,
       exporters: this.state.exporters,
       updateProfiles: this.updateProfiles,
+      organization: this.props.organization ? this.props.organization.key : null,
       canAdmin
     });
   }

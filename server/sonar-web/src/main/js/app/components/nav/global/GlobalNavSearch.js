@@ -62,15 +62,6 @@ class GlobalNavSearch extends React.Component {
     this.setState({ open: false });
   };
 
-  renderSearchView = () => {
-    const searchContainer = this.refs.container;
-    this.searchView = new SearchView({
-      model: new Backbone.Model(this.props),
-      hide: this.closeSearch
-    });
-    this.searchView.render().$el.appendTo(searchContainer);
-  };
-
   resetSearchView = () => {
     if (this.searchView) {
       this.searchView.destroy();
@@ -90,6 +81,15 @@ class GlobalNavSearch extends React.Component {
     if (!contains(this.refs.dropdown, e.target)) {
       this.closeSearch();
     }
+  };
+
+  renderSearchView = () => {
+    const searchContainer = this.refs.container;
+    this.searchView = new SearchView({
+      model: new Backbone.Model(this.props),
+      hide: this.closeSearch
+    });
+    this.searchView.render().$el.appendTo(searchContainer);
   };
 
   render() {

@@ -1,3 +1,4 @@
 {
-  "organizationsEnabled": true
+  "organizationsEnabled": true,
+  "defaultOrganization": "key_foo"
 }

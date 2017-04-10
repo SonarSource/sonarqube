@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import SeverityHelper from '../../../components/shared/severity-helper';
 import { translate } from '../../../helpers/l10n';
 
-export default class SeverityChange extends React.Component {
-  static propTypes = {
-    severity: React.PropTypes.string.isRequired
-  };
+type Props = {
+  severity: ?string
+};
+
+export default class SeverityChange extends React.PureComponent {
+  props: Props;
 
   render() {
     return (

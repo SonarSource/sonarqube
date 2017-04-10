@@ -149,8 +149,8 @@ export function checkStatus(response: Response): Promise<Object> {
   return new Promise((resolve, reject) => {
     if (response.status === 401) {
       // workaround cyclic dependencies
-      const handleRequiredAuthentication = require('../app/utils/handleRequiredAuthentication').default;
-      handleRequiredAuthentication();
+      const requireAuthentication = require('../app/utils/handleRequiredAuthentication').default;
+      requireAuthentication();
       reject();
     } else if (response.status >= 200 && response.status < 300) {
       resolve(response);

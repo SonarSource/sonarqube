@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -162,7 +162,7 @@ public class GroupsAction implements PermissionsWsAction {
     if (groups.isEmpty()) {
       return emptyList();
     }
-    List<Integer> ids = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
+    List<Integer> ids = groups.stream().map(GroupDto::getId).collect(MoreCollectors.toList(groups.size()));
     return dbClient.groupPermissionDao().selectByGroupIds(dbSession, org.getUuid(), ids, project.isPresent() ? project.get().getId() : null);
   }
 }

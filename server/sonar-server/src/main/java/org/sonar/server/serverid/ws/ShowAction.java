@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.Collectors;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
@@ -74,7 +74,7 @@ public class ShowAction implements ServerIdWsAction {
     userSession.checkIsSystemAdministrator();
     try (DbSession dbSession = dbClient.openSession(true)) {
       Map<String, PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, SETTINGS_KEYS).stream()
-        .collect(Collectors.uniqueIndex(PropertyDto::getKey, Function.identity()));
+        .collect(MoreCollectors.uniqueIndex(PropertyDto::getKey, Function.identity()));
       writeProtobuf(doHandle(properties), request, response);
     }
   }

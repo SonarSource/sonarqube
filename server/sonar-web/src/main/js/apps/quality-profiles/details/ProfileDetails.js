@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import ProfileRules from './ProfileRules';
 import ProfileProjects from './ProfileProjects';
 import ProfileInheritance from './ProfileInheritance';
 import ProfileExporters from './ProfileExporters';
-import { ProfileType } from '../propTypes';
+import type { Profile, Exporter } from '../propTypes';
 
-export default class ProfileDetails extends React.Component {
-  static propTypes = {
-    profile: ProfileType,
-    canAdmin: React.PropTypes.bool,
-    updateProfiles: React.PropTypes.func
-  };
+type Props = {
+  canAdmin: boolean,
+  exporters: Array<Exporter>,
+  organization: ?string,
+  profile: Profile,
+  profiles: Array<Profile>,
+  updateProfiles: () => Promise<*>
+};
+
+export default class ProfileDetails extends React.PureComponent {
+  props: Props;
 
   render() {
     return (

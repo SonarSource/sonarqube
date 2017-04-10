@@ -1,0 +1,53 @@
+exports[`test should be able to toggle check 1`] = `
+<li
+  className="capitalize list-item-checkable-link"
+  onClick={[Function]}
+  role="listitem"
+  tabIndex={0}>
+  <Checkbox
+    checked={true}
+    onCheck={[Function]}
+    thirdState={false} />
+   
+  professionals
+</li>
+`;
+
+exports[`test should be able to toggle check 2`] = `
+Array [
+  Array [
+    "7",
+    false,
+  ],
+]
+`;
+
+exports[`test should be able to toggle check 3`] = `
+<li
+  className="capitalize list-item-checkable-link"
+  onClick={[Function]}
+  role="listitem"
+  tabIndex={0}>
+  <Checkbox
+    checked={false}
+    onCheck={[Function]}
+    thirdState={false} />
+   
+  professionals
+</li>
+`;
+
+exports[`test should render unchecked 1`] = `
+<li
+  className="capitalize list-item-checkable-link"
+  onClick={[Function]}
+  role="listitem"
+  tabIndex={0}>
+  <Checkbox
+    checked={false}
+    onCheck={[Function]}
+    thirdState={false} />
+   
+  professionals
+</li>
+`;
