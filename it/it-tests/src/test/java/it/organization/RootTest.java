@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category3Suite;
 import java.sql.SQLException;
 import java.util.Collections;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,9 +44,9 @@ public class RootTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  @Before
-  public void before() {
-    orchestrator.resetData();
+  @BeforeClass
+  public static void before() {
+    enableOrganizationSupport();
   }
 
   @Test
@@ -60,8 +60,6 @@ public class RootTest {
 
   @Test
   public void system_administrator_is_flagged_as_root_when_he_enables_organization_support() {
-    enableOrganizationSupport();
-
     assertThat(newAdminWsClient(orchestrator).rootService().search().getRootsList())
       .extracting(WsRoot.Root::getLogin)
       .containsOnly(UserRule.ADMIN_LOGIN);
@@ -69,8 +67,6 @@ public class RootTest {
 
   @Test
   public void a_root_can_flag_other_user_as_root() {
-    enableOrganizationSupport();
-
     userRule.createUser("bar", "foo");
     userRule.setRoot("bar");
 
@@ -81,15 +77,11 @@ public class RootTest {
 
   @Test
   public void last_root_can_not_be_unset_root() throws SQLException {
-    enableOrganizationSupport();
-
     verifyHttpError(() -> newAdminWsClient(orchestrator).rootService().unsetRoot(UserRule.ADMIN_LOGIN), 400);
   }
 
   @Test
   public void root_can_be_set_and_unset_via_web_services() {
-    enableOrganizationSupport();
-
     userRule.createUser("root1", "bar");
     userRule.createUser("root2", "bar");
     WsClient root1WsClient = newUserWsClient(orchestrator, "root1", "bar");
@@ -111,7 +103,7 @@ public class RootTest {
     root2WsClient.rootService().unsetRoot("root2");
   }
 
-  private void enableOrganizationSupport() {
+  private static void enableOrganizationSupport() {
     orchestrator.getServer().post("api/organizations/enable_support", Collections.emptyMap());
   }
 
