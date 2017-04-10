@@ -31,7 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
@@ -159,7 +159,7 @@ public class ChangelogLoaderTest {
   }
 
   private void insertRule(RuleKey key, String name) {
-    RuleDto dto = RuleTesting.newDto(key).setName(name);
+    RuleDefinitionDto dto = RuleTesting.newRule(key).setName(name);
     dbTester.rules().insertRule(dto);
     dbTester.getSession().commit();
   }

@@ -21,7 +21,6 @@ package org.sonar.server.rule.index;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,7 +35,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.SeverityUtil;
 import org.sonar.markdown.Markdown;
@@ -59,11 +57,10 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
     "r.priority",
     "r.status",
     "r.is_template",
-    "rm.tags",
     "r.system_tags",
+    "t.plugin_rule_key",
 
     // column 11
-    "t.plugin_rule_key",
     "t.plugin_name",
     "r.plugin_config_key",
     "r.language",
@@ -73,23 +70,19 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
   };
 
   private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM rules r " +
-    "LEFT OUTER JOIN rules t ON t.id=r.template_id " +
-    "LEFT OUTER JOIN rules_metadata rm ON rm.rule_id = r.id and rm.organization_uuid=?";
-
+    "LEFT OUTER JOIN rules t ON t.id=r.template_id";
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private final DbSession session;
 
-  private final OrganizationDto organization;
   private final List<RuleKey> ruleKeys;
 
   private final PreparedStatement stmt;
-  private final ResultSetIterator<RuleDoc> iterator;
+  private final ResultSetIterator<RuleDocWithSystemScope> iterator;
 
-  RuleIteratorForSingleChunk(DbClient dbClient, OrganizationDto organization, @Nullable List<RuleKey> ruleKeys) {
+  RuleIteratorForSingleChunk(DbClient dbClient, @Nullable List<RuleKey> ruleKeys) {
     checkArgument(ruleKeys == null || ruleKeys.size() <= DatabaseUtils.PARTITION_SIZE_FOR_ORACLE,
       "Cannot search for more than " + DatabaseUtils.PARTITION_SIZE_FOR_ORACLE + " rule keys at once. Please provide the keys in smaller chunks.");
-    this.organization = organization;
     this.ruleKeys = ruleKeys;
     this.session = dbClient.openSession(false);
 
@@ -119,7 +112,7 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
   }
 
   @Override
-  public RuleDoc next() {
+  public RuleDocWithSystemScope next() {
     return iterator.next();
   }
 
@@ -137,7 +130,6 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
 
   private void setParameters(PreparedStatement stmt) throws SQLException {
     AtomicInteger index = new AtomicInteger(1);
-    stmt.setString(index.getAndIncrement(), organization.getUuid());
     if (ruleKeys != null && !ruleKeys.isEmpty()) {
       for (RuleKey ruleKey : ruleKeys) {
         stmt.setString(index.getAndIncrement(), ruleKey.repository());
@@ -156,19 +148,21 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
     }
   }
 
-  private static final class RuleIteratorInternal extends ResultSetIterator<RuleDoc> {
+  private static final class RuleIteratorInternal extends ResultSetIterator<RuleDocWithSystemScope> {
 
     public RuleIteratorInternal(PreparedStatement stmt) throws SQLException {
       super(stmt);
     }
 
     @Override
-    protected RuleDoc read(ResultSet rs) throws SQLException {
+    protected RuleDocWithSystemScope read(ResultSet rs) throws SQLException {
       RuleDoc doc = new RuleDoc();
+      RuleExtensionDoc extensionDoc = new RuleExtensionDoc().setScope(RuleExtensionScope.system());
 
       String ruleKey = rs.getString(1);
       String repositoryKey = rs.getString(2);
       RuleKey key = RuleKey.of(repositoryKey, ruleKey);
+      extensionDoc.setRuleKey(key);
 
       // all the fields must be present, even if value is null
       doc.setKey(key.toString());
@@ -191,23 +185,23 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
       doc.setSeverity(SeverityUtil.getSeverityFromOrdinal(rs.getInt(6)));
       doc.setStatus(rs.getString(7));
       doc.setIsTemplate(rs.getBoolean(8));
-      doc.setAllTags(Sets.union(stringTagsToSet(rs.getString(9)), stringTagsToSet(rs.getString(10))));
+      extensionDoc.setTags(stringTagsToSet(rs.getString(9)));
 
-      String templateRuleKey = rs.getString(11);
-      String templateRepoKey = rs.getString(12);
+      String templateRuleKey = rs.getString(10);
+      String templateRepoKey = rs.getString(11);
       if (templateRepoKey != null && templateRuleKey != null) {
         doc.setTemplateKey(RuleKey.of(templateRepoKey, templateRuleKey).toString());
       } else {
         doc.setTemplateKey(null);
       }
 
-      doc.setInternalKey(rs.getString(13));
-      doc.setLanguage(rs.getString(14));
-      doc.setType(RuleType.valueOf(rs.getInt(15)));
-      doc.setCreatedAt(rs.getLong(16));
-      doc.setUpdatedAt(rs.getLong(17));
+      doc.setInternalKey(rs.getString(12));
+      doc.setLanguage(rs.getString(13));
+      doc.setType(RuleType.valueOf(rs.getInt(14)));
+      doc.setCreatedAt(rs.getLong(15));
+      doc.setUpdatedAt(rs.getLong(16));
 
-      return doc;
+      return new RuleDocWithSystemScope(doc, extensionDoc);
     }
 
     private static Set<String> stringTagsToSet(@Nullable String tags) {

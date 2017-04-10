@@ -67,9 +67,9 @@ public class ActiveRuleDaoTest {
   private QualityProfileDto profile1 = QualityProfileDto.createFor("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
   private QualityProfileDto profile2 = QualityProfileDto.createFor("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
 
-  private RuleDefinitionDto rule1 = RuleTesting.newDto(RuleTesting.XOO_X1).getDefinition();
-  private RuleDefinitionDto rule2 = RuleTesting.newDto(RuleTesting.XOO_X2).getDefinition();
-  private RuleDefinitionDto rule3 = RuleTesting.newDto(RuleTesting.XOO_X3).getDefinition();
+  private RuleDefinitionDto rule1 = RuleTesting.newRule(RuleTesting.XOO_X1);
+  private RuleDefinitionDto rule2 = RuleTesting.newRule(RuleTesting.XOO_X2);
+  private RuleDefinitionDto rule3 = RuleTesting.newRule(RuleTesting.XOO_X3);
 
   private RuleParamDto rule1Param1;
   private RuleParamDto rule1Param2;
@@ -200,7 +200,7 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void select_by_profile_ignore_removed_rules() throws Exception {
-    RuleDefinitionDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED).getDefinition();
+    RuleDefinitionDto removedRule = RuleTesting.newRule(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
     dbTester.rules().insert(removedRule);
     ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);

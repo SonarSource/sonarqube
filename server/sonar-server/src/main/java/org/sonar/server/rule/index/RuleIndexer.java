@@ -19,78 +19,118 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.StartupIndexer;
 
+import static java.util.Collections.singletonList;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION;
 
-public class RuleIndexer {
+public class RuleIndexer implements StartupIndexer {
 
   private final EsClient esClient;
-  private final RuleIteratorFactory ruleIteratorFactory;
+  private final DbClient dbClient;
 
-  public RuleIndexer(EsClient esClient, RuleIteratorFactory ruleIteratorFactory) {
+  public RuleIndexer(EsClient esClient, DbClient dbClient) {
     this.esClient = esClient;
-    this.ruleIteratorFactory = ruleIteratorFactory;
+    this.dbClient = dbClient;
   }
 
-  public void index(OrganizationDto organization, RuleKey ruleKey) {
-    BulkIndexer bulk = createBulkIndexer(Size.REGULAR);
-    try (RuleIterator rules = ruleIteratorFactory.createForKey(organization, ruleKey)) {
-      doIndex(bulk, rules);
-    }
+  @Override
+  public Set<IndexType> getIndexTypes() {
+    return ImmutableSet.of(INDEX_TYPE_RULE, INDEX_TYPE_RULE_EXTENSION);
   }
 
-  public void index(OrganizationDto organization, List<RuleKey> ruleKeys) {
-    BulkIndexer bulk = createBulkIndexer(Size.REGULAR);
-    try (RuleIterator rules = ruleIteratorFactory.createForKeys(organization, ruleKeys)) {
-      doIndex(bulk, rules);
-    }
-  }
-
-  @VisibleForTesting
-  public void index(Iterator<RuleDoc> rules) {
-    doIndex(createBulkIndexer(Size.REGULAR), rules);
-  }
-
-  private static void doIndex(BulkIndexer bulk, Iterator<RuleDoc> rules) {
+  @Override
+  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
+    BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX).setSize(Size.LARGE);
     bulk.start();
-    while (rules.hasNext()) {
-      RuleDoc rule = rules.next();
-      bulk.add(newIndexRequest(rule));
+
+    // index all definitions and system extensions
+    if (emptyIndexTypes.contains(INDEX_TYPE_RULE)) {
+      try (RuleIterator rules = new RuleIteratorForSingleChunk(dbClient, null)) {
+        doIndexRuleDefinitions(rules, bulk);
+      }
     }
+
+    // index all organization extensions
+    if (emptyIndexTypes.contains(INDEX_TYPE_RULE_EXTENSION)) {
+      try (RuleMetadataIterator metadatas = new RuleMetadataIterator(dbClient)) {
+        doIndexRuleExtensions(metadatas, bulk);
+      }
+    }
+
     bulk.stop();
   }
 
-  private BulkIndexer createBulkIndexer(Size size) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_RULE.getIndex());
-    bulk.setSize(size);
-    return bulk;
+  public void indexRuleDefinition(RuleKey ruleKey) {
+    indexRuleDefinitions(singletonList(ruleKey));
+  }
+
+  public void indexRuleDefinitions(List<RuleKey> ruleKeys) {
+    BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX).setSize(Size.REGULAR);
+    bulk.start();
+
+    try (RuleIterator rules = new RuleIteratorForMultipleChunks(dbClient, ruleKeys)) {
+      doIndexRuleDefinitions(rules, bulk);
+    }
+
+    bulk.stop();
+  }
+
+  public void indexRuleExtension(OrganizationDto organization, RuleKey ruleKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.ruleDao()
+        .selectMetadataByKey(dbSession, ruleKey, organization)
+        .map(ruleExtension -> RuleExtensionDoc.of(ruleKey, RuleExtensionScope.organization(organization), ruleExtension))
+        .map(Arrays::asList)
+        .map(List::iterator)
+        .ifPresent(metadatas -> {
+          BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX).setSize(Size.REGULAR);
+          bulk.start();
+
+          doIndexRuleExtensions(metadatas, bulk);
+
+          bulk.stop();
+        });
+    }
+  }
+
+  private static void doIndexRuleDefinitions(Iterator<RuleDocWithSystemScope> rules, BulkIndexer bulk) {
+    while (rules.hasNext()) {
+      RuleDocWithSystemScope ruleWithExtension = rules.next();
+      bulk.add(newIndexRequest(ruleWithExtension.getRuleDoc()));
+      bulk.add(newIndexRequest(ruleWithExtension.getRuleExtensionDoc()));
+    }
+  }
+
+  private static void doIndexRuleExtensions(Iterator<RuleExtensionDoc> metadatas, BulkIndexer bulk) {
+    while (metadatas.hasNext()) {
+      RuleExtensionDoc metadata = metadatas.next();
+      bulk.add(newIndexRequest(metadata));
+    }
   }
 
   private static IndexRequest newIndexRequest(RuleDoc rule) {
     return new IndexRequest(INDEX_TYPE_RULE.getIndex(), INDEX_TYPE_RULE.getType(), rule.key().toString()).source(rule.getFields());
   }
 
-  public void delete(RuleKey ruleKey) {
-    esClient.prepareDelete(INDEX_TYPE_RULE, ruleKey.toString())
-      .setRefresh(true)
-      .get();
-  }
-
-  public void delete(List<RuleKey> rules) {
-    BulkIndexer bulk = createBulkIndexer(Size.REGULAR);
-    bulk.start();
-    for (RuleKey rule : rules) {
-      bulk.addDeletion(INDEX_TYPE_RULE, rule.toString());
-    }
-    bulk.stop();
+  private static IndexRequest newIndexRequest(RuleExtensionDoc ruleExtension) {
+    return new IndexRequest(INDEX_TYPE_RULE_EXTENSION.getIndex(), INDEX_TYPE_RULE_EXTENSION.getType())
+      .source(ruleExtension.getFields())
+      .parent(ruleExtension.getParent());
   }
 }

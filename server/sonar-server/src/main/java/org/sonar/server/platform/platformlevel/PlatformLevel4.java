@@ -163,11 +163,9 @@ import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDeleter;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.rule.index.RuleIteratorFactory;
 import org.sonar.server.rule.ws.ActiveRuleCompleter;
 import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapper;
@@ -281,7 +279,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // rule
       RuleIndexDefinition.class,
       RuleIndexer.class,
-      RuleIteratorFactory.class,
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
@@ -289,7 +286,6 @@ public class PlatformLevel4 extends PlatformLevel {
       RuleDefinitionsLoader.class,
       CommonRuleDefinitionsImpl.class,
       RulesDefinitionXmlLoader.class,
-      RuleService.class,
       RuleUpdater.class,
       RuleCreator.class,
       RuleDeleter.class,

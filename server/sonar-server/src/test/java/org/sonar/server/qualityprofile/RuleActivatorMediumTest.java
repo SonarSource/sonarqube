@@ -146,7 +146,7 @@ public class RuleActivatorMediumTest {
 
     // index all rules
     dbSession.commit();
-    ruleIndexer.index(organization, asList(javaRule, xooRule1, xooRule2, xooTemplateRule1, xooCustomRule1).stream().map(RuleDto::getKey).collect(Collectors.toList()));
+    ruleIndexer.indexRuleDefinitions(asList(javaRule, xooRule1, xooRule2, xooTemplateRule1, xooCustomRule1).stream().map(RuleDto::getKey).collect(Collectors.toList()));
   }
 
   @After
@@ -914,7 +914,7 @@ public class RuleActivatorMediumTest {
       keys.add(ruleDefinitionDto.getKey());
     }
     dbSession.commit();
-    ruleIndexer.index(organization, keys);
+    ruleIndexer.indexRuleDefinitions(keys);
 
     // 0. No active rules so far (base case) and plenty rules available
     verifyZeroActiveRules(XOO_P1_KEY);

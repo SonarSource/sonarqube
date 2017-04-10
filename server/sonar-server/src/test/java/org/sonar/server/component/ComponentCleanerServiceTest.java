@@ -35,7 +35,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.ProjectIndexer;
 
@@ -131,9 +131,9 @@ public class ComponentCleanerServiceTest {
     String suffix = String.valueOf(id);
     ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
-    RuleDto rule = RuleTesting.newDto(RuleKey.of("sonarqube", "rule-" + suffix));
-    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
-    IssueDto issue = IssueTesting.newDto(rule, project, project).setKee("issue-key-" + suffix).setUpdatedAt(new Date().getTime());
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("sonarqube", "rule-" + suffix));
+    dbClient.ruleDao().insert(dbSession, rule);
+    IssueDto issue = IssueTesting.newIssue(rule, project, project).setKee("issue-key-" + suffix).setUpdatedAt(new Date().getTime());
     dbClient.componentDao().insert(dbSession, project);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(project));
     dbClient.issueDao().insert(dbSession, issue);

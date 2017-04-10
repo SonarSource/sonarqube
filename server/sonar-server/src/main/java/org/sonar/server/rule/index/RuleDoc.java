@@ -20,7 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.Maps;
-import java.util.Collection;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -40,7 +39,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public RuleDoc() {
-    super(Maps.newHashMapWithExpectedSize(16));
+    super(Maps.newHashMapWithExpectedSize(15));
   }
 
   @Override
@@ -163,15 +162,6 @@ public class RuleDoc extends BaseDoc {
 
   public RuleDoc setIsTemplate(@Nullable Boolean b) {
     setField(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE, b);
-    return this;
-  }
-
-  public Collection<String> allTags() {
-    return getField(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
-  }
-
-  public RuleDoc setAllTags(@Nullable Collection<String> l) {
-    setField(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, l);
     return this;
   }
 
