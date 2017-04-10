@@ -1,5 +1,4 @@
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'maven'
 
 dependencies {
   // relocated
@@ -46,23 +45,17 @@ processResources {
   ]
 }
 
-jar {
-  // TODO should not be installed into local Maven repository
-  classifier = 'original'
-}
 shadowJar {
   configurations = [project.configurations.default]
   relocate('com.google', 'org.sonar.api.internal.google')
   relocate('org.apache.commons', 'org.sonar.api.internal.apachecommons')
-  classifier = null
 }
 
-artifacts {
-  archives file: shadowJar.archivePath, builtBy: shadowJar
-}
-
-install.repositories.mavenInstaller.pom.whenConfigured { pom ->
-  pom.dependencies = pom.dependencies.findAll { dep ->
-    dep.groupId =~ 'org.codehaus.*'
+apply plugin: 'maven-publish'
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact source: shadowJar, classifier: null
+    }
   }
 }

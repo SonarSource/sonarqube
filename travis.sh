@@ -171,7 +171,7 @@ BUILD)
 #        -Dsonar.login=$SONAR_TOKEN
 
     export GRADLE_OPTS="-Xmx512m"
-    ./gradlew build install artifactory --no-daemon
+    ./gradlew build publishToMavenLocal artifactory --no-daemon
 
     installPhantomJs
     ./run-integration-tests.sh "Lite" "" -Dorchestrator.browser=phantomjs

@@ -1,6 +1,4 @@
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'maven'
-
 configurations {
   search {
     transitive = false
@@ -118,10 +116,11 @@ task zip(type: Zip) {
   }
 }
 
-artifacts {
-  archives zip
-}
-
-install.repositories.mavenInstaller.pom.whenConfigured {pom ->
-  pom.dependencies = []
+apply plugin: 'maven-publish'
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact zip
+    }
+  }
 }

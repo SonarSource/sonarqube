@@ -1,5 +1,4 @@
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'maven'
 
 dependencies {
   compile 'com.google.guava:guava'
@@ -34,6 +33,11 @@ shadowJar {
   }
 }
 
-artifacts {
-  archives file: shadowJar.archivePath, builtBy: shadowJar
+apply plugin: 'maven-publish'
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact source: shadowJar, classifier: null
+    }
+  }
 }
