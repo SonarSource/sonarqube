@@ -5,7 +5,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
+    classpath 'io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE'
     classpath "com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0"
     classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
