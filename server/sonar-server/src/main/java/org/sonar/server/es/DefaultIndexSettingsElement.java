@@ -93,6 +93,15 @@ public enum DefaultIndexSettingsElement {
       setArray("token_chars", "letter", "digit", "punctuation", "symbol");
     }
   },
+  PREFIX_TOKENIZER(TOKENIZER) {
+
+    @Override
+    protected void setup() {
+      set(TYPE, "edgeNGram");
+      set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
+      set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
+    }
+  },
   UUID_MODULE_TOKENIZER(TOKENIZER) {
 
     @Override
@@ -142,6 +151,56 @@ public enum DefaultIndexSettingsElement {
         TYPE, STRING,
         INDEX, ANALYZED,
         ANALYZER, INDEX_GRAMS_ANALYZER.getName(),
+        SEARCH_ANALYZER, getName());
+    }
+  },
+  INDEX_PREFIX_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, PREFIX_TOKENIZER);
+      setArray(FILTER, TRIM);
+    }
+  },
+  SEARCH_PREFIX_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, WHITESPACE);
+      setArray(FILTER, TRIM);
+    }
+
+    @Override
+    public SortedMap<String, String> fieldMapping() {
+      return ImmutableSortedMap.of(
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, INDEX_PREFIX_ANALYZER.getName(),
+        SEARCH_ANALYZER, getName());
+    }
+  },
+  INDEX_PREFIX_CASE_INSENSITIVE_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, PREFIX_TOKENIZER);
+      setArray(FILTER, TRIM, LOWERCASE);
+    }
+  },
+  SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, WHITESPACE);
+      setArray(FILTER, TRIM, LOWERCASE);
+    }
+
+    @Override
+    public SortedMap<String, String> fieldMapping() {
+      return ImmutableSortedMap.of(
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, INDEX_PREFIX_CASE_INSENSITIVE_ANALYZER.getName(),
         SEARCH_ANALYZER, getName());
     }
   },

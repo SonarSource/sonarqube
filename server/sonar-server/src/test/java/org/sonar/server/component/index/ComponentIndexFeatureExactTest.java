@@ -17,48 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.component.index;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 
-public class ComponentIndexFeaturePrefixTest extends ComponentIndexTest {
+public class ComponentIndexFeatureExactTest extends ComponentIndexTest {
 
   @Before
   public void before() {
-    features.set(ComponentTextSearchFeature.PREFIX, ComponentTextSearchFeature.PREFIX_IGNORE_CASE);
+    features.set(ComponentTextSearchFeature.EXACT_IGNORE_CASE);
   }
 
   @Test
-  public void should_find_prefix() {
-    assertResultOrder("comp", "component");
+  public void should_find_perfect_match() {
+    assertFileMatches("ComponentX", "ComponentX");
   }
 
   @Test
-  public void should_find_exact_match() {
-    assertResultOrder("component.js", "component.js");
+  public void should_not_find_partial_match() {
+    assertNoFileMatches("omp", "ComponentX");
   }
 
   @Test
-  public void should_not_find_partially() {
-    assertNoFileMatches("component.js", "my_component.js");
-  }
-
-  @Test
-  public void should_be_able_to_ignore_case() {
-    features.set(ComponentTextSearchFeature.PREFIX_IGNORE_CASE);
-    assertResultOrder("cOmPoNeNt.Js", "CoMpOnEnT.jS");
-  }
-
-  @Test
-  public void should_be_able_to_match_case() {
-    features.set(ComponentTextSearchFeature.PREFIX);
-    assertNoFileMatches("cOmPoNeNt.Js", "CoMpOnEnT.jS");
-  }
-
-  @Test
-  public void should_prefer_matching_case() {
-    assertResultOrder("cOmPoNeNt.Js", "cOmPoNeNt.Js", "CoMpOnEnT.jS");
+  public void should_not_find_prefix_match() {
+    assertNoFileMatches("omp", "ComponentX");
   }
 }

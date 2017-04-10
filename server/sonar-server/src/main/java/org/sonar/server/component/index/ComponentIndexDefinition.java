@@ -26,6 +26,8 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndexDefinition implements IndexDefinition {
@@ -38,7 +40,7 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
   private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
 
-  static final DefaultIndexSettingsElement[] NAME_ANALYZERS = {SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER};
+  static final DefaultIndexSettingsElement[] NAME_ANALYZERS = {SORTABLE_ANALYZER, SEARCH_PREFIX_ANALYZER, SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER, SEARCH_GRAMS_ANALYZER};
 
   private final Settings settings;
 

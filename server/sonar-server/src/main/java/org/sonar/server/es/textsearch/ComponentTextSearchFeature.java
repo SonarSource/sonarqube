@@ -28,12 +28,14 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.DefaultIndexSettings;
+import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public enum ComponentTextSearchFeature {
@@ -48,16 +50,16 @@ public enum ComponentTextSearchFeature {
   PREFIX {
     @Override
     public QueryBuilder getQuery(ComponentTextSearchQuery query) {
-      return prefixAndPartialQuery(query.getQueryText(), query.getFieldName(), query.getFieldName())
-        .boost(2f);
+      return prefixAndPartialQuery(query.getQueryText(), query.getFieldName(), SEARCH_PREFIX_ANALYZER)
+        .boost(3f);
     }
   },
   PREFIX_IGNORE_CASE {
     @Override
     public QueryBuilder getQuery(ComponentTextSearchQuery query) {
       String lowerCaseQueryText = query.getQueryText().toLowerCase(Locale.getDefault());
-      return prefixAndPartialQuery(lowerCaseQueryText, SORTABLE_ANALYZER.subField(query.getFieldName()), query.getFieldName())
-        .boost(3f);
+      return prefixAndPartialQuery(lowerCaseQueryText, query.getFieldName(), SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER)
+        .boost(2f);
     }
   },
   PARTIAL {
@@ -65,7 +67,7 @@ public enum ComponentTextSearchFeature {
     public QueryBuilder getQuery(ComponentTextSearchQuery query) {
       BoolQueryBuilder queryBuilder = boolQuery();
       split(query.getQueryText())
-        .map(text -> partialTermQuery(text, query.getFieldName()))
+        .map(text -> tokenQuery(text, query.getFieldName(), SEARCH_GRAMS_ANALYZER))
         .forEach(queryBuilder::must);
       return queryBuilder
         .boost(0.5f);
@@ -87,7 +89,7 @@ public enum ComponentTextSearchFeature {
       .filter(StringUtils::isNotEmpty);
   }
 
-  protected BoolQueryBuilder prefixAndPartialQuery(String queryText, String fieldName, String originalFieldName) {
+  protected BoolQueryBuilder prefixAndPartialQuery(String queryText, String originalFieldName, DefaultIndexSettingsElement analyzer) {
     BoolQueryBuilder queryBuilder = boolQuery();
 
     AtomicBoolean first = new AtomicBoolean(true);
@@ -95,19 +97,19 @@ public enum ComponentTextSearchFeature {
       .map(queryTerm -> {
 
         if (first.getAndSet(false)) {
-          return prefixQuery(fieldName, queryTerm);
+          return tokenQuery(queryTerm, originalFieldName, analyzer);
         }
 
-        return partialTermQuery(queryTerm, originalFieldName);
+        return tokenQuery(queryTerm, originalFieldName, SEARCH_GRAMS_ANALYZER);
       })
       .forEach(queryBuilder::must);
     return queryBuilder;
   }
 
-  protected MatchQueryBuilder partialTermQuery(String queryTerm, String fieldName) {
+  protected MatchQueryBuilder tokenQuery(String queryTerm, String fieldName, DefaultIndexSettingsElement analyzer) {
     // We will truncate the search to the maximum length of nGrams in the index.
     // Otherwise the search would for sure not find any results.
     String truncatedQuery = StringUtils.left(queryTerm, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
-    return matchQuery(SEARCH_GRAMS_ANALYZER.subField(fieldName), truncatedQuery);
+    return matchQuery(analyzer.subField(fieldName), truncatedQuery);
   }
 }
