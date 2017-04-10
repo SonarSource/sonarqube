@@ -39,10 +39,10 @@ import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
-import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
+import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.stream;
@@ -160,36 +160,36 @@ public class SuggestionsAction implements ComponentsWsAction {
           .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       }
       builder
-        .addAllSuggestions(toCategoryResponses(componentsPerQualifiers, componentsByUuids, organizationsByUuids, projectsByUuids))
-        .addAllOrganizations(toOrganizationResponses(organizationsByUuids))
-        .addAllProjects(toProjectResponses(projectsByUuids));
+        .addAllSuggestions(toCategories(componentsPerQualifiers, componentsByUuids, organizationsByUuids, projectsByUuids))
+        .addAllOrganizations(toOrganizations(organizationsByUuids))
+        .addAllProjects(toProjects(projectsByUuids));
     }
     ofNullable(warning).ifPresent(builder::setWarning);
     return builder.build();
   }
 
-  private static List<Category> toCategoryResponses(List<ComponentHitsPerQualifier> componentsPerQualifiers, Map<String, ComponentDto> componentsByUuids,
+  private static List<Category> toCategories(List<ComponentHitsPerQualifier> componentsPerQualifiers, Map<String, ComponentDto> componentsByUuids,
     Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
     return componentsPerQualifiers.stream().map(qualifier -> {
 
-      List<Component> results = qualifier.getComponentUuids().stream()
+      List<Suggestion> suggestions = qualifier.getComponentUuids().stream()
         .map(componentsByUuids::get)
-        .map(dto -> dtoToComponent(dto, organizationByUuids, projectsByUuids))
+        .map(dto -> toSuggestion(dto, organizationByUuids, projectsByUuids))
         .collect(toList());
 
       return Category.newBuilder()
         .setCategory(qualifier.getQualifier())
         .setMore(qualifier.getNumberOfFurtherResults())
-        .addAllItems(results)
+        .addAllSuggestions(suggestions)
         .build();
     }).collect(toList());
   }
 
-  private static Component dtoToComponent(ComponentDto result, Map<String, OrganizationDto> organizationByUuid, Map<String, ComponentDto> projectsByUuids) {
+  private static Suggestion toSuggestion(ComponentDto result, Map<String, OrganizationDto> organizationByUuid, Map<String, ComponentDto> projectsByUuids) {
     String organizationKey = organizationByUuid.get(result.getOrganizationUuid()).getKey();
     checkState(organizationKey != null, "Organization with uuid '%s' not found", result.getOrganizationUuid());
     String projectKey = ofNullable(result.projectUuid()).map(projectsByUuids::get).map(ComponentDto::getKey).orElse("");
-    return Component.newBuilder()
+    return Suggestion.newBuilder()
       .setOrganization(organizationKey)
       .setProject(projectKey)
       .setKey(result.getKey())
@@ -197,7 +197,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .build();
   }
 
-  private static List<Organization> toOrganizationResponses(Map<String, OrganizationDto> organizationByUuids) {
+  private static List<Organization> toOrganizations(Map<String, OrganizationDto> organizationByUuids) {
     return organizationByUuids.values().stream()
       .map(o -> Organization.newBuilder()
         .setKey(o.getKey())
@@ -206,7 +206,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .collect(Collectors.toList());
   }
 
-  private static List<Project> toProjectResponses(Map<String, ComponentDto> projectsByUuids) {
+  private static List<Project> toProjects(Map<String, ComponentDto> projectsByUuids) {
     return projectsByUuids.values().stream()
       .map(p -> Project.newBuilder()
         .setKey(p.key())
