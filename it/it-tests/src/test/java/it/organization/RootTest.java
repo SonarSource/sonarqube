@@ -20,12 +20,10 @@
 package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.Category3Suite;
 import java.sql.SQLException;
 import java.util.Collections;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsRoot;
 import org.sonarqube.ws.client.HttpException;
@@ -39,14 +37,24 @@ import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.newWsClient;
 
 public class RootTest {
-  @ClassRule
-  public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
-  @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
+
+  private static Orchestrator orchestrator;
+
+  private static UserRule userRule;
 
   @Before
-  public void before() {
-    orchestrator.resetData();
+  public void start() {
+    orchestrator = Orchestrator.builderEnv().build();
+    orchestrator.start();
+    userRule = UserRule.from(orchestrator);
+  }
+
+  @After
+  public void stop() {
+    if (orchestrator != null) {
+      orchestrator.stop();
+      userRule = null;
+    }
   }
 
   @Test
@@ -61,7 +69,6 @@ public class RootTest {
   @Test
   public void system_administrator_is_flagged_as_root_when_he_enables_organization_support() {
     enableOrganizationSupport();
-
     assertThat(newAdminWsClient(orchestrator).rootService().search().getRootsList())
       .extracting(WsRoot.Root::getLogin)
       .containsOnly(UserRule.ADMIN_LOGIN);
@@ -70,7 +77,6 @@ public class RootTest {
   @Test
   public void a_root_can_flag_other_user_as_root() {
     enableOrganizationSupport();
-
     userRule.createUser("bar", "foo");
     userRule.setRoot("bar");
 
@@ -82,14 +88,12 @@ public class RootTest {
   @Test
   public void last_root_can_not_be_unset_root() throws SQLException {
     enableOrganizationSupport();
-
     verifyHttpError(() -> newAdminWsClient(orchestrator).rootService().unsetRoot(UserRule.ADMIN_LOGIN), 400);
   }
 
   @Test
   public void root_can_be_set_and_unset_via_web_services() {
     enableOrganizationSupport();
-
     userRule.createUser("root1", "bar");
     userRule.createUser("root2", "bar");
     WsClient root1WsClient = newUserWsClient(orchestrator, "root1", "bar");
@@ -111,7 +115,7 @@ public class RootTest {
     root2WsClient.rootService().unsetRoot("root2");
   }
 
-  private void enableOrganizationSupport() {
+  private static void enableOrganizationSupport() {
     orchestrator.getServer().post("api/organizations/enable_support", Collections.emptyMap());
   }
 

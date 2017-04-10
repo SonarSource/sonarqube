@@ -21,12 +21,13 @@ package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
-import it.Category3Suite;
-import java.util.Collections;
+import it.Category6Suite;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,11 +51,14 @@ import util.user.GroupManagement;
 import util.user.Groups;
 import util.user.UserRule;
 
+import static it.Category6Suite.enableOrganizationsSupport;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.deleteOrganizationsIfExists;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.resetSettings;
 
 public class OrganizationTest {
   private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
@@ -66,7 +70,7 @@ public class OrganizationTest {
   private static final String SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS = "sonar.organizations.anyoneCanCreate";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
   @ClassRule
   public static UserRule userRule = UserRule.from(orchestrator);
   @Rule
@@ -76,16 +80,25 @@ public class OrganizationTest {
   private OrganizationService anonymousOrganizationService = ItUtils.newWsClient(orchestrator).organizations();
   private OrganizationService adminOrganizationService = adminClient.organizations();
 
+  @BeforeClass
+  public static void enableOrganizations() throws Exception {
+    enableOrganizationsSupport();
+  }
+
   @Before
   public void setUp() throws Exception {
-    orchestrator.resetData();
-    ItUtils.resetSettings(orchestrator, null, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS);
-    orchestrator.getServer().post("api/organizations/enable_support", Collections.emptyMap());
+    resetSettings(orchestrator, null, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS);
+    deleteOrganizationsIfExists(orchestrator, KEY, "an-org");
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    deleteOrganizationsIfExists(orchestrator, KEY, "an-org");
   }
 
   @Test
   public void create_update_delete_organizations_and_check_security() {
-    verifyNoExtraOrganization();
+    verifyOrganizationDoesNotExit(KEY);
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(NAME)
@@ -135,7 +148,7 @@ public class OrganizationTest {
 
     // delete organization
     adminOrganizationService.delete(createdOrganization.getKey());
-    verifyNoExtraOrganization();
+    verifyOrganizationDoesNotExit(KEY);
 
     adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(NAME)
@@ -169,9 +182,6 @@ public class OrganizationTest {
     verifySingleSearchResult(
       verifyUserAuthorized("john", "doh", service -> service.create(new CreateWsRequest.Builder().setName("An org").build())).getOrganization(),
       "An org", null, null, null);
-
-    // clean-up
-    adminOrganizationService.delete("an-org");
   }
 
   private void verifyAnonymousNotAuthorized(Consumer<OrganizationService> consumer) {
@@ -255,52 +265,47 @@ public class OrganizationTest {
 
   @Test
   public void an_organization_member_can_analyze_project() {
-    verifyNoExtraOrganization();
+    verifyOrganizationDoesNotExit(KEY);
 
-    String orgKeyAndName = "org-key";
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-      .setName(orgKeyAndName)
-      .setKey(orgKeyAndName)
+      .setName(KEY)
+      .setKey(KEY)
       .build())
       .getOrganization();
-    verifySingleSearchResult(createdOrganization, orgKeyAndName, null, null, null);
+    verifySingleSearchResult(createdOrganization, KEY, null, null, null);
 
     userRule.createUser("bob", "bob");
     userRule.removeGroups("sonar-users");
-    adminOrganizationService.addMember(orgKeyAndName, "bob");
-    addPermissionsToUser(orgKeyAndName, "bob", "provisioning", "scan");
+    adminOrganizationService.addMember(KEY, "bob");
+    addPermissionsToUser(KEY, "bob", "provisioning", "scan");
 
     ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.organization", orgKeyAndName, "sonar.login", "bob", "sonar.password", "bob");
+      "sonar.organization", KEY, "sonar.login", "bob", "sonar.password", "bob");
     ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
-    assertThat(searchSampleProject(orgKeyAndName, componentsService).getComponentsList()).hasSize(1);
-
-    adminOrganizationService.delete(orgKeyAndName);
+    assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
   }
 
   @Test
   public void by_default_anonymous_cannot_analyse_project_on_organization() {
-    verifyNoExtraOrganization();
+    verifyOrganizationDoesNotExit(KEY);
 
-    String orgKeyAndName = "org-key";
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-      .setName(orgKeyAndName)
-      .setKey(orgKeyAndName)
+      .setName(KEY)
+      .setKey(KEY)
       .build())
       .getOrganization();
-    verifySingleSearchResult(createdOrganization, orgKeyAndName, null, null, null);
+    verifySingleSearchResult(createdOrganization, KEY, null, null, null);
 
     try {
       ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
-        "sonar.organization", orgKeyAndName);
+        "sonar.organization", KEY);
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains("Insufficient privileges");
     }
 
     ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
-    assertThat(searchSampleProject(orgKeyAndName, componentsService).getComponentsCount()).isEqualTo(0);
-    adminOrganizationService.delete(orgKeyAndName);
+    assertThat(searchSampleProject(KEY, componentsService).getComponentsCount()).isEqualTo(0);
   }
 
   private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
@@ -313,62 +318,58 @@ public class OrganizationTest {
 
   @Test
   public void deleting_an_organization_also_deletes_projects_and_check_security() {
-    verifyNoExtraOrganization();
+    verifyOrganizationDoesNotExit(KEY);
 
-    String orgKeyAndName = "org-key";
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-      .setName(orgKeyAndName)
-      .setKey(orgKeyAndName)
+      .setName(KEY)
+      .setKey(KEY)
       .build())
       .getOrganization();
-    verifySingleSearchResult(createdOrganization, orgKeyAndName, null, null, null);
+    verifySingleSearchResult(createdOrganization, KEY, null, null, null);
 
-    GroupManagement groupManagement = userRule.forOrganization(orgKeyAndName);
+    GroupManagement groupManagement = userRule.forOrganization(KEY);
 
     userRule.createUser("bob", "bob");
-    adminOrganizationService.addMember(orgKeyAndName, "bob");
+    adminOrganizationService.addMember(KEY, "bob");
     groupManagement.createGroup("grp1");
     groupManagement.createGroup("grp2");
     groupManagement.associateGroupsToUser("bob", "grp1", "grp2");
     assertThat(groupManagement.getUserGroups("bob").getGroups())
       .extracting(Groups.Group::getName)
       .contains("grp1", "grp2");
-    addPermissionsToUser(orgKeyAndName, "bob", "provisioning", "scan");
+    addPermissionsToUser(KEY, "bob", "provisioning", "scan");
 
     ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.organization", orgKeyAndName, "sonar.login", "bob", "sonar.password", "bob");
+      "sonar.organization", KEY, "sonar.login", "bob", "sonar.password", "bob");
     ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
-    assertThat(searchSampleProject(orgKeyAndName, componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
 
-    adminOrganizationService.delete(orgKeyAndName);
+    adminOrganizationService.delete(KEY);
 
-    expect404HttpError(() -> searchSampleProject(orgKeyAndName, componentsService));
-    verifyNoExtraOrganization();
+    expect404HttpError(() -> searchSampleProject(KEY, componentsService));
+    verifyOrganizationDoesNotExit(KEY);
   }
 
   @Test
   public void return_groups_belonging_to_a_user_on_an_organization() throws Exception {
     String userLogin = randomAlphabetic(10);
     String groupName = randomAlphabetic(10);
-    String orgKeyAndName = "org-key";
-    adminClient.organizations().create(new CreateWsRequest.Builder().setKey(orgKeyAndName).setName(orgKeyAndName).build()).getOrganization();
+    adminClient.organizations().create(new CreateWsRequest.Builder().setKey(KEY).setName(KEY).build()).getOrganization();
     userRule.createUser(userLogin, userLogin);
-    adminOrganizationService.addMember(orgKeyAndName, userLogin);
+    adminOrganizationService.addMember(KEY, userLogin);
     adminClient.wsConnector().call(new PostRequest("api/user_groups/create")
       .setParam("name", groupName)
       .setParam("description", groupName)
-      .setParam("organization", orgKeyAndName)).failIfNotSuccessful();
+      .setParam("organization", KEY)).failIfNotSuccessful();
     adminClient.wsConnector().call(new PostRequest("api/user_groups/add_user")
       .setParam("login", userLogin)
       .setParam("name", groupName)
-      .setParam("organization", orgKeyAndName)).failIfNotSuccessful();
+      .setParam("organization", KEY)).failIfNotSuccessful();
 
     List<WsUsers.GroupsWsResponse.Group> result = adminClient.users().groups(
-      GroupsRequest.builder().setLogin(userLogin).setOrganization(orgKeyAndName).build()).getGroupsList();
+      GroupsRequest.builder().setLogin(userLogin).setOrganization(KEY).build()).getGroupsList();
 
     assertThat(result).extracting(WsUsers.GroupsWsResponse.Group::getName).containsOnly(groupName);
-
-    adminOrganizationService.delete(orgKeyAndName);
   }
 
   private WsComponents.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
@@ -397,22 +398,17 @@ public class OrganizationTest {
     }
   }
 
-  private void verifyNoExtraOrganization() {
-    Organizations.SearchWsResponse searchWsResponse = anonymousOrganizationService.search(new SearchWsRequest.Builder().build());
-    List<Organizations.Organization> organizationsList = searchWsResponse.getOrganizationsList();
-    assertThat(organizationsList).hasSize(1);
-    assertThat(organizationsList.iterator().next().getKey()).isEqualTo(DEFAULT_ORGANIZATION_KEY);
+  private void verifyOrganizationDoesNotExit(String organizationKey) {
+    Organizations.SearchWsResponse searchWsResponse = anonymousOrganizationService.search(new SearchWsRequest.Builder().setOrganizations(organizationKey).build());
+    assertThat(searchWsResponse.getOrganizationsList()).isEmpty();
   }
 
   private void verifySingleSearchResult(Organizations.Organization createdOrganization, String name, String description, String url,
     String avatarUrl) {
-    List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder()
+    List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder().setOrganizations(createdOrganization.getKey())
       .build()).getOrganizationsList();
-    assertThat(organizations).hasSize(2);
-    Organizations.Organization searchedOrganization = organizations.stream()
-      .filter(organization -> !DEFAULT_ORGANIZATION_KEY.equals(organization.getKey()))
-      .findFirst()
-      .get();
+    assertThat(organizations).hasSize(1);
+    Organizations.Organization searchedOrganization = organizations.get(0);
     assertThat(searchedOrganization.getKey()).isEqualTo(createdOrganization.getKey());
     assertThat(searchedOrganization.getName()).isEqualTo(name);
     if (description == null) {
