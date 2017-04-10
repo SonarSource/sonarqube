@@ -21,11 +21,12 @@
 package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.Category3Suite;
+import it.Category6Suite;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,19 +43,62 @@ import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import pageobjects.Navigation;
 import pageobjects.issues.IssuesPage;
-import util.ItUtils;
 import util.issue.IssueRule;
 import util.user.UserRule;
 
+import static it.Category6Suite.enableOrganizationsSupport;
 import static java.lang.String.format;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.deleteOrganizationsIfExists;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newOrganizationKey;
+import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
 public class IssueAssignTest {
+
+  private final static String ORGANIZATION_KEY = newOrganizationKey();
+  private final static String OTHER_ORGANIZATION_KEY = newOrganizationKey();
+  private final static String SAMPLE_PROJECT_KEY = "sample";
+  private static final String ASSIGNEE_LOGIN = "bob";
+  private static final String OTHER_LOGIN = "neo";
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
+
+  @ClassRule
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+
+  @ClassRule
+  public static UserRule userRule = UserRule.from(orchestrator);
+
+  @ClassRule
+  public static IssueRule issueRule = IssueRule.from(orchestrator);
+
+  private WsClient adminClient = newAdminWsClient(orchestrator);
+
+  @BeforeClass
+  public static void enableOrganizations() throws Exception {
+    enableOrganizationsSupport();
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    userRule.deactivateUsers(ASSIGNEE_LOGIN, OTHER_LOGIN);
+    createOrganization(ORGANIZATION_KEY);
+    restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), ORGANIZATION_KEY);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    userRule.deactivateUsers(ASSIGNEE_LOGIN, OTHER_LOGIN);
+    deleteOrganizationsIfExists(orchestrator, ORGANIZATION_KEY, OTHER_ORGANIZATION_KEY);
+  }
 
   @Test
   public void auto_assign_issues_to_user_if_default_assignee_is_member_of_project_organization() throws Exception {
@@ -66,46 +110,6 @@ public class IssueAssignTest {
     analyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
 
     assertThat(issueRule.getRandomIssue().getAssignee()).isEqualTo(ASSIGNEE_LOGIN);
-  }
-
-  private final static String SAMPLE_PROJECT_KEY = "sample";
-  private final static String ORGANIZATION_KEY = "organization-key";
-  private final static String OTHER_ORGANIZATION_KEY = "other-organization-key";
-
-  private static final String ASSIGNEE_LOGIN = "bob";
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
-
-  @ClassRule
-  public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
-
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
-
-  @ClassRule
-  public static IssueRule issueRule = IssueRule.from(orchestrator);
-
-  private WsClient adminClient = newAdminWsClient(orchestrator);
-
-  @Before
-  public void setUp() throws Exception {
-    orchestrator.resetData();
-    userRule.resetUsers();
-
-    orchestrator.getServer().post("api/organizations/enable_support", emptyMap());
-    createOrganization(ORGANIZATION_KEY);
-    ItUtils.restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), ORGANIZATION_KEY);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    adminClient.organizations().search(org.sonarqube.ws.client.organization.SearchWsRequest.builder().setOrganizations(ORGANIZATION_KEY, OTHER_ORGANIZATION_KEY).build())
-      .getOrganizationsList()
-      .forEach(organization -> adminClient.organizations().delete(organization.getKey()));
   }
 
   @Test
@@ -150,7 +154,7 @@ public class IssueAssignTest {
   @Test
   public void bulk_assign_issues_to_user_being_only_member_of_same_organization_as_project_issue_organization() throws Exception {
     createOrganization(OTHER_ORGANIZATION_KEY);
-    ItUtils.restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), OTHER_ORGANIZATION_KEY);
+    restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), OTHER_ORGANIZATION_KEY);
     userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
     // User is only member of "organization-key", not of "other-organization-key"
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
@@ -170,12 +174,12 @@ public class IssueAssignTest {
     createOrganization(OTHER_ORGANIZATION_KEY);
     userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
-    userRule.createUser("neo", "pwd");
+    userRule.createUser(OTHER_LOGIN, "pwd");
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
     IssuesPage page = nav.logIn().asAdmin().openIssues();
     page.getFirstIssue()
       .shouldAllowAssign()
-      .assigneeSearchResultCount("neo", 0)
+      .assigneeSearchResultCount(OTHER_LOGIN, 0)
       .assigneeSearchResultCount(ASSIGNEE_LOGIN, 1);
   }
 
@@ -184,13 +188,13 @@ public class IssueAssignTest {
     createOrganization(OTHER_ORGANIZATION_KEY);
     userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
-    userRule.createUser("neo", "pwd");
+    userRule.createUser(OTHER_LOGIN, "pwd");
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
     IssuesPage page = nav.logIn().asAdmin().openComponentIssues(SAMPLE_PROJECT_KEY);
     page
       .bulkChangeOpen()
       .bulkChangeAssigneeSearchCount(ASSIGNEE_LOGIN, 1)
-      .bulkChangeAssigneeSearchCount("neo", 0);
+      .bulkChangeAssigneeSearchCount(OTHER_LOGIN, 0);
   }
 
   @Test
@@ -198,13 +202,13 @@ public class IssueAssignTest {
     createOrganization(OTHER_ORGANIZATION_KEY);
     userRule.createUser(ASSIGNEE_LOGIN, ASSIGNEE_LOGIN);
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
-    userRule.createUser("neo", "pwd");
+    userRule.createUser(OTHER_LOGIN, "pwd");
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
     IssuesPage page = nav.logIn().asAdmin().openIssues();
     page
       .bulkChangeOpen()
       .bulkChangeAssigneeSearchCount(ASSIGNEE_LOGIN, 1)
-      .bulkChangeAssigneeSearchCount("neo", 1);
+      .bulkChangeAssigneeSearchCount(OTHER_LOGIN, 1);
   }
 
   private void createOrganization(String organizationKey) {

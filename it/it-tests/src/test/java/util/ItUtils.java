@@ -70,6 +70,8 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarqube.ws.client.organization.OrganizationService;
+import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
@@ -80,6 +82,8 @@ import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
 import static java.lang.Double.parseDouble;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Locale.ENGLISH;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -358,6 +362,16 @@ public class ItUtils {
           .setBackup(new File(uri))
           .setOrganization(organization)
           .build());
+  }
+
+  public static String newOrganizationKey() {
+    return randomAlphabetic(32).toLowerCase(ENGLISH);
+  }
+
+  public static void deleteOrganizationsIfExists(Orchestrator orchestrator, String... organizationKeys) {
+    OrganizationService adminOrganizationService = newAdminWsClient(orchestrator).organizations();
+    adminOrganizationService.search(SearchWsRequest.builder().setOrganizations(organizationKeys).build()).getOrganizationsList()
+      .forEach(organization -> adminOrganizationService.delete(organization.getKey()));
   }
 
   public static class ComponentNavigation {

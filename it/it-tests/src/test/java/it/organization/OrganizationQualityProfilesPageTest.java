@@ -22,7 +22,9 @@ package it.organization;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import it.Category6Suite;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -34,28 +36,30 @@ import org.sonarqube.ws.client.organization.CreateWsRequest;
 import pageobjects.Navigation;
 
 import static com.codeborne.selenide.Selenide.$;
-import static java.util.Collections.emptyMap;
+import static it.Category6Suite.enableOrganizationsSupport;
+import static util.ItUtils.deleteOrganizationsIfExists;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.xooPlugin;
 import static util.selenium.Selenese.runSelenese;
 
 public class OrganizationQualityProfilesPageTest {
 
-  @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
-    .addPlugin(xooPlugin())
-    .build();
-
   private static WsClient adminWsClient;
   private static final String ORGANIZATION = "test-org";
+
+  @ClassRule
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @BeforeClass
   public static void setUp() {
     adminWsClient = newAdminWsClient(orchestrator);
-    orchestrator.resetData();
-    orchestrator.getServer().post("api/organizations/enable_support", emptyMap());
+    enableOrganizationsSupport();
     createOrganization();
+  }
+
+  @AfterClass
+  public static void tearDown() throws Exception {
+    deleteOrganizationsIfExists(orchestrator, ORGANIZATION);
   }
 
   @Before
@@ -74,7 +78,7 @@ public class OrganizationQualityProfilesPageTest {
   }
 
   @Test
-  public void testNoGlobalPage(){
+  public void testNoGlobalPage() {
     Navigation nav = Navigation.get(orchestrator);
     nav.open("/profiles");
     $(".page-wrapper-simple").should(Condition.visible);
@@ -174,8 +178,7 @@ public class OrganizationQualityProfilesPageTest {
     orchestrator.executeBuild(SonarScanner.create(projectDir(path)).setProperties(
       "sonar.organization", ORGANIZATION,
       "sonar.login", "admin",
-      "sonar.password", "admin"
-    ));
+      "sonar.password", "admin"));
   }
 
   private static void addProfileToProject(String language, String profileName, String projectKey) {

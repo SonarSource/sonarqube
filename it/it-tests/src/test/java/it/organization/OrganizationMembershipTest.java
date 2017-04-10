@@ -21,6 +21,8 @@
 package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
+import it.Category6Suite;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -34,22 +36,22 @@ import pageobjects.Navigation;
 import pageobjects.organization.MembersPage;
 import util.user.UserRule;
 
+import static it.Category6Suite.enableOrganizationsSupport;
 import static java.lang.String.format;
-import static java.util.Collections.emptyMap;
-import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.deleteOrganizationsIfExists;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newOrganizationKey;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.setServerProperty;
-import static util.ItUtils.xooPlugin;
 
 public class OrganizationMembershipTest {
 
+  private static final String KEY = newOrganizationKey();
+
   @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
-    .addPlugin(xooPlugin())
-    .build();
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @ClassRule
   public static UserRule userRule = UserRule.from(orchestrator);
@@ -65,8 +67,14 @@ public class OrganizationMembershipTest {
   @BeforeClass
   public static void setUp() throws Exception {
     adminClient = newAdminWsClient(orchestrator);
-    orchestrator.getServer().post("api/organizations/enable_support", emptyMap());
+    enableOrganizationsSupport();
     setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
+    deleteOrganizationsIfExists(orchestrator, KEY);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    deleteOrganizationsIfExists(orchestrator, KEY);
   }
 
   @Test
@@ -247,19 +255,14 @@ public class OrganizationMembershipTest {
   }
 
   private static String createOrganization() {
-    String keyAndName = newOrganizationKey();
-    adminClient.organizations().create(new CreateWsRequest.Builder().setKey(keyAndName).setName(keyAndName).build()).getOrganization();
-    return keyAndName;
+    adminClient.organizations().create(new CreateWsRequest.Builder().setKey(KEY).setName(KEY).build()).getOrganization();
+    return KEY;
   }
 
   private static String createUser() {
     String login = randomAlphabetic(10).toLowerCase();
     userRule.createUser(login, login);
     return login;
-  }
-
-  private static String newOrganizationKey() {
-    return randomAlphabetic(32).toLowerCase(ENGLISH);
   }
 
 }
