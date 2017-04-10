@@ -14,8 +14,7 @@ yarn_run {
   inputs.file('build.gradle')
   outputs.dir('src/main/webapp')
 
-  args = ['build-fast']
-  //args = ['build']
+  args = ['build']
 }
 
 war.dependsOn yarn_run
