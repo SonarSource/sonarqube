@@ -6,12 +6,14 @@
         {
           "organization": "default-organization",
           "key": "org.sonarsource:sonarqube",
-          "name": "SonarSource :: SonarQube"
+          "name": "SonarSource :: SonarQube",
+          "match": "<mark>Sonar</mark>Source :: SonarQube"
         },
         {
           "organization": "default-organization",
           "key": "org.sonarsource:sonarlint",
-          "name": "SonarSource :: SonarLint"
+          "name": "SonarSource :: SonarLint",
+          "match": "<mark>Sonar</mark>Source :: SonarLint"
         }
       ],
       "more": 74

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.html.HtmlEscapers;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
@@ -77,7 +79,15 @@ public class SuggestionsAction implements ComponentsWsAction {
   @Override
   public void define(WebService.NewController context) {
     NewAction action = context.createAction(ACTION_SUGGESTIONS)
-      .setDescription("Internal WS for the top-right search engine")
+      .setDescription(
+        "Internal WS for the top-right search engine. The result will contain component search results, grouped by their qualifiers.<p>"
+          + "Each result contains:"
+          + "<ul>"
+          + "<li>the organization key</li>"
+          + "<li>the component key</li>"
+          + "<li>the component's name (unescaped)</li>"
+          + "<li>optionally a display name, which puts emphasis to matching characters (this text contains html tags and parts of the html-escaped name)</li>"
+          + "</ul>")
       .setSince("4.2")
       .setInternal(true)
       .setHandler(this)
@@ -142,8 +152,9 @@ public class SuggestionsAction implements ComponentsWsAction {
       Map<String, ComponentDto> projectsByUuids;
       try (DbSession dbSession = dbClient.openSession(false)) {
         Set<String> componentUuids = componentsPerQualifiers.stream()
-          .map(ComponentHitsPerQualifier::getComponentUuids)
+          .map(ComponentHitsPerQualifier::getHits)
           .flatMap(Collection::stream)
+          .map(ComponentHit::getUuid)
           .collect(toSet());
         componentsByUuids = dbClient.componentDao().selectByUuids(dbSession, componentUuids).stream()
           .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
@@ -172,9 +183,8 @@ public class SuggestionsAction implements ComponentsWsAction {
     Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
     return componentsPerQualifiers.stream().map(qualifier -> {
 
-      List<Suggestion> suggestions = qualifier.getComponentUuids().stream()
-        .map(componentsByUuids::get)
-        .map(dto -> toSuggestion(dto, organizationByUuids, projectsByUuids))
+      List<Suggestion> suggestions = qualifier.getHits().stream()
+        .map(hit -> toSuggestion(hit, componentsByUuids, organizationByUuids, projectsByUuids))
         .collect(toList());
 
       return Category.newBuilder()
@@ -185,8 +195,10 @@ public class SuggestionsAction implements ComponentsWsAction {
     }).collect(toList());
   }
 
-  private static Suggestion toSuggestion(ComponentDto result, Map<String, OrganizationDto> organizationByUuid, Map<String, ComponentDto> projectsByUuids) {
-    String organizationKey = organizationByUuid.get(result.getOrganizationUuid()).getKey();
+  private static Suggestion toSuggestion(ComponentHit hit, Map<String, ComponentDto> componentsByUuids, Map<String, OrganizationDto> organizationByUuids,
+    Map<String, ComponentDto> projectsByUuids) {
+    ComponentDto result = componentsByUuids.get(hit.getUuid());
+    String organizationKey = organizationByUuids.get(result.getOrganizationUuid()).getKey();
     checkState(organizationKey != null, "Organization with uuid '%s' not found", result.getOrganizationUuid());
     String projectKey = ofNullable(result.projectUuid()).map(projectsByUuids::get).map(ComponentDto::getKey).orElse("");
     return Suggestion.newBuilder()
@@ -194,6 +206,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setProject(projectKey)
       .setKey(result.getKey())
       .setName(result.longName())
+      .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.longName())))
       .build();
   }
 
