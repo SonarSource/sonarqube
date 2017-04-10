@@ -38,7 +38,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
  */
 public class RuleIndexDefinition implements IndexDefinition {
 
-  private static final String INDEX = "rules";
+  static final String INDEX = "rules";
 
   public static final IndexType INDEX_TYPE_RULE = new IndexType(INDEX, "rule");
   public static final String FIELD_RULE_KEY = "key";

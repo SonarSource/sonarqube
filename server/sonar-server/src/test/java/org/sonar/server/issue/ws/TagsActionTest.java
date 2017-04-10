@@ -63,7 +63,7 @@ public class TagsActionTest {
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()), new RuleIndexDefinition(new MapSettings()));
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(db.getDbClient()));
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), new RuleIteratorFactory(db.getDbClient()));
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), null, new RuleIteratorFactory(db.getDbClient()), null);
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
 
   private WsActionTester tester = new WsActionTester(new TagsAction(issueIndex));

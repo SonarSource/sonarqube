@@ -85,7 +85,7 @@ public class RuleIndexTest {
 
   @Before
   public void setUp() {
-    ruleIndexer = new RuleIndexer(tester.client(), null);
+    ruleIndexer = new RuleIndexer(tester.client(), null, null, null);
     activeRuleIndexer = new ActiveRuleIndexer(system2, null, tester.client());
     index = new RuleIndex(tester.client());
   }

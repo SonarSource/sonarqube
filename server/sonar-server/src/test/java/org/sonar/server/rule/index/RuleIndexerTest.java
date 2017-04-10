@@ -34,6 +34,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,8 +109,20 @@ public class RuleIndexerTest {
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
 
+  @Test
+  public void index_on_startup() {
+    RuleIndexer indexer = createIndexer();
+
+    // Create and Index rule
+    dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
+    dbSession.commit();
+
+    indexer.indexOnStartup(indexer.getIndexTypes());
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+  }
+
   private RuleIndexer createIndexer() {
-    return new RuleIndexer(esTester.client(), new RuleIteratorFactory(dbTester.getDbClient()));
+    return new RuleIndexer(esTester.client(), dbClient, new RuleIteratorFactory(dbTester.getDbClient()), TestDefaultOrganizationProvider.from(dbTester));
   }
 
 }

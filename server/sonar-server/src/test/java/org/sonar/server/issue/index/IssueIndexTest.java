@@ -95,7 +95,7 @@ public class IssueIndexTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(tester.client(), new IssueIteratorFactory(null));
   private ViewIndexer viewIndexer = new ViewIndexer(null, tester.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(tester.client(), null);
+  private RuleIndexer ruleIndexer = new RuleIndexer(tester.client(), null, null, null);
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
   private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
