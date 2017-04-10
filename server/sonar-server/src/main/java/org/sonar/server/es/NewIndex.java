@@ -202,6 +202,7 @@ public class NewIndex {
     private final String fieldName;
     private boolean disableSearch = false;
     private boolean disableNorms = false;
+    private boolean termVectorWithPositionOffsets = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
@@ -239,6 +240,14 @@ public class NewIndex {
     }
 
     /**
+     * Position offset term vectors are required for the fast_vector_highlighter (fvh).
+     */
+    public StringFieldBuilder termVectorWithPositionOffsets() {
+      this.termVectorWithPositionOffsets = true;
+      return this;
+    }
+
+    /**
      * "index: no" -> Don’t index this field at all. This field will not be searchable.
      * By default field is "not_analyzed": it is searchable, but index the value exactly
      * as specified.
@@ -257,15 +266,37 @@ public class NewIndex {
           "norms", ImmutableMap.of("enabled", String.valueOf(!disableNorms))));
       } else {
         hash.put("type", "multi_field");
+
         Map<String, Object> multiFields = new TreeMap<>(subFields);
+
+        if (termVectorWithPositionOffsets) {
+          multiFields.entrySet().forEach(entry -> {
+            Object subFieldMapping = entry.getValue();
+            if (subFieldMapping instanceof Map) {
+              entry.setValue(
+                addFieldToMapping(
+                  (Map<String, String>) subFieldMapping,
+                  "term_vector", "with_positions_offsets"));
+            }
+          });
+        }
+
         multiFields.put(fieldName, ImmutableMap.of(
           "type", "string",
           "index", "not_analyzed",
+          "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
           "norms", ImmutableMap.of("enabled", "false")));
+
         hash.put("fields", multiFields);
       }
 
       return indexType.setProperty(fieldName, hash);
+    }
+
+    private static SortedMap<String, String> addFieldToMapping(Map<String, String> source, String key, String value) {
+      SortedMap<String, String> mutable = new TreeMap<>(source);
+      mutable.put(key, value);
+      return ImmutableSortedMap.copyOf(mutable);
     }
   }
 
