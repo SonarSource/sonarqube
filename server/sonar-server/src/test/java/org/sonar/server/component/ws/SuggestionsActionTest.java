@@ -43,9 +43,9 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
+import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.IntStream.range;
@@ -111,14 +111,14 @@ public class SuggestionsActionTest {
 
     // assert match in qualifier "TRK"
     assertThat(response.getSuggestionsList())
-      .filteredOn(q -> q.getItemsCount() > 0)
+      .filteredOn(q -> q.getSuggestionsCount() > 0)
       .extracting(Category::getCategory)
       .containsExactly(Qualifiers.PROJECT);
 
     // assert correct id to be found
     assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getItemsList)
-      .extracting(Component::getKey, Component::getOrganization)
+      .flatExtracting(Category::getSuggestionsList)
+      .extracting(Suggestion::getKey, Suggestion::getOrganization)
       .containsExactly(tuple(project.getKey(), organization.getKey()));
   }
 
@@ -134,7 +134,7 @@ public class SuggestionsActionTest {
       .setParam(PARAM_QUERY, "S o")
       .executeProtobuf(SuggestionsWsResponse.class);
 
-    assertThat(response.getSuggestionsList()).filteredOn(q -> q.getItemsCount() > 0).isEmpty();
+    assertThat(response.getSuggestionsList()).filteredOn(q -> q.getSuggestionsCount() > 0).isEmpty();
     assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
   }
 
@@ -187,8 +187,8 @@ public class SuggestionsActionTest {
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getItemsList)
-      .extracting(Component::getProject)
+      .flatExtracting(Category::getSuggestionsList)
+      .extracting(Suggestion::getProject)
       .containsOnly(project.key());
 
     assertThat(response.getProjectsList())
@@ -236,18 +236,18 @@ public class SuggestionsActionTest {
 
     // assert match in qualifier "TRK"
     assertThat(response.getSuggestionsList())
-      .filteredOn(q -> q.getItemsCount() > 0)
+      .filteredOn(q -> q.getSuggestionsCount() > 0)
       .extracting(Category::getCategory)
       .containsExactly(Qualifiers.PROJECT);
 
     // include limited number of results in the response
     assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getItemsList)
+      .flatExtracting(Category::getSuggestionsList)
       .hasSize(Math.min(results, numberOfProjects));
 
     // indicate, that there are more results
     assertThat(response.getSuggestionsList())
-      .filteredOn(q -> q.getItemsCount() > 0)
+      .filteredOn(q -> q.getSuggestionsCount() > 0)
       .extracting(Category::getMore)
       .containsExactly(numberOfMoreResults);
   }

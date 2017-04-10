@@ -55,8 +55,16 @@ message SuggestionsWsResponse {
 
   message Category {
   	optional string category = 1;
-  	repeated Component items = 2;
+  	repeated Suggestion suggestions = 2;
     optional int64 more = 3;
+  }
+
+  message Suggestion {
+    optional string key = 1;
+    optional string name = 2;
+    optional string match = 3;
+    optional string organization = 4;
+    optional string project = 5;
   }
 
   message Organization {
@@ -83,7 +91,6 @@ message Component {
   optional string key = 2;
   optional string refId = 3;
   optional string refKey = 4;
-  optional string project = 15;
   optional string projectId = 5;
   optional string name = 6;
   optional string description = 7;
