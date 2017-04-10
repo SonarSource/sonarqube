@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,13 +30,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComponentIndexHighlightTest extends ComponentIndexTest {
 
   @Test
-  public void should_highlight_prefix() {
-    assertHighlighting("quick brown fox", "brown", "quick <mark>brown</mark> fox");
+  public void should_escape_html() {
+    assertHighlighting("quick< brown fox", "brown", "quick&lt; <mark>brown</mark> fox");
   }
 
   @Test
-  public void should_escape_html() {
-    assertHighlighting("quick< brown fox", "brown", "quick&lt; <mark>brown</mark> fox");
+  public void should_highlight_partial_name() {
+    assertHighlighting("quickbrownfox", "brown", "quick<mark>brown</mark>fox");
+  }
+
+  @Test
+  public void should_highlight_prefix() {
+    assertHighlighting("quickbrownfox", "quick", "<mark>quick</mark>brownfox");
+  }
+
+  @Test
+  public void should_highlight_suffix() {
+    assertHighlighting("quickbrownfox", "fox", "quickbrown<mark>fox</mark>");
+  }
+
+  @Test
+  public void should_highlight_multiple_words() {
+    assertHighlighting("quickbrownfox", "fox bro", "quick<mark>bro</mark>wn<mark>fox</mark>");
+  }
+
+  @Test
+  public void should_highlight_multiple_connected_words() {
+    assertHighlighting("quickbrownfox", "fox brown", "quick<mark>brownfox</mark>");
   }
 
   private void assertHighlighting(String fileName, String search, String expectedHighlighting) {

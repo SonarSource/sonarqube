@@ -20,7 +20,6 @@
 package org.sonar.server.component.index;
 
 import java.util.List;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class ComponentHitsPerQualifier {
 
@@ -36,10 +35,6 @@ public class ComponentHitsPerQualifier {
 
   public String getQualifier() {
     return qualifier;
-  }
-
-  public List<String> getComponentUuids() {
-    return hits.stream().map(ComponentHit::getUuid).collect(MoreCollectors.toList(hits.size()));
   }
 
   public List<ComponentHit> getHits() {
