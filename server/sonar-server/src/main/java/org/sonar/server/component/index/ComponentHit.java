@@ -19,17 +19,32 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.core.util.stream.MoreCollectors;
+
+import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 
 public class ComponentHit {
 
   private final String uuid;
+  private final Optional<String> highlightedText;
 
-  private ComponentHit(String uuid) {
-    this.uuid = uuid;
+  private ComponentHit(SearchHit hit) {
+    this.uuid = hit.getId();
+    this.highlightedText = getHighlightedText(hit);
+  }
+
+  private static Optional<String> getHighlightedText(SearchHit hit) {
+    return ofNullable(hit.getHighlightFields())
+      .flatMap(fields -> ofNullable(fields.get(FIELD_NAME)))
+      .flatMap(field -> ofNullable(field.getFragments()))
+      .flatMap(fragments -> stream(fragments).findFirst())
+      .map(Text::string);
   }
 
   public String getUuid() {
@@ -37,11 +52,12 @@ public class ComponentHit {
   }
 
   public static List<ComponentHit> fromSearchHits(SearchHit... hits) {
-    return Arrays.stream(hits).map(ComponentHit::fromSearchHit)
+    return stream(hits)
+      .map(ComponentHit::new)
       .collect(MoreCollectors.toList(hits.length));
   }
 
-  public static ComponentHit fromSearchHit(SearchHit hit) {
-    return new ComponentHit(hit.getId());
+  public Optional<String> getHighlightedText() {
+    return highlightedText;
   }
 }

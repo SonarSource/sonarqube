@@ -20,9 +20,11 @@
 package org.sonar.server.component.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -35,6 +37,7 @@ import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Bucket;
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
+import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
@@ -48,6 +51,7 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KE
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
+import static org.sonar.server.component.index.ComponentIndexDefinition.NAME_ANALYZERS;
 
 public class ComponentIndex {
 
@@ -60,6 +64,19 @@ public class ComponentIndex {
   public ComponentIndex(EsClient client, AuthorizationTypeSupport authorizationTypeSupport) {
     this.client = client;
     this.authorizationTypeSupport = authorizationTypeSupport;
+  }
+
+  private static HighlightBuilder.Field createHighlighter() {
+    HighlightBuilder.Field field = new HighlightBuilder.Field(FIELD_NAME);
+    field.highlighterType("fvh");
+    field.matchedFields(
+      Stream.concat(
+        Stream.of(FIELD_NAME),
+        Arrays
+          .stream(NAME_ANALYZERS)
+          .map(a -> a.subField(FIELD_NAME)))
+        .toArray(String[]::new));
+    return field;
   }
 
   public List<ComponentHitsPerQualifier> search(ComponentIndexQuery query) {
@@ -94,7 +111,11 @@ public class ComponentIndex {
   }
 
   private static TopHitsBuilder createSubAggregation(ComponentIndexQuery query) {
-    TopHitsBuilder sub = AggregationBuilders.topHits(DOCS_AGGREGATION_NAME);
+    TopHitsBuilder sub = AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
+      .setHighlighterEncoder("html")
+      .setHighlighterPreTags("<mark>")
+      .setHighlighterPostTags("</mark>")
+      .addHighlightedField(createHighlighter());
     query.getLimit().ifPresent(sub::setSize);
     return sub.setFetchSource(false);
   }
