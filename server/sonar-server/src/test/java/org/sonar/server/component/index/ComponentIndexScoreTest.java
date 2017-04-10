@@ -84,10 +84,24 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
+  public void scoring_perfect_match() {
+    assertResultOrder("SonarQube",
+      "SonarQube",
+      "SonarQube SCM Git");
+  }
+
+  @Test
   public void scoring_perfect_match_dispite_case_changes() {
     assertResultOrder("sonarqube",
       "SonarQube",
       "SonarQube SCM Git");
+  }
+
+  @Test
+  public void scoring_perfect_match_with_matching_case_higher_than_without_matching_case() {
+    assertResultOrder("sonarqube",
+      "sonarqube",
+      "SonarQube");
   }
 
   @Test
