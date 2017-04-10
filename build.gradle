@@ -28,7 +28,9 @@ allprojects {
 
   repositories {
     mavenLocal()
-    mavenCentral()
+    maven {
+      url 'https://repox.sonarsource.com/sonarsource'
+    }
   }
 }
 
