@@ -51,6 +51,7 @@ message SuggestionsWsResponse {
   repeated Category suggestions = 1;
   optional string warning = 2;
   repeated Organization organizations = 3;
+  repeated Project projects = 4;
 
   message Category {
   	optional string category = 1;
@@ -59,6 +60,11 @@ message SuggestionsWsResponse {
   }
 
   message Organization {
+    optional string key = 1;
+    optional string name = 2;
+  }
+
+  message Project {
     optional string key = 1;
     optional string name = 2;
   }
@@ -77,6 +83,7 @@ message Component {
   optional string key = 2;
   optional string refId = 3;
   optional string refKey = 4;
+  optional string project = 15;
   optional string projectId = 5;
   optional string name = 6;
   optional string description = 7;
