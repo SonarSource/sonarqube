@@ -94,7 +94,7 @@ public class CreateActionTest {
   private DbSession dbSession = dbTester.getSession();
   private RuleIndex ruleIndex = new RuleIndex(esTester.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), new RuleIteratorFactory(dbClient));
+  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), null, new RuleIteratorFactory(dbClient), null);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(system2, dbClient, esTester.client());
   private ProfileImporter[] profileImporters = createImporters();
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
