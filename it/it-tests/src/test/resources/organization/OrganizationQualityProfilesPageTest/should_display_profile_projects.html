@@ -16,6 +16,36 @@
 <tbody>
 <tr>
 	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=.js-user-authenticated</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
 	<td>/organizations/test-org/quality_profiles</td>
 	<td></td>
 </tr>
