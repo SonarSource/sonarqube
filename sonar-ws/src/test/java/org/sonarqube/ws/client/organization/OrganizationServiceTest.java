@@ -55,6 +55,26 @@ public class OrganizationServiceTest {
   }
 
   @Test
+  public void search_members() {
+    underTest.searchMembers(new SearchMembersWsRequest()
+      .setOrganization("orga")
+      .setSelected("selected")
+      .setQuery("john")
+      .setPage(2)
+      .setPageSize(10));
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(Organizations.SearchMembersWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam("organization", "orga")
+      .hasParam("selected", "selected")
+      .hasParam("q", "john")
+      .hasParam("p", 2)
+      .hasParam("ps", 10)
+      .andNoOtherParam();
+  }
+
+  @Test
   public void add_member() {
     underTest.addMember("O1", "login-1");
 

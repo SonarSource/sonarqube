@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client.organization;
 
 import javax.annotation.Nullable;
+import org.sonarqube.ws.Organizations.SearchMembersWsResponse;
 import org.sonarqube.ws.Organizations.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
@@ -27,6 +28,9 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.Organizations.CreateWsResponse;
 import static org.sonarqube.ws.Organizations.UpdateWsResponse;
 
@@ -39,8 +43,8 @@ public class OrganizationService extends BaseService {
   public SearchWsResponse search(SearchWsRequest request) {
     GetRequest get = new GetRequest(path("search"))
       .setParam("organizations", inlineMultipleParamValue(request.getOrganizations()))
-      .setParam("p", request.getPage())
-      .setParam("ps", request.getPageSize());
+      .setParam(PAGE, request.getPage())
+      .setParam(PAGE_SIZE, request.getPageSize());
 
     return call(get, SearchWsResponse.parser());
   }
@@ -72,6 +76,17 @@ public class OrganizationService extends BaseService {
       .setParam("organization", key);
 
     call(post).failIfNotSuccessful();
+  }
+
+  public SearchMembersWsResponse searchMembers(SearchMembersWsRequest request) {
+    GetRequest get = new GetRequest(path("search_members"))
+      .setParam("organization", request.getOrganization())
+      .setParam("selected", request.getSelected())
+      .setParam(TEXT_QUERY, request.getQuery())
+      .setParam(PAGE, request.getPage())
+      .setParam(PAGE_SIZE, request.getPageSize());
+
+    return call(get, SearchMembersWsResponse.parser());
   }
 
   public void addMember(String organizationKey, String login) {
