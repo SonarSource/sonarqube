@@ -20,25 +20,60 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.StartupIndexer;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 
-public class RuleIndexer {
+public class RuleIndexer implements StartupIndexer {
 
   private final EsClient esClient;
+  private final DbClient dbClient;
   private final RuleIteratorFactory ruleIteratorFactory;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleIndexer(EsClient esClient, RuleIteratorFactory ruleIteratorFactory) {
+  public RuleIndexer(EsClient esClient, DbClient dbClient, RuleIteratorFactory ruleIteratorFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.esClient = esClient;
+    this.dbClient = dbClient;
     this.ruleIteratorFactory = ruleIteratorFactory;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
+  }
+
+  @Override
+  public Set<IndexType> getIndexTypes() {
+    return ImmutableSet.of(INDEX_TYPE_RULE);
+  }
+
+  @Override
+  public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+    BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX).setSize(Size.LARGE);
+
+    // index all definitions and system extensions
+    if (uninitializedIndexTypes.contains(INDEX_TYPE_RULE)) {
+      try(DbSession dbSession = dbClient.openSession(false)) {
+
+        String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+        OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
+          .orElseThrow(() -> new IllegalStateException(String.format("Cannot load default organization for uuid '%s'", defaultOrganizationUuid)));
+
+        try (RuleIterator rules = new RuleIteratorForSingleChunk(dbClient, defaultOrganization, null)) {
+          doIndex(bulk, rules);
+        }
+      }
+    }
   }
 
   public void index(OrganizationDto organization, RuleKey ruleKey) {

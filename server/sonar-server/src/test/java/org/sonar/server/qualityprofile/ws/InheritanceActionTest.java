@@ -85,7 +85,7 @@ public class InheritanceActionTest {
     dbClient = dbTester.getDbClient();
     dbSession = dbTester.getSession();
     esClient = esTester.client();
-    ruleIndexer = new RuleIndexer(esClient, new RuleIteratorFactory(dbClient));
+    ruleIndexer = new RuleIndexer(esClient, null, new RuleIteratorFactory(dbClient), null);
     activeRuleIndexer = new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     underTest = new InheritanceAction(

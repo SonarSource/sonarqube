@@ -105,7 +105,9 @@ public class ChangeParentActionTest {
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     ruleIndexer = new RuleIndexer(
       esClient,
-      new RuleIteratorFactory(dbClient)
+      null,
+      new RuleIteratorFactory(dbClient),
+      null
     );
     activeRuleIndexer = new ActiveRuleIndexer(
       System2.INSTANCE,

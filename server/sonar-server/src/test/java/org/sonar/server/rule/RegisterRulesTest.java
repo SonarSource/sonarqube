@@ -86,7 +86,7 @@ public class RegisterRulesTest {
   @Before
   public void before() {
     when(system.now()).thenReturn(DATE1.getTime());
-    ruleIndexer = new RuleIndexer(esTester.client(), new RuleIteratorFactory(dbClient));
+    ruleIndexer = new RuleIndexer(esTester.client(), null, new RuleIteratorFactory(dbClient), null);
     ruleIndex = new RuleIndex(esTester.client());
     activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
   }
