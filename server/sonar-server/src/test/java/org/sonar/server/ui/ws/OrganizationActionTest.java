@@ -25,17 +25,25 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.page.Page;
+import org.sonar.api.web.page.PageDefinition;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -50,12 +58,13 @@ public class OrganizationActionTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private PageRepository pageRepository = mock(PageRepository.class);
 
-  private WsActionTester underTest = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession));
+  private WsActionTester ws = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession, pageRepository));
 
   @Test
   public void verify_definition() {
-    WebService.Action def = underTest.getDef();
+    WebService.Action def = ws.getDef();
 
     assertThat(def.isInternal()).isTrue();
     assertThat(def.description()).isEqualTo("Get information concerning organization navigation for the current user");
@@ -77,7 +86,11 @@ public class OrganizationActionTest {
   }
 
   @Test
-  public void verify_example() {
+  public void json_example() {
+    initWithPages(
+      Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
+      Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build()
+    );
     OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
     userSession.logIn()
       .addPermission(ADMINISTER, organization)
@@ -86,7 +99,24 @@ public class OrganizationActionTest {
     TestResponse response = executeRequest(organization);
 
     assertJson(response.getInput())
-      .isSimilarTo(underTest.getDef().responseExampleAsString());
+      .isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void filter_out_admin_pages_when_user_is_not_admin() {
+    initWithPages(
+      Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
+      Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build()
+    );
+    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn()
+      .addPermission(PROVISION_PROJECTS, organization);
+
+    TestResponse response = executeRequest(organization);
+
+    assertThat(response.getInput())
+      .contains("my-plugin/org-page")
+      .doesNotContain("my-plugin/org-admin-page");
   }
 
   @Test
@@ -174,8 +204,20 @@ public class OrganizationActionTest {
     verifyResponse(executeRequest(org2), false, true, false);
   }
 
+  private void initWithPages(Page... pages) {
+    PluginRepository pluginRepository = mock(PluginRepository.class);
+    when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
+    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+      for (Page page : pages) {
+        context.addPage(page);
+      }
+    }});
+    pageRepository.start();
+    ws = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession, pageRepository));
+  }
+
   private TestResponse executeRequest(@Nullable OrganizationDto organization) {
-    TestRequest request = underTest.newRequest();
+    TestRequest request = ws.newRequest();
     if (organization != null) {
       request.setParam("organization", organization.getKey());
     }
@@ -189,6 +231,7 @@ public class OrganizationActionTest {
         "    \"canAdmin\": " + canAdmin + "," +
         "    \"canProvisionProjects\": " + canProvisionProjects + "," +
         "    \"canDelete\": " + canDelete +
+        "    \"pages\": []" +
         "  }" +
         "}");
   }
