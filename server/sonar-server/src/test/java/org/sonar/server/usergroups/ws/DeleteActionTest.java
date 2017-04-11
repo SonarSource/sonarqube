@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,7 +44,6 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
@@ -61,17 +59,12 @@ public class DeleteActionTest {
 
   private ComponentDbTester componentTester = new ComponentDbTester(db);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private GroupDto defaultGroup;
-  private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport(), defaultOrganizationProvider));
-
-  @Before
-  public void setUp() {
-    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), SONAR_USERS_GROUP_NAME);
-  }
+  private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport()));
 
   @Test
   public void response_has_no_content() throws Exception {
     addAdmin(db.getDefaultOrganization());
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -85,6 +78,7 @@ public class DeleteActionTest {
   @Test
   public void delete_by_id() throws Exception {
     addAdmin(db.getDefaultOrganization());
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -98,6 +92,7 @@ public class DeleteActionTest {
   @Test
   public void delete_by_name_on_default_organization() throws Exception {
     addAdminToDefaultOrganization();
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -111,6 +106,7 @@ public class DeleteActionTest {
   @Test
   public void delete_by_name_and_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
+    db.users().insertDefaultGroup(org);
     addAdmin(org);
     GroupDto group = db.users().insertGroup(org, "to-delete");
     loginAsAdmin(org);
@@ -126,6 +122,7 @@ public class DeleteActionTest {
   @Test
   public void delete_by_name_fails_if_organization_is_not_correct() throws Exception {
     OrganizationDto org = db.organizations().insert();
+    db.users().insertDefaultGroup(org);
     loginAsAdmin(org);
 
     expectedException.expect(NotFoundException.class);
@@ -140,6 +137,7 @@ public class DeleteActionTest {
   @Test
   public void delete_members() throws Exception {
     addAdminToDefaultOrganization();
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.users().insertMember(group, user);
@@ -155,6 +153,7 @@ public class DeleteActionTest {
   @Test
   public void delete_permissions() throws Exception {
     addAdminToDefaultOrganization();
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     ComponentDto project = componentTester.insertComponent(ComponentTesting.newProjectDto(db.getDefaultOrganization()));
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, project);
@@ -170,6 +169,7 @@ public class DeleteActionTest {
   @Test
   public void delete_group_from_permission_templates() throws Exception {
     addAdminToDefaultOrganization();
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto());
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getId(), group.getId(), "perm");
@@ -188,7 +188,7 @@ public class DeleteActionTest {
   public void fail_if_id_does_not_exist() throws Exception {
     addAdminToDefaultOrganization();
     loginAsAdminOnDefaultOrganization();
-    int groupId = defaultGroup.getId() + 123;
+    int groupId = 123;
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No group with id '" + groupId + "'");
@@ -199,11 +199,12 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void cannot_delete_default_group_of_default_organization() throws Exception {
+  public void fail_to_delete_default_group_of_default_organization() throws Exception {
     loginAsAdminOnDefaultOrganization();
+    GroupDto defaultGroup = db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be deleted");
+    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", defaultGroup.getId().toString())
@@ -211,22 +212,23 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_group_of_an_organization_even_if_name_is_default_group_of_default_organization() throws Exception {
+  public void fail_to_delete_group_of_a_none_default_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
+    GroupDto defaultGroup = db.users().insertDefaultGroup(org, "default");
     addAdmin(org);
-    GroupDto group = db.users().insertGroup(org, defaultGroup.getName());
     loginAsAdmin(org);
 
-    newRequest()
-      .setParam("id", group.getId().toString())
-      .execute();
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
-    assertThat(db.users().selectGroupById(defaultGroup.getId())).isNotNull();
-    assertThat(db.users().selectGroupById(group.getId())).isNull();
+    newRequest()
+      .setParam("id", defaultGroup.getId().toString())
+      .execute();
   }
 
   @Test
   public void cannot_delete_last_system_admin_group() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     db.users().insertPermissionOnGroup(group, SYSTEM_ADMIN);
     loginAsAdminOnDefaultOrganization();
@@ -243,6 +245,7 @@ public class DeleteActionTest {
   public void delete_admin_group_fails_if_no_admin_users_left() throws Exception {
     // admin users are part of the group to be deleted
     OrganizationDto org = db.organizations().insert();
+    db.users().insertDefaultGroup(org);
     GroupDto adminGroup = db.users().insertGroup(org, "admins");
     db.users().insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
     UserDto bigBoss = db.users().insertUser();
@@ -258,6 +261,7 @@ public class DeleteActionTest {
   @Test
   public void delete_admin_group_succeeds_if_other_groups_have_administrators() throws Exception {
     OrganizationDto org = db.organizations().insert();
+    db.users().insertDefaultGroup(org);
     GroupDto adminGroup1 = db.users().insertGroup(org, "admins");
     db.users().insertPermissionOnGroup(adminGroup1, SYSTEM_ADMIN);
     GroupDto adminGroup2 = db.users().insertGroup(org, "admins");
@@ -271,8 +275,8 @@ public class DeleteActionTest {
     assertThat(db.users().selectGroupPermissions(adminGroup2, null)).hasSize(1);
   }
 
-  private TestResponse executeDeleteGroupRequest(GroupDto adminGroup1) throws Exception {
-    return newRequest()
+  private void executeDeleteGroupRequest(GroupDto adminGroup1) throws Exception {
+    newRequest()
       .setParam(PARAM_GROUP_ID, adminGroup1.getId().toString())
       .execute();
   }
@@ -292,6 +296,10 @@ public class DeleteActionTest {
 
   private void loginAsAdmin(OrganizationDto org) {
     userSession.logIn().addPermission(ADMINISTER, org);
+  }
+
+  private void insertDefaultGroupOnDefaultOrganization() {
+    db.users().insertDefaultGroup(db.getDefaultOrganization());
   }
 
   private TestRequest newRequest() {
