@@ -34,11 +34,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse.Group;
 import org.sonarqube.ws.client.user.GroupsRequest;
@@ -62,11 +64,13 @@ public class GroupsAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final DefaultGroupFinder defaultGroupFinder;
 
-  public GroupsAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.defaultGroupFinder = defaultGroupFinder;
   }
 
   @Override
@@ -106,7 +110,6 @@ public class GroupsAction implements UsersWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = findOrganizationByKey(dbSession, request.getOrganization());
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
-      Optional<Integer> defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organization.getUuid());
 
       String login = request.getLogin();
       GroupMembershipQuery query = GroupMembershipQuery.builder()
@@ -120,7 +123,7 @@ public class GroupsAction implements UsersWsAction {
       int total = dbClient.groupMembershipDao().countGroups(dbSession, query, user.getId());
       Paging paging = forPageIndex(query.pageIndex()).withPageSize(query.pageSize()).andTotal(total);
       List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getId(), paging.offset(), query.pageSize());
-      return buildResponse(groups, defaultGroupId, paging);
+      return buildResponse(groups, defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()), paging);
     }
   }
 
@@ -155,9 +158,9 @@ public class GroupsAction implements UsersWsAction {
     return membership;
   }
 
-  private static GroupsWsResponse buildResponse(List<GroupMembershipDto> groups, Optional<Integer> defaultGroupId, Paging paging) {
+  private static GroupsWsResponse buildResponse(List<GroupMembershipDto> groups, GroupDto defaultGroup, Paging paging) {
     GroupsWsResponse.Builder responseBuilder = GroupsWsResponse.newBuilder();
-    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group, defaultGroupId)));
+    groups.forEach(group -> responseBuilder.addGroups(toWsGroup(group, defaultGroup)));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
@@ -166,12 +169,12 @@ public class GroupsAction implements UsersWsAction {
     return responseBuilder.build();
   }
 
-  private static Group toWsGroup(GroupMembershipDto group, Optional<Integer> defaultGroupId) {
+  private static Group toWsGroup(GroupMembershipDto group, GroupDto defaultGroup) {
     Group.Builder groupBuilder = Group.newBuilder()
       .setId(group.getId())
       .setName(group.getName())
-      .setSelected(group.getUserId() != null);
-    defaultGroupId.ifPresent(defaultGroup -> groupBuilder.setDefault(defaultGroup.longValue() == group.getId()));
+      .setSelected(group.getUserId() != null)
+      .setDefault(defaultGroup.getId().longValue() == group.getId());
     Protobuf.setNullable(group.getDescription(), groupBuilder::setDescription);
     return groupBuilder.build();
   }

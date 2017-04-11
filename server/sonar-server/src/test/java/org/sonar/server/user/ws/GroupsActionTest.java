@@ -34,11 +34,13 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -65,7 +67,7 @@ public class GroupsActionTest {
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession, defaultOrganizationProvider));
+  private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession, defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient())));
 
   @Test
   public void empty_groups() throws Exception {
@@ -196,21 +198,6 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_default_to_false_when_organization_has_no_default_group() throws Exception {
-    UserDto user = insertUser();
-    OrganizationDto organizationDto = db.organizations().insert(organization -> organization.setKey("OrgKey"));
-    GroupDto group = db.users().insertGroup(organizationDto, "group1");
-    addUserToGroup(user, group);
-
-    GroupsWsResponse response = call(ws.newRequest().setParam("login", USER_LOGIN).setParam("organization", organizationDto.getKey()));
-
-    assertThat(response.getGroupsList())
-      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDefault)
-      .containsOnly(
-        tuple(group.getId().longValue(), group.getName(), false));
-  }
-
-  @Test
   public void return_groups_from_given_organization() throws Exception {
     UserDto user = insertUser();
     OrganizationDto organizationDto = db.organizations().insert();
@@ -228,6 +215,19 @@ public class GroupsActionTest {
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected, GroupsWsResponse.Group::getDefault)
       .containsOnly(tuple(group.getId().longValue(), group.getName(), group.getDescription(), true, true));
+  }
+
+  @Test
+  public void fail_when_organization_has_no_default_group() throws Exception {
+    UserDto user = insertUser();
+    OrganizationDto organizationDto = db.organizations().insert(organization -> organization.setKey("OrgKey"));
+    GroupDto group = db.users().insertGroup(organizationDto, "group1");
+    addUserToGroup(user, group);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(format("Default group cannot be found on organization '%s'", organizationDto.getUuid()));
+
+    call(ws.newRequest().setParam("login", USER_LOGIN).setParam("organization", organizationDto.getKey()));
   }
 
   @Test

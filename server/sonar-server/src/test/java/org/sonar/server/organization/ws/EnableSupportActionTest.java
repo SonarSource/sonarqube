@@ -43,6 +43,7 @@ import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -62,7 +63,7 @@ public class EnableSupportActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(db.getDbClient());
   private EnableSupportAction underTest = new EnableSupportAction(userSession, db.getDbClient(), defaultOrganizationProvider, organizationFlags,
-    new DefaultGroupCreatorImpl(db.getDbClient()));
+    new DefaultGroupCreatorImpl(db.getDbClient()), new DefaultGroupFinder(db.getDbClient()));
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -191,7 +192,7 @@ public class EnableSupportActionTest {
     logInAsSystemAdministrator(user.getLogin());
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Default group doesn't exist on default organization '%s'", defaultOrganizationProvider.get().getKey()));
+    expectedException.expectMessage(String.format("Default group cannot be found on organization '%s'", defaultOrganizationProvider.get().getUuid()));
 
     call();
   }

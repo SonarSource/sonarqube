@@ -33,11 +33,13 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -62,7 +64,7 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport()));
+  private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport(), new DefaultGroupFinder(db.getDbClient())));
 
   @Test
   public void search_without_parameters() throws Exception {
@@ -177,7 +179,6 @@ public class SearchActionTest {
     assertThat(response.getGroupsList()).extracting(Group::getId, Group::getName).containsOnly(tuple(group.getId().longValue(), "users"));
   }
 
-
   @Test
   public void return_default_group() throws Exception {
     db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
@@ -189,13 +190,14 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_no_default_group() throws Exception {
+  public void fail_when_no_default_group() throws Exception {
     db.users().insertGroup(db.getDefaultOrganization(), "users");
     loginAsDefaultOrgAdmin();
 
-    SearchWsResponse response = call(ws.newRequest());
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(format("Default group cannot be found on organization '%s'", db.getDefaultOrganization().getUuid()));
 
-    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDefault).containsOnly(tuple("users", false));
+    call(ws.newRequest());
   }
 
   @Test

@@ -35,6 +35,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.DefaultGroupCreator;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Objects.requireNonNull;
 
@@ -46,14 +47,16 @@ public class EnableSupportAction implements OrganizationsWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
   private final DefaultGroupCreator defaultGroupCreator;
+  private final DefaultGroupFinder defaultGroupFinder;
 
   public EnableSupportAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    OrganizationFlags organizationFlags, DefaultGroupCreator defaultGroupCreator) {
+    OrganizationFlags organizationFlags, DefaultGroupCreator defaultGroupCreator, DefaultGroupFinder defaultGroupFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
     this.defaultGroupCreator = defaultGroupCreator;
+    this.defaultGroupFinder = defaultGroupFinder;
   }
 
   @Override
@@ -97,8 +100,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
 
   private void createDefaultMembersGroup(DbSession dbSession) {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    int sonarUsersGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, defaultOrganizationUuid)
-      .orElseThrow(() -> new IllegalStateException(String.format("Default group doesn't exist on default organization '%s'", defaultOrganizationProvider.get().getKey())));
+    GroupDto sonarUsersGroupId = defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationUuid);
     GroupDto members = defaultGroupCreator.create(dbSession, defaultOrganizationUuid);
     copySonarUsersGroupPermissionsToMembersGroup(dbSession, sonarUsersGroupId, members);
     copySonarUsersGroupPermissionTemplatesToMembersGroup(dbSession, sonarUsersGroupId, members);
@@ -110,9 +112,9 @@ public class EnableSupportAction implements OrganizationsWsAction {
     organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(membersGroup.getId()).setUserId(member)));
   }
 
-  private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, int sonarUsersGroupId, GroupDto membersGroup) {
+  private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, GroupDto sonarUsersGroup, GroupDto membersGroup) {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    dbClient.groupPermissionDao().selectAllPermissionsByGroupId(dbSession, defaultOrganizationUuid, sonarUsersGroupId,
+    dbClient.groupPermissionDao().selectAllPermissionsByGroupId(dbSession, defaultOrganizationUuid, sonarUsersGroup.getId(),
       context -> {
         GroupPermissionDto groupPermissionDto = (GroupPermissionDto) context.getResultObject();
         dbClient.groupPermissionDao().insert(dbSession,
@@ -122,8 +124,9 @@ public class EnableSupportAction implements OrganizationsWsAction {
       });
   }
 
-  private void copySonarUsersGroupPermissionTemplatesToMembersGroup(DbSession dbSession, int sonarUsersGroupId, GroupDto membersGroup) {
-    List<PermissionTemplateGroupDto> sonarUsersPermissionTemplates = dbClient.permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbSession, sonarUsersGroupId);
+  private void copySonarUsersGroupPermissionTemplatesToMembersGroup(DbSession dbSession, GroupDto sonarUsersGroup, GroupDto membersGroup) {
+    List<PermissionTemplateGroupDto> sonarUsersPermissionTemplates = dbClient.permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbSession,
+      sonarUsersGroup.getId());
     sonarUsersPermissionTemplates.forEach(permissionTemplateGroup -> dbClient.permissionTemplateDao().insertGroupPermission(dbSession,
       permissionTemplateGroup.getTemplateId(), membersGroup.getId(), permissionTemplateGroup.getPermission()));
   }

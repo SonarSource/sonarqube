@@ -130,10 +130,6 @@ public class GroupWsSupport {
     return org.get();
   }
 
-  public Optional<Integer> findDefaultGroupId(DbSession dbSession, OrganizationDto organization) {
-    return dbClient.organizationDao().getDefaultGroupId(dbSession, organization.getUuid());
-  }
-
   /**
    * Similar to {@link UserGroupValidation#validateGroupName(String)} but kept internal. No need to publish
    * this method in public API.

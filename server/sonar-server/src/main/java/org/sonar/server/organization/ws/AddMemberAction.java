@@ -33,6 +33,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
@@ -44,11 +45,13 @@ public class AddMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final UserIndexer userIndexer;
+  private final DefaultGroupFinder defaultGroupFinder;
 
-  public AddMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer) {
+  public AddMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userIndexer = userIndexer;
+    this.defaultGroupFinder = defaultGroupFinder;
   }
 
   @Override
@@ -91,7 +94,8 @@ public class AddMemberAction implements OrganizationsWsAction {
       dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
         .setOrganizationUuid(organization.getUuid())
         .setUserId(user.getId()));
-      dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(getDefaultGroupId(dbSession, organization)).setUserId(user.getId()));
+      dbClient.userGroupDao().insert(dbSession,
+        new UserGroupDto().setGroupId(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getId()).setUserId(user.getId()));
       dbSession.commit();
       userIndexer.index(user.getLogin());
     }
@@ -100,11 +104,6 @@ public class AddMemberAction implements OrganizationsWsAction {
 
   private boolean isMemberOf(DbSession dbSession, OrganizationDto organizationDto, UserDto userDto) {
     return dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), userDto.getId()).isPresent();
-  }
-
-  int getDefaultGroupId(DbSession dbSession, OrganizationDto organizationDto) {
-    return dbClient.organizationDao().getDefaultGroupId(dbSession, organizationDto.getUuid())
-      .orElseThrow(() -> new IllegalStateException(String.format("Default group doesn't exist on default organization '%s'", organizationDto.getKey())));
   }
 
 }

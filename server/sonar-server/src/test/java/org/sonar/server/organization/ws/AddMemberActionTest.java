@@ -45,6 +45,7 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.index.UserQuery;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -71,7 +72,7 @@ public class AddMemberActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client())));
+  private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client()), new DefaultGroupFinder(dbClient)));
 
   @Test
   public void definition() {
@@ -166,7 +167,7 @@ public class AddMemberActionTest {
     UserDto user = db.users().insertUser();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Default group doesn't exist on default organization '%s'", organization.getKey()));
+    expectedException.expectMessage(format("Default group cannot be found on organization '%s'", organization.getUuid()));
 
     call(organization.getKey(), user.getLogin());
   }
