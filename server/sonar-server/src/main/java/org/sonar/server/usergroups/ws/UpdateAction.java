@@ -34,9 +34,9 @@ import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsUserGroups;
 
+import static java.lang.String.format;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
@@ -75,13 +75,12 @@ public class UpdateAction implements UserGroupsWsAction {
       .setRequired(true);
 
     action.createParam(PARAM_GROUP_NAME)
-      .setDescription(String.format("New optional name for the group. A group name cannot be larger than %d characters and must be unique. " +
-        "Value 'anyone' and '%s' (whatever the case) are reserved and cannot be used. If value is empty or not defined, then name is not changed.", GROUP_NAME_MAX_LENGTH,
-        SONAR_USERS_GROUP_NAME))
+      .setDescription(format("New optional name for the group. A group name cannot be larger than %d characters and must be unique. " +
+        "Value 'anyone' (whatever the case) is reserved and cannot be used. If value is empty or not defined, then name is not changed.", GROUP_NAME_MAX_LENGTH))
       .setExampleValue("my-group");
 
     action.createParam(PARAM_GROUP_DESCRIPTION)
-      .setDescription(String.format("New optional description for the group. A group description cannot be larger than %d characters. " +
+      .setDescription(format("New optional description for the group. A group description cannot be larger than %d characters. " +
         "If value is not defined, then description is not changed.", DESCRIPTION_MAX_LENGTH))
       .setExampleValue("Default group for new users");
   }
