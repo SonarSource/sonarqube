@@ -36,7 +36,11 @@ type GetOrganizationType = null | Organization;
 
 type GetOrganizationNavigation = {
   canAdmin: boolean,
-  isDefault: boolean
+  canDelete: boolean,
+  canProvisionProjects: boolean,
+  isDefault: boolean,
+  pages: Array<{ key: string, name: string }>,
+  adminPages: Array<{ key: string, name: string }>
 };
 
 export const getOrganization = (key: string): Promise<GetOrganizationType> => {
