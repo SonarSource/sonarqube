@@ -36,6 +36,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
@@ -75,11 +76,14 @@ public class UserIdentityAuthenticatorTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
     db.getDbClient(),
     mock(UserIndexer.class),
     System2.INSTANCE,
+    organizationFlags,
     defaultOrganizationProvider,
     organizationCreation,
     new DefaultGroupFinder(db.getDbClient()));
@@ -116,6 +120,18 @@ public class UserIdentityAuthenticatorTest {
 
     Optional<UserDto> user = db.users().selectUserByLogin(USER_LOGIN);
     checkGroupMembership(user.get(), group1, group2, defaultGroup);
+  }
+
+  @Test
+  public void authenticate_new_user_and_force_default_group() throws Exception {
+    UserDto user = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(defaultGroup, user);
+
+    authenticate(user.getLogin(), "group1");
+
+    checkGroupMembership(user, group1, defaultGroup);
   }
 
   @Test

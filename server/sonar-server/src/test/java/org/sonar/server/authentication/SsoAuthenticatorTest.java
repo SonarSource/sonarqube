@@ -43,6 +43,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
@@ -95,11 +96,12 @@ public class SsoAuthenticatorTest {
   private System2 system2 = mock(System2.class);
   private Settings settings = new MapSettings();
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
-
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+
   private UserIdentityAuthenticator userIdentityAuthenticator = new UserIdentityAuthenticator(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, defaultOrganizationProvider, organizationCreation,
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, organizationFlags, defaultOrganizationProvider, organizationCreation,
       new DefaultGroupFinder(db.getDbClient())),
     defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
 

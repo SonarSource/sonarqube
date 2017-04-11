@@ -35,6 +35,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -68,13 +69,14 @@ public class UpdateActionTest {
   private WsTester tester;
   private UserIndexer userIndexer;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
 
   @Before
   public void setUp() {
     dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
     userIndexer = new UserIndexer(dbClient, esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(
-      new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, system2, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
+      new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, system2, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
         new DefaultGroupFinder(dbTester.getDbClient())),
       userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
