@@ -20,6 +20,8 @@
 package org.sonarsource.sonarqube.perf.server;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.locator.FileLocation;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -43,8 +45,7 @@ public class ServerTest extends PerfTestCase {
   public void server_startup_and_shutdown() throws Exception {
     String defaultWebJavaOptions = "-Xmx768m -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF-8";
     Orchestrator orchestrator = Orchestrator.builderEnv()
-      .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
-      .addPlugin("java")
+      .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../plugins/sonar-xoo-plugin/target"), "sonar-xoo-plugin-*.jar"))
 
       // See http://wiki.apache.org/tomcat/HowTo/FasterStartUp
       // Sometimes source of entropy is too small and Tomcat spends ~20 seconds on the step :
@@ -83,6 +84,7 @@ public class ServerTest extends PerfTestCase {
         startedAtDate = extractStartedDate(readLines(orchestrator.getServer().getCeLogs()));
       } catch (InterruptedException e) {
         // ignored
+        Thread.currentThread().interrupt();
       }
     }
     return startedAtDate.getTime();
