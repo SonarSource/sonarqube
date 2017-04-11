@@ -46,7 +46,6 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
@@ -62,13 +61,11 @@ public class RuleUpdater {
   private final DbClient dbClient;
   private final RuleIndexer ruleIndexer;
   private final System2 system;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system) {
     this.dbClient = dbClient;
     this.ruleIndexer = ruleIndexer;
     this.system = system;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**

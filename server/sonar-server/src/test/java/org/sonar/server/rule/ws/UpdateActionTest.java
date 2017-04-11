@@ -85,7 +85,7 @@ public class UpdateActionTest {
   private Languages languages = new Languages();
   private RuleMapper mapper = new RuleMapper(languages, macroInterpreter);
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
-  private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE, defaultOrganizationProvider);
+  private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE);
   private RuleWsSupport ruleWsSupport = new RuleWsSupport(dbClient, userSession, defaultOrganizationProvider);
   private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, ruleWsSupport, defaultOrganizationProvider);
   private WsActionTester actionTester = new WsActionTester(underTest);
