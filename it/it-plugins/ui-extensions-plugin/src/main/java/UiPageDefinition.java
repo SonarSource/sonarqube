@@ -43,6 +43,7 @@ import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
 
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
+import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
 
 public class UiPageDefinition implements PageDefinition {
   @Override
@@ -51,6 +52,8 @@ public class UiPageDefinition implements PageDefinition {
       .addPage(Page.builder("uiextensionsplugin/global_page").setName("Global Page").build())
       .addPage(Page.builder("uiextensionsplugin/global_admin_page").setName("Global Admin Page").setAdmin(true).build())
       .addPage(Page.builder("uiextensionsplugin/project_page").setName("Project Page").setScope(COMPONENT).build())
-      .addPage(Page.builder("uiextensionsplugin/project_admin_page").setName("Project Admin Page").setScope(COMPONENT).setAdmin(true).build());
+      .addPage(Page.builder("uiextensionsplugin/project_admin_page").setName("Project Admin Page").setScope(COMPONENT).setAdmin(true).build())
+      .addPage(Page.builder("uiextensionsplugin/organization_page").setName("Organization Page").setScope(ORGANIZATION).build())
+      .addPage(Page.builder("uiextensionsplugin/organization_admin_page").setName("Organization Admin Page").setScope(ORGANIZATION).setAdmin(true).build());
   }
 }
