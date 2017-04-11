@@ -44,6 +44,8 @@ public class DbVersion64 implements DbVersion {
       .add(1614, "Upgrade loaded template entries for quality profiles", UpgradeQualityTemplateLoadedTemplates.class)
       .add(1615, "Create table RULES_METADATA", CreateRulesMetadata.class)
       .add(1616, "Populate table RULES_METADATA", PopulateRulesMetadata.class)
-      .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class);
+      .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class)
+      // ensure the index is made unique even on existing 6.4-SNAPSHOT instances (such as next or the developer machines)
+      .add(1618, "Make index on ORGANIZATIONS.KEE unique", org.sonar.server.platform.db.migration.version.v63.MakeIndexOnOrganizationsKeeUnique.class);
   }
 }
