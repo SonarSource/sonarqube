@@ -39,6 +39,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
@@ -80,13 +81,14 @@ public class UserIdentityAuthenticatorTest {
     mock(UserIndexer.class),
     System2.INSTANCE,
     defaultOrganizationProvider,
-    organizationCreation);
+    organizationCreation,
+    new DefaultGroupFinder(db.getDbClient()));
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider);
   private GroupDto defaultGroup;
 
   @Before
   public void setUp() throws Exception {
-    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
+    defaultGroup = db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test

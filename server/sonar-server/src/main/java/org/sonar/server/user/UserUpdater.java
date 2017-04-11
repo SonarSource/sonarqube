@@ -21,12 +21,10 @@ package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import java.net.HttpURLConnection;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -40,10 +38,10 @@ import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -77,15 +75,17 @@ public class UserUpdater {
   private final System2 system2;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationCreation organizationCreation;
+  private final DefaultGroupFinder defaultGroupFinder;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2,
-    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation) {
+    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.system2 = system2;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationCreation = organizationCreation;
+    this.defaultGroupFinder = defaultGroupFinder;
   }
 
   public UserDto create(DbSession dbSession, NewUser newUser) {
@@ -383,18 +383,15 @@ public class UserUpdater {
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {
     String defOrgUuid = defaultOrganizationProvider.get().getUuid();
     List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
-    if (isUserAlreadyMemberOfDefaultGroup(SONAR_USERS_GROUP_NAME, defOrgUuid, userGroups)) {
+    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, defOrgUuid);
+    if (isUserAlreadyMemberOfDefaultGroup(defaultGroup, userGroups)) {
       return;
     }
-    Optional<GroupDto> groupDto = dbClient.groupDao().selectByName(dbSession, defOrgUuid, SONAR_USERS_GROUP_NAME);
-    if (!groupDto.isPresent()) {
-      throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR, format("The default group '%s' for new users does not exist.", SONAR_USERS_GROUP_NAME));
-    }
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
+    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(defaultGroup.getId()));
   }
 
-  private static boolean isUserAlreadyMemberOfDefaultGroup(String defaultGroupName, String defOrgUuid, List<GroupDto> userGroups) {
-    return userGroups.stream().anyMatch(g -> defOrgUuid.equals(g.getOrganizationUuid()) && g.getName().equals(defaultGroupName));
+  private static boolean isUserAlreadyMemberOfDefaultGroup(GroupDto defaultGroup, List<GroupDto> userGroups) {
+    return userGroups.stream().anyMatch(group -> defaultGroup.getId().equals(group.getId()));
   }
 
   private void addUserToDefaultOrganization(DbSession dbSession, UserDto userDto) {

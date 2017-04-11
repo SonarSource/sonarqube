@@ -40,6 +40,7 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -70,10 +71,11 @@ public class UpdateActionTest {
 
   @Before
   public void setUp() {
-    dbTester.users().insertGroup(dbTester.getDefaultOrganization(), "sonar-users");
+    dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
     userIndexer = new UserIndexer(dbClient, esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(
-      new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, system2, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE),
+      new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, system2, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
+        new DefaultGroupFinder(dbTester.getDbClient())),
       userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
   }

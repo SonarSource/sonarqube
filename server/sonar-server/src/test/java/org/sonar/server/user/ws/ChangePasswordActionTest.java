@@ -39,6 +39,7 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -58,13 +59,14 @@ public class ChangePasswordActionTest {
   private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), esTester.client()),
     System2.INSTANCE,
     TestDefaultOrganizationProvider.from(db),
-    mock(OrganizationCreation.class));
+    mock(OrganizationCreation.class),
+    new DefaultGroupFinder(db.getDbClient()));
 
   private WsTester tester = new WsTester(new UsersWs(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule)));
 
   @Before
   public void setUp() {
-    db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
+    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test
