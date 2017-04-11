@@ -32,30 +32,23 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Optional.*;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
 
   public Optional<RuleDto> selectByKey(DbSession session, OrganizationDto organization, RuleKey key) {
-    return selectByKey(session, organization.getUuid(), key);
-  }
-
-  /**
-   * @deprecated use {@link #selectByKey(DbSession, OrganizationDto, RuleKey)}
-   */
-  @Deprecated
-  public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
-    RuleDto res = mapper(session).selectByKey(organizationUuid, key);
-    ensureOrganizationIsSet(organizationUuid, res);
-    return Optional.ofNullable(res);
+    RuleDto res = mapper(session).selectByKey(organization.getUuid(), key);
+    ensureOrganizationIsSet(organization.getUuid(), res);
+    return ofNullable(res);
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {
-    return Optional.ofNullable(mapper(session).selectDefinitionByKey(key));
+    return ofNullable(mapper(session).selectDefinitionByKey(key));
   }
 
-  public java.util.Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key, OrganizationDto organization) {
-    return java.util.Optional.ofNullable(mapper(session).selectMetadataByKey(key, organization.getUuid()));
+  public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key, OrganizationDto organization) {
+    return ofNullable(mapper(session).selectMetadataByKey(key, organization.getUuid()));
   }
 
   public RuleDto selectOrFailByKey(DbSession session, OrganizationDto organization, RuleKey key) {
@@ -78,11 +71,11 @@ public class RuleDao implements Dao {
   public Optional<RuleDto> selectById(long id, String organizationUuid, DbSession session) {
     RuleDto res = mapper(session).selectById(organizationUuid, id);
     ensureOrganizationIsSet(organizationUuid, res);
-    return Optional.ofNullable(res);
+    return ofNullable(res);
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionById(long id, DbSession session) {
-    return Optional.ofNullable(mapper(session).selectDefinitionById(id));
+    return ofNullable(mapper(session).selectDefinitionById(id));
   }
 
   public List<RuleDto> selectByIds(DbSession session, String organizationUuid, List<Integer> ids) {

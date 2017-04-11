@@ -36,6 +36,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -99,7 +100,10 @@ public class DefaultRuleFinder implements RuleFinder {
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, defaultOrganizationProvider.get().getUuid(), key);
+      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+      OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
+        .orElseThrow(() -> new IllegalStateException(String.format("Cannot find default organization '%s'", defaultOrganizationUuid)));
+      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, defaultOrganization, key);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       } else {

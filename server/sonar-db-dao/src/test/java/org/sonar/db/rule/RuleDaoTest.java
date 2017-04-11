@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.session.ResultHandler;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -57,14 +58,20 @@ public class RuleDaoTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private RuleDao underTest = dbTester.getDbClient().ruleDao();
+  private OrganizationDto organization;
+
+  @Before
+  public void before() {
+    organization = dbTester.organizations().insert(o -> o.setUuid(ORGANIZATION_UUID));
+  }
 
   @Test
   public void selectByKey() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectByKey(dbTester.getSession(), ORGANIZATION_UUID, RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
+    assertThat(underTest.selectByKey(dbTester.getSession(), organization, RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
 
-    Optional<RuleDto> rule = underTest.selectByKey(dbTester.getSession(), ORGANIZATION_UUID, RuleKey.of("java", "S001"));
+    Optional<RuleDto> rule = underTest.selectByKey(dbTester.getSession(), organization, RuleKey.of("java", "S001"));
     assertThat(rule.isPresent()).isTrue();
     assertThat(rule.get().getId()).isEqualTo(1);
   }
@@ -73,7 +80,7 @@ public class RuleDaoTest {
   public void selectByKey_populates_organizationUuid_even_when_organization_has_no_metadata() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectByKey(dbTester.getSession(), ORGANIZATION_UUID, RuleKey.of("java", "S001")).get().getOrganizationUuid())
+    assertThat(underTest.selectByKey(dbTester.getSession(), organization, RuleKey.of("java", "S001")).get().getOrganizationUuid())
       .isEqualTo(ORGANIZATION_UUID);
   }
 
