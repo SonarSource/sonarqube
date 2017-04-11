@@ -15,7 +15,8 @@
             qualifier="VW"
             name="All projects"
             path="[null]"
-            id="10"/>
+            id="10"
+            private="[false]"/>
   <snapshots id="10"
              uuid="u10"
              component_uuid="ABCD"
@@ -41,7 +42,8 @@
             qualifier="TRK"
             name="Struts"
             path="[null]"
-            id="110"/>
+            id="110"
+            private="[false]"/>
   <snapshots id="110"
              uuid="u110"
              component_uuid="BCDE"
@@ -68,7 +70,8 @@
             qualifier="VW"
             name="By Language"
             path="[null]"
-            id="11"/>
+            id="11"
+            private="[false]"/>
   <snapshots id="11"
              uuid="u11"
              component_uuid="EFGH"
@@ -93,7 +96,8 @@
             qualifier="TRK"
             name="SSLR"
             path="[null]"
-            id="112"/>
+            id="112"
+            private="[false]"/>
   <snapshots id="112"
              uuid="u112"
              component_uuid="GHIJ"
@@ -120,7 +124,8 @@
             qualifier="SVW"
             name="Java projects"
             path="[null]"
-            id="13"/>
+            id="13"
+            private="[false]"/>
   <snapshots id="13"
              uuid="u13"
              component_uuid="FGHI"
@@ -146,7 +151,8 @@
             qualifier="TRK"
             name="Struts"
             path="[null]"
-            id="113"/>
+            id="113"
+            private="[false]"/>
   <snapshots id="113"
              uuid="u113"
              component_uuid="HIJK"
@@ -173,7 +179,8 @@
             qualifier="VW"
             name="Other projects"
             path="[null]"
-            id="14"/>
+            id="14"
+            private="[false]"/>
   <snapshots id="14"
              uuid="u14"
              component_uuid="IJKL"
@@ -201,7 +208,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="org.struts:struts"
-            name="Struts"/>
+            name="Struts"
+            private="[false]"/>
   <snapshots id="100"
              uuid="u100"
              component_uuid="JKLM"
@@ -227,7 +235,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="org.elasticsearch:elasticsearch"
-            name="Elasticsearch"/>
+            name="Elasticsearch"
+            private="[false]"/>
   <snapshots id="101"
              uuid="u101"
              component_uuid="KLMN"

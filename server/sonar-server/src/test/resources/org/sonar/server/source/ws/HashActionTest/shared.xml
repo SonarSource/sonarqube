@@ -18,7 +18,8 @@
             kee="struts"
             root_uuid="ABCD"
             qualifier="TRK"
-            scope="PRJ"/>
+            scope="PRJ"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="CDEF"
             uuid_path="NOT_USED"
@@ -30,7 +31,8 @@
             kee="Action.java"
             root_uuid="ABCD"
             qualifier="CLA"
-            scope="PRJ"/>
+            scope="PRJ"
+            private="[false]"/>
 
   <file_sources id="101"
                 project_uuid="ABCD"

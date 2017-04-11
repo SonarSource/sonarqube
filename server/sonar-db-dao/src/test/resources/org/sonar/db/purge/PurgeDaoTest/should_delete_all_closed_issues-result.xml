@@ -17,6 +17,7 @@
             kee="project"
             name="project"
             description="[null]"
+            private="[false]"
             language="java"
             copy_component_uuid="[null]"
             developer_uuid="[null]"

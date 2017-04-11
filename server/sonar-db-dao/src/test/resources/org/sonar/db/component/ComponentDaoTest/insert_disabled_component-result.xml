@@ -16,6 +16,7 @@
             path="src/org/struts/RequestContext.java"
             root_uuid="uuid_3"
             description="[null]"
+            private="[false]"
             tags="[null]"
             enabled="[false]"
             copy_component_uuid="[null]"

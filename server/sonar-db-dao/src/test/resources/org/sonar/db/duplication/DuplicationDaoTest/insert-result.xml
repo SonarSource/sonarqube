@@ -19,7 +19,8 @@
             enabled="1"
             scope="FIL"
             qualifier="CLA"
-            id="1"/>
+            id="1"
+            private="[false]"/>
 
   <duplications_index id="1"
                       analysis_uuid="u1"
