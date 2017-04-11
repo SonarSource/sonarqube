@@ -46,6 +46,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -98,7 +99,8 @@ public class SsoAuthenticatorTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private UserIdentityAuthenticator userIdentityAuthenticator = new UserIdentityAuthenticator(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, defaultOrganizationProvider, organizationCreation),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, defaultOrganizationProvider, organizationCreation,
+      new DefaultGroupFinder(db.getDbClient())),
     defaultOrganizationProvider);
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
@@ -112,7 +114,7 @@ public class SsoAuthenticatorTest {
     when(system2.now()).thenReturn(NOW);
     group1 = db.users().insertGroup(db.getDefaultOrganization(), GROUP1);
     group2 = db.users().insertGroup(db.getDefaultOrganization(), GROUP2);
-    sonarUsers = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
+    sonarUsers = db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test

@@ -41,12 +41,12 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
@@ -69,7 +69,6 @@ public class UserUpdaterTest {
   private static final long NOW = 1418215735482L;
   private static final long PAST = 1000000000000L;
   private static final String DEFAULT_LOGIN = "marius";
-  private static final String DEFAULT_GROUP = "sonar-users";
 
   private System2 system2 = mock(System2.class);
 
@@ -89,7 +88,8 @@ public class UserUpdaterTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, system2, defaultOrganizationProvider, organizationCreation);
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, system2, defaultOrganizationProvider, organizationCreation,
+    new DefaultGroupFinder(dbClient));
 
   @Before
   public void setUp() {
@@ -443,7 +443,7 @@ public class UserUpdaterTest {
 
   @Test
   public void associate_default_group_when_creating_user() {
-    createDefaultGroup();
+    GroupDto defaultGroup = createDefaultGroup();
 
     underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
@@ -454,13 +454,13 @@ public class UserUpdaterTest {
       .build());
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
-    assertThat(groups.get("user")).containsOnly(DEFAULT_GROUP);
+    assertThat(groups.get("user")).containsOnly(defaultGroup.getName());
   }
 
   @Test
   public void fail_to_associate_default_group_when_default_group_does_not_exist() {
-    expectedException.expect(ServerException.class);
-    expectedException.expectMessage("The default group 'sonar-users' for new users does not exist.");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Default group cannot be found");
 
     underTest.create(db.getSession(), NewUser.builder()
       .setLogin("user")
@@ -583,7 +583,6 @@ public class UserUpdaterTest {
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST));
     createDefaultGroup();
-    createDefaultGroup();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("An active user with login 'marius' already exists");
@@ -605,7 +604,7 @@ public class UserUpdaterTest {
     db.organizations().insertForUuid("org1");
     GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
     db.users().insertMember(groupDto, userDto);
-    createDefaultGroup();
+    GroupDto defaultGroup = createDefaultGroup();
 
     underTest.create(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
@@ -616,7 +615,7 @@ public class UserUpdaterTest {
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
-    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(DEFAULT_GROUP))).isTrue();
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(groupDto.getName()))).isTrue();
   }
 
   @Test
@@ -995,7 +994,7 @@ public class UserUpdaterTest {
   @Test
   public void not_associate_default_group_when_updating_user() {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com"));
-    createDefaultGroup();
+    GroupDto defaultGroup = createDefaultGroup();
 
     // Existing user, he has no group, and should not be associated to the default one
     underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
@@ -1006,7 +1005,7 @@ public class UserUpdaterTest {
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
-    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(DEFAULT_GROUP))).isFalse();
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isFalse();
   }
 
   @Test
@@ -1017,7 +1016,7 @@ public class UserUpdaterTest {
 
     // User is already associate to the default group
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
-    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(DEFAULT_GROUP))).as("Current user groups : %s", groups.get(DEFAULT_GROUP)).isTrue();
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).as("Current user groups : %s", groups.get(defaultGroup.getName())).isTrue();
 
     underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
@@ -1028,7 +1027,7 @@ public class UserUpdaterTest {
 
     // Nothing as changed
     groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
-    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(DEFAULT_GROUP))).isTrue();
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isTrue();
   }
 
   @Test
@@ -1080,7 +1079,7 @@ public class UserUpdaterTest {
   }
 
   private GroupDto createDefaultGroup() {
-    return db.users().insertGroup(GroupTesting.newGroupDto().setName(DEFAULT_GROUP).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
+    return db.users().insertDefaultGroup(db.getDefaultOrganization());
   }
 
 }

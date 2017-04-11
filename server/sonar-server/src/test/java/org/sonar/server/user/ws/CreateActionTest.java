@@ -48,6 +48,7 @@ import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -87,12 +88,12 @@ public class CreateActionTest {
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, system2, defaultOrganizationProvider,
-      organizationCreation),
+      organizationCreation, new DefaultGroupFinder(db.getDbClient())),
     userSessionRule));
 
   @Before
   public void setUp() {
-    defaultGroupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME);
+    defaultGroupInDefaultOrg = db.users().insertDefaultGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME);
   }
 
   @Test
