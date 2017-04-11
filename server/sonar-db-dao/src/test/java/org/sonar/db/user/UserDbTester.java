@@ -139,6 +139,10 @@ public class UserDbTester {
     return insertDefaultGroup(newGroupDto().setName(name).setOrganizationUuid(organization.getUuid()));
   }
 
+  public GroupDto insertDefaultGroup(OrganizationDto organization) {
+    return insertDefaultGroup(newGroupDto().setOrganizationUuid(organization.getUuid()));
+  }
+
   @CheckForNull
   public GroupDto selectGroupById(int groupId) {
     return db.getDbClient().groupDao().selectById(db.getSession(), groupId);

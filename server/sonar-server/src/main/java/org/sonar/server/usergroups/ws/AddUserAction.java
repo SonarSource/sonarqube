@@ -72,8 +72,8 @@ public class AddUserAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupDto groupId = support.findGroupDto(dbSession, request);
-      userSession.checkLoggedIn().checkPermission(ADMINISTER, groupId.getOrganizationUuid());
+      GroupDto group = support.findGroupDto(dbSession, request);
+      userSession.checkLoggedIn().checkPermission(ADMINISTER, group.getOrganizationUuid());
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
@@ -81,10 +81,10 @@ public class AddUserAction implements UserGroupsWsAction {
 
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
       checkMembership(dbSession, organization, user);
-      support.checkGroupIsNotDefault(groupId);
+      support.checkGroupIsNotDefault(dbSession, group);
 
-      if (!isMemberOf(dbSession, user, groupId)) {
-        UserGroupDto membershipDto = new UserGroupDto().setGroupId(groupId.getId()).setUserId(user.getId());
+      if (!isMemberOf(dbSession, user, group)) {
+        UserGroupDto membershipDto = new UserGroupDto().setGroupId(group.getId()).setUserId(user.getId());
         dbClient.userGroupDao().insert(dbSession, membershipDto);
         dbSession.commit();
       }

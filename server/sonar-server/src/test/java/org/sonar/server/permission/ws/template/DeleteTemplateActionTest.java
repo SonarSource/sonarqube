@@ -46,6 +46,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -77,7 +78,7 @@ public class DeleteTemplateActionTest {
 
   @Before
   public void setUp() throws Exception {
-    GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, TestDefaultOrganizationProvider.from(db));
+    GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, TestDefaultOrganizationProvider.from(db), new DefaultGroupFinder(db.getDbClient()));
     this.underTestWithoutViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
       new PermissionWsSupport(dbClient, new ComponentFinder(dbClient), groupWsSupport, resourceTypes),
       defaultTemplatesResolver));
@@ -132,7 +133,8 @@ public class DeleteTemplateActionTest {
         newRequestByName(underTest, null, template);
         fail("NotFoundException should have been raised");
       } catch (NotFoundException e) {
-        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive) in organization with key '" + db.getDefaultOrganization().getKey() + "'");
+        assertThat(e).hasMessage(
+          "Permission template with name '" + template.getName() + "' is not found (case insensitive) in organization with key '" + db.getDefaultOrganization().getKey() + "'");
       }
     });
   }
@@ -152,7 +154,8 @@ public class DeleteTemplateActionTest {
         newRequestByName(underTest, otherOrganization, template);
         fail("NotFoundException should have been raised");
       } catch (NotFoundException e) {
-        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive) in organization with key '" + otherOrganization.getKey() + "'");
+        assertThat(e)
+          .hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive) in organization with key '" + otherOrganization.getKey() + "'");
       }
     });
   }

@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -85,12 +84,6 @@ public class OrganizationDbTester {
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(),
       new DefaultTemplates().setProjectUuid(projectDefaultTemplateUuid).setViewUuid(viewDefaultTemplateUuid));
-    dbSession.commit();
-  }
-
-  public void setDefaultGroup(OrganizationDto defaultOrganization, GroupDto defaultGroupDto) {
-    DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().setDefaultGroupId(dbSession, defaultOrganization.getUuid(), defaultGroupDto);
     dbSession.commit();
   }
 

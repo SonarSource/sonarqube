@@ -33,6 +33,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
@@ -40,8 +41,6 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpdateActionTest {
-
-  private static final String DEFAULT_GROUP_NAME_VALUE = "sonar-users";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -51,10 +50,12 @@ public class UpdateActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider)));
+  private WsActionTester ws = new WsActionTester(
+    new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()))));
 
   @Test
   public void update_both_name_and_description() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);
@@ -78,6 +79,7 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_name() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -97,6 +99,7 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_description() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -116,6 +119,7 @@ public class UpdateActionTest {
 
   @Test
   public void return_default_field() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -136,6 +140,7 @@ public class UpdateActionTest {
 
   @Test
   public void require_admin_permission_on_organization() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
 
@@ -153,6 +158,8 @@ public class UpdateActionTest {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, "group1");
+    db.users().insertDefaultGroup(org1);
+    db.users().insertDefaultGroup(org2);
     loginAsAdmin(org2);
 
     expectedException.expect(ForbiddenException.class);
@@ -166,6 +173,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_name_is_too_short() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -180,6 +188,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_name_is_too_long() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -194,6 +203,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_new_name_is_anyone() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -208,6 +218,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_to_update_if_name_already_exists() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     OrganizationDto defaultOrg = db.getDefaultOrganization();
     GroupDto groupToBeRenamed = db.users().insertGroup(defaultOrg, "a name");
     String newName = "new-name";
@@ -225,6 +236,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_description_is_too_long() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -252,11 +264,11 @@ public class UpdateActionTest {
 
   @Test
   public void fail_to_update_default_group_name() throws Exception {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
+    GroupDto group = db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", group.getId().toString())
@@ -266,11 +278,11 @@ public class UpdateActionTest {
 
   @Test
   public void fail_to_update_default_group_description() throws Exception {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
+    GroupDto group = db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", group.getId().toString())
@@ -289,4 +301,9 @@ public class UpdateActionTest {
   private void loginAsAdmin(OrganizationDto org) {
     userSession.logIn().addPermission(ADMINISTER, org);
   }
+
+  private void insertDefaultGroupOnDefaultOrganization() {
+    db.users().insertDefaultGroup(db.getDefaultOrganization());
+  }
+
 }
