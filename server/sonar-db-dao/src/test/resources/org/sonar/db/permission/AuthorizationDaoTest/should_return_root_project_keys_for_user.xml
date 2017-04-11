@@ -24,7 +24,8 @@
             kee="pj-w-snapshot"
             scope="PRJ"
             qualifier="TRK"
-            enabled="[true]"/>
+            enabled="[true]"
+            private="[false]"/>
   <projects organization_uuid="org1"
             id="301"
             uuid="BCDE"
@@ -35,7 +36,8 @@
             kee="pj-w-snapshot1"
             scope="PRJ"
             qualifier="TRK"
-            enabled="[true]"/>
+            enabled="[true]"
+            private="[false]"/>
   <projects organization_uuid="org1"
             id="302"
             uuid="CDEF"
@@ -46,7 +48,8 @@
             kee="pj-w-snapshot2"
             scope="PRJ"
             qualifier="TRK"
-            enabled="[true]"/>
+            enabled="[true]"
+            private="[false]"/>
 
   <projects organization_uuid="org1"
             id="303"
@@ -58,6 +61,7 @@
             kee="pj-w-snapshot3"
             scope="PRJ"
             qualifier="TRK"
-            enabled="[true]"/>
+            enabled="[true]"
+            private="[false]"/>
 
 </dataset>

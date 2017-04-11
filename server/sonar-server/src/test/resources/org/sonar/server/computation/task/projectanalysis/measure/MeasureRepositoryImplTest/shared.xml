@@ -6,7 +6,8 @@
             project_uuid="uuid_1"
             kee="file cpt key"
             enabled="[true]"
-            id="567"/>
+            id="567"
+            private="[false]"/>
   <snapshots id="123"
              uuid="u123"
              component_uuid="uuid_1"

@@ -37,7 +37,8 @@
             uuid_path="NOT_USED"
             root_uuid="DEFG"
             project_uuid="DEFG"
-            module_uuid="[null]"/>
+            module_uuid="[null]"
+            private="[false]"/>
   <projects organization_uuid="org1"
             id="400"
             kee="pj-wo-snapshot"
@@ -45,6 +46,7 @@
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
-            module_uuid="[null]"/>
+            module_uuid="[null]"
+            private="[false]"/>
 
 </dataset>

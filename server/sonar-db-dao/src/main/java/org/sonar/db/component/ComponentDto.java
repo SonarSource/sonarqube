@@ -121,6 +121,7 @@ public class ComponentDto implements Component {
   private String description;
   private String tags;
   private boolean enabled = true;
+  private boolean isPrivate = false;
 
   private Date createdAt;
   private Long authorizationUpdatedAt;
@@ -395,6 +396,15 @@ public class ComponentDto implements Component {
     return this;
   }
 
+  public boolean isPrivate() {
+    return isPrivate;
+  }
+
+  public ComponentDto setPrivate(boolean flag) {
+    this.isPrivate = flag;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -435,6 +445,7 @@ public class ComponentDto implements Component {
       .append("language", language)
       .append("enabled", enabled)
       .append("authorizationUpdatedAt", authorizationUpdatedAt)
+      .append("private", isPrivate)
       .toString();
   }
 }
