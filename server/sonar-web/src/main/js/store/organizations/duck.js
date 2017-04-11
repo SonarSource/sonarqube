@@ -22,6 +22,7 @@ import { combineReducers } from 'redux';
 import { omit, uniq, without } from 'lodash';
 
 export type Organization = {
+  adminPages?: Array<{ key: string, name: string }>,
   avatar?: string,
   canAdmin?: boolean,
   canDelete?: boolean,
@@ -29,6 +30,7 @@ export type Organization = {
   description?: string,
   key: string,
   name: string,
+  pages?: Array<{ key: string, name: string }>,
   url?: string
 };
 
