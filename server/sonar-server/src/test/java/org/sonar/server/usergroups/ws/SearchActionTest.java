@@ -266,7 +266,7 @@ public class SearchActionTest {
   }
 
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), TestDefaultOrganizationProvider.from(db));
+    return new GroupWsSupport(db.getDbClient(), TestDefaultOrganizationProvider.from(db), new DefaultGroupFinder(db.getDbClient()));
   }
 
 }

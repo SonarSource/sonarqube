@@ -36,13 +36,14 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.mockito.Mockito.mock;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
 public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
@@ -63,7 +64,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   protected abstract A buildWsAction();
 
   protected GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
+    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
   }
 
   protected PermissionWsSupport newPermissionWsSupport() {

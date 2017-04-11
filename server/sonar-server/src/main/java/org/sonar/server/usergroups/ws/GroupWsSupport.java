@@ -31,11 +31,11 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.WsUserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -58,10 +58,12 @@ public class GroupWsSupport {
 
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final DefaultGroupFinder defaultGroupFinder;
 
-  public GroupWsSupport(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public GroupWsSupport(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.defaultGroupFinder = defaultGroupFinder;
   }
 
   /**
@@ -149,8 +151,9 @@ public class GroupWsSupport {
     checkRequest(!dbClient.groupDao().selectByName(dbSession, organizationUuid, name).isPresent(), "Group '%s' already exists", name);
   }
 
-  void checkGroupIsNotDefault(GroupDto groupDto) {
-    checkArgument(!SONAR_USERS_GROUP_NAME.equals(groupDto.getName()), "Default group '%s' cannot be used to perform this action", SONAR_USERS_GROUP_NAME);
+  void checkGroupIsNotDefault(DbSession dbSession, GroupDto groupDto) {
+    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, groupDto.getOrganizationUuid());
+    checkArgument(!defaultGroup.getId().equals(groupDto.getId()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
   }
 
   static WsUserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {

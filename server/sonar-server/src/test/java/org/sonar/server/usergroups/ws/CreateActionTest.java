@@ -33,6 +33,7 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -229,7 +230,6 @@ public class CreateActionTest {
       .execute();
   }
 
-
   private WsTester.TestRequest newRequest() {
     return ws.newPostRequest("api/user_groups", "create");
   }
@@ -243,7 +243,7 @@ public class CreateActionTest {
   }
 
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
+    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
   }
 
   private DefaultOrganization getDefaultOrganization() {

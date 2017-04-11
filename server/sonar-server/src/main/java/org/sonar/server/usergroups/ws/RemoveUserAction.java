@@ -73,7 +73,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupDto group = support.findGroupDto(dbSession, request);
       userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
-      support.checkGroupIsNotDefault(group);
+      support.checkGroupIsNotDefault(dbSession, group);
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = getUser(dbSession, login);

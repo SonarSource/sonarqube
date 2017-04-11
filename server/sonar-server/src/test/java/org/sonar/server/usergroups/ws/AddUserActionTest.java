@@ -32,6 +32,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -58,6 +59,7 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_group_referenced_by_its_id() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);
@@ -73,6 +75,7 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_group_referenced_by_its_name() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);
@@ -89,6 +92,7 @@ public class AddUserActionTest {
   @Test
   public void add_user_to_group_referenced_by_its_name_and_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
+    db.users().insertDefaultGroup(org);
     GroupDto group = db.users().insertGroup(org, "a-group");
     UserDto user = db.users().insertUser("user_login");
     db.organizations().addMember(org, user);
@@ -105,6 +109,7 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_another_group() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     OrganizationDto defaultOrg = db.getDefaultOrganization();
     GroupDto admins = db.users().insertGroup(defaultOrg, "admins");
     GroupDto users = db.users().insertGroup(defaultOrg, "users");
@@ -123,6 +128,7 @@ public class AddUserActionTest {
 
   @Test
   public void do_not_fail_if_user_is_already_member_of_group() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto users = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);
@@ -140,6 +146,7 @@ public class AddUserActionTest {
 
   @Test
   public void group_has_multiple_members() throws Exception {
+    insertDefaultGroupOnDefaultOrganization();
     GroupDto users = db.users().insertGroup();
     UserDto user1 = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user1);
@@ -159,6 +166,7 @@ public class AddUserActionTest {
 
   @Test
   public void response_status_is_no_content() throws Exception {
+    db.users().insertDefaultGroup(db.getDefaultOrganization());
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);
@@ -270,15 +278,33 @@ public class AddUserActionTest {
   public void fail_to_add_user_to_default_group() throws Exception {
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
+    GroupDto defaultGroup = db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
-      .setParam("id", Integer.toString(group.getId()))
+      .setParam("id", Integer.toString(defaultGroup.getId()))
       .setParam(PARAM_LOGIN, user.getLogin())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_no_default_group() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    loginAsAdmin(organization);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Default group cannot be found");
+
+    newRequest()
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
   }
 
@@ -301,8 +327,12 @@ public class AddUserActionTest {
     userSession.logIn().addPermission(ADMINISTER, org);
   }
 
+  private void insertDefaultGroupOnDefaultOrganization() {
+    db.users().insertDefaultGroup(db.getDefaultOrganization());
+  }
+
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
+    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
   }
 
 }

@@ -95,7 +95,7 @@ public class UpdateAction implements UserGroupsWsAction {
       Optional<OrganizationDto> org = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
       checkFoundWithOptional(org, "Could not find organization with id '%s'.", group.getOrganizationUuid());
       userSession.checkPermission(ADMINISTER, org.get());
-      support.checkGroupIsNotDefault(group);
+      support.checkGroupIsNotDefault(dbSession, group);
 
       boolean changed = false;
       String newName = request.param(PARAM_GROUP_NAME);

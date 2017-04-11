@@ -33,6 +33,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
@@ -51,7 +52,8 @@ public class UsersActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new UsersAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider)));
+  private WsActionTester ws = new WsActionTester(
+    new UsersAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()))));
 
   @Test
   public void fail_if_unknown_group_id() throws Exception {
@@ -213,20 +215,20 @@ public class UsersActionTest {
       .setParam("id", group.getId().toString())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-      "  ]\n" +
-      "}");
+        "  \"users\": [\n" +
+        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
+        "  ]\n" +
+        "}");
 
     assertJson(newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam(Param.SELECTED, SelectionMode.SELECTED.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-      "  ]\n" +
-      "}");
+        "  \"users\": [\n" +
+        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
+        "  ]\n" +
+        "}");
   }
 
   @Test
@@ -268,13 +270,13 @@ public class UsersActionTest {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"p\": 1,\n" +
-      "  \"ps\": 1,\n" +
-      "  \"total\": 2,\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-      "  ]\n" +
-      "}");
+        "  \"p\": 1,\n" +
+        "  \"ps\": 1,\n" +
+        "  \"total\": 2,\n" +
+        "  \"users\": [\n" +
+        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
+        "  ]\n" +
+        "}");
 
     assertJson(newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -283,13 +285,13 @@ public class UsersActionTest {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"p\": 2,\n" +
-      "  \"ps\": 1,\n" +
-      "  \"total\": 2,\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-      "  ]\n" +
-      "}");
+        "  \"p\": 2,\n" +
+        "  \"ps\": 1,\n" +
+        "  \"total\": 2,\n" +
+        "  \"users\": [\n" +
+        "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
+        "  ]\n" +
+        "}");
   }
 
   @Test
@@ -308,50 +310,50 @@ public class UsersActionTest {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
-      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-      "  ]\n" +
-      "}\n");
+        "  \"users\": [\n" +
+        "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
+        "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
+        "  ]\n" +
+        "}\n");
 
     assertJson(newUsersRequest().setParam("id", group.getId().toString())
       .setParam("q", ".logi")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\n" +
-      "      \"login\": \"ada.login\",\n" +
-      "      \"name\": \"Ada Lovelace\",\n" +
-      "      \"selected\": true\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}\n");
+        "  \"users\": [\n" +
+        "    {\n" +
+        "      \"login\": \"ada.login\",\n" +
+        "      \"name\": \"Ada Lovelace\",\n" +
+        "      \"selected\": true\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}\n");
 
     assertJson(newUsersRequest().setParam("id", group.getId().toString())
       .setParam("q", "OvE")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\n" +
-      "      \"login\": \"ada.login\",\n" +
-      "      \"name\": \"Ada Lovelace\",\n" +
-      "      \"selected\": true\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}\n");
+        "  \"users\": [\n" +
+        "    {\n" +
+        "      \"login\": \"ada.login\",\n" +
+        "      \"name\": \"Ada Lovelace\",\n" +
+        "      \"selected\": true\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}\n");
 
     assertJson(newUsersRequest().setParam("id", group.getId().toString())
       .setParam("q", "mail")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\n" +
-      "      \"login\": \"ada.login\",\n" +
-      "      \"name\": \"Ada Lovelace\",\n" +
-      "      \"selected\": true\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}\n");
+        "  \"users\": [\n" +
+        "    {\n" +
+        "      \"login\": \"ada.login\",\n" +
+        "      \"name\": \"Ada Lovelace\",\n" +
+        "      \"selected\": true\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}\n");
   }
 
   private TestRequest newUsersRequest() {
