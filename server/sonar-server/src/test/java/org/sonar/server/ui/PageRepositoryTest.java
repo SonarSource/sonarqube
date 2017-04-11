@@ -38,6 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
+import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
 
 public class PageRepositoryTest {
 
@@ -111,6 +112,36 @@ public class PageRepositoryTest {
     List<Page> result = underTest.getGlobalPages(false);
 
     assertThat(result).extracting(Page::getKey).containsExactly("my_plugin/K1", "my_plugin/K2", "my_plugin/K3");
+  }
+
+  @Test
+  public void get_organization_pages() {
+    PageDefinition plugin = context -> context
+      .addPage(Page.builder("my_plugin/G1").setName("G1").setScope(GLOBAL).build())
+      .addPage(Page.builder("my_plugin/C1").setName("C1").setScope(COMPONENT).build())
+      .addPage(Page.builder("my_plugin/O1").setName("O1").setScope(ORGANIZATION).build())
+      .addPage(Page.builder("my_plugin/O2").setName("O2").setScope(ORGANIZATION).build())
+      .addPage(Page.builder("my_plugin/O3").setName("O3").setScope(ORGANIZATION).build())
+      .addPage(Page.builder("my_plugin/OA1").setName("OA1").setScope(ORGANIZATION).setAdmin(true).build());
+    underTest = new PageRepository(pluginRepository, new PageDefinition[] {plugin});
+    underTest.start();
+
+    List<Page> result = underTest.getOrganizationPages(false);
+
+    assertThat(result).extracting(Page::getKey).containsExactly("my_plugin/O1", "my_plugin/O2", "my_plugin/O3");
+  }
+
+  @Test
+  public void get_organization_admin_pages() {
+    PageDefinition plugin = context -> context
+      .addPage(Page.builder("my_plugin/O1").setName("O1").setScope(ORGANIZATION).build())
+      .addPage(Page.builder("my_plugin/O2").setName("O2").setScope(ORGANIZATION).setAdmin(true).build());
+    underTest = new PageRepository(pluginRepository, new PageDefinition[] {plugin});
+    underTest.start();
+
+    List<Page> result = underTest.getOrganizationPages(true);
+
+    assertThat(result).extracting(Page::getKey).containsExactly("my_plugin/O2");
   }
 
   @Test
