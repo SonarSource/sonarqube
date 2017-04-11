@@ -46,6 +46,8 @@ import org.sonar.api.server.ServerSide;
  *        .setScope(Scope.COMPONENT).setQualifiers(Qualifier.PROJECT, Qualifier.MODULE).build())
  *      // Page on all components (see Qualifier class) supported
  *      .addPage(Page.builder("my_plugin/component_page").setName("Component Page").setScope(Scope.COMPONENT).build());
+ *      // Organization page (when organizations are enabled)
+ *      .addPage(Page.builder("my_plugin/org_page").setName("Organization Page").setScope(Scope.ORGANIZATION).build());
  *  }
  * }
  * </pre>
