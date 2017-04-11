@@ -83,7 +83,7 @@ public class UserIdentityAuthenticatorTest {
     defaultOrganizationProvider,
     organizationCreation,
     new DefaultGroupFinder(db.getDbClient()));
-  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider);
+  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
   private GroupDto defaultGroup;
 
   @Before

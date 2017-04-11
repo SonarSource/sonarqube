@@ -55,8 +55,6 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 @ServerSide
 public class UserUpdater {
 
-  public static final String SONAR_USERS_GROUP_NAME = "sonar-users";
-
   private static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
