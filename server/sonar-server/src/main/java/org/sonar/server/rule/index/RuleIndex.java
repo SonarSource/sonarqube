@@ -26,12 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -67,6 +64,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
@@ -120,6 +118,7 @@ public class RuleIndex {
     Collections2.filter(
       Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatus::toString),
       input -> !RuleStatus.REMOVED.toString().equals(input)));
+  private static final String AGGREGATION_NAME = "_ref";
   private static final String AGGREGATION_NAME_FOR_TAGS = "tagsAggregation";
   private final EsClient client;
 
@@ -491,14 +490,12 @@ public class RuleIndex {
     esSearch.setSize(options.getLimit());
   }
 
-  public Set<String> terms(String fields) {
+  public List<String> terms(String fields) {
     return terms(fields, null, Integer.MAX_VALUE);
   }
 
-  public Set<String> terms(String fields, @Nullable String query, int size) {
-    String aggregationKey = "_ref";
-
-    TermsBuilder termsAggregation = AggregationBuilders.terms(aggregationKey)
+  public List<String> terms(String fields, @Nullable String query, int size) {
+    TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME)
       .field(fields)
       .size(size)
       .minDocCount(1);
@@ -512,19 +509,10 @@ public class RuleIndex {
       .addAggregation(termsAggregation);
 
     SearchResponse esResponse = request.get();
-    return extractAggregationTerms(aggregationKey, esResponse);
+    return EsUtils.termsKeys(esResponse.getAggregations().get(AGGREGATION_NAME));
   }
 
-  private static Set<String> extractAggregationTerms(String aggregationKey, SearchResponse esResponse) {
-    Set<String> terms = new HashSet<>();
-    Terms aggregation = esResponse.getAggregations().get(aggregationKey);
-    if (aggregation != null) {
-      aggregation.getBuckets().forEach(value -> terms.add(value.getKeyAsString()));
-    }
-    return terms;
-  }
-
-  public Set<String> listTags(OrganizationDto organization, @Nullable String query, int size) {
+  public List<String> listTags(OrganizationDto organization, @Nullable String query, int size) {
     TermsQueryBuilder scopeFilter = QueryBuilders.termsQuery(
       FIELD_RULE_EXTENSION_SCOPE,
       RuleExtensionScope.system().getScope(),
@@ -533,8 +521,9 @@ public class RuleIndex {
     TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
       .field(FIELD_RULE_EXTENSION_TAGS)
       .size(size)
+      .order(Terms.Order.term(true))
       .minDocCount(1);
-    Optional.ofNullable(query)
+    ofNullable(query)
       .map(EsUtils::escapeSpecialRegexChars)
       .map(queryString -> ".*" + queryString + ".*")
       .ifPresent(termsAggregation::include);
@@ -546,7 +535,7 @@ public class RuleIndex {
       .addAggregation(termsAggregation);
 
     SearchResponse esResponse = request.get();
-    return extractAggregationTerms(AGGREGATION_NAME_FOR_TAGS, esResponse);
+    return EsUtils.termsKeys(esResponse.getAggregations().get(AGGREGATION_NAME_FOR_TAGS));
   }
 
   private static boolean isNotEmpty(@Nullable Collection list) {

@@ -793,7 +793,7 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void tags_facet_should_be_available_if_organization_is_speficied() {
+  public void tags_facet_should_be_available_if_organization_is_specified() {
     RuleQuery query = new RuleQuery()
       .setOrganizationUuid("some_org_id");
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));

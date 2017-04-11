@@ -26,12 +26,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -195,7 +193,6 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getNoteUpdatedAt()).isNull();
   }
 
-  @Ignore
   @Test
   public void set_tags() {
     // insert db
@@ -205,7 +202,9 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     // java8 is a system tag -> ignore
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("bug", "java8"));
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
+      .setTags(Sets.newHashSet("bug", "java8"))
+      .setOrganization(defaultOrganization);
     underTest.update(dbSession, update, defaultOrganization, userSessionRule);
 
     RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
@@ -213,8 +212,8 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    Set<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
-    assertThat(tags).containsOnly("bug", "java8", "javadoc");
+    List<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
+    assertThat(tags).containsExactly("bug", "java8", "javadoc");
   }
 
   @Test
@@ -237,8 +236,8 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    Set<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
-    assertThat(tags).containsOnly("java8", "javadoc");
+    List<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
+    assertThat(tags).containsExactly("java8", "javadoc");
   }
 
   @Test

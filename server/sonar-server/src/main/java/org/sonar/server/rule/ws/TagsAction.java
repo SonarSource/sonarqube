@@ -20,8 +20,8 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.io.Resources;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -80,7 +80,7 @@ public class TagsAction implements RulesWsAction {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
 
-    Set<String> tags = ruleIndex.listTags(organization, query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
+    List<String> tags = ruleIndex.listTags(organization, query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
 
     writeResponse(response, tags);
   }
@@ -95,7 +95,7 @@ public class TagsAction implements RulesWsAction {
     }
   }
 
-  private static void writeResponse(Response response, Set<String> tags) {
+  private static void writeResponse(Response response, List<String> tags) {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.name("tags").beginArray();
     tags.forEach(json::value);
