@@ -17,7 +17,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="struts"
-            name="Struts"/>
+            name="Struts"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="MODULE1"
             uuid_path="NOT_USED"
@@ -29,7 +30,8 @@
             scope="PRJ"
             qualifier="BRC"
             kee="struts:struts-tiles"
-            name="Struts Tiles"/>
+            name="Struts Tiles"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="DIR1"
             uuid_path="NOT_USED"
@@ -41,7 +43,8 @@
             scope="DIR"
             qualifier="DIR"
             kee="struts:struts-tiles:/"
-            name="src/main/java/"/>
+            name="src/main/java/"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="FILE1"
             uuid_path="NOT_USED"
@@ -53,7 +56,8 @@
             scope="FIL"
             qualifier="CLA"
             kee="struts:Action"
-            name="Action"/>
+            name="Action"
+            private="[false]"/>
 
   <issues
       id="1"

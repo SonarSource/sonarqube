@@ -24,7 +24,8 @@
             enabled="[true]"
             scope="FIL"
             qualifier="CLA"
-            language="java"/>
+            language="java"
+            private="[false]"/>
 
   <snapshots id="3"
              uuid="u3"
@@ -50,7 +51,8 @@
             enabled="[true]"
             scope="FIL"
             qualifier="CLA"
-            language="java"/>
+            language="java"
+            private="[false]"/>
 
   <snapshots id="5"
              uuid="u5"
@@ -76,7 +78,8 @@
             enabled="[true]"
             scope="FIL"
             qualifier="CLA"
-            language="java"/>
+            language="java"
+            private="[false]"/>
 
   <snapshots id="7"
              uuid="u7"
@@ -102,7 +105,8 @@
             enabled="[true]"
             scope="FIL"
             qualifier="CLA"
-            language="java"/>
+            language="java"
+            private="[false]"/>
 
   <snapshots id="9"
              uuid="u9"
@@ -128,7 +132,8 @@
             enabled="[true]"
             scope="FIL"
             qualifier="CLA"
-            language="java"/>
+            language="java"
+            private="[false]"/>
 
   <snapshots id="11"
              uuid="u11"
@@ -147,7 +152,8 @@
             enabled="[true]"
             scope="FIL"
             qualifier="CLA"
-            language="grvy"/>
+            language="grvy"
+            private="[false]"/>
 
   <!-- Old snapshot of another project -->
   <!-- bar-old -->

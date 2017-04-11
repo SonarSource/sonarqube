@@ -16,7 +16,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="struts"
-            name="Struts"/>
+            name="Struts"
+            private="[false]"/>
   <snapshots id="10"
              uuid="u10"
              component_uuid="ABCD"
@@ -31,7 +32,8 @@
             scope="FIL"
             qualifier="CLA"
             kee="struts:Action"
-            name="Action"/>
+            name="Action"
+            private="[false]"/>
   <snapshots id="100"
              uuid="u100"
              component_uuid="BCDE"

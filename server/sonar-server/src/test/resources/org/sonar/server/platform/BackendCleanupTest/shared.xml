@@ -13,7 +13,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="org.struts:struts"
-            name="Struts"/>
+            name="Struts"
+            private="[false]"/>
 
   <snapshots id="100"
              uuid="u100"

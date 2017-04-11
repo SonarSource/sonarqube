@@ -16,7 +16,8 @@
             scope="PRJ"
             enabled="[true]"
             copy_component_uuid="[null]"
-            id="1"/>
+            id="1"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="B"
             uuid_path="NOT_USED"
@@ -28,7 +29,8 @@
             scope="PRJ"
             enabled="[true]"
             copy_component_uuid="[null]"
-            id="2"/>
+            id="2"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="C"
             uuid_path="NOT_USED"
@@ -40,7 +42,8 @@
             scope="PRJ"
             enabled="[true]"
             copy_component_uuid="[null]"
-            id="3"/>
+            id="3"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="D"
             uuid_path="NOT_USED"
@@ -52,7 +55,8 @@
             scope="PRJ"
             enabled="[true]"
             copy_component_uuid="[null]"
-            id="4"/>
+            id="4"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="E"
             uuid_path="NOT_USED"
@@ -64,7 +68,8 @@
             scope="PRJ"
             enabled="[true]"
             copy_component_uuid="[null]"
-            id="5"/>
+            id="5"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="F"
             uuid_path="NOT_USED"
@@ -76,7 +81,8 @@
             scope="PRJ"
             enabled="[true]"
             copy_component_uuid="[null]"
-            id="6"/>
+            id="6"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="G"
             uuid_path="NOT_USED"
@@ -88,7 +94,8 @@
             scope="FIL"
             enabled="[true]"
             copy_component_uuid="C"
-            id="7"/>
+            id="7"
+            private="[false]"/>
 
   <properties id="1"
               prop_key="sonar.qualitygate"

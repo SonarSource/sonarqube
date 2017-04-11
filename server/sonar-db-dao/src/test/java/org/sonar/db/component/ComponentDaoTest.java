@@ -107,6 +107,7 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.getCopyResourceUuid()).isNull();
     assertThat(result.getDeveloperUuid()).isNull();
+    assertThat(result.isPrivate()).isTrue();
 
     assertThat(underTest.selectByUuid(dbSession, "UNKNOWN")).isAbsent();
   }
@@ -131,6 +132,7 @@ public class ComponentDaoTest {
     assertThat(result.language()).isNull();
     assertThat(result.getCopyResourceUuid()).isEqualTo("U1");
     assertThat(result.getDeveloperUuid()).isEqualTo("developer_uuid_of_U7");
+    assertThat(result.isPrivate()).isFalse();
   }
 
   @Test
