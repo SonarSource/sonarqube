@@ -18,7 +18,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="the_project"
-            name="TheProject"/>
+            name="TheProject"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="THE_FILE"
             uuid_path="NOT_USED"
@@ -31,7 +32,8 @@
             scope="FIL"
             qualifier="FIL"
             kee="abcde"
-            name="TheFile"/>
+            name="TheFile"
+            private="[false]"/>
 
   <issues id="1"
           kee="ABCDE"

@@ -13,14 +13,16 @@
             id="1"
             kee="struts"
             root_uuid="ABCD"
-            project_uuid="ABCD"/>
+            project_uuid="ABCD"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="BCDE"
             uuid_path="NOT_USED"
             id="2"
             kee="struts:Action.java"
             root_uuid="ABCD"
-            project_uuid="ABCD"/>
+            project_uuid="ABCD"
+            private="[false]"/>
 
   <snapshots id="1"
              uuid="u1"

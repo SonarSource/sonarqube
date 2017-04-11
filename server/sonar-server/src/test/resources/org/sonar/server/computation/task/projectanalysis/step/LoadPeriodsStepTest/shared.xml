@@ -14,7 +14,8 @@
             uuid="ABCD"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
-            project_uuid="ABCD"/>
+            project_uuid="ABCD"
+            private="[false]"/>
 
   <!-- 2008-11-11 -->
   <!-- Version 0.9 -->

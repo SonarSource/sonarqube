@@ -17,7 +17,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="struts"
-            name="Struts"/>
+            name="Struts"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="MODULE"
             uuid_path="NOT_USED"
@@ -29,7 +30,8 @@
             scope="PRJ"
             qualifier="BRC"
             kee="struts-core"
-            name="Struts Core"/>
+            name="Struts Core"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="FILE"
             uuid_path="NOT_USED"
@@ -41,7 +43,8 @@
             scope="FIL"
             qualifier="FIL"
             kee="struts:Action"
-            name="Action"/>
+            name="Action"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="ROOT_FILE"
             uuid_path="NOT_USED"
@@ -53,7 +56,8 @@
             scope="FIL"
             qualifier="FIL"
             kee="pom"
-            name="pom.xml"/>
+            name="pom.xml"
+            private="[false]"/>
 
   <issues
     id="1"

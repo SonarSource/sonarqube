@@ -19,7 +19,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="the_project_1"
-            name="TheProject1"/>
+            name="TheProject1"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="THE_FILE_1"
             uuid_path="NOT_USED"
@@ -32,7 +33,8 @@
             scope="FIL"
             qualifier="FIL"
             kee="the_file_1"
-            name="TheFile1"/>
+            name="TheFile1"
+            private="[false]"/>
 
   <issues
       id="1"
@@ -104,7 +106,8 @@
             scope="PRJ"
             qualifier="TRK"
             kee="the_project_2"
-            name="TheProject2"/>
+            name="TheProject2"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="THE_FILE_2"
             uuid_path="NOT_USED"
@@ -117,7 +120,8 @@
             scope="FIL"
             qualifier="FIL"
             kee="the_file_2"
-            name="TheFile2"/>
+            name="TheFile2"
+            private="[false]"/>
 
   <issues id="10"
           kee="EDCBA"
