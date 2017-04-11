@@ -80,7 +80,6 @@ import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
-import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.ActiveRulesProvider;
 import org.sonar.scanner.rule.DefaultActiveRulesLoader;
@@ -200,8 +199,7 @@ public class ProjectScanContainer extends ComponentContainer {
       CpdExecutor.class,
       SonarCpdBlockIndex.class,
 
-      ScanTaskObservers.class,
-      UserRepositoryLoader.class);
+      ScanTaskObservers.class);
 
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
