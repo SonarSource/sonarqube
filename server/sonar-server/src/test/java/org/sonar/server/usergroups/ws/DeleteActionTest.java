@@ -38,7 +38,9 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -60,11 +62,24 @@ public class DeleteActionTest {
   private ComponentDbTester componentTester = new ComponentDbTester(db);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private GroupDto defaultGroup;
-  private WsTester ws = new WsTester(new UserGroupsWs(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport(), defaultOrganizationProvider)));
+  private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport(), defaultOrganizationProvider));
 
   @Before
   public void setUp() {
     defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), SONAR_USERS_GROUP_NAME);
+  }
+
+  @Test
+  public void response_has_no_content() throws Exception {
+    addAdmin(db.getDefaultOrganization());
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
+
+    TestResponse response = newRequest()
+      .setParam("id", group.getId().toString())
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(204);
   }
 
   @Test
@@ -75,8 +90,7 @@ public class DeleteActionTest {
 
     newRequest()
       .setParam("id", group.getId().toString())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupById(group.getId())).isNull();
   }
@@ -89,8 +103,7 @@ public class DeleteActionTest {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupById(group.getId())).isNull();
   }
@@ -105,8 +118,7 @@ public class DeleteActionTest {
     newRequest()
       .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.users().selectGroupById(group.getId())).isNull();
   }
@@ -135,8 +147,7 @@ public class DeleteActionTest {
 
     newRequest()
       .setParam("id", group.getId().toString())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.countRowsOfTable("groups_users")).isEqualTo(0);
   }
@@ -151,8 +162,7 @@ public class DeleteActionTest {
 
     newRequest()
       .setParam("id", group.getId().toString())
-      .execute()
-      .assertNoContent();
+      .execute();
 
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(0);
   }
@@ -169,7 +179,7 @@ public class DeleteActionTest {
 
     newRequest()
       .setParam("id", group.getId().toString())
-      .execute().assertNoContent();
+      .execute();
 
     assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
   }
@@ -261,7 +271,7 @@ public class DeleteActionTest {
     assertThat(db.users().selectGroupPermissions(adminGroup2, null)).hasSize(1);
   }
 
-  private WsTester.Result executeDeleteGroupRequest(GroupDto adminGroup1) throws Exception {
+  private TestResponse executeDeleteGroupRequest(GroupDto adminGroup1) throws Exception {
     return newRequest()
       .setParam(PARAM_GROUP_ID, adminGroup1.getId().toString())
       .execute();
@@ -284,8 +294,8 @@ public class DeleteActionTest {
     userSession.logIn().addPermission(ADMINISTER, org);
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/user_groups", "delete");
+  private TestRequest newRequest() {
+    return ws.newRequest();
   }
 
   private GroupWsSupport newGroupWsSupport() {
