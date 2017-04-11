@@ -19,43 +19,29 @@
  */
 package org.sonar.scanner.issue;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.protocol.input.ScannerInput.User;
-import org.sonar.scanner.repository.user.UserRepositoryLoader;
 
 public class DefaultIssueCallback implements IssueCallback {
   private final IssueCache issues;
   private final IssueListener listener;
-  private final UserRepositoryLoader userRepository;
   private final Rules rules;
 
-  private Set<String> userLoginNames = new HashSet<>();
-  private Map<String, String> userMap = new HashMap<>();
-  private Set<RuleKey> ruleKeys = new HashSet<>();
-
-  public DefaultIssueCallback(IssueCache issues, IssueListener listener, UserRepositoryLoader userRepository, Rules rules) {
+  public DefaultIssueCallback(IssueCache issues, IssueListener listener, Rules rules) {
     this.issues = issues;
     this.listener = listener;
-    this.userRepository = userRepository;
     this.rules = rules;
   }
 
   /**
    * If no listener exists, this constructor will be used by pico.
    */
-  public DefaultIssueCallback(IssueCache issues, UserRepositoryLoader userRepository, Rules rules) {
-    this(issues, null, userRepository, rules);
+  public DefaultIssueCallback(IssueCache issues, Rules rules) {
+    this(issues, null, rules);
   }
 
   @Override
@@ -65,15 +51,9 @@ public class DefaultIssueCallback implements IssueCallback {
     }
 
     for (TrackedIssue issue : issues.all()) {
-      collectInfo(issue);
-    }
-
-    getUsers();
-
-    for (TrackedIssue issue : issues.all()) {
       IssueListener.Issue newIssue = new IssueListener.Issue();
       newIssue.setAssigneeLogin(issue.assignee());
-      newIssue.setAssigneeName(getAssigneeName(issue.assignee()));
+      newIssue.setAssigneeName(issue.assignee());
       newIssue.setComponentKey(issue.componentKey());
       newIssue.setKey(issue.key());
       newIssue.setMessage(issue.getMessage());
@@ -90,26 +70,6 @@ public class DefaultIssueCallback implements IssueCallback {
 
       listener.handle(newIssue);
     }
-  }
-
-  private void collectInfo(TrackedIssue issue) {
-    if (!StringUtils.isEmpty(issue.assignee())) {
-      userLoginNames.add(issue.assignee());
-    }
-    if (issue.getRuleKey() != null) {
-      ruleKeys.add(issue.getRuleKey());
-    }
-  }
-
-  private String getAssigneeName(String login) {
-    return userMap.get(login);
-  }
-
-  private void getUsers() {
-    Map<String, User> map = userRepository.map(userLoginNames);
-
-    userMap = map.entrySet().stream()
-      .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getName()));
   }
 
   private String getRuleName(RuleKey ruleKey) {

@@ -32,12 +32,9 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.scanner.issue.DefaultIssueCallback;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.protocol.input.ScannerInput;
-import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.junit.Before;
 import com.google.common.collect.ImmutableList;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,8 +45,6 @@ import org.junit.Test;
 public class DefaultIssueCallbackTest {
   @Mock
   private IssueCache issueCache;
-  @Mock
-  private UserRepositoryLoader userRepository;
   @Mock
   private Rules rules;
 
@@ -67,12 +62,6 @@ public class DefaultIssueCallbackTest {
 
     when(issueCache.all()).thenReturn(ImmutableList.of(issue));
 
-    ScannerInput.User.Builder userBuilder = ScannerInput.User.newBuilder();
-    userBuilder.setLogin("user");
-    userBuilder.setName("name");
-    when(userRepository.map(Collections.singleton("user")))
-      .thenReturn(Collections.singletonMap("user", userBuilder.build()));
-
     Rule r = mock(Rule.class);
     when(r.name()).thenReturn("rule name");
     when(rules.find(ruleKey)).thenReturn(r);
@@ -80,7 +69,7 @@ public class DefaultIssueCallbackTest {
 
   @Test
   public void testWithoutListener() {
-    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, userRepository, rules);
+    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, rules);
     issueCallback.execute();
   }
 
@@ -94,13 +83,13 @@ public class DefaultIssueCallbackTest {
       }
     };
 
-    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, userRepository, rules);
+    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, rules);
     issueCallback.execute();
 
     assertThat(issueList).hasSize(1);
     Issue callbackIssue = issueList.get(0);
 
-    assertThat(callbackIssue.getAssigneeName()).isEqualTo("name");
+    assertThat(callbackIssue.getAssigneeName()).isEqualTo("user");
     assertThat(callbackIssue.getRuleName()).isEqualTo("rule name");
   }
 
@@ -117,7 +106,7 @@ public class DefaultIssueCallbackTest {
     issue.setKey(null);
     issue.setAssignee(null);
 
-    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, userRepository, rules);
+    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, rules);
     issueCallback.execute();
   }
 
@@ -131,10 +120,9 @@ public class DefaultIssueCallbackTest {
       }
     };
 
-    when(userRepository.load(any(String.class))).thenReturn(null);
     when(rules.find(any(RuleKey.class))).thenReturn(null);
 
-    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, userRepository, rules);
+    DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, rules);
     issueCallback.execute();
   }
 }
