@@ -43,11 +43,11 @@ import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.user.UserUpdater.SONAR_USERS_GROUP_NAME;
 
 public class UserIdentityAuthenticator {
 
@@ -56,11 +56,13 @@ public class UserIdentityAuthenticator {
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final DefaultGroupFinder defaultGroupFinder;
 
-  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.defaultGroupFinder = defaultGroupFinder;
   }
 
   public UserDto authenticate(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
@@ -155,10 +157,11 @@ public class UserIdentityAuthenticator {
   }
 
   private void removeGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToRemove, Map<String, GroupDto> groupsByName) {
+    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationProvider.get().getUuid());
     groupsToRemove.stream().map(groupsByName::get)
       .filter(Objects::nonNull)
       // user should always be member of sonar-users group
-      .filter(group -> !group.getName().equals(SONAR_USERS_GROUP_NAME))
+      .filter(group -> !group.getId().equals(defaultGroup.getId()))
       .forEach(groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
