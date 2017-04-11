@@ -92,12 +92,14 @@ public class PersistComponentsStep implements ComputationStep {
       dbClient.componentDao().resetBChangedForRootComponentUuid(dbSession, projectUuid);
 
       Map<String, ComponentDto> existingDtosByKeys = indexExistingDtosByKey(dbSession);
+      boolean isRootPrivate = isRootPrivate(treeRootHolder.getRoot().getKey(), existingDtosByKeys);
       // Insert or update the components in database. They are removed from existingDtosByKeys
       // at the same time.
       new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession))
         .visit(treeRootHolder.getRoot());
 
       disableRemainingComponents(dbSession, existingDtosByKeys.values());
+      ensureConsistentVisibility(dbSession, projectUuid, isRootPrivate);
 
       dbSession.commit();
     }
@@ -110,6 +112,15 @@ public class PersistComponentsStep implements ComputationStep {
       .collect(MoreCollectors.toSet(dtos.size()));
     dbClient.componentDao().updateBEnabledToFalse(dbSession, uuids);
     disabledComponentsHolder.setUuids(uuids);
+  }
+
+  private void ensureConsistentVisibility(DbSession dbSession, String projectUuid, boolean isRootPrivate) {
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate);
+  }
+
+  private static boolean isRootPrivate(String rootKey, Map<String, ComponentDto> existingDtosByKeys) {
+    ComponentDto projectDto = existingDtosByKeys.get(rootKey);
+    return projectDto == null ? false /*FIXME actually use default configured for current organization*/ : projectDto.isPrivate();
   }
 
   /**
