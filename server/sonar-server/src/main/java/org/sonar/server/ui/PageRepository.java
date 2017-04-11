@@ -34,7 +34,6 @@ import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.Page.Scope;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
@@ -42,6 +41,8 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
+import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 @ServerSide
 public class PageRepository implements Startable {
@@ -78,7 +79,7 @@ public class PageRepository implements Startable {
       .peek(checkWellFormed())
       .peek(checkPluginExists())
       .sorted(comparing(Page::getKey))
-      .collect(MoreCollectors.toList());
+      .collect(toList());
   }
 
   @Override
@@ -90,6 +91,10 @@ public class PageRepository implements Startable {
     return getPages(GLOBAL, isAdmin, null);
   }
 
+  public List<Page> getOrganizationPages(boolean isAdmin) {
+    return getPages(ORGANIZATION, isAdmin, null);
+  }
+
   public List<Page> getComponentPages(boolean isAdmin, String qualifierKey) {
     Qualifier qualifier = Qualifier.fromKey(qualifierKey);
     return qualifier == null ? emptyList() : getPages(COMPONENT, isAdmin, qualifier);
@@ -99,8 +104,8 @@ public class PageRepository implements Startable {
     return getAllPages().stream()
       .filter(p -> p.getScope().equals(scope))
       .filter(p -> p.isAdmin() == isAdmin)
-      .filter(p -> GLOBAL.equals(p.getScope()) || p.getComponentQualifiers().contains(qualifier))
-      .collect(MoreCollectors.toList());
+      .filter(p -> !COMPONENT.equals(p.getScope()) || p.getComponentQualifiers().contains(qualifier))
+      .collect(toList());
   }
 
   @VisibleForTesting

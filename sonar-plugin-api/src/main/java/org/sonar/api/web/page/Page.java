@@ -75,7 +75,7 @@ public final class Page {
   }
 
   public enum Scope {
-    GLOBAL, COMPONENT
+    GLOBAL, ORGANIZATION, COMPONENT
   }
 
   public enum Qualifier {
@@ -158,7 +158,7 @@ public final class Page {
       if (name == null || name.isEmpty()) {
         throw new IllegalArgumentException("Name must be defined and not empty");
       }
-      if (qualifiers.length > 0 && GLOBAL.equals(scope)) {
+      if (qualifiers.length > 0 && !COMPONENT.equals(scope)) {
         throw new IllegalArgumentException(format("The scope must be '%s' when component qualifiers are provided", COMPONENT));
       }
       if (qualifiers.length == 0 && COMPONENT.equals(scope)) {
