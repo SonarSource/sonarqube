@@ -22,7 +22,6 @@ package org.sonar.server.organization.ws;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,10 +31,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupMembershipDto;
+import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -48,11 +49,13 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 
 public class AddMemberActionTest {
@@ -68,18 +71,7 @@ public class AddMemberActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-
   private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client())));
-
-  private OrganizationDto organization;
-  private UserDto user;
-
-  @Before
-  public void setUp() {
-    organization = db.organizations().insert();
-    user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-  }
 
   @Test
   public void definition() {
@@ -100,6 +92,10 @@ public class AddMemberActionTest {
 
   @Test
   public void no_content_http_204_returned() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser();
+
     TestResponse result = call(organization.getKey(), user.getLogin());
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -108,17 +104,27 @@ public class AddMemberActionTest {
 
   @Test
   public void add_member_in_db_and_user_index() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser();
+
     call(organization.getKey(), user.getLogin());
 
     assertMember(organization.getUuid(), user.getId());
     List<UserDoc> userDocs = userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs();
     assertThat(userDocs).hasSize(1);
-    assertThat(userDocs.get(0).organizationUuids()).containsOnly(organization.getUuid(), db.getDefaultOrganization().getUuid());
+    assertThat(userDocs.get(0).organizationUuids()).containsOnly(organization.getUuid());
   }
 
   @Test
   public void user_can_be_member_of_two_organizations() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
+
     OrganizationDto anotherOrg = db.organizations().insert();
+    db.users().insertDefaultGroup(anotherOrg, "default");
 
     call(organization.getKey(), user.getLogin());
     call(anotherOrg.getKey(), user.getLogin());
@@ -129,6 +135,10 @@ public class AddMemberActionTest {
 
   @Test
   public void add_member_as_organization_admin() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
     userSession.logIn().addPermission(ADMINISTER, organization);
 
     call(organization.getKey(), user.getLogin());
@@ -137,7 +147,34 @@ public class AddMemberActionTest {
   }
 
   @Test
+  public void does_not_fail_if_user_already_added_in_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto defaultGroup = db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    db.users().insertMember(defaultGroup, user);
+    assertMember(organization.getUuid(), user.getId());
+
+    call(organization.getKey(), user.getLogin());
+
+    assertMember(organization.getUuid(), user.getId());
+  }
+
+  @Test
+  public void fail_when_organization_has_no_default_group() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(format("Default group doesn't exist on default organization '%s'", organization.getKey()));
+
+    call(organization.getKey(), user.getLogin());
+  }
+
+  @Test
   public void fail_if_login_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User 'login-42' is not found");
 
@@ -146,6 +183,8 @@ public class AddMemberActionTest {
 
   @Test
   public void fail_if_organization_does_not_exist() {
+    UserDto user = db.users().insertUser();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Organization 'org-42' is not found");
 
@@ -154,6 +193,8 @@ public class AddMemberActionTest {
 
   @Test
   public void fail_if_no_login_provided() {
+    OrganizationDto organization = db.organizations().insert();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call(organization.getKey(), null);
@@ -161,23 +202,17 @@ public class AddMemberActionTest {
 
   @Test
   public void fail_if_no_organization_provided() {
+    UserDto user = db.users().insertUser();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call(null, user.getLogin());
   }
 
   @Test
-  public void fail_if_user_already_added_in_organization() {
-    call(organization.getKey(), user.getLogin());
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("User '" + user.getLogin() + "' is already a member of organization '" + organization.getKey() + "'");
-
-    call(organization.getKey(), user.getLogin());
-  }
-
-  @Test
   public void fail_if_insufficient_permissions() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     expectedException.expect(ForbiddenException.class);
@@ -195,5 +230,12 @@ public class AddMemberActionTest {
 
   private void assertMember(String organizationUuid, int userId) {
     assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)).isPresent();
+    Integer defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organizationUuid).get();
+    assertThat(db.getDbClient().groupMembershipDao().selectGroups(db.getSession(), GroupMembershipQuery.builder()
+      .membership(IN)
+      .organizationUuid(organizationUuid).build(),
+      userId, 0, 10))
+        .extracting(GroupMembershipDto::getId)
+        .containsOnly(defaultGroupId.longValue());
   }
 }

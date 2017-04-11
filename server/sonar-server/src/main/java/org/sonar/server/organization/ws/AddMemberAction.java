@@ -30,11 +30,10 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
 
-import static java.lang.String.format;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
@@ -84,23 +83,28 @@ public class AddMemberAction implements OrganizationsWsAction {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "Organization '%s' is not found",
         organizationKey);
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
-
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+      if (isMemberOf(dbSession, organization, user)) {
+        return;
+      }
 
-      OrganizationMemberDto organizationMember = new OrganizationMemberDto()
+      dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
         .setOrganizationUuid(organization.getUuid())
-        .setUserId(user.getId());
-
-      dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
-        .ifPresent(o -> {
-          throw BadRequestException.create(format("User '%s' is already a member of organization '%s'", user.getLogin(), organization.getKey()));
-        });
-
-      dbClient.organizationMemberDao().insert(dbSession, organizationMember);
+        .setUserId(user.getId()));
+      dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(getDefaultGroupId(dbSession, organization)).setUserId(user.getId()));
       dbSession.commit();
       userIndexer.index(user.getLogin());
     }
-
     response.noContent();
   }
+
+  private boolean isMemberOf(DbSession dbSession, OrganizationDto organizationDto, UserDto userDto) {
+    return dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), userDto.getId()).isPresent();
+  }
+
+  int getDefaultGroupId(DbSession dbSession, OrganizationDto organizationDto) {
+    return dbClient.organizationDao().getDefaultGroupId(dbSession, organizationDto.getUuid())
+      .orElseThrow(() -> new IllegalStateException(String.format("Default group doesn't exist on default organization '%s'", organizationDto.getKey())));
+  }
+
 }
