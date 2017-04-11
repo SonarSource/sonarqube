@@ -22,6 +22,8 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.base.Optional;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
+import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,11 +33,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
+import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 
@@ -46,6 +50,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
@@ -233,7 +240,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_only_new_components() {
     // Project and module already exists
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project");
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module");
     dbClient.componentDao().insert(dbTester.getSession(), module);
@@ -387,7 +394,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void nothing_to_persist() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY).setName("Project");
+    ComponentDto project = newProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module");
     dbClient.componentDao().insert(dbTester.getSession(), module);
@@ -462,7 +469,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_module_name_and_description() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project").setDescription("Project description");
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project").setDescription("Project description");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module");
     dbClient.componentDao().insert(dbTester.getSession(), module);
@@ -501,7 +508,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_module_path() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY).setName("Project");
+    ComponentDto project = newProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module").setPath("path");
     dbClient.componentDao().insert(dbTester.getSession(), module);
@@ -528,7 +535,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_module_uuid_when_moving_a_module() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project");
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto moduleA = ComponentTesting.newModuleDto("EDCB", project)
       .setKey("MODULE_A")
@@ -605,7 +612,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void do_not_update_created_at_on_existing_component() {
     Date oldDate = DateUtils.parseDate("2015-01-01");
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project").setCreatedAt(oldDate);
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project").setCreatedAt(oldDate);
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module").setPath("path").setCreatedAt(oldDate);
     dbClient.componentDao().insert(dbTester.getSession(), module);
@@ -623,7 +630,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_components_that_were_previously_removed() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY).setName("Project");
+    ComponentDto project = newProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto removedModule = ComponentTesting.newModuleDto("BCDE", project)
       .setKey(MODULE_KEY)
@@ -725,7 +732,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_module_uuid_when_reactivating_removed_component() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project");
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module");
     ComponentDto removedModule = ComponentTesting.newModuleDto("EDCD", project).setKey("REMOVED_MODULE_KEY").setName("Removed Module").setEnabled(false);
@@ -777,4 +784,70 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(fileReloaded.isEnabled()).isTrue();
   }
 
+  @Test
+  public void persists_new_components_as_private_if_root_does_not_exist_yet_out_of_functional_transaction() {
+    treeRootHolder.setRoot(createSampleProjectComponentTree("ABCD", PROJECT_KEY));
+
+    underTest.execute();
+
+    Stream.of("ABCD", "BCDE", "DEFG", "CDEF")
+      .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate()).isFalse());
+  }
+
+  @Test
+  public void persists_new_components_with_visibility_of_root_in_db_out_of_functional_transaction() {
+    boolean isRootPrivate = new Random().nextBoolean();
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = newProjectDto(organization, "ABCD").setKey(PROJECT_KEY).setName("Project").setPrivate(isRootPrivate);
+    dbTester.components().insertComponent(project);
+    treeRootHolder.setRoot(createSampleProjectComponentTree(project));
+
+    underTest.execute();
+
+    Stream.of("ABCD", "BCDE", "DEFG", "CDEF")
+      .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate())
+        .describedAs("for uuid " + uuid)
+        .isEqualTo(isRootPrivate));
+  }
+
+  @Test
+  public void persists_existing_components_with_visibility_of_root_in_db_out_of_functional_transaction() {
+    boolean isRootPrivate = new Random().nextBoolean();
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = newProjectDto(organization, "ABCD").setKey(PROJECT_KEY).setName("Project").setPrivate(isRootPrivate);
+    dbTester.components().insertComponent(project);
+    ComponentDto module = newModuleDto(project).setUuid("BCDE").setKey("MODULE").setPrivate(!isRootPrivate);
+    dbTester.components().insertComponent(module);
+    dbTester.components().insertComponent(newDirectory(module, "DEFG", "Directory").setKey("DIR").setPrivate(isRootPrivate));
+    treeRootHolder.setRoot(createSampleProjectComponentTree(project));
+
+    underTest.execute();
+
+    Stream.of("ABCD", "BCDE", "BCDE", "BCDE")
+      .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate())
+        .describedAs("for uuid " + uuid)
+        .isEqualTo(isRootPrivate));
+  }
+
+  private ReportComponent createSampleProjectComponentTree(ComponentDto project) {
+    return createSampleProjectComponentTree(project.uuid(), project.key());
+  }
+
+  private ReportComponent createSampleProjectComponentTree(String projectUuid, String projectKey) {
+    return builder(PROJECT, 1).setUuid(projectUuid).setKey(projectKey)
+      .setName("Project")
+      .addChildren(
+        builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE")
+          .setName("Module")
+          .addChildren(
+            builder(Component.Type.DIRECTORY, 3).setUuid("DEFG").setKey("DIR")
+              .setPath("Directory")
+              .addChildren(
+                builder(FILE, 4).setUuid("CDEF").setKey("FILE")
+                  .setPath("file")
+                  .build())
+              .build())
+          .build())
+      .build();
+  }
 }
