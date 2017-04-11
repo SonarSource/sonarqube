@@ -21,6 +21,8 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,7 +49,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
@@ -346,6 +350,75 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     ComponentDto subViewReloaded = getComponentFromDb(SUBVIEW_1_KEY);
     assertThat(subViewReloaded.getCopyResourceUuid()).isEqualTo("NEW_COPY");
+  }
+
+  @Test
+  public void persists_new_components_as_private_if_root_does_not_exist_yet_out_of_functional_transaction() {
+    ComponentDto project = dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert()));
+    treeRootHolder.setRoot(
+      createViewBuilder()
+        .addChildren(
+          createSubView1Builder(null)
+            .addChildren(
+              createProjectView1Builder(project, null).build())
+            .build())
+        .build());
+
+    underTest.execute();
+
+    Stream.of(VIEW_UUID, SUBVIEW_1_UUID, PROJECT_VIEW_1_UUID)
+      .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate()).isFalse());
+  }
+
+  @Test
+  public void persists_new_components_with_private_flag_from_root_in_db_out_of_functional_transaction() {
+    boolean isRootPrivate = new Random().nextBoolean();
+    ComponentDto project = dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert()));
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
+    dbTester.components().insertComponent(view);
+    treeRootHolder.setRoot(
+      createViewBuilder()
+        .addChildren(
+          createSubView1Builder(null)
+            .addChildren(
+              createProjectView1Builder(project, null).build())
+            .build())
+        .build());
+
+    underTest.execute();
+
+    Stream.of(VIEW_UUID, SUBVIEW_1_UUID, PROJECT_VIEW_1_UUID)
+      .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate())
+        .describedAs("for uuid " + uuid)
+        .isEqualTo(isRootPrivate));
+  }
+
+  @Test
+  public void persists_existing_components_with_private_flag_from_root_in_db_out_of_functional_transaction() {
+    boolean isRootPrivate = new Random().nextBoolean();
+    ComponentDto project = dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert()));
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
+    dbTester.components().insertComponent(view);
+    ComponentDto subView = newSubView(view).setUuid("BCDE").setKey("MODULE").setPrivate(!isRootPrivate);
+    dbTester.components().insertComponent(subView);
+    dbTester.components().insertComponent(newProjectCopy("DEFG", project, view).setKey("DIR").setPrivate(isRootPrivate));
+    treeRootHolder.setRoot(
+      createViewBuilder()
+        .addChildren(
+          createSubView1Builder(null)
+            .addChildren(
+              createProjectView1Builder(project, null).build())
+            .build())
+        .build());
+
+    underTest.execute();
+
+    Stream.of(VIEW_UUID, SUBVIEW_1_UUID, PROJECT_VIEW_1_UUID)
+      .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate())
+        .describedAs("for uuid " + uuid)
+        .isEqualTo(isRootPrivate));
   }
 
   private static ViewsComponent.Builder createViewBuilder() {
