@@ -14,7 +14,8 @@
             project_uuid="ABCD"
             id="1"
             kee="ROOT_KEY"
-            name="project"/>
+            name="project"
+            private="[false]"/>
 
   <!-- 2008-11-11 -->
   <!-- Version 0.9 -->

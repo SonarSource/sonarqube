@@ -61,6 +61,7 @@ public class ComponentDtoTest {
     assertThat(componentDto.getCopyResourceUuid()).isEqualTo("uuid_5");
     assertThat(componentDto.getDeveloperUuid()).isEqualTo("uuid_6");
     assertThat(componentDto.getAuthorizationUpdatedAt()).isEqualTo(123456789L);
+    assertThat(componentDto.isPrivate()).isFalse();
   }
 
   @Test

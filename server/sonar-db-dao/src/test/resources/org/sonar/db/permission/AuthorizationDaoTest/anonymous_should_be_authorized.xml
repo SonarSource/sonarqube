@@ -25,7 +25,8 @@
             project_uuid="EDFG"
             uuid="ABCD"
             uuid_path="NOT_USED"
-            module_uuid="EDFG"/>
+            module_uuid="EDFG"
+            private="[false]"/>
   <projects organization_uuid="org1"
             id="302"
             kee="pj-w-snapshot:file"
@@ -33,7 +34,8 @@
             project_uuid="EDFG"
             uuid="BCDE"
             uuid_path="NOT_USED"
-            module_uuid="EDFG"/>
+            module_uuid="EDFG"
+            private="[false]"/>
   <projects organization_uuid="org1"
             id="303"
             kee="pj-w-snapshot:other"
@@ -41,7 +43,8 @@
             project_uuid="EDFG"
             uuid="CDEF"
             uuid_path="NOT_USED"
-            module_uuid="EDFG"/>
+            module_uuid="EDFG"
+            private="[false]"/>
   <projects organization_uuid="org1"
             id="300"
             kee="pj-w-snapshot"
@@ -49,13 +52,15 @@
             uuid_path="NOT_USED"
             root_uuid="EDFG"
             project_uuid="EDFG"
-            module_uuid="[null]"/>
+            module_uuid="[null]"
+            private="[false]"/>
   <projects organization_uuid="org1"
             id="400"
             kee="pj-wo-snapshot"
             uuid="FGHI"
             uuid_path="NOT_USED"
             root_uuid="FGHI"
-            project_uuid="FGHI"/>
+            project_uuid="FGHI"
+            private="[false]"/>
 
 </dataset>
