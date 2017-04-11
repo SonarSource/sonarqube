@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import OrganizationPage from './components/OrganizationPage';
+import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
 import OrganizationProjects from './components/OrganizationProjects';
 import OrganizationFavoriteProjects from './components/OrganizationFavoriteProjects';
 import OrganizationRules from './components/OrganizationRules';
@@ -63,6 +64,10 @@ const routes = [
       {
         path: 'quality_profiles',
         childRoutes: qualityProfilesRoutes
+      },
+      {
+        path: 'extension/:pluginKey/:extensionKey',
+        component: OrganizationPageExtension
       },
       {
         component: OrganizationAdmin,

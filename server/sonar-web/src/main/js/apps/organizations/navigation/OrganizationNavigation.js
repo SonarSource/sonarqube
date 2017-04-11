@@ -22,6 +22,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import OrganizationIcon from '../../../components/ui/OrganizationIcon';
+import type { Organization } from '../../../store/organizations/duck';
 
 const ADMIN_PATHS = [
   'edit',
@@ -35,22 +36,11 @@ const ADMIN_PATHS = [
 export default class OrganizationNavigation extends React.Component {
   props: {
     location: { pathname: string },
-    organization: {
-      avatar?: string,
-      description?: string,
-      key: string,
-      name: string,
-      canAdmin?: boolean,
-      canDelete?: boolean,
-      url?: string
-    }
+    organization: Organization
   };
 
-  renderAdministration() {
-    const { organization, location } = this.props;
-
-    const adminActive = ADMIN_PATHS.some(path =>
-      location.pathname.endsWith(`organizations/${organization.key}/${path}`));
+  renderAdministration(adminActive: boolean) {
+    const { organization } = this.props;
 
     return (
       <li className={adminActive ? 'active' : ''}>
@@ -58,6 +48,7 @@ export default class OrganizationNavigation extends React.Component {
           {translate('layout.settings')}&nbsp;<i className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
+          {this.renderAdminExtensions()}
           <li>
             <Link to={`/organizations/${organization.key}/groups`} activeClassName="active">
               {translate('user_groups.page')}
@@ -98,11 +89,55 @@ export default class OrganizationNavigation extends React.Component {
     );
   }
 
+  renderAdminExtensions() {
+    const extensions = this.props.organization.adminPages || [];
+    return extensions.map(this.renderExtension);
+  }
+
+  renderExtension = (extension: { key: string, name: string }) => {
+    const { organization } = this.props;
+    const pathname = `/organizations/${organization.key}/extension/${extension.key}`;
+    return (
+      <li key={extension.key}>
+        <Link to={pathname} activeClassName="active">
+          {extension.name}
+        </Link>
+      </li>
+    );
+  };
+
+  renderExtensions(moreActive: boolean) {
+    const extensions = this.props.organization.pages || [];
+    if (extensions.length > 0) {
+      return (
+        <li className={moreActive ? 'active' : ''}>
+          <a
+            className="dropdown-toggle"
+            id="organization-navigation-more"
+            data-toggle="dropdown"
+            href="#">
+            {translate('more')}&nbsp;<i className="icon-dropdown" />
+          </a>
+          <ul className="dropdown-menu">
+            {extensions.map(this.renderExtension)}
+          </ul>
+        </li>
+      );
+    } else {
+      return null;
+    }
+  }
+
   render() {
     const { organization, location } = this.props;
 
     const isHomeActive = location.pathname === `organizations/${organization.key}/projects` ||
       location.pathname === `organizations/${organization.key}/projects/favorite`;
+
+    const adminActive = ADMIN_PATHS.some(path =>
+      location.pathname.endsWith(`organizations/${organization.key}/${path}`));
+
+    const moreActive = !adminActive && location.pathname.includes('/extension/');
 
     return (
       <nav className="navbar navbar-context page-container" id="context-navigation">
@@ -166,7 +201,8 @@ export default class OrganizationNavigation extends React.Component {
                   {translate('coding_rules.page')}
                 </Link>
               </li>
-              {organization.canAdmin && this.renderAdministration()}
+              {this.renderExtensions(moreActive)}
+              {organization.canAdmin && this.renderAdministration(adminActive)}
             </ul>
           </div>
         </div>
