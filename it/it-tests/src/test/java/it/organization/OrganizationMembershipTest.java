@@ -225,7 +225,7 @@ public class OrganizationMembershipTest {
       .manageGroupsOpen()
       .manageGroupsSelect("owners")
       .manageGroupsSave()
-      .shouldHaveGroups(1);
+      .shouldHaveGroups(2);
     // admin user
     page.getMembersByIdx(0)
       .manageGroupsOpen()
