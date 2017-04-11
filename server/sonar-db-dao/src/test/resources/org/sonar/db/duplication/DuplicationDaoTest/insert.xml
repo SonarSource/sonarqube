@@ -23,6 +23,7 @@
             enabled="1"
             scope="FIL"
             qualifier="CLA"
-            id="1"/>
+            id="1"
+            private="[false]"/>
 
 </dataset>

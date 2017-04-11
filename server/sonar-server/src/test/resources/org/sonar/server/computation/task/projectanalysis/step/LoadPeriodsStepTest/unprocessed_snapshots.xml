@@ -15,7 +15,8 @@
             kee="PROJECT_KEY"
             name="project"
             long_name="[null]"
-            description="[null]"/>
+            description="[null]"
+            private="[false]"/>
 
   <!-- Unprocessed snapshot -->
   <snapshots id="1000"

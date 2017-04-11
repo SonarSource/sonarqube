@@ -13,6 +13,7 @@
             kee="old key"
             name="old name"
             description="old name"
+            private="[false]"
             tags="[null]"
             long_name="old long name"
             enabled="[false]"

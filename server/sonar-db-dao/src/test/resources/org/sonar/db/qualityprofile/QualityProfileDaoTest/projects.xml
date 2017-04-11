@@ -29,7 +29,8 @@
             kee="org.codehaus.sonar:sonar"
             name="SonarQube"
             enabled="[true]"
-            id="1"/>
+            id="1"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="B"
             uuid_path="NOT_USED"
@@ -38,7 +39,8 @@
             kee="org.codehaus.sonar-plugins.java:java"
             name="SonarQube Java"
             enabled="[true]"
-            id="2"/>
+            id="2"
+            private="[false]"/>
   <projects organization_uuid="org1"
             uuid="C"
             uuid_path="NOT_USED"
@@ -47,7 +49,8 @@
             kee="disabled:project"
             name="Disabled Project"
             enabled="[false]"
-            id="3"/>
+            id="3"
+            private="[false]"/>
 
   <project_qprofiles id="1"
                      project_uuid="A"

@@ -16,6 +16,7 @@
             name="project"
             root_uuid="P1"
             description="[null]"
+            private="[false]"
             tags="[null]"
             language="java"
             copy_component_uuid="[null]"
