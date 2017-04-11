@@ -313,7 +313,7 @@ public class RegisterRules implements Startable {
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
-        dbClient.activeRuleDao().deleteParamsByRuleParam(session, rule.getId(), paramDto.getName());
+        dbClient.activeRuleDao().deleteParamsByRuleParamOfAllOrganizations(session, rule.getId(), paramDto.getName());
         dbClient.ruleDao().deleteRuleParam(session, paramDto.getId());
       } else {
         if (mergeParam(paramDto, paramDef)) {
@@ -339,7 +339,7 @@ public class RegisterRules implements Startable {
         continue;
       }
       // Propagate the default value to existing active rule parameters
-      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleId(session, rule.getId())) {
+      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleIdOfAllOrganizations(session, rule.getId())) {
         ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
         dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
       }
@@ -478,7 +478,7 @@ public class RegisterRules implements Startable {
     for (RuleDefinitionDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        changes.addAll(ruleActivator.deactivate(session, rule));
+        changes.addAll(ruleActivator.deactivateOfAllOrganizations(session, rule));
       }
     }
     return changes;

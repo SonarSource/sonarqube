@@ -40,13 +40,13 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
 
-  List<ActiveRuleDto> selectByRuleId(int ruleId);
+  List<ActiveRuleDto> selectByRuleId(@Param("organizationUuid") String organizationUuid, @Param("ruleId") int ruleId);
 
-  List<ActiveRuleDto> selectByRuleIds(@Param("ruleIds") List<Integer> partitionOfRuleIds);
+  List<ActiveRuleDto> selectByRuleIdOfAllOrganizations(int ruleId);
+
+  List<ActiveRuleDto> selectByRuleIds(@Param("organizationUuid") String organizationUuid, @Param("ruleIds") List<Integer> partitionOfRuleIds);
 
   List<ActiveRuleDto> selectByProfileKey(String key);
-
-  List<ActiveRuleDto> selectAll();
 
   void insertParameter(ActiveRuleParamDto dto);
 

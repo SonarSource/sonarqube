@@ -35,6 +35,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -72,6 +73,7 @@ public class RuleDeleterMediumTest {
   @Before
   public void before() {
     tester.clearDbAndIndexes();
+    tester.get(OrganizationFlags.class).enable(dbSession);
   }
 
   @After

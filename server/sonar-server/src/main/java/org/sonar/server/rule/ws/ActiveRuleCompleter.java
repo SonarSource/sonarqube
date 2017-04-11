@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -39,16 +40,17 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
-import org.sonarqube.ws.Rules.ShowResponse;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.FluentIterable.from;
@@ -97,7 +99,7 @@ public class ActiveRuleCompleter {
       }
     } else {
       // Load details of all active rules
-      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleIds(dbSession, Lists.transform(rules, RuleDto::getId));
+      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleIds(dbSession, query.getOrganizationUuid(), Lists.transform(rules, RuleDto::getId));
       Multimap<RuleKey, ActiveRuleDto> activeRulesByRuleKey = from(activeRuleDtos).index(d -> d.getKey().ruleKey());
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
       for (RuleDto rule : rules) {
@@ -138,23 +140,24 @@ public class ActiveRuleCompleter {
     return activeRuleParamsByActiveRuleKey;
   }
 
-  void completeShow(DbSession dbSession, RuleDto rule, ShowResponse.Builder response) {
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, rule.getId());
+  List<Rules.Active> completeShow(DbSession dbSession, OrganizationDto organization, RuleDefinitionDto rule) {
+    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, organization, rule.getId());
     Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
     for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
       activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());
     }
 
-    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDto::getId));
+    List<Integer> activeRuleIds = activeRuleDtos.stream().map(ActiveRuleDto::getId).collect(Collectors.toList());
+    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
     ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRuleDtos.size(), 10);
     for (ActiveRuleParamDto activeRuleParamDto : activeRuleParamDtos) {
       ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getActiveRuleId());
       activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
     }
 
-    for (ActiveRuleDto activeRule : activeRuleDtos) {
-      response.addActives(buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.getKey())));
-    }
+    return activeRuleDtos.stream()
+      .map(activeRule -> buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.getKey())))
+      .collect(Collectors.toList());
   }
 
   private static Rules.Active buildActiveRuleResponse(ActiveRuleDto activeRule, List<ActiveRuleParamDto> parameters) {

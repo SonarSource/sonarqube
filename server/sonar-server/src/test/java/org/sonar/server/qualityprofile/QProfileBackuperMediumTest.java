@@ -23,6 +23,9 @@ import com.google.common.io.Resources;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import org.junit.After;
@@ -388,10 +391,17 @@ public class QProfileBackuperMediumTest {
       organization, null);
 
     dbSession.clearCache();
-    assertThat(db.openSession(false).selectList("SELECT * FROM active_rules")).isEmpty();
+    assertThat(anyActiveRuleExists()).isFalse();
     List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, organization);
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
+  }
+
+  private boolean anyActiveRuleExists() throws SQLException {
+    try (PreparedStatement preparedStatement = db.openSession(false).getConnection().prepareStatement("SELECT * FROM active_rules");
+      ResultSet resultSet = preparedStatement.executeQuery();) {
+      return resultSet.next();
+    }
   }
 
   private QualityProfileDto get(QProfileName profileName) {

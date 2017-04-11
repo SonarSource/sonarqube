@@ -59,12 +59,16 @@ public class ActiveRuleDao implements Dao {
     throw new RowNotFoundException(String.format("Active rule with key '%s' does not exist", key));
   }
 
-  public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, int ruleId) {
-    return mapper(dbSession).selectByRuleId(ruleId);
+  public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, OrganizationDto organization, int ruleId) {
+    return mapper(dbSession).selectByRuleId(organization.getUuid(), ruleId);
   }
 
-  public List<ActiveRuleDto> selectByRuleIds(DbSession dbSession, List<Integer> ids) {
-    return executeLargeInputs(ids, mapper(dbSession)::selectByRuleIds);
+  public List<ActiveRuleDto> selectByRuleIdOfAllOrganizations(DbSession dbSession, int ruleId) {
+    return mapper(dbSession).selectByRuleIdOfAllOrganizations(ruleId);
+  }
+
+  public List<ActiveRuleDto> selectByRuleIds(DbSession dbSession, String organizationUuid, List<Integer> ids) {
+    return executeLargeInputs(ids, chunk -> mapper(dbSession).selectByRuleIds(organizationUuid, chunk));
   }
 
   /**
@@ -111,7 +115,6 @@ public class ActiveRuleDao implements Dao {
   /**
    * Nested DTO ActiveRuleParams
    */
-
   public List<ActiveRuleParamDto> selectParamsByActiveRuleId(DbSession dbSession, Integer activeRuleId) {
     return mapper(dbSession).selectParamsByActiveRuleId(activeRuleId);
   }
@@ -176,8 +179,8 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
-  public void deleteParamsByRuleParam(DbSession dbSession, int ruleId, String paramKey) {
-    List<ActiveRuleDto> activeRules = selectByRuleId(dbSession, ruleId);
+  public void deleteParamsByRuleParamOfAllOrganizations(DbSession dbSession, int ruleId, String paramKey) {
+    List<ActiveRuleDto> activeRules = selectByRuleIdOfAllOrganizations(dbSession, ruleId);
     for (ActiveRuleDto activeRule : activeRules) {
       for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
         if (activeParam.getKey().equals(paramKey)) {

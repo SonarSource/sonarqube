@@ -340,9 +340,9 @@ public class RuleActivator {
   /**
    * Deactivate a rule on a Quality profile WITHOUT committing db session, WITHOUT checking permissions, and forcing removal of inherited rules
    */
-  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDefinitionDto ruleDto) {
+  public List<ActiveRuleChange> deactivateOfAllOrganizations(DbSession dbSession, RuleDefinitionDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRuleId(dbSession, ruleDto.getId());
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRuleIdOfAllOrganizations(dbSession, ruleDto.getId());
     for (ActiveRuleDto activeRule : activeRules) {
       changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
     }

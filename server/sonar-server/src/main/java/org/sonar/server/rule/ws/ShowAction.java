@@ -113,7 +113,7 @@ public class ShowAction implements RulesWsAction {
         .map(Collections::singletonList).orElseGet(Collections::emptyList);
 
       List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
-      ShowResponse showResponse = buildResponse(dbSession, request,
+      ShowResponse showResponse = buildResponse(dbSession, organization, request,
         new SearchAction.SearchResult()
           .setRules(singletonList(rule))
           .setTemplateRules(templateRules)
@@ -130,13 +130,14 @@ public class ShowAction implements RulesWsAction {
       .orElseThrow(() -> new IllegalStateException(format("Cannot load organization '%s'", organizationKey)));
   }
 
-  private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {
+  private ShowResponse buildResponse(DbSession dbSession, OrganizationDto organization, Request request, SearchAction.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
     responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata()));
 
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      activeRuleCompleter.completeShow(dbSession, rule, responseBuilder);
+      activeRuleCompleter.completeShow(dbSession, organization, rule.getDefinition()).stream()
+        .forEach(responseBuilder::addActives);
     }
 
     return responseBuilder.build();

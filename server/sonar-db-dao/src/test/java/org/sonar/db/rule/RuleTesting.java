@@ -60,6 +60,7 @@ public class RuleTesting {
     return new RuleDefinitionDto()
       .setRepositoryKey(key.repository())
       .setRuleKey(key.rule())
+      .setId(nextInt(100_000))
       .setName("name_" + randomAlphanumeric(5))
       .setDescription("description_" + randomAlphanumeric(5))
       .setDescriptionFormat(Format.HTML)

@@ -44,7 +44,8 @@ public class QualityProfileDbTester {
   /**
    * Create a profile with random field values on the specified organization.
    */
-  public QualityProfileDto insert(OrganizationDto organization, Consumer<QualityProfileDto>... consumers) {
+  @SafeVarargs
+  public final QualityProfileDto insert(OrganizationDto organization, Consumer<QualityProfileDto>... consumers) {
     QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       // default is not randomized yet in QualityProfileTesting
       .setDefault(RandomUtils.nextBoolean())
@@ -82,12 +83,14 @@ public class QualityProfileDbTester {
     dbSession.commit();
   }
 
-  public void activateRule(QualityProfileDto profile, RuleDefinitionDto rule, Consumer<ActiveRuleDto>... consumers) {
+  @SafeVarargs
+  public final ActiveRuleDto activateRule(QualityProfileDto profile, RuleDefinitionDto rule, Consumer<ActiveRuleDto>... consumers) {
     ActiveRuleDto activeRule = createFor(profile, rule).setSeverity(MAJOR);
     for (Consumer<ActiveRuleDto> consumer : consumers) {
       consumer.accept(activeRule);
     }
     dbClient.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
+    return activeRule;
   }
 }
