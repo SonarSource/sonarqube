@@ -22,22 +22,24 @@ package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
+import java.util.List;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
+import org.sonarqube.ws.client.organization.SearchMembersWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import pageobjects.Navigation;
 import pageobjects.organization.MembersPage;
 import util.user.UserRule;
 
 import static it.Category6Suite.enableOrganizationsSupport;
-import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.deleteOrganizationsIfExists;
@@ -247,11 +249,11 @@ public class OrganizationMembershipTest {
   }
 
   private void verifyMembership(String login, String organizationKey, boolean isMember) {
-    // TODO replace with search member WS
-    int count = orchestrator.getDatabase().countSql(format("SELECT COUNT(1) FROM organization_members om " +
-      "INNER JOIN users u ON u.id=om.user_id AND u.login='%s' " +
-      "INNER JOIN organizations o ON o.uuid=om.organization_uuid AND o.kee='%s'", login, organizationKey));
-    assertThat(count).isEqualTo(isMember ? 1 : 0);
+    List<Organizations.User> users = adminClient.organizations().searchMembers(new SearchMembersWsRequest()
+      .setQuery(login)
+      .setSelected("selected")
+      .setOrganization(organizationKey)).getUsersList();
+    assertThat(users).hasSize(isMember ? 1 : 0);
   }
 
   private static String createOrganization() {
