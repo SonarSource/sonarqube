@@ -369,7 +369,7 @@ public class OrganizationTest {
     List<WsUsers.GroupsWsResponse.Group> result = adminClient.users().groups(
       GroupsRequest.builder().setLogin(userLogin).setOrganization(KEY).build()).getGroupsList();
 
-    assertThat(result).extracting(WsUsers.GroupsWsResponse.Group::getName).containsOnly(groupName);
+    assertThat(result).extracting(WsUsers.GroupsWsResponse.Group::getName).containsOnly(groupName, "Members");
   }
 
   private WsComponents.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
